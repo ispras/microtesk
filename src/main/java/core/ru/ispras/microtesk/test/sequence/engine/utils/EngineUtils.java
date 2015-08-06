@@ -314,11 +314,20 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.MODE);
 
-    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
-    final Primitive mode = (Primitive) argument.getValue();
-    final IAddressingModeBuilder builder = callFactory.newMode(mode.getName());
+    final Primitive abstractMode = (Primitive) argument.getValue();
+    return makeMode(engineContext, abstractMode);
+  }
 
-    for (Argument arg : mode.getArguments().values()) {
+  public static IAddressingMode makeMode(
+      final EngineContext engineContext,
+      final Primitive abstractMode) throws ConfigurationException {
+    checkNotNull(engineContext);
+    checkMode(abstractMode);
+
+    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+    final IAddressingModeBuilder builder = callFactory.newMode(abstractMode.getName());
+
+    for (Argument arg : abstractMode.getArguments().values()) {
       final String argName = arg.getName();
       switch (arg.getKind()) {
         case IMM:
@@ -357,7 +366,6 @@ public final class EngineUtils {
     checkArgKind(argument, Argument.Kind.OP);
 
     final Primitive abstractOp = (Primitive) argument.getValue();
-
     return makeOp(engineContext, abstractOp);
   }
 
@@ -547,24 +555,32 @@ public final class EngineUtils {
   }
 
   public static void checkOp(final Primitive op) {
-    if (Primitive.Kind.OP != op.getKind()) {
-      throw new IllegalArgumentException(String.format(
-        "%s is not an operation.", op.getName()));
-    }
+    checkNotNull(op);
+    checkTrue(
+        Primitive.Kind.OP == op.getKind(),
+        String.format("%s is not an operation.", op.getName())
+        );
+  }
+
+  public static void checkMode(final Primitive mode) {
+    checkNotNull(mode);
+    checkTrue(
+        Primitive.Kind.MODE == mode.getKind(),
+        String.format("%s is not an addressing mode.", mode.getName())
+        );
   }
 
   public static void checkRootOp(final Primitive op) {
     checkOp(op);
-    if (!op.isRoot()) {
-      throw new IllegalArgumentException(String.format(
-        "%s is not a root operation!", op.getName()));
-    }
+    checkTrue(op.isRoot(), op.getName() + " is not a root operation!");
   }
 
   public static void checkArgKind(final Argument arg, final Argument.Kind expected) {
-    if (arg.getKind() != expected) {
-      throw new IllegalArgumentException(String.format(
-        "Argument %s has kind %s while %s is expected.", arg.getName(), arg.getKind(), expected));
-    }
+    checkNotNull(arg);
+    checkTrue(
+        arg.getKind() == expected,
+        String.format("Argument %s has kind %s while %s is expected.",
+            arg.getName(), arg.getKind(), expected)
+        );
   }
 }
