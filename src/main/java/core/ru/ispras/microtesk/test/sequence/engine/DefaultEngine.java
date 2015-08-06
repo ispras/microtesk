@@ -22,6 +22,7 @@ import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeCon
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.setUnknownImmValues;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,11 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.sequence.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
@@ -94,9 +98,18 @@ public final class DefaultEngine implements Engine<TestSequence> {
     // Default solver should allocate uninitialized addressing modes.
     allocateModes(abstractSequence);
 
+    // Get modes for output arguments for self-checks if the setting is enabled.
+    final Set<AddressingModeWrapper> outModes = TestSettings.isSelfChecks() ?
+        EngineUtils.getOutAddressingModes(abstractSequence):
+        Collections.<AddressingModeWrapper>emptySet(); 
+
     try {
       for (final Call abstractCall : abstractSequence) {
         processAbstractCall(engineContext, abstractCall);
+      }
+
+      for (final AddressingModeWrapper mode : outModes) {
+        sequenceBuilder.addCheck(new SelfCheck(mode));
       }
 
       final TestSequence sequence = sequenceBuilder.build();

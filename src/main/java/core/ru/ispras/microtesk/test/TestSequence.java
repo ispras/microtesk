@@ -37,6 +37,7 @@ public final class TestSequence {
   public static final class Builder {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
+    private final List<SelfCheck> checks;
 
     private int byteSize;
     private int instructionCount;
@@ -44,6 +45,7 @@ public final class TestSequence {
     public Builder() {
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
+      this.checks = new ArrayList<>();
 
       this.byteSize = 0;
       this.instructionCount = 0;
@@ -84,13 +86,19 @@ public final class TestSequence {
       addTo(body, calls);
     }
 
+    public void addCheck(final SelfCheck check) {
+      checkNotNull(check);
+      checks.add(check);
+    }
+
     public TestSequence build() {
-      return new TestSequence(prologue, body, byteSize, instructionCount);
+      return new TestSequence(prologue, body, checks, byteSize, instructionCount);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
+  private final List<SelfCheck> checks;
 
   private final int byteSize;
   private final int instructionCount;
@@ -101,13 +109,16 @@ public final class TestSequence {
   private TestSequence(
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
+      final List<SelfCheck> checks,
       final int byteSize,
       final int instructionCount) {
     checkNotNull(prologue);
     checkNotNull(body);
+    checkNotNull(checks);
 
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
+    this.checks = Collections.unmodifiableList(checks);
 
     this.byteSize = byteSize;
     this.instructionCount = instructionCount;
@@ -163,5 +174,9 @@ public final class TestSequence {
 
   public int getInstructionCount() {
     return instructionCount;
+  }
+
+  public List<SelfCheck> getChecks() {
+    return checks;
   }
 }

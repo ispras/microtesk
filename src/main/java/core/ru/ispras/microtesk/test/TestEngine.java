@@ -420,6 +420,23 @@ public final class TestEngine {
           Logger.debugHeader("Executing %s", sequenceId);
           executor.executeSequence(concreteSequence, testCaseIndex);
 
+          if (!concreteSequence.getChecks().isEmpty()) {
+            final List<SelfCheck> checks = concreteSequence.getChecks();
+            Logger.debugHeader("Preparing Self-Checks for %s", sequenceId);
+            for (final SelfCheck check : checks) {
+              Logger.debug(check.toString());
+              // TODO
+            }
+
+            /*
+            printer.printToFile("");
+            printer.printCommentToFile("Self Checks");
+
+            // TODO: code inserting self checks.
+            printer.printCommentToFile("Empty");
+            */
+          }
+
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
 
           printer.printToFile("");
@@ -428,14 +445,6 @@ public final class TestEngine {
 
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
           STATISTICS.testCaseNumber++;
-
-          if (TestSettings.isSelfChecks()) {
-            printer.printToFile("");
-            printer.printCommentToFile("Self Checks");
-
-            // TODO: code inserting self checks.
-            printer.printCommentToFile("Empty");
-          }
 
           ++sequenceIndex;
           Logger.debugHeader("");
