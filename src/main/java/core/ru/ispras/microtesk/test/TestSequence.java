@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -36,57 +37,60 @@ public final class TestSequence {
   public static final class Builder {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
+
     private int byteSize;
     private int instructionCount;
 
     public Builder() {
-      this.prologue = new ArrayList<ConcreteCall>();
-      this.body = new ArrayList<ConcreteCall>();
+      this.prologue = new ArrayList<>();
+      this.body = new ArrayList<>();
       this.byteSize = 0;
       this.instructionCount = 0;
     }
 
-    public void addToPrologue(final ConcreteCall call) {
+    private void addTo(final List<ConcreteCall> target, final ConcreteCall call) {
+      checkNotNull(target);
       checkNotNull(call);
-      prologue.add(call);
+
+      target.add(call);
       byteSize += call.getByteSize();
 
       if (call.isExecutable()) {
         instructionCount++;
       }
+    }
+
+    private void addTo(final List<ConcreteCall> target, final List<ConcreteCall> calls) {
+      checkNotNull(calls);
+      for (final ConcreteCall call : calls) {
+        addTo(target, call);
+      }
+    }
+
+    public void addToPrologue(final ConcreteCall call) {
+      addTo(prologue, call);
     }
 
     public void addToPrologue(final List<ConcreteCall> calls) {
-      checkNotNull(calls);
-      for (final ConcreteCall call : calls) {
-        addToPrologue(call);
-      }
+      addTo(prologue, calls);
     }
 
     public void add(final ConcreteCall call) {
-      checkNotNull(call);
-      body.add(call);
-      byteSize += call.getByteSize();
-
-      if (call.isExecutable()) {
-        instructionCount++;
-      }
+      addTo(body, call);
     }
 
     public void add(final List<ConcreteCall> calls) {
-      checkNotNull(calls);
-      for (final ConcreteCall call : calls) {
-        add(call);
-      }
+      addTo(body, calls);
     }
 
     public TestSequence build() {
-      return new TestSequence(byteSize, prologue, body, instructionCount);
+      return new TestSequence(prologue, body, byteSize, instructionCount);
     }
   }
 
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
+
   private final int byteSize;
   private final int instructionCount;
 
@@ -94,16 +98,17 @@ public final class TestSequence {
   private boolean isEndAddressSet = false;
 
   private TestSequence(
-      final int byteSize,
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
+      final int byteSize,
       final int instructionCount) {
     checkNotNull(prologue);
     checkNotNull(body);
 
-    this.byteSize = byteSize;
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
+
+    this.byteSize = byteSize;
     this.instructionCount = instructionCount;
   }
 
@@ -129,10 +134,7 @@ public final class TestSequence {
   }
 
   public long getEndAddress() {
-    if (!isEndAddressSet) {
-      throw new IllegalStateException("Address is not assigned");
-    }
-
+    InvariantChecks.checkTrue(isEndAddressSet, "Address is not assigned");
     return endAddress;
   }
 
