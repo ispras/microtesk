@@ -429,8 +429,11 @@ public final class TestEngine {
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
           STATISTICS.testCaseNumber++;
 
-          ++sequenceIndex;
+          if (TestSettings.isSelfChecks()) {
+            // TODO: code inserting self checks.
+          }
 
+          ++sequenceIndex;
           Logger.debugHeader("");
 
           final TestStatistics after = STATISTICS.copy();
