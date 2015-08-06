@@ -24,8 +24,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
@@ -508,6 +510,38 @@ public final class EngineUtils {
         break;
 
       default:
+      }
+    }
+  }
+
+  public static Set<AddressingModeWrapper> getOutAddressingModes(final List<Call> calls) {
+    checkNotNull(calls);
+
+    final Set<AddressingModeWrapper> modes = new LinkedHashSet<>();
+    for (final Call call : calls) {
+      if (call.isExecutable()) {
+        saveOutAddressingModes(call.getRootOperation(), modes);
+      }
+    }
+    return modes;
+  }
+
+  private static void saveOutAddressingModes(
+      final Primitive root,
+      final Set<AddressingModeWrapper> modes) {
+    for (final Argument argument : root.getArguments().values()) {
+      if (Argument.Kind.MODE != argument.getKind() && 
+          Argument.Kind.OP != argument.getKind()) {
+        continue;
+      }
+
+      final Primitive primitive = (Primitive) argument.getValue();
+      if (Primitive.Kind.MODE == primitive.getKind()) {
+        if (argument.getMode().isOut()) {
+          modes.add(new AddressingModeWrapper(primitive));
+        }
+      } else {
+        saveOutAddressingModes(primitive, modes);
       }
     }
   }
