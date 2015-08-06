@@ -256,15 +256,15 @@ public final class EngineUtils {
   private static List<LabelReference> labelRefs = null; 
 
   public static ConcreteCall makeConcreteCall(
-      final EngineContext engineContext, final Call abstractCall)
-          throws ConfigurationException {
+      final EngineContext engineContext,
+      final Call abstractCall) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractCall);
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);
     }
-    
+
     try {
       labelRefs = new ArrayList<>();
 
@@ -306,8 +306,9 @@ public final class EngineUtils {
     return ((LabelValue) argument.getValue()).getValue();
   }
 
-  public static IAddressingMode makeMode(final EngineContext engineContext, final Argument argument)
-      throws ConfigurationException {
+  public static IAddressingMode makeMode(
+      final EngineContext engineContext,
+      final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.MODE);
 
@@ -347,8 +348,9 @@ public final class EngineUtils {
     return builder.getProduct();
   }
 
-  public static IOperation makeOp(final EngineContext engineContext, final Argument argument)
-      throws ConfigurationException {
+  public static IOperation makeOp(
+      final EngineContext engineContext,
+      final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.OP);
 
@@ -357,8 +359,9 @@ public final class EngineUtils {
     return makeOp(engineContext, abstractOp);
   }
 
-  public static IOperation makeOp(final EngineContext engineContext, final Primitive abstractOp)
-      throws ConfigurationException {
+  public static IOperation makeOp(
+      final EngineContext engineContext,
+      final Primitive abstractOp) throws ConfigurationException {
     checkNotNull(engineContext);
     checkOp(abstractOp);
 
