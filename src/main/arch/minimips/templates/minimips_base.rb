@@ -99,6 +99,31 @@ class MiniMipsBaseTemplate < Template
     preparator(:target => 'REG', :mask => "XXXX0000") {
       lui target, value(16, 31)
     }
+
+    # The code below specifies a comparator sequence to be used in self-checking tests
+    # to test values in the specified register (target) accessed via the REG
+    # addressing mode.
+    #
+    # Comparators are described using the same syntax as in preparators and can be
+    # overridden in the same way..
+    #
+    # Default comparator: It is used when no special case is applicable.
+    #
+    comparator(:target => 'REG') {
+      lui  at, value(16, 31)
+      addi at, target, value(0, 15)
+
+      bne at, target, :check_failed
+      nop
+    }
+
+    #
+    # Special case: Target is $zero register. Since it is read only and
+    # always equal zero, it makes no sence to test it.
+    #
+    comparator(:target => 'REG', :arguments => {:i => 0}) {
+      # Empty
+    }
   end
 
   def post

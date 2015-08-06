@@ -172,7 +172,7 @@ public final class Printer {
    *         associated with an instruction call.
    */
 
-  private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
+  public void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
     for (final ConcreteCall call : calls) {
       if (call.getOrigin() != null) {
         printText(String.format(TestSettings.getOriginFormat(), call.getOrigin()));
@@ -237,7 +237,7 @@ public final class Printer {
    * @param text Text to be printed.
    */
 
-  private void printNote(final String text) {
+  public void printNote(final String text) {
     printToScreen(text);
     if (TestSettings.isCommentsEnabled()) {
       printCommentToFile(text);

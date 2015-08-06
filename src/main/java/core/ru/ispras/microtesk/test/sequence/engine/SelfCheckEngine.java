@@ -20,6 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -63,6 +64,7 @@ public final class SelfCheckEngine {
       final TestSequence.Builder sequenceBuilder,
       final SelfCheck check) throws ConfigurationException {
     InvariantChecks.checkNotNull(check);
+    Logger.debug("Processing %s...", check);
 
     final Primitive abstractMode = check.getMode().getModePrimitive();
     final IAddressingMode concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
@@ -70,12 +72,14 @@ public final class SelfCheckEngine {
     final BitVector value =
         concreteMode.access().load().getRawData();
 
+    Logger.debug("Expected value is 0x%s", value.toHexString());
+
     final Preparator comparator =
         engineContext.getPreparators().getComparator(abstractMode, value);
 
     if (null == comparator) {
-      throw new GenerationAbortedException(String.format(
-          "No suitable comparator is found for %s.", abstractMode.getSignature()));
+      throw new GenerationAbortedException(
+          String.format("No suitable comparator is found for %s.", check.getMode()));
     }
 
     final List<Call> abstractCalls =

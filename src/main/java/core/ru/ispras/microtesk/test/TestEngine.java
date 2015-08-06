@@ -44,6 +44,7 @@ import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Block;
@@ -420,21 +421,12 @@ public final class TestEngine {
           Logger.debugHeader("Executing %s", sequenceId);
           executor.executeSequence(concreteSequence, testCaseIndex);
 
-          if (!concreteSequence.getChecks().isEmpty()) {
-            final List<SelfCheck> checks = concreteSequence.getChecks();
+          final TestSequence selfCheckSequence;
+          if (TestSettings.isSelfChecks()) {
             Logger.debugHeader("Preparing Self-Checks for %s", sequenceId);
-            for (final SelfCheck check : checks) {
-              Logger.debug(check.toString());
-              // TODO
-            }
-
-            /*
-            printer.printToFile("");
-            printer.printCommentToFile("Self Checks");
-
-            // TODO: code inserting self checks.
-            printer.printCommentToFile("Empty");
-            */
+            selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
+          } else {
+            selfCheckSequence = null;
           }
 
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
@@ -442,10 +434,23 @@ public final class TestEngine {
           printer.printToFile("");
           printer.printSubheaderToFile(sequenceId);
           printer.printSequence(concreteSequence);
-
           STATISTICS.instructionCount += concreteSequence.getInstructionCount();
-          STATISTICS.testCaseNumber++;
 
+          if (null != selfCheckSequence) {
+            printer.printText("");
+            printer.printNote("Self Checks");
+
+            final List<ConcreteCall> selfCheckCalls = selfCheckSequence.getAll();
+            if (selfCheckCalls.isEmpty()) {
+              printer.printNote("Empty");
+            } else {
+              printer.printCalls(selfCheckCalls);
+            }
+
+            STATISTICS.instructionCount += selfCheckSequence.getInstructionCount();
+          }
+
+          STATISTICS.testCaseNumber++;
           ++sequenceIndex;
           Logger.debugHeader("");
 
