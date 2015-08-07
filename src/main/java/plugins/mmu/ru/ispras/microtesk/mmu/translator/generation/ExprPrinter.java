@@ -27,6 +27,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -42,7 +43,61 @@ final class ExprPrinter extends MapBasedPrinter {
     return instance;
   }
 
-  private final Deque<Map<String, Object>> variableMappings = new ArrayDeque<>();
+  private static final class VariableMapping {
+    private final String key;
+    private final String variable;
+    private final String field;
+
+    public VariableMapping(
+        final String key,
+        final String variable) {
+      this(key, variable, null);
+    }
+
+    public VariableMapping(
+        final String key,
+        final String variable,
+        final String field) {
+      InvariantChecks.checkNotNull(key);
+      InvariantChecks.checkNotNull(variable);
+
+      this.key = key;
+      this.variable = variable;
+      this.field = field;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public String getText() { 
+      return getText(false);
+    }
+
+    public String getText(final boolean isLhs) {
+      if (null == field) {
+        return variable;
+      }
+
+      return String.format(
+          isLhs ? "%s.setField(\"%s\", " : "%s.getField(\"%s\")",
+          variable,
+          field
+          );
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "%s -> %s%s",
+          key,
+          variable,
+          field != null ? String.format("[\"%s\"]", field) : ""
+          );
+    }
+  }
+
+  private final Deque<Map<String, VariableMapping>> variableMappings = new ArrayDeque<>();
 
   private ExprPrinter() {
     addMapping(StandardOperation.EQ, "", ".equals(", ")");
@@ -74,7 +129,7 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   public void pushVariableScope() {
-    variableMappings.push(new HashMap<String, Object>());
+    variableMappings.push(new HashMap<String, VariableMapping>());
   }
 
   public void popVariableScope() {
@@ -82,29 +137,28 @@ final class ExprPrinter extends MapBasedPrinter {
     variableMappings.pop();
   }
 
-  public void addVariableMapping(final String variableName, final Object text) {
-    InvariantChecks.checkNotNull(variableName);
-    InvariantChecks.checkNotNull(text);
-    variableMappings.peek().put(variableName, text);
-  }
-
-  private String getVariableMapping(final String variableName) {
-    for (final Map<String, Object> scope : variableMappings) {
-      final Object mapping = scope.get(variableName);
-      if (mapping != null) {
-        return mapping.toString();
-      }
-    }
-
-    return variableName;
-  }
-
   public void addVariableMappings(final Variable variable, final String mapping) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(mapping);
 
-    addVariableMapping(variable.getName(), mapping);
+    addVariableMapping(new VariableMapping(variable.getName(), mapping));
     addVariableFieldMappings(variable.getName(), variable.getType(), mapping, "");
+  }
+
+  private void addVariableMapping(final VariableMapping variableMapping) {
+    InvariantChecks.checkNotNull(variableMapping);
+    variableMappings.peek().put(variableMapping.getKey(), variableMapping);
+  }
+
+  private String getVariableMapping(final String variableName) {
+    for (final Map<String, VariableMapping> scope : variableMappings) {
+      final VariableMapping mapping = scope.get(variableName);
+      if (mapping != null) {
+        return mapping.getText();
+      }
+    }
+
+    return variableName;
   }
 
   private void addVariableFieldMappings(
@@ -115,9 +169,8 @@ final class ExprPrinter extends MapBasedPrinter {
     for (final Map.Entry<String, Type> e : type.getFields().entrySet()) {
       final String variableName = name + "." + e.getKey();
       final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey();
-      final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
 
-      addVariableMapping(variableName, mappingName);
+      addVariableMapping(new VariableMapping(variableName, mapping, fieldName));
       addVariableFieldMappings(variableName, e.getValue(), mapping, fieldName);
     }
   }
