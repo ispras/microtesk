@@ -51,6 +51,9 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.OR, "", " || ", "");
     addMapping(StandardOperation.NOT, "!", "" , "");
 
+    addMapping(StandardOperation.BVCONCAT,
+        "BitVector.newMapping(", ", ", ")" );
+
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
 
@@ -63,6 +66,8 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVUGE, "BitVectorMath.uge(", ", ", ").equals(BitVector.TRUE)");
 
     addMapping(StandardOperation.BVADD, "BitVectorMath.add(", ", ", ")");
+    addMapping(StandardOperation.BVSUB, "BitVectorMath.sub(", ", ", ")");
+    addMapping(StandardOperation.BVMUL, "BitVectorMath.mul(", ", ", ")");
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
