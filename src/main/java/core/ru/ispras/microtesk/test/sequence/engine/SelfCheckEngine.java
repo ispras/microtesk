@@ -16,10 +16,12 @@ package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -29,6 +31,7 @@ import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.Primitive;
 
@@ -87,7 +90,28 @@ public final class SelfCheckEngine {
 
     for (final Call abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
+      patchLabels(concreteCall);
       sequenceBuilder.add(concreteCall);
+    }
+  }
+
+  private static void patchLabels(final ConcreteCall call) {
+    for (final LabelReference labelRef : call.getLabelReferences()) {
+      labelRef.resetTarget();
+
+      final String name = labelRef.getReference().getName();
+      final BigInteger value = labelRef.getArgumentValue();
+
+      final String text = call.getText();
+      final String pattern;
+      if (null != value) {
+        pattern = String.format("<label>%d", labelRef.getArgumentValue());
+      } else {
+        pattern = "<label>([0-9]+|0x[0-9A-Fa-f]+)";
+      }
+
+      final String patchedText = text.replaceFirst(pattern, name);
+      call.setText(patchedText);
     }
   }
 }

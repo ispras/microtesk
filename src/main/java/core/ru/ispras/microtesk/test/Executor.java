@@ -303,7 +303,7 @@ final class Executor {
       labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
     }
   }
-  
+
   private static void registerExceptionHandlers(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
@@ -332,7 +332,7 @@ final class Executor {
       }
     }
   }
-  
+
   private static void patchLabels(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
