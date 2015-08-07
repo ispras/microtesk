@@ -62,7 +62,7 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
   private void buildHeader(final ST st) {
     final String baseName = String.format("%s<%s, %s>",
-        MEMORY_CLASS.getSimpleName(),
+        MEMORY_CLASS.getName(),
         DATA_CLASS.getSimpleName(),
         memory.getAddress().getId());
 
