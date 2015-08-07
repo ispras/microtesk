@@ -6,6 +6,13 @@
  2015/03/24 MicroTESK 2.2 beta
 --------------------------------------------------------------------------------
 
+ 2015/08/07 MicroTESK 2.2.14 beta
+ 
+ The new build contains the following changes:
+ 
+ - Support for self-checking test program generation was implemented
+ - Some bug fixes and general improvements were made
+
  2015/07/30 MicroTESK 2.2.13 beta
 
  The new build contains the following changes:
