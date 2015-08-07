@@ -26,6 +26,7 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
@@ -112,9 +113,16 @@ public abstract class STBBuilderBase {
     st.add("stmts", "");
   }
 
+  protected final void buildStmts(final ST st, final STGroup group, final List<Stmt> stmts) {
+    for (final Stmt stmt : stmts) {
+      buildStmt(st, group, stmt);
+    }
+  }
+
   protected final void buildStmt(final ST st, final STGroup group, final Stmt stmt) {
     switch(stmt.getKind()) {
       case ASSIGN:
+        buildStmtAssign(st, group, (StmtAssign) stmt);
         break;
 
       case IF:
@@ -135,10 +143,37 @@ public abstract class STBBuilderBase {
     }
   }
 
-  protected final void buildStmts(final ST st, final STGroup group, final List<Stmt> stmts) {
-    for (final Stmt stmt : stmts) {
-      buildStmt(st, group, stmt);
+  /*
+  private boolean isField(final String name) {
+    return removePrefix(name).indexOf('.') != -1;
+  }
+ */
+
+  private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
+    /*
+    final Node right = stmt.getRight();
+    final Node left = stmt.getLeft();
+    System.out.println("!!! " + left + " = " + right);
+    System.out.println("!!! " + left.getUserData());
+
+    final String rightText = ExprPrinter.get().toString(right);
+
+    if (left.getKind() == Node.Kind.VARIABLE) {
+      if (left.getUserData() instanceof Variable) {
+        final Variable variable = (Variable) left.getUserData();
+        if (isField(variable.getName())) {
+          // TODO
+        } else {
+          final String leftText = ExprPrinter.get().toString(left);
+          st.add("stmts", String.format("%s = %s;", leftText, rightText));
+        }
+      } else {
+        // TODO
+      }
+    } else {
+      // TODO
     }
+    */
   }
 
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
