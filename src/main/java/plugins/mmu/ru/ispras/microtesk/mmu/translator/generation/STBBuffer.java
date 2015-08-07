@@ -35,12 +35,26 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
   private static final String DATA_NAME = "data";
 
   private final Buffer buffer;
+  private final Buffer parentBuffer;
+  private final boolean isView;
 
   public STBBuffer(final String packageName, final Buffer buffer) {
     super(packageName);
 
     InvariantChecks.checkNotNull(buffer);
     this.buffer = buffer;
+    this.parentBuffer = getParentBuffer(buffer);
+    this.isView = buffer != parentBuffer;
+  }
+
+  private static Buffer getParentBuffer(final Buffer buffer) {
+    Buffer parent = buffer;
+
+    while (null != parent.getParent()) {
+      parent = parent.getParent();
+    }
+
+    return parent;
   }
 
   @Override
@@ -74,7 +88,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
 
     final String baseName = String.format("%s<%s, %s>",
         CACHE_CLASS.getSimpleName(),
-        String.format("%s.Entry", buffer.getId()),
+        String.format("%s.Entry", parentBuffer.getId()),
         buffer.getAddress().getId()
         );
 
@@ -86,6 +100,10 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
   }
 
   private void buildEntry(final ST st, final STGroup group) {
+    if (isView) {
+      return;
+    }
+
     final ST stEntry = group.getInstanceOf("entry");
 
     final Type type = buffer.getEntry();
@@ -134,6 +152,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
     buildNewLine(st);
     final ST stMatcher = group.getInstanceOf("matcher");
 
+    stMatcher.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);

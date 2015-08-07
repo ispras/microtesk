@@ -48,10 +48,10 @@ private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>
 };
 >>
 
-matcher(addr_type, addr_name, data_name, expr) ::= <<
-private static final Matcher\<Entry, <addr_type>\> MATCHER = new Matcher\<Entry, <addr_type>\>() {
+matcher(entry_type, addr_type, addr_name, data_name, expr) ::= <<
+private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\<<entry_type>, <addr_type>\>() {
   @Override
-  public boolean areMatching(final Entry <data_name>, final <addr_type> <addr_name>) {
+  public boolean areMatching(final <entry_type> <data_name>, final <addr_type> <addr_name>) {
     return <expr>;
   }
 };
