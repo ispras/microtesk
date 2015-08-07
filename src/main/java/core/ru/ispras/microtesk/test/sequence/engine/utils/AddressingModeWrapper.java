@@ -104,7 +104,7 @@ public final class AddressingModeWrapper {
         return false;
       }
 
-      if (thisArg.getImmediateValue() != otherArg.getImmediateValue()) {
+      if (!thisArg.getImmediateValue().equals(otherArg.getImmediateValue())) {
         return false;
       }
     }
