@@ -52,7 +52,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.NOT, "!", "" , "");
 
     addMapping(StandardOperation.BVCONCAT,
-        "BitVector.newMapping(", ", ", ")" );
+        "BitVector.newMapping(", ", ", ")");
 
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
@@ -117,7 +117,7 @@ final class ExprPrinter extends MapBasedPrinter {
       final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey();
       final String mappingName = String.format("%s.getField(\"%s\")", mapping, fieldName);
 
-      ExprPrinter.get().addVariableMapping(variableName, mappingName);
+      addVariableMapping(variableName, mappingName);
       addVariableFieldMappings(variableName, e.getValue(), mapping, fieldName);
     }
   }
