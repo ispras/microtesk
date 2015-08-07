@@ -21,6 +21,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 import ru.ispras.microtesk.model.api.data.operations.ArithmBinary;
 import ru.ispras.microtesk.model.api.data.operations.ArithmDiv;
@@ -301,7 +302,20 @@ public final class DataEngine {
   }
 
   public static Data coerce(final Type type, final Data value) {
-    //TODO: MAY NEED REVIEW (CODED IN A HURRY)
+    if (type.equals(value.getType())) {
+      return value;
+    }
+
+    // NOTE: Restriction. Currently, coercion supported only for INT, CARD, BOOL.
+    // For other types, the result is undefined.
+
+    InvariantChecks.checkTrue(
+        type.getTypeId().isInteger(),
+        String.format("Coercion to %s is not supported.", type));
+
+    InvariantChecks.checkTrue(
+        value.getType().getTypeId().isInteger(),
+        String.format("Coercion from %s is not supported.", value.getType()));
 
     // Currently, sign extension applies only to INT.
     final boolean signExt =

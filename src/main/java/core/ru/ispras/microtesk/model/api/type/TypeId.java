@@ -36,7 +36,7 @@ interface TypeCreator {
 
 public enum TypeId implements TypeCreator {
 
-  INT (1) {
+  INT (1, true) {
     @Override
     public Type createWithParams(final int ... params) {
       checkParamCount(params.length);
@@ -44,7 +44,7 @@ public enum TypeId implements TypeCreator {
     }
   },
 
-  CARD (1) {
+  CARD (1, true) {
     @Override
     public Type createWithParams(final int... params) {
       checkParamCount(params.length);
@@ -52,7 +52,7 @@ public enum TypeId implements TypeCreator {
     }
   },
 
-  FLOAT(2) {
+  FLOAT(2, false) {
     @Override
     public Type createWithParams(final int... params) {
       checkParamCount(params.length);
@@ -62,7 +62,7 @@ public enum TypeId implements TypeCreator {
     }
   },
 
-  FIX (2) {
+  FIX (2, false) {
     @Override
     public Type createWithParams(final int... params) {
       checkParamCount(params.length);
@@ -74,7 +74,7 @@ public enum TypeId implements TypeCreator {
   // RANGE, // NOT SUPPORTED IN THIS VERSION
   // ENUM,  // NOT SUPPORTED IN THIS VERSION
 
-  BOOL (1) {
+  BOOL (1, true) {
     @Override
     public Type createWithParams(final int... params) {
       checkParamCount(params.length);
@@ -83,8 +83,15 @@ public enum TypeId implements TypeCreator {
   };
 
   private final int paramCount;
-  private TypeId(int paramCount) {
+  private final boolean isInteger;
+
+  private TypeId(final int paramCount, final boolean isInteger) {
     this.paramCount = paramCount;
+    this.isInteger = isInteger;
+  }
+
+  public boolean isInteger() {
+    return isInteger;
   }
 
   void checkParamCount(final int paramCount) {
