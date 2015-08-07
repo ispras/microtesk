@@ -64,8 +64,8 @@ class MiniMipsBaseTemplate < Template
     # is applicable.
     #
     preparator(:target => 'REG') {
-      lui  target, value(16, 31)
-      addi target, target, value(0, 15)
+      lui target, value(16, 31)
+      ori target, target, value(0, 15)
     }
 
     #
@@ -77,7 +77,7 @@ class MiniMipsBaseTemplate < Template
     }
 
     #
-    # Special case: Value equals 0x00000000. In the case, it is
+    # Special case: Value equals 0x00000000. In this case, it is
     # more convenient to use $zero register to reset the target.
     #
     preparator(:target => 'REG', :mask => "00000000") {
@@ -89,7 +89,7 @@ class MiniMipsBaseTemplate < Template
     # only one initializing instruction is enough.
     #
     preparator(:target => 'REG', :mask => "0000XXXX") {
-      addi target, zero, value(0, 15)
+      ori target, zero, value(0, 15)
     }
 
     #
@@ -110,8 +110,8 @@ class MiniMipsBaseTemplate < Template
     # Default comparator: It is used when no special case is applicable.
     #
     comparator(:target => 'REG') {
-      lui  at, value(16, 31)
-      addi at, target, value(0, 15)
+      lui at, value(16, 31)
+      ori at, target, value(0, 15)
 
       bne at, target, :check_failed
       nop
@@ -123,6 +123,15 @@ class MiniMipsBaseTemplate < Template
     #
     comparator(:target => 'REG', :arguments => {:i => 0}) {
       # Empty
+    }
+
+    #
+    # Special case: Value equals 0x00000000. In this case, it is
+    # more convenient to test the target against the $zero register.
+    #
+    comparator(:target => 'REG', :mask => "00000000") {
+      bne zero, target, :check_failed
+      nop
     }
   end
 
