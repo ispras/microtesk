@@ -313,7 +313,7 @@ public final class TestEngine {
 
         if (!postBlock.isEmpty()) {
           try {
-            processPreOrPostBlock(postBlock);
+            processPreOrPostBlock(postBlock, "Epilogue");
           } catch (ConfigurationException e) {
             Logger.error(e.getMessage());
           }
@@ -378,7 +378,7 @@ public final class TestEngine {
 
             if (!preBlockTestSequences.isEmpty()) {
               try {
-                executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences);
+                executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences, "Prologue");
               } catch (ConfigurationException e) {
                 Logger.error(e.getMessage());
               }
@@ -483,7 +483,7 @@ public final class TestEngine {
 
             if (!postBlock.isEmpty()) {
               try {
-                processPreOrPostBlock(postBlock);
+                processPreOrPostBlock(postBlock, "Epilogue");
               } catch (ConfigurationException e) {
                 Logger.error(e.getMessage());
               }
@@ -507,9 +507,11 @@ public final class TestEngine {
       } // Abstract sequence iterator
     }
 
-    private void processPreOrPostBlock(final Block block) throws ConfigurationException {
+    private void processPreOrPostBlock(
+        final Block block,
+        final String headerText) throws ConfigurationException {
       final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
-      executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences);
+      executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
     }
 
     /**
@@ -582,12 +584,14 @@ public final class TestEngine {
     }
 
     private void executeAndPrintTestSequencesOfPreOrPostBlock(
-        final List<TestSequence> concreteSequences) throws ConfigurationException {
+        final List<TestSequence> concreteSequences,
+        final String headerText) throws ConfigurationException {
+
       for (final TestSequence concreteSequence : concreteSequences) {
-        Logger.debugHeader("Executing");
+        Logger.debugHeader("Executing %s", headerText);
         executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
 
-        Logger.debugHeader("Printing to %s", fileName);
+        Logger.debugHeader("Printing %s to %s", headerText, fileName);
         printer.printSequence(concreteSequence);
 
         STATISTICS.instructionCount += concreteSequence.getInstructionCount();
