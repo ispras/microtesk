@@ -136,7 +136,18 @@ class MiniMipsBaseTemplate < Template
   end
 
   def post
-    # Place your finalization code here
+    j :exit
+    nop
+    newline
+
+    label :check_failed
+    comment 'Here must be code for reporting errors detected by self-checks'
+    nop
+    newline
+
+    label :exit
+    comment 'Here must be test program termination code'
+    nop
   end
 
   # Alias for the NOP instruction (MIPS idiom)
