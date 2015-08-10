@@ -318,15 +318,9 @@ $res = n;
 //==================================================================================================
 
 constant returns [Node res]
-@init {
-int radix = 10;
-}
-@after {
-$res = NodeValue.newInteger($t.text, radix);
-}
-    : t=CARD_CONST   { radix = 10; }
-    | t=BINARY_CONST { radix = 2; }
-    | t=HEX_CONST    { radix = 16; }
+    : t=CARD_CONST   { $res = NodeValue.newInteger($t.text, 10); }
+    | t=BINARY_CONST { $res = NodeValue.newInteger($t.text, 2);  }
+    | t=HEX_CONST    { $res = NodeValue.newInteger($t.text, 16); }
     ;
 
 //==================================================================================================
