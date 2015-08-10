@@ -116,7 +116,11 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     System.out.println(spec);
   }
 
-  private MmuAction newBranch(String text) {
+  private void registerAction(final MmuAction action) {
+    spec.registerAction(action);
+  }
+
+  private MmuAction newBranch(final String text) {
     return new MmuAction(String.format("Branch_%d[%s]", actionIndex++, text));
   }
 
@@ -196,18 +200,18 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     }
   }
 
-  private void registerControlFlowForMemory(Memory memory) {
+  private void registerControlFlowForMemory(final Memory memory) {
     final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
 
     final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getVariable()));
-    spec.registerAction(root);
+    registerAction(root);
     spec.setStartAction(root);
 
     final MmuAction start = new MmuAction("START");
-    spec.registerAction(start);
+    registerAction(start);
 
     // The control flow graph terminates in the STOP node if no exceptions are raised.
-    spec.registerAction(STOP);
+    registerAction(STOP);
 
     // The load part of the control flow graph
     spec.registerTransition(new MmuTransition(root, start, new MmuGuard(MemoryOperation.LOAD)));
@@ -295,7 +299,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
         new AssignmentBuilder(name, lhs, rhs, context);
 
     final MmuAction target = assignmentBuilder.build();
-    spec.registerAction(target);
+    registerAction(target);
 
     final MmuTransition transition = new MmuTransition(source, target);
     spec.registerTransition(transition);
@@ -363,7 +367,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
   private MmuAction registerIf(final MmuAction source, final StmtIf stmt) {
     final MmuAction join = newJoin();
-    spec.registerAction(join);
+    registerAction(join);
 
     MmuAction current = source;
 
@@ -375,7 +379,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           new GuardExtractor(spec, context.newAtomExtractor(), condition);
 
       final MmuAction ifTrueStart = newBranch(condition.toString());
-      spec.registerAction(ifTrueStart);
+      registerAction(ifTrueStart);
 
       final MmuGuard guardIfTrue = guardExtractor.getGuard();
       spec.registerTransition(new MmuTransition(current, ifTrueStart, guardIfTrue));
@@ -386,7 +390,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       }
 
       final MmuAction ifFalseStart = newBranch("not " + condition.toString());
-      spec.registerAction(ifFalseStart);
+      registerAction(ifFalseStart);
 
       final MmuGuard guardIfFalse = guardExtractor.getNegatedGuard();
       spec.registerTransition(new MmuTransition(current, ifFalseStart, guardIfFalse));
@@ -406,7 +410,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final String name = stmt.getMessage();
 
     final MmuAction target = new MmuAction(name);
-    spec.registerAction(target);
+    registerAction(target);
 
     final MmuTransition transition = new MmuTransition(source, target);
     spec.registerTransition(transition);
