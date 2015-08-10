@@ -88,7 +88,8 @@ declaration
 //==================================================================================================
 
 let
-    : ^(LET id=ID {declare($id, MmuSymbolKind.LET, false);} value=expr[0])
+    : ^(LET id=ID {declare($id, MmuSymbolKind.LET, false);} e=expr[0])
+       {newLet($id, $e.res);}
     ;
 
 //==================================================================================================

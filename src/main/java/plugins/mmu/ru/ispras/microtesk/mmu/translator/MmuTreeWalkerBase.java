@@ -90,6 +90,26 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
+   * Adds a let expression (static constant) to the IR.
+   * 
+   * @param id Constant id.
+   * @param value Constant value.
+   * @throws SemanticException (1) if the value expression is {@code null};
+   *                           (2) if value expression is not a constant value.
+   */
+
+  protected final void newLet(final CommonTree id, final Node value) throws SemanticException {
+    checkNotNull(id, value);
+
+    if (value.getKind() != Node.Kind.VALUE) {
+      raiseError(where(id), String.format(
+          "Illegal let definition. A constant expression is required: %s", value));
+    }
+
+    ir.addLet(id.getText(), (NodeValue) value);
+  }
+
+  /**
    * Creates an Address IR object and adds it to the MMU IR.
    * 
    * @param addressId Address identifier.

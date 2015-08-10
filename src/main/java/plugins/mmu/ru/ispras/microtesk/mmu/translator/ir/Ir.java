@@ -71,7 +71,7 @@ public final class Ir {
     return Collections.unmodifiableMap(types);
   }
 
-  public void addAddress(final String id, final NodeValue let) {
+  public void addLet(final String id, final NodeValue let) {
     checkNotNull(id);
     checkNotNull(let);
     lets.put(id, let);
