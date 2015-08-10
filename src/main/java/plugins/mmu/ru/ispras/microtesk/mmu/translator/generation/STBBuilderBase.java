@@ -29,6 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
@@ -133,6 +134,10 @@ public abstract class STBBuilderBase {
         buildStmtException(st, (StmtException) stmt);
         break;
 
+      case MARK:
+        buildStmtMark(st, (StmtMark) stmt);
+        break;
+
       case TRACE:
         buildStmtTrace(st, (StmtTrace) stmt);
         break;
@@ -200,6 +205,10 @@ public abstract class STBBuilderBase {
 
   private void buildStmtException(final ST st, final StmtException stmt) {
     st.add("stmts", String.format("exception(\"%s\");", stmt.getMessage()));
+  }
+
+  private void buildStmtMark(final ST st, final StmtMark stmt) {
+    // TODO
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {

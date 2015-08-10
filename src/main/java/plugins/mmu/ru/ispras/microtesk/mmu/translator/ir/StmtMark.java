@@ -17,21 +17,21 @@ package ru.ispras.microtesk.mmu.translator.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class StmtMark extends Stmt {
-  private final String message;
+  private final String name;
 
-  public StmtMark(final String message) {
+  public StmtMark(final String name) {
     super(Kind.MARK);
 
-    checkNotNull(message);
-    this.message = message;
+    checkNotNull(name);
+    this.name = name;
   }
 
-  public String getMessage() {
-    return message;
+  public String getName() {
+    return name;
   }
 
   @Override
   public String toString() {
-    return String.format("stmt mark[\"%s\"]", message);
+    return String.format("stmt mark[\"%s\"]", name);
   }
 }

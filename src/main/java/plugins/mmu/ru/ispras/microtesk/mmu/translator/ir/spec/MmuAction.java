@@ -95,6 +95,7 @@ public final class MmuAction {
 
   @Override
   public String toString() {
-    return name;
+    return marks.isEmpty() ?
+        name : String.format("%s, marks: %s", name, marks);
   }
 }

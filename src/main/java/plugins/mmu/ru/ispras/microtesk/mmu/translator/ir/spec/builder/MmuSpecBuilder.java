@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -64,6 +66,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private MmuSubsystem spec = null;
   private MmuSpecContext context = null;
   private IntegerVariableTracker variables = null;
+  private List<String> currentMarks = null;
 
   // Data variable for MMU (assignments to it must be ignored when building the control flow)
   private IntegerVariable data = null;
@@ -117,7 +120,21 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   }
 
   private void registerAction(final MmuAction action) {
+    if (null != currentMarks) {
+      for (final String mark : currentMarks) {
+        action.addMark(mark);
+      }
+      currentMarks = null;
+    }
+
     spec.registerAction(action);
+  }
+
+  private void registerMark(final StmtMark stmt) {
+    if (null == currentMarks) {
+      currentMarks = new ArrayList<>();
+    }
+    currentMarks.add(stmt.getName());
   }
 
   private MmuAction newBranch(final String text) {
@@ -232,6 +249,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           "Undefined attribute: %s.%s", memory.getId(), attributeName));
     }
 
+    currentMarks = null;
     final MmuAction stop = registerControlFlow(source, attribute.getStmts());
     if (null != stop) {
       spec.registerTransition(new MmuTransition(stop, STOP));
@@ -253,6 +271,10 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
         case IF:
           current = registerIf(current, (StmtIf) stmt);
+          break;
+          
+        case MARK:
+          registerMark((StmtMark) stmt);
           break;
 
         case TRACE: // Ignored
