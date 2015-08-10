@@ -24,7 +24,7 @@ import ru.ispras.fortress.expression.NodeValue;
 
 public final class Ir {
   private final String modelName;
-  private final Map<String, NodeValue> lets;
+  private final Map<String, NodeValue> constants;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
@@ -35,7 +35,7 @@ public final class Ir {
     checkNotNull(modelName);
     this.modelName = modelName;
 
-    this.lets = new LinkedHashMap<>();
+    this.constants = new LinkedHashMap<>();
     this.addresses = new LinkedHashMap<>();
     this.segments = new LinkedHashMap<>();
     this.buffers = new LinkedHashMap<>();
@@ -47,8 +47,8 @@ public final class Ir {
     return modelName;
   }
 
-  public Map<String, NodeValue> getLets() {
-    return Collections.unmodifiableMap(lets);
+  public Map<String, NodeValue> getConstants() {
+    return Collections.unmodifiableMap(constants);
   }
 
   public Map<String, Address> getAddresses() {
@@ -71,10 +71,10 @@ public final class Ir {
     return Collections.unmodifiableMap(types);
   }
 
-  public void addLet(final String id, final NodeValue let) {
+  public void addConstant(final String id, final NodeValue value) {
     checkNotNull(id);
-    checkNotNull(let);
-    lets.put(id, let);
+    checkNotNull(value);
+    constants.put(id, value);
   }
 
   public void addAddress(final Address address) {

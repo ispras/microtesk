@@ -90,15 +90,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Adds a let expression (static constant) to the IR.
+   * Adds a static constant (let expression) to the IR.
    * 
-   * @param id Constant id.
+   * @param id Constant identifier.
    * @param value Constant value.
    * @throws SemanticException (1) if the value expression is {@code null};
    *                           (2) if value expression is not a constant value.
    */
 
-  protected final void newLet(final CommonTree id, final Node value) throws SemanticException {
+  protected final void newConstant(final CommonTree id, final Node value) throws SemanticException {
     checkNotNull(id, value);
 
     if (value.getKind() != Node.Kind.VALUE) {
@@ -106,7 +106,25 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           "Illegal let definition. A constant expression is required: %s", value));
     }
 
-    ir.addLet(id.getText(), (NodeValue) value);
+    ir.addConstant(id.getText(), (NodeValue) value);
+  }
+
+  /**
+   * Returns the value of the specified constant. 
+   * 
+   * @param id Constant identifier.
+   * @return Constant value.
+   * @throws SemanticException if the constant is not defined.
+   */
+
+  protected final NodeValue getConstant(final CommonTree id) throws SemanticException {
+    final NodeValue value = ir.getConstants().get(id.getText());
+
+    if (null == value) {
+      raiseError(where(id), "Constant is undefined: " + id.getText());
+    }
+
+    return value;
   }
 
   /**
@@ -208,8 +226,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
   }
 
-  protected final Type newType(final CommonTree typeId,
-                                      final Type type) throws SemanticException {
+  protected final Type newType(
+      final CommonTree typeId, final Type type) throws SemanticException {
     checkNotNull(typeId, type);
 
     final Where w = where(typeId);

@@ -89,7 +89,7 @@ declaration
 
 let
     : ^(LET id=ID {declare($id, MmuSymbolKind.LET, false);} e=expr[0])
-       {newLet($id, $e.res);}
+       {newConstant($id, $e.res);}
     ;
 
 //==================================================================================================
