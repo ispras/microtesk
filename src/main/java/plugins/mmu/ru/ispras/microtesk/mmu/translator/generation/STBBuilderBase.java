@@ -20,7 +20,10 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -34,7 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public abstract class STBBuilderBase {
-  public static final Class<?> BIT_VECTOR_CLASS = 
+  public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
   public static final Class<?> ADDRESS_CLASS =
@@ -148,16 +151,14 @@ public abstract class STBBuilderBase {
     }
   }
 
-  /*
   private boolean isField(final String name) {
     return removePrefix(name).indexOf('.') != -1;
   }
- */
 
   private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
-    /*
-    final Node right = stmt.getRight();
+    final Node right = correctRightType(stmt.getRight(), stmt.getLeft());
     final Node left = stmt.getLeft();
+
     System.out.println("!!! " + left + " = " + right);
     System.out.println("!!! " + left.getUserData());
 
@@ -169,8 +170,8 @@ public abstract class STBBuilderBase {
         if (isField(variable.getName())) {
           // TODO
         } else {
-          final String leftText = ExprPrinter.get().toString(left);
-          st.add("stmts", String.format("%s = %s;", leftText, rightText));
+          //final String leftText = ExprPrinter.get().toString(left);
+          //st.add("stmts", String.format("%s = %s;", leftText, rightText));
         }
       } else {
         // TODO
@@ -178,7 +179,16 @@ public abstract class STBBuilderBase {
     } else {
       // TODO
     }
-    */
+  }
+
+  private static Node correctRightType(final Node right, final Node left) {
+    if (right.getKind() == Node.Kind.VALUE &&
+        right.isType(DataTypeId.LOGIC_INTEGER) && 
+        left.isType(DataTypeId.BIT_VECTOR)) {
+      return NodeValue.newBitVector(
+          BitVector.valueOf(((NodeValue) right).getInteger(), left.getDataType().getSize()));
+    }
+    return right;
   }
 
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {

@@ -63,7 +63,7 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
   private void buildHeader(final ST st) {
     final String baseName = String.format("%s<%s, %s>",
         MEMORY_CLASS.getName(),
-        DATA_CLASS.getSimpleName(),
+        BIT_VECTOR_CLASS.getSimpleName(),
         memory.getAddress().getId());
 
     buildHeader(st, baseName);
@@ -89,9 +89,9 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
     stMethod.add("addr_type", memory.getAddress().getId());
     stMethod.add("addr_name", addressName);
-    stMethod.add("data_type", DATA_CLASS.getSimpleName());
+    stMethod.add("data_type", BIT_VECTOR_CLASS.getSimpleName());
 
-    stMethod.add("stmts", String.format("%s %s = null;", DATA_CLASS.getSimpleName(), dataName));
+    stMethod.add("stmts", String.format("%s %s = null;", BIT_VECTOR_CLASS.getSimpleName(), dataName));
     stMethod.add("stmts", "");
 
     buildVariableDecls(stMethod, memory.getVariables());
@@ -116,7 +116,7 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
 
     stMethod.add("addr_type", memory.getAddress().getId());
     stMethod.add("addr_name", addressName);
-    stMethod.add("data_type", DATA_CLASS.getSimpleName());
+    stMethod.add("data_type", BIT_VECTOR_CLASS.getSimpleName());
     stMethod.add("data_name", dataName);
 
     buildVariableDecls(stMethod, memory.getVariables());
