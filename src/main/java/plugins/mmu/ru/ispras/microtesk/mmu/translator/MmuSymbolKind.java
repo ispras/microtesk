@@ -15,15 +15,18 @@
 package ru.ispras.microtesk.mmu.translator;
 
 public enum MmuSymbolKind {
+  /** Let (static constant)*/
+  LET,
+
   /** Address */
   ADDRESS,
 
   /** Segment */
   SEGMENT,
-  
+
   /** Buffer */
   BUFFER,
-  
+
   /** Memory logic (MMU) */
   MEMORY,
 

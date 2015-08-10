@@ -26,7 +26,7 @@ options {
 }
 
 @rulecatch {
-catch (RecognitionException re) {
+catch (final RecognitionException re) {
     reportError(re);
     recover(input,re);
 }
@@ -88,7 +88,7 @@ declaration
 //==================================================================================================
 
 let
-    : ^(LET id=ID value=expr[0])
+    : ^(LET id=ID {declare($id, MmuSymbolKind.LET, false);} value=expr[0])
     ;
 
 //==================================================================================================
