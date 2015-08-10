@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -32,6 +34,8 @@ public final class MmuAction {
   private final MmuBuffer buffer;
   /** Assignments performed by the action. */
   private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
+  /** Marks associated with the action. */
+  private final Set<String> marks = new LinkedHashSet<>();
 
   public MmuAction(final String name, final MmuBuffer device, final MmuAssignment... assignments) {
     InvariantChecks.checkNotNull(name);
@@ -59,6 +63,15 @@ public final class MmuAction {
 
   public Map<IntegerField, MmuAssignment> getAction() {
     return action;
+  }
+
+  public void addMark(final String mark) {
+    InvariantChecks.checkNotNull(mark);
+    marks.add(mark);
+  }
+
+  public Set<String> getMarks() {
+    return marks;
   }
 
   @Override
