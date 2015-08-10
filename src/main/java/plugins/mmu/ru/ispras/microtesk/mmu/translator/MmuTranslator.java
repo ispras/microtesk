@@ -156,8 +156,10 @@ public final class MmuTranslator extends Translator<Ir> {
 
       processIr(ir);
 
-      System.out.println(specBuilder.getSpecification());
-      setSpecification(specBuilder.getSpecification());
+      final MmuSubsystem spec = specBuilder.getSpecification();
+
+      System.out.println(spec);
+      setSpecification(spec);
     } catch (Exception e) {
       e.printStackTrace();
     }
