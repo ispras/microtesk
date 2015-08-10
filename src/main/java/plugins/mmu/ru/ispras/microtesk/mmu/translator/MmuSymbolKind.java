@@ -15,9 +15,6 @@
 package ru.ispras.microtesk.mmu.translator;
 
 public enum MmuSymbolKind {
-  /** Let (static constant)*/
-  LET,
-
   /** Address */
   ADDRESS,
 

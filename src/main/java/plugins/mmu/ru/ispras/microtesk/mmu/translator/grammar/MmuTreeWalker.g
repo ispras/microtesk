@@ -88,8 +88,7 @@ declaration
 //==================================================================================================
 
 let
-    : ^(LET id=ID {declare($id, MmuSymbolKind.LET, false);} e=expr[0])
-       {newConstant($id, $e.res);}
+    : ^(MMU_LET id=ID e=expr[0]) {newConstant($id, $e.res);}
     ;
 
 //==================================================================================================
@@ -322,6 +321,7 @@ constant returns [Node res]
     : t=CARD_CONST   { $res = NodeValue.newInteger($t.text, 10); }
     | t=BINARY_CONST { $res = NodeValue.newInteger($t.text, 2);  }
     | t=HEX_CONST    { $res = NodeValue.newInteger($t.text, 16); }
+    | ^(CONST t=ID)  { $res = getConstant($t); }
     ;
 
 //==================================================================================================

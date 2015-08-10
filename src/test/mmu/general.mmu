@@ -20,8 +20,10 @@
 // Translation Lookaside Buffer (TLB)
 //==================================================================================================
 
+let JTLB_WAYS = 2 ** 6
+
 buffer JTLB (va: VA)
-  ways   = 64
+  ways   = JTLB_WAYS
   sets   = 1
   entry  = (ASID: 8, VPN2: 27, R: 2,               // EntryHi
             G0: 1, V0: 1, D0: 1, C0: 3, PFN0: 24,  // EntryLo0
