@@ -20,27 +20,35 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.NodeValue;
+
 public final class Ir {
   private final String modelName;
+  private final Map<String, NodeValue> lets;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
   private final Map<String, Memory> memories;
-
-  private final Map<String, Type> types = new LinkedHashMap<>();
+  private final Map<String, Type> types;
 
   public Ir(final String modelName) {
     checkNotNull(modelName);
     this.modelName = modelName;
 
+    this.lets = new LinkedHashMap<>();
     this.addresses = new LinkedHashMap<>();
     this.segments = new LinkedHashMap<>();
     this.buffers = new LinkedHashMap<>();
     this.memories = new LinkedHashMap<>();
+    this.types = new LinkedHashMap<>();
   }
 
   public String getModelName() {
     return modelName;
+  }
+
+  public Map<String, NodeValue> getLets() {
+    return Collections.unmodifiableMap(lets);
   }
 
   public Map<String, Address> getAddresses() {
@@ -61,6 +69,12 @@ public final class Ir {
 
   public Map<String, Type> getTypes() {
     return Collections.unmodifiableMap(types);
+  }
+
+  public void addAddress(final String id, final NodeValue let) {
+    checkNotNull(id);
+    checkNotNull(let);
+    lets.put(id, let);
   }
 
   public void addAddress(final Address address) {
