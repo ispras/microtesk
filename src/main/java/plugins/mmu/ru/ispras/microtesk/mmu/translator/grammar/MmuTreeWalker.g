@@ -226,10 +226,11 @@ ifStmt returns [Stmt res]
     ;
 
 functionCallStmt returns [Stmt res]
-    :  ^(TRACE fs=STRING_CONST {final List<Node> fargs = new ArrayList<>();}
-        (farg=expr[0] {checkNotNull($farg.start, $farg.res); fargs.add($farg.res);})*)
-        {$res = newTrace($fs, fargs);}
-    |  ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
+    : ^(TRACE fs=STRING_CONST {final List<Node> fargs = new ArrayList<>();}
+       (farg=expr[0] {checkNotNull($farg.start, $farg.res); fargs.add($farg.res);})*)
+       {$res = newTrace($fs, fargs);}
+    | ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
+    | ^(MARK s=STRING_CONST) {$res = newMark($s);}
     ;
 
 //==================================================================================================

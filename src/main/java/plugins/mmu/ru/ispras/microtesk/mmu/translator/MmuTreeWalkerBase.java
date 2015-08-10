@@ -52,6 +52,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -647,6 +648,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     return new StmtTrace(format.getText(), markers, fargs);
+  }
+
+  protected final Stmt newMark(final CommonTree text) {
+    return new StmtMark(text.getText());
   }
 
   protected final class IfBuilder {
