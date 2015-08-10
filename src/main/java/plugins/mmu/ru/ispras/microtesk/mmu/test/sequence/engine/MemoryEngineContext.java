@@ -20,6 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.utils.function.Action;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
@@ -40,8 +41,8 @@ public final class MemoryEngineContext {
   private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
   private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors;
   private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
-  private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
-  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
+  private final Map<MmuBuffer, Supplier<MmuEntry>> entryConstructors;
+  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
   private final Action resetAction;
 
   public MemoryEngineContext(
@@ -49,8 +50,8 @@ public final class MemoryEngineContext {
       final Function<MemoryAccess, AddressObject> addrObjectConstructors,
       final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors,
       final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
-      final Map<MmuBuffer, Supplier<Object>> entryConstructors,
-      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders,
+      final Map<MmuBuffer, Supplier<MmuEntry>> entryConstructors,
+      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
       final Action resetAction) {
     InvariantChecks.checkNotNull(addrObjectConstructors);
     InvariantChecks.checkNotNull(addrObjectCorrectors);
@@ -84,11 +85,11 @@ public final class MemoryEngineContext {
     return addrAllocators;
   }
 
-  public Map<MmuBuffer, Supplier<Object>> getEntryConstructors() {
+  public Map<MmuBuffer, Supplier<MmuEntry>> getEntryConstructors() {
     return entryConstructors;
   }
 
-  public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> getEntryProviders() {
+  public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> getEntryProviders() {
     return entryProviders;
   }
 

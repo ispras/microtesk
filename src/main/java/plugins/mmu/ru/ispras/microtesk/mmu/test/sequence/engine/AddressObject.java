@@ -24,6 +24,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -60,7 +61,7 @@ public final class AddressObject {
    * <p>Typically, one memory access affects one entry of one device. It is assumed that each map
    * contains exactly one entry.</p>
    */
-  private final Map<MmuBuffer, Map<Long, Object>> entries = new LinkedHashMap<>();
+  private final Map<MmuBuffer, Map<Long, MmuEntry>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs uninitialized test data for the given access of the given memory subsystem.
@@ -149,7 +150,7 @@ public final class AddressObject {
    * @return the entries to written.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, Object> getEntries(final MmuBuffer device) {
+  public Map<Long, MmuEntry> getEntries(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
     return entries.get(device);
   }
@@ -161,7 +162,7 @@ public final class AddressObject {
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer device, final Map<Long, Object> entries) {
+  public void setEntries(final MmuBuffer device, final Map<Long, MmuEntry> entries) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkTrue(entries.size() == 1);
@@ -177,11 +178,11 @@ public final class AddressObject {
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer device, final long entryId, final Object entry) {
+  public void addEntry(final MmuBuffer device, final long entryId, final MmuEntry entry) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entry);
 
-    Map<Long, Object> deviceEntries = entries.get(device);
+    Map<Long, MmuEntry> deviceEntries = entries.get(device);
 
     if (deviceEntries == null) {
       entries.put(device, deviceEntries = new LinkedHashMap<>());
