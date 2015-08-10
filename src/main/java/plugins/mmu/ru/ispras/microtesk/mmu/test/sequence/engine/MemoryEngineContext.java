@@ -24,7 +24,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.utils.function.Action;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Supplier;
 import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -41,7 +40,6 @@ public final class MemoryEngineContext {
   private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
   private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors;
   private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
-  private final Map<MmuBuffer, Supplier<MmuEntry>> entryConstructors;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
   private final Action resetAction;
 
@@ -50,13 +48,11 @@ public final class MemoryEngineContext {
       final Function<MemoryAccess, AddressObject> addrObjectConstructors,
       final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors,
       final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
-      final Map<MmuBuffer, Supplier<MmuEntry>> entryConstructors,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
       final Action resetAction) {
     InvariantChecks.checkNotNull(addrObjectConstructors);
     InvariantChecks.checkNotNull(addrObjectCorrectors);
     InvariantChecks.checkNotNull(addrAllocators);
-    InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
     InvariantChecks.checkNotNull(resetAction);
 
@@ -64,7 +60,6 @@ public final class MemoryEngineContext {
     this.addrObjectConstructors = addrObjectConstructors;
     this.addrObjectCorrectors = addrObjectCorrectors;
     this.addrAllocators = addrAllocators;
-    this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
     this.resetAction = resetAction;
   }
@@ -83,10 +78,6 @@ public final class MemoryEngineContext {
 
   public Map<MmuBuffer, UnaryOperator<Long>> getAddrAllocators() {
     return addrAllocators;
-  }
-
-  public Map<MmuBuffer, Supplier<MmuEntry>> getEntryConstructors() {
-    return entryConstructors;
   }
 
   public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> getEntryProviders() {

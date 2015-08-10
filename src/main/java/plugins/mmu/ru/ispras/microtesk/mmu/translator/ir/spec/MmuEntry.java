@@ -30,6 +30,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 public final class MmuEntry {
   private final Map<IntegerVariable, BigInteger> fields = new LinkedHashMap<>();
 
+  private boolean valid = false;
+
   public MmuEntry(final Collection<IntegerVariable> variables) {
     InvariantChecks.checkNotNull(variables);
 
@@ -48,6 +50,18 @@ public final class MmuEntry {
     InvariantChecks.checkNotNull(value);
 
     fields.put(variable, value);
+  }
+
+  public void setValue(final IntegerVariable variable, final long value) {
+    setValue(variable, BigInteger.valueOf(value));
+  }
+
+  public boolean isValid() {
+    return valid;
+  }
+
+  public void setValid(final boolean valid) {
+    this.valid = valid;
   }
 
   @Override

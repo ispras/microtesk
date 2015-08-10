@@ -42,7 +42,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Supplier;
 import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.microtesk.utils.function.UnaryOperator;
 
@@ -85,13 +84,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * address and returns an id (internal address) that was not returned previously.</p>
    */
   private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
-
-  /**
-   * Given a non-replaceable buffer, contains the entry constructor.
-   * 
-   * <p>An entry constructor is a user-defined function that creates a new buffer entry.</p>
-   */
-  private final Map<MmuBuffer, Supplier<MmuEntry>> entryConstructors;
 
   /**
    * Given a non-replaceable buffer, contains the entry provider.
@@ -140,7 +132,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.addrObjectConstructors = context.getAddrObjectConstructors();
     this.addrObjectCorrectors = context.getAddrObjectCorrectors();
     this.addrAllocators = context.getAddrAllocators();
-    this.entryConstructors = context.getEntryConstructors();
     this.entryProviders = context.getEntryProviders();
   }
 
@@ -386,13 +377,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
       final UnaryOperator<Long> entryIdAllocator =
           addrAllocators.get(buffer);
-      final Supplier<MmuEntry> entryConstructor =
-          entryConstructors.get(buffer);
       final TriConsumer<MemoryAccess, AddressObject, MmuEntry> entryProvider =
           entryProviders.get(buffer);
 
       final Long bufferEntryId = entryIdAllocator.apply(address);
-      final MmuEntry bufferEntry = entryConstructor.get();
+      final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
 
       if (bufferEntryId == null || bufferEntry == null) {
         return new SolverResult<>(String.format("Cannot allocate an entry for buffer %s", buffer));
