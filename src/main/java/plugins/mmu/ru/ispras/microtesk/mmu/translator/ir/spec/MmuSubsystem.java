@@ -67,7 +67,7 @@ public final class MmuSubsystem {
    * name are considered as duplicates and ignored.
    * 
    * @param address the address to be registered.
-   * @throws NullPointerException if {@code address} is {@code null}.
+   * @throws IllegalArgumentException if {@code address} is {@code null}.
    */
   public void registerAddress(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
@@ -95,7 +95,7 @@ public final class MmuSubsystem {
    * @param name the name of the address.
    * @return address or {@code null} it is undefined.
    */
-  public MmuAddressType getAddress(String name) {
+  public MmuAddressType getAddress(final String name) {
     return addresses.get(name);
   }
 
@@ -103,7 +103,7 @@ public final class MmuSubsystem {
    * Sets the primary address type.
    * 
    * @param address the address type to be set.
-   * @throws NullPointerException if {@code address} is {@code null}.
+   * @throws IllegalArgumentException if {@code address} is {@code null}.
    */
   public void setStartAddress(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
@@ -124,9 +124,9 @@ public final class MmuSubsystem {
    * Devices with equal names are considered duplicates and ignored.
    * 
    * @param device the device to be registered.
-   * @throws NullPointerException if {@code device} is {@code null}.
+   * @throws IllegalArgumentException if {@code device} is {@code null}.
    */
-  public void registerDevice(MmuBuffer device) {
+  public void registerDevice(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
     devices.put(device.getName(), device);
     sortedDevices.add(device);
@@ -152,7 +152,7 @@ public final class MmuSubsystem {
    * @param name the name of the device.
    * @return device or {@code null} it is undefined.
    */
-  public MmuBuffer getDevice(String name) {
+  public MmuBuffer getDevice(final String name) {
     return devices.get(name);
   }
 
@@ -171,7 +171,7 @@ public final class MmuSubsystem {
    * <p>Actions should be registered before transitions.</p>
    * 
    * @param action the action to be registered.
-   * @throws NullPointerException if {@code action} is null.
+   * @throws IllegalArgumentException if {@code action} is null.
    */
   public void registerAction(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
@@ -184,7 +184,7 @@ public final class MmuSubsystem {
    * 
    * @param action the action.
    * @return the list of transitions.
-   * @throws NullPointerException if {@code action} is null.
+   * @throws IllegalArgumentException if {@code action} is null.
    */
   public List<MmuTransition> getTransitions(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
@@ -198,7 +198,7 @@ public final class MmuSubsystem {
    * <p>Transitions should be registered after actions.</p>
    * 
    * @param transition the transition to be registered.
-   * @throws NullPointerException if {@code transition} is null.
+   * @throws IllegalArgumentException if {@code transition} is null.
    */
   public void registerTransition(final MmuTransition transition) {
     InvariantChecks.checkNotNull(transition);
@@ -220,7 +220,7 @@ public final class MmuSubsystem {
    * Sets the initial (root) action of the memory management unit.
    * 
    * @param action the initial action.
-   * @throws NullPointerException if {@code action} is null.
+   * @throws IllegalArgumentException if {@code action} is null.
    */
   public void setStartAction(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
