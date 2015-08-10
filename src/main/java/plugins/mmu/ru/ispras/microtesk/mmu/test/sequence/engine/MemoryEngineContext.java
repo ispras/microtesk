@@ -20,6 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.utils.function.Action;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Supplier;
@@ -33,7 +34,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngineContext {
-  //TODO: Integration with MMU TestGen
+  // TODO: Integration with MMU TestGen.
   private final Iterator<MemoryAccessStructure> structureIterator;
 
   private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
@@ -41,6 +42,7 @@ public final class MemoryEngineContext {
   private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
   private final Map<MmuBuffer, Supplier<Object>> entryConstructors;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders;
+  private final Action resetAction;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
@@ -48,12 +50,14 @@ public final class MemoryEngineContext {
       final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors,
       final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
       final Map<MmuBuffer, Supplier<Object>> entryConstructors,
-      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
+      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders,
+      final Action resetAction) {
     InvariantChecks.checkNotNull(addrObjectConstructors);
     InvariantChecks.checkNotNull(addrObjectCorrectors);
     InvariantChecks.checkNotNull(addrAllocators);
     InvariantChecks.checkNotNull(entryConstructors);
     InvariantChecks.checkNotNull(entryProviders);
+    InvariantChecks.checkNotNull(resetAction);
 
     this.structureIterator = structureIterator;
     this.addrObjectConstructors = addrObjectConstructors;
@@ -61,6 +65,7 @@ public final class MemoryEngineContext {
     this.addrAllocators = addrAllocators;
     this.entryConstructors = entryConstructors;
     this.entryProviders = entryProviders;
+    this.resetAction = resetAction;
   }
 
   public Iterator<MemoryAccessStructure> getStructureIterator() {
@@ -85,5 +90,9 @@ public final class MemoryEngineContext {
 
   public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> getEntryProviders() {
     return entryProviders;
+  }
+
+  public Action getResetAction() {
+    return resetAction;
   }
 }

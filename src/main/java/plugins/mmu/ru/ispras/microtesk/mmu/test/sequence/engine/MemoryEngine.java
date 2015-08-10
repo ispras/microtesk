@@ -25,22 +25,15 @@ import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
-import ru.ispras.microtesk.utils.function.BiConsumer;
-import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Supplier;
-import ru.ispras.microtesk.utils.function.TriConsumer;
-import ru.ispras.microtesk.utils.function.UnaryOperator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -150,17 +143,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         (MemoryEngineContext) engineContext.getCustomContext(ID);
     InvariantChecks.checkNotNull(customContext);
 
-    final Function<MemoryAccess, AddressObject> addrObjectConstructors =
-        customContext.getAddrObjectConstructors();
-    final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors =
-        customContext.getAddrObjectCorrectors();
-    final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators =
-        customContext.getAddrAllocators();
-    final Map<MmuBuffer, Supplier<Object>> entryConstructors =
-        customContext.getEntryConstructors();
-    final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders =
-        customContext.getEntryProviders();
-
     return new Iterator<MemorySolution>() {
       private MemorySolution solution = null;
 
@@ -168,13 +150,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         while (structureIterator.hasValue()) {
           final MemoryAccessStructure structure = structureIterator.value();
 
-          solver = new MemorySolver(
-              structure,
-              addrObjectConstructors,
-              addrObjectCorrectors,
-              addrAllocators,
-              entryConstructors,
-              entryProviders);
+          // Reset the allocation tables before solving the constraint.
+          customContext.getResetAction().apply();
+          solver = new MemorySolver(structure, customContext);
 
           final SolverResult<MemorySolution> result = solver.solve();
           InvariantChecks.checkNotNull(result);

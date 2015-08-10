@@ -61,7 +61,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * <p>A address object constructor is a user-defined function that maps a memory access (an object
    * of {@link MemoryAccess}) to the address object (an object of {@link AddressObject}).</p>
    */
-  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
+  private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
 
   /**
    * Refers to the address object corrector.
@@ -69,7 +69,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * <p>A address object corrector is a user-defined function that corrects inconsistencies in
    * address object (an object of {@link AddressObject}) after solving the constraints.</p>
    */
-  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
+  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors;
 
   /**
    * Given a replaceable buffer (e.g., a cache unit), contains the tag allocator.
@@ -125,34 +125,22 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Constructs a solver for the given memory access structure.
    * 
    * @param structure the memory access structure.
-   * @param addrObjectConstructor the address object constructor.
-   * @param addrObjectCorrector the address object corrector.
-   * @param addrAllocators the tag and entry id allocators.
-   * @param entryConstructors the entry constructors.
-   * @param entryProviders the entry providers.
+   * @param context the memory engine context.
    * @throws IllegalArgumentException if some parameters are null.
    */
   public MemorySolver(
-      final MemoryAccessStructure structure,
-      final Function<MemoryAccess, AddressObject> addrObjectConstructor,
-      final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector,
-      final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
-      final Map<MmuBuffer, Supplier<Object>> entryConstructors,
-      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, Object>> entryProviders) {
-
+      final MemoryAccessStructure structure, final MemoryEngineContext context) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(addrObjectConstructor);
-    InvariantChecks.checkNotNull(addrAllocators);
-    InvariantChecks.checkNotNull(entryConstructors);
-    InvariantChecks.checkNotNull(entryProviders);
+    InvariantChecks.checkNotNull(structure);
+    InvariantChecks.checkNotNull(context);
 
     this.structure = structure;
 
-    this.addrObjectConstructor = addrObjectConstructor;
-    this.addrObjectCorrector = addrObjectCorrector;
-    this.addrAllocators = addrAllocators;
-    this.entryConstructors = entryConstructors;
-    this.entryProviders = entryProviders;
+    this.addrObjectConstructors = context.getAddrObjectConstructors();
+    this.addrObjectCorrectors = context.getAddrObjectCorrectors();
+    this.addrAllocators = context.getAddrAllocators();
+    this.entryConstructors = context.getEntryConstructors();
+    this.entryProviders = context.getEntryProviders();
   }
 
   @Override
@@ -659,7 +647,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
-    final AddressObject addrObject = addrObjectConstructor.apply(access);
+    final AddressObject addrObject = addrObjectConstructors.apply(access);
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
@@ -714,7 +702,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Correct the solution.
-    addrObjectCorrector.accept(access, addrObject);
+    addrObjectCorrectors.accept(access, addrObject);
 
     return new SolverResult<MemorySolution>(solution);
   }
