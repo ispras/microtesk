@@ -33,7 +33,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngineContext {
-  //TODO: iteration with MMU TestGen
+  //TODO: Integration with MMU TestGen
   private final Iterator<MemoryAccessStructure> structureIterator;
 
   private final Function<MemoryAccess, AddressObject> addrObjectConstructors;

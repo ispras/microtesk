@@ -282,10 +282,11 @@ public final class AllocationTable<T, V> {
     final Set<T> domain = new HashSet<>(free);
     domain.removeAll(exclude);
 
-    final T object = !domain.isEmpty() ? strategy.next(domain, used, attributes) : null;
+    final T object = strategy.next(domain, used, attributes);
 
     if (object == null) {
-      throw new IllegalStateException(String.format("Cannot peek an object from %s", domain));
+      throw new IllegalStateException(
+          String.format("Cannot peek an object: free=%s, used=%s", domain, used));
     }
 
     return object;

@@ -114,10 +114,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     final MemoryEngineContext customContext =
         (MemoryEngineContext) engineContext.getCustomContext(ID);
-    InvariantChecks.checkNotNull(customContext);
 
     // TODO: Compatibility with MMU TestGen.
-    final Iterator<MemoryAccessStructure> structureIterator = customContext.getStructureIterator();
+    final Iterator<MemoryAccessStructure> structureIterator =
+        customContext != null ? customContext.getStructureIterator() : null;
 
     if (structureIterator != null) {
       return structureIterator;
