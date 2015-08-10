@@ -67,6 +67,7 @@ public final class AllocationTable<T, V> {
     this.strategy = strategy;
     this.attributes = attributes;
     this.objects = new LinkedHashSet<>(objects);
+
     reset();
   }
 
@@ -281,10 +282,10 @@ public final class AllocationTable<T, V> {
     final Set<T> domain = new HashSet<>(free);
     domain.removeAll(exclude);
 
-    final T object = strategy.next(domain, used, attributes);
+    final T object = !domain.isEmpty() ? strategy.next(domain, used, attributes) : null;
 
     if (object == null) {
-      throw new IllegalStateException("Cannot peek an object");
+      throw new IllegalStateException(String.format("Cannot peek an object from %s", domain));
     }
 
     return object;
