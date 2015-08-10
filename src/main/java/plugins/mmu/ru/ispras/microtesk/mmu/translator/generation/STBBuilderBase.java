@@ -208,7 +208,7 @@ public abstract class STBBuilderBase {
   }
 
   private void buildStmtMark(final ST st, final StmtMark stmt) {
-    // TODO
+    st.add("stmts", String.format("mark(\"%s\");", stmt.getName()));
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {
