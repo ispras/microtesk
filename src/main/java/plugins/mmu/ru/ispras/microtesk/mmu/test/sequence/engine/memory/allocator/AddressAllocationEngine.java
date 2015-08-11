@@ -190,7 +190,7 @@ public final class AddressAllocationEngine {
 
     return address;
   }
-  
+
   public Collection<Long> getAllAddresses(final RegionSettings region) {
     // Peek an address to initialize allocation tables.
     allocate(allRanges, 0, region, true, null);
