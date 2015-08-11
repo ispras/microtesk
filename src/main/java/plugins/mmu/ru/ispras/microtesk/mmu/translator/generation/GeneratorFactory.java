@@ -31,7 +31,7 @@ final class GeneratorFactory {
   private static final String JAVA_COMMON_STG =
       PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg";
 
-  private static final String MMU_COMMON_STG = MMU_STG_DIR + "MmuCommon.stg";
+  private static final String MMU_COMMON_STG = MMU_STG_DIR + "Common.stg";
 
   private static final String   ADDRESS_STG = MMU_STG_DIR + "Address.stg";
   private static final String[] ADDRESS_STGS =
