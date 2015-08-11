@@ -40,16 +40,19 @@ import commonLexer=CommonLexer;
 package ru.ispras.microtesk.mmu.translator.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 }
 
 @members {
   private Preprocessor pp = null;
 
-  public MmuLexer(final CharStream chars, final Preprocessor pp) {
+  public MmuLexer(final CharStream chars, final Preprocessor pp, final SymbolTable symbols) {
     this(chars);
 
     commonLexer.setPreprocessor(pp);
     this.pp = pp;
+
+    commonLexer.setSymbols(symbols);
   }
 
   private void pp() {

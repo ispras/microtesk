@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.mmu.translator;
 
 public enum MmuSymbolKind {
+  /** Reserved keywords */
+  KEYWORD,
+
   /** Address */
   ADDRESS,
 

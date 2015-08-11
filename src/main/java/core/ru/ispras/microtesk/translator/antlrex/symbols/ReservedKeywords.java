@@ -24,9 +24,10 @@ public final class ReservedKeywords {
     "protected", "throw", "byte", "else", "import", "public", "throws", "case", "enum",
     "instanceof", "return", "transient", "catch", "extends", "int", "short", "try", "char",
     "final", "interface", "static", "void", "class", "finally", "long", "strictfp", "volatile",
-    "const", "float", "native", "super", "while"
+    "const", "float", "native", "super", "while",
 
     // Class names from the "java.lang" package.
+    "Boolean", "Integer", "Double"
     // TODO: Add names that can cause conflicts with generated constructs.
   };
 

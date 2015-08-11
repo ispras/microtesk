@@ -41,11 +41,13 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
+import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MmuTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".mmu");
+  private final SymbolTable symbols = new SymbolTable();
 
   private static MmuSubsystem spec = null;
 
@@ -62,6 +64,9 @@ public final class MmuTranslator extends Translator<Ir> {
 
   public MmuTranslator() {
     super(FILTER);
+
+    symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     specBuilder = new MmuSpecBuilder();
 
@@ -82,7 +87,7 @@ public final class MmuTranslator extends Translator<Ir> {
   @Override
   public void startLexer(final CharStream stream) {
     InvariantChecks.checkNotNull(stream);
-    source.push(new MmuLexer(stream, pp));
+    source.push(new MmuLexer(stream, pp, symbols));
   }
 
   private TokenSource startLexer(final List<String> filenames) {
@@ -111,7 +116,6 @@ public final class MmuTranslator extends Translator<Ir> {
     Logger.message("");
 
     final LogStore LOG = getLog();
-    final SymbolTable symbols = new SymbolTable();
     final Ir ir = new Ir(modelName);
 
     try {
