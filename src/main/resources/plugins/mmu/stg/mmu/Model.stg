@@ -20,12 +20,22 @@ model(pack, imps, name, base, members) ::= <<
 <if(imps)><imports(imps)><endif>
 <class(["public", "final"],
        name,
-       base,
        false,
+       base,
        members)>
 >>
 
-constructor(name) ::= <<
+body(name, spec, mmu) ::= <<
 public <name>() {
+}
+
+@Override
+public <spec> getSpec() {
+  return null;
+}
+
+@Override
+public Map\<String, <mmu>\> getMmu() {
+  return null;
 }
 >>
