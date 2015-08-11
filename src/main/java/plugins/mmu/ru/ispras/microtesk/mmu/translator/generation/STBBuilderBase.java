@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -23,10 +24,13 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
@@ -151,46 +155,89 @@ public abstract class STBBuilderBase {
     }
   }
 
-  private boolean isField(final String name) {
-    return removePrefix(name).indexOf('.') != -1;
-  }
-
   private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
-    /*
     final Node right = correctRightType(stmt.getRight(), stmt.getLeft());
     final Node left = stmt.getLeft();
 
-    System.out.printf("!!! %s = %s%n",left, right);
-    System.out.printf("### %s = %s%n", left.getUserData(), right.getUserData());
+    // System.out.printf("!!! (1) %s = %s%n",left, right);
+    // System.out.printf("!!! (2) %s = %s%n", left.getUserData(), right.getUserData());
 
-    final String rightText = ExprPrinter.get().toString(right);
-
+    final String text;
     if (left.getKind() == Node.Kind.VARIABLE) {
-      if (left.getUserData() instanceof Variable) {
-        final Variable variable = (Variable) left.getUserData();
-        if (isField(variable.getName())) {
-          // TODO
-        } else {
-          final String leftText = ExprPrinter.get().toString(left);
-          st.add("stmts", String.format("%s = %s;", leftText, rightText));
-        }
-      } else {
-        // TODO
-      }
+      text = buildAssignment((NodeVariable) left, right);
+    } else if (left.getKind() == Node.Kind.OPERATION){
+      text = buildAssignment((NodeOperation) left, right);
     } else {
-      // TODO
+      throw new IllegalArgumentException(
+          "Illegal left hand side expression kind: " + left.getKind());
     }
-    */
+
+    if (null != text) {
+      //st.add("stmts", text);
+    }
   }
 
   private static Node correctRightType(final Node right, final Node left) {
     if (right.getKind() == Node.Kind.VALUE &&
         right.isType(DataTypeId.LOGIC_INTEGER) && 
         left.isType(DataTypeId.BIT_VECTOR)) {
-      return NodeValue.newBitVector(
-          BitVector.valueOf(((NodeValue) right).getInteger(), left.getDataType().getSize()));
+      return NodeValue.newBitVector(BitVector.valueOf(
+          ((NodeValue) right).getInteger(), left.getDataType().getSize()));
     }
     return right;
+  }
+
+  private String buildAssignment(final NodeVariable left, final Node right) {
+    String text = null;
+    final String rightText = ExprPrinter.get().toString(right);
+
+    if (left.getUserData() instanceof Variable) {
+      final Variable leftVar = (Variable) left.getUserData();
+      if (leftVar.isField()) {
+        // TODO
+      } else {
+        final String rightSuffix = leftVar.isStruct() ? "" : getRightFieldSuffix(right);
+        final String leftText = ExprPrinter.get().toString(left);
+        text = String.format("%s = %s%s;", leftText, rightText, rightSuffix);
+      }
+    } else if (left.getUserData() instanceof AttributeRef) {
+      final AttributeRef leftAttrRef = (AttributeRef) left.getUserData();
+      
+    } else {
+      throw new IllegalStateException(
+          "Invalid left hand side expression: " + left.getUserData());
+    }
+
+    return text;
+  }
+
+  private String getRightFieldSuffix(final Node right) {
+    if (right.getUserData() instanceof Variable) {
+      final Variable rightVariable = (Variable) right.getUserData();
+      final Map<String, Variable> fields = rightVariable.getFields();
+
+      if (fields.size() == 1) {
+        final Variable field = fields.values().iterator().next();
+        final String prefix = rightVariable.getName() + ".";
+        return String.format(".getField(\"%s\")", field.getName().replaceFirst(prefix, ""));
+      }
+    } else if (right.getUserData() instanceof AttributeRef) {
+      final AttributeRef rightAttrRef = (AttributeRef) right.getUserData();
+      final Variable data = rightAttrRef.getTarget().getDataArg();
+      final Map<String, Variable> fields = data.getFields();
+
+      if (fields.size() == 1) {
+        final Variable field = fields.values().iterator().next();
+        final String prefix = rightAttrRef.getTarget().getId() + ".";
+        return String.format(".getField(\"%s\")", field.getName().replaceFirst(prefix, ""));
+      }
+    }
+
+    return "";
+  }
+
+  private static String buildAssignment(final NodeOperation left, final Node right) {
+    return null;
   }
 
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
