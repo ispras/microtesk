@@ -156,11 +156,12 @@ public abstract class STBBuilderBase {
   }
 
   private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
+    /*
     final Node right = correctRightType(stmt.getRight(), stmt.getLeft());
     final Node left = stmt.getLeft();
 
-    System.out.println("!!! " + left + " = " + right);
-    System.out.println("!!! " + left.getUserData());
+    System.out.printf("!!! %s = %s%n",left, right);
+    System.out.printf("### %s = %s%n", left.getUserData(), right.getUserData());
 
     final String rightText = ExprPrinter.get().toString(right);
 
@@ -170,8 +171,8 @@ public abstract class STBBuilderBase {
         if (isField(variable.getName())) {
           // TODO
         } else {
-          //final String leftText = ExprPrinter.get().toString(left);
-          //st.add("stmts", String.format("%s = %s;", leftText, rightText));
+          final String leftText = ExprPrinter.get().toString(left);
+          st.add("stmts", String.format("%s = %s;", leftText, rightText));
         }
       } else {
         // TODO
@@ -179,6 +180,7 @@ public abstract class STBBuilderBase {
     } else {
       // TODO
     }
+    */
   }
 
   private static Node correctRightType(final Node right, final Node left) {
