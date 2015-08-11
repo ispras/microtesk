@@ -34,8 +34,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 public final class Config {
   private Config() {}
 
@@ -60,20 +58,8 @@ public final class Config {
 
   private static final String ERR_FAILED_TO_PARSE = "Failed to parse %s.";
 
-  public static Plugin loadPlugin(final String className) {
-    InvariantChecks.checkNotNull(className);
-
-    final ClassLoader loader = Plugin.class.getClassLoader();
-    try {
-      final Class<?> pluginClass = loader.loadClass(className);
-      return (Plugin) pluginClass.newInstance();
-    } catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-      return null;
-    }
-  }
-  
   public static List<Plugin> loadPlugins() {
-    final URL configUrl = getResource(CONFIG_URL);
+    final URL configUrl = SysUtils.getResourceUrl(CONFIG_URL);
     if (null == configUrl) {
       throw new IllegalStateException(String.format("Document %s is not found.", CONFIG_URL));
     }
@@ -106,16 +92,11 @@ public final class Config {
             ERR_ATTRIBUTE_NOT_DEFINED, CLASS, CONFIG_URL));
       }
 
-      final Plugin plugin = loadPlugin(className.getNodeValue());
+      final Plugin plugin = SysUtils.loadPlugin(className.getNodeValue());
       result.add(plugin);
     }
 
     return result;
-  }
-
-  private static URL getResource(final String name) {
-    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    return classLoader.getResource(name);
   }
 
   private static Document parseDocument(final URL url) {

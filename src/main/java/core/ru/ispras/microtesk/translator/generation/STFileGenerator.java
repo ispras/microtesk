@@ -26,6 +26,7 @@ import org.stringtemplate.v4.misc.STMessage;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.SysUtils;
 
 /**
  * The STFileGenerator class implements logic that generates a source code file
@@ -109,11 +110,9 @@ public final class STFileGenerator implements FileGenerator {
    */
 
   private STGroup loadTemplateGroups() {
-    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
     STGroup parentGroup = null;
     for (final String groupFile : templateGroupFiles) {
-      final URL groupUrl = classLoader.getResource(groupFile);
+      final URL groupUrl = SysUtils.getResourceUrl(groupFile);
       final STGroup group = new STGroupFile(groupUrl, "UTF-8", '<', '>');
 
       if (null != parentGroup) {

@@ -84,4 +84,23 @@ public final class SysUtils {
 
     return model;
   }
+
+  public static Plugin loadPlugin(final String className) {
+    InvariantChecks.checkNotNull(className);
+
+    final ClassLoader loader = Plugin.class.getClassLoader();
+    try {
+      final Class<?> pluginClass = loader.loadClass(className);
+      return (Plugin) pluginClass.newInstance();
+    } catch(final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+      Logger.error("Failed to load %s. Reason: %s", className, e.getMessage());
+      return null;
+    }
+  }
+
+  public static URL getResourceUrl(final String resourceName) {
+    InvariantChecks.checkNotNull(resourceName);
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    return classLoader.getResource(resourceName);
+  }
 }
