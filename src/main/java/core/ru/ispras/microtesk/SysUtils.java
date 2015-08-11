@@ -37,22 +37,30 @@ public final class SysUtils {
     return System.getProperty("user.dir");
   }
 
-  public static String getModelsJarPath() {
-    return Paths.get(getHomeDir(), "lib", "jars", "models.jar").toString();
-  }
-
   public static IModel loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
-    final String homePath = getHomeDir();
-    if (null == homePath) {
+    final String modelClassName = String.format(
+        "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
+
+    return (IModel) loadFromModel(modelClassName);
+  }
+
+  public static Object loadFromModel(final String className) {
+    InvariantChecks.checkNotNull(className);
+
+    final String homeDir = getHomeDir();
+    if (null == homeDir) {
       Logger.error("The %s environment variable is not defined.", MICROTESK_HOME);
       return null;
     }
 
-    final String modelsJarPath = getModelsJarPath();
-    final File file = new File(modelsJarPath);
+    final String modelsJarPath = Paths.get(homeDir, "lib", "jars", "models.jar").toString();
+    if (null == modelsJarPath) {
+      return null;
+    }
 
+    final File file = new File(modelsJarPath);
     if (!file.exists()) {
       Logger.error("File %s does not exist.", modelsJarPath);
       return null;
@@ -69,24 +77,23 @@ public final class SysUtils {
     final URL[] urls = new URL[] {url};
     final ClassLoader cl = new URLClassLoader(urls);
 
-    final String modelClassName = String.format("%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
     final Class<?> cls;
     try {
-      cls = cl.loadClass(modelClassName);
+      cls = cl.loadClass(className);
     } catch (ClassNotFoundException e) {
-      Logger.error("Failed to load the %s class from %s. Reason: %s", modelClassName, modelsJarPath, e.getMessage());
+      Logger.error("Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage());
       return null;
     }
 
-    final IModel model;
+    final Object instance;
     try {
-      model = (IModel) cls.newInstance();
+      instance = cls.newInstance();
     } catch (final InstantiationException | IllegalAccessException e) {
-      Logger.error("Failed to create an instance of %s. Reason: %s", modelClassName, e.getMessage());
+      Logger.error("Failed to create an instance of %s. Reason: %s", className, e.getMessage());
       return null;
     }
 
-    return model;
+    return instance;
   }
 
   public static Plugin loadPlugin(final String className) {
