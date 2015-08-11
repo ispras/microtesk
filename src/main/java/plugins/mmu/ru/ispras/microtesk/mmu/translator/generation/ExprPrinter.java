@@ -106,32 +106,77 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.OR, "", " || ", "");
     addMapping(StandardOperation.NOT, "!", "" , "");
 
-    addMapping(StandardOperation.BVCONCAT,
-        "BitVector.newMapping(", ", ", ")");
-
-    addMapping(StandardOperation.BVEXTRACT,
-        "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
+    addBitVectorMathMapping(StandardOperation.BVADD,  "add");
+    addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
+    addBitVectorMathMapping(StandardOperation.BVNEG,  "neg");
+    addBitVectorMathMapping(StandardOperation.BVMUL,  "mul");
+    addBitVectorMathMapping(StandardOperation.BVUDIV, "udiv");
+    addBitVectorMathMapping(StandardOperation.BVSDIV, "sdiv");
+    addBitVectorMathMapping(StandardOperation.BVUREM, "urem");
+    addBitVectorMathMapping(StandardOperation.BVSREM, "srem");
+    addBitVectorMathMapping(StandardOperation.BVSMOD, "smod");
+    addBitVectorMathMapping(StandardOperation.BVLSHL, "shl");
+    addBitVectorMathMapping(StandardOperation.BVASHL, "slh");
+    addBitVectorMathMapping(StandardOperation.BVLSHR, "lshr");
+    addBitVectorMathMapping(StandardOperation.BVASHR, "ashr");
+    addMapping(StandardOperation.BVCONCAT, "BitVector.newMapping(", ", ", ")");
+    // StandardOperation.BVREPEAT // TODO
+    addBitVectorMathMapping(StandardOperation.BVROL, "rotl");
+    addBitVectorMathMapping(StandardOperation.BVROR, "rotr");
 
     addMapping(StandardOperation.BVZEROEXT,
         "", new String[] {".resize("}, ", false)", new int[] {1, 0});
+    addMapping(StandardOperation.BVSIGNEXT,
+        "", new String[] {".resize("}, ", true)", new int[] {1, 0});
+    addMapping(StandardOperation.BVEXTRACT,
+        "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
 
-    addMapping(StandardOperation.BVULT, "BitVectorMath.ult(", ", ", ").equals(BitVector.TRUE)");
-    addMapping(StandardOperation.BVULE, "BitVectorMath.ule(", ", ", ").equals(BitVector.TRUE)");
-    addMapping(StandardOperation.BVUGT, "BitVectorMath.ugt(", ", ", ").equals(BitVector.TRUE)");
-    addMapping(StandardOperation.BVUGE, "BitVectorMath.uge(", ", ", ").equals(BitVector.TRUE)");
+    addBitVectorMathMapping(StandardOperation.BVOR,   "or");
+    addBitVectorMathMapping(StandardOperation.BVXOR,  "xor");
+    addBitVectorMathMapping(StandardOperation.BVAND,  "and");
+    addBitVectorMathMapping(StandardOperation.BVNOT,  "not");
+    addBitVectorMathMapping(StandardOperation.BVNAND, "nand");
+    addBitVectorMathMapping(StandardOperation.BVNOR,  "nor");
+    addBitVectorMathMapping(StandardOperation.BVXNOR, "xnor");
 
-    addMapping(StandardOperation.BVAND, "BitVectorMath.and(", ", ", ")");
-    addMapping(StandardOperation.BVOR,  "BitVectorMath.or(", ", ", ")");
+    addBitVectorMathMappingBool(StandardOperation.BVULE, "ule");
+    addBitVectorMathMappingBool(StandardOperation.BVULT, "ult");
+    addBitVectorMathMappingBool(StandardOperation.BVUGE, "uge");
+    addBitVectorMathMappingBool(StandardOperation.BVUGT, "ugt");
+    addBitVectorMathMappingBool(StandardOperation.BVSLE, "sle");
+    addBitVectorMathMappingBool(StandardOperation.BVSLT, "slt");
+    addBitVectorMathMappingBool(StandardOperation.BVSGE, "sge");
+    addBitVectorMathMappingBool(StandardOperation.BVSGT, "sgt");
 
-    addMapping(StandardOperation.BVADD, "BitVectorMath.add(", ", ", ")");
-    addMapping(StandardOperation.BVSUB, "BitVectorMath.sub(", ", ", ")");
-    addMapping(StandardOperation.BVMUL, "BitVectorMath.mul(", ", ", ")");
+    addBitVectorMathMappingBool(StandardOperation.BVANDR,  "andr");
+    addBitVectorMathMappingBool(StandardOperation.BVNANDR, "!andr");
+    addBitVectorMathMappingBool(StandardOperation.BVORR,   "orr");
+    addBitVectorMathMappingBool(StandardOperation.BVNORR,  "!orr");
+    addBitVectorMathMappingBool(StandardOperation.BVXORR,  "xorr");
+    addBitVectorMathMappingBool(StandardOperation.BVXNORR, "!xorr");
 
-    addMapping(StandardOperation.BVLSHR, "BitVectorMath.lshr(", ", ", ")");
-    addMapping(StandardOperation.BVASHR, "BitVectorMath.ashr(", ", ", ")");
+    // StandardOperation.BV2BOOL // TODO
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
+  }
+
+  private void addBitVectorMathMapping(final StandardOperation op, final String opMapping) {
+    addMapping(
+        op,
+        String.format("BitVectorMath.%s(", opMapping),
+        ", ",
+        ")"
+        );
+  }
+
+  private void addBitVectorMathMappingBool(final StandardOperation op, final String opMapping) {
+    addMapping(
+        op,
+        String.format("BitVectorMath.%s(", opMapping),
+        ", ",
+        ").equals(BitVector.TRUE)"
+        );
   }
 
   public void pushVariableScope() {
