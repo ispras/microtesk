@@ -12,14 +12,20 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+group Model;
 
-import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
+model(pack, imps, name, base, members) ::= <<
+<header(false)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<class(["public", "final"],
+       name,
+       base,
+       false,
+       members)>
+>>
 
-public abstract class Memory <D extends Data, A extends Address>
-    extends StandardFunctions implements Buffer<D, A>, Mmu {
-  @Override
-  public boolean isHit(final A address) {
-    return true;
-  }
+constructor(name) ::= <<
+public <name>() {
 }
+>>

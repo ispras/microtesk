@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
+public interface Mmu {
 
-public abstract class Memory <D extends Data, A extends Address>
-    extends StandardFunctions implements Buffer<D, A>, Mmu {
-  @Override
-  public boolean isHit(final A address) {
-    return true;
-  }
 }

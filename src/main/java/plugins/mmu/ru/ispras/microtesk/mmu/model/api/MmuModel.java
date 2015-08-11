@@ -14,12 +14,10 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
+import java.util.Map;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
-public abstract class Memory <D extends Data, A extends Address>
-    extends StandardFunctions implements Buffer<D, A>, Mmu {
-  @Override
-  public boolean isHit(final A address) {
-    return true;
-  }
+public interface MmuModel {
+  MmuSubsystem getSpec();
+  Map<String, Mmu> getMmu();
 }
