@@ -125,9 +125,9 @@ public final class AddressAllocator {
 
     final long offset = buffer.getOffset(address);
     final long index = buffer.getIndex(address);
-    final long tag = allocateTag(buffer, index, region, peek, null);
+    final long partialAddress = buffer.getAddress(0, index, offset);
 
-    return buffer.getAddress(tag, index, offset);
+    return allocateTag(buffer, partialAddress, region, peek, null);
   }
 
   private long allocate(
@@ -142,6 +142,12 @@ public final class AddressAllocator {
     // Parameters {@code region} and {@code exclude} can be null.
 
     return allocators.get(address).allocate(expression, partialAddress, region, peek, exclude);
+  }
+
+  public void reset() {
+    for (final AddressAllocationEngine allocator : allocators.values()) {
+      allocator.reset();
+    }
   }
 
   public Collection<Long> getAllAddresses(

@@ -191,6 +191,14 @@ public final class AddressAllocationEngine {
     return address;
   }
 
+  public void reset() {
+    for (final Map<Long, AddressAllocationTable> map : allocators.values()) {
+      for (final AddressAllocationTable allocTable : map.values()) {
+        allocTable.reset();
+      }
+    }
+  }
+
   public Collection<Long> getAllAddresses(final RegionSettings region) {
     // Peek an address to initialize allocation tables.
     allocate(allRanges, 0, region, true, null);

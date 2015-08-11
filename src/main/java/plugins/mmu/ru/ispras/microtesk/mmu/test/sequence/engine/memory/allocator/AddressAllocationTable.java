@@ -138,7 +138,7 @@ public final class AddressAllocationTable {
   }
 
   private static long allocate(
-      final AllocationTable<Long, ?> allocTable, boolean peek, final Set<Long> exclude) {
+      final AllocationTable<Long, ?> allocTable, final boolean peek, final Set<Long> exclude) {
     InvariantChecks.checkNotNull(allocTable);
 
       return peek ?
@@ -181,8 +181,8 @@ public final class AddressAllocationTable {
         regionFields.add(regionField);
       }
 
-      // Two possibilities: all regions have the same field (region-insensitive field allocation);
-      // each region has a unique field (region-sensitive field allocation).
+      // Two cases: either all regions have the same field (region-insensitive field allocation)
+      // or each region has a unique field (region-sensitive field allocation).
       InvariantChecks.checkTrue(regionFields.size() == 1 || regionFields.size() == regions.size());
 
       for (final RegionSettings region : regions) {
@@ -213,9 +213,19 @@ public final class AddressAllocationTable {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
 
     final long address = allocate(allocTable, peek, exclude);
-    globalAllocTable.use(address);
+
+    if (!peek) {
+      globalAllocTable.use(address);
+    }
 
     return address;
+  }
+
+  public void reset() {
+    globalAllocTable.reset();
+    for (final AllocationTable<Long, ?> allocTable : regionAllocTables.values()) {
+      allocTable.reset();
+    }
   }
 
   public Collection<Long> getFreeAddresses(final RegionSettings region) {
