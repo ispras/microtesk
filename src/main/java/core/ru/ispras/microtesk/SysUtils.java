@@ -37,6 +37,10 @@ public final class SysUtils {
     return System.getProperty("user.dir");
   }
 
+  public static String getModelsJarPath() {
+    return Paths.get(getHomeDir(), "lib", "jars", "models.jar").toString();
+  }
+
   public static IModel loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
@@ -45,8 +49,8 @@ public final class SysUtils {
       Logger.error("The %s environment variable is not defined.", MICROTESK_HOME);
       return null;
     }
- 
-    final String modelsJarPath = Paths.get(getHomeDir(), "lib", "jars", "models.jar").toString();
+
+    final String modelsJarPath = getModelsJarPath();
     final File file = new File(modelsJarPath);
 
     if (!file.exists()) {
