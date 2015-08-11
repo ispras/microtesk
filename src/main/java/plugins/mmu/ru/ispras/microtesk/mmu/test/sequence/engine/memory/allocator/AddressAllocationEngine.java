@@ -122,6 +122,23 @@ public final class AddressAllocationEngine {
   }
 
   /**
+   * Allocates an address for the given partial address and the region.
+   * 
+   * @param partialAddress the partial address.
+   * @param region the memory region.
+   * @param peek if {@code peek == true}, peek address without allocation.
+   * @param exclude the set of addresses whose fields to be excluded.
+   * @return an allocated field.
+   */
+  public long allocate(
+      final long partialAddress,
+      final RegionSettings region,
+      final boolean peek,
+      final Set<Long> exclude) {
+    return allocate(allRanges, partialAddress, region, peek, exclude);
+  }
+
+  /**
    * Allocates an address field for the given partial address and the region.
    * 
    * @param expression the expression defining the field to be allocated.

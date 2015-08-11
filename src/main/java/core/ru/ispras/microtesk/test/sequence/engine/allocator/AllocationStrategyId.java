@@ -62,7 +62,8 @@ public enum AllocationStrategyId implements AllocationStrategy {
         return Randomizer.get().choose(nonEmptySet);
       }
 
-      if (attributes != null && attributes.containsKey(ATTR_FREE_BIAS)
+      if (attributes != null
+          && attributes.containsKey(ATTR_FREE_BIAS)
           && attributes.containsKey(ATTR_USED_BIAS)) {
         final List<Set<T>> values = new ArrayList<>();
         values.add(free);

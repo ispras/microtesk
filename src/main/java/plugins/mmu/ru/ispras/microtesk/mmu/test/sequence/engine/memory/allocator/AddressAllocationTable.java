@@ -27,6 +27,7 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
 
 /**
@@ -169,7 +170,12 @@ public final class AddressAllocationTable {
     final int width = (hi - lo) + 1;
     final long mask = width == Long.SIZE ? -1L : (1L << width) - 1;
 
-    if (((mask << lo) | addressMask) != addressMask) {
+    final boolean isInsignificant = ((mask << lo) | addressMask) != addressMask;
+
+    final AllocationStrategyId strategy =
+        isInsignificant ? AllocationStrategyId.RANDOM : AllocationStrategyId.FREE;
+
+    if (isInsignificant) {
       globalValues.addAll(Collections.singleton(0L));
     } else if (regions == null || regions.isEmpty()) {
       globalValues.addAll(getAddressFieldValues(width, 0, ~mask));
@@ -192,13 +198,14 @@ public final class AddressAllocationTable {
 
         globalValues.addAll(regionValues);
         if (regionFields.size() == regions.size()) {
-          final AllocationTable<Long, ?> regionAllocTable = new AllocationTable<>(regionValues);
+          final AllocationTable<Long, ?> regionAllocTable =
+              new AllocationTable<>(strategy, regionValues);
           regionAllocTables.put(region.getName(), regionAllocTable);
         }
       }
     }
 
-    this.globalAllocTable = new AllocationTable<>(globalValues);
+    this.globalAllocTable = new AllocationTable<>(strategy, globalValues);
   }
 
   /**

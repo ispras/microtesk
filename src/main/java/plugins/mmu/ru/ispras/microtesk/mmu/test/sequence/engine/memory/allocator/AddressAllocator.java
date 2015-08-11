@@ -111,23 +111,7 @@ public final class AddressAllocator {
     InvariantChecks.checkNotNull(address);
     // Parameters {@code region} can be null.
 
-    return allocate(
-        address, MmuExpression.var(address.getVariable()), partialAddress, region, peek, null);
-  }
-
-  public long reallocateTag(
-      final MmuBuffer buffer,
-      final long address,
-      final RegionSettings region,
-      final boolean peek) {
-    InvariantChecks.checkNotNull(buffer);
-    // Parameters {@code region} can be null.
-
-    final long offset = buffer.getOffset(address);
-    final long index = buffer.getIndex(address);
-    final long partialAddress = buffer.getAddress(0, index, offset);
-
-    return allocateTag(buffer, partialAddress, region, peek, null);
+    return allocators.get(address).allocate(partialAddress, region, peek, null);
   }
 
   private long allocate(
