@@ -36,7 +36,18 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressAllocationTable {
-  private static final int ALLOC_TABLE_SIZE = 64;
+  private static final int ALLOC_TABLE_SIZE(int width) {
+    if (width < 8) {
+      return 32;
+    }
+    if (width < 16) {
+      return 64;
+    }
+    if (width < 32) {
+      return 128;
+    }
+    return 256;
+  }
 
   /**
    * Returns the ranges specifying the zero fields of the mask.
@@ -103,10 +114,13 @@ public final class AddressAllocationTable {
       final int width, final long fieldMask, final long placeMask) {
     InvariantChecks.checkTrue(width > 0);
 
-    final int count = (1 << width) < ALLOC_TABLE_SIZE ? (1 << width) : ALLOC_TABLE_SIZE;
+    final int maximumSize = (1 << width);
+    final int defaultSize = ALLOC_TABLE_SIZE(width);
+
+    final int size = maximumSize < defaultSize ? maximumSize : defaultSize;
 
     final Set<Long> values = new LinkedHashSet<>();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < size; i++) {
       final long value = getMaskedValue(i, fieldMask, placeMask);
       values.add(value);
     }
