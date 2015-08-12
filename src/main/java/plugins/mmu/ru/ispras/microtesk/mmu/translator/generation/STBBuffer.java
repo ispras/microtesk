@@ -111,8 +111,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
 
     st.add("members", stEntry);
   }
-  
-  
+
   private void buildFields(final Type type, final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("struct_constructor");
     stConstructor.add("name", "Entry");
