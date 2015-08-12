@@ -65,7 +65,7 @@ public final class AddressAllocatorTestCase {
   private void runTest(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 8; i++) {
       final long address1 = addressAllocator.allocateIndex(buffer, 0, null, false, null);
       final long address2 = addressAllocator.allocateTag(buffer, address1, null, false, null);
 
