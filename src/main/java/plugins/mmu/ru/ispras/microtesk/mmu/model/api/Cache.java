@@ -36,7 +36,7 @@ import ru.ispras.microtesk.utils.SparseArray;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Cache<D extends Data, A extends Address> implements Buffer<D, A> {
+public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
   /** The table of associative sets. */
   private final SparseArray<Set<D, A>> sets;
 

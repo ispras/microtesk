@@ -23,7 +23,7 @@ package ru.ispras.microtesk.mmu.model.api;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 
-public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
+public final class Line<D, A extends Address> implements Buffer<D, A> {
 
   /** The stored data. */
   private D data;

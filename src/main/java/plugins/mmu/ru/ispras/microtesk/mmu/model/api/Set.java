@@ -26,7 +26,7 @@ import java.util.List;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 
-public final class Set<D extends Data, A extends Address> implements Buffer<D, A> {
+public final class Set<D, A extends Address> implements Buffer<D, A> {
   /** The array of cache lines. */
   private final List<Line<D, A>> lines = new ArrayList<>();
 
