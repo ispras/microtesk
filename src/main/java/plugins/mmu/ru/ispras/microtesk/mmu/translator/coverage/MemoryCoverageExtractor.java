@@ -41,9 +41,9 @@ final class MemoryCoverageExtractor {
    * Returns all memory access paths for the given memory access type.
    * 
    * @param type the memory access type or {@code null}.
-   * @return all memory access paths
+   * @return the memory access paths
    */
-  public List<MemoryAccessPath> getAccesses(final MemoryAccessType type) {
+  public List<MemoryAccessPath> getPaths(final MemoryAccessType type) {
     final List<MemoryAccessPath> paths = new ArrayList<>();
     final List<MmuTransition> out = memory.getTransitions(memory.getStartAction());
 
@@ -82,16 +82,15 @@ final class MemoryCoverageExtractor {
   /**
    * Elongates the memory access path.
    * 
-   * @param type the memory access type.
-   * @param accessPath the memory access path to be elongated.
+   * @param type the memory access type or {@code null}.
+   * @param path the memory access path to be elongated.
    * @return the list of all possible elongations of the given memory access path.
    */
   private List<MemoryAccessPath> elongatePath(
-      final MemoryAccessType type, final MemoryAccessPath accessPath) {
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(accessPath);
+      final MemoryAccessType type, final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(path);
 
-    final MmuTransition last = accessPath.getLastTransition();
+    final MmuTransition last = path.getLastTransition();
     final MmuAction target = last.getTarget();
     final List<MmuTransition> out = memory.getTransitions(target);
 
@@ -109,7 +108,7 @@ final class MemoryCoverageExtractor {
         if (operation == null || type == null || operation == type.getOperation()) {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
-          builder.addAll(accessPath.getTransitions());
+          builder.addAll(path.getTransitions());
           builder.add(next);
 
           elongatedPaths.add(builder.build());

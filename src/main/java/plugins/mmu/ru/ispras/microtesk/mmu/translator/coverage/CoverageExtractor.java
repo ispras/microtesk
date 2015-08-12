@@ -87,7 +87,7 @@ public final class CoverageExtractor {
     Collection<MemoryAccessPath> paths = typeToPaths.get(type);
     if (paths == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      typeToPaths.put(type, paths = extractor.getAccesses(type));
+      typeToPaths.put(type, paths = extractor.getPaths(type));
     }
 
     return paths;
@@ -107,13 +107,15 @@ public final class CoverageExtractor {
     Collection<MemoryAccessPath> paths = bufferToPaths.get(buffer);
     if (paths == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      final Collection<MemoryAccessPath> allPaths = extractor.getAccesses(null);
+      final Collection<MemoryAccessPath> allPaths = extractor.getPaths(null);
 
       paths = new ArrayList<>();
       for (final MemoryAccessPath path : allPaths) {
         if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
           paths.add(path);
         }
+
+        // TODO: there should be filter on get rid off prohibited paths.
       }
 
       bufferToPaths.put(buffer, paths);

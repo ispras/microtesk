@@ -400,12 +400,14 @@ public final class MmuUnderTest {
   {
     mmu.registerAddress(vaAddr);
     mmu.registerAddress(paAddr);
+    mmu.setStartAddress(vaAddr);
 
     mmu.registerBuffer(dtlb);
     mmu.registerBuffer(jtlb);
     mmu.registerBuffer(l1);
     mmu.registerBuffer(l2);
     mmu.registerBuffer(mem);
+    mmu.setTargetBuffer(mem);
 
     mmu.registerAction(root);
     mmu.registerAction(start);
@@ -434,6 +436,7 @@ public final class MmuUnderTest {
     mmu.registerAction(tlbInvalid);
     mmu.registerAction(tlbModified);
     mmu.registerAction(stop);
+    mmu.setStartAction(root);
 
     mmu.registerTransition(ifRead);
     mmu.registerTransition(ifWrite);
@@ -479,9 +482,6 @@ public final class MmuUnderTest {
     mmu.registerTransition(ifL2Hit);
     mmu.registerTransition(afterL2);
     mmu.registerTransition(afterMem);
-
-    mmu.setStartAddress(vaAddr);
-    mmu.setStartAction(root);
 
     // Disable some of the transitions to reduce testing time.
     if (REDUCE) {
