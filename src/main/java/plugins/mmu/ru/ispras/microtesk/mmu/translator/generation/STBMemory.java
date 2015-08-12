@@ -49,10 +49,9 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     final String dataName = removePrefix(memory.getDataArg().getName());
     ExprPrinter.get().addVariableMappings(memory.getDataArg(), dataName);
 
-    final ST st = group.getInstanceOf("memory");
+    final ST st = group.getInstanceOf("source_file");
 
     buildHeader(st);
-    buildConstructor(st, group);
     buildGetData(st, group, addressName, dataName);
     buildSetData(st, group, addressName, dataName);
 
@@ -67,14 +66,6 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
         memory.getAddress().getId());
 
     buildHeader(st, baseName);
-  }
-
-  private void buildConstructor(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("constructor");
-    stConstructor.add("name", memory.getId());
-
-    st.add("members", "");
-    st.add("members", stConstructor);
   }
 
   private void buildGetData(

@@ -76,7 +76,12 @@ import static <names; separator=".*;\nimport static ">.*;<\n>
  */
 
 class(modifs, name, ext, impls, members) ::= <<
+<class_ext(modifs, name, ext, impls, members, false)>
+>>
+
+class_ext(modifs, name, ext, impls, members, instance) ::= <<
 <modif_list(modifs)>class <name><base_class(ext)><intf_list(impls)> {
+  <if(instance)><singleton(name, instance)><endif>
   <members; separator="\n">
 }<\n>
 >>
@@ -112,14 +117,15 @@ public static <type> get() {
 }<\n>
 >>
 
-source_file(file, pack, name, ext, impls, imps, simps, members) ::= <<
+source_file(file, pack, name, ext, impls, imps, simps, members, instance) ::= <<
 <header(file)>
 <package(pack)>
 <if(simps)><static_imports(simps)><endif>
 <if(imps)><imports(imps)><endif>
-<class(["public", "final"],
+<class_ext(["public", "final"],
        name,
        ext,
        impls,
-       members)>
+       members,
+       instance)>
 >>

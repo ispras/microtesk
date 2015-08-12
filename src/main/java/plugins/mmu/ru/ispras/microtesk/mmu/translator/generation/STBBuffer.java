@@ -71,7 +71,8 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
     ExprPrinter.get().addVariableMappings(
         buffer.getDataArg(), DATA_NAME);
 
-    final ST st = group.getInstanceOf("buffer");
+    final ST st = group.getInstanceOf("source_file");
+    st.add("instance", "instance");
 
     buildHeader(st);
     buildEntry(st, group);

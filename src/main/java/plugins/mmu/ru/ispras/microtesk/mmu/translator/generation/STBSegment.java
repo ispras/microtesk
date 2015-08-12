@@ -43,7 +43,9 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     ExprPrinter.get().pushVariableScope();
-    final ST st = group.getInstanceOf("segment");
+
+    final ST st = group.getInstanceOf("source_file");
+    st.add("instance", "instance");
 
     buildHeader(st);
     buildConstructor(st, group);
@@ -63,7 +65,7 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructor = group.getInstanceOf("segment_constructor");
     stConstructor.add("name", segment.getId());
 
     final int bitSize = segment.getAddress().getAddressType().getBitSize();

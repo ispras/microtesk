@@ -87,7 +87,7 @@ public abstract class STBBuilderBase {
 
   protected final void buildHeader(final ST st, final String base) {
     st.add("name", getId()); 
-    st.add("base", base);
+    st.add("ext", base);
     st.add("pack", packageName);
 
     st.add("imps", String.format("%s.*", BUFFER_CLASS.getPackage().getName()));

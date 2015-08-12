@@ -14,23 +14,13 @@
 
 group Buffer;
 
-buffer(pack, imps, name, base, members) ::= <<
-<header(false)>
-<package(pack)>
-<if(imps)><imports(imps)><endif>
-<class(["public", "final"],
-       name,
-       base,
-       false,
-       [singleton(name, "instance"), members])>
->>
-
 entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
        false,
        false,
-       members)>
+       members,
+       false)>
 >>
 
 indexer(addr_type, addr_name, expr) ::= <<
