@@ -72,7 +72,7 @@ public final class MemorySolution {
       this.solution.add(new AddressObject(execution));
     }
 
-    for (final MmuBuffer device : MmuTranslator.getSpecification().getDevices()) {
+    for (final MmuBuffer device : MmuTranslator.getSpecification().getBuffers()) {
       this.entries.put(device, new LinkedHashMap<Long, MmuEntry>());
     }
 

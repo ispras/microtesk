@@ -401,11 +401,11 @@ public final class MmuUnderTest {
     mmu.registerAddress(vaAddr);
     mmu.registerAddress(paAddr);
 
-    mmu.registerDevice(dtlb);
-    mmu.registerDevice(jtlb);
-    mmu.registerDevice(l1);
-    mmu.registerDevice(l2);
-    mmu.registerDevice(mem);
+    mmu.registerBuffer(dtlb);
+    mmu.registerBuffer(jtlb);
+    mmu.registerBuffer(l1);
+    mmu.registerBuffer(l2);
+    mmu.registerBuffer(mem);
 
     mmu.registerAction(root);
     mmu.registerAction(start);

@@ -206,7 +206,7 @@ public final class AddressObject {
       builder.append(String.format("%s=%x", addrType.getVariable().getName(), addrValue));
       comma = true;
 
-      for (final MmuBuffer device : memory.getDevices()) {
+      for (final MmuBuffer device : memory.getBuffers()) {
         if (device.getAddress() == addrType) {
           if (device.isReplaceable()) {
             builder.append(comma ? separator : "");

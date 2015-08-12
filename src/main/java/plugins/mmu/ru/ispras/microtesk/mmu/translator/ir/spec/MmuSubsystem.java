@@ -27,7 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 /**
  * {@link MmuSubsystem} describes a memory management unit (MMU).
  * 
- * <p>The description includes a set of devices and a network (directed acyclic graph with one
+ * <p>The description includes a set of buffers and a network (directed acyclic graph with one
  * source and multiple sink nodes) of actions.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -50,11 +50,16 @@ public final class MmuSubsystem {
    */
   private MmuAddressType startAddress;
 
-  /** Stores devices (buffers) of the MMU. */
-  private Map<String, MmuBuffer> devices = new LinkedHashMap<>();
+  /** Stores buffers of the MMU. */
+  private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
 
   // TODO:
-  private List<MmuBuffer> sortedDevices = new ArrayList<>();
+  private List<MmuBuffer> sortedBuffers = new ArrayList<>();
+
+  /**
+   * Refers to the target buffer of the MMU.
+   */
+  private MmuBuffer targetBuffer;
 
   /** Maps actions to out-going transitions. */
   private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
@@ -120,40 +125,60 @@ public final class MmuSubsystem {
   }
 
   /**
-   * Registers a device in the MMU. Devices are identified by their name.
-   * Devices with equal names are considered duplicates and ignored.
+   * Sets the target buffer (the main memory device).
    * 
-   * @param device the device to be registered.
-   * @throws IllegalArgumentException if {@code device} is {@code null}.
+   * @param buffer the buffer to be set.
+   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
    */
-  public void registerDevice(final MmuBuffer device) {
-    InvariantChecks.checkNotNull(device);
-    devices.put(device.getName(), device);
-    sortedDevices.add(device);
+  public void setTargetBuffer(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    targetBuffer = buffer;
   }
 
   /**
-   * Returns the collection of devices registered in the MMU.
+   * Returns the target buffer (the main memory device).
    * 
-   * @return the collection of devices.
+   * @return the target buffer.
    */
-  public Collection<MmuBuffer> getDevices() {
-    return devices.values();
+  public MmuBuffer getTargetBuffer() {
+    return targetBuffer;
+  }
+
+  /**
+   * Registers a buffer in the MMU. Devices are identified by their name.
+   * Devices with equal names are considered duplicates and ignored.
+   * 
+   * @param buffer the buffer to be registered.
+   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+   */
+  public void registerBuffer(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    buffers.put(buffer.getName(), buffer);
+    sortedBuffers.add(buffer);
+  }
+
+  /**
+   * Returns the collection of buffers registered in the MMU.
+   * 
+   * @return the collection of buffers.
+   */
+  public Collection<MmuBuffer> getBuffers() {
+    return buffers.values();
   }
 
   // TODO:
-  public List<MmuBuffer> getSortedListOfDevices() {
-    return sortedDevices;
+  public List<MmuBuffer> getSortedListOfBuffers() {
+    return sortedBuffers;
   }
 
   /**
-   * Returns a device registered in the MMU by its name.
+   * Returns a buffer registered in the MMU by its name.
    * 
-   * @param name the name of the device.
-   * @return device or {@code null} it is undefined.
+   * @param name the name of the buffer.
+   * @return buffer or {@code null} it is undefined.
    */
-  public MmuBuffer getDevice(final String name) {
-    return devices.get(name);
+  public MmuBuffer getBuffer(final String name) {
+    return buffers.get(name);
   }
 
   /**
@@ -242,11 +267,11 @@ public final class MmuSubsystem {
 
     builder.append(String.format("%nStart address: %s%n", startAddress));
 
-    builder.append(String.format("%nDevices: %d", devices.size()));
-    for (final MmuBuffer device : getDevices()) {
+    builder.append(String.format("%nDevices: %d", buffers.size()));
+    for (final MmuBuffer buffer : getBuffers()) {
       builder.append(newline);
       builder.append("    ");
-      builder.append(device);
+      builder.append(buffer);
     }
     builder.append(newline);
 

@@ -37,8 +37,8 @@ public final class MemoryEngineContext {
   // TODO: Integration with MMU TestGen.
   private final Iterator<MemoryAccessStructure> structureIterator;
 
-  private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
-  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors;
+  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
+  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
   private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
   private final Action resetAction;
@@ -57,8 +57,8 @@ public final class MemoryEngineContext {
     InvariantChecks.checkNotNull(resetAction);
 
     this.structureIterator = structureIterator;
-    this.addrObjectConstructors = addrObjectConstructors;
-    this.addrObjectCorrectors = addrObjectCorrectors;
+    this.addrObjectConstructor = addrObjectConstructors;
+    this.addrObjectCorrector = addrObjectCorrectors;
     this.addrAllocators = addrAllocators;
     this.entryProviders = entryProviders;
     this.resetAction = resetAction;
@@ -68,12 +68,12 @@ public final class MemoryEngineContext {
     return structureIterator;
   }
 
-  public Function<MemoryAccess, AddressObject> getAddrObjectConstructors() {
-    return addrObjectConstructors;
+  public Function<MemoryAccess, AddressObject> getAddrObjectConstructor() {
+    return addrObjectConstructor;
   }
 
-  public BiConsumer<MemoryAccess, AddressObject> getAddrObjectCorrectors() {
-    return addrObjectCorrectors;
+  public BiConsumer<MemoryAccess, AddressObject> getAddrObjectCorrector() {
+    return addrObjectCorrector;
   }
 
   public Map<MmuBuffer, UnaryOperator<Long>> getAddrAllocators() {

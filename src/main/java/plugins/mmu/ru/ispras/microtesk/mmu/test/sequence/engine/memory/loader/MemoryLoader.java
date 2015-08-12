@@ -76,7 +76,7 @@ public final class MemoryLoader implements Loader {
     InvariantChecks.checkNotNull(addressType);
 
     final List<Load> sequence = new ArrayList<>();
-    final List<MmuBuffer> buffers = memory.getSortedListOfDevices();
+    final List<MmuBuffer> buffers = memory.getSortedListOfBuffers();
 
     // Reverse order: large buffers come first.
     for (int i = buffers.size() - 1; i >= 0; i--) {

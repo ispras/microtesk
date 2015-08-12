@@ -116,7 +116,7 @@ final class GuardExtractor {
       hit = new MmuGuard(MmuCondition.range(addressVar, segment.getMin(), segment.getMax()));
       miss = null; // TODO
     } else {
-      final MmuBuffer device = specification.getDevice(attrRef.getTarget().getId());
+      final MmuBuffer device = specification.getBuffer(attrRef.getTarget().getId());
       hit = new MmuGuard(device, BufferAccessEvent.HIT);
       miss = new MmuGuard(device, BufferAccessEvent.MISS);
     }

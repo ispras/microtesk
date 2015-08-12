@@ -144,7 +144,7 @@ final class MemoryAccessVariableStore {
   public MemoryAccessVariableStore(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
     initRanges(
-        CoverageExtractor.get().getAccesses(memory, null), CoverageExtractor.get().getHazards(memory));
+        CoverageExtractor.get().getPaths(memory, null), CoverageExtractor.get().getHazards(memory));
   }
 
   /**

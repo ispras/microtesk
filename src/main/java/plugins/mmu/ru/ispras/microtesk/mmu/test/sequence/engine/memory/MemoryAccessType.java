@@ -25,6 +25,14 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessType {
+  public static MemoryAccessType LOAD(final DataType dataType) {
+    return new MemoryAccessType(MemoryOperation.LOAD, dataType);
+  }
+
+  public static MemoryAccessType STORE(final DataType dataType) {
+    return new MemoryAccessType(MemoryOperation.STORE, dataType);
+  }
+
   private final MemoryOperation operation;
   private final DataType dataType;
 
@@ -42,6 +50,25 @@ public final class MemoryAccessType {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  @Override
+  public int hashCode() {
+    return operation.hashCode() * 31 + dataType.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || !(o instanceof MemoryAccessType)) {
+      return false;
+    }
+
+    final MemoryAccessType r = (MemoryAccessType) o;
+    return operation == r.operation && dataType == r.dataType;
   }
 
   @Override

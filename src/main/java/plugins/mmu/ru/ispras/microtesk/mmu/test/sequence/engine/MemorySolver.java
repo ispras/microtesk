@@ -129,8 +129,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     this.structure = structure;
 
-    this.addrObjectConstructors = context.getAddrObjectConstructors();
-    this.addrObjectCorrectors = context.getAddrObjectCorrectors();
+    this.addrObjectConstructors = context.getAddrObjectConstructor();
+    this.addrObjectCorrectors = context.getAddrObjectCorrector();
     this.addrAllocators = context.getAddrAllocators();
     this.entryProviders = context.getEntryProviders();
   }

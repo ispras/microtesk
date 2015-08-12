@@ -1,8 +1,8 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use buffer file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use buffer file
+ * except in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
@@ -38,9 +38,14 @@ public final class CoverageExtractor {
   }
 
   private final Map<MmuAddressType, Collection<MemoryHazard>> addressHazards = new HashMap<>();
-  private final Map<MmuBuffer, Collection<MemoryHazard>> deviceHazards  = new HashMap<>();
-  private final Map<MmuSubsystem, Collection<MemoryAccessPath>> memoryAccesses = new HashMap<>();
-  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards  = new HashMap<>();
+  private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
+  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
+
+  private final Map<MmuSubsystem, Map<MemoryAccessType, Collection<MemoryAccessPath>>> typePaths =
+      new HashMap<>();
+
+  private final Map<MmuSubsystem, Map<MmuBuffer, Collection<MemoryAccessPath>>> bufferNormalPaths =
+      new HashMap<>();
 
   private CoverageExtractor() {}
 
@@ -59,27 +64,62 @@ public final class CoverageExtractor {
   public Collection<MemoryHazard> getHazards(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
-    Collection<MemoryHazard> coverage = deviceHazards.get(device);
+    Collection<MemoryHazard> coverage = bufferHazards.get(device);
     if (coverage == null) {
       final BufferCoverageExtractor extractor = new BufferCoverageExtractor(device);
-      deviceHazards.put(device, coverage = extractor.getHazards());
+      bufferHazards.put(device, coverage = extractor.getHazards());
     }
 
     return coverage;
   }
 
-  public Collection<MemoryAccessPath> getAccesses(
-      final MmuSubsystem memory, final MemoryAccessType accessType) {
+  public Collection<MemoryAccessPath> getPaths(
+      final MmuSubsystem memory, final MemoryAccessType type) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(accessType);
+    InvariantChecks.checkNotNull(type);
 
-    Collection<MemoryAccessPath> coverage = memoryAccesses.get(memory);
-    if (coverage == null) {
-      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      memoryAccesses.put(memory, coverage = extractor.getAccesses(accessType));
+    Map<MemoryAccessType, Collection<MemoryAccessPath>> typeToPaths = typePaths.get(memory);
+    if (typeToPaths == null) {
+      typePaths.put(memory,
+          typeToPaths = new HashMap<MemoryAccessType, Collection<MemoryAccessPath>>());
     }
 
-    return coverage;
+    Collection<MemoryAccessPath> paths = typeToPaths.get(type);
+    if (paths == null) {
+      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
+      typeToPaths.put(type, paths = extractor.getAccesses(type));
+    }
+
+    return paths;
+  }
+
+  public Collection<MemoryAccessPath> getNormalPaths(
+      final MmuSubsystem memory, final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(buffer);
+
+    Map<MmuBuffer, Collection<MemoryAccessPath>> bufferToPaths = bufferNormalPaths.get(memory);
+    if (bufferToPaths == null) {
+      bufferNormalPaths.put(memory,
+          bufferToPaths = new HashMap<MmuBuffer, Collection<MemoryAccessPath>>());
+    }
+
+    Collection<MemoryAccessPath> paths = bufferToPaths.get(buffer);
+    if (paths == null) {
+      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
+      final Collection<MemoryAccessPath> allPaths = extractor.getAccesses(null);
+
+      paths = new ArrayList<>();
+      for (final MemoryAccessPath path : allPaths) {
+        if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
+          paths.add(path);
+        }
+      }
+
+      bufferToPaths.put(buffer, paths);
+    }
+
+    return paths;
   }
 
   public Collection<MemoryHazard> getHazards(final MmuSubsystem memory) {
@@ -88,7 +128,7 @@ public final class CoverageExtractor {
     Collection<MemoryHazard> coverage = memoryHazards.get(memory);
     if (coverage == null) {
       coverage = new ArrayList<>();
-      for (final MmuBuffer device : memory.getDevices()) {
+      for (final MmuBuffer device : memory.getBuffers()) {
         coverage.addAll(getHazards(device));
       }
       memoryHazards.put(memory, coverage);

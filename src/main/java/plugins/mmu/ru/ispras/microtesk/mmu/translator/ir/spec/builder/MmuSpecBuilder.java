@@ -175,7 +175,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           variables, address.getVariable(), buffer.getIndex(), buffer.getMatch());
 
       final MmuBuffer parentDevice = (null != buffer.getParent()) ?
-          spec.getDevice(buffer.getParent().getId()) : null;
+          spec.getBuffer(buffer.getParent().getId()) : null;
 
       final MmuCondition guardCondition;
       if (buffer.getGuard() != null) {
@@ -208,7 +208,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       }
 
       context.registerBuffer(bufferVar, device);
-      spec.registerDevice(device);
+      spec.registerBuffer(device);
     } finally {
       variables.removeAlias(addressArgName);
       for (final String fieldAlias : addressVar.getFields().keySet()) {

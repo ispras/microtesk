@@ -30,12 +30,12 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryIdAllocator {
-  private final Map<String, AllocationTable<Long, ?>> allocators = new HashMap<>();
+  private final Map<MmuBuffer, AllocationTable<Long, ?>> allocators = new HashMap<>();
 
   public EntryIdAllocator(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
 
-    for (final MmuBuffer buffer : memory.getDevices()) {
+    for (final MmuBuffer buffer : memory.getBuffers()) {
       if (buffer.isReplaceable()) {
         continue;
       }
@@ -48,7 +48,7 @@ public final class EntryIdAllocator {
 
       // Construct the allocation table.
       final AllocationTable<Long, ?> allocator = new AllocationTable<>(entryIds);
-      allocators.put(buffer.getName(), allocator);
+      allocators.put(buffer, allocator);
     }
   }
 
@@ -60,7 +60,7 @@ public final class EntryIdAllocator {
     InvariantChecks.checkTrue(!buffer.isReplaceable());
     // Parameter {@code exclude} can be null.
 
-    final AllocationTable<Long, ?> allocator = allocators.get(buffer.getName());
+    final AllocationTable<Long, ?> allocator = allocators.get(buffer);
     return peek ?
         (exclude != null ? allocator.peek(exclude) : allocator.peek()) :
         (exclude != null ? allocator.allocate(exclude) : allocator.allocate());

@@ -65,7 +65,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     final MmuBuffer l2 = MmuUnderTest.get().l2;
     final MmuBuffer mem = MmuUnderTest.get().mem;
 
-    buffers = mmu.getDevices();
+    buffers = mmu.getBuffers();
     addresses = mmu.getAddresses();
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();

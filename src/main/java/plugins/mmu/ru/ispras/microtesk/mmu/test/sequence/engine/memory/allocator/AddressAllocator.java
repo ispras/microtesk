@@ -50,7 +50,7 @@ public final class AddressAllocator {
       mask.put(addressType, 0L);
     }
 
-    for (final MmuBuffer buffer : memory.getDevices()) {
+    for (final MmuBuffer buffer : memory.getBuffers()) {
       final MmuAddressType addressType = buffer.getAddress();
       final Collection<MmuExpression> addressExpressions = expressions.get(addressType);
 

@@ -80,7 +80,7 @@ public final class FilterUnclosedEqualRelations implements Predicate<MemoryAcces
 
           hazardNames.add(String.format("%s.%s", hazard.getAddress(), "ADDR_EQUAL"));
 
-          for (final MmuBuffer device : memory.getDevices()) {
+          for (final MmuBuffer device : memory.getBuffers()) {
             if (device.getAddress() == hazard.getAddress()) {
               hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));
               hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));

@@ -121,7 +121,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     for (final MemoryAccessType accessType : accessTypes) {
       final Collection<MemoryAccessPath> accessPaths = 
-          CoverageExtractor.get().getAccesses(MmuTranslator.getSpecification(), accessType);
+          CoverageExtractor.get().getPaths(MmuTranslator.getSpecification(), accessType);
 
       final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(accessPaths);
 

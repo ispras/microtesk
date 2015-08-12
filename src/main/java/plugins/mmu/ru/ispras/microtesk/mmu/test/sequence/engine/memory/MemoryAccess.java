@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link MemoryAccess} represents the execution path of a memory access instruction.
+ * {@link MemoryAccess} represents an execution path of a memory access instruction.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -26,13 +26,13 @@ public final class MemoryAccess {
   private final MemoryAccessPath path;
 
   public MemoryAccess(
-      final MemoryAccessType accessType,
-      final MemoryAccessPath accessPath) {
-    InvariantChecks.checkNotNull(accessType);
-    InvariantChecks.checkNotNull(accessPath);
+      final MemoryAccessType type,
+      final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(path);
 
-    this.type = accessType;
-    this.path = accessPath;
+    this.type = type;
+    this.path = path;
   }
 
   public MemoryAccessType getType() {
