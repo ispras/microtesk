@@ -21,11 +21,10 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
-import ru.ispras.microtesk.utils.function.Action;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
+import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriConsumer;
-import ru.ispras.microtesk.utils.function.UnaryOperator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -39,29 +38,25 @@ public final class MemoryEngineContext {
 
   private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
   private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
-  private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
-  private final Action resetAction;
+  private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
       final Function<MemoryAccess, AddressObject> addrObjectConstructors,
       final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors,
-      final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
-      final Action resetAction) {
+      final Map<MmuBuffer, Predicate<Long>> hitCheckers) {
     InvariantChecks.checkNotNull(addrObjectConstructors);
     InvariantChecks.checkNotNull(addrObjectCorrectors);
-    InvariantChecks.checkNotNull(addrAllocators);
     InvariantChecks.checkNotNull(entryProviders);
-    InvariantChecks.checkNotNull(resetAction);
+    InvariantChecks.checkNotNull(hitCheckers);
 
     this.structureIterator = structureIterator;
     this.addrObjectConstructor = addrObjectConstructors;
     this.addrObjectCorrector = addrObjectCorrectors;
-    this.addrAllocators = addrAllocators;
     this.entryProviders = entryProviders;
-    this.resetAction = resetAction;
+    this.hitCheckers = hitCheckers;
   }
 
   public Iterator<MemoryAccessStructure> getStructureIterator() {
@@ -76,15 +71,11 @@ public final class MemoryEngineContext {
     return addrObjectCorrector;
   }
 
-  public Map<MmuBuffer, UnaryOperator<Long>> getAddrAllocators() {
-    return addrAllocators;
-  }
-
   public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> getEntryProviders() {
     return entryProviders;
   }
 
-  public Action getResetAction() {
-    return resetAction;
+  public Map<MmuBuffer, Predicate<Long>> getHitCheckers() {
+    return hitCheckers;
   }
 }

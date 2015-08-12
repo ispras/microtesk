@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +32,14 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
@@ -63,13 +73,15 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return PARAM_CLASSIFIER_DEFAULT;
   }
 
+  private AddressAllocator addressAllocator;
+  private EntryIdAllocator entryIdAllocator;
+
   private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT; 
 
-  // TODO: To provide access to the current solution.
+  // TODO:
   private MemorySolver solver;
-
-  public MemorySolution getCurrentSolution() {
-    return solver != null ? solver.getCurrentSolution() : null;
+  public MemorySolver getSolver() {
+    return solver;
   }
 
   @Override
@@ -93,10 +105,42 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     final Iterator<MemoryAccessStructure> structureIterator =
         getStructureIterator(engineContext, abstractSequence);
+
     final Iterator<MemorySolution> solutionIterator =
         getSolutionIterator(engineContext, structureIterator);
 
+    final GeneratorSettings settings = engineContext.getSettings();
+    final Map<MmuAddressType, Collection<RegionSettings>> addressToRegions = new HashMap<>();
+    final Collection<RegionSettings> regions = new ArrayList<>();
+
+    for (final RegionSettings region : settings.getMemory().getRegions()) {
+      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+        regions.add(region);
+      }
+    }
+
+    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final List<MmuAddressType> addressTypes = memory.getSortedListOfAddresses();
+
+    for (int i = 0; i < addressTypes.size(); i++) {
+      final MmuAddressType addressType = addressTypes.get(i);
+
+      addressToRegions.put(addressType,
+          i != addressTypes.size() - 1 ? Collections.<RegionSettings>emptyList() : regions);
+    }
+
+    this.addressAllocator = new AddressAllocator(memory, addressToRegions);
+    this.entryIdAllocator = new EntryIdAllocator(memory);
+
     return new EngineResult<MemorySolution>(solutionIterator);
+  }
+
+  public Collection<Long> getAllAddresses(
+      final MmuAddressType addressType, final RegionSettings region) {
+    InvariantChecks.checkNotNull(addressType);
+    InvariantChecks.checkNotNull(region);
+
+    return addressAllocator.getAllAddresses(addressType, region);
   }
 
   private Iterator<MemoryAccessStructure> getStructureIterator(
@@ -151,8 +195,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           final MemoryAccessStructure structure = structureIterator.value();
 
           // Reset the allocation tables before solving the constraint.
-          customContext.getResetAction().apply();
-          solver = new MemorySolver(structure, customContext);
+          solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
+              engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve();
           InvariantChecks.checkNotNull(result);

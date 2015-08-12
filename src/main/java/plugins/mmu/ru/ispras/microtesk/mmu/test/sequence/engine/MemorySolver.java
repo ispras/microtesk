@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,19 +33,25 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
+import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriConsumer;
-import ru.ispras.microtesk.utils.function.UnaryOperator;
 
 /**
  * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.)
@@ -61,7 +69,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * <p>A address object constructor is a user-defined function that maps a memory access (an object
    * of {@link MemoryAccess}) to the address object (an object of {@link AddressObject}).</p>
    */
-  private final Function<MemoryAccess, AddressObject> addrObjectConstructors;
+  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
 
   /**
    * Refers to the address object corrector.
@@ -69,21 +77,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * <p>A address object corrector is a user-defined function that corrects inconsistencies in
    * address object (an object of {@link AddressObject}) after solving the constraints.</p>
    */
-  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors;
-
-  /**
-   * Given a replaceable buffer (e.g., a cache unit), contains the tag allocator.
-   * Given a non-replaceable buffer (e.g., a translation table), contains the entry id allocator.
-   * 
-   * <p>A tag allocator is a user-defined function (with a side effect) that takes an address
-   * (a partial address with initialized index) and returns a tag such that is does not belong to
-   * the buffer set (the set is determined by the index defined in the address) and was not
-   * returned previously for that set.</p>
-   * 
-   * <p>An entry id allocator is a user-defined function (with a side effect) that takes an
-   * address and returns an id (internal address) that was not returned previously.</p>
-   */
-  private final Map<MmuBuffer, UnaryOperator<Long>> addrAllocators;
+  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
 
   /**
    * Given a non-replaceable buffer, contains the entry provider.
@@ -92,6 +86,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * (the data are produced on the basis the memory access and the address object).</p>
    */
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
+
+  private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
+
+  private final AddressAllocator addressAllocator;
+  private final EntryIdAllocator entryIdAllocator;
+
+  private final GeneratorSettings settings;
 
   /** Given a buffer, maps indices to sets of tags to be explicitly loaded into the buffer. */
   private final Map<MmuBuffer, Map<Long, Set<Long>>> bufferHitTags = new LinkedHashMap<>();
@@ -107,12 +108,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   /** Memory access structures being processed. */
   private final MemoryAccessStructure structure;
+
   /** Current solution. */
   private MemorySolution solution;
-
-  public MemorySolution getCurrentSolution() {
-    return solution;
-  }
 
   /**
    * Constructs a solver for the given memory access structure.
@@ -122,22 +120,37 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public MemorySolver(
-      final MemoryAccessStructure structure, final MemoryEngineContext context) {
+      final MemoryAccessStructure structure,
+      final MemoryEngineContext context,
+      final AddressAllocator addressAllocator,
+      final EntryIdAllocator entryIdAllocator,
+      final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(addressAllocator);
+    InvariantChecks.checkNotNull(entryIdAllocator);
+    InvariantChecks.checkNotNull(settings);
 
     this.structure = structure;
 
-    this.addrObjectConstructors = context.getAddrObjectConstructor();
-    this.addrObjectCorrectors = context.getAddrObjectCorrector();
-    this.addrAllocators = context.getAddrAllocators();
+    this.addressAllocator = addressAllocator;
+    this.entryIdAllocator = entryIdAllocator;
+
+    this.settings = settings;
+
+    this.addrObjectConstructor = context.getAddrObjectConstructor();
+    this.addrObjectCorrector = context.getAddrObjectCorrector();
+    this.hitCheckers = context.getHitCheckers();
     this.entryProviders = context.getEntryProviders();
   }
 
   @Override
   public SolverResult<MemorySolution> solve() {
     solution = new MemorySolution(structure);
+
+    addressAllocator.reset();
+    entryIdAllocator.reset();
 
     SolverResult<MemorySolution> result = null;
     for (int j = 0; j < structure.size(); j++) {
@@ -149,6 +162,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     return result;
+  }
+
+  private RegionSettings chooseRegion() {
+    final Set<RegionSettings> regions = new HashSet<>();
+
+    for (final RegionSettings region : settings.getMemory().getRegions()) {
+      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+        regions.add(region);
+      }
+    }
+
+    return Randomizer.get().choose(regions);
   }
 
   /**
@@ -296,7 +321,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final AddressObject addrObject = solution.getAddressObject(j);
     final MmuAddressType addrType = buffer.getAddress();
-    final UnaryOperator<Long> tagAllocator = addrAllocators.get(buffer);
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -315,10 +339,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // It is enough to use one replacing sequence for all test case instructions.
     if (!replacedIndices.contains(index) &&
         (mayBeHit(j, buffer) || !tagReplacedRelation.isEmpty())) {
+      final Predicate<Long> hitChecker = hitCheckers.get(buffer); 
       final List<Long> sequence = new ArrayList<>();
 
       for (int i = 0; i < buffer.getWays(); i++) {
-        final Long evictingTag = tagAllocator.apply(/* Full address */ address);
+        final Long evictingTag =
+            allocateTagAndParentEntry(buffer, address, chooseRegion(), false, hitChecker);
 
         if (evictingTag == null) {
           return new SolverResult<>(
@@ -353,9 +379,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final AddressObject addrObject = solution.getAddressObject(j);
     final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final MmuAddressType addrType = buffer.getAddress();
-
-    final long address = addrObject.getAddress(addrType);
 
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
 
@@ -375,12 +398,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
-      final UnaryOperator<Long> entryIdAllocator =
-          addrAllocators.get(buffer);
       final TriConsumer<MemoryAccess, AddressObject, MmuEntry> entryProvider =
           entryProviders.get(buffer);
 
-      final Long bufferEntryId = entryIdAllocator.apply(address);
+      final Long bufferEntryId = allocateEntryId(buffer, false);
       final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
 
       if (bufferEntryId == null || bufferEntry == null) {
@@ -444,8 +465,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int i = indexEqualRelation.iterator().next();
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      final UnaryOperator<Long> tagAllocator = addrAllocators.get(buffer);
-  
       final long oldTag = buffer.getTag(addrObject.getAddress(addrType));
       final long oldIndex = buffer.getIndex(addrObject.getAddress(addrType));
       final long newIndex = buffer.getIndex(prevAddrObject.getAddress(addrType));
@@ -455,7 +474,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long newAddress = buffer.getAddress(oldTag, newIndex, oldOffset);
 
       // If the index has changed, allocate a new tag.
-      final long newTag = newIndex != oldIndex ? tagAllocator.apply(newAddress) : oldTag;
+      final Predicate<Long> hitChecker = hitCheckers.get(buffer);
+      final long newTag = newIndex != oldIndex ?
+          allocateTagAndParentEntry(buffer, newAddress, chooseRegion(), false, hitChecker) : oldTag;
 
       addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
     }
@@ -637,7 +658,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
-    final AddressObject addrObject = addrObjectConstructors.apply(access);
+    final AddressObject addrObject = addrObjectConstructor.apply(access);
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
@@ -692,7 +713,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Correct the solution.
-    addrObjectCorrectors.accept(access, addrObject);
+    addrObjectCorrector.accept(access, addrObject);
 
     return new SolverResult<MemorySolution>(solution);
   }
@@ -806,5 +827,97 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     return replacedTags;
+  }
+
+  // TODO: The method is public to be used in user-defined constructors.
+  public long allocateAddress(
+      final MmuAddressType addressType,
+      final long partialAddress, // Offset
+      final RegionSettings region,
+      final boolean peek,
+      final Predicate<Long> hitChecker) {
+    InvariantChecks.checkNotNull(addressType);
+
+    while (true) {
+      final long address =
+          addressAllocator.allocateAddress(addressType, partialAddress, region, peek);
+
+      if (hitChecker == null || !hitChecker.test(address)) {
+        return address;
+      }
+    }
+  }
+
+  /**
+   * Allocates a tag for a replaceable buffer (e.g., a cache unit).
+   * 
+   * <p>It takes an address (a partial address with initialized index) and returns a tag such that
+   * it does not belong to the buffer set (the set is determined by the index defined in the
+   * address) and was not returned previously for that set.</p>
+   */
+  // TODO: The method is public to be used in user-defined constructors.
+  public long allocateTag(
+      final MmuBuffer buffer,
+      final long partialAddress, // Index and offset
+      final RegionSettings region,
+      final boolean peek,
+      final Predicate<Long> hitChecker) {
+    InvariantChecks.checkNotNull(buffer);
+
+    while (true) {
+      final long address =
+          addressAllocator.allocateTag(buffer, partialAddress, region, peek, null);
+
+      if (hitChecker == null || !hitChecker.test(address)) {
+        return buffer.getTag(address);
+      }
+    }
+  }
+
+  private long allocateTagAndParentEntry(
+      final MmuBuffer buffer,
+      final long partialAddress, // Index and offset
+      final RegionSettings region,
+      final boolean peek,
+      final Predicate<Long> hitChecker) {
+    InvariantChecks.checkNotNull(buffer);
+
+    // The buffer is not a view of another buffer.
+    if (!buffer.isView()) {
+      return allocateTag(buffer, partialAddress, region, peek, hitChecker);
+    }
+
+    // The buffer is a view of a non-replaceable buffer.
+    final MmuBuffer parent = buffer.getParent();
+    InvariantChecks.checkTrue(parent != null && !parent.isReplaceable());
+
+    // Allocate a unique entry in the parent buffer.
+    final Long index = allocateEntryId(parent, false);
+    InvariantChecks.checkNotNull(index);
+
+    // Choose a normal memory access that affects the parent buffer.
+    final Collection<MemoryAccessPath> paths =
+        CoverageExtractor.get().getNormalPaths(memory, parent);
+    final MemoryAccessPath path = Randomizer.get().choose(paths);
+    final MemoryAccessType type = MemoryAccessType.LOAD(DataType.BYTE);
+    final MemoryAccess access = new MemoryAccess(type, path);
+
+    // Construct a valid address object.
+    final AddressObject addrObject = addrObjectConstructor.apply(access);
+
+    // Construct the corresponding entry.
+    final TriConsumer<MemoryAccess, AddressObject, MmuEntry> entryProvider =
+        entryProviders.get(parent);
+    final MmuEntry entry = new MmuEntry(parent.getFields());
+    entryProvider.accept(access, addrObject, entry);
+
+    solution.addEntry(parent, index, entry);
+
+    // Return the tag of the constructed address object.
+    return buffer.getTag(addrObject.getAddress(buffer.getAddress()));
+  }
+
+  private long allocateEntryId(final MmuBuffer buffer, final boolean peek) {
+    return entryIdAllocator.allocate(buffer, peek, null);
   }
 }
