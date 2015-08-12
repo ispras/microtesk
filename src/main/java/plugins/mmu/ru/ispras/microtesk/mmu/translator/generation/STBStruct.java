@@ -82,7 +82,7 @@ final class STBStruct implements STBuilder {
     st.add("pack", packageName);
 
     if (isAddress) {
-      st.add("ext", ADDRESS_CLASS.getSimpleName());
+      st.add("impls", ADDRESS_CLASS.getSimpleName());
       st.add("imps", ADDRESS_CLASS.getName());
     }
   }

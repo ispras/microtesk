@@ -17,10 +17,12 @@ package ru.ispras.microtesk.mmu.model.api;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * This class represents an address.
+ * Interface to be supported by all address classes. Required to 
+ * check whether an address belongs to a specific segment (see {@link Segment}).
  * 
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Address extends Data {
-  public abstract BitVector getValue();
+
+public interface Address {
+  BitVector getValue();
 }
