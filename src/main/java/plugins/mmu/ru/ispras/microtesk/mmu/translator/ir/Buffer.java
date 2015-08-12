@@ -26,7 +26,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 
-public final class Buffer extends AbstractStorage implements TypeProvider {
+public final class Buffer extends AbstractStorage {
   private final BigInteger ways;
   private final BigInteger sets;
   private final Node index;
@@ -36,17 +36,17 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
   private final Buffer parent;
 
   public Buffer(
-      String id,
-      Address address,
-      Variable addressArg,
-      Variable dataArg,
-      BigInteger ways,
-      BigInteger sets,
-      Node index,
-      Node match,
-      Node guard,
-      PolicyId policy,
-      Buffer parent) {
+      final String id,
+      final Address address,
+      final Variable addressArg,
+      final Variable dataArg,
+      final BigInteger ways,
+      final BigInteger sets,
+      final Node index,
+      final Node match,
+      final Node guard,
+      final PolicyId policy,
+      final Buffer parent) {
 
     super(id,
           address,
@@ -72,7 +72,10 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     this.parent = parent;
   }
 
-  private static Map<String, Attribute> createAttributes(Variable addressArg, Variable dataArg) {
+  private static Map<String, Attribute> createAttributes(
+      final Variable addressArg,
+      final Variable dataArg) {
+
     checkNotNull(addressArg);
     checkNotNull(dataArg);
 
@@ -88,16 +91,6 @@ public final class Buffer extends AbstractStorage implements TypeProvider {
     }
 
     return Collections.unmodifiableMap(result);
-  }
-
-  @Override
-  public Type getType() {
-    return getEntry();
-  }
-
-  @Override
-  public String getTypeAlias() {
-    return String.format("%s.%s", getId(), "entry");
   }
 
   public BigInteger getWays() {
