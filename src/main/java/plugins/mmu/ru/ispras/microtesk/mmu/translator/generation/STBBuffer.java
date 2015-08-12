@@ -107,14 +107,47 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
     final ST stEntry = group.getInstanceOf("entry");
 
     final Type type = buffer.getEntry();
-    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-      buildField(field.getKey(), field.getValue(), stEntry, group);
-    }
+    buildFields(type, stEntry, group);
 
     st.add("members", stEntry);
   }
+  
+  
+  private void buildFields(final Type type, final ST st, final STGroup group) {
+    final ST stConstructor = group.getInstanceOf("struct_constructor");
+    stConstructor.add("name", "Entry");
 
-  private static void buildField(
+    for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
+      final String fieldName = field.getKey();
+      final Type fieldType = field.getValue();
+
+      final String fieldTypeName;
+      final String fieldValue;
+
+      if (fieldType.getId() != null) {
+        fieldTypeName = fieldType.getId();
+        fieldValue = String.format("new %s()", fieldTypeName);
+      } else {
+        fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
+        fieldValue = String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
+      }
+
+      final ST stField = group.getInstanceOf("struct_field");
+      stField.add("name", fieldName);
+      stField.add("type", fieldTypeName);
+      st.add("members", stField);
+
+      final ST stFieldInit = group.getInstanceOf("struct_field_init");
+      stFieldInit.add("name", fieldName);
+      stFieldInit.add("value", fieldValue);
+      stConstructor.add("fields", stFieldInit);
+    }
+
+    st.add("members", "");
+    st.add("members", stConstructor);
+  }
+
+  /*private static void buildField(
       final String name,
       final Type type,
       final ST st,
@@ -136,7 +169,7 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
 
       st.add("fields", stField);
     }
-  }
+  }*/
 
   private void buildIndexer(final ST st, final STGroup group) {
     final ST stIndexer = group.getInstanceOf("indexer");

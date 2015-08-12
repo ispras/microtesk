@@ -25,18 +25,12 @@ buffer(pack, imps, name, base, members) ::= <<
        [singleton(name, "instance"), members])>
 >>
 
-entry(fields) ::= <<
+entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
-       "Data",
        false,
-       entry_constructor(fields))>
->>
-
-entry_constructor(fields) ::= <<
-public Entry() {
-  <fields; separator="\n">
-}
+       false,
+       members)>
 >>
 
 indexer(addr_type, addr_name, expr) ::= <<

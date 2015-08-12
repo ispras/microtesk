@@ -43,61 +43,7 @@ final class ExprPrinter extends MapBasedPrinter {
     return instance;
   }
 
-  private static final class VariableMapping {
-    private final String key;
-    private final String variable;
-    private final String field;
-
-    public VariableMapping(
-        final String key,
-        final String variable) {
-      this(key, variable, null);
-    }
-
-    public VariableMapping(
-        final String key,
-        final String variable,
-        final String field) {
-      InvariantChecks.checkNotNull(key);
-      InvariantChecks.checkNotNull(variable);
-
-      this.key = key;
-      this.variable = variable;
-      this.field = field;
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    public String getText() { 
-      return getText(false);
-    }
-
-    public String getText(final boolean isLhs) {
-      if (null == field) {
-        return variable;
-      }
-
-      return String.format(
-          isLhs ? "%s.setField(\"%s\", " : "%s.getField(\"%s\")",
-          variable,
-          field
-          );
-    }
-
-    @Override
-    public String toString() {
-      return String.format(
-          "%s -> %s%s",
-          key,
-          variable,
-          field != null ? String.format("[\"%s\"]", field) : ""
-          );
-    }
-  }
-
-  private final Deque<Map<String, VariableMapping>> variableMappings = new ArrayDeque<>();
+  private final Deque<Map<String, String>> variableMappings = new ArrayDeque<>();
 
   private ExprPrinter() {
     addMapping(StandardOperation.EQ, "", ".equals(", ")");
@@ -180,7 +126,7 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   public void pushVariableScope() {
-    variableMappings.push(new HashMap<String, VariableMapping>());
+    variableMappings.push(new HashMap<String, String>());
   }
 
   public void popVariableScope() {
@@ -192,38 +138,39 @@ final class ExprPrinter extends MapBasedPrinter {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(mapping);
 
-    addVariableMapping(new VariableMapping(variable.getName(), mapping));
-    addVariableFieldMappings(variable.getName(), variable.getType(), mapping, "");
+    addVariableMapping(variable.getName(), mapping);
+    addVariableFieldMappings(variable.getType(), variable.getName(), mapping);
   }
 
-  private void addVariableMapping(final VariableMapping variableMapping) {
-    InvariantChecks.checkNotNull(variableMapping);
-    variableMappings.peek().put(variableMapping.getKey(), variableMapping);
-  }
-
-  private String getVariableMapping(final String variableName) {
-    for (final Map<String, VariableMapping> scope : variableMappings) {
-      final VariableMapping mapping = scope.get(variableName);
-      if (mapping != null) {
-        return mapping.getText();
-      }
-    }
-
-    return variableName;
+  private void addVariableMapping(final String key, final String mapping) {
+    InvariantChecks.checkNotNull(key);
+    InvariantChecks.checkNotNull(mapping);
+    variableMappings.peek().put(key, mapping);
   }
 
   private void addVariableFieldMappings(
-      final String name,
       final Type type,
-      final String mapping,
-      final String field) {
+      final String key,
+      final String mapping) {
     for (final Map.Entry<String, Type> e : type.getFields().entrySet()) {
-      final String variableName = name + "." + e.getKey();
-      final String fieldName = field.isEmpty() ? e.getKey() : field + "." + e.getKey();
+      final String newKey = key + "." + e.getKey();
+      final String newMapping = mapping.isEmpty() ? e.getKey() : mapping + "." + e.getKey();
 
-      addVariableMapping(new VariableMapping(variableName, mapping, fieldName));
-      addVariableFieldMappings(variableName, e.getValue(), mapping, fieldName);
+      addVariableMapping(newKey, newMapping);
+      addVariableFieldMappings(e.getValue(), newKey, newMapping);
     }
+  }
+
+  private String getVariableMapping(final String variableName) {
+    for (final Map<String, String> scope : variableMappings) {
+      final String mapping = scope.get(variableName);
+      if (mapping != null) {
+        return mapping;
+      }
+    }
+
+    throw new IllegalStateException(
+        "No mapping for variable " + variableName);
   }
 
   public static String bitVectorToString(final BitVector value) {
