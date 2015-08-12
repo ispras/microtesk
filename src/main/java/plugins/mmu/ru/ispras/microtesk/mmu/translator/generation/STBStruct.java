@@ -104,7 +104,9 @@ final class STBStruct implements STBuilder {
       } else {
         importBitVector(st);
         fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
-        fieldValue = String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
+        fieldValue = fieldType.getDefaultValue() != null ?
+            ExprPrinter.bitVectorToString(fieldType.getDefaultValue()) :
+            String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
       }
 
       final ST stField = group.getInstanceOf("struct_field");
