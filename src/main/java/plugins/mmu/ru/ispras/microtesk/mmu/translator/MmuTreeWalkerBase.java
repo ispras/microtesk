@@ -237,11 +237,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final CommonTree typeId, final Type type) throws SemanticException {
     checkNotNull(typeId, type);
 
-    final Where w = where(typeId);
-    final String id = typeId.getText();
-
-    if (ir.getTypes().containsKey(id)) {
-      raiseError(w, String.format("Redefinition of '%s'.", id));
+    if (ir.getTypes().containsKey(type.getId())) {
+      raiseError(where(typeId), String.format("Redefinition of '%s'.", type.getId()));
     }
 
     ir.addType(type);
