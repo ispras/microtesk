@@ -73,7 +73,7 @@ final class GeneratorFactory {
     InvariantChecks.checkNotNull(address);
 
     final String outputFileName = getOutputFileName(address.getId());
-    final STBuilder builder = new STBAddress(packageName, address);
+    final STBuilder builder = new STBStruct(packageName, address);
 
     return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
@@ -82,7 +82,7 @@ final class GeneratorFactory {
     InvariantChecks.checkNotNull(structType);
 
     final String outputFileName = getOutputFileName(structType.getId());
-    final STBuilder builder = new STBAddress(packageName, structType);
+    final STBuilder builder = new STBStruct(packageName, structType);
 
     return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }

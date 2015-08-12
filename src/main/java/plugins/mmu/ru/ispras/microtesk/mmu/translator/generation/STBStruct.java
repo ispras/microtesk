@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.Map;
 
-final class STBAddress implements STBuilder {
+final class STBStruct implements STBuilder {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -38,7 +38,7 @@ final class STBAddress implements STBuilder {
   private final String valueFieldName;
   private boolean isBitVectorImported;
 
-  public STBAddress(final String packageName, final Address address) {
+  public STBStruct(final String packageName, final Address address) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(address);
 
@@ -55,7 +55,7 @@ final class STBAddress implements STBuilder {
     this.valueFieldName = sb.toString();
   }
 
-  public STBAddress(final String packageName, final Type type) {
+  public STBStruct(final String packageName, final Type type) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(type);
 
