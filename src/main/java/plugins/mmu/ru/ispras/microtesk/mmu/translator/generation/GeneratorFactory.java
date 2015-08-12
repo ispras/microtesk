@@ -41,9 +41,8 @@ final class GeneratorFactory {
   private static final String[] BUFFER_STGS =
       new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, BUFFER_STG};
 
-  private static final String   SEGMENT_STG = MMU_STG_DIR + "Segment.stg";
   private static final String[] SEGMENT_STGS =
-      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, SEGMENT_STG};
+      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
 
   private static final String[] MEMORY_STGS =
       new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
