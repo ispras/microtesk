@@ -244,7 +244,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format("Redefinition of '%s'.", id));
     }
 
-    ir.addType(id, type);
+    ir.addType(type);
     return type;
   }
 
