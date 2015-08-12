@@ -19,7 +19,7 @@
  */
 
 group JavaCommon;
- 
+
 /** 
  * Header for generated Java files.
  *
@@ -110,4 +110,16 @@ public static <type> get() {
   }
   return <name>;
 }<\n>
+>>
+
+source_file(file, pack, name, ext, impls, imps, simps, members) ::= <<
+<header(file)>
+<package(pack)>
+<if(simps)><static_imports(simps)><endif>
+<if(imps)><imports(imps)><endif>
+<class(["public", "final"],
+       name,
+       ext,
+       impls,
+       members)>
 >>

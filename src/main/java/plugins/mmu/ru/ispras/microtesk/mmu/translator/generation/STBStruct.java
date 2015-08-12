@@ -67,7 +67,7 @@ final class STBStruct implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("struct");
+    final ST st = group.getInstanceOf("source_file");
     isBitVectorImported = false;
 
     buildHeader(st);
@@ -88,7 +88,7 @@ final class STBStruct implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructor = group.getInstanceOf("struct_constructor");
     stConstructor.add("name", type.getId());
 
     for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
@@ -107,12 +107,12 @@ final class STBStruct implements STBuilder {
         fieldValue = String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
       }
 
-      final ST stField = group.getInstanceOf("field");
+      final ST stField = group.getInstanceOf("struct_field");
       stField.add("name", fieldName);
       stField.add("type", fieldTypeName);
       st.add("members", stField);
 
-      final ST stFieldInit = group.getInstanceOf("field_init");
+      final ST stFieldInit = group.getInstanceOf("struct_field_init");
       stFieldInit.add("name", fieldName);
       stFieldInit.add("value", fieldValue);
       stConstructor.add("fields", stFieldInit);
@@ -129,7 +129,7 @@ final class STBStruct implements STBuilder {
 
     importBitVector(st);
 
-    final ST stAddress = group.getInstanceOf("get_value");
+    final ST stAddress = group.getInstanceOf("struct_get_value");
     stAddress.add("field_name", valueFieldName);
 
     st.add("members", "");

@@ -14,9 +14,31 @@
 
 group MmuCommon;
 
-field(name, arg) ::= <<
-defineField("<name>", <arg>);
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Structure-related templates
+
+struct_constructor(name, fields) ::= <<
+public <name>() {
+  <fields; separator="\n">
+}
 >>
+
+struct_field(name, type) ::= <<
+public final <type> <name>;
+>>
+
+struct_field_init(name, value) ::= <<
+this.<name> = <value>;
+>>
+
+struct_get_value(field_name) ::= <<
+@Override
+public BitVector getValue() {
+  return <field_name>;
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
