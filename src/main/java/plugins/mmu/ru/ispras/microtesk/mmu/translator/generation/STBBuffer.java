@@ -149,30 +149,6 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
     st.add("members", stConstructor);
   }
 
-  /*private static void buildField(
-      final String name,
-      final Type type,
-      final ST st,
-      final STGroup group) {
-    if (type.isStruct()) {
-      for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-        final String fieldName = String.format("%s.%s", name, field.getKey());
-        buildField(fieldName, field.getValue(), st, group);
-      }
-    } else {
-      final ST stField = group.getInstanceOf("field");
-      stField.add("name", name);
-
-      if (type.getDefaultValue() != null) {
-        stField.add("arg", ExprPrinter.bitVectorToString(type.getDefaultValue()));
-      } else {
-        stField.add("arg", type.getBitSize());
-      }
-
-      st.add("fields", stField);
-    }
-  }*/
-
   private void buildIndexer(final ST st, final STGroup group) {
     final ST stIndexer = group.getInstanceOf("indexer");
 

@@ -155,7 +155,7 @@ buffer
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
           | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
-          | ^(w=MMU_ENTRY e=structFields){builder.setEntry($w, $e.res.setId($bufferId).build());}
+          | ^(w=MMU_ENTRY e=structFields){builder.setEntry($w, $e.res.setIdAsEntry($bufferId).build());}
           | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
           | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
           | ^(w=MMU_GUARD guard=expr[0]) {builder.setGuard($w, $guard.res);}

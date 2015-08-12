@@ -167,6 +167,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return this;
     }
 
+    public StructBuilder setIdAsEntry(final CommonTree id) {
+      this.id = id.getText() + ".Entry";
+      return this;
+    }
+
     /**
      * Adds a field to Type to be created.
      * 

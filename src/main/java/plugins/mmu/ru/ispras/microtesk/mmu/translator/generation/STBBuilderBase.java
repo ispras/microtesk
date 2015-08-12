@@ -38,6 +38,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public abstract class STBBuilderBase {
@@ -93,27 +94,26 @@ public abstract class STBBuilderBase {
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
-  protected final void buildVariableDecl(final ST st, final Variable variable) {
-    final String mappingName = removePrefix(variable.getName());
-
-    final String typeName;
-    if (variable.getTypeSource() instanceof Address) {
-      typeName = ((Address) variable.getTypeSource()).getId();
-    } else if (variable.getTypeSource() instanceof Buffer) {
-      typeName = ((Buffer) variable.getTypeSource()).getId() + ".Entry";
-    } else if (variable.isStruct()) {
-      typeName = variable.getType().getId();
-    } else {
-      typeName = BIT_VECTOR_CLASS.getSimpleName();
-    }
-
-    ExprPrinter.get().addVariableMappings(variable, mappingName);
-    st.add("stmts", String.format("%s %s = null;", typeName,  mappingName));
-  }
-
   protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
     for (final Variable variable : variables) {
-      buildVariableDecl(st, variable);
+      final String name = removePrefix(variable.getName());
+      final Type type = variable.getType();
+
+      final String typeName;
+      final String value;
+
+      if (type.getId() != null) {
+        typeName = type.getId();
+        value = String.format("new %s()", typeName);
+      } else {
+        typeName = BIT_VECTOR_CLASS.getSimpleName();
+        value = type.getDefaultValue() != null ?
+            ExprPrinter.bitVectorToString(type.getDefaultValue()) :
+            String.format("%s.newEmpty(%d)", typeName, type.getBitSize());
+      }
+
+      ExprPrinter.get().addVariableMappings(variable, name);
+      st.add("stmts", String.format("final %s %s = %s;", typeName,  name, value));
     }
     st.add("stmts", "");
   }
