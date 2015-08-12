@@ -156,22 +156,10 @@ public abstract class STBBuilderBase {
     final Node right = correctRightType(stmt.getRight(), stmt.getLeft());
     final Node left = stmt.getLeft();
 
-    // System.out.printf("!!! (1) %s = %s%n",left, right);
-    // System.out.printf("!!! (2) %s = %s%n", left.getUserData(), right.getUserData());
+    final String rightText = ExprPrinter.get().toString(right);
+    final String leftText = ExprPrinter.get().toString(left);
 
-    final String text;
-    if (left.getKind() == Node.Kind.VARIABLE) {
-      text = buildAssignment((NodeVariable) left, right);
-    } else if (left.getKind() == Node.Kind.OPERATION){
-      text = buildAssignment((NodeOperation) left, right);
-    } else {
-      throw new IllegalArgumentException(
-          "Illegal left hand side expression kind: " + left.getKind());
-    }
-
-    if (null != text) {
-      //st.add("stmts", text);
-    }
+    //st.add("stmts", String.format("%s.assign(%s);", leftText, rightText));
   }
 
   private static Node correctRightType(final Node right, final Node left) {
@@ -182,59 +170,6 @@ public abstract class STBBuilderBase {
           ((NodeValue) right).getInteger(), left.getDataType().getSize()));
     }
     return right;
-  }
-
-  private String buildAssignment(final NodeVariable left, final Node right) {
-    String text = null;
-    final String rightText = ExprPrinter.get().toString(right);
-
-    if (left.getUserData() instanceof Variable) {
-      final Variable leftVar = (Variable) left.getUserData();
-      if (leftVar.isField()) {
-        // TODO
-      } else {
-        final String rightSuffix = leftVar.isStruct() ? "" : getRightFieldSuffix(right);
-        final String leftText = ExprPrinter.get().toString(left);
-        text = String.format("%s = %s%s;", leftText, rightText, rightSuffix);
-      }
-    } else if (left.getUserData() instanceof AttributeRef) {
-      final AttributeRef leftAttrRef = (AttributeRef) left.getUserData();
-      
-    } else {
-      throw new IllegalStateException(
-          "Invalid left hand side expression: " + left.getUserData());
-    }
-
-    return text;
-  }
-
-  private String getRightFieldSuffix(final Node right) {
-    if (right.getUserData() instanceof Variable) {
-      final Variable rightVariable = (Variable) right.getUserData();
-      final Map<String, Variable> fields = rightVariable.getFields();
-
-      if (fields.size() == 1) {
-        final Variable field = fields.values().iterator().next();
-        final String prefix = rightVariable.getName() + ".";
-        return String.format(".getField(\"%s\")", field.getName().replaceFirst(prefix, ""));
-      }
-    } else if (right.getUserData() instanceof AttributeRef) {
-      final AttributeRef rightAttrRef = (AttributeRef) right.getUserData();
-      final Variable data = rightAttrRef.getTarget().getDataArg();
-      final Map<String, Variable> fields = data.getFields();
-
-      if (fields.size() == 1) {
-        final Variable field = fields.values().iterator().next();
-        final String prefix = rightAttrRef.getTarget().getId() + ".";
-        return String.format(".getField(\"%s\")", field.getName().replaceFirst(prefix, ""));
-      }
-    }
-
-    return "";
-  }
-
-  private static String buildAssignment(final NodeOperation left, final Node right) {
-    return null;
   }
 
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
