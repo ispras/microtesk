@@ -102,7 +102,7 @@ public abstract class STBBuilderBase {
     } else if (variable.getTypeSource() instanceof Buffer) {
       typeName = ((Buffer) variable.getTypeSource()).getId() + ".Entry";
     } else if (variable.isStruct()) {
-      typeName = ""; // FIXME
+      typeName = variable.getType().getId();
     } else {
       typeName = BIT_VECTOR_CLASS.getSimpleName();
     }
