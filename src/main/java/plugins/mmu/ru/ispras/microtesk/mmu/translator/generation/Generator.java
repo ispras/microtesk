@@ -22,6 +22,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
@@ -46,13 +47,23 @@ public final class Generator implements TranslatorHandler<Ir> {
         new GeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
+      processStructs(ir, factory);
       processAddresses(ir, factory);
-      processBuffers(ir, factory);
+      /*processBuffers(ir, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
-      processModel(ir, factory);
+      processModel(ir, factory);*/
     } catch (final IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void processStructs(final Ir ir, final GeneratorFactory factory) throws IOException {
+    for (final Type type : ir.getTypes().values()) {
+      if (!ir.getAddresses().containsKey(type.getId())) {
+        final FileGenerator fileGenerator = factory.newStructGenerator(type);
+        fileGenerator.generate();
+      }
     }
   }
 

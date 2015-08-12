@@ -20,6 +20,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -33,9 +34,9 @@ final class GeneratorFactory {
 
   private static final String MMU_COMMON_STG = MMU_STG_DIR + "Common.stg";
 
-  private static final String   ADDRESS_STG = MMU_STG_DIR + "Address.stg";
-  private static final String[] ADDRESS_STGS =
-      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, ADDRESS_STG};
+  private static final String STRUCT_STG = MMU_STG_DIR + "Struct.stg";
+  private static final String[] STRUCT_STGS =
+      new String[] {JAVA_COMMON_STG, STRUCT_STG};
 
   private static final String   BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
   private static final String[] BUFFER_STGS =
@@ -74,7 +75,16 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(address.getId());
     final STBuilder builder = new STBAddress(packageName, address);
 
-    return new STFileGenerator(outputFileName, ADDRESS_STGS, builder);
+    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
+  }
+
+  public FileGenerator newStructGenerator(final Type structType) {
+    InvariantChecks.checkNotNull(structType);
+
+    final String outputFileName = getOutputFileName(structType.getId());
+    final STBuilder builder = new STBAddress(packageName, structType);
+
+    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
 
   public FileGenerator newBufferGenerator(final Buffer buffer) {

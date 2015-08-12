@@ -12,16 +12,16 @@
  * the License.
  */
 
-group Address;
+group Struct;
 
-address(pack, imps, name, base, members) ::= <<
+struct(pack, imps, name, ext, impls, members) ::= <<
 <header(false)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
 <class(["public", "final"],
        name,
-       base,
-       false,
+       ext,
+       impls,
        members)>
 >>
 
@@ -31,9 +31,17 @@ public <name>() {
 }
 >>
 
+field(name, type) ::= <<
+public final <type> <name>;
+>>
+
+field_init(name, value) ::= <<
+this.<name> = <value>;
+>>
+
 get_value(field_name) ::= <<
 @Override
 public BitVector getValue() {
-  return getField("<field_name>");
+  return <field_name>;
 }
 >>

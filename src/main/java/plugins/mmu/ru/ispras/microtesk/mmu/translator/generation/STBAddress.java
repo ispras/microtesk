@@ -25,75 +25,121 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.Map;
 
-final class STBAddress extends STBBuilderBase implements STBuilder {
-  private final Address address;
+final class STBAddress implements STBuilder {
+  public static final Class<?> BIT_VECTOR_CLASS =
+      ru.ispras.fortress.data.types.bitvector.BitVector.class;
+
+  public static final Class<?> ADDRESS_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Address.class;
+
+  private final String packageName; 
+  private final boolean isAddress;
+  private final Type type;
+  private final String valueFieldName;
+  private boolean isBitVectorImported;
 
   public STBAddress(final String packageName, final Address address) {
-    super(packageName);
-
+    InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(address);
-    this.address = address;
+
+    this.packageName = packageName;
+    this.isAddress = true;
+    this.type = address.getContentType();
+
+    final StringBuilder sb = new StringBuilder();
+    for(final String name : address.getAccessChain()) {
+      if (sb.length() > 0) sb.append('.');
+      sb.append(name);
+    }
+
+    this.valueFieldName = sb.toString();
   }
 
-  @Override
-  protected String getId() {
-    return address.getId();
+  public STBAddress(final String packageName, final Type type) {
+    InvariantChecks.checkNotNull(packageName);
+    InvariantChecks.checkNotNull(type);
+
+    this.packageName = packageName;
+    this.isAddress = false;
+    this.type = type;
+    this.valueFieldName = null;
   }
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("address");
+    final ST st = group.getInstanceOf("struct");
+    isBitVectorImported = false;
 
-    buildHeader(st, ADDRESS_CLASS.getSimpleName());
+    buildHeader(st);
     buildFields(st, group);
     buildGetValue(st, group);
 
     return st;
   }
 
+  private void buildHeader(final ST st) {
+    st.add("name", type.getId());
+    st.add("pack", packageName);
+
+    if (isAddress) {
+      st.add("ext", ADDRESS_CLASS.getSimpleName());
+      st.add("imps", ADDRESS_CLASS.getName());
+    }
+  }
+
   private void buildFields(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
-    stConstructor.add("name", address.getId());
+    stConstructor.add("name", type.getId());
 
-    final Type type = address.getContentType();
-    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-      buildField(field.getKey(), field.getValue(), stConstructor, group);
+    for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
+      final String fieldName = field.getKey();
+      final Type fieldType = field.getValue();
+
+      final String fieldTypeName;
+      final String fieldValue;
+
+      if (fieldType.getId() != null) {
+        fieldTypeName = fieldType.getId();
+        fieldValue = String.format("new %s()", fieldTypeName);
+      } else {
+        importBitVector(st);
+        fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
+        fieldValue = String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
+      }
+
+      final ST stField = group.getInstanceOf("field");
+      stField.add("name", fieldName);
+      stField.add("type", fieldTypeName);
+      st.add("members", stField);
+
+      final ST stFieldInit = group.getInstanceOf("field_init");
+      stFieldInit.add("name", fieldName);
+      stFieldInit.add("value", fieldValue);
+      stConstructor.add("fields", stFieldInit);
     }
 
+    st.add("members", "");
     st.add("members", stConstructor);
   }
 
-  private static void buildField(
-      final String name,
-      final Type type,
-      final ST st,
-      final STGroup group) {
-    if (type.isStruct()) {
-      for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-        final String fieldName = String.format("%s.%s", name, field.getKey());
-        buildField(fieldName, field.getValue(), st, group);
-      }
-    } else {
-      final ST stField = group.getInstanceOf("field");
-      stField.add("name", name);
-      stField.add("arg",  type.getBitSize());
-      st.add("fields", stField);
-    }
-  }
-
   private void buildGetValue(final ST st, final STGroup group) {
-    final StringBuilder sb = new StringBuilder();
-    for(final String name : address.getAccessChain()) {
-      if (sb.length() > 0) {
-        sb.append('.');
-      }
-      sb.append(name);
+    if (!isAddress) {
+      return;
     }
+
+    importBitVector(st);
 
     final ST stAddress = group.getInstanceOf("get_value");
-    stAddress.add("field_name",  sb.toString());
+    stAddress.add("field_name", valueFieldName);
 
     st.add("members", "");
     st.add("members", stAddress);
+  }
+
+  private void importBitVector(final ST st) {
+    if (!isBitVectorImported) {
+      st.add("imps", BIT_VECTOR_CLASS.getName());
+      isBitVectorImported = true;
+    }
   }
 }
