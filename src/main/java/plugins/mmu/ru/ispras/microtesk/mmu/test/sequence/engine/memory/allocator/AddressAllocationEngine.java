@@ -201,8 +201,11 @@ public final class AddressAllocationEngine {
 
       final long fieldValue = allocTable.allocate(region, peek, excludeFields);
 
-      address &= ~(fieldMask << lower);
-      address |= (fieldValue << lower);
+      // Insignificant bits are taken from the partial address.
+      if (((fieldMask << lower) | mask) == mask) {
+        address &= ~(fieldMask << lower);
+        address |= (fieldValue << lower);
+      }
     }
 
     return address;
