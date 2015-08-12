@@ -76,11 +76,11 @@ startRule
 
 declaration
     : let
+    | struct
     | address
     | segment
     | buffer
     | mmu
-    | struct
     ;
 
 //==================================================================================================
@@ -89,6 +89,26 @@ declaration
 
 let
     : ^(MMU_LET id=ID e=expr[0]) {newConstant($id, $e.res);}
+    ;
+
+//==================================================================================================
+// Struct
+//==================================================================================================
+
+struct
+    : ^(MMU_STRUCT structId=ID { declareAndPushSymbolScope($structId, MmuSymbolKind.TYPE); }
+                   type=structFields) { newType($structId, $type.res); }
+    ; finally { popSymbolScope(); }
+
+structFields returns [Type res]
+@init { final StructBuilder builder = new StructBuilder(); }
+@after { $res = builder.build(); }
+    : ( fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
+        typeId=ID { builder.addField($fieldId, $typeId); }
+
+      | fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); value = null;}
+        size=expr[0] value=expr[0]? { builder.addField($fieldId, $size.res, $value.res); }
+      )+
     ;
 
 //==================================================================================================
@@ -143,22 +163,6 @@ buffer
         {builder.build();}
       )
     ; finally {popSymbolScope(); resetContext();}
-
-struct
-    : ^(MMU_STRUCT structId=ID { declareAndPushSymbolScope($structId, MmuSymbolKind.TYPE); }
-                   type=structFields) { newType($structId, $type.res); }
-    ; finally { popSymbolScope(); }
-
-structFields returns [Type res]
-@init { final StructBuilder builder = new StructBuilder(); }
-@after { $res = builder.build(); }
-    : ( fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
-        typeId=ID { builder.addField($fieldId, $typeId); }
-
-      | fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); value = null;}
-        size=expr[0] value=expr[0]? { builder.addField($fieldId, $size.res, $value.res); }
-      )+
-    ;
 
 //==================================================================================================
 // Memory
