@@ -195,6 +195,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           final MemoryAccessStructure structure = structureIterator.value();
 
           // Reset the allocation tables before solving the constraint.
+          addressAllocator.reset();
+          entryIdAllocator.reset();
+
           solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
               engineContext.getSettings());
 

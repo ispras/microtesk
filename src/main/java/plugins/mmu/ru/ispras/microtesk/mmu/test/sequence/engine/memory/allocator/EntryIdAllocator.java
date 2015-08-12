@@ -22,6 +22,7 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
 
 /**
@@ -47,7 +48,8 @@ public final class EntryIdAllocator {
       }
 
       // Construct the allocation table.
-      final AllocationTable<Long, ?> allocator = new AllocationTable<>(entryIds);
+      final AllocationTable<Long, ?> allocator = new AllocationTable<>(
+          entryIds.size() > 1 ? AllocationStrategyId.FREE : AllocationStrategyId.RANDOM, entryIds);
       allocators.put(buffer, allocator);
     }
   }

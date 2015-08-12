@@ -149,9 +149,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   public SolverResult<MemorySolution> solve() {
     solution = new MemorySolution(structure);
 
-    addressAllocator.reset();
-    entryIdAllocator.reset();
-
     SolverResult<MemorySolution> result = null;
     for (int j = 0; j < structure.size(); j++) {
       result = solve(j);
