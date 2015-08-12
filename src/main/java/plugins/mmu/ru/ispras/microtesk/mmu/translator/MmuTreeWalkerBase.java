@@ -157,9 +157,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final class StructBuilder {
+    private String id = null;
     private final Map<String, Type> fields = new LinkedHashMap<>();
 
     public StructBuilder() {}
+
+    public StructBuilder setId(final CommonTree id) {
+      this.id = id.getText();
+      return this;
+    }
 
     /**
      * Adds a field to Type to be created.
@@ -223,7 +229,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      */
 
     public Type build() {
-      return new Type(fields);
+      return new Type(id, fields);
     }
   }
 
@@ -237,8 +243,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     if (ir.getTypes().containsKey(id)) {
       raiseError(w, String.format("Redefinition of '%s'.", id));
     }
-    ir.addType(typeId.getText(), type);
 
+    ir.addType(id, type);
     return type;
   }
 

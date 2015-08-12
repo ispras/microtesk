@@ -115,7 +115,7 @@ public final class MmuUnderTest {
 
 
   private static MmuAddressType newAddress(final String name, int width) {
-    final Type type = new Type(Collections.singletonMap("value", new Type(width)));
+    final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
 
     return new MmuAddressType(new Variable(name, type),
                               new IntegerVariable(name + ".value", width));
