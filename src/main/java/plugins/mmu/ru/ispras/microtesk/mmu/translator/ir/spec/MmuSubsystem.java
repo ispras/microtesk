@@ -44,11 +44,11 @@ public final class MmuSubsystem {
   // TODO:
   private List<MmuAddressType> sortedAddresses = new ArrayList<>();
 
-  /**
-   * Refers to the primary address type of the MMU.
-   * <p>Address type used to access the memory (typically, Virtual Address).</p>
-   */
-  private MmuAddressType startAddress;
+  /** Refers to the virtual address type of the MMU. */
+  private MmuAddressType virtualAddress;
+
+  /** Refers to the physical address type of the MMU. */
+  private MmuAddressType physicalAddress;
 
   /** Stores buffers of the MMU. */
   private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
@@ -104,24 +104,22 @@ public final class MmuSubsystem {
     return addresses.get(name);
   }
 
-  /**
-   * Sets the primary address type.
-   * 
-   * @param address the address type to be set.
-   * @throws IllegalArgumentException if {@code address} is {@code null}.
-   */
-  public void setStartAddress(final MmuAddressType address) {
+  public void setVirtualAddress(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
-    startAddress = address;
+    virtualAddress = address;
   }
 
-  /**
-   * Returns the primary address type.
-   * 
-   * @return the start address.
-   */
-  public MmuAddressType getStartAddress() {
-    return startAddress;
+  public MmuAddressType getVirtualAddress() {
+    return virtualAddress;
+  }
+
+  public void setPhysicalAddress(final MmuAddressType address) {
+    InvariantChecks.checkNotNull(address);
+    physicalAddress = address;
+  }
+
+  public MmuAddressType getPhysicalAddress() {
+    return physicalAddress;
   }
 
   /**
@@ -265,7 +263,7 @@ public final class MmuSubsystem {
       builder.append(address);
     }
 
-    builder.append(String.format("%nStart address: %s%n", startAddress));
+    builder.append(String.format("%nStart address: %s%n", virtualAddress));
 
     builder.append(String.format("%nDevices: %d", buffers.size()));
     for (final MmuBuffer buffer : getBuffers()) {

@@ -103,7 +103,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
     final Memory memory = memories.values().iterator().next();
 
     final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
-    spec.setStartAddress(address);
+    spec.setVirtualAddress(address);
     variables.createAlias(address.getStruct(), memory.getAddressArg().getName());
 
     data = new IntegerVariable(memory.getDataArg().getName(), memory.getDataArg().getBitSize());

@@ -400,7 +400,8 @@ public final class MmuUnderTest {
   {
     mmu.registerAddress(vaAddr);
     mmu.registerAddress(paAddr);
-    mmu.setStartAddress(vaAddr);
+    mmu.setVirtualAddress(vaAddr);
+    mmu.setPhysicalAddress(paAddr);
 
     mmu.registerBuffer(dtlb);
     mmu.registerBuffer(jtlb);
