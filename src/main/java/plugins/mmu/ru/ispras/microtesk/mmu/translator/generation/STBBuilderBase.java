@@ -47,9 +47,6 @@ public abstract class STBBuilderBase {
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.model.api.Address.class;
 
-  public static final Class<?> DATA_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Data.class;
-
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.model.api.Buffer.class;
 
@@ -105,7 +102,7 @@ public abstract class STBBuilderBase {
     } else if (variable.getTypeSource() instanceof Buffer) {
       typeName = ((Buffer) variable.getTypeSource()).getId() + ".Entry";
     } else if (variable.isStruct()) {
-      typeName = DATA_CLASS.getSimpleName();
+      typeName = ""; // FIXME
     } else {
       typeName = BIT_VECTOR_CLASS.getSimpleName();
     }
