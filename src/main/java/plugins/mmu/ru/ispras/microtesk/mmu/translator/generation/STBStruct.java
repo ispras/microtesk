@@ -71,7 +71,7 @@ final class STBStruct implements STBuilder {
     isBitVectorImported = false;
 
     buildHeader(st);
-    buildFields(st, group);
+    buildFields(st, group, type.getId(), type);
     buildGetValue(st, group);
 
     return st;
@@ -87,11 +87,15 @@ final class STBStruct implements STBuilder {
     }
   }
 
-  private void buildFields(final ST st, final STGroup group) {
+  public static void buildFields(
+      final ST st,
+      final STGroup group,
+      final String typeName,
+      final Type type) {
     final ST stStruct = group.getInstanceOf("struct_body");
-    stStruct.add("type", type.getId());
+    stStruct.add("type", typeName);
 
-    for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
+    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
       final String fieldName = field.getKey();
       final Type fieldType = field.getValue();
 
@@ -102,7 +106,6 @@ final class STBStruct implements STBuilder {
         fieldTypeName = fieldType.getId();
         fieldValue = String.format("new %s()", fieldTypeName);
       } else {
-        importBitVector(st);
         fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
         fieldValue = fieldType.getDefaultValue() != null ?
             ExprPrinter.bitVectorToString(fieldType.getDefaultValue()) :

@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.math.BigInteger;
-import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -108,45 +107,9 @@ final class STBBuffer extends STBBuilderBase implements STBuilder {
     final ST stEntry = group.getInstanceOf("entry");
 
     final Type type = buffer.getEntry();
-    buildFields(type, stEntry, group);
+    STBStruct.buildFields(stEntry, group, "Entry", type);
 
     st.add("members", stEntry);
-  }
-
-  private void buildFields(final Type type, final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("struct_constructor");
-    stConstructor.add("name", "Entry");
-
-    for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
-      final String fieldName = field.getKey();
-      final Type fieldType = field.getValue();
-
-      final String fieldTypeName;
-      final String fieldValue;
-
-      if (fieldType.getId() != null) {
-        fieldTypeName = fieldType.getId();
-        fieldValue = String.format("new %s()", fieldTypeName);
-      } else {
-        fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
-        fieldValue = fieldType.getDefaultValue() != null ?
-            ExprPrinter.bitVectorToString(fieldType.getDefaultValue()) :
-            String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
-      }
-
-      final ST stField = group.getInstanceOf("struct_field");
-      stField.add("name", fieldName);
-      stField.add("type", fieldTypeName);
-      st.add("members", stField);
-
-      final ST stFieldInit = group.getInstanceOf("struct_field_init");
-      stFieldInit.add("name", fieldName);
-      stFieldInit.add("value", fieldValue);
-      stConstructor.add("fields", stFieldInit);
-    }
-
-    st.add("members", "");
-    st.add("members", stConstructor);
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
