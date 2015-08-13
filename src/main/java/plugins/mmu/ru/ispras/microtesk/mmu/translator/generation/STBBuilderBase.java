@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -26,6 +27,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -147,13 +149,17 @@ public abstract class STBBuilderBase {
   }
 
   private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
-    final Node right = correctRightType(stmt.getRight(), stmt.getLeft());
     final Node left = stmt.getLeft();
+    final Node right = correctRightType(stmt.getRight(), left);
 
-    final String rightText = ExprPrinter.get().toString(right);
     final String leftText = ExprPrinter.get().toString(left);
+    final String rightText = ExprPrinter.get().toString(right);
+    final String rightSuffix = getRightFieldSuffix(left, right);
 
-    //st.add("stmts", String.format("%s.assign(%s);", leftText, rightText));
+    final String stmtText =
+        String.format("%s.assign(%s%s);", leftText, rightText, rightSuffix);
+
+    st.add("stmts", stmtText);
   }
 
   private static Node correctRightType(final Node right, final Node left) {
@@ -164,6 +170,40 @@ public abstract class STBBuilderBase {
           ((NodeValue) right).getInteger(), left.getDataType().getSize()));
     }
     return right;
+  }
+
+  // Handles a situation when a bit vector is assigned a structure.
+  private String getRightFieldSuffix(final Node left, final Node right) {
+    final Type leftType = getType(left);
+    final Type rightType = getType(right);
+
+    // When type is undefined, we can make no assumptions about fields.
+    if (null == leftType || null == rightType) {
+      return "";
+    }
+
+    // If left is plain field and right is a struct that has only one field, we use this field.
+    if (!leftType.isStruct() && rightType.isStruct() && rightType.getFields().size() == 1) {
+      final String fieldName = rightType.getFields().keySet().iterator().next(); 
+      return "." + fieldName;
+    }
+
+    return "";
+  }
+
+  private static Type getType(final Node expr) {
+    final Object userData = expr.getUserData();
+    if (userData instanceof Variable) {
+      return ((Variable) userData).getType();
+    } else if (userData instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) userData;
+      return attrRef.getTarget().getDataArg().getType();
+    } else if (userData == null) {
+      return null;
+    } else {
+      throw new IllegalArgumentException(String.format(
+          "Unknown userData type of %s: %s", expr, userData));
+    }
   }
 
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
