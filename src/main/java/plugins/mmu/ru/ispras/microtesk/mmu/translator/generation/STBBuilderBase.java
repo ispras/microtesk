@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -209,22 +208,38 @@ public abstract class STBBuilderBase {
   private void buildStmtIf(final ST st, final STGroup group, final StmtIf stmt) {
     boolean isFirst = true;
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
-      final ST stIf = group.getInstanceOf(isFirst ? "if_block" : "elseif_block");
-      isFirst = false;
+      final Node condition = block.first;
+      final List<Stmt> stmts = block.second;
 
-      final String exprText = ExprPrinter.get().toString(block.first);
-      stIf.add("expr", exprText);
+      if (condition.equals(NodeValue.newBoolean(true))) {
+        // Add statements to the current level
+        buildStmts(st, group, stmts);
+      } else if (condition.equals(NodeValue.newBoolean(false))) {
+        // Ignore the block and its statements 
+      } else {
+        // Create a new block
+        final ST stIf = group.getInstanceOf(isFirst ? "if_block" : "elseif_block");
+        isFirst = false;
 
-      buildStmts(stIf, group, block.second);
-      st.add("stmts", stIf);
+        final String exprText = ExprPrinter.get().toString(condition);
+        stIf.add("expr", exprText);
+
+        buildStmts(stIf, group, stmts);
+        st.add("stmts", stIf);
+      }
     }
 
-    if (!stmt.getElseBlock().isEmpty()) {
-      final ST stElse = group.getInstanceOf("else_block");
-      buildStmts(stElse, group, stmt.getElseBlock());
-      st.add("stmts", stElse);
+    if (isFirst) {
+      // If no "IF" block was created, add statements of "ELSE" to the current level
+      buildStmts(st, group, stmt.getElseBlock());
     } else {
-      st.add("stmts", "}");
+      if (!stmt.getElseBlock().isEmpty()) {
+        final ST stElse = group.getInstanceOf("else_block");
+        buildStmts(stElse, group, stmt.getElseBlock());
+        st.add("stmts", stElse);
+      } else {
+        st.add("stmts", "}");
+      }
     }
   }
 
