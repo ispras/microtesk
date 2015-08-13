@@ -48,6 +48,22 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
   private final Matcher<D, A> matcher;
 
   /**
+   * Proxy class is used to simply code of assignment expressions.  
+   */
+
+  public final class Proxy {
+    private final A address;
+
+    private Proxy(final A address) {
+      this.address = address;
+    }
+
+    public D assign(final D data) {
+      return setData(address, data);
+    }
+  }
+
+  /**
    * Constructs a buffer of the given length and associativity.
    * 
    * @param length the number of sets in the buffer.
@@ -76,7 +92,7 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
     this.matcher = matcher;
   }
 
-  private final Set<D, A> getSet(final BitVector index) {
+  private Set<D, A> getSet(final BitVector index) {
     Set<D, A> result = sets.get(index);
 
     if (null == result) {
@@ -88,23 +104,27 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
   }
 
   @Override
-  public boolean isHit(final A address) {
+  public final boolean isHit(final A address) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = sets.get(index);
     return null != set && set.isHit(address);
   }
 
   @Override
-  public D getData(final A address) {
+  public final D getData(final A address) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
     return set.getData(address);
   }
 
   @Override
-  public D setData(final A address, final D data) {
+  public final D setData(final A address, final D data) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
     return set.setData(address, data);
+  }
+
+  public final Proxy setData(final A address) {
+    return new Proxy(address);
   }
 }
