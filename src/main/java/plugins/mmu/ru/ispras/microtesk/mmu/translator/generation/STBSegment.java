@@ -88,16 +88,19 @@ final class STBSegment extends STBBuilderBase implements STBuilder {
     ExprPrinter.get().addVariableMappings(segment.getAddressArg(), addressName);
 
     final String dataName = removePrefix(segment.getDataArg().getName());
+    final String dataTypeName = segment.getDataArgAddress().getId();
+
     ExprPrinter.get().addVariableMappings(segment.getDataArg(), dataName);
 
     final ST stMethod = group.getInstanceOf("get_data");
 
     stMethod.add("addr_type", segment.getAddress().getId());
     stMethod.add("addr_name", addressName);
-    stMethod.add("data_type", segment.getDataArgAddress().getId());
+    stMethod.add("data_type", dataTypeName);
 
-    stMethod.add("stmts", String.format("%s %s = null;",
-        segment.getDataArgAddress().getId(), dataName));
+    stMethod.add("stmts", String.format("final %s %s = new %s();",
+        dataTypeName, dataName, dataTypeName));
+
     stMethod.add("stmts", "");
 
     buildVariableDecls(stMethod, segment.getVariables());
