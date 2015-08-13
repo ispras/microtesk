@@ -82,7 +82,15 @@ final class STBMemory extends STBBuilderBase implements STBuilder {
     stMethod.add("addr_name", addressName);
     stMethod.add("data_type", BIT_VECTOR_CLASS.getSimpleName());
 
-    stMethod.add("stmts", String.format("%s %s = null;", BIT_VECTOR_CLASS.getSimpleName(), dataName));
+    final String dataTypeName = BIT_VECTOR_CLASS.getSimpleName();
+
+    final String dataValue =
+        String.format("%s.newEmpty(%d)", dataTypeName, memory.getDataArg().getBitSize()); 
+
+    final String dataStmtText =
+        String.format("final %s %s = %s;", dataTypeName, dataName, dataValue);
+
+    stMethod.add("stmts", dataStmtText);
     stMethod.add("stmts", "");
 
     buildVariableDecls(stMethod, memory.getVariables());
