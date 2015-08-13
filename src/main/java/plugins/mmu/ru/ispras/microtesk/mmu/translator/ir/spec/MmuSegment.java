@@ -126,8 +126,6 @@ public final class MmuSegment {
 
   public long getAddress(final long pa) {
     final long startAddressRest = getRest(startAddress);
-    final long endAddressRest = getRest(endAddress);
-    InvariantChecks.checkTrue(startAddressRest == endAddressRest);
 
     return getAddress(pa, startAddressRest);
   }

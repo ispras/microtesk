@@ -962,7 +962,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           // The segment should be corrected (it cannot represent the physical address).
           final MmuSegment segment = Randomizer.get().choose(segments);
 
-          // TODO: additional attributes should be taken into account (e.g., CP in XKPHYS).
+          // An adapter should take into account additional attributes (e.g., CP in XKPHYS).
           va = segment.getAddress(pa);
         }
 
