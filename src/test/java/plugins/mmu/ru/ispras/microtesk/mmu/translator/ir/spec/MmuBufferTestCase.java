@@ -33,7 +33,7 @@ import ru.ispras.microtesk.utils.function.Function;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuDeviceTestCase {
+public class MmuBufferTestCase {
   private static MmuAddressType newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
     return new MmuAddressType(new Variable(name, type),
@@ -207,9 +207,8 @@ public class MmuDeviceTestCase {
     MEM.addField(new IntegerVariable("DATA", 8 * 32));
   }
 
-  private void runTest(final MmuBuffer device, final AddressView<Long> addressView,
-      final long address) {
-
+  private void runTest(
+      final MmuBuffer device, final AddressView<Long> addressView, final long address) {
     System.out.format("Test: %s, %x\n", device.getName(), address);
 
     final long tagA = addressView.getTag(address);
@@ -220,7 +219,8 @@ public class MmuDeviceTestCase {
     final long indexD = device.getIndex(address);
     final long offsetD = device.getOffset(address);
 
-    System.out.format("tag=%x, index=%x, offset=%x\n", tagA, indexA, offsetA);
+    System.out.format("Spec: tag=%x, index=%x, offset=%x%n", tagA, indexA, offsetA);
+    System.out.format("Impl: tag=%x, index=%x, offset=%x%n", tagD, indexD, offsetD);
 
     Assert.assertEquals(Long.toHexString(tagA), Long.toHexString(tagD));
     Assert.assertEquals(Long.toHexString(indexA), Long.toHexString(indexD));
@@ -228,6 +228,9 @@ public class MmuDeviceTestCase {
 
     final long addressA = addressView.getAddress(tagA, indexA, offsetA);
     final long addressD = device.getAddress(tagD, indexD, offsetD);
+
+    System.out.format("Spec: address=%x%n", addressA);
+    System.out.format("Impl: address=%x%n", addressD);
 
     Assert.assertEquals(Long.toHexString(addressA), Long.toHexString(addressD));
   }

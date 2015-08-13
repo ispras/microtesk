@@ -159,8 +159,9 @@ public final class MmuAddressViewBuilder {
 
         final Map<IntegerVariable, BigInteger> values = new LinkedHashMap<>();
 
-        for (final IntegerVariable variable : variables) {
-          values.put(variable, BigInteger.valueOf(fields.get(0)));
+        for (int i = 0; i < variables.size(); i++) {
+          final IntegerVariable variable = variables.get(i);
+          values.put(variable, BigInteger.valueOf(fields.get(i)));
         }
 
         final BigInteger addressValue = MmuCalculator.eval(addressExpression, values);
