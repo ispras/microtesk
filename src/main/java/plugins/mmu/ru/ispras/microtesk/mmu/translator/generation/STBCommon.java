@@ -23,7 +23,9 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
@@ -35,8 +37,6 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class STBCommon {
@@ -255,38 +255,47 @@ public abstract class STBCommon {
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {
-    // TODO
-  }
+    final StringBuilder sb = new StringBuilder();
+    sb.append(String.format("trace(\"%s\"", stmt.getFormat()));
 
-  /*
-  private void addStatement(StatementFormat stmt) {
-    if (null == stmt.getArguments()) {
-      if (null == stmt.getFunction()) {
-        addStatement(String.format("\"%s\";", stmt.getFormat()));
-      } else {
-        addStatement(String.format("%s(\"%s\");", stmt.getFunction(), stmt.getFormat()));
-      }
-      return;
-    }
-
-    final StringBuffer sb = new StringBuffer();
     for (int index = 0; index < stmt.getArguments().size(); ++index) {
-      final Format.Argument argument = stmt.getArguments().get(index);
       final FormatMarker marker = stmt.getMarkers().get(index);
-      
-      if (null == argument || null == marker) {
-        continue;
+
+      final Node argument = stmt.getArguments().get(index);
+      final String argumentText = ExprPrinter.get().toString(argument);
+
+      final boolean isBitVector;
+      if (argument instanceof NodeValue) {
+        isBitVector = argument.isType(DataTypeId.BIT_VECTOR);
+      } else if (argument instanceof NodeOperation) {
+        isBitVector = argument.isType(DataTypeId.BIT_VECTOR) || 
+                      argument.isType(DataTypeId.UNKNOWN);
+      } else if (argument instanceof NodeVariable) {
+        final Type type = getType(argument);
+        isBitVector = !type.isStruct();
+      } else {
+        throw new IllegalStateException("Unexpected node type: " + argument);
+      }
+
+      final String suffix;
+      if (marker == FormatMarker.BIN) {
+        suffix = isBitVector ? ".toBinString()" : "";
+      } else if (marker == FormatMarker.DEC) { 
+        suffix = isBitVector ? ".integerValue()" : "";
+      } else if (marker == FormatMarker.HEX) {
+        suffix = isBitVector ? ".toHexString()" : "";
+      } else if (marker == FormatMarker.STR) {
+        suffix = isBitVector ? ".toString()" : "";
+      } else {
+        throw new IllegalStateException("Unknown format marker: " + marker);
       }
 
       sb.append(", ");
-      sb.append(argument.convertTo(marker));
+      sb.append(argumentText);
+      sb.append(suffix);
     }
 
-    if (null == stmt.getFunction()) {
-      addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
-    } else {
-      addStatement(String.format("%s(\"%s\"%s);", stmt.getFunction(), stmt.getFormat(), sb.toString()));
-    }
+    sb.append(");");
+    st.add("stmts", sb.toString());
   }
-  */
 }
