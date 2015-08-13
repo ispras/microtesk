@@ -19,8 +19,7 @@ entry(members) ::= <<
        "Entry",
        false,
        false,
-       members,
-       false)>
+       members)>
 >>
 
 indexer(addr_type, addr_name, expr) ::= <<
