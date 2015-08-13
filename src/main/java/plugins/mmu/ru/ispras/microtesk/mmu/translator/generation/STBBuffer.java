@@ -30,7 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBBuffer extends STBBuilderBase implements STBuilder {
+final class STBBuffer extends STBCommon implements STBuilder {
   private static final String DATA_NAME = "data";
 
   private final Buffer buffer;

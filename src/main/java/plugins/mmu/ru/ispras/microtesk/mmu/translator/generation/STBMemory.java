@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBMemory extends STBBuilderBase implements STBuilder {
+final class STBMemory extends STBCommon implements STBuilder {
   private final Memory memory;
 
   public STBMemory(final String packageName, final Memory memory) {

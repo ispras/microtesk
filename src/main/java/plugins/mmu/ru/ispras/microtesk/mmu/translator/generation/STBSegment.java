@@ -25,7 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSegment extends STBBuilderBase implements STBuilder {
+final class STBSegment extends STBCommon implements STBuilder {
   private final Segment segment;
 
   public STBSegment(final String packageName, final Segment segment) {

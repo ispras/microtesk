@@ -35,8 +35,11 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.utils.FormatMarker;
 
-public abstract class STBBuilderBase {
+public abstract class STBCommon {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -66,7 +69,7 @@ public abstract class STBBuilderBase {
 
   private final String packageName;
 
-  protected STBBuilderBase(final String packageName) {
+  protected STBCommon(final String packageName) {
     InvariantChecks.checkNotNull(packageName);
     this.packageName = packageName;
   }
@@ -254,4 +257,36 @@ public abstract class STBBuilderBase {
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {
     // TODO
   }
+
+  /*
+  private void addStatement(StatementFormat stmt) {
+    if (null == stmt.getArguments()) {
+      if (null == stmt.getFunction()) {
+        addStatement(String.format("\"%s\";", stmt.getFormat()));
+      } else {
+        addStatement(String.format("%s(\"%s\");", stmt.getFunction(), stmt.getFormat()));
+      }
+      return;
+    }
+
+    final StringBuffer sb = new StringBuffer();
+    for (int index = 0; index < stmt.getArguments().size(); ++index) {
+      final Format.Argument argument = stmt.getArguments().get(index);
+      final FormatMarker marker = stmt.getMarkers().get(index);
+      
+      if (null == argument || null == marker) {
+        continue;
+      }
+
+      sb.append(", ");
+      sb.append(argument.convertTo(marker));
+    }
+
+    if (null == stmt.getFunction()) {
+      addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
+    } else {
+      addStatement(String.format("%s(\"%s\"%s);", stmt.getFunction(), stmt.getFormat(), sb.toString()));
+    }
+  }
+  */
 }
