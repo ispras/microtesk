@@ -941,7 +941,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       if (region.checkAddress(pa)) {
-        boolean segmentOk = false;
+        boolean vaOk = false;
 
         final Collection<MmuSegment> segments = new ArrayList<>();
 
@@ -949,21 +949,33 @@ public final class MemorySolver implements Solver<MemorySolution> {
           final MmuSegment segment = memory.getSegment(access.getSegment());
           InvariantChecks.checkNotNull(segment);
 
-          segments.add(segment);
-
           if (segment.checkVa(va)) {
             // The segment may remain unchanged (it can represent the physical address).
-            segmentOk = true;
+            if (segment.isMapped()) {
+              // The virtual address may remain unchanged.
+              vaOk = true;
+            } else {
+              // The virtual address should be recalculated.
+              segments.clear();
+              segments.add(segment);
+            }
             break;
+          }
+
+          // It is assumed that mapped segments cover the entire physical memory.
+          // The goal is to choose an appropriate unmapped segment. 
+          if(!segment.isMapped()) {
+            segments.add(segment);
           }
         }
 
-        if (!segmentOk) {
-          // The segment should be corrected (it cannot represent the physical address).
+        if (!vaOk) {
+          // The virtual address should be recalculated.
           final MmuSegment segment = Randomizer.get().choose(segments);
 
           // An adapter should take into account additional attributes (e.g., CP in XKPHYS).
-          va = segment.getAddress(pa);
+          va = segment.checkVa(va) ?
+              segment.getAddress(pa, segment.getRest(va)) : segment.getAddress(pa);
         }
 
         regionFound = true;
@@ -972,7 +984,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     InvariantChecks.checkTrue(regionFound);
-
     addrObject.setAddress(vaType, va);
   }
 }
