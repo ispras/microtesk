@@ -21,7 +21,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
-import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriConsumer;
@@ -37,24 +36,20 @@ public final class MemoryEngineContext {
   private final Iterator<MemoryAccessStructure> structureIterator;
 
   private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
-  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
   private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
-      final Function<MemoryAccess, AddressObject> addrObjectConstructors,
-      final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrectors,
+      final Function<MemoryAccess, AddressObject> addrObjectConstructor,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
       final Map<MmuBuffer, Predicate<Long>> hitCheckers) {
-    InvariantChecks.checkNotNull(addrObjectConstructors);
-    InvariantChecks.checkNotNull(addrObjectCorrectors);
+    InvariantChecks.checkNotNull(addrObjectConstructor);
     InvariantChecks.checkNotNull(entryProviders);
     InvariantChecks.checkNotNull(hitCheckers);
 
     this.structureIterator = structureIterator;
-    this.addrObjectConstructor = addrObjectConstructors;
-    this.addrObjectCorrector = addrObjectCorrectors;
+    this.addrObjectConstructor = addrObjectConstructor;
     this.entryProviders = entryProviders;
     this.hitCheckers = hitCheckers;
   }
@@ -65,10 +60,6 @@ public final class MemoryEngineContext {
 
   public Function<MemoryAccess, AddressObject> getAddrObjectConstructor() {
     return addrObjectConstructor;
-  }
-
-  public BiConsumer<MemoryAccess, AddressObject> getAddrObjectCorrector() {
-    return addrObjectCorrector;
   }
 
   public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> getEntryProviders() {

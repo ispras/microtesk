@@ -51,6 +51,9 @@ public final class MmuSubsystem {
   private MmuAddressType physicalAddress;
 
   /** Stores buffers of the MMU. */
+  private Map<String, MmuSegment> segments = new LinkedHashMap<>();
+
+  /** Stores buffers of the MMU. */
   private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
 
   // TODO:
@@ -143,8 +146,43 @@ public final class MmuSubsystem {
   }
 
   /**
-   * Registers a buffer in the MMU. Devices are identified by their name.
-   * Devices with equal names are considered duplicates and ignored.
+   * Registers a segment in the MMU.
+   * 
+   * <p>Devices are identified by their name. Devices with equal names are considered duplicates
+   * and ignored.</p>
+   * 
+   * @param buffer the buffer to be registered.
+   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+   */
+  public void registerSegment(final MmuSegment segment) {
+    InvariantChecks.checkNotNull(segment);
+    segments.put(segment.getName(), segment);
+  }
+
+  /**
+   * Returns the collection of segments registered in the MMU.
+   * 
+   * @return the collection of segments.
+   */
+  public Collection<MmuSegment> getSegments() {
+    return segments.values();
+  }
+
+  /**
+   * Returns a segment registered in the MMU by its name.
+   * 
+   * @param name the name of the segment.
+   * @return segment or {@code null} if it is undefined.
+   */
+  public MmuSegment getSegment(final String name) {
+    return segments.get(name);
+  }
+
+  /**
+   * Registers a buffer in the MMU.
+   * 
+   * <p>Buffers are identified by their name. Buffers with equal names are considered duplicates
+   * and ignored.</p>
    * 
    * @param buffer the buffer to be registered.
    * @throws IllegalArgumentException if {@code buffer} is {@code null}.
@@ -173,7 +211,7 @@ public final class MmuSubsystem {
    * Returns a buffer registered in the MMU by its name.
    * 
    * @param name the name of the buffer.
-   * @return buffer or {@code null} it is undefined.
+   * @return buffer or {@code null} if it is undefined.
    */
   public MmuBuffer getBuffer(final String name) {
     return buffers.get(name);

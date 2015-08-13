@@ -33,6 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -151,7 +152,26 @@ public final class MmuUnderTest {
   public final IntegerVariable data = new IntegerVariable("DATA", 8 * 32);
 
   // ===============================================================================================
-  // Devices
+  // Segments
+  // ===============================================================================================
+
+  public final MmuSegment xuseg = new MmuSegment("XUSEG", vaAddr, paAddr,
+      0x0000000080000000L, 0x000000ffFFFFffffL, true, null, null);
+  public final MmuSegment kseg0 = new MmuSegment("KSEG0", vaAddr, paAddr,
+      0xffffFFFF80000000L, 0xffffFFFF9fffFFFFL, false,
+      MmuExpression.var(va, 0, 28), 
+      MmuExpression.var(va, 29, 63));
+  public final MmuSegment kseg1 = new MmuSegment("KSEG1", vaAddr, paAddr,
+      0xffffFFFFa0000000L, 0xffffFFFFbfffFFFFL, false,
+      MmuExpression.var(va, 0, 28), 
+      MmuExpression.var(va, 29, 63));
+  public final MmuSegment xkphys = new MmuSegment("XKPHYS", vaAddr, paAddr,
+      0x8000000000000000L, 0xbfffFFFFffffFFFFL, false,
+      MmuExpression.var(va, 0, 35), 
+      MmuExpression.var(va, 36, 63));
+
+  // ===============================================================================================
+  // Buffers
   // ===============================================================================================
 
   public final MmuBuffer jtlb = new MmuBuffer("JTLB", JTLB_SIZE, 1, vaAddr,
@@ -402,6 +422,11 @@ public final class MmuUnderTest {
     mmu.registerAddress(paAddr);
     mmu.setVirtualAddress(vaAddr);
     mmu.setPhysicalAddress(paAddr);
+
+    mmu.registerSegment(xuseg);
+    mmu.registerSegment(kseg0);
+    mmu.registerSegment(kseg1);
+    mmu.registerSegment(xkphys);
 
     mmu.registerBuffer(dtlb);
     mmu.registerBuffer(jtlb);

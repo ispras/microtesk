@@ -21,15 +21,14 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * This class implements an address view, i.e. a set of methods for composing/decomposing address
- * into fields.
+ * {@link AddressView} implements an address view, i.e. a set of methods for composing/decomposing
+ * address into fields.
  * 
  * @param <A> address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressView<A> {
-
   /** The address split functor. */
   private final Function<A, List<A>> split;
   /** The address merge functor. */
@@ -40,7 +39,7 @@ public final class AddressView<A> {
    * 
    * @param split the address split functor (it splits an address into the fields).
    * @param merge the address merge functor (it merges fields to produce the address).
-   * @throws NullPointerException if {@code split} or {@code merge} is null.
+   * @throws IllegalArgumentException if {@code split} or {@code merge} is null.
    */
   public AddressView(final Function<A, List<A>> split, final Function<List<A>, A> merge) {
     InvariantChecks.checkNotNull(split);
@@ -55,7 +54,7 @@ public final class AddressView<A> {
    * 
    * @param address the address.
    * @return the list of fields.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws IllegalArgumentException if {@code address} is null.
    */
   public List<A> getFields(final A address) {
     InvariantChecks.checkNotNull(address);
@@ -69,7 +68,7 @@ public final class AddressView<A> {
    * @param address the address.
    * @param i the field index.
    * @return the list of fields.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws IllegalArgumentException if {@code address} is null.
    * @throws IndexOutOfBoundsException if {@code i} is out of bounds.
    */
   public A getField(final A address, final int i) {
@@ -86,7 +85,7 @@ public final class AddressView<A> {
    * 
    * @param fields the fields.
    * @return the address.
-   * @throws NullPointerException if {@code fields} is null.
+   * @throws IllegalArgumentException if {@code fields} is null.
    */
   public A getAddress(final List<A> fields) {
     InvariantChecks.checkNotNull(fields);
@@ -99,7 +98,7 @@ public final class AddressView<A> {
    * 
    * @param address the address.
    * @return the tag.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws IllegalArgumentException if {@code address} is null.
    */
   public A getTag(final A address) {
     return getField(address, 0);
@@ -110,7 +109,7 @@ public final class AddressView<A> {
    * 
    * @param address the address.
    * @return the index.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws IllegalArgumentException if {@code address} is null.
    */
   public A getIndex(final A address) {
     return getField(address, 1);
@@ -121,7 +120,7 @@ public final class AddressView<A> {
    * 
    * @param address the address.
    * @return the offset.
-   * @throws NullPointerException if {@code address} is null.
+   * @throws IllegalArgumentException if {@code address} is null.
    */
   public A getOffset(final A address) {
     return getField(address, 2);
@@ -134,7 +133,7 @@ public final class AddressView<A> {
    * @param index the index.
    * @param offset the offset.
    * @return the address.
-   * @throws NullPointerException if {@code index}, {@code tag} or {@code offset} is null.
+   * @throws IllegalArgumentException if {@code index}, {@code tag} or {@code offset} is null.
    */
   public A getAddress(final A tag, final A index, final A offset) {
     InvariantChecks.checkNotNull(tag);

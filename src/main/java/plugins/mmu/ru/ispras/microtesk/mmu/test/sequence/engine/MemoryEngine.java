@@ -59,7 +59,12 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public static final Classifier<MemoryAccessPath> PARAM_CLASSIFIER_DEFAULT =
       new ClassifierTrivial<MemoryAccessPath>();
 
-  private static Classifier<MemoryAccessPath> getClassifier(final String id) {
+  public static final String PARAM_OFFSET_MASK = "offset-mask";
+  public static final long PARAM_OFFSET_MASK_DEFAULT = 0x0fff;
+
+  private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
+    final String id = value != null ? value.toString() : null;
+
     if (PARAM_CLASSIFIER_TRIVIAL.equals(id)) {
       return new ClassifierTrivial<MemoryAccessPath>();
     }
@@ -73,10 +78,22 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return PARAM_CLASSIFIER_DEFAULT;
   }
 
+  private static long getOffsetMask(final Object value) {
+    if (value == null) {
+      return PARAM_OFFSET_MASK_DEFAULT;
+    }
+
+    final Number id =
+        value instanceof Number ? (Number) value : Long.parseLong(value.toString(), 16);
+
+    return id.longValue();
+  }
+
+  private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT;
+  private long offsetMask = PARAM_OFFSET_MASK_DEFAULT;
+
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
-
-  private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT; 
 
   // TODO:
   private MemorySolver solver;
@@ -93,8 +110,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    final Object classifierId = attributes.get(PARAM_CLASSIFIER);
-    classifier = getClassifier(classifierId != null ? classifierId.toString() : null);
+    classifier = getClassifier(attributes.get(PARAM_CLASSIFIER));
+    offsetMask = getOffsetMask(attributes.get(PARAM_OFFSET_MASK));
   }
 
   @Override
@@ -199,7 +216,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           entryIdAllocator.reset();
 
           solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
-              engineContext.getSettings());
+              offsetMask, engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve();
           InvariantChecks.checkNotNull(result);

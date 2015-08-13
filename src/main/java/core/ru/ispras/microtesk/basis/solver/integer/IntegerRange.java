@@ -256,6 +256,19 @@ public final class IntegerRange {
   }
 
   /**
+   * Checks whether this range contains the given point.
+   * 
+   * @param value the point.
+   * @return {@code true} if this range contains the given point; {@code false} otherwise.
+   * @throws IllegalArgumentException if {@code value} is null.
+   */
+  public boolean contains(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+
+    return min.compareTo(value) <= 0 && max.compareTo(value) >= 0;
+  }
+
+  /**
    * Returns the intersection of this range with the given one. If the ranges are not overlapping,
    * returns {@code null}.
    * 

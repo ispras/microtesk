@@ -48,7 +48,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.utils.function.BiConsumer;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriConsumer;
@@ -63,6 +62,9 @@ import ru.ispras.microtesk.utils.function.TriConsumer;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySolver implements Solver<MemorySolution> {
+  /** Memory access structures being processed. */
+  private final MemoryAccessStructure structure;
+
   /**
    * Refers to the address object constructor.
    * 
@@ -70,14 +72,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * of {@link MemoryAccess}) to the address object (an object of {@link AddressObject}).</p>
    */
   private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
-
-  /**
-   * Refers to the address object corrector.
-   * 
-   * <p>A address object corrector is a user-defined function that corrects inconsistencies in
-   * address object (an object of {@link AddressObject}) after solving the constraints.</p>
-   */
-  private final BiConsumer<MemoryAccess, AddressObject> addrObjectCorrector;
 
   /**
    * Given a non-replaceable buffer, contains the entry provider.
@@ -88,6 +82,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
 
   private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
+
+  private final long offsetMask;
 
   private final AddressAllocator addressAllocator;
   private final EntryIdAllocator entryIdAllocator;
@@ -106,9 +102,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Contains a reference to the memory subsystem specification. */
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
 
-  /** Memory access structures being processed. */
-  private final MemoryAccessStructure structure;
-
   /** Current solution. */
   private MemorySolution solution;
 
@@ -124,6 +117,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MemoryEngineContext context,
       final AddressAllocator addressAllocator,
       final EntryIdAllocator entryIdAllocator,
+      final long offsetMask,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
@@ -137,12 +131,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.addressAllocator = addressAllocator;
     this.entryIdAllocator = entryIdAllocator;
 
-    this.settings = settings;
-
     this.addrObjectConstructor = context.getAddrObjectConstructor();
-    this.addrObjectCorrector = context.getAddrObjectCorrector();
     this.hitCheckers = context.getHitCheckers();
     this.entryProviders = context.getEntryProviders();
+
+    this.offsetMask = offsetMask;
+
+    this.settings = settings;
   }
 
   @Override
@@ -709,8 +704,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    // Correct the solution.
-    addrObjectCorrector.accept(access, addrObject);
+    // Avoid address inconsistencies.
+    correctAddressObject(addrObject);
 
     return new SolverResult<MemorySolution>(solution);
   }
@@ -916,5 +911,28 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   private long allocateEntryId(final MmuBuffer buffer, final boolean peek) {
     return entryIdAllocator.allocate(buffer, peek, null);
+  }
+
+  /**
+   * Avoids inconsistencies that may appear during the constraint solving.
+   * 
+   * @param addrObject the address object to be corrected.
+   */
+  private void correctAddressObject(final AddressObject addrObject) {
+    InvariantChecks.checkNotNull(addrObject);
+
+    final MmuAddressType vaType = memory.getVirtualAddress();
+    final MmuAddressType paType = memory.getPhysicalAddress();
+
+    long va = addrObject.getAddress(vaType);
+    long pa = addrObject.getAddress(paType);
+
+    // Correct the virtual address offset.
+    va = (va & ~offsetMask) | (pa & offsetMask);
+
+    // Correct the virtual memory segment.
+    // TODO:
+
+    addrObject.setAddress(vaType, va);
   }
 }
