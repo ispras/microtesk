@@ -16,14 +16,18 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.settings.AccessSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 
@@ -33,13 +37,7 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccess {
-  private final MemoryAccessType type;
-  private final MemoryAccessPath path;
-
-  private final Collection<RegionSettings> regions = new LinkedHashSet<>();
-  private final Collection<MmuSegment> segments = new LinkedHashSet<>();
-
-  public MemoryAccess(
+  public static MemoryAccess create(
       final MemoryAccessType type,
       final MemoryAccessPath path,
       final GeneratorSettings settings) {
@@ -47,8 +45,10 @@ public final class MemoryAccess {
     InvariantChecks.checkNotNull(path);
     // Parameter {@code settings} can be null.
 
-    this.type = type;
-    this.path = path;
+    final MmuSubsystem memory = MmuTranslator.getSpecification();
+
+    final Collection<RegionSettings> regions = new LinkedHashSet<>();
+    final Collection<MmuSegment> segments = new LinkedHashSet<>();
 
     if (settings != null) {
       for (final RegionSettings region : settings.getMemory().getRegions()) {
@@ -58,7 +58,6 @@ public final class MemoryAccess {
       }
     }
 
-    final MmuSubsystem memory = MmuTranslator.getSpecification();
     for (final MmuSegment segment : memory.getSegments()) {
       segments.add(segment);
     }
@@ -88,6 +87,54 @@ public final class MemoryAccess {
         }
       }
     }
+
+    if (settings == null) {
+      final MmuSegment segment = Randomizer.get().choose(segments);
+      return new MemoryAccess(type, path, null, segment);
+    }
+
+    final Map<RegionSettings, Collection<MmuSegment>> possibleSegments = new LinkedHashMap<>();
+
+    for (final RegionSettings region : regions) {
+      final Collection<MmuSegment> regionSegments = new LinkedHashSet<>();
+
+      for (final AccessSettings regionAccess: region.getAccesses()) {
+        regionSegments.add(memory.getSegment(regionAccess.getSegment()));
+      }
+
+      final Collection<MmuSegment> possibleRegionSegments = new LinkedHashSet<>(segments);
+      possibleRegionSegments.retainAll(regionSegments);
+
+      if (!possibleRegionSegments.isEmpty()) {
+        possibleSegments.put(region, possibleRegionSegments);
+      }
+    }
+
+    final RegionSettings region = Randomizer.get().choose(possibleSegments.keySet());
+    final MmuSegment segment = Randomizer.get().choose(possibleSegments.get(region));
+
+    return new MemoryAccess(type, path, region, segment);
+  }
+
+  private final MemoryAccessType type;
+  private final MemoryAccessPath path;
+  private final RegionSettings region;
+  private final MmuSegment segment;
+
+  public MemoryAccess(
+      final MemoryAccessType type,
+      final MemoryAccessPath path,
+      final RegionSettings region,
+      final MmuSegment segment) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(segment);
+    // Parameter {@code region} can be null.
+
+    this.type = type;
+    this.path = path;
+    this.region = region;
+    this.segment = segment;
   }
 
   public MemoryAccessType getType() {
@@ -98,16 +145,19 @@ public final class MemoryAccess {
     return path;
   }
 
-  public Collection<RegionSettings> getRegions() {
-    return regions;
+  public RegionSettings getRegion() {
+    return region;
   }
 
-  public Collection<MmuSegment> getSegments() {
-    return segments;
+  public MmuSegment getSegment() {
+    return segment;
   }
 
   @Override
   public String toString() {
-    return String.format("%s, %s", type, path);
+    return String.format("%s, %s, %s", type, path,
+        (region != null ?
+            String.format("%s[%s]", region.getName(), segment.getName()) :
+            segment.getName()));
   }
 }

@@ -313,7 +313,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessType accessType = accessTypes.get(i);
       final MemoryAccessPath accessPath = Randomizer.get().choose(accessPathClass);
 
-      accesses.add(new MemoryAccess(accessType, accessPath, settings));
+      accesses.add(MemoryAccess.create(accessType, accessPath, settings));
     }
 
     for (final MemoryAccess access : accesses) {
