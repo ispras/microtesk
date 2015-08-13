@@ -61,6 +61,11 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
     public D assign(final D data) {
       return setData(address, data);
     }
+
+    public D assign(final BitVector data) {
+      // TODO
+      return null;
+    }
   }
 
   /**
