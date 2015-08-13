@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collections;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -44,7 +45,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * <p>The logic is as follows.</p>
  * 
  * <pre>{@code
- * if (isMapped(VA) == false) {
+ * if (!XUSEG(VA).hit) {
  *   PA = translate(VA)
  *   C = cachePolicy(VA)
  * } else {
@@ -86,6 +87,9 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuUnderTest {
+  public static final String DATA_LO_REGION = "lo";
+  public static final String DATA_HI_REGION = "hi";
+
   public static final boolean REDUCE = true;
 
   public static final int VA_BITS = 64;
@@ -131,8 +135,6 @@ public final class MmuUnderTest {
 
   public final IntegerVariable va = vaAddr.getVariable();
   public final IntegerVariable pa = paAddr.getVariable();
-  public final IntegerVariable isMapped = new IntegerVariable("isMapped", 1);
-  public final IntegerVariable isHiMem = new IntegerVariable("isHiMem", 1);
   public final IntegerVariable cachePolicy = new IntegerVariable("cachePolicy", 3); 
   public final IntegerVariable v0 = new IntegerVariable("V0", 1);
   public final IntegerVariable d0 = new IntegerVariable("D0", 1);
@@ -342,9 +344,9 @@ public final class MmuUnderTest {
   public final MmuTransition ifWrite = new MmuTransition(root, start,
       new MmuGuard(MemoryOperation.STORE));
   public final MmuTransition ifUnmapped = new MmuTransition(start, getUpa,
-      new MmuGuard(MmuCondition.eq(isMapped, BigInteger.ZERO)));
+      new MmuGuard(null, Arrays.asList(new MmuSegment[] {kseg0, kseg1, xkphys})));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
-      new MmuGuard(MmuCondition.eq(isMapped, BigInteger.ONE)));
+      new MmuGuard(null, Collections.singleton(xuseg)));
   public final MmuTransition afterUpa = new MmuTransition(getUpa, startCache);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
       new MmuGuard(dtlb, BufferAccessEvent.MISS));
@@ -380,9 +382,9 @@ public final class MmuUnderTest {
       new MmuGuard(
           MmuCondition.eq(d, BigInteger.ONE)));
   public final MmuTransition ifHiMemory = new MmuTransition(getMpa, startCache,
-      new MmuGuard(MmuCondition.eq(isHiMem, BigInteger.ONE)));
+      new MmuGuard(Collections.singleton(DATA_HI_REGION), null));
   public final MmuTransition ifLoMemory = new MmuTransition(getMpa, startCache,
-      new MmuGuard(MmuCondition.eq(isHiMem, BigInteger.ZERO)));
+      new MmuGuard(Collections.singleton(DATA_LO_REGION), null));
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
           MmuCondition.eq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));

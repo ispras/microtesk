@@ -894,7 +894,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         CoverageExtractor.get().getNormalPaths(memory, parent);
     final MemoryAccessPath path = Randomizer.get().choose(paths);
     final MemoryAccessType type = MemoryAccessType.LOAD(DataType.BYTE);
-    final MemoryAccess access = new MemoryAccess(type, path);
+    final MemoryAccess access = new MemoryAccess(type, path, settings);
 
     // Construct a valid address object.
     final AddressObject addrObject = addrObjectConstructor.apply(access);

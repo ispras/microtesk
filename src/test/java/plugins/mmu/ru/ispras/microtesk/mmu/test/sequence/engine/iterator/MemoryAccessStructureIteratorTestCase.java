@@ -73,8 +73,8 @@ public final class MemoryAccessStructureIteratorTestCase {
       accessTypes.add(new MemoryAccessType(MemoryOperation.LOAD, DataType.BYTE));
     }
 
-    final MemoryAccessStructureIterator mmuIterator =
-        new MemoryAccessStructureIterator(accessTypes, new ClassifierTrivial<MemoryAccessPath>());
+    final MemoryAccessStructureIterator mmuIterator = new MemoryAccessStructureIterator(
+        accessTypes, new ClassifierTrivial<MemoryAccessPath>(), null);
 
     final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
     for (final MemoryHazard.Type type : MemoryHazard.Type.values()) {

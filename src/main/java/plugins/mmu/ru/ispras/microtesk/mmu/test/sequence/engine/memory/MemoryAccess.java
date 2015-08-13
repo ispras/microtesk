@@ -14,25 +14,80 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
- * {@link MemoryAccess} represents an execution path of a memory access instruction.
+ * {@link MemoryAccess} describes an execution path of a memory access instruction.
  * 
- * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccess {
   private final MemoryAccessType type;
   private final MemoryAccessPath path;
 
+  private final Collection<RegionSettings> regions = new LinkedHashSet<>();
+  private final Collection<MmuSegment> segments = new LinkedHashSet<>();
+
   public MemoryAccess(
       final MemoryAccessType type,
-      final MemoryAccessPath path) {
+      final MemoryAccessPath path,
+      final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
+    // Parameter {@code settings} can be null.
 
     this.type = type;
     this.path = path;
+
+    if (settings != null) {
+      for (final RegionSettings region : settings.getMemory().getRegions()) {
+        if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+          regions.add(region);
+        }
+      }
+    }
+
+    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    for (final MmuSegment segment : memory.getSegments()) {
+      segments.add(segment);
+    }
+
+    for (final MmuTransition transition : path.getTransitions()) {
+      final MmuGuard guard = transition.getGuard();
+
+      if (guard != null) {
+        final Collection<String> guardRegionNames = guard.getRegions(); 
+        final Collection<MmuSegment> guardSegments = guard.getSegments();
+
+        final Collection<RegionSettings> guardRegions =
+            settings != null && guardRegionNames != null ? new ArrayList<RegionSettings>() : null;
+
+        if (settings != null && guardRegionNames != null) {
+          for (final String regionName : guardRegionNames) {
+            guardRegions.add(settings.getMemory().getRegion(regionName));
+          }
+        }
+
+        if (guardRegions != null) {
+          regions.retainAll(guardRegions);
+        }
+
+        if (guardSegments != null) {
+          segments.retainAll(guardSegments);
+        }
+      }
+    }
   }
 
   public MemoryAccessType getType() {
@@ -41,6 +96,14 @@ public final class MemoryAccess {
 
   public MemoryAccessPath getPath() {
     return path;
+  }
+
+  public Collection<RegionSettings> getRegions() {
+    return regions;
+  }
+
+  public Collection<MmuSegment> getSegments() {
+    return segments;
   }
 
   @Override

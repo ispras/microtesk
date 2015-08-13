@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.util.Collection;
+
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
@@ -26,48 +28,60 @@ public final class MmuGuard {
   /** Operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
   private final MemoryOperation operation;
   /** Device (buffer). */
-  private final MmuBuffer device;
+  private final MmuBuffer buffer;
   /** Event: {@code HIT} or {@code MISS}. */
   private final BufferAccessEvent event;
   /** Logical condition. */
   private final MmuCondition condition;
-
+  /** Admissible memory regions. */
+  private final Collection<String> regions;
+  /** Admissible memory segments. */
+  private final Collection<MmuSegment> segments;
+  
   public MmuGuard(
       final MemoryOperation operation,
-      final MmuBuffer device,
+      final MmuBuffer buffer,
       final BufferAccessEvent event,
-      final MmuCondition condition) {
+      final MmuCondition condition,
+      final Collection<String> regions,
+      final Collection<MmuSegment> segments) {
     this.operation = operation;
-    this.device = device;
+    this.buffer = buffer;
     this.event = event;
     this.condition = condition;
+    this.regions = regions;
+    this.segments = segments;
   }
 
   public MmuGuard(
-      final MmuBuffer device,
+      final MmuBuffer buffer,
       final BufferAccessEvent event,
       final MmuCondition condition) {
-    this(null, device, event, condition);
+    this(null, buffer, event, condition, null, null);
   }
 
-  public MmuGuard(final MmuBuffer device, final BufferAccessEvent event) {
-    this(null, device, event, null);
+  public MmuGuard(final MmuBuffer buffer, final BufferAccessEvent event) {
+    this(null, buffer, event, null, null, null);
   }
 
   public MmuGuard(final MmuCondition condition) {
-    this(null, null, null, condition);
+    this(null, null, null, condition, null, null);
   }
 
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
-    this(operation, null, null, condition);
+    this(operation, null, null, condition, null, null);
   }
 
   public MmuGuard(final MemoryOperation operation) {
-    this(operation, null, null, null);
+    this(operation, null, null, null, null, null);
+  }
+
+  public MmuGuard(final Collection<String> regions, final Collection<MmuSegment> segments) {
+    this(null, null, null, null, regions, segments);
   }
 
   public MmuBuffer getBuffer() {
-    return device;
+    return buffer;
   }
 
   public MemoryOperation getOperation() {
@@ -82,6 +96,14 @@ public final class MmuGuard {
     return condition;
   }
 
+  public Collection<String> getRegions() {
+    return regions;
+  }
+
+  public Collection<MmuSegment> getSegments() {
+    return segments;
+  }
+
   @Override
   public String toString() {
     final String separator = ", ";
@@ -91,9 +113,9 @@ public final class MmuGuard {
       builder.append(operation);
     }
 
-    if (device != null) {
+    if (buffer != null) {
       builder.append(builder.length() > 0 ? separator : "");
-      builder.append(String.format("%s.Event=%s", device, event));
+      builder.append(String.format("%s.Event=%s", buffer, event));
     }
 
     if (condition != null) {

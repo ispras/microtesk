@@ -39,6 +39,7 @@ import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -96,6 +97,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Iterator of memory access classes. */
   private final Iterator<List<Integer>> accessPathIterator;
 
+  private final GeneratorSettings settings;
+  
   /** Checks the consistency of execution path pairs. */
   private Predicate<MemoryAccessStructure> accessPairChecker;
   /** Checks the consistency of whole test templates. */
@@ -106,10 +109,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
-      final Classifier<MemoryAccessPath> classifier) {
+      final Classifier<MemoryAccessPath> classifier,
+      final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
+    // Parameter {@code settings} can be null.
  
     this.accessTypes = accessTypes;
 
@@ -130,6 +135,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     }
 
     this.accessPathIterator = accessPathIterator;
+
+    this.settings = settings;
   }
 
   public List<MemoryAccessType> getAccessTypes() {
@@ -306,7 +313,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessType accessType = accessTypes.get(i);
       final MemoryAccessPath accessPath = Randomizer.get().choose(accessPathClass);
 
-      accesses.add(new MemoryAccess(accessType, accessPath));
+      accesses.add(new MemoryAccess(accessType, accessPath, settings));
     }
 
     for (final MemoryAccess access : accesses) {
