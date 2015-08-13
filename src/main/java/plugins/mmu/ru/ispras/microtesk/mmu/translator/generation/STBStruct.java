@@ -88,8 +88,8 @@ final class STBStruct implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("struct_constructor");
-    stConstructor.add("name", type.getId());
+    final ST stStruct = group.getInstanceOf("struct_body");
+    stStruct.add("type", type.getId());
 
     for (final Map.Entry<String, Type>  field : type.getFields().entrySet()) {
       final String fieldName = field.getKey();
@@ -109,19 +109,13 @@ final class STBStruct implements STBuilder {
             String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
       }
 
-      final ST stField = group.getInstanceOf("struct_field");
-      stField.add("name", fieldName);
-      stField.add("type", fieldTypeName);
-      st.add("members", stField);
-
-      final ST stFieldInit = group.getInstanceOf("struct_field_init");
-      stFieldInit.add("name", fieldName);
-      stFieldInit.add("value", fieldValue);
-      stConstructor.add("fields", stFieldInit);
+      stStruct.add("fnames",  fieldName);
+      stStruct.add("ftypes",  fieldTypeName);
+      stStruct.add("fvalues", fieldValue);;
     }
 
     st.add("members", "");
-    st.add("members", stConstructor);
+    st.add("members", stStruct);
   }
 
   private void buildGetValue(final ST st, final STGroup group) {

@@ -31,6 +31,19 @@ struct_field_init(name, value) ::= <<
 this.<name> = <value>;
 >>
 
+struct_body(type, fnames, ftypes, fvalues) ::= <<
+<fnames, ftypes:{n, t | public final <t> <n>;}; separator="\n"><\n>
+public <type>() {
+  <fnames, fvalues:{n, v | this.<n> = <v>;}; separator="\n">
+}<\n>
+public void assign(final <type> other) {
+  <fnames:{n | this.<n>.assign(other.<n>);}; separator="\n">
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Address-related templates
+
 struct_get_value(field_name) ::= <<
 @Override
 public BitVector getValue() {
@@ -65,6 +78,9 @@ public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <dat
   <stmts; separator="\n">
 }
 >>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Statement temlates
 
 if_block(expr, stmts)::= <<
 if (<expr>) {
