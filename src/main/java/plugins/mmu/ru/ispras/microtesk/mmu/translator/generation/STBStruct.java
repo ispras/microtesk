@@ -36,7 +36,6 @@ final class STBStruct implements STBuilder {
   private final boolean isAddress;
   private final Type type;
   private final String valueFieldName;
-  private boolean isBitVectorImported;
 
   public STBStruct(final String packageName, final Address address) {
     InvariantChecks.checkNotNull(packageName);
@@ -68,7 +67,6 @@ final class STBStruct implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
-    isBitVectorImported = false;
 
     buildHeader(st);
     buildFields(st, group, type.getId(), type);
@@ -80,6 +78,8 @@ final class STBStruct implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", type.getId());
     st.add("pack", packageName);
+
+    st.add("imps", BIT_VECTOR_CLASS.getName());
 
     if (isAddress) {
       st.add("impls", ADDRESS_CLASS.getSimpleName());
@@ -126,19 +126,10 @@ final class STBStruct implements STBuilder {
       return;
     }
 
-    importBitVector(st);
-
     final ST stAddress = group.getInstanceOf("struct_get_value");
     stAddress.add("field_name", valueFieldName);
 
     st.add("members", "");
     st.add("members", stAddress);
-  }
-
-  private void importBitVector(final ST st) {
-    if (!isBitVectorImported) {
-      st.add("imps", BIT_VECTOR_CLASS.getName());
-      isBitVectorImported = true;
-    }
   }
 }
