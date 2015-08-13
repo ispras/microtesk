@@ -45,7 +45,9 @@ import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.AccessSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.function.Function;
@@ -931,7 +933,45 @@ public final class MemorySolver implements Solver<MemorySolution> {
     va = (va & ~offsetMask) | (pa & offsetMask);
 
     // Correct the virtual memory segment.
-    // TODO:
+    boolean regionFound = false;
+
+    for (final RegionSettings region : settings.getMemory().getRegions()) {
+      if (!region.isEnabled() || region.getType() != RegionSettings.Type.DATA) {
+        continue;
+      }
+
+      if (region.checkAddress(pa)) {
+        boolean segmentOk = false;
+
+        final Collection<MmuSegment> segments = new ArrayList<>();
+
+        for (final AccessSettings access : region.getAccesses()) {
+          final MmuSegment segment = memory.getSegment(access.getSegment());
+          InvariantChecks.checkNotNull(segment);
+
+          segments.add(segment);
+
+          if (segment.checkVa(va)) {
+            // The segment may remain unchanged (it can represent the physical address).
+            segmentOk = true;
+            break;
+          }
+        }
+
+        if (!segmentOk) {
+          // The segment should be corrected (it cannot represent the physical address).
+          final MmuSegment segment = Randomizer.get().choose(segments);
+
+          // TODO: additional attributes should be taken into account (e.g., CP in XKPHYS).
+          va = segment.getAddress(pa);
+        }
+
+        regionFound = true;
+        break;
+      }
+    }
+
+    InvariantChecks.checkTrue(regionFound);
 
     addrObject.setAddress(vaType, va);
   }

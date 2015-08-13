@@ -32,17 +32,16 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * 
  * <p>Test data include addresses (virtual and physical ones), auxiliary attributes (cache policy,
  * control bits, etc.), sequences of addresses to be accessed to prepare hit/miss situations and
- * sets of entries to be written into the devices (buffers).</p>
+ * sets of entries to be written into the buffers.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressObject {
-
   /**
    * Refers to the MMU specification.
    *
    * <p>It is used to initialize the auxiliary data structures and to build a string representation
-   * of the test data (to print tags and indices for all relevant devices).</p>
+   * of the test data (to print tags and indices for all relevant buffers).</p>
    */
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
 
@@ -56,9 +55,9 @@ public final class AddressObject {
   private final Map<IntegerVariable, Long> attributes = new LinkedHashMap<>();
 
   /**
-   * Contains entries to be written into the devices (buffers).
+   * Contains entries to be written into the buffers.
    * 
-   * <p>Typically, one memory access affects one entry of one device. It is assumed that each map
+   * <p>Typically, one memory access affects one entry of one buffer. It is assumed that each map
    * contains exactly one entry.</p>
    */
   private final Map<MmuBuffer, Map<Long, MmuEntry>> entries = new LinkedHashMap<>();
@@ -144,51 +143,51 @@ public final class AddressObject {
   }
 
   /**
-   * Returns the entries to be written to the given device.
+   * Returns the entries to be written to the given buffer.
    * 
-   * @param device the device to be prepared.
+   * @param buffer the buffer to be prepared.
    * @return the entries to written.
-   * @throws IllegalArgumentException if {@code device} is null.
+   * @throws IllegalArgumentException if {@code buffer} is null.
    */
-  public Map<Long, MmuEntry> getEntries(final MmuBuffer device) {
-    InvariantChecks.checkNotNull(device);
-    return entries.get(device);
+  public Map<Long, MmuEntry> getEntries(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    return entries.get(buffer);
   }
 
   /**
-   * Sets the entries to be written to the given device.
+   * Sets the entries to be written to the given buffer.
    * 
-   * @param device the device to be prepared.
+   * @param buffer the buffer to be prepared.
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer device, final Map<Long, MmuEntry> entries) {
-    InvariantChecks.checkNotNull(device);
+  public void setEntries(final MmuBuffer buffer, final Map<Long, MmuEntry> entries) {
+    InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkTrue(entries.size() == 1);
 
-    this.entries.put(device, entries);
+    this.entries.put(buffer, entries);
   }
 
   /**
-   * Adds the entry to the set of entries to be written to the given device.
+   * Adds the entry to the set of entries to be written to the given buffer.
    * 
-   * @param device the device to be prepared.
+   * @param buffer the buffer to be prepared.
    * @param entryId the internal address of the entry.
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer device, final long entryId, final MmuEntry entry) {
-    InvariantChecks.checkNotNull(device);
+  public void addEntry(final MmuBuffer buffer, final long entryId, final MmuEntry entry) {
+    InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entry);
 
-    Map<Long, MmuEntry> deviceEntries = entries.get(device);
+    Map<Long, MmuEntry> bufferEntries = entries.get(buffer);
 
-    if (deviceEntries == null) {
-      entries.put(device, deviceEntries = new LinkedHashMap<>());
+    if (bufferEntries == null) {
+      entries.put(buffer, bufferEntries = new LinkedHashMap<>());
     }
 
-    deviceEntries.put(entryId, entry);
+    bufferEntries.put(entryId, entry);
   }
 
   @Override
@@ -206,17 +205,17 @@ public final class AddressObject {
       builder.append(String.format("%s=%x", addrType.getVariable().getName(), addrValue));
       comma = true;
 
-      for (final MmuBuffer device : memory.getBuffers()) {
-        if (device.getAddress() == addrType) {
-          if (device.isReplaceable()) {
+      for (final MmuBuffer buffer : memory.getBuffers()) {
+        if (buffer.getAddress() == addrType) {
+          if (buffer.isReplaceable()) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.tag=%x", device, device.getTag(addrValue)));
+            builder.append(String.format("%s.tag=%x", buffer, buffer.getTag(addrValue)));
             comma = true;
           }
 
-          if (device.getSets() > 1) {
+          if (buffer.getSets() > 1) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.index=%x", device, device.getIndex(addrValue)));
+            builder.append(String.format("%s.index=%x", buffer, buffer.getIndex(addrValue)));
             comma = true;
           }
         }

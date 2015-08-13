@@ -103,8 +103,8 @@ public final class MmuSegment {
     return restExpression;
   }
 
-  public boolean check(final long address) {
-    return range.contains(BigIntegerUtils.valueOfUnsignedLong(address));
+  public boolean checkVa(final long va) {
+    return range.contains(BigIntegerUtils.valueOfUnsignedLong(va));
   }
 
   public long getPa(long address) {
@@ -122,5 +122,13 @@ public final class MmuSegment {
     fields.add(rest);
 
     return addressView.getAddress(fields);
+  }
+
+  public long getAddress(final long pa) {
+    final long startAddressRest = getRest(startAddress);
+    final long endAddressRest = getRest(endAddress);
+    InvariantChecks.checkTrue(startAddressRest == endAddressRest);
+
+    return getAddress(pa, startAddressRest);
   }
 }
