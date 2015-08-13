@@ -62,9 +62,9 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
       return setData(address, data);
     }
 
-    public D assign(final BitVector data) {
-      // TODO
-      return null;
+    public D assign(final BitVector value) {
+      final D data = newData(value);
+      return setData(address, data);
     }
   }
 
@@ -132,4 +132,6 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
   public final Proxy setData(final A address) {
     return new Proxy(address);
   }
+
+  protected abstract D newData(final BitVector value);
 }

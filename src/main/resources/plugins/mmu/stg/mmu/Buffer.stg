@@ -51,3 +51,11 @@ private <name>() {
     );
 }
 >>
+
+new_data(type) ::= <<
+@Override
+protected <type> newData(final BitVector value) {
+  // return new <type>(value);
+  return null;
+}
+>>
