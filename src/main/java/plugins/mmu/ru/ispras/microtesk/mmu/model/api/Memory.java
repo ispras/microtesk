@@ -26,18 +26,6 @@ public abstract class Memory <D, A extends Address>
   }
 
   @Override
-  public int getAddressBitSize() {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
-  public int getDataBitSize() {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
   public BitVector load(BitVector address) {
     // TODO Auto-generated method stub
     return null;

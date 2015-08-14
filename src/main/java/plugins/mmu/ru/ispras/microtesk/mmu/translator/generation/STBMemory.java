@@ -52,6 +52,7 @@ final class STBMemory extends STBCommon implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
 
     buildHeader(st);
+    buildGetSize(st, group);
     buildGetData(st, group, addressName, dataName);
     buildSetData(st, group, addressName, dataName);
 
@@ -66,6 +67,16 @@ final class STBMemory extends STBCommon implements STBuilder {
         memory.getAddress().getId());
 
     buildHeader(st, baseName);
+  }
+
+  private void buildGetSize(final ST st, final STGroup group) {
+    final ST stMethod = group.getInstanceOf("get_size");
+
+    stMethod.add("addr_size", memory.getAddressArg().getBitSize());
+    stMethod.add("data_size", memory.getDataArg().getBitSize());
+
+    st.add("members", "");
+    st.add("members", stMethod);
   }
 
   private void buildGetData(

@@ -77,6 +77,18 @@ private <name>() {
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Memory-related statements 
+
+get_size(addr_size, data_size) ::= <<
+@Override
+public int getAddressBitSize() {
+  return <addr_size>;
+}<\n>
+@Override
+public int getDataBitSize() {
+  return <data_size>;
+}
+>>
 
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
@@ -93,7 +105,7 @@ public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <dat
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Statement temlates
+// Statement templates
 
 if_block(expr, stmts)::= <<
 if (<expr>) {
