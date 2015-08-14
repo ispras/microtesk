@@ -97,10 +97,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
     buildHeader(st, baseName);
   }
 
-  private void buildNewLine(final ST st) {
-    st.add("members", "");
-  }
-
   private void buildEntry(final ST st, final STGroup group) {
     if (isView) {
       return;

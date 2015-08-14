@@ -92,6 +92,10 @@ public abstract class STBCommon {
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
+  protected final void buildNewLine(final ST st) {
+    st.add("members", "");
+  }
+
   protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
     for (final Variable variable : variables) {
       final String name = removePrefix(variable.getName());

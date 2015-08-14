@@ -77,7 +77,6 @@ private <name>() {
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Memory-related statements 
 
 get_size(addr_size, data_size) ::= <<
 @Override
@@ -87,6 +86,20 @@ public int getAddressBitSize() {
 @Override
 public int getDataBitSize() {
   return <data_size>;
+}
+>>
+
+new_data(type) ::= <<
+@Override
+protected <type> newData(final BitVector value) {
+  return new <type>(value);
+}
+>>
+
+new_address(type) ::= <<
+@Override
+protected <type> newAddress() {
+  return new <type>();
 }
 >>
 

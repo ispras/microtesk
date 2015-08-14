@@ -15,25 +15,39 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
 
-public abstract class Memory <D, A extends Address>
-    extends StandardFunctions implements Buffer<D, A>, MemoryAccessor {
+public abstract class Memory <A extends Address>
+    extends StandardFunctions implements Buffer<BitVector, A>, MemoryAccessor {
   @Override
   public boolean isHit(final A address) {
     return true;
   }
 
   @Override
-  public BitVector load(BitVector address) {
-    // TODO Auto-generated method stub
-    return null;
+  public BitVector load(final BitVector address) {
+    return getData(toAddress(address));
   }
 
   @Override
-  public void store(BitVector address, BitVector data) {
-    // TODO Auto-generated method stub
-    
+  public void store(final BitVector address, final BitVector data) {
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize(), "Data size mismatch");
+
+    setData(toAddress(address), data);
   }
+
+  private A toAddress(final BitVector value) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(value.getBitSize() == getAddressBitSize(), "Address size mismatch");
+
+    final A address = newAddress();
+    address.getValue().assign(value);
+
+    return address;
+  }
+
+  protected abstract A newAddress();
 }

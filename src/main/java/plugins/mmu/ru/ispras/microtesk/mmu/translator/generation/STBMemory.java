@@ -53,6 +53,7 @@ final class STBMemory extends STBCommon implements STBuilder {
 
     buildHeader(st);
     buildGetSize(st, group);
+    buildNewAddress(st, group);
     buildGetData(st, group, addressName, dataName);
     buildSetData(st, group, addressName, dataName);
 
@@ -61,9 +62,8 @@ final class STBMemory extends STBCommon implements STBuilder {
   }
 
   private void buildHeader(final ST st) {
-    final String baseName = String.format("%s<%s, %s>",
+    final String baseName = String.format("%s<%s>",
         MEMORY_CLASS.getName(),
-        BIT_VECTOR_CLASS.getSimpleName(),
         memory.getAddress().getId());
 
     buildHeader(st, baseName);
@@ -72,10 +72,17 @@ final class STBMemory extends STBCommon implements STBuilder {
   private void buildGetSize(final ST st, final STGroup group) {
     final ST stMethod = group.getInstanceOf("get_size");
 
-    stMethod.add("addr_size", memory.getAddressArg().getBitSize());
+    stMethod.add("addr_size", memory.getAddress().getAddressType().getBitSize());
     stMethod.add("data_size", memory.getDataArg().getBitSize());
 
     st.add("members", "");
+    st.add("members", stMethod);
+  }
+
+  private void buildNewAddress(final ST st, final STGroup group) {
+    buildNewLine(st);
+    final ST stMethod = group.getInstanceOf("new_address");
+    stMethod.add("type", memory.getAddress().getId());
     st.add("members", stMethod);
   }
 
