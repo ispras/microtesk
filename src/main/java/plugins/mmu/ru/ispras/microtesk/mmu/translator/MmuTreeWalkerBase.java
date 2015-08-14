@@ -755,14 +755,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
     }
 
+    final Node TRUE = NodeValue.newBoolean(true);
     final Node FALSE = NodeValue.newBoolean(false);
-    final boolean isAndOperation = StandardOperation.AND == fortressOp; 
+
+    final boolean isAnd = StandardOperation.AND == fortressOp; 
+    final boolean isOr = StandardOperation.OR == fortressOp;
 
     for (int i = 0; i < folded.length; ++i) {
       final Node castNode = IntegerCast.cast(folded[i], type);
       folded[i] = castNode;
 
-      if (isAndOperation && castNode.equals(FALSE)) {
+      if (isAnd && castNode.equals(FALSE) || isOr && castNode.equals(TRUE)) {
         return castNode;
       }
     }
