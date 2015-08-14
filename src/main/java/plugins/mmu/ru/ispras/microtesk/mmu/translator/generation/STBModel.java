@@ -18,6 +18,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBModel implements STBuilder {
@@ -33,10 +36,14 @@ final class STBModel implements STBuilder {
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
   private final String packageName;
+  private final Ir ir;
 
-  public STBModel(final String packageName) {
+  public STBModel(final String packageName, final Ir ir) {
     InvariantChecks.checkNotNull(packageName);
+    InvariantChecks.checkNotNull(ir);
+
     this.packageName = packageName;
+    this.ir = ir;
   }
 
   @Override
@@ -53,6 +60,7 @@ final class STBModel implements STBuilder {
     st.add("pack", packageName);
 
     st.add("imps", java.util.Map.class.getName());
+    st.add("imps", java.util.HashMap.class.getName());
     st.add("imps", String.format("%s.*", MODEL_CLASS.getPackage().getName()));
     st.add("imps", SPEC_CLASS.getName());
   }
@@ -63,6 +71,14 @@ final class STBModel implements STBuilder {
     stBody.add("name", CLASS_NAME);
     stBody.add("spec", SPEC_CLASS.getSimpleName());
     stBody.add("mmu",  MMU_CLASS.getSimpleName());
+
+    for (final Buffer buffer : ir.getBuffers().values()) {
+      stBody.add("buffers", buffer.getId());
+    }
+
+    for (final Segment segment : ir.getSegments().values()) {
+      stBody.add("buffers", segment.getId());
+    }
 
     st.add("members", stBody);
   }

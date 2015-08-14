@@ -90,7 +90,7 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void processMemories(final Ir ir, final GeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
-      final FileGenerator fileGenerator = factory.newMemoryGenerator(ir, memory);
+      final FileGenerator fileGenerator = factory.newMemoryGenerator(memory);
       fileGenerator.generate();
     }
   }

@@ -14,8 +14,17 @@
 
 group Model;
 
-body(name, spec, mmu) ::= <<
+body(name, spec, mmu, buffers) ::= <<
+private final Map\<String, BufferObserver\> buffers;
+
 public <name>() {
+  this.buffers = newBuffers();
+}
+
+private static Map\<String, BufferObserver\> newBuffers() {
+  final Map\<String, BufferObserver\> result = new HashMap\<\>();
+  <buffers : {b | result.put("<b>", <b>.get());}; separator="\n">
+  return result;
 }
 
 @Override
@@ -25,7 +34,7 @@ public <spec> getSpec() {
 
 @Override
 public BufferObserver getBufferObserver(final String name) {
-  return null;
+  return buffers.get(name);
 }
 
 @Override

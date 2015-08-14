@@ -102,8 +102,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 
-  public FileGenerator newMemoryGenerator(final Ir ir, final Memory memory) {
-    InvariantChecks.checkNotNull(ir);
+  public FileGenerator newMemoryGenerator(final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
@@ -116,7 +115,7 @@ final class GeneratorFactory {
     InvariantChecks.checkNotNull(ir);
 
     final String outputFileName = getOutputFileName(STBModel.CLASS_NAME);
-    final STBuilder builder = new STBModel(packageName);
+    final STBuilder builder = new STBModel(packageName, ir);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
   }
