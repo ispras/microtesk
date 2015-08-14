@@ -36,8 +36,16 @@ struct_body(type, fnames, ftypes, fvalues) ::= <<
 public <type>() {
   <fnames, fvalues:{n, v | this.<n> = <v>;}; separator="\n">
 }<\n>
+public <type>(final BitVector value) {
+  this();
+  asBitVector().assign(value);
+}<\n>
 public void assign(final <type> other) {
   <fnames:{n | this.<n>.assign(other.<n>);}; separator="\n">
+}<\n>
+public BitVector asBitVector() {
+  // TODO 
+  return null;
 }
 >>
 
