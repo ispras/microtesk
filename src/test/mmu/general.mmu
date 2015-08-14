@@ -161,7 +161,7 @@ buffer L2 (pa: PA)
 
 buffer Memory (pa: PA)
   ways   = 1
-  sets   = 1 /*1 << (64 - 5)*/
+  sets   = 1 << (64 - 5)
   entry  = (DATA: 256)
   index  = pa.value<63..5>
   match  = 0

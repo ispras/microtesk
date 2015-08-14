@@ -48,8 +48,10 @@ public enum Operator {
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATER)),
 
   //------------------------------------------------------------------------------------------------
-  L_SHIFT("<<",   rule(DataTypeId.BIT_VECTOR, StandardOperation.BVLSHL)),
-  R_SHIFT(">>",   rule(DataTypeId.BIT_VECTOR, StandardOperation.BVLSHR)),
+  L_SHIFT("<<",   rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVLSHL),
+                  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.BVLSHL)),
+  R_SHIFT(">>",   rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVLSHR),
+                  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.BVASHR)),
   L_ROTATE("<<<", rule(DataTypeId.BIT_VECTOR, StandardOperation.BVROL)),
   R_ROTATE(">>>", rule(DataTypeId.BIT_VECTOR, StandardOperation.BVROR)),
 
