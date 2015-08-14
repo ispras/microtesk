@@ -130,7 +130,7 @@ source_file(file, pack, name, ext, impls, imps, simps, members, instance) ::= <<
 <package(pack)>
 <if(simps)><static_imports(simps)><endif>
 <if(imps)><imports(imps)><endif>
-<class_javadoc(name)>
+<class_javadoc(name)><\n>
 <class_ext(["public", "final"],
        name,
        ext,
