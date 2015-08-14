@@ -30,8 +30,11 @@ final class STBModel implements STBuilder {
   private static final Class<?> MODEL_CLASS =
       ru.ispras.microtesk.mmu.model.api.MmuModel.class;
 
-  private static final Class<?> MMU_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Mmu.class;
+  private static final Class<?> BUF_CLASS =
+      ru.ispras.microtesk.mmu.model.api.BufferObserver.class;
+
+  private static final Class<?> MEM_CLASS =
+      ru.ispras.microtesk.model.api.memory.MemoryAccessor.class;
 
   private static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
@@ -62,6 +65,7 @@ final class STBModel implements STBuilder {
 
     st.add("imps", java.util.Map.class.getName());
     st.add("imps", java.util.HashMap.class.getName());
+    st.add("imps", MEM_CLASS.getName());
     st.add("imps", String.format("%s.*", MODEL_CLASS.getPackage().getName()));
     st.add("imps", SPEC_CLASS.getName());
   }
@@ -71,7 +75,9 @@ final class STBModel implements STBuilder {
 
     stBody.add("name", CLASS_NAME);
     stBody.add("spec", SPEC_CLASS.getSimpleName());
-    stBody.add("mmu",  MMU_CLASS.getSimpleName());
+
+    stBody.add("buf_type", BUF_CLASS.getSimpleName());
+    stBody.add("mem_type", MEM_CLASS.getSimpleName()); 
 
     for (final Buffer buffer : ir.getBuffers().values()) {
       stBody.add("buffers", buffer.getId());

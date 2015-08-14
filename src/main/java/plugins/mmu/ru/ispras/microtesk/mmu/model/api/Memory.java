@@ -14,12 +14,38 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
+import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
 
 public abstract class Memory <D, A extends Address>
-    extends StandardFunctions implements Buffer<D, A>, Mmu {
+    extends StandardFunctions implements Buffer<D, A>, MemoryAccessor {
   @Override
   public boolean isHit(final A address) {
     return true;
+  }
+
+  @Override
+  public int getAddressBitSize() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public int getDataBitSize() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public BitVector load(BitVector address) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void store(BitVector address, BitVector data) {
+    // TODO Auto-generated method stub
+    
   }
 }

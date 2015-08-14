@@ -14,39 +14,39 @@
 
 group Model;
 
-body(name, spec, mmu, buffers, memories) ::= <<
-private final Map\<String, BufferObserver\> buffers;
-private final Map\<String, <mmu>\> memories;
+body(name, spec, mem_type, buf_type, buffers, memories) ::= <<
+private final Map\<String, <buf_type>\> buffers;
+private final Map\<String, <mem_type>\> memories;
 
 public <name>() {
   this.buffers = newBuffers();
   this.memories = newMemories();
 }
 
-private static Map\<String, BufferObserver\> newBuffers() {
-  final Map\<String, BufferObserver\> result = new HashMap\<\>();
+private static Map\<String, <buf_type>\> newBuffers() {
+  final Map\<String, <buf_type>\> result = new HashMap\<\>();
   <buffers : {b | result.put("<b>", <b>.get());}; separator="\n">
   return result;
 }
 
-private static Map\<String, <mmu>\> newMemories() {
-  final Map\<String, <mmu>\> result = new HashMap\<\>();
+private static Map\<String, <mem_type>\> newMemories() {
+  final Map\<String, <mem_type>\> result = new HashMap\<\>();
   <memories : {m | result.put("<m>", new <m>());}; separator="\n">
   return result;
 }
 
 @Override
-public BufferObserver getBufferObserver(final String name) {
-  return buffers.get(name);
+public <buf_type> getBufferObserver(final String bufferId) {
+  return buffers.get(bufferId);
 }
 
 @Override
-public <mmu> getMmu(final String name) {
-  return memories.get(name);
+public <mem_type> getMemoryAccessor(final String deviceId) {
+  return memories.get(deviceId);
 }
 
 @Override
-public <spec> getSpec() {
+public <spec> getSpecification() {
   return null;
 }
 >>
