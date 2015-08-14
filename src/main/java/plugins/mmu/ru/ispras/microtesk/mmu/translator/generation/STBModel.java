@@ -41,7 +41,7 @@ final class STBModel implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("model");
+    final ST st = group.getInstanceOf("source_file");
     buildHeader(st);
     buildBody(st, group);
     return st;
@@ -49,7 +49,7 @@ final class STBModel implements STBuilder {
 
   protected final void buildHeader(final ST st) {
     st.add("name", CLASS_NAME); 
-    st.add("base", MODEL_CLASS.getSimpleName());
+    st.add("impls", MODEL_CLASS.getSimpleName());
     st.add("pack", packageName);
 
     st.add("imps", java.util.Map.class.getName());

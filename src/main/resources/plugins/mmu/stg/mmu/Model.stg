@@ -14,17 +14,6 @@
 
 group Model;
 
-model(pack, imps, name, base, members) ::= <<
-<header(false)>
-<package(pack)>
-<if(imps)><imports(imps)><endif>
-<class(["public", "final"],
-       name,
-       false,
-       base,
-       members)>
->>
-
 body(name, spec, mmu) ::= <<
 public <name>() {
 }
