@@ -83,7 +83,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
 
-  private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
+  private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
 
   private final long offsetMask;
 
@@ -333,7 +333,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // It is enough to use one replacing sequence for all test case instructions.
     if (!replacedIndices.contains(index) &&
         (mayBeHit(j, buffer) || !tagReplacedRelation.isEmpty())) {
-      final Predicate<Long> hitChecker = hitCheckers.get(buffer); 
+      final Predicate<Long> hitChecker = hitCheckers.get(addrType); 
       final List<Long> sequence = new ArrayList<>();
 
       for (int i = 0; i < buffer.getWays(); i++) {
@@ -468,7 +468,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long newAddress = buffer.getAddress(oldTag, newIndex, oldOffset);
 
       // If the index has changed, allocate a new tag.
-      final Predicate<Long> hitChecker = hitCheckers.get(buffer);
+      final Predicate<Long> hitChecker = hitCheckers.get(addrType);
       final long newTag = newIndex != oldIndex ?
           allocateTagAndParentEntry(buffer, newAddress, chooseRegion(), false, hitChecker) : oldTag;
 

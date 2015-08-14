@@ -19,6 +19,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.utils.function.Function;
@@ -37,13 +38,13 @@ public final class MemoryEngineContext {
 
   private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
   private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
-  private final Map<MmuBuffer, Predicate<Long>> hitCheckers;
+  private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
       final Function<MemoryAccess, AddressObject> addrObjectConstructor,
       final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
-      final Map<MmuBuffer, Predicate<Long>> hitCheckers) {
+      final Map<MmuAddressType, Predicate<Long>> hitCheckers) {
     InvariantChecks.checkNotNull(addrObjectConstructor);
     InvariantChecks.checkNotNull(entryProviders);
     InvariantChecks.checkNotNull(hitCheckers);
@@ -66,7 +67,7 @@ public final class MemoryEngineContext {
     return entryProviders;
   }
 
-  public Map<MmuBuffer, Predicate<Long>> getHitCheckers() {
+  public Map<MmuAddressType, Predicate<Long>> getHitCheckers() {
     return hitCheckers;
   }
 }
