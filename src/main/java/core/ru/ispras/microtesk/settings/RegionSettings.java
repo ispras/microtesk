@@ -21,13 +21,14 @@ import java.util.Collection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * {@link RegionSettings} represents a configuration of a single memory region.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RegionSettings extends AbstractSettings {
+public final class RegionSettings extends AbstractSettings implements Range<Long> {
   public static final String TAG = "region";
 
   public static enum Type {
@@ -112,6 +113,16 @@ public final class RegionSettings extends AbstractSettings {
 
   public Collection<AccessSettings> getAccesses() {
     return accesses;
+  }
+
+  @Override
+  public Long getMin() {
+    return startAddress;
+  }
+
+  @Override
+  public Long getMax() {
+    return endAddress;
   }
 
   @Override

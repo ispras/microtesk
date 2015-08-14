@@ -37,29 +37,41 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccess {
-  public static MemoryAccess create(
-      final MemoryAccessType type,
-      final MemoryAccessPath path,
-      final GeneratorSettings settings) {
-    InvariantChecks.checkNotNull(type);
+  public static Collection<MmuSegment> getPossibleSegments(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
-    // Parameter {@code settings} can be null.
 
     final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final Collection<MmuSegment> segments = new LinkedHashSet<>(memory.getSegments());
 
-    final Collection<RegionSettings> regions = new LinkedHashSet<>();
-    final Collection<MmuSegment> segments = new LinkedHashSet<>();
+    for (final MmuTransition transition : path.getTransitions()) {
+      final MmuGuard guard = transition.getGuard();
 
-    if (settings != null) {
-      for (final RegionSettings region : settings.getMemory().getRegions()) {
-        if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
-          regions.add(region);
+      if (guard != null) {
+        final Collection<MmuSegment> guardSegments = guard.getSegments();
+
+        if (guardSegments != null) {
+          segments.retainAll(guardSegments);
         }
       }
     }
 
-    for (final MmuSegment segment : memory.getSegments()) {
-      segments.add(segment);
+    return segments;
+  }
+
+  public static Map<RegionSettings, Collection<MmuSegment>> getPossibleSegments(
+      final MemoryAccessPath path, final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(settings);
+
+    final MmuSubsystem memory = MmuTranslator.getSpecification();
+
+    final Collection<RegionSettings> regions = new LinkedHashSet<>();
+    final Collection<MmuSegment> segments = getPossibleSegments(path);
+
+    for (final RegionSettings region : settings.getMemory().getRegions()) {
+      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+        regions.add(region);
+      }
     }
 
     for (final MmuTransition transition : path.getTransitions()) {
@@ -67,12 +79,10 @@ public final class MemoryAccess {
 
       if (guard != null) {
         final Collection<String> guardRegionNames = guard.getRegions(); 
-        final Collection<MmuSegment> guardSegments = guard.getSegments();
-
         final Collection<RegionSettings> guardRegions =
-            settings != null && guardRegionNames != null ? new ArrayList<RegionSettings>() : null;
+            guardRegionNames != null ? new ArrayList<RegionSettings>() : null;
 
-        if (settings != null && guardRegionNames != null) {
+        if (guardRegionNames != null) {
           for (final String regionName : guardRegionNames) {
             guardRegions.add(settings.getMemory().getRegion(regionName));
           }
@@ -81,16 +91,7 @@ public final class MemoryAccess {
         if (guardRegions != null) {
           regions.retainAll(guardRegions);
         }
-
-        if (guardSegments != null) {
-          segments.retainAll(guardSegments);
-        }
       }
-    }
-
-    if (settings == null) {
-      final MmuSegment segment = Randomizer.get().choose(segments);
-      return new MemoryAccess(type, path, null, segment);
     }
 
     final Map<RegionSettings, Collection<MmuSegment>> possibleSegments = new LinkedHashMap<>();
@@ -110,10 +111,45 @@ public final class MemoryAccess {
       }
     }
 
-    final RegionSettings region = Randomizer.get().choose(possibleSegments.keySet());
-    final MmuSegment segment = Randomizer.get().choose(possibleSegments.get(region));
+    return possibleSegments;
+  }
+  
+  /**
+   * Constructs a memory access.
+   * 
+   * @param type the memory access type.
+   * @param path the memory access path.
+   * @param settings the generator settings.
+   * @return a memory access or {@code null} if it cannot be constructed
+   */
+  public static MemoryAccess create(
+      final MemoryAccessType type,
+      final MemoryAccessPath path,
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(path);
+    // Parameter {@code settings} can be null.
 
-    return new MemoryAccess(type, path, region, segment);
+    if (settings == null) {
+      final Collection<MmuSegment> segments = getPossibleSegments(path);
+
+      if (!segments.isEmpty()) {
+        final MmuSegment segment = Randomizer.get().choose(segments);
+        return new MemoryAccess(type, path, null, segment);
+      }
+    } else {
+      final Map<RegionSettings, Collection<MmuSegment>> segments =
+          getPossibleSegments(path, settings);
+
+      if (!segments.isEmpty()) {
+        final RegionSettings region = Randomizer.get().choose(segments.keySet());
+        final MmuSegment segment = Randomizer.get().choose(segments.get(region));
+  
+        return new MemoryAccess(type, path, region, segment);
+      }
+    }
+
+    return null;
   }
 
   private final MemoryAccessType type;

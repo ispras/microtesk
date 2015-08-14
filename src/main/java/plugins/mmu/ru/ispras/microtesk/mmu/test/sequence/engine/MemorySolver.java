@@ -50,6 +50,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AccessSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.Range;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriConsumer;
@@ -85,7 +86,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
 
-  private final long offsetMask;
+  private final long pageMask;
 
   private final AddressAllocator addressAllocator;
   private final EntryIdAllocator entryIdAllocator;
@@ -119,7 +120,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MemoryEngineContext context,
       final AddressAllocator addressAllocator,
       final EntryIdAllocator entryIdAllocator,
-      final long offsetMask,
+      final long pageMask,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
@@ -137,7 +138,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.hitCheckers = context.getHitCheckers();
     this.entryProviders = context.getEntryProviders();
 
-    this.offsetMask = offsetMask;
+    this.pageMask = pageMask;
 
     this.settings = settings;
   }
@@ -824,8 +825,24 @@ public final class MemorySolver implements Solver<MemorySolution> {
   // TODO: The method is public to be used in user-defined constructors.
   public long allocateAddress(
       final MmuAddressType addrType,
+      final Range<Long> region,
+      final boolean peek) {
+    InvariantChecks.checkNotNull(addrType);
+
+    final long significantBitsMask = addressAllocator.getSignificatBitsMask(addrType);
+
+    final long insignificantBits = Randomizer.get().nextLong()
+        & ~significantBitsMask
+        & (addrType.getWidth() == Long.SIZE ? -1L : (1L << addrType.getWidth()) - 1);
+
+    return allocateAddress(addrType, insignificantBits, region, peek);
+  }
+
+  // TODO: The method is public to be used in user-defined constructors.
+  public long allocateAddress(
+      final MmuAddressType addrType,
       final long partialAddress, // Offset
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(addrType);
 
@@ -852,7 +869,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   public long allocateTag(
       final MmuBuffer buffer,
       final long partialAddress, // Index and offset
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(buffer);
 
@@ -871,7 +888,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private long allocateTagAndParentEntry(
       final MmuBuffer buffer,
       final long partialAddress, // Index and offset
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(buffer);
 
@@ -891,9 +908,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Choose a normal memory access that affects the parent buffer.
     final Collection<MemoryAccessPath> paths =
         CoverageExtractor.get().getNormalPaths(memory, parent);
-    final MemoryAccessPath path = Randomizer.get().choose(paths);
     final MemoryAccessType type = MemoryAccessType.LOAD(DataType.BYTE);
+    final MemoryAccessPath path = Randomizer.get().choose(paths);
+
     final MemoryAccess access = MemoryAccess.create(type, path, settings);
+    InvariantChecks.checkNotNull(access);
 
     // Construct a valid address object.
     final AddressObject addrObject = addrObjectConstructor.apply(access);
@@ -919,7 +938,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * 
    * @param addrObject the address object to be corrected.
    */
-  private void correctAddressObject(final AddressObject addrObject) {
+  public void correctAddressObject(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
 
     final MmuAddressType vaType = memory.getVirtualAddress();
@@ -929,7 +948,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     long pa = addrObject.getAddress(paType);
 
     // Correct the virtual address offset.
-    va = (va & ~offsetMask) | (pa & offsetMask);
+    va = (va & ~pageMask) | (pa & pageMask);
 
     // Correct the virtual memory segment.
     boolean regionFound = false;
@@ -973,8 +992,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           final MmuSegment segment = Randomizer.get().choose(segments);
 
           // An adapter should take into account additional attributes (e.g., CP in XKPHYS).
-          va = segment.checkVa(va) ?
-              segment.getAddress(pa, segment.getRest(va)) : segment.getAddress(pa);
+          va = segment.checkVa(va) ? segment.getVa(pa, segment.getRest(va)) : segment.getVa(pa);
         }
 
         regionFound = true;

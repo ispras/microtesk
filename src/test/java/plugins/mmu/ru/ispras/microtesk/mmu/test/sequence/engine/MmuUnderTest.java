@@ -320,6 +320,7 @@ public final class MmuUnderTest {
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuAssignment(pa, MmuExpression.rcat(new IntegerField(pfn), new IntegerField(va, 0, 11))));
+  public final MmuAction checkCache = new MmuAction("CHECK_CACHE");
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1", l1);
   public final MmuAction hitL1 = new MmuAction("HIT_L1", l1,
@@ -347,7 +348,7 @@ public final class MmuUnderTest {
       new MmuGuard(null, Arrays.asList(new MmuSegment[] {kseg0, kseg1, xkphys})));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
       new MmuGuard(null, Collections.singleton(xuseg)));
-  public final MmuTransition afterUpa = new MmuTransition(getUpa, startCache);
+  public final MmuTransition afterUpa = new MmuTransition(getUpa, checkCache);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
       new MmuGuard(dtlb, BufferAccessEvent.MISS));
   public final MmuTransition ifDtlbHit = new MmuTransition(startDtlb, hitDtlb,
@@ -381,10 +382,14 @@ public final class MmuUnderTest {
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
           MmuCondition.eq(d, BigInteger.ONE)));
-  public final MmuTransition ifHiMemory = new MmuTransition(getMpa, startCache,
+  public final MmuTransition ifHiMemory = new MmuTransition(getMpa, checkCache,
       new MmuGuard(Collections.singleton(DATA_HI_REGION), null));
-  public final MmuTransition ifLoMemory = new MmuTransition(getMpa, startCache,
+  public final MmuTransition ifLoMemory = new MmuTransition(getMpa, checkCache,
       new MmuGuard(Collections.singleton(DATA_LO_REGION), null));
+  public final MmuTransition ifKseg1 = new MmuTransition(checkCache, startMem,
+      new MmuGuard(null, Collections.singleton(kseg1)));
+  public final MmuTransition ifNotKseg1 = new MmuTransition(checkCache, startCache,
+      new MmuGuard(null, Arrays.asList(new MmuSegment[] {xuseg, kseg0, xkphys})));
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
           MmuCondition.eq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
@@ -453,6 +458,7 @@ public final class MmuUnderTest {
     mmu.registerAction(local);
     mmu.registerAction(global);
     mmu.registerAction(getMpa);
+    mmu.registerAction(checkCache);
     mmu.registerAction(startCache);
     mmu.registerAction(startL1);
     mmu.registerAction(hitL1);
@@ -498,6 +504,9 @@ public final class MmuUnderTest {
 
     mmu.registerTransition(ifLoMemory);
     mmu.registerTransition(ifHiMemory);
+
+    mmu.registerTransition(ifKseg1);
+    mmu.registerTransition(ifNotKseg1);
 
     mmu.registerTransition(ifUncached);
     mmu.registerTransition(ifCached);

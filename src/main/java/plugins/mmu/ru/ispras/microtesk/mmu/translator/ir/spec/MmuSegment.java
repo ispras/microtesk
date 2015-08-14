@@ -22,13 +22,14 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * {@link MmuSegment} represents a virtual memory segment (address space).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MmuSegment {
+public final class MmuSegment implements Range<Long> {
   private final String name;
   private final MmuAddressType vaType;
   private final MmuAddressType paType;
@@ -115,7 +116,7 @@ public final class MmuSegment {
     return addressView.getField(address, 1);
   }
 
-  public long getAddress(final long pa, final long rest) {
+  public long getVa(final long pa, final long rest) {
     final List<Long> fields = new ArrayList<>();
 
     fields.add(pa);
@@ -124,9 +125,43 @@ public final class MmuSegment {
     return addressView.getAddress(fields);
   }
 
-  public long getAddress(final long pa) {
+  public long getVa(final long pa) {
     final long startAddressRest = getRest(startAddress);
 
-    return getAddress(pa, startAddressRest);
+    return getVa(pa, startAddressRest);
+  }
+
+  @Override
+  public Long getMin() {
+    return startAddress;
+  }
+
+  @Override
+  public Long getMax() {
+    return endAddress;
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if ((o == null) || !(o instanceof MmuSegment)) {
+      return false;
+    }
+
+    final MmuSegment r = (MmuSegment) o;
+    return name.equals(r.name);
   }
 }

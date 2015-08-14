@@ -27,7 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * Test for {@link AddressAllocator}.
@@ -38,7 +38,7 @@ public final class AddressAllocatorTestCase {
   public static final boolean PRINT_ADDRESSES = false;
 
   private final AddressAllocator addressAllocator = new AddressAllocator(
-      MmuUnderTest.get().mmu, new HashMap<MmuAddressType, Collection<RegionSettings>>());
+      MmuUnderTest.get().mmu, new HashMap<MmuAddressType, Collection<? extends Range<Long>>>());
 
   private final Collection<Long> allAddresses =
       addressAllocator.getAllAddresses(MmuUnderTest.get().paAddr, null);

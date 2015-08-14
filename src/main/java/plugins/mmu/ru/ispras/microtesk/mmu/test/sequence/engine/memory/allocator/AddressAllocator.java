@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * {@link AddressAllocator} implements a region-sensitive address (tag, index, etc.) allocator for
@@ -36,18 +36,19 @@ import ru.ispras.microtesk.settings.RegionSettings;
  */
 public final class AddressAllocator {
   private final Map<MmuAddressType, AddressAllocationEngine> allocators = new HashMap<>();
+  private final Map<MmuAddressType, Long> masks = new LinkedHashMap<>();
 
   public AddressAllocator(
-      final MmuSubsystem memory, final Map<MmuAddressType, Collection<RegionSettings>> regions) {
+      final MmuSubsystem memory,
+      final Map<MmuAddressType, Collection<? extends Range<Long>>> regions) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(regions);
 
     final Map<MmuAddressType, Collection<MmuExpression>> expressions = new LinkedHashMap<>();
-    final Map<MmuAddressType, Long> mask = new LinkedHashMap<>();
 
     for (final MmuAddressType addressType : memory.getAddresses()) {
       expressions.put(addressType, new LinkedHashSet<MmuExpression>());
-      mask.put(addressType, 0L);
+      masks.put(addressType, 0L);
     }
 
     for (final MmuBuffer buffer : memory.getBuffers()) {
@@ -58,18 +59,18 @@ public final class AddressAllocator {
       addressExpressions.add(buffer.getIndexExpression());
       addressExpressions.add(buffer.getOffsetExpression());
 
-      long addressMask = mask.get(addressType);
+      long addressMask = masks.get(addressType);
 
       addressMask |= buffer.getTagMask();
       addressMask |= buffer.getIndexMask();
-      mask.put(addressType, addressMask);
+      masks.put(addressType, addressMask);
     }
 
     for (final Map.Entry<MmuAddressType, Collection<MmuExpression>> entry : expressions.entrySet()) {
       final MmuAddressType addressType = entry.getKey();
       final Collection<MmuExpression> addressExpressions = entry.getValue();
-      final long addressMask = mask.get(addressType);
-      final Collection<RegionSettings> addressRegions = regions.get(addressType);
+      final long addressMask = masks.get(addressType);
+      final Collection<? extends Range<Long>> addressRegions = regions.get(addressType);
 
       final AddressAllocationEngine allocator = new AddressAllocationEngine(
           addressType, addressExpressions, addressMask, addressRegions);
@@ -80,7 +81,7 @@ public final class AddressAllocator {
   public long allocateTag(
       final MmuBuffer buffer,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
@@ -93,7 +94,7 @@ public final class AddressAllocator {
   public long allocateIndex(
       final MmuBuffer buffer,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
@@ -106,7 +107,7 @@ public final class AddressAllocator {
   public long allocateAddress(
       final MmuAddressType address,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(address);
     // Parameters {@code region} can be null.
@@ -118,7 +119,7 @@ public final class AddressAllocator {
       final MmuAddressType address,
       final MmuExpression expression,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(address);
@@ -128,6 +129,10 @@ public final class AddressAllocator {
     return allocators.get(address).allocate(expression, partialAddress, region, peek, exclude);
   }
 
+  public long getSignificatBitsMask(final MmuAddressType address) {
+    return masks.get(address);
+  }
+
   public void reset() {
     for (final AddressAllocationEngine allocator : allocators.values()) {
       allocator.reset();
@@ -135,7 +140,7 @@ public final class AddressAllocator {
   }
 
   public Collection<Long> getAllAddresses(
-      final MmuAddressType address, final RegionSettings region) {
+      final MmuAddressType address, final Range<Long> region) {
     InvariantChecks.checkNotNull(address);
     // Parameters {@code region} and {@code exclude} can be null.
 

@@ -20,11 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -112,10 +114,15 @@ public final class CoverageExtractor {
       paths = new ArrayList<>();
       for (final MemoryAccessPath path : allPaths) {
         if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
+          final Collection<MmuSegment> segments = MemoryAccess.getPossibleSegments(path);
+
+          if (segments.isEmpty()) {
+            continue;
+          }
+
+          // TODO: there should be more filters to get rid off prohibited paths.
           paths.add(path);
         }
-
-        // TODO: there should be filter on get rid off prohibited paths.
       }
 
       bufferToPaths.put(buffer, paths);

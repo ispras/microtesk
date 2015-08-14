@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
-import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * {@link AddressAllocationEngine} allocates a part (tag, index, etc.) of an address of a given
@@ -65,7 +65,7 @@ public final class AddressAllocationEngine {
   private final long mask;
 
   /** Memory regions. */
-  private final Collection<RegionSettings> regions;
+  private final Collection<? extends Range<Long>> regions;
 
   /**
    * Constructs an address allocator.
@@ -79,7 +79,7 @@ public final class AddressAllocationEngine {
       final MmuAddressType addressType,
       final Collection<MmuExpression> expressions,
       final long mask,
-      final Collection<RegionSettings> regions) {
+      final Collection<? extends Range<Long>> regions) {
     InvariantChecks.checkNotNull(expressions);
 
     final Collection<IntegerRange> expressionRanges = new HashSet<>();
@@ -132,7 +132,7 @@ public final class AddressAllocationEngine {
    */
   public long allocate(
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     return allocate(allRanges, partialAddress, region, peek, exclude);
@@ -151,7 +151,7 @@ public final class AddressAllocationEngine {
   public long allocate(
       final MmuExpression expression,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(expression);
@@ -163,7 +163,7 @@ public final class AddressAllocationEngine {
   private long allocate(
       final List<IntegerRange> ranges,
       final long partialAddress,
-      final RegionSettings region,
+      final Range<Long> region,
       final boolean peek,
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(ranges);
@@ -219,7 +219,7 @@ public final class AddressAllocationEngine {
     }
   }
 
-  public Collection<Long> getAllAddresses(final RegionSettings region) {
+  public Collection<Long> getAllAddresses(final Range<Long> region) {
     // Peek an address to initialize allocation tables.
     allocate(allRanges, 0, region, true, null);
 

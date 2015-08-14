@@ -26,9 +26,9 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
+import ru.ispras.microtesk.utils.Range;
 
 /**
  * {@link AddressAllocationTable} implements a region-sensitive allocation table. 
@@ -164,7 +164,7 @@ public final class AddressAllocationTable {
   /** Joint allocation table for all memory regions. */
   private final AllocationTable<Long, ?> globalAllocTable;
   /** Disjoint allocation tables for individual memory regions. */
-  private final Map<String, AllocationTable<Long, ?>> regionAllocTables = new HashMap<>();
+  private final Map<Range<Long>, AllocationTable<Long, ?>> regionAllocTables = new HashMap<>();
 
   /**
    * Creates an allocation table for the given address field.
@@ -178,7 +178,7 @@ public final class AddressAllocationTable {
       final int lo,
       final int hi,
       final long addressMask,
-      final Collection<RegionSettings> regions) {
+      final Collection<? extends Range<Long>> regions) {
     final Set<Long> globalValues = new HashSet<>();
 
     final int width = (hi - lo) + 1;
@@ -196,8 +196,8 @@ public final class AddressAllocationTable {
     } else {
       final Set<Long> regionFields = new HashSet<>();
 
-      for (final RegionSettings region : regions) {
-        final long regionField = (region.getStartAddress() >> lo) & mask;
+      for (final Range<Long> region : regions) {
+        final long regionField = (region.getMin() >> lo) & mask;
         regionFields.add(regionField);
       }
 
@@ -205,8 +205,8 @@ public final class AddressAllocationTable {
       // or each region has a unique field (region-sensitive field allocation).
       InvariantChecks.checkTrue(regionFields.size() == 1 || regionFields.size() == regions.size());
 
-      for (final RegionSettings region : regions) {
-        final long regionField = (region.getStartAddress() >> lo) & mask;
+      for (final Range<Long> region : regions) {
+        final long regionField = (region.getMin() >> lo) & mask;
         final Set<Long> regionValues =
             getAddressFieldValues(width, regionField, getPlaceMask(width, regionFields));
 
@@ -214,7 +214,7 @@ public final class AddressAllocationTable {
         if (regionFields.size() == regions.size()) {
           final AllocationTable<Long, ?> regionAllocTable =
               new AllocationTable<>(strategy, regionValues);
-          regionAllocTables.put(region.getName(), regionAllocTable);
+          regionAllocTables.put(region, regionAllocTable);
         }
       }
     }
@@ -230,7 +230,7 @@ public final class AddressAllocationTable {
    * @param exclude the values to be excluded or {@code null}.
    * @return an allocated address field.
    */
-  public long allocate(final RegionSettings region, final boolean peek, final Set<Long> exclude) {
+  public long allocate(final Range<Long> region, final boolean peek, final Set<Long> exclude) {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
 
     final long address = allocate(allocTable, peek, exclude);
@@ -249,24 +249,24 @@ public final class AddressAllocationTable {
     }
   }
 
-  public Collection<Long> getFreeAddresses(final RegionSettings region) {
+  public Collection<Long> getFreeAddresses(final Range<Long> region) {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
     return allocTable.getFreeObjects();
   }
 
-  public Collection<Long> getUsedAddresses(final RegionSettings region) {
+  public Collection<Long> getUsedAddresses(final Range<Long> region) {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
     return allocTable.getUsedObjects();
   }
 
-  public Collection<Long> getAllAddresses(final RegionSettings region) {
+  public Collection<Long> getAllAddresses(final Range<Long> region) {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
     return allocTable.getAllObjects();
   }
 
-  private AllocationTable<Long, ?> getAllocTable(final RegionSettings region) {
+  private AllocationTable<Long, ?> getAllocTable(final Range<Long> region) {
     if (region != null) {
-      final AllocationTable<Long, ?> allocTable = regionAllocTables.get(region.getName());
+      final AllocationTable<Long, ?> allocTable = regionAllocTables.get(region);
 
       if (allocTable != null) {
         return allocTable;

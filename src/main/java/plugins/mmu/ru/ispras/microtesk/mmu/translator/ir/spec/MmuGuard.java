@@ -125,6 +125,16 @@ public final class MmuGuard {
       }
     }
 
+    if (regions != null) {
+      builder.append(builder.length() > 0 ? separator : "");
+      builder.append(regions);
+    }
+
+    if (segments != null) {
+      builder.append(builder.length() > 0 ? separator : "");
+      builder.append(segments);
+    }
+
     return builder.toString();
   }
 }

@@ -44,6 +44,7 @@ import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.utils.Range;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -59,8 +60,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public static final Classifier<MemoryAccessPath> PARAM_CLASSIFIER_DEFAULT =
       new ClassifierTrivial<MemoryAccessPath>();
 
-  public static final String PARAM_OFFSET_MASK = "offset-mask";
-  public static final long PARAM_OFFSET_MASK_DEFAULT = 0x0fff;
+  public static final String PARAM_PAGE_MASK = "page_mask";
+  public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
 
   private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
     final String id = value != null ? value.toString() : null;
@@ -78,9 +79,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return PARAM_CLASSIFIER_DEFAULT;
   }
 
-  private static long getOffsetMask(final Object value) {
+  private static long getPageMask(final Object value) {
     if (value == null) {
-      return PARAM_OFFSET_MASK_DEFAULT;
+      return PARAM_PAGE_MASK_DEFAULT;
     }
 
     final Number id =
@@ -90,7 +91,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   }
 
   private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT;
-  private long offsetMask = PARAM_OFFSET_MASK_DEFAULT;
+  private long pageMask = PARAM_PAGE_MASK_DEFAULT;
 
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
@@ -111,7 +112,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(attributes);
 
     classifier = getClassifier(attributes.get(PARAM_CLASSIFIER));
-    offsetMask = getOffsetMask(attributes.get(PARAM_OFFSET_MASK));
+    pageMask = getPageMask(attributes.get(PARAM_PAGE_MASK));
   }
 
   @Override
@@ -127,7 +128,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         getSolutionIterator(engineContext, structureIterator);
 
     final GeneratorSettings settings = engineContext.getSettings();
-    final Map<MmuAddressType, Collection<RegionSettings>> addressToRegions = new HashMap<>();
+    final Map<MmuAddressType, Collection<? extends Range<Long>>> addressToRegions = new HashMap<>();
     final Collection<RegionSettings> regions = new ArrayList<>();
 
     for (final RegionSettings region : settings.getMemory().getRegions()) {
@@ -137,13 +138,15 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     final MmuSubsystem memory = MmuTranslator.getSpecification();
-    final List<MmuAddressType> addressTypes = memory.getSortedListOfAddresses();
 
-    for (int i = 0; i < addressTypes.size(); i++) {
-      final MmuAddressType addressType = addressTypes.get(i);
-
-      addressToRegions.put(addressType,
-          i != addressTypes.size() - 1 ? Collections.<RegionSettings>emptyList() : regions);
+    for (final MmuAddressType addrType : memory.getSortedListOfAddresses()) {
+      if (addrType.equals(memory.getVirtualAddress())) {
+        addressToRegions.put(addrType, memory.getSegments()); // TODO: memory.getSegments(addrType)
+      } else if (addrType.equals(memory.getPhysicalAddress())) {
+        addressToRegions.put(addrType, regions);
+      } else {
+        addressToRegions.put(addrType, Collections.<RegionSettings>emptyList());
+      }
     }
 
     this.addressAllocator = new AddressAllocator(memory, addressToRegions);
@@ -216,7 +219,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           entryIdAllocator.reset();
 
           solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
-              offsetMask, engineContext.getSettings());
+              pageMask, engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve();
           InvariantChecks.checkNotNull(result);
