@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 
 public abstract class Segment<D, A extends Address>
-    extends StandardFunctions implements Buffer<D, A> {
+    extends StandardFunctions implements Buffer<D, A>, BufferObserver {
 
   private final BitVector start;
   private final BitVector end;
@@ -34,8 +34,14 @@ public abstract class Segment<D, A extends Address>
 
   @Override
   public boolean isHit(final A address) {
+    InvariantChecks.checkNotNull(address);
     final BitVector value = address.getValue();
-    return value.compareTo(start) >= 0 && value.compareTo(end) <= 0;
+    return isHit(value);
+  }
+
+  @Override
+  public boolean isHit(final BitVector address) {
+    return start.compareTo(address) <= 0 && end.compareTo(address) >= 0;
   }
 
   @Override
