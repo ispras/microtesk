@@ -333,12 +333,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // It is enough to use one replacing sequence for all test case instructions.
     if (!replacedIndices.contains(index) &&
         (mayBeHit(j, buffer) || !tagReplacedRelation.isEmpty())) {
-      final Predicate<Long> hitChecker = hitCheckers.get(addrType); 
       final List<Long> sequence = new ArrayList<>();
 
       for (int i = 0; i < buffer.getWays(); i++) {
         final Long evictingTag =
-            allocateTagAndParentEntry(buffer, address, chooseRegion(), false, hitChecker);
+            allocateTagAndParentEntry(buffer, address, chooseRegion(), false);
 
         if (evictingTag == null) {
           return new SolverResult<>(
@@ -468,9 +467,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long newAddress = buffer.getAddress(oldTag, newIndex, oldOffset);
 
       // If the index has changed, allocate a new tag.
-      final Predicate<Long> hitChecker = hitCheckers.get(addrType);
       final long newTag = newIndex != oldIndex ?
-          allocateTagAndParentEntry(buffer, newAddress, chooseRegion(), false, hitChecker) : oldTag;
+          allocateTagAndParentEntry(buffer, newAddress, chooseRegion(), false) : oldTag;
 
       addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
     }
@@ -825,16 +823,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   // TODO: The method is public to be used in user-defined constructors.
   public long allocateAddress(
-      final MmuAddressType addressType,
+      final MmuAddressType addrType,
       final long partialAddress, // Offset
       final RegionSettings region,
-      final boolean peek,
-      final Predicate<Long> hitChecker) {
-    InvariantChecks.checkNotNull(addressType);
+      final boolean peek) {
+    InvariantChecks.checkNotNull(addrType);
+
+    final Predicate<Long> hitChecker = hitCheckers.get(addrType);
 
     while (true) {
       final long address =
-          addressAllocator.allocateAddress(addressType, partialAddress, region, peek);
+          addressAllocator.allocateAddress(addrType, partialAddress, region, peek);
 
       if (hitChecker == null || !hitChecker.test(address)) {
         return address;
@@ -854,9 +853,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MmuBuffer buffer,
       final long partialAddress, // Index and offset
       final RegionSettings region,
-      final boolean peek,
-      final Predicate<Long> hitChecker) {
+      final boolean peek) {
     InvariantChecks.checkNotNull(buffer);
+
+    final Predicate<Long> hitChecker = hitCheckers.get(buffer.getAddress());
 
     while (true) {
       final long address =
@@ -872,13 +872,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MmuBuffer buffer,
       final long partialAddress, // Index and offset
       final RegionSettings region,
-      final boolean peek,
-      final Predicate<Long> hitChecker) {
+      final boolean peek) {
     InvariantChecks.checkNotNull(buffer);
 
     // The buffer is not a view of another buffer.
     if (!buffer.isView()) {
-      return allocateTag(buffer, partialAddress, region, peek, hitChecker);
+      return allocateTag(buffer, partialAddress, region, peek);
     }
 
     // The buffer is a view of a non-replaceable buffer.
