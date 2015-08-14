@@ -114,7 +114,8 @@ final class STBStruct implements STBuilder {
 
       stStruct.add("fnames",  fieldName);
       stStruct.add("ftypes",  fieldTypeName);
-      stStruct.add("fvalues", fieldValue);;
+      stStruct.add("fvalues", fieldValue);
+      stStruct.add("fis_struct", fieldType.isStruct());
     }
 
     st.add("members", "");

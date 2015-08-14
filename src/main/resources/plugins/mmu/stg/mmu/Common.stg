@@ -31,7 +31,7 @@ struct_field_init(name, value) ::= <<
 this.<name> = <value>;
 >>
 
-struct_body(type, fnames, ftypes, fvalues) ::= <<
+struct_body(type, fnames, ftypes, fvalues, fis_struct) ::= <<
 <fnames, ftypes:{n, t | public final <t> <n>;}; separator="\n"><\n>
 public <type>() {
   <fnames, fvalues:{n, v | this.<n> = <v>;}; separator="\n">
@@ -44,8 +44,13 @@ public void assign(final <type> other) {
   <fnames:{n | this.<n>.assign(other.<n>);}; separator="\n">
 }<\n>
 public BitVector asBitVector() {
-  // TODO 
+  <if(fnames)>
+  return BitVector.newMapping(
+      <fnames, fis_struct:{n, fis | <n><if(fis)>.asBitVector()<endif>}; separator=",\n">
+      );
+  <else>
   return null;
+  <endif>
 }
 >>
 
