@@ -40,8 +40,8 @@ public abstract class Segment<D, A extends Address>
   }
 
   @Override
-  public boolean isHit(final BitVector address) {
-    return start.compareTo(address) <= 0 && end.compareTo(address) >= 0;
+  public boolean isHit(final BitVector value) {
+    return start.compareTo(value) <= 0 && end.compareTo(value) >= 0;
   }
 
   @Override

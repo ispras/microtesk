@@ -36,7 +36,8 @@ import ru.ispras.microtesk.utils.SparseArray;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
+public abstract class Cache<D, A extends Address>
+    implements Buffer<D, A>, BufferObserver {
   /** The table of associative sets. */
   private final SparseArray<Set<D, A>> sets;
 
@@ -116,6 +117,13 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
   }
 
   @Override
+  public final boolean isHit(final BitVector value) {
+    final A address = newAddress(); 
+    address.getValue().assign(value);
+    return isHit(address);
+  }
+
+  @Override
   public final D getData(final A address) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
@@ -133,5 +141,6 @@ public abstract class Cache<D, A extends Address> implements Buffer<D, A> {
     return new Proxy(address);
   }
 
+  protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
 }

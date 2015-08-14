@@ -58,3 +58,10 @@ protected <type> newData(final BitVector value) {
   return new <type>(value);
 }
 >>
+
+new_address(type) ::= <<
+@Override
+protected <type> newAddress() {
+  return new <type>();
+}
+>>

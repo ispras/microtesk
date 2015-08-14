@@ -78,6 +78,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
     buildIndexer(st, group);
     buildMatcher(st, group);
     buildConstructor(st, group);
+    buildNewAddress(st, group);
     buildNewData(st, group);
 
     ExprPrinter.get().popVariableScope();
@@ -149,7 +150,13 @@ final class STBBuffer extends STBCommon implements STBuilder {
 
     st.add("members", stConstructor);
   }
-  
+
+  private void buildNewAddress(final ST st, final STGroup group) {
+    buildNewLine(st);
+    final ST stMethod = group.getInstanceOf("new_address");
+    stMethod.add("type", buffer.getAddress().getId());
+    st.add("members", stMethod);
+  }
 
   private void buildNewData(ST st, STGroup group) {
     buildNewLine(st);
