@@ -96,7 +96,7 @@ public final class IntegerDomain {
    * 
    * @param min the lower bound of the domain.
    * @param max the upper bound of the domain.
-   * @throws NullPointerException if {@code min} or {@code max} is null.
+   * @throws IllegalArgumentException if {@code min} or {@code max} is null.
    */
   public IntegerDomain(final BigInteger min, final BigInteger max) {
     InvariantChecks.checkNotNull(min);
@@ -109,7 +109,7 @@ public final class IntegerDomain {
    * Constructs a single-value domain.
    * 
    * @param value the only value of the domain.
-   * @throws NullPointerException if {@code value} is null.
+   * @throws IllegalArgumentException if {@code value} is null.
    */
   public IntegerDomain(final BigInteger value) {
     this(value, value);
@@ -128,7 +128,7 @@ public final class IntegerDomain {
    * Constructs a copy of the given domain.
    * 
    * @param rhs the domain to be copied.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public IntegerDomain(final IntegerDomain rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -175,7 +175,7 @@ public final class IntegerDomain {
    * 
    * @param rhs the domain to be compared with this one.
    * @return {@code true} if this domain overlaps with the given one; {@code false} otherwise.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public boolean overlaps(final IntegerDomain rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -207,7 +207,7 @@ public final class IntegerDomain {
    * 
    * @param rhs the domain to be compared with this one.
    * @return {@code true} if this domain contains the given one; {@code false} otherwise.
-   * @throws NullPointerException if {@code rhs} is null.
+   * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public boolean contains(final IntegerDomain rhs) {
     InvariantChecks.checkNotNull(rhs);
@@ -250,8 +250,19 @@ public final class IntegerDomain {
   /**
    * Initializes the domain.
    * 
+   * @param value the value to be used for initialization.
+   * @throws IllegalArgumentException if {@code range} is null.
+   */
+  public void set(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    set(new IntegerRange(value));
+  }
+
+  /**
+   * Initializes the domain.
+   * 
    * @param range the range to be used for initialization.
-   * @throws NullPointerException if {@code range} is null.
+   * @throws IllegalArgumentException if {@code range} is null.
    */
   public void set(final IntegerRange range) {
     InvariantChecks.checkNotNull(range);
@@ -264,7 +275,7 @@ public final class IntegerDomain {
    * Initializes the domain.
    * 
    * @param domain the domain to be used for initialization.
-   * @throws NullPointerException if {@code domain} is null.
+   * @throws IllegalArgumentException if {@code domain} is null.
    */
   public void set(final IntegerDomain domain) {
     InvariantChecks.checkNotNull(domain);
@@ -277,7 +288,7 @@ public final class IntegerDomain {
    * Includes the given range into the domain.
    * 
    * @param range the range to be included to the domain.
-   * @throws NullPointerException if {@code range} is null.
+   * @throws IllegalArgumentException if {@code range} is null.
    */
   public void include(final IntegerRange range) {
     InvariantChecks.checkNotNull(range);
@@ -315,7 +326,7 @@ public final class IntegerDomain {
    * Includes the given domain into this one.
    * 
    * @param domain the domain to be included.
-   * @throws NullPointerException if {@code domain} is null.
+   * @throws IllegalArgumentException if {@code domain} is null.
    */
   public void include(final IntegerDomain domain) {
     InvariantChecks.checkNotNull(domain);
@@ -329,7 +340,7 @@ public final class IntegerDomain {
    * Excludes the given range from the domain.
    * 
    * @param range the range to be excluded from the domain.
-   * @throws NullPointerException if {@code range} is null.
+   * @throws IllegalArgumentException if {@code range} is null.
    */
   public void exclude(final IntegerRange range) {
     InvariantChecks.checkNotNull(range);
@@ -360,7 +371,7 @@ public final class IntegerDomain {
    * Excludes the given domain from this one.
    * 
    * @param domain the domain to be excluded.
-   * @throws NullPointerException if {@code domain} is null.
+   * @throws IllegalArgumentException if {@code domain} is null.
    */
   public void exclude(final IntegerDomain domain) {
     InvariantChecks.checkNotNull(domain);
@@ -374,7 +385,7 @@ public final class IntegerDomain {
    * Intersects the domain with the given range (restricts the domain to the given range).
    * 
    * @param range the range to be intersected with the domain.
-   * @throws NullPointerException if {@code range} is null.
+   * @throws IllegalArgumentException if {@code range} is null.
    */
   public void intersect(final IntegerRange range) {
     InvariantChecks.checkNotNull(range);
@@ -399,7 +410,7 @@ public final class IntegerDomain {
    * Intersects this domain with the given one.
    * 
    * @param domain the domain to be intersected with this one.
-   * @throws NullPointerException if {@code domain} is null.
+   * @throws IllegalArgumentException if {@code domain} is null.
    */
   public void intersect(final IntegerDomain domain) {
     InvariantChecks.checkNotNull(domain);
@@ -445,5 +456,10 @@ public final class IntegerDomain {
    */
   public Iterator<BigInteger> iterator() {
     return new DomainIterator();
+  }
+
+  @Override
+  public String toString() {
+    return ranges.toString();
   }
 }

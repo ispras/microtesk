@@ -114,6 +114,7 @@ public final class CoverageExtractor {
       paths = new ArrayList<>();
       for (final MemoryAccessPath path : allPaths) {
         if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
+          // TODO: This code to be moved to the MemoryCoverageExtractor.getPaths.
           final Collection<MmuSegment> segments = MemoryAccess.getPossibleSegments(path);
 
           if (segments.isEmpty()) {

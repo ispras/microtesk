@@ -14,9 +14,11 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -35,7 +37,7 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaSolver implements Solver<Boolean> {
+public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, BigInteger>> {
   /** Equation formula (constraint) to be solved. */
   private final IntegerFormula formula;
   /** Variables used in the clause. */
@@ -64,7 +66,8 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
    * 
    * @return {@code true} if the equation formula is satisfiable; {@code false} otherwise.
    */
-  public SolverResult<Boolean> solve() {
+  @Override
+  public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
     final IntegerClause kernel = new IntegerClause(IntegerClause.Type.AND);
     final List<IntegerClause> clauses = new ArrayList<>();
 
@@ -82,7 +85,7 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
     }
 
     final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
-    final SolverResult<Boolean> kernelResult = kernelSolver.solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve();
 
     if (clauses.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
@@ -158,9 +161,10 @@ public final class IntegerFormulaSolver implements Solver<Boolean> {
       }
 
       final IntegerClauseSolver variantSolver = new IntegerClauseSolver(variables, variant);
+      final SolverResult<Map<IntegerVariable, BigInteger>> variantResult = variantSolver.solve();
 
-      if (variantSolver.solve().getStatus() == SolverResult.Status.SAT) {
-        return new SolverResult<>(true);
+      if (variantResult.getStatus() == SolverResult.Status.SAT) {
+        return variantResult;
       }
     }
 

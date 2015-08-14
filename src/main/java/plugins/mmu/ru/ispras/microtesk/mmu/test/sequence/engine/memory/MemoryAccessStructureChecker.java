@@ -177,7 +177,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     }
 
     final IntegerFormulaSolver solver = new IntegerFormulaSolver(formulaVariables, formula);
-    final SolverResult<Boolean> result = solver.solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
 
     return result.getStatus() == SolverResult.Status.SAT;
   }

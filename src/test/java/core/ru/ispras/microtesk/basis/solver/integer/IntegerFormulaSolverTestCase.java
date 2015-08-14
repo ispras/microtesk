@@ -12,19 +12,17 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver;
+package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaSolver;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 
 /**
  * Test for {@link IntegerFormulaSolver}.
@@ -61,6 +59,29 @@ public class IntegerFormulaSolverTestCase {
     return getSolver(VARS, formula);
   }
 
+  private static void check(
+      final String id, final IntegerFormula formula, final boolean expected) {
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(formula).solve();
+
+    System.out.println(id);
+    System.out.println(result.getResult());
+
+    Assert.assertTrue((result.getStatus() == SolverResult.Status.SAT) == expected);
+  }
+
+  private static void check(
+      final String id,
+      final List<IntegerVariable> vars,
+      final IntegerFormula formula,
+      final boolean expected) {
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(vars, formula).solve();
+
+    System.out.println(id);
+    System.out.println(result.getResult());
+
+    Assert.assertTrue((result.getStatus() == SolverResult.Status.SAT) == expected);
+  }
+
   /**
    * a == b && a == c && b != c.
    */
@@ -72,11 +93,11 @@ public class IntegerFormulaSolverTestCase {
     formula.addEquation(a, c, true);
     formula.addEquation(b, c, false);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("A: a == b && a == c && b != c", formula, false);
   }
 
   /**
-   * a == b && b == c && c == d && d == e && e != a 
+   * a == b && b == c && c == d && d == e && e != a.
    */
   @Test
   public void runTestB() {
@@ -88,7 +109,7 @@ public class IntegerFormulaSolverTestCase {
     formula.addEquation(d, e, true);
     formula.addEquation(e, a, false);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("B: a == b && b == c && c == d && d == e && e != a", formula, false);
   }
 
   /**
@@ -103,7 +124,7 @@ public class IntegerFormulaSolverTestCase {
     formula.addEquation(a, BigInteger.ONE, false);
     formula.addEquation(b, BigInteger.TEN, false);
 
-    Assert.assertTrue(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("C: a == b && a != 0 && a != 1 && b != 10", formula, true);
   }
 
   /**
@@ -117,7 +138,7 @@ public class IntegerFormulaSolverTestCase {
       formula.addEquation(a, BigInteger.valueOf(i), false);
     }
 
-    Assert.assertTrue(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("D: a != 0 && ... && a != 14", formula, true);
   }
 
   /**
@@ -131,7 +152,7 @@ public class IntegerFormulaSolverTestCase {
       formula.addEquation(a, BigInteger.valueOf(i), false);
     }
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("E: a != 0 && ... && a != 15", formula, false);
   }
 
   /**
@@ -151,7 +172,7 @@ public class IntegerFormulaSolverTestCase {
 
     formula.addEquation(a, b, false);
 
-    Assert.assertTrue(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("F: a != b, where dom(a) and dom(b) have only one common value", formula, true);
   }
 
   /**
@@ -169,7 +190,7 @@ public class IntegerFormulaSolverTestCase {
 
     formula.addEquation(a, b, false);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("G: a != b, where |dom(b)| = 1 and dom(a) and dom(b) are overlapping", formula, false);
   }
 
   /**
@@ -196,7 +217,7 @@ public class IntegerFormulaSolverTestCase {
 
     formula.addEquation(c, d, false);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("H: a, b, c, d and z are mutually different", formula, false);
   }
 
   /**
@@ -218,7 +239,7 @@ public class IntegerFormulaSolverTestCase {
     set2.addEquation(a, d, false);
     formula.addEquationClause(set2);
 
-    Assert.assertTrue(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("I: a == b && (b == c || b == d) && (a != c || a != d)", formula, true);
   }
 
   /**
@@ -240,7 +261,7 @@ public class IntegerFormulaSolverTestCase {
     set2.addEquation(a, d, false);
     formula.addEquationClause(set2);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("J: a == b && (b == c || b == d) && (a != c && a != d)", formula, false);
   }
 
   /**
@@ -272,7 +293,8 @@ public class IntegerFormulaSolverTestCase {
     set4.addEquation(a, f, false);
     formula.addEquationClause(set4);
 
-    Assert.assertFalse(getSolver(formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("K: a == b && (b == c || b == d) && (c == d || c == e) && (d == e || d == f) && (a != e && a != f)",
+        formula, false);
   }
 
   /**
@@ -308,6 +330,6 @@ public class IntegerFormulaSolverTestCase {
       formula.addEquationClause(equationSet[i]);
     }
 
-    Assert.assertTrue(getSolver(vars, formula).solve().getStatus() == SolverResult.Status.SAT);
+    check("N: OutOfMemoryError", vars, formula, true);
   }
 }

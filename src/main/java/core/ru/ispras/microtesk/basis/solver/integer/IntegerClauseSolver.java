@@ -32,7 +32,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerClauseSolver implements Solver<Boolean> {
+public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, BigInteger>> {
   /** Equation clause to be solved. */
   private final IntegerClause clause;
   /** Variables used in the clause. */
@@ -93,7 +93,8 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
    * 
    * @return {@code true} if the equation clause is satisfiable; {@code false} otherwise.
    */
-  public SolverResult<Boolean> solve() {
+  @Override
+  public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
     // Handle the OR case.
     if (clause.getType() == IntegerClause.Type.OR) {
       for (final IntegerEquation equation : clause.getEquations()) {
@@ -102,9 +103,10 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
         variant.addEquation(equation);
 
         final IntegerClauseSolver solver =  new IntegerClauseSolver(variables, variant);
+        final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
 
-        if (solver.solve().getStatus() == SolverResult.Status.SAT) {
-          return new SolverResult<>(true);
+        if (result.getStatus() == SolverResult.Status.SAT) {
+          return result;
         }
       }
 
@@ -226,10 +228,10 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
    * @param equations the set of inequalities.
    * @return {@code true} if the constraint is satisfiable; {@code false} otherwise.
    */
-  private SolverResult<Boolean> solveInequalities() {
+  private SolverResult<Map<IntegerVariable, BigInteger>> solveInequalities() {
     // If the set of inequalities is empty, it is satisfiable.
     if (notEqualTo.isEmpty()) {
-      return new SolverResult<>(true);
+      return new SolverResult<>(getSolution());
     }
 
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
@@ -278,7 +280,7 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
     }
 
     if (simple) {
-      return new SolverResult<>(true);
+      return new SolverResult<>(getSolution());
     }
 
     // This code needs to be optimized.
@@ -290,8 +292,10 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
       // Try some variant.
       problem.domains.put(minDomainVar, new IntegerDomain(iterator.value()));
 
-      if (problem.solveInequalities().getStatus() == SolverResult.Status.SAT) {
-        return new SolverResult<>(true);
+      final SolverResult<Map<IntegerVariable, BigInteger>> result = problem.solveInequalities();
+
+      if (result.getStatus() == SolverResult.Status.SAT) {
+        return result;
       }
     }
 
@@ -496,5 +500,57 @@ public final class IntegerClauseSolver implements Solver<Boolean> {
     }
 
     vars.add(rhs);
+  }
+
+  /**
+   * Returns a possible solution (a variable-to-value map).
+   * 
+   * TODO: Randomization is required.
+   * 
+   * @return a possible variable-to-value mapping.
+   */
+  private Map<IntegerVariable, BigInteger> getSolution() {
+    final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
+
+    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
+      final IntegerVariable lhsVar = entry.getKey();
+      final IntegerDomain lhsDomain = entry.getValue();
+
+      if (equalTo.containsKey(lhsVar)) {
+        for (final IntegerVariable rhsVar : equalTo.get(lhsVar)) {
+          final IntegerDomain rhsDomain = domains.get(rhsVar);
+          lhsDomain.intersect(rhsDomain);
+        }
+      }
+
+      final Iterator<BigInteger> lhsIterator = lhsDomain.iterator();
+
+      lhsIterator.init();
+      InvariantChecks.checkTrue(lhsIterator.hasValue());
+
+      lhsDomain.set(lhsIterator.value());
+
+      if (notEqualTo.containsKey(lhsVar)) {
+        for (final IntegerVariable rhsVar : notEqualTo.get(lhsVar)) {
+          final IntegerDomain rhsDomain = domains.get(rhsVar);
+          rhsDomain.exclude(lhsDomain);
+        }
+      }
+    }
+
+    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final IntegerDomain domain = entry.getValue();
+
+      final Iterator<BigInteger> iterator = domain.iterator();
+
+      iterator.init();
+      InvariantChecks.checkTrue(iterator.hasValue());
+
+      solution.put(variable, iterator.value());
+    }
+
+    InvariantChecks.checkTrue(solution.size() == domains.size());
+    return solution;
   }
 }
