@@ -24,6 +24,11 @@ public <spec> getSpec() {
 }
 
 @Override
+public BufferObserver getBufferObserver(final String name) {
+  return null;
+}
+
+@Override
 public Map\<String, <mmu>\> getMmu() {
   return null;
 }

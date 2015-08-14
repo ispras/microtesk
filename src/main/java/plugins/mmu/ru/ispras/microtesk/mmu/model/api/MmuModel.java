@@ -19,5 +19,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 public interface MmuModel {
   MmuSubsystem getSpec();
+  BufferObserver getBufferObserver(String name);
   Map<String, Mmu> getMmu();
 }

@@ -53,8 +53,7 @@ final class STBModel implements STBuilder {
     st.add("pack", packageName);
 
     st.add("imps", java.util.Map.class.getName());
-    st.add("imps", MODEL_CLASS.getName());
-    st.add("imps", MMU_CLASS.getName());
+    st.add("imps", String.format("%s.*", MODEL_CLASS.getPackage().getName()));
     st.add("imps", SPEC_CLASS.getName());
   }
 
