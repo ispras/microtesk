@@ -14,11 +14,13 @@
 
 group Model;
 
-body(name, spec, mmu, buffers) ::= <<
+body(name, spec, mmu, buffers, memories) ::= <<
 private final Map\<String, BufferObserver\> buffers;
+private final Map\<String, <mmu>\> memories;
 
 public <name>() {
   this.buffers = newBuffers();
+  this.memories = newMemories();
 }
 
 private static Map\<String, BufferObserver\> newBuffers() {
@@ -27,9 +29,10 @@ private static Map\<String, BufferObserver\> newBuffers() {
   return result;
 }
 
-@Override
-public <spec> getSpec() {
-  return null;
+private static Map\<String, <mmu>\> newMemories() {
+  final Map\<String, <mmu>\> result = new HashMap\<\>();
+  <memories : {m | result.put("<m>", new <m>());}; separator="\n">
+  return result;
 }
 
 @Override
@@ -38,7 +41,12 @@ public BufferObserver getBufferObserver(final String name) {
 }
 
 @Override
-public Map\<String, <mmu>\> getMmu() {
+public <mmu> getMmu(final String name) {
+  return memories.get(name);
+}
+
+@Override
+public <spec> getSpec() {
   return null;
 }
 >>

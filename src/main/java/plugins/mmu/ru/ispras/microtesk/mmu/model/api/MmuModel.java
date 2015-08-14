@@ -14,11 +14,10 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import java.util.Map;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 public interface MmuModel {
-  MmuSubsystem getSpec();
   BufferObserver getBufferObserver(String name);
-  Map<String, Mmu> getMmu();
+  Mmu getMmu(String name);
+  MmuSubsystem getSpec();
 }

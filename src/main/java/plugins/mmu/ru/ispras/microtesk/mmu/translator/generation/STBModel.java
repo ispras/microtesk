@@ -20,6 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
@@ -78,6 +79,10 @@ final class STBModel implements STBuilder {
 
     for (final Segment segment : ir.getSegments().values()) {
       stBody.add("buffers", segment.getId());
+    }
+
+    for (final Memory memory : ir.getMemories().values()) {
+      stBody.add("memories", memory.getId());
     }
 
     st.add("members", stBody);
