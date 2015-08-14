@@ -179,15 +179,14 @@ public abstract class STBCommon {
     final Type leftType = getType(left);
     final Type rightType = getType(right);
 
-    // When type is undefined, we can make no assumptions about fields.
+    // When on of the types is undefined, we can make no decision on type cast.
     if (null == leftType || null == rightType) {
       return "";
     }
 
-    // If left is plain field and right is a struct that has only one field, we use this field.
-    if (!leftType.isStruct() && rightType.isStruct() && rightType.getFields().size() == 1) {
-      final String fieldName = rightType.getFields().keySet().iterator().next(); 
-      return "." + fieldName;
+    // If left is a bit vector and right is a struct, right is converted to a bit vector.
+    if (!leftType.isStruct() && rightType.isStruct()) {
+      return ".asBitVector()";
     }
 
     return "";
