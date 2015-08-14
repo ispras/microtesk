@@ -47,26 +47,14 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessStructureChecker implements Predicate<MemoryAccessStructure> {
-  /**
-   * MapKey: Variable$ExecutionIndex (%s$%d). MapValue: [Variable$ExecutionIndex$Range[0 .. A], ..,
-   * Variable$ExecutionIndex$Range[B .. N]].
-   */
-  private final Map<String, List<String>> variableLink = new LinkedHashMap<>();
-
-  /**
-   * MapKey: Variable$ExecutionIndex (%s$%d). MapValue: [Range[0 .. A] ... [B .. N]].
-   */
-  private final Map<String, List<IntegerRange>> variableRanges = new LinkedHashMap<>();
-
-  /**
-   * MapKey: Variable$ExecutionIndex$Range[A .. B] (%s$%d$%s). MapValue: Range[A .. B].
-   */
-  private final Map<String, IntegerRange> mmuRanges = new LinkedHashMap<>();
-
-  /**
-   * MapValue: Variable.Name, Variable.LO = A, Variable.HI = B.
-   */
-  private final Map<String, IntegerVariable> mmuVariables = new LinkedHashMap<>();
+  /** Maps a variable copy name to the list of field names. */
+  private final Map<String, List<String>> varCopyToFields = new LinkedHashMap<>();
+  /** Maps a variable copy name to the list of ranges. */
+  private final Map<String, List<IntegerRange>> varCopyToRanges = new LinkedHashMap<>();
+  /** Maps a field name to the range. */
+  private final Map<String, IntegerRange> fieldToRange = new LinkedHashMap<>();
+  /** Maps a field name to the integer variable used in the formula. */
+  private final Map<String, IntegerVariable> fieldToFormulaVar = new LinkedHashMap<>();
 
   /** Custom filter. */
   private final Predicate<MemoryAccessStructure> filter;
@@ -79,7 +67,6 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   public MemoryAccessStructureChecker(
       final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
-
     this.filter = filter;
   }
 
@@ -91,15 +78,18 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   @Override
   public boolean test(final MemoryAccessStructure structure) {
     InvariantChecks.checkNotNull(structure);
+    return solve(structure).getStatus() == SolverResult.Status.SAT;
+  }
 
+  private SolverResult<Map<IntegerVariable, BigInteger>> solve(final MemoryAccessStructure structure) {
     // TODO:
-    variableLink.clear();
-    variableRanges.clear();
-    mmuRanges.clear();
-    mmuVariables.clear();
+    varCopyToFields.clear();
+    varCopyToRanges.clear();
+    fieldToRange.clear();
+    fieldToFormulaVar.clear();
 
     if (!filter.test(structure)) {
-      return false;
+      return new SolverResult<>("UNSAT: Custom filter");
     }
 
     final MemoryAccessVariableStore store = new MemoryAccessVariableStore(structure);
@@ -107,46 +97,53 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
     final List<MemoryAccess> accesses = structure.getAccesses();
 
-    for (final Map.Entry<IntegerVariable, List<IntegerRange>> variable : variables.entrySet()) {
-      final List<String> nameI = new ArrayList<>();
+    for (final Map.Entry<IntegerVariable, List<IntegerRange>> entry : variables.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final List<IntegerRange> ranges = entry.getValue();
+
+      final List<String> listOfVariableCopies = new ArrayList<>();
 
       for (int i = 0; i < accesses.size(); i++) {
-        nameI.add(gatherVariableName(variable.getKey(), i));
-        variableRanges.put(nameI.get(i), variable.getValue());
+        final String variableCopyName = createVariableName(variable, i);
+
+        listOfVariableCopies.add(variableCopyName);
+        varCopyToRanges.put(variableCopyName, ranges);
       }
 
-      final List<List<String>> variableLinkI = new ArrayList<>();
+      final List<List<String>> variableCopyToRangeNames = new ArrayList<>();
 
       for (int i = 0; i < accesses.size(); i++) {
-        variableLinkI.add(new ArrayList<String>());
+        variableCopyToRangeNames.add(new ArrayList<String>());
       }
 
-      for (final IntegerRange range : variable.getValue()) {
-        final List<String> variableIRange = new ArrayList<>();
+      for (final IntegerRange range : ranges) {
+        final List<String> listOfRangeCopies = new ArrayList<>();
 
         for (int i = 0; i < accesses.size(); i++) {
-          variableIRange.add(gatherVariableName(variable.getKey(), i, range));
-          variableLinkI.get(i).add(variableIRange.get(i));
+          final String rangeCopyName = createVariableName(variable, i, range);
+
+          listOfRangeCopies.add(rangeCopyName);
+          variableCopyToRangeNames.get(i).add(rangeCopyName);
         }
 
-        final List<IntegerVariable> variableI = new ArrayList<>();
-
         for (int i = 0; i < accesses.size(); i++) {
-          variableI.add(new IntegerVariable(variableIRange.get(i), range.size().intValue()));
-          mmuVariables.put(variableIRange.get(i), variableI.get(i));
-          mmuRanges.put(variableIRange.get(i), range);
+          final IntegerVariable rangeCopyVariable =
+              new IntegerVariable(listOfRangeCopies.get(i), range.size().intValue());
+
+          fieldToFormulaVar.put(listOfRangeCopies.get(i), rangeCopyVariable);
+          fieldToRange.put(listOfRangeCopies.get(i), range);
         }
       }
 
       for (int i = 0; i < accesses.size(); i++) {
-        variableLink.put(nameI.get(i), variableLinkI.get(i));
+        varCopyToFields.put(listOfVariableCopies.get(i), variableCopyToRangeNames.get(i));
       }
     }
 
     final IntegerFormula formula = new IntegerFormula();
     final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
 
-    for (final Map.Entry<String, IntegerVariable> variable : mmuVariables.entrySet()) {
+    for (final Map.Entry<String, IntegerVariable> variable : fieldToFormulaVar.entrySet()) {
       formulaVariables.add(variable.getValue());
     }
 
@@ -156,7 +153,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
       for (final MmuTransition transition : path.getTransitions()) {
         if (!process(formula, i, transition)) {
-          return false;
+          return new SolverResult<>("UNSAT: Transition");
         }
       }
     }
@@ -170,7 +167,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
         if (dependency != null) {
           if (!process(formula, formulaVariables, i, j, access1, access2, dependency)) {
-            return false;
+            return new SolverResult<>("UNSAT: Access pair");
           }
         }
       }
@@ -179,7 +176,8 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     final IntegerFormulaSolver solver = new IntegerFormulaSolver(formulaVariables, formula);
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
 
-    return result.getStatus() == SolverResult.Status.SAT;
+    // TODO: the result should be transformed.
+    return result;
   }
 
   /**
@@ -192,8 +190,8 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   private List<IntegerVariable> getVariable(final int i, final IntegerField term) {
     final IntegerVariable mmuVariable = term.getVariable();
 
-    final String variableName = gatherVariableName(mmuVariable, i);
-    final List<IntegerRange> ranges = variableRanges.get(variableName);
+    final String variableName = createVariableName(mmuVariable, i);
+    final List<IntegerRange> ranges = varCopyToRanges.get(variableName);
 
     final IntegerRange variableRange = new IntegerRange(term.getLoIndex(), term.getHiIndex());
 
@@ -201,8 +199,8 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     for (final IntegerRange range : ranges) {
       if (variableRange.contains(range)) {
 
-        final String key = gatherVariableName(mmuVariable, i, range);
-        final IntegerVariable var = mmuVariables.get(key);
+        final String key = createVariableName(mmuVariable, i, range);
+        final IntegerVariable var = fieldToFormulaVar.get(key);
 
         variables.add(var);
       }
@@ -219,9 +217,9 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
    * @param range the range of variable.
    * @return variable name.
    */
-  private static String gatherVariableName(final IntegerVariable mmuVariable, final int i,
+  private static String createVariableName(final IntegerVariable mmuVariable, final int i,
       final IntegerRange range) {
-    final String executionVariable = gatherVariableName(mmuVariable, i);
+    final String executionVariable = createVariableName(mmuVariable, i);
     return String.format("%s$%s", executionVariable, range);
   }
 
@@ -232,7 +230,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
    * @param i the index of execution.
    * @return variable name.
    */
-  private static String gatherVariableName(final IntegerVariable mmuVariable, final int i) {
+  private static String createVariableName(final IntegerVariable mmuVariable, final int i) {
     return String.format("%s$%d", mmuVariable.getName(), i);
   }
 
@@ -280,7 +278,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       final List<IntegerVariable> variables = getVariable(i, term);
 
       for (final IntegerVariable variable : variables) {
-        final IntegerRange range = mmuRanges.get(variable.getName());
+        final IntegerRange range = fieldToRange.get(variable.getName());
 
         final int lo = range.getMin().intValue();
         final int hi = range.getMax().intValue();
@@ -306,7 +304,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     for (final Map.Entry<IntegerField, MmuAssignment> assignmentSet : assignments.entrySet()) {
       final IntegerField field = assignmentSet.getKey();
       final MmuAssignment assignment = assignmentSet.getValue();
-      final String name = gatherVariableName(field.getVariable(), i);
+      final String name = createVariableName(field.getVariable(), i);
 
       final MmuExpression expression = assignment != null ? assignment.getRhs() : null;
 
@@ -330,20 +328,19 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       if (termsSize < variableWidth) {
         variableShift = variableWidth - termsSize;
 
-        final IntegerRange seachRange =
-            new IntegerRange(zeroShift + variableWidth - variableShift, zeroShift + variableWidth
-                - 1);
+        final IntegerRange seachRange = new IntegerRange(
+            zeroShift + variableWidth - variableShift, zeroShift + variableWidth - 1);
 
-        final String baseVarName = gatherVariableName(field.getVariable(), i);
+        final String baseVarName = createVariableName(field.getVariable(), i);
 
-        final List<String> a = variableLink.get(baseVarName);
+        final List<String> a = varCopyToFields.get(baseVarName);
         InvariantChecks.checkNotNull(a);
 
         for (final String b : a) {
-          final IntegerRange c = mmuRanges.get(b);
+          final IntegerRange c = fieldToRange.get(b);
           if (seachRange.contains(c)) {
-            final String varName = gatherVariableName(field.getVariable(), i, c);
-            final IntegerVariable var = mmuVariables.get(varName);
+            final String varName = createVariableName(field.getVariable(), i, c);
+            final IntegerVariable var = fieldToFormulaVar.get(varName);
 
             if (var == null) {
               throw new IllegalArgumentException("MmuVariable '" + varName
@@ -357,7 +354,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
         }
       }
 
-      final List<IntegerRange> rangesList = variableRanges.get(name);
+      final List<IntegerRange> rangesList = varCopyToRanges.get(name);
       InvariantChecks.checkNotNull(rangesList);
 
       int index = 0;
@@ -371,7 +368,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
           }
 
           final IntegerRange varRange = rangesList.get(index);
-          final IntegerRange var2Range = mmuRanges.get(termVariable.getName());
+          final IntegerRange var2Range = fieldToRange.get(termVariable.getName());
           InvariantChecks.checkNotNull(var2Range);
 
           if (!varRange.size().equals(var2Range.size())) {
@@ -380,7 +377,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
           }
 
           final IntegerVariable var =
-              mmuVariables.get(gatherVariableName(field.getVariable(), i, varRange));
+              fieldToFormulaVar.get(createVariableName(field.getVariable(), i, varRange));
           formula.addEquation(var, termVariable, true);
 
           index++;
@@ -480,24 +477,24 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
           final List<IntegerVariable> fields = device.getFields();
 
           for (final IntegerVariable field : fields) {
-            final String value1 = gatherVariableName(field, i);
-            final String value2 = gatherVariableName(field, j);
+            final String value1 = createVariableName(field, i);
+            final String value2 = createVariableName(field, j);
 
-            List<String> values1 = variableLink.get(value1);
+            List<String> values1 = varCopyToFields.get(value1);
             if (values1 == null) {
               addVariable(formulaVariables, field, i);
-              values1 = variableLink.get(value1);
+              values1 = varCopyToFields.get(value1);
             }
 
-            List<String> values2 = variableLink.get(value2);
+            List<String> values2 = varCopyToFields.get(value2);
             if (values2 == null) {
               addVariable(formulaVariables, field, j);
-              values2 = variableLink.get(value2);
+              values2 = varCopyToFields.get(value2);
             }
 
             for (int k = 0; k < values1.size(); k++) {
-              final IntegerVariable variable1 = mmuVariables.get(values1.get(k));
-              final IntegerVariable variable2 = mmuVariables.get(values2.get(k));
+              final IntegerVariable variable1 = fieldToFormulaVar.get(values1.get(k));
+              final IntegerVariable variable2 = fieldToFormulaVar.get(values2.get(k));
 
               formula.addEquation(variable1, variable2, true);
             }
@@ -547,21 +544,21 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
   private void addVariable(
       final Set<IntegerVariable> formulaVariables, final IntegerVariable variable, final int i) {
-    final String baseValue = gatherVariableName(variable, i);
+    final String baseValue = createVariableName(variable, i);
 
     final IntegerRange range = new IntegerRange(0, variable.getWidth() - 1);
     final List<IntegerRange> ranges = new ArrayList<>();
     ranges.add(range);
-    variableRanges.put(baseValue, ranges);
+    varCopyToRanges.put(baseValue, ranges);
 
-    final String value = gatherVariableName(variable, i, range);
+    final String value = createVariableName(variable, i, range);
     final List<String> values = new ArrayList<>();
     values.add(value);
-    variableLink.put(baseValue, values);
+    varCopyToFields.put(baseValue, values);
 
-    mmuRanges.put(value, range);
+    fieldToRange.put(value, range);
     final IntegerVariable formulaVariable = new IntegerVariable(value, variable.getWidth());
-    mmuVariables.put(value, formulaVariable);
+    fieldToFormulaVar.put(value, formulaVariable);
 
     formulaVariables.add(formulaVariable);
   }
