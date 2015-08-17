@@ -153,6 +153,10 @@ public final class MemorySymbolicExecutor {
               }
             }
           }
+
+          if (clause.size() != 0) {
+            formula.addEquationClause(clause);
+          }
         }
       }
     }
