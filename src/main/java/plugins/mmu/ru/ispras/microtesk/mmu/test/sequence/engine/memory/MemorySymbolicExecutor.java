@@ -64,7 +64,7 @@ public final class MemorySymbolicExecutor {
 
   public static MemorySymbolicExecutor instance = null;
 
-  public MemorySymbolicExecutor get() {
+  public static MemorySymbolicExecutor get() {
     if (instance == null) {
       instance = new MemorySymbolicExecutor();
     }
