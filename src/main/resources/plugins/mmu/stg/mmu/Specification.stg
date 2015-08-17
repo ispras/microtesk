@@ -60,3 +60,7 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>);
 >>
 
+buffer_reg(name) ::= <<
+builder.registerBuffer(<name>);
+>>
+

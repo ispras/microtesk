@@ -21,6 +21,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -69,6 +70,7 @@ public final class STBSpecification implements STBuilder {
 
     buildAddresses(stBody, group);
     buildSegments(stBody, group);
+    buildBuffers(stBody, group);
   }
 
   private void buildAddresses(final ST st, final STGroup group) {
@@ -112,6 +114,26 @@ public final class STBSpecification implements STBuilder {
       final ST stReg = group.getInstanceOf("segment_reg");
       stReg.add("name", segment.getId());
       st.add("stmts", stReg);
+    }
+  }
+
+  private void buildBuffers(final ST st, final STGroup group) {
+    final ST stSeparator = group.getInstanceOf("separator");
+    stSeparator.add("text", "Buffers");
+    st.add("members", "");
+    st.add("members", stSeparator);
+    st.add("stmts", "");
+
+    for(final Buffer buffer : ir.getBuffers().values()) {
+      /*
+      final ST stDef = group.getInstanceOf("buffer_def");
+      stDef.add("name", buffer.getId());
+      st.add("members", stDef);
+
+      final ST stReg = group.getInstanceOf("buffer_reg");
+      stReg.add("name", buffer.getId());
+      st.add("stmts", stReg);
+      */
     }
   }
 
