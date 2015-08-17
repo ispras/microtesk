@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -31,7 +32,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.BitUtils;
 
 /**
  * {@link MemorySymbolicExecutor} implements a simple symbolic executor of memory accesses.
@@ -132,23 +132,25 @@ public final class MemorySymbolicExecutor {
             final IntegerVariable lhsVar = lhs.getVariable();
             variables.add(lhsVar);
 
-            int offset = lhs.getLoIndex();
+            if (rhs != null) {
+              int offset = lhs.getLoIndex();
 
-            for (final IntegerField term : rhs.getTerms()) {
-              final int lo = offset;
-              final int hi = (offset + term.getWidth()) - 1;
+              for (final IntegerField term : rhs.getTerms()) {
+                final int lo = offset;
+                final int hi = (offset + term.getWidth()) - 1;
 
-              clause.addEquation(new IntegerField(lhsVar, lo, hi), term, true);
-              offset += term.getWidth();
+                clause.addEquation(new IntegerField(lhsVar, lo, hi), term, true);
+                offset += term.getWidth();
 
-              variables.add(term.getVariable());
-            }
+                variables.add(term.getVariable());
+              }
 
-            if (offset <= lhs.getHiIndex()) {
-              final int lo = offset;
-              final int hi = lhs.getHiIndex();
+              if (offset <= lhs.getHiIndex()) {
+                final int lo = offset;
+                final int hi = lhs.getHiIndex();
 
-              clause.addEquation(new IntegerField(lhsVar, lo, hi), BigInteger.ZERO, true);
+                clause.addEquation(new IntegerField(lhsVar, lo, hi), BigInteger.ZERO, true);
+              }
             }
           }
         }

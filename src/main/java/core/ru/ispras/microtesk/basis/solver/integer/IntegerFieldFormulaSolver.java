@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.utils.BitUtils;
 
 /**
  * {@link IntegerFieldFormulaSolver} implements an integer-field-constraints solver.
@@ -229,8 +229,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     InvariantChecks.checkNotNull(oldEquation);
 
     return oldEquation.value ?
-        getClause(oldEquation.lhs, oldEquation.rhs, oldEquation.equal) :
-        getClause(oldEquation.lhs, oldEquation.val, oldEquation.equal);
+        getClause(oldEquation.lhs, oldEquation.val, oldEquation.equal) :
+        getClause(oldEquation.lhs, oldEquation.rhs, oldEquation.equal);
   }
 
   private IntegerClause<IntegerVariable> getClause(
@@ -295,8 +295,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     for (final IntegerVariable variable : variables) {
       final List<IntegerVariable> fields = varToFields.get(variable);
 
-      BigInteger value = Randomizer.get().nextBigIntegerRange(
-          BigInteger.ZERO, BigInteger.ONE.shiftLeft(variable.getWidth()).subtract(BigInteger.ONE));
+      BigInteger value = Randomizer.get().nextBigIntegerField(variable.getWidth());
 
       if (fields != null) {
         for (final IntegerVariable field : fields) {
@@ -306,8 +305,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
           final int lo = fieldRange.getMin().intValue();
           final int hi = fieldRange.getMax().intValue();
 
-          value = value.andNot(BitUtils.getMask(lo, hi));
-          value = value.or(fieldValue.shiftLeft(lo));
+          value = BitUtils.setField(value, lo, hi, fieldValue);
         }
       }
 
