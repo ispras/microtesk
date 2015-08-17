@@ -30,7 +30,7 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.utils.BitUtils;
 
 /**
- * {@link IntegerFieldFormulaSolver} implements a solver of constraints over integer fields.
+ * {@link IntegerFieldFormulaSolver} implements an integer-field-constraints solver.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
