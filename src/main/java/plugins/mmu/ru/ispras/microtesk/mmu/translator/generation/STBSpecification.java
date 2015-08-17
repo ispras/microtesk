@@ -22,6 +22,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBSpecification implements STBuilder {
@@ -67,6 +68,7 @@ public final class STBSpecification implements STBuilder {
     st.add("members", stBody);
 
     buildAddresses(stBody, group);
+    buildSegments(stBody, group);
   }
 
   private void buildAddresses(final ST st, final STGroup group) {
@@ -79,6 +81,28 @@ public final class STBSpecification implements STBuilder {
 
       final ST stReg = group.getInstanceOf("type_reg");
       stReg.add("name", address.getId());
+      st.add("stmts", stReg);
+    }
+  }
+
+  private void buildSegments(final ST st, final STGroup group) {
+    st.add("members", "");
+    st.add("stmts", "");
+
+    for(final Segment segment : ir.getSegments().values()) {
+      final ST stDef = group.getInstanceOf("segment_def");
+      stDef.add("name", segment.getId());
+      stDef.add("va", segment.getAddress().getId());
+      stDef.add("pa", segment.getDataArgAddress().getId());
+      stDef.add("start", String.format("0x%x", segment.getMin()));
+      stDef.add("end", String.format("0x%x", segment.getMax()));
+      stDef.add("mapped", "false");
+      stDef.add("va_expr", "null");
+      stDef.add("pa_expr", "null");
+      st.add("members", stDef);
+
+      final ST stReg = group.getInstanceOf("segment_reg");
+      stReg.add("name", segment.getId());
       st.add("stmts", stReg);
     }
   }

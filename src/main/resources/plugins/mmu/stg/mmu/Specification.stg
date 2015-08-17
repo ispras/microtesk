@@ -29,10 +29,28 @@ public <spec> getSpecification() {
 >>
 
 type_def(name, var_name, var_size) ::= <<
-private final MmuAddressType <name> =
-    new MmuAddressType(null, new IntegerVariable("<name>.<var_name>", <var_size>));
+private final MmuAddressType <name> = new MmuAddressType(
+    null, new IntegerVariable("<name>.<var_name>", <var_size>));
 >>
 
 type_reg(name) ::= <<
 builder.registerAddress(<name>);
 >>
+
+segment_def(name, va, pa, start, end, mapped, va_expr, pa_expr) ::= <<
+private final MmuSegment <name> = new MmuSegment(
+    "<name>",
+    <va>,
+    <pa>,
+    <start>L,
+    <end>L,
+    <mapped>,
+    <va_expr>,
+    <pa_expr>
+    );
+>>
+
+segment_reg(name) ::= <<
+builder.registerSegment(<name>);
+>>
+
