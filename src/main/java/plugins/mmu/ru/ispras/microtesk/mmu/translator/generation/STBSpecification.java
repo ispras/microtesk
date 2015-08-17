@@ -72,6 +72,11 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildAddresses(final ST st, final STGroup group) {
+    final ST stSeparator = group.getInstanceOf("separator");
+    stSeparator.add("text", "Addresses");
+    st.add("members", stSeparator);
+    st.add("stmts", "");
+
     for(final Address address : ir.getAddresses().values()) {
       final ST stDef = group.getInstanceOf("type_def");
       stDef.add("name", address.getId());
@@ -86,7 +91,10 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildSegments(final ST st, final STGroup group) {
+    final ST stSeparator = group.getInstanceOf("separator");
+    stSeparator.add("text", "Segments");
     st.add("members", "");
+    st.add("members", stSeparator);
     st.add("stmts", "");
 
     for(final Segment segment : ir.getSegments().values()) {
@@ -94,8 +102,8 @@ public final class STBSpecification implements STBuilder {
       stDef.add("name", segment.getId());
       stDef.add("va", segment.getAddress().getId());
       stDef.add("pa", segment.getDataArgAddress().getId());
-      stDef.add("start", String.format("0x%x", segment.getMin()));
-      stDef.add("end", String.format("0x%x", segment.getMax()));
+      stDef.add("start", String.format("0x%xL", segment.getMin()));
+      stDef.add("end", String.format("0x%xL", segment.getMax()));
       stDef.add("mapped", "false");
       stDef.add("va_expr", "null");
       stDef.add("pa_expr", "null");

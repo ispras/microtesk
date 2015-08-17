@@ -28,6 +28,12 @@ public <spec> getSpecification() {
 }
 >>
 
+separator(text) ::= <<
+// ===============================================================================================
+// <text>
+// ===============================================================================================
+>>
+
 type_def(name, var_name, var_size) ::= <<
 private final MmuAddressType <name> = new MmuAddressType(
     null, new IntegerVariable("<name>.<var_name>", <var_size>));
@@ -42,8 +48,8 @@ private final MmuSegment <name> = new MmuSegment(
     "<name>",
     <va>,
     <pa>,
-    <start>L,
-    <end>L,
+    <start>,
+    <end>,
     <mapped>,
     <va_expr>,
     <pa_expr>
