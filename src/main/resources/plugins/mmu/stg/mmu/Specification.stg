@@ -57,7 +57,7 @@ private final MmuSegment <name> = new MmuSegment(
     <mapped>,
     <va_expr>,
     <pa_expr>
-    );
+    );<\n>
 >>
 
 segment_reg(name) ::= <<

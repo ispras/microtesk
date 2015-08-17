@@ -142,7 +142,6 @@ public final class STBSpecification implements STBuilder {
       stDef.add("guard", "null");
       stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
       stDef.add("parent", buffer.getParent() != null ? buffer.getParent().getId() : "null");
-      st.add("members", "");
       st.add("members", stDef);
 
       final ST stReg = group.getInstanceOf("buffer_reg");
