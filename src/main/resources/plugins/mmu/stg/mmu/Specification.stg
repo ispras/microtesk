@@ -14,18 +14,11 @@
 
 group Specification;
 
-specification(pack, imps, name, base, members) ::= <<
-<header(false)>
-<package(pack)>
-<if(imps)><imports(imps)><endif>
-<class(["public", "final"],
-       name,
-       base,
-       false,
-       members)>
->>
-
-constructor(name) ::= <<
+body(name) ::= <<
 public <name>() {
+}
+
+public MmuSubsystem getSpecification() {
+  return null;
 }
 >>

@@ -17,10 +17,12 @@ group Model;
 body(name, spec, mem_type, buf_type, buffers, memories) ::= <<
 private final Map\<String, <buf_type>\> buffers;
 private final Map\<String, <mem_type>\> memories;
+private final <spec> spec;
 
 public <name>() {
   this.buffers = newBuffers();
   this.memories = newMemories();
+  this.spec = new Specification().getSpecification();
 }
 
 private static Map\<String, <buf_type>\> newBuffers() {
@@ -47,6 +49,6 @@ public <mem_type> getMemoryAccessor(final String deviceId) {
 
 @Override
 public <spec> getSpecification() {
-  return null;
+  return spec;
 }
 >>

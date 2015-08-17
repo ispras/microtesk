@@ -51,6 +51,10 @@ final class GeneratorFactory {
   private static final String[] MODEL_STGS =
       new String[] {JAVA_COMMON_STG, MODEL_STG};
 
+  private static final String   SPECIFICATION_STG = MMU_STG_DIR + "Specification.stg";
+  private static final String[] SPECIFICATION_STGS =
+      new String[] {JAVA_COMMON_STG, SPECIFICATION_STG};
+
   private final String outDir;
   private final String packageName;
 
@@ -118,5 +122,14 @@ final class GeneratorFactory {
     final STBuilder builder = new STBModel(packageName, ir);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
+  }
+
+  public FileGenerator newSpecificationGenerator(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+
+    final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
+    final STBuilder builder = new STBSpecification(packageName, ir);
+
+    return new STFileGenerator(outputFileName, SPECIFICATION_STGS, builder);
   }
 }

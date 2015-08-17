@@ -53,6 +53,7 @@ public final class Generator implements TranslatorHandler<Ir> {
       processSegments(ir, factory);
       processMemories(ir, factory);
       processModel(ir, factory);
+      processSpecification(ir, factory);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
@@ -97,6 +98,11 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void processModel(final Ir ir, final GeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newModelGenerator(ir);
+    fileGenerator.generate();
+  }
+
+  private void processSpecification(final Ir ir, final GeneratorFactory factory) throws IOException {
+    final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
     fileGenerator.generate();
   }
 }
