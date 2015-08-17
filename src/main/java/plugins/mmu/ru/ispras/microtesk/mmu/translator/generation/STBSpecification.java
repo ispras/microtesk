@@ -18,10 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
-import ru.ispras.microtesk.mmu.translator.ir.Memory;
-import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBSpecification implements STBuilder {
@@ -59,6 +56,7 @@ public final class STBSpecification implements STBuilder {
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("body");
     stBody.add("name", CLASS_NAME);
+    stBody.add("spec", SPEC_CLASS.getSimpleName());
     st.add("members", stBody);
   }
 }

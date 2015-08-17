@@ -14,11 +14,13 @@
 
 group Specification;
 
-body(name) ::= <<
+body(name, spec) ::= <<
+private final <spec> spec = null;
+
 public <name>() {
 }
 
-public MmuSubsystem getSpecification() {
-  return null;
+public <spec> getSpecification() {
+  return spec;
 }
 >>
