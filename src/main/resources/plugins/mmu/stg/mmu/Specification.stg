@@ -60,7 +60,7 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>);
 >>
 
-buffer_def(name, ways, sets, addr, tag, index, offset, guard, replaceable, parent) ::= <<
+buffer_def(name, ways, sets, addr, tag, index, offset, guard, replaceable, parent, fields) ::= <<
 private final MmuBuffer <name> = new MmuBuffer(
     "<name>",
     <ways>,
@@ -73,6 +73,9 @@ private final MmuBuffer <name> = new MmuBuffer(
     <replaceable>,
     <parent>
     );
+{
+  <fields : {field | <name>.addField(<field>);}; separator="\n">
+}<\n>
 >>
 
 buffer_reg(name) ::= <<
