@@ -237,8 +237,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerField oldLhs,
       final IntegerField oldRhs,
       final boolean oldEqual) {
-    InvariantChecks.checkNotNull(oldLhs);
-    InvariantChecks.checkNotNull(oldRhs);
+    InvariantChecks.checkNotNull(oldLhs, "LHS is null");
+    InvariantChecks.checkNotNull(oldRhs, "RHS is null");
 
     final IntegerClause<IntegerVariable> newClause =
         new IntegerClause<IntegerVariable>(
@@ -246,7 +246,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     final List<IntegerVariable> lhsFields = getFieldVars(oldLhs);
     final List<IntegerVariable> rhsFields = getFieldVars(oldRhs);
-    InvariantChecks.checkTrue(lhsFields.size() == rhsFields.size());
+    InvariantChecks.checkTrue(lhsFields.size() == rhsFields.size(), "Different number of fields");
 
     for (int i = 0; i < lhsFields.size(); i++) {
       final IntegerVariable newLhs = lhsFields.get(i);
@@ -262,8 +262,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerField oldLhs,
       final BigInteger oldRhs,
       final boolean oldEqual) {
-    InvariantChecks.checkNotNull(oldLhs);
-    InvariantChecks.checkNotNull(oldRhs);
+    InvariantChecks.checkNotNull(oldLhs, "LHS is null");
+    InvariantChecks.checkNotNull(oldRhs, "RHS is null");
 
     final IntegerClause<IntegerVariable> newClause =
         new IntegerClause<IntegerVariable>(

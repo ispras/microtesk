@@ -331,11 +331,11 @@ final class MemoryAccessVariableStore {
     InvariantChecks.checkNotNull(ranges);
 
     for (final MmuTransition transition : path.getTransitions()) {
-      add(transition, ranges);
+      addRanges(transition, ranges);
     }
   }
 
-  private void add(
+  private void addRanges(
       final MmuTransition transition,
       final Map<IntegerVariable, Set<IntegerRange>> ranges) {
     InvariantChecks.checkNotNull(transition);
