@@ -14,15 +14,25 @@
 
 group Specification;
 
-body(name, spec) ::= <<
+body(name, spec, members, stmts) ::= <<
 private final <spec> spec;
-
+<\n><members : {m | <m>}; separator="\n"><\n>
 public <name>() {
-  final <spec>.Builder builder = new <spec>.Builder();
+  final <spec>.Builder builder = new <spec>.Builder();<\n>
+  <stmts : {stmt | <stmt>}; separator="\n"><\n>
   this.spec = builder.build();
 }
 
 public <spec> getSpecification() {
   return spec;
 }
+>>
+
+type_def(name, var_name, var_size) ::= <<
+private final MmuAddressType <name> =
+    new MmuAddressType(null, new IntegerVariable(<name>."<var_name>", <var_size>));
+>>
+
+type_reg(name) ::= <<
+builder.registerAddress(<name>);
 >>
