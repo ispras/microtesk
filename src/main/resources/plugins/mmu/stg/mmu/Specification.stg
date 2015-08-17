@@ -30,7 +30,7 @@ public <spec> getSpecification() {
 
 type_def(name, var_name, var_size) ::= <<
 private final MmuAddressType <name> =
-    new MmuAddressType(null, new IntegerVariable(<name>."<var_name>", <var_size>));
+    new MmuAddressType(null, new IntegerVariable("<name>.<var_name>", <var_size>));
 >>
 
 type_reg(name) ::= <<
