@@ -40,14 +40,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 final class GuardExtractor {
-  private final MmuSubsystem specification;
+  private final MmuSubsystem.Builder specification;
   private final AtomExtractor atomExtractor;
 
   private final MmuGuard guard;
   private final MmuGuard negatedGuard;
 
   public GuardExtractor(
-      final MmuSubsystem specification,
+      final MmuSubsystem.Builder specification,
       final AtomExtractor atomExtractor,
       final Node condition) {
     checkNotNull(specification);

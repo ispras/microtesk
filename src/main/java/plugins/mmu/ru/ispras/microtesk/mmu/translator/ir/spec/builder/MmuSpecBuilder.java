@@ -63,7 +63,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   /** Action node where the control flow graph terminates if no exceptions are raised. */
   public static final MmuAction STOP = new MmuAction("STOP");
 
-  private MmuSubsystem spec = null;
+  private MmuSubsystem.Builder spec = null;
   private MmuSpecContext context = null;
   private IntegerVariableTracker variables = null;
   private List<String> currentMarks = null;
@@ -75,14 +75,14 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private int actionIndex = 0;
 
   public MmuSubsystem getSpecification() {
-    return spec;
+    return spec.build();
   }
 
   @Override
   public void processIr(final Ir ir) {
     System.out.println(ir);
 
-    this.spec = new MmuSubsystem();
+    this.spec = new MmuSubsystem.Builder();
     this.context = new MmuSpecContext();
     this.variables = context.getVariableRegistry();
     this.actionIndex = 0;

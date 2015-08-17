@@ -422,103 +422,105 @@ public final class MmuUnderTest {
   // MMU
   // ===============================================================================================
 
-  public final MmuSubsystem mmu = new MmuSubsystem();
+  public final MmuSubsystem mmu;
 
   {
-    mmu.registerAddress(vaAddr);
-    mmu.registerAddress(paAddr);
-    mmu.setVirtualAddress(vaAddr);
-    mmu.setPhysicalAddress(paAddr);
+    final MmuSubsystem.Builder builder = new MmuSubsystem.Builder();
 
-    mmu.registerSegment(xuseg);
-    mmu.registerSegment(kseg0);
-    mmu.registerSegment(kseg1);
-    mmu.registerSegment(xkphys);
+    builder.registerAddress(vaAddr);
+    builder.registerAddress(paAddr);
+    builder.setVirtualAddress(vaAddr);
+    builder.setPhysicalAddress(paAddr);
 
-    mmu.registerBuffer(dtlb);
-    mmu.registerBuffer(jtlb);
-    mmu.registerBuffer(l1);
-    mmu.registerBuffer(l2);
-    mmu.registerBuffer(mem);
-    mmu.setTargetBuffer(mem);
+    builder.registerSegment(xuseg);
+    builder.registerSegment(kseg0);
+    builder.registerSegment(kseg1);
+    builder.registerSegment(xkphys);
 
-    mmu.registerAction(root);
-    mmu.registerAction(start);
-    mmu.registerAction(getUpa);
-    mmu.registerAction(startDtlb);
-    mmu.registerAction(hitDtlb);
-    mmu.registerAction(startJtlb);
-    mmu.registerAction(hitJtlb);
-    mmu.registerAction(selectVpn);
-    mmu.registerAction(getLo0);
-    mmu.registerAction(getLo1);
-    mmu.registerAction(checkG);
-    mmu.registerAction(checkV);
-    mmu.registerAction(checkD);
-    mmu.registerAction(local);
-    mmu.registerAction(global);
-    mmu.registerAction(getMpa);
-    mmu.registerAction(checkCache);
-    mmu.registerAction(startCache);
-    mmu.registerAction(startL1);
-    mmu.registerAction(hitL1);
-    mmu.registerAction(checkL2);
-    mmu.registerAction(startL2);
-    mmu.registerAction(hitL2);
-    mmu.registerAction(startMem);
-    mmu.registerAction(tlbRefill);
-    mmu.registerAction(tlbInvalid);
-    mmu.registerAction(tlbModified);
-    mmu.registerAction(stop);
-    mmu.setStartAction(root);
+    builder.registerBuffer(dtlb);
+    builder.registerBuffer(jtlb);
+    builder.registerBuffer(l1);
+    builder.registerBuffer(l2);
+    builder.registerBuffer(mem);
+    builder.setTargetBuffer(mem);
 
-    mmu.registerTransition(ifRead);
-    mmu.registerTransition(ifWrite);
-    mmu.registerTransition(ifUnmapped);
-    mmu.registerTransition(ifMapped);
-    mmu.registerTransition(afterUpa);
-    mmu.registerTransition(ifDtlbMiss);
-    mmu.registerTransition(ifDtlbHit);
-    mmu.registerTransition(afterDtlb);
+    builder.registerAction(root);
+    builder.registerAction(start);
+    builder.registerAction(getUpa);
+    builder.registerAction(startDtlb);
+    builder.registerAction(hitDtlb);
+    builder.registerAction(startJtlb);
+    builder.registerAction(hitJtlb);
+    builder.registerAction(selectVpn);
+    builder.registerAction(getLo0);
+    builder.registerAction(getLo1);
+    builder.registerAction(checkG);
+    builder.registerAction(checkV);
+    builder.registerAction(checkD);
+    builder.registerAction(local);
+    builder.registerAction(global);
+    builder.registerAction(getMpa);
+    builder.registerAction(checkCache);
+    builder.registerAction(startCache);
+    builder.registerAction(startL1);
+    builder.registerAction(hitL1);
+    builder.registerAction(checkL2);
+    builder.registerAction(startL2);
+    builder.registerAction(hitL2);
+    builder.registerAction(startMem);
+    builder.registerAction(tlbRefill);
+    builder.registerAction(tlbInvalid);
+    builder.registerAction(tlbModified);
+    builder.registerAction(stop);
+    builder.setStartAction(root);
 
-    mmu.registerTransition(ifJtlbMiss);
-    mmu.registerTransition(ifJtlbHit);
+    builder.registerTransition(ifRead);
+    builder.registerTransition(ifWrite);
+    builder.registerTransition(ifUnmapped);
+    builder.registerTransition(ifMapped);
+    builder.registerTransition(afterUpa);
+    builder.registerTransition(ifDtlbMiss);
+    builder.registerTransition(ifDtlbHit);
+    builder.registerTransition(afterDtlb);
 
-    mmu.registerTransition(afterJtlb);
-    mmu.registerTransition(ifVpn0);
-    mmu.registerTransition(ifVpn1);
-    mmu.registerTransition(afterLo0);
-    mmu.registerTransition(afterLo1);
+    builder.registerTransition(ifJtlbMiss);
+    builder.registerTransition(ifJtlbHit);
 
-    mmu.registerTransition(ifLocal);
-    mmu.registerTransition(afterLocal);
+    builder.registerTransition(afterJtlb);
+    builder.registerTransition(ifVpn0);
+    builder.registerTransition(ifVpn1);
+    builder.registerTransition(afterLo0);
+    builder.registerTransition(afterLo1);
 
-    mmu.registerTransition(ifGlobal);
-    mmu.registerTransition(afterGlobal);
+    builder.registerTransition(ifLocal);
+    builder.registerTransition(afterLocal);
 
-    mmu.registerTransition(ifInvalid);
-    mmu.registerTransition(ifValid);
+    builder.registerTransition(ifGlobal);
+    builder.registerTransition(afterGlobal);
 
-    mmu.registerTransition(ifDirty);
-    mmu.registerTransition(ifClean);
+    builder.registerTransition(ifInvalid);
+    builder.registerTransition(ifValid);
 
-    mmu.registerTransition(ifLoMemory);
-    mmu.registerTransition(ifHiMemory);
+    builder.registerTransition(ifDirty);
+    builder.registerTransition(ifClean);
 
-    mmu.registerTransition(ifKseg1);
-    mmu.registerTransition(ifNotKseg1);
+    builder.registerTransition(ifLoMemory);
+    builder.registerTransition(ifHiMemory);
 
-    mmu.registerTransition(ifUncached);
-    mmu.registerTransition(ifCached);
-    mmu.registerTransition(ifL1Miss);
-    mmu.registerTransition(ifL1Hit);
-    mmu.registerTransition(afterL1);
-    mmu.registerTransition(ifL2Bypass);
-    mmu.registerTransition(ifL2Used);
-    mmu.registerTransition(ifL2Miss);
-    mmu.registerTransition(ifL2Hit);
-    mmu.registerTransition(afterL2);
-    mmu.registerTransition(afterMem);
+    builder.registerTransition(ifKseg1);
+    builder.registerTransition(ifNotKseg1);
+
+    builder.registerTransition(ifUncached);
+    builder.registerTransition(ifCached);
+    builder.registerTransition(ifL1Miss);
+    builder.registerTransition(ifL1Hit);
+    builder.registerTransition(afterL1);
+    builder.registerTransition(ifL2Bypass);
+    builder.registerTransition(ifL2Used);
+    builder.registerTransition(ifL2Miss);
+    builder.registerTransition(ifL2Hit);
+    builder.registerTransition(afterL2);
+    builder.registerTransition(afterMem);
 
     // Disable some of the transitions to reduce testing time.
     if (REDUCE) {
@@ -531,6 +533,8 @@ public final class MmuUnderTest {
       ifHiMemory.setEnabled(false);
       ifL2Used.setEnabled(false);
     }
+
+    mmu = builder.build();
   }
 
   private MmuUnderTest() {}

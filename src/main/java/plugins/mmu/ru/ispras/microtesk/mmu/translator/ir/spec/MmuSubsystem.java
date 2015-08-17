@@ -39,48 +39,75 @@ public final class MmuSubsystem {
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
    */
-  private Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
+  private final Map<String, MmuAddressType> addresses;
 
   // TODO:
-  private List<MmuAddressType> sortedAddresses = new ArrayList<>();
+  private final List<MmuAddressType> sortedAddresses;
 
   /** Refers to the virtual address type of the MMU. */
-  private MmuAddressType virtualAddress;
+  private final MmuAddressType virtualAddress;
 
   /** Refers to the physical address type of the MMU. */
-  private MmuAddressType physicalAddress;
+  private final MmuAddressType physicalAddress;
 
   /** Stores buffers of the MMU. */
-  private Map<String, MmuSegment> segments = new LinkedHashMap<>();
+  private final Map<String, MmuSegment> segments;
 
   /** Stores buffers of the MMU. */
-  private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
+  private final Map<String, MmuBuffer> buffers;
 
   // TODO:
-  private List<MmuBuffer> sortedBuffers = new ArrayList<>();
+  private final List<MmuBuffer> sortedBuffers;
 
-  /**
-   * Refers to the target buffer of the MMU.
-   */
-  private MmuBuffer targetBuffer;
+  /** Refers to the target buffer of the MMU.*/
+  private final MmuBuffer targetBuffer;
 
   /** Maps actions to out-going transitions. */
-  private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
+  private final Map<MmuAction, List<MmuTransition>> actions;
 
   /** Refers to the initial (root) action of the memory management unit. */
-  private MmuAction startAction;
+  private final MmuAction startAction;
 
   /**
-   * Registers the address type in the MMU. Address that have the same 
-   * name are considered as duplicates and ignored.
-   * 
-   * @param address the address to be registered.
-   * @throws IllegalArgumentException if {@code address} is {@code null}.
+   * Constructs in instance of {@code MmuSubsystem}.
    */
-  public void registerAddress(final MmuAddressType address) {
-    InvariantChecks.checkNotNull(address);
-    addresses.put(address.getName(), address);
-    sortedAddresses.add(address);
+
+  private MmuSubsystem(
+      final Map<String, MmuAddressType> addresses,
+      final List<MmuAddressType> sortedAddresses,
+      final MmuAddressType virtualAddress,
+      final MmuAddressType physicalAddress,
+      final Map<String, MmuSegment> segments,
+      final Map<String, MmuBuffer> buffers,
+      final List<MmuBuffer> sortedBuffers,
+      final MmuBuffer targetBuffer,
+      final Map<MmuAction, List<MmuTransition>> actions,
+      final MmuAction startAction) {
+    InvariantChecks.checkNotNull(addresses);
+    InvariantChecks.checkNotNull(sortedAddresses);
+    // InvariantChecks.checkNotNull(virtualAddress);
+    // InvariantChecks.checkNotNull(physicalAddress);
+
+    InvariantChecks.checkNotNull(segments);
+    InvariantChecks.checkNotNull(buffers);
+    InvariantChecks.checkNotNull(sortedBuffers);
+    // InvariantChecks.checkNotNull(targetBuffer);
+
+    InvariantChecks.checkNotNull(actions);
+    InvariantChecks.checkNotNull(startAction);
+
+    this.addresses = Collections.unmodifiableMap(addresses);
+    this.sortedAddresses = Collections.unmodifiableList(sortedAddresses);
+    this.virtualAddress = virtualAddress;
+    this.physicalAddress = physicalAddress;
+
+    this.segments = Collections.unmodifiableMap(segments);
+    this.buffers = Collections.unmodifiableMap(buffers);
+    this.sortedBuffers = Collections.unmodifiableList(sortedBuffers);
+    this.targetBuffer = targetBuffer;
+
+    this.actions = Collections.unmodifiableMap(actions);
+    this.startAction = startAction;
   }
 
   /**
@@ -89,7 +116,7 @@ public final class MmuSubsystem {
    * @return the collection of addresses.
    */
   public Collection<MmuAddressType> getAddresses() {
-    return Collections.unmodifiableCollection(addresses.values());
+    return addresses.values();
   }
 
   // TODO:
@@ -107,33 +134,12 @@ public final class MmuSubsystem {
     return addresses.get(name);
   }
 
-  public void setVirtualAddress(final MmuAddressType address) {
-    InvariantChecks.checkNotNull(address);
-    virtualAddress = address;
-  }
-
   public MmuAddressType getVirtualAddress() {
     return virtualAddress;
   }
 
-  public void setPhysicalAddress(final MmuAddressType address) {
-    InvariantChecks.checkNotNull(address);
-    physicalAddress = address;
-  }
-
   public MmuAddressType getPhysicalAddress() {
     return physicalAddress;
-  }
-
-  /**
-   * Sets the target buffer (the main memory device).
-   * 
-   * @param buffer the buffer to be set.
-   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
-   */
-  public void setTargetBuffer(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-    targetBuffer = buffer;
   }
 
   /**
@@ -143,20 +149,6 @@ public final class MmuSubsystem {
    */
   public MmuBuffer getTargetBuffer() {
     return targetBuffer;
-  }
-
-  /**
-   * Registers a segment in the MMU.
-   * 
-   * <p>Devices are identified by their name. Devices with equal names are considered duplicates
-   * and ignored.</p>
-   * 
-   * @param buffer the buffer to be registered.
-   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
-   */
-  public void registerSegment(final MmuSegment segment) {
-    InvariantChecks.checkNotNull(segment);
-    segments.put(segment.getName(), segment);
   }
 
   /**
@@ -176,21 +168,6 @@ public final class MmuSubsystem {
    */
   public MmuSegment getSegment(final String name) {
     return segments.get(name);
-  }
-
-  /**
-   * Registers a buffer in the MMU.
-   * 
-   * <p>Buffers are identified by their name. Buffers with equal names are considered duplicates
-   * and ignored.</p>
-   * 
-   * @param buffer the buffer to be registered.
-   * @throws IllegalArgumentException if {@code buffer} is {@code null}.
-   */
-  public void registerBuffer(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-    buffers.put(buffer.getName(), buffer);
-    sortedBuffers.add(buffer);
   }
 
   /**
@@ -227,20 +204,6 @@ public final class MmuSubsystem {
   }
 
   /**
-   * Registers the action in the memory management unit.
-   * 
-   * <p>Actions should be registered before transitions.</p>
-   * 
-   * @param action the action to be registered.
-   * @throws IllegalArgumentException if {@code action} is null.
-   */
-  public void registerAction(final MmuAction action) {
-    InvariantChecks.checkNotNull(action);
-
-    actions.put(action, new ArrayList<MmuTransition>());
-  }
-
-  /**
    * Returns the list of transitions for the given action of the memory management unit.
    * 
    * @param action the action.
@@ -254,39 +217,12 @@ public final class MmuSubsystem {
   }
 
   /**
-   * Registers the transition in the memory management unit.
-   * 
-   * <p>Transitions should be registered after actions.</p>
-   * 
-   * @param transition the transition to be registered.
-   * @throws IllegalArgumentException if {@code transition} is null.
-   */
-  public void registerTransition(final MmuTransition transition) {
-    InvariantChecks.checkNotNull(transition);
-
-    final List<MmuTransition> transitions = actions.get(transition.getSource());
-    transitions.add(transition);
-  }
-
-  /**
    * Returns the initial (root) action of the memory management unit.
    * 
    * @return the initial action.
    */
   public MmuAction getStartAction() {
     return startAction;
-  }
-
-  /**
-   * Sets the initial (root) action of the memory management unit.
-   * 
-   * @param action the initial action.
-   * @throws IllegalArgumentException if {@code action} is null.
-   */
-  public void setStartAction(final MmuAction action) {
-    InvariantChecks.checkNotNull(action);
-
-    startAction = action;
   }
 
   @Override
@@ -331,4 +267,167 @@ public final class MmuSubsystem {
     }
     return builder.toString();
   }
+
+  public static final class Builder {
+    /**
+     * Stores available address types.
+     * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
+     */
+    private Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
+
+    // TODO:
+    private List<MmuAddressType> sortedAddresses = new ArrayList<>();
+
+    /** Refers to the virtual address type of the MMU. */
+    private MmuAddressType virtualAddress;
+
+    /** Refers to the physical address type of the MMU. */
+    private MmuAddressType physicalAddress;
+
+    /** Stores buffers of the MMU. */
+    private Map<String, MmuSegment> segments = new LinkedHashMap<>();
+
+    /** Stores buffers of the MMU. */
+    private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
+
+    // TODO:
+    private List<MmuBuffer> sortedBuffers = new ArrayList<>();
+
+    /** Refers to the target buffer of the MMU. */
+    private MmuBuffer targetBuffer;
+
+    /** Maps actions to out-going transitions. */
+    private Map<MmuAction, List<MmuTransition>> actions = new LinkedHashMap<>();
+
+    /** Refers to the initial (root) action of the memory management unit. */
+    private MmuAction startAction;
+
+    public MmuSubsystem build() {
+      return new MmuSubsystem(
+          addresses,
+          sortedAddresses,
+          virtualAddress,
+          physicalAddress,
+          segments,
+          buffers,
+          sortedBuffers,
+          targetBuffer,
+          actions,
+          startAction
+          );
+    }
+
+    /**
+     * Registers the address type in the MMU. Address that have the same 
+     * name are considered as duplicates and ignored.
+     * 
+     * @param address the address to be registered.
+     * @throws IllegalArgumentException if {@code address} is {@code null}.
+     */
+    public void registerAddress(final MmuAddressType address) {
+      InvariantChecks.checkNotNull(address);
+      addresses.put(address.getName(), address);
+      sortedAddresses.add(address);
+    }
+
+    public MmuAddressType getAddress(final String name) {
+      return addresses.get(name);
+    }
+
+    public void setVirtualAddress(final MmuAddressType address) {
+      InvariantChecks.checkNotNull(address);
+      virtualAddress = address;
+    }
+
+    public void setPhysicalAddress(final MmuAddressType address) {
+      InvariantChecks.checkNotNull(address);
+      physicalAddress = address;
+    }
+
+    /**
+     * Sets the target buffer (the main memory device).
+     * 
+     * @param buffer the buffer to be set.
+     * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+     */
+    public void setTargetBuffer(final MmuBuffer buffer) {
+      InvariantChecks.checkNotNull(buffer);
+      targetBuffer = buffer;
+    }
+
+    /**
+     * Registers a segment in the MMU.
+     * 
+     * <p>Devices are identified by their name. Devices with equal names are considered duplicates
+     * and ignored.</p>
+     * 
+     * @param buffer the buffer to be registered.
+     * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+     */
+    public void registerSegment(final MmuSegment segment) {
+      InvariantChecks.checkNotNull(segment);
+      segments.put(segment.getName(), segment);
+    }
+
+    /**
+     * Registers a buffer in the MMU.
+     * 
+     * <p>Buffers are identified by their name. Buffers with equal names are considered duplicates
+     * and ignored.</p>
+     * 
+     * @param buffer the buffer to be registered.
+     * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+     */
+    public void registerBuffer(final MmuBuffer buffer) {
+      InvariantChecks.checkNotNull(buffer);
+      buffers.put(buffer.getName(), buffer);
+      sortedBuffers.add(buffer);
+    }
+
+    public MmuBuffer getBuffer(final String name) {
+      return buffers.get(name);
+    }
+
+    /**
+     * Registers the action in the memory management unit.
+     * 
+     * <p>Actions should be registered before transitions.</p>
+     * 
+     * @param action the action to be registered.
+     * @throws IllegalArgumentException if {@code action} is null.
+     */
+    public void registerAction(final MmuAction action) {
+      InvariantChecks.checkNotNull(action);
+
+      actions.put(action, new ArrayList<MmuTransition>());
+    }
+
+    /**
+     * Registers the transition in the memory management unit.
+     * 
+     * <p>Transitions should be registered after actions.</p>
+     * 
+     * @param transition the transition to be registered.
+     * @throws IllegalArgumentException if {@code transition} is null.
+     */
+    public void registerTransition(final MmuTransition transition) {
+      InvariantChecks.checkNotNull(transition);
+
+      final List<MmuTransition> transitions = actions.get(transition.getSource());
+      transitions.add(transition);
+    }
+
+    /**
+     * Sets the initial (root) action of the memory management unit.
+     * 
+     * @param action the initial action.
+     * @throws IllegalArgumentException if {@code action} is null.
+     */
+    public void setStartAction(final MmuAction action) {
+      InvariantChecks.checkNotNull(action);
+
+      startAction = action;
+    }
+  }
+  
 }
