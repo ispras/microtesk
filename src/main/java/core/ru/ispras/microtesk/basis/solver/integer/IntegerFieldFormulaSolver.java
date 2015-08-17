@@ -295,7 +295,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     for (final IntegerVariable variable : variables) {
       final List<IntegerVariable> fields = varToFields.get(variable);
 
-      BigInteger value = Randomizer.get().nextBigIntegerField(variable.getWidth());
+      BigInteger value = Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
 
       if (fields != null) {
         for (final IntegerVariable field : fields) {
