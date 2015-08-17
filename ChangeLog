@@ -163,7 +163,7 @@
 
  - Support for automated extraction of coverage information that allows building
    constraints for named instruction execution paths
- - Possibility to process test templates in a stream manner (block by block) 
+ - Possibility to process test templates in a stream manner (block by block)
    was implemented, which allows processing larger test templates
  - The "trace" method (test templates) now accepts objects created
    by the "rand" method
@@ -200,9 +200,9 @@
 
  The new build contains the following changes:
 
- - Facilities to describe the data segment in test templates were implemented  
+ - Facilities to describe the data segment in test templates were implemented
  - Function 'trace' (nML) was supported
- - Possibility to create instances of modes and ops in nML code was implemented 
+ - Possibility to create instances of modes and ops in nML code was implemented
  - Aliases for memory locations (mem, reg, var) were supported 
  - Specification of the miniMIPS ISA was added to examples 
 
