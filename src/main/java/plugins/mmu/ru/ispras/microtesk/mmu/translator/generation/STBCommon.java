@@ -117,7 +117,10 @@ public abstract class STBCommon {
       ExprPrinter.get().addVariableMappings(variable, name);
       st.add("stmts", String.format("final %s %s = %s;", typeName,  name, value));
     }
-    st.add("stmts", "");
+
+    if (!variables.isEmpty()) {
+      st.add("stmts", "");
+    }
   }
 
   protected final void buildStmts(final ST st, final STGroup group, final List<Stmt> stmts) {

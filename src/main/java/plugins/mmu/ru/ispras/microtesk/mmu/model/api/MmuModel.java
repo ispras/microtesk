@@ -20,5 +20,5 @@ import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
 public interface MmuModel {
   BufferObserver getBufferObserver(String bufferId);
   MemoryAccessor getMemoryAccessor(String deviceId);
-  MmuSubsystem  getSpecification();
+  MmuSubsystem getSpecification();
 }
