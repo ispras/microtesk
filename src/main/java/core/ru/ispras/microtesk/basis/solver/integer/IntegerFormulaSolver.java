@@ -38,9 +38,9 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, BigInteger>> {
-  /** Equation formula (constraint) to be solved. */
-  private final IntegerFormula formula;
-  /** Variables used in the clause. */
+  /** Formula (constraint) to be solved. */
+  private final IntegerFormula<IntegerVariable> formula;
+  /** Variables used in the formula. */
   private final Collection<IntegerVariable> variables;
 
   /**
@@ -51,7 +51,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
    * @throws IllegalArgumentException if some parameters are null.
    */
   public IntegerFormulaSolver(
-      final Collection<IntegerVariable> variables, final IntegerFormula formula) {
+      final Collection<IntegerVariable> variables, final IntegerFormula<IntegerVariable> formula) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formula);
 
@@ -68,11 +68,12 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
    */
   @Override
   public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
-    final IntegerClause kernel = new IntegerClause(IntegerClause.Type.AND);
-    final List<IntegerClause> clauses = new ArrayList<>();
+    final IntegerClause<IntegerVariable> kernel =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
+    final List<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
 
     // Construct the formula kernel (the common AND clause).
-    for (final IntegerClause clause : formula.getEquationClauses()) {
+    for (final IntegerClause<IntegerVariable> clause : formula.getEquationClauses()) {
       if (clause.size() == 0) {
         if (clause.getType() == IntegerClause.Type.OR) {
           return new SolverResult<>("Empty OR clause");
@@ -92,13 +93,13 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     }
 
     // Simplify the remaining OR clauses (if possible).
-    final List<IntegerClause> simplifiedClauses = new ArrayList<>();
+    final List<IntegerClause<IntegerVariable>> simplifiedClauses = new ArrayList<>();
 
-    for (final IntegerClause clause : clauses) {
-      final List<IntegerEquation> equations = new ArrayList<>();
+    for (final IntegerClause<IntegerVariable> clause : clauses) {
+      final List<IntegerEquation<IntegerVariable>> equations = new ArrayList<>();
 
       boolean isFalse = true;
-      for (final IntegerEquation equation : clause.getEquations()) {
+      for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
         if (!kernel.contradictsTo(equation)) {
           if (kernel.strongerThan(equation)) {
             // The clause is redundant: the implication (kernel => clause) holds.
@@ -117,7 +118,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
       }
 
       if (!equations.isEmpty()) {
-        simplifiedClauses.add(new IntegerClause(IntegerClause.Type.OR, equations));
+        simplifiedClauses.add(new IntegerClause<IntegerVariable>(IntegerClause.Type.OR, equations));
       }
     }
 
@@ -126,13 +127,13 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     }
 
     // Get rid of the redundant OR clauses.
-    final List<IntegerClause> redundantClauses = new ArrayList<>();
+    final List<IntegerClause<IntegerVariable>> redundantClauses = new ArrayList<>();
 
     for (int i = 0; i < simplifiedClauses.size() - 1; i++) {
-      final IntegerClause clause1 = simplifiedClauses.get(i);
+      final IntegerClause<IntegerVariable> clause1 = simplifiedClauses.get(i);
 
       for (int j = i + 1; j < simplifiedClauses.size(); j++) {
-        final IntegerClause clause2 = simplifiedClauses.get(j);
+        final IntegerClause<IntegerVariable> clause2 = simplifiedClauses.get(j);
 
         if (clause1.strongerThan(clause2)) {
           redundantClauses.add(clause2);
@@ -146,15 +147,17 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     simplifiedClauses.removeAll(redundantClauses);
 
     // Initialize the product iterator over variants.
-    final ProductIterator<IntegerEquation> variantIterator = new ProductIterator<>();
+    final ProductIterator<IntegerEquation<IntegerVariable>> variantIterator =
+        new ProductIterator<>();
 
     for (int i = 0; i < simplifiedClauses.size(); i++) {
-      final List<IntegerEquation> equations = simplifiedClauses.get(i).getEquations();
+      final List<IntegerEquation<IntegerVariable>> equations =
+          simplifiedClauses.get(i).getEquations();
       variantIterator.registerIterator(new CollectionIterator<>(equations));
     }
 
     for (variantIterator.init(); variantIterator.hasValue(); variantIterator.next()) {
-      final IntegerClause variant = new IntegerClause(kernel);
+      final IntegerClause<IntegerVariable> variant = new IntegerClause<IntegerVariable>(kernel);
 
       for (int i = 0; i < simplifiedClauses.size(); i++) {
         variant.addEquation(variantIterator.value(i));

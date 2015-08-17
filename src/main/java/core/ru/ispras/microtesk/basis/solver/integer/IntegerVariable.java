@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class represents a variable, which is a named entity with given width.
+ * {@link IntegerVariable} represents a variable, which is a named entity with given width.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

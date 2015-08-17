@@ -17,7 +17,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * This class represents an integer field.
+ * {@link IntegerField} class represents an integer field.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -35,7 +35,7 @@ public final class IntegerField {
    * @param var the variable whose bits to be selected.
    * @param lo the lower bit index.
    * @param hi the upper bit index.
-   * @throws NullPointerException if {@code var} is null.
+   * @throws IllegalArgumentException if {@code var} is null.
    */
   public IntegerField(final IntegerVariable var, int lo, int hi) {
     InvariantChecks.checkNotNull(var);

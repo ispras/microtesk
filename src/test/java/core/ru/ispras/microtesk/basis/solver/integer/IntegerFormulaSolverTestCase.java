@@ -50,17 +50,17 @@ public class IntegerFormulaSolverTestCase {
   }
 
   private static IntegerFormulaSolver getSolver(
-      final List<IntegerVariable> vars, final IntegerFormula formula) {
+      final List<IntegerVariable> vars, final IntegerFormula<IntegerVariable> formula) {
     final IntegerFormulaSolver solver = new IntegerFormulaSolver(vars, formula);
     return solver;
   }
 
-  private static IntegerFormulaSolver getSolver(final IntegerFormula formula) {
+  private static IntegerFormulaSolver getSolver(final IntegerFormula<IntegerVariable> formula) {
     return getSolver(VARS, formula);
   }
 
   private static void check(
-      final String id, final IntegerFormula formula, final boolean expected) {
+      final String id, final IntegerFormula<IntegerVariable> formula, final boolean expected) {
     final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(formula).solve();
 
     System.out.println(id);
@@ -72,7 +72,7 @@ public class IntegerFormulaSolverTestCase {
   private static void check(
       final String id,
       final List<IntegerVariable> vars,
-      final IntegerFormula formula,
+      final IntegerFormula<IntegerVariable> formula,
       final boolean expected) {
     final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(vars, formula).solve();
 
@@ -87,7 +87,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestA() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
     formula.addEquation(a, c, true);
@@ -101,7 +101,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestB() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
     formula.addEquation(b, c, true);
@@ -117,7 +117,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestC() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
     formula.addEquation(a, BigInteger.ZERO, false);
@@ -132,7 +132,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestD() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     for (int i = 0; i < 15; i++) {
       formula.addEquation(a, BigInteger.valueOf(i), false);
@@ -146,7 +146,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestE() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     for (int i = 0; i < 16; i++) {
       formula.addEquation(a, BigInteger.valueOf(i), false);
@@ -160,7 +160,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestF() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     for (int i = 15; i >= 8; i--) {
       formula.addEquation(a, BigInteger.valueOf(i), false);
@@ -180,7 +180,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestG() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     for (int i = 0; i < 16; i++) {
       if (i != 8) {
@@ -201,7 +201,7 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestH() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(z, a, false);
     formula.addEquation(z, b, false);
@@ -225,16 +225,18 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestI() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
 
-    final IntegerClause set1 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set1 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
     formula.addEquationClause(set1);
 
-    final IntegerClause set2 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set2 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set2.addEquation(a, c, false);
     set2.addEquation(a, d, false);
     formula.addEquationClause(set2);
@@ -247,16 +249,18 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestJ() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
 
-    final IntegerClause set1 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set1 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
     formula.addEquationClause(set1);
 
-    final IntegerClause set2 = new IntegerClause(IntegerClause.Type.AND);
+    final IntegerClause<IntegerVariable> set2 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
     set2.addEquation(a, c, false);
     set2.addEquation(a, d, false);
     formula.addEquationClause(set2);
@@ -269,26 +273,30 @@ public class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestK() {
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     formula.addEquation(a, b, true);
 
-    final IntegerClause set1 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set1 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
     formula.addEquationClause(set1);
 
-    final IntegerClause set2 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set2 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set2.addEquation(c, d, true);
     set2.addEquation(c, e, true);
     formula.addEquationClause(set2);
 
-    final IntegerClause set3 = new IntegerClause(IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> set3 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
     set3.addEquation(d, e, true);
     set3.addEquation(d, f, true);
     formula.addEquationClause(set3);
 
-    final IntegerClause set4 = new IntegerClause(IntegerClause.Type.AND);
+    final IntegerClause<IntegerVariable> set4 =
+        new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
     set4.addEquation(a, e, false);
     set4.addEquation(a, f, false);
     formula.addEquationClause(set4);
@@ -303,7 +311,7 @@ public class IntegerFormulaSolverTestCase {
   @Test
   public void runTestN() {
     final List<IntegerVariable> vars = new ArrayList<>();
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
 
     final int numberOfDisjunctions = 10;
     final int numberOfEqualitiesInDisjuntion = 5; 
@@ -318,16 +326,15 @@ public class IntegerFormulaSolverTestCase {
       }
     }
 
-    final IntegerClause[] equationSet = new IntegerClause[numberOfDisjunctions];
-
     for (int i = 1; i < numberOfDisjunctions; i++) {
-      equationSet[i] = new IntegerClause(IntegerClause.Type.OR);
+      final IntegerClause<IntegerVariable> set =
+          new IntegerClause<IntegerVariable>(IntegerClause.Type.OR);
 
       for (int j = 0; j < numberOfEqualitiesInDisjuntion; j++) {
-        equationSet[i].addEquation(arrayVariable[i][j], arrayVariable[i - 1][j], true);
+        set.addEquation(arrayVariable[i][j], arrayVariable[i - 1][j], true);
       }
 
-      formula.addEquationClause(equationSet[i]);
+      formula.addEquationClause(set);
     }
 
     check("N: OutOfMemoryError", vars, formula, true);

@@ -26,9 +26,9 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormula {
+public final class IntegerFormula<V> {
   /** AND-connected clauses of the OR type. */
-  private final List<IntegerClause> clauses = new ArrayList<>();
+  private final List<IntegerClause<V>> clauses = new ArrayList<>();
 
   /**
    * Constructs the equation formula.
@@ -43,7 +43,7 @@ public final class IntegerFormula {
    * @param rhs the equation formula to be copied.
    * @throws IllegalArgumentException if {@code rhs} is null.
    */
-  public IntegerFormula(final IntegerFormula rhs) {
+  public IntegerFormula(final IntegerFormula<V> rhs) {
     InvariantChecks.checkNotNull(rhs);
     this.clauses.addAll(rhs.clauses);
   }
@@ -63,13 +63,13 @@ public final class IntegerFormula {
    * @param clause the equation clause to be added.
    * @throws IllegalArgumentException if {@code clause} is null.
    */
-  public void addEquationClause(final IntegerClause clause) {
+  public void addEquationClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
 
     if (clause.getType() == IntegerClause.Type.OR) {
       clauses.add(clause);
     } else {
-      for (final IntegerEquation equation : clause.getEquations()) {
+      for (final IntegerEquation<V> equation : clause.getEquations()) {
         addEquation(equation);
       }
     }
@@ -81,10 +81,10 @@ public final class IntegerFormula {
    * @param equation the equation to be added.
    * @throws IllegalArgumentException if {@code equation} is null.
    */
-  public void addEquation(final IntegerEquation equation) {
+  public void addEquation(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
 
-    final IntegerClause clause = new IntegerClause(IntegerClause.Type.AND);
+    final IntegerClause<V> clause = new IntegerClause<V>(IntegerClause.Type.AND);
     clause.addEquation(equation);
 
     clauses.add(clause);
@@ -99,8 +99,8 @@ public final class IntegerFormula {
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public void addEquation(
-      final IntegerVariable lhs, final IntegerVariable rhs, final boolean equal) {
-    addEquation(new IntegerEquation(lhs, rhs, equal));
+      final V lhs, final V rhs, final boolean equal) {
+    addEquation(new IntegerEquation<V>(lhs, rhs, equal));
   }
 
   /**
@@ -111,8 +111,8 @@ public final class IntegerFormula {
    * @param equal the equality/inequality flag.
    * @throws IllegalArgumentException if {@code var} or {@code val} is null.
    */
-  public void addEquation(final IntegerVariable var, final BigInteger val, final boolean equal) {
-    addEquation(new IntegerEquation(var, val, equal));
+  public void addEquation(final V var, final BigInteger val, final boolean equal) {
+    addEquation(new IntegerEquation<V>(var, val, equal));
   }
 
   /**
@@ -120,10 +120,11 @@ public final class IntegerFormula {
    * 
    * @return the equation clauses.
    */
-  public List<IntegerClause> getEquationClauses() {
+  public List<IntegerClause<V>> getEquationClauses() {
     return clauses;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
@@ -134,7 +135,7 @@ public final class IntegerFormula {
       return false;
     }
 
-    final IntegerFormula r = (IntegerFormula) o;
+    final IntegerFormula<V> r = (IntegerFormula<V>) o;
 
     return clauses.equals(r.clauses);
   }

@@ -34,7 +34,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, BigInteger>> {
   /** Equation clause to be solved. */
-  private final IntegerClause clause;
+  private final IntegerClause<IntegerVariable> clause;
   /** Variables used in the clause. */
   private final Collection<IntegerVariable> variables;
 
@@ -54,7 +54,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @throws IllegalArgumentException if some parameters are null.
    */
   public IntegerClauseSolver(
-      final Collection<IntegerVariable> variables, final IntegerClause clause) {
+      final Collection<IntegerVariable> variables, final IntegerClause<IntegerVariable> clause) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(clause);
 
@@ -97,8 +97,9 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
     // Handle the OR case.
     if (clause.getType() == IntegerClause.Type.OR) {
-      for (final IntegerEquation equation : clause.getEquations()) {
-        final IntegerClause variant = new IntegerClause(IntegerClause.Type.AND);
+      for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
+        final IntegerClause<IntegerVariable> variant =
+            new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
 
         variant.addEquation(equation);
 
@@ -121,7 +122,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     for (final IntegerVariable variable : variables) {
       addVariable(variable);
     }
-    for (final IntegerEquation equation : clause.getEquations()) {
+    for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
       addEquation(equation);
     }
 
@@ -185,7 +186,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * 
    * @param equation the equation to be added.
    */
-  private void addEquation(final IntegerEquation equation) {
+  private void addEquation(final IntegerEquation<IntegerVariable> equation) {
     InvariantChecks.checkNotNull(equation);
 
     if (equation.value) {

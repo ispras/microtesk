@@ -140,7 +140,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       }
     }
 
-    final IntegerFormula formula = new IntegerFormula();
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<IntegerVariable>();
     final Set<IntegerVariable> formulaVariables = new LinkedHashSet<>();
 
     for (final Map.Entry<String, IntegerVariable> variable : fieldToFormulaVar.entrySet()) {
@@ -255,7 +255,8 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     return val;
   }
 
-  private boolean process(final IntegerFormula formula, final int i, final MmuConditionAtom atom) {
+  private boolean process(
+      final IntegerFormula<IntegerVariable> formula, final int i, final MmuConditionAtom atom) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(atom);
 
@@ -268,8 +269,9 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       return true;
     }
 
-    final IntegerClause clause =
-        new IntegerClause(!atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+    final IntegerClause<IntegerVariable> clause =
+        new IntegerClause<IntegerVariable>(
+            !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
     final BigInteger constant = atom.getConstant();
     final List<IntegerField> terms = expression.getTerms();
@@ -295,7 +297,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   }
 
   private boolean process(
-      final IntegerFormula formula,
+      final IntegerFormula<IntegerVariable> formula,
       final int i,
       final Map<IntegerField, MmuAssignment> assignments) {
     InvariantChecks.checkNotNull(formula);
@@ -388,7 +390,8 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     return true;
   }
 
-  private boolean process(final IntegerFormula formula, final int i, final MmuCondition condition) {
+  private boolean process(
+      final IntegerFormula<IntegerVariable> formula, final int i, final MmuCondition condition) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(condition);
 
@@ -407,7 +410,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   }
 
   private boolean process(
-      final IntegerFormula formula, final int i, final MmuTransition transition) {
+      final IntegerFormula<IntegerVariable> formula, final int i, final MmuTransition transition) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(transition);
 
@@ -447,7 +450,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
    * @return {@code true} if the constraints may be SAT; {@code false} otherwise.
    */
   private boolean process(
-      final IntegerFormula formula,
+      final IntegerFormula<IntegerVariable> formula,
       final Set<IntegerVariable> formulaVariables,
       final int i,
       final int j,
@@ -523,8 +526,9 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
           return false;
         }
 
-        final IntegerClause clause =
-            new IntegerClause(!atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+        final IntegerClause<IntegerVariable> clause =
+            new IntegerClause<IntegerVariable>(
+                !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
         for (final IntegerField term : terms) {
           final List<IntegerVariable> variableListI = getVariable(i, term);

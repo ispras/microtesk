@@ -29,7 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerClause {
+public final class IntegerClause<V> {
 
   /**
    * {@link Type} contains equation clause types.
@@ -44,7 +44,7 @@ public final class IntegerClause {
   /** The equation clause type: {@code AND} or {@code OR}. */
   private final Type type;
   /** The equations. */
-  private final List<IntegerEquation> equations = new ArrayList<>();
+  private final List<IntegerEquation<V>> equations = new ArrayList<>();
 
   /**
    * Constructs an equation clause of the given type
@@ -65,7 +65,7 @@ public final class IntegerClause {
    * @param equations the equations.
    * @throws IllegalArgumentException if {@code type} or {@code equations} is null.
    */
-  public IntegerClause(final Type type, final Collection<IntegerEquation> equations) {
+  public IntegerClause(final Type type, final Collection<IntegerEquation<V>> equations) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(equations);
 
@@ -79,7 +79,7 @@ public final class IntegerClause {
    * @param rhs the equation clause to be copied.
    * @throws IllegalArgumentException if {@code rhs} is null.
    */
-  public IntegerClause(final IntegerClause rhs) {
+  public IntegerClause(final IntegerClause<V> rhs) {
     InvariantChecks.checkNotNull(rhs);
 
     this.type = rhs.type;
@@ -110,7 +110,7 @@ public final class IntegerClause {
    * @param equation the equation to be added.
    * @throws IllegalArgumentException if {@code equation} is null.
    */
-  public void addEquation(final IntegerEquation equation) {
+  public void addEquation(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
     equations.add(equation);
   }
@@ -124,8 +124,8 @@ public final class IntegerClause {
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public void addEquation(
-      final IntegerVariable lhs, final IntegerVariable rhs, final boolean equal) {
-    addEquation(new IntegerEquation(lhs, rhs, equal));
+      final V lhs, final V rhs, final boolean equal) {
+    addEquation(new IntegerEquation<V>(lhs, rhs, equal));
   }
 
   /**
@@ -137,8 +137,8 @@ public final class IntegerClause {
    * @throws IllegalArgumentException if {@code var} or {@code val} is null.
    */
   public void addEquation(
-      final IntegerVariable var, final BigInteger val, final boolean equal) {
-    addEquation(new IntegerEquation(var, val, equal));
+      final V var, final BigInteger val, final boolean equal) {
+    addEquation(new IntegerEquation<V>(var, val, equal));
   }
 
   /**
@@ -147,7 +147,7 @@ public final class IntegerClause {
    * @param equations the equations to be added.
    * @throws IllegalArgumentException if {@code equations} is null.
    */
-  public void addEquations(final Collection<IntegerEquation> equations) {
+  public void addEquations(final Collection<IntegerEquation<V>> equations) {
     InvariantChecks.checkNotNull(equations);
     equations.addAll(equations);
   }
@@ -158,7 +158,7 @@ public final class IntegerClause {
    * @param clause the clause whose equations to be added.
    * @throws IllegalArgumentException if {@code clause} is null.
    */
-  public void addEquationClause(final IntegerClause clause) {
+  public void addEquationClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
     equations.addAll(clause.getEquations());
   }
@@ -168,7 +168,7 @@ public final class IntegerClause {
    * 
    * @return the equations.
    */
-  public List<IntegerEquation> getEquations() {
+  public List<IntegerEquation<V>> getEquations() {
     return equations;
   }
 
@@ -179,10 +179,10 @@ public final class IntegerClause {
    * @return {@code true} if this clause definitely contradicts to the given equation;
    *         {@code false} if this clause seems to be consistent to the given equation. 
    */
-  public boolean contradictsTo(final IntegerEquation equation) {
+  public boolean contradictsTo(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
 
-    for (final IntegerEquation clauseEquation : equations) {
+    for (final IntegerEquation<V> clauseEquation : equations) {
       if (clauseEquation.contradictsTo(equation)) {
         if (type == Type.AND) {
           return true;
@@ -205,10 +205,10 @@ public final class IntegerClause {
    * @return {@code true} if this clause is definitely stronger than the given equation;
    *         {@code false} if this clause does not seem to be stronger than the given equation. 
    */
-  public boolean strongerThan(final IntegerEquation equation) {
+  public boolean strongerThan(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
 
-    for (final IntegerEquation clauseEquation : equations) {
+    for (final IntegerEquation<V> clauseEquation : equations) {
       if (clauseEquation.strongerThan(equation)) {
         if (type == Type.AND) {
           return true;
@@ -231,16 +231,18 @@ public final class IntegerClause {
    * @return {@code true} if this clause is definitely stronger than the given one;
    *         {@code false} if this clause does not seem to be stronger than the given one. 
    */
-  public boolean strongerThan(final IntegerClause clause) {
+  public boolean strongerThan(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
     InvariantChecks.checkTrue(type == clause.type);
 
-    final Set<IntegerEquation> lhs = new HashSet<>(type == Type.AND ? equations : clause.equations);
-    final List<IntegerEquation> rhs = (type == Type.AND ? clause.equations : equations);
+    final Set<IntegerEquation<V>> lhs =
+        new HashSet<>(type == Type.AND ? equations : clause.equations);
+    final List<IntegerEquation<V>> rhs = (type == Type.AND ? clause.equations : equations);
 
     return lhs.containsAll(rhs);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
@@ -251,7 +253,7 @@ public final class IntegerClause {
       return false;
     }
 
-    final IntegerClause r = (IntegerClause) o;
+    final IntegerClause<V> r = (IntegerClause<V>) o;
 
     return equations.equals(r.equations);
   }

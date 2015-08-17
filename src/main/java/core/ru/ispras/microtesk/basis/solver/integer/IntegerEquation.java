@@ -24,15 +24,15 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerEquation {
+public final class IntegerEquation<V> {
   /** The equality/inequality flag. */
   public boolean equal;
   /** The variable-value/variable-variable flag. */
   public boolean value;
   /** The left-hand-side variable. */
-  public IntegerVariable lhs;
+  public V lhs;
   /** The right-hand-side variable. */
-  public IntegerVariable rhs;
+  public V rhs;
   /** The right-hand-side value. */
   public BigInteger val;
 
@@ -45,7 +45,7 @@ public final class IntegerEquation {
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public IntegerEquation(
-      final IntegerVariable lhs, final IntegerVariable rhs, final boolean equal) {
+      final V lhs, final V rhs, final boolean equal) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -64,7 +64,7 @@ public final class IntegerEquation {
    * @throws IllegalArgumentException if {@code lhs} or {@code rhs} is null.
    */
   public IntegerEquation(
-      final IntegerVariable lhs, final BigInteger rhs, final boolean equal) {
+      final V lhs, final BigInteger rhs, final boolean equal) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -81,7 +81,7 @@ public final class IntegerEquation {
    * @return {@code true} if this equation definitely contradicts to the given one;
    *         {@code false} if this equation seems to be consistent to the given one. 
    */
-  public boolean contradictsTo(final IntegerEquation equation) {
+  public boolean contradictsTo(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
 
     if (!lhs.equals(equation.lhs) && !lhs.equals(equation.rhs)) {
@@ -98,7 +98,7 @@ public final class IntegerEquation {
     }
 
     if (!value && !equation.value) {
-      final IntegerVariable equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
+      final V equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
 
       if (rhs.equals(equationRhs) && equal != equation.equal) {
         return true;
@@ -116,7 +116,7 @@ public final class IntegerEquation {
    * @return {@code true} if this equation is definitely stronger than the given one;
    *         {@code false} if this equation does not seem to be stronger than the given one. 
    */
-  public boolean strongerThan(final IntegerEquation equation) {
+  public boolean strongerThan(final IntegerEquation<V> equation) {
     InvariantChecks.checkNotNull(equation);
 
     if (!lhs.equals(equation.lhs) && !lhs.equals(equation.rhs)) {
@@ -135,7 +135,7 @@ public final class IntegerEquation {
     }
 
     if (!value && !equation.value) {
-      final IntegerVariable equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
+      final V equationRhs = lhs.equals(equation.lhs) ? equation.rhs : equation.lhs;
 
       // (X == Y) => (X == Y) and (X != Y) => (X != Y).
       if (rhs.equals(equationRhs) && (equal == equation.equal)) {
@@ -146,6 +146,7 @@ public final class IntegerEquation {
     return false;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
@@ -156,7 +157,7 @@ public final class IntegerEquation {
       return false;
     }
 
-    final IntegerEquation r = (IntegerEquation) o;
+    final IntegerEquation<V> r = (IntegerEquation<V>) o;
 
     return equal == r.equal && value == r.value && lhs.equals(r.lhs) &&
         (!value && rhs.equals(r.rhs) || value && val.equals(r.val));
