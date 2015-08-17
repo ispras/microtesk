@@ -20,6 +20,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
@@ -125,15 +126,22 @@ public final class STBSpecification implements STBuilder {
     st.add("stmts", "");
 
     for(final Buffer buffer : ir.getBuffers().values()) {
-      /*
       final ST stDef = group.getInstanceOf("buffer_def");
       stDef.add("name", buffer.getId());
+      stDef.add("ways", String.format("%dL", buffer.getWays().longValue()));
+      stDef.add("sets", String.format("%dL", buffer.getSets().longValue()));
+      stDef.add("addr", buffer.getAddress().getId());
+      stDef.add("tag", "null");
+      stDef.add("index", "null");
+      stDef.add("offset", "null");
+      stDef.add("guard", "null");
+      stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
+      stDef.add("parent", buffer.getParent() != null ? buffer.getParent().getId() : "null");
       st.add("members", stDef);
 
       final ST stReg = group.getInstanceOf("buffer_reg");
       stReg.add("name", buffer.getId());
       st.add("stmts", stReg);
-      */
     }
   }
 
