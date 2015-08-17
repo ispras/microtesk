@@ -15,9 +15,11 @@
 group Specification;
 
 body(name, spec) ::= <<
-private final <spec> spec = null;
+private final <spec> spec;
 
 public <name>() {
+  final <spec>.Builder builder = new <spec>.Builder();
+  this.spec = builder.build();
 }
 
 public <spec> getSpecification() {
