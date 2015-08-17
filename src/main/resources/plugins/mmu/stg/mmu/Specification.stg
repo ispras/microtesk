@@ -60,6 +60,21 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>);
 >>
 
+buffer_def(name, ways, sets, addr, tag, index, offset, guard, replaceable, parent) ::= <<
+private final MmuBuffer <name> = new MmuBuffer(
+    "<name>",
+    <ways>,
+    <sets>,
+    <addr>,
+    <tag>,
+    <index>,
+    <offset>,
+    <guard>,
+    <replaceable>,
+    <parent>
+    );
+>>
+
 buffer_reg(name) ::= <<
 builder.registerBuffer(<name>);
 >>
