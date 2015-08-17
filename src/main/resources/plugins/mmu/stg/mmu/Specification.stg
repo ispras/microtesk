@@ -34,6 +34,10 @@ separator(text) ::= <<
 // ===============================================================================================
 >>
 
+variable(id, name, size) ::= <<
+private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
+>>
+
 type_def(name, var_name, var_size) ::= <<
 private final MmuAddressType <name> = new MmuAddressType(
     null, new IntegerVariable("<name>.<var_name>", <var_size>));
@@ -60,7 +64,8 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>);
 >>
 
-buffer_def(name, ways, sets, addr, tag, index, offset, guard, replaceable, parent, fields) ::= <<
+buffer_def(name, ways, sets, addr, tag, index, offset,
+           guard_cond, guard, replaceable, parent, fields) ::= <<
 private final MmuBuffer <name> = new MmuBuffer(
     "<name>",
     <ways>,
@@ -69,6 +74,7 @@ private final MmuBuffer <name> = new MmuBuffer(
     <tag>,
     <index>,
     <offset>,
+    <guard_cond>,
     <guard>,
     <replaceable>,
     <parent>

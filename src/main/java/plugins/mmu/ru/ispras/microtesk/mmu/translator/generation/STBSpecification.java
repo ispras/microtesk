@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.List;
+import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -25,6 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBSpecification implements STBuilder {
@@ -127,6 +129,8 @@ public final class STBSpecification implements STBuilder {
 
     for(final Buffer buffer : ir.getBuffers().values()) {
       final ST stDef = group.getInstanceOf("buffer_def");
+      buildFields(buffer.getEntry(), buffer.getId(), st, stDef, group);
+
       stDef.add("name", buffer.getId());
       stDef.add("ways", String.format("%dL", buffer.getWays().longValue()));
       stDef.add("sets", String.format("%dL", buffer.getSets().longValue()));
@@ -134,15 +138,38 @@ public final class STBSpecification implements STBuilder {
       stDef.add("tag", "null");
       stDef.add("index", "null");
       stDef.add("offset", "null");
+      stDef.add("guard_cond", "null");
       stDef.add("guard", "null");
       stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
       stDef.add("parent", buffer.getParent() != null ? buffer.getParent().getId() : "null");
+      st.add("members", "");
       st.add("members", stDef);
 
       final ST stReg = group.getInstanceOf("buffer_reg");
       stReg.add("name", buffer.getId());
       st.add("stmts", stReg);
     }
+  }
+
+  private static void buildFields(
+      final Type type,
+      final String prefix,
+      final ST st,
+      final ST stBuffer,
+      final STGroup group) {
+      if (type.isStruct()) {
+        for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+          buildFields(
+              field.getValue(),
+              prefix + "." + field.getKey(),
+              st,
+              stBuffer,
+              group
+              );
+        }
+      } else {
+        
+      }
   }
 
   private static String listToString(final List<String> list) {
