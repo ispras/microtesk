@@ -203,6 +203,29 @@ public final class STBSpecification implements STBuilder {
       }
     }
 
-    return "null";
+    final StringBuilder sb = new StringBuilder();
+    sb.append("MmuExpression.rcat(");
+
+    boolean isFirst = true;
+    for (final IntegerField field : fields) {
+      final String name = field.getVariable().getName().replace('.', '_');
+
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(", ");
+      }
+
+      sb.append("new IntegerField(");
+      sb.append(name);
+      sb.append(", ");
+      sb.append(field.getLoIndex());
+      sb.append(", ");
+      sb.append(field.getHiIndex());
+      sb.append(')');
+    }
+
+    sb.append(')');
+    return sb.toString();
   }
 }
