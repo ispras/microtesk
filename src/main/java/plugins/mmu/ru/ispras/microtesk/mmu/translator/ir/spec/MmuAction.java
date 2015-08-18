@@ -33,23 +33,23 @@ public final class MmuAction {
   /** Device used in the action or {@code null}. */
   private final MmuBuffer buffer;
   /** Assignments performed by the action. */
-  private final Map<IntegerField, MmuAssignment> action = new HashMap<>();
+  private final Map<IntegerField, MmuBinding> action = new HashMap<>();
   /** Marks associated with the action. */
   private final Set<String> marks = new LinkedHashSet<>();
 
-  public MmuAction(final String name, final MmuBuffer device, final MmuAssignment... assignments) {
+  public MmuAction(final String name, final MmuBuffer device, final MmuBinding... assignments) {
     InvariantChecks.checkNotNull(name);
     // The device is allowed to be null.
 
     this.name = name;
     this.buffer = device;
 
-    for (final MmuAssignment assignment : assignments) {
+    for (final MmuBinding assignment : assignments) {
       action.put(assignment.getLhs(), assignment);
     }
   }
 
-  public MmuAction(final String name, final MmuAssignment... assignments) {
+  public MmuAction(final String name, final MmuBinding... assignments) {
     this(name, null, assignments);
   }
 
@@ -61,7 +61,7 @@ public final class MmuAction {
     return buffer;
   }
 
-  public Map<IntegerField, MmuAssignment> getAction() {
+  public Map<IntegerField, MmuBinding> getAction() {
     return action;
   }
 

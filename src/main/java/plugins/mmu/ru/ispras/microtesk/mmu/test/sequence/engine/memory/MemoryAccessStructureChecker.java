@@ -32,7 +32,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
@@ -299,13 +299,13 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
   private boolean process(
       final IntegerFormula<IntegerVariable> formula,
       final int i,
-      final Map<IntegerField, MmuAssignment> assignments) {
+      final Map<IntegerField, MmuBinding> assignments) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(assignments);
 
-    for (final Map.Entry<IntegerField, MmuAssignment> assignmentSet : assignments.entrySet()) {
+    for (final Map.Entry<IntegerField, MmuBinding> assignmentSet : assignments.entrySet()) {
       final IntegerField field = assignmentSet.getKey();
-      final MmuAssignment assignment = assignmentSet.getValue();
+      final MmuBinding assignment = assignmentSet.getValue();
       final String name = createVariableName(field.getVariable(), i);
 
       final MmuExpression expression = assignment != null ? assignment.getRhs() : null;
@@ -427,7 +427,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
     }
 
     final MmuAction source = transition.getSource();
-    final Map<IntegerField, MmuAssignment> assignments = source.getAction();
+    final Map<IntegerField, MmuBinding> assignments = source.getAction();
 
     if (assignments != null) {
       if (!process(formula, i, assignments)) {

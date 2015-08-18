@@ -26,7 +26,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -102,7 +102,7 @@ public final class MemorySymbolicExecutor {
 
             for (final IntegerField term : expression.getTerms()) {
               final int lo = offset;
-              final int hi = (offset + term.getWidth()) - 1;
+              final int hi = offset + (term.getWidth() - 1);
 
               final BigInteger value = BitUtils.getField(constant, lo, hi);
 
@@ -120,12 +120,12 @@ public final class MemorySymbolicExecutor {
       final MmuAction action = transition.getTarget();
 
       if (action != null) {
-        final Map<IntegerField, MmuAssignment> assignments = action.getAction();
+        final Map<IntegerField, MmuBinding> assignments = action.getAction();
 
         if (assignments != null) {
           final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.AND);
 
-          for (final MmuAssignment assignment : assignments.values()) {
+          for (final MmuBinding assignment : assignments.values()) {
             final IntegerField lhs = assignment.getLhs();
             final MmuExpression rhs = assignment.getRhs();
 

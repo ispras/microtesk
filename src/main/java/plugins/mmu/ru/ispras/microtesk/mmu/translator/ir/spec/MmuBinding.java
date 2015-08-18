@@ -19,7 +19,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
- * {@link MmuAssignment} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
+ * {@link MmuBinding} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
  * where {@code lhs} is an {@link IntegerField} and {@code rhs} is an {@link MmuExpression}.
  * 
  * <p>The right-hand side of the assignment is allowed to be {@code null}. It means that the
@@ -27,13 +27,13 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MmuAssignment {
+public final class MmuBinding {
   /** Left-hand side. */
   private final IntegerField lhs;
   /** Right-hand side or {@code null}. */
   private final MmuExpression rhs;
 
-  public MmuAssignment(final IntegerField lhs, final MmuExpression rhs) {
+  public MmuBinding(final IntegerField lhs, final MmuExpression rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -41,18 +41,18 @@ public final class MmuAssignment {
     this.rhs = rhs;
   }
 
-  public MmuAssignment(final IntegerVariable lhs, final MmuExpression rhs) {
+  public MmuBinding(final IntegerVariable lhs, final MmuExpression rhs) {
     this(new IntegerField(lhs), rhs);
   }
 
-  public MmuAssignment(final IntegerField lhs) {
+  public MmuBinding(final IntegerField lhs) {
     InvariantChecks.checkNotNull(lhs);
 
     this.lhs = lhs;
     this.rhs = null;
   }
 
-  public MmuAssignment(final IntegerVariable lhs) {
+  public MmuBinding(final IntegerVariable lhs) {
     this(new IntegerField(lhs));
   }
 

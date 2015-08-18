@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -230,9 +230,9 @@ final class MemoryAccessVariableStore {
     InvariantChecks.checkNotNull(action);
     InvariantChecks.checkNotNull(ranges);
 
-    final Map<IntegerField, MmuAssignment> assignments = action.getAction();
-    for (final Map.Entry<IntegerField, MmuAssignment> entry : assignments.entrySet()) {
-      final MmuAssignment assignment = entry.getValue();
+    final Map<IntegerField, MmuBinding> assignments = action.getAction();
+    for (final Map.Entry<IntegerField, MmuBinding> entry : assignments.entrySet()) {
+      final MmuBinding assignment = entry.getValue();
 
       final MmuExpression expression = assignment.getRhs();
       if (expression != null) {
@@ -331,9 +331,9 @@ final class MemoryAccessVariableStore {
     InvariantChecks.checkNotNull(action);
     InvariantChecks.checkNotNull(ranges);
 
-    final Map<IntegerField, MmuAssignment> assignments = action.getAction();
+    final Map<IntegerField, MmuBinding> assignments = action.getAction();
 
-    for (final MmuAssignment assignment : assignments.values()) {
+    for (final MmuBinding assignment : assignments.values()) {
       final MmuExpression expression = assignment.getRhs();
 
       if (expression != null) {

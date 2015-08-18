@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
@@ -278,59 +278,59 @@ public final class MmuUnderTest {
   // ===============================================================================================
 
   public final MmuAction root = new MmuAction("ROOT",
-      new MmuAssignment(va));
+      new MmuBinding(va));
   public final MmuAction start = new MmuAction("START");
   public final MmuAction getUpa = new MmuAction("GET_UPA",
-      new MmuAssignment(pa, MmuExpression.var(va, 0, 28)));
+      new MmuBinding(pa, MmuExpression.var(va, 0, 28)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB", dtlb);
   public final MmuAction hitDtlb = new MmuAction("HIT_DTLB", dtlb,
-      new MmuAssignment(v0),
-      new MmuAssignment(d0),
-      new MmuAssignment(c0),
-      new MmuAssignment(pfn0),
-      new MmuAssignment(v1),
-      new MmuAssignment(d1),
-      new MmuAssignment(c1),
-      new MmuAssignment(pfn1));
+      new MmuBinding(v0),
+      new MmuBinding(d0),
+      new MmuBinding(c0),
+      new MmuBinding(pfn0),
+      new MmuBinding(v1),
+      new MmuBinding(d1),
+      new MmuBinding(c1),
+      new MmuBinding(pfn1));
   public final MmuAction startJtlb = new MmuAction("START_JTLB", jtlb);
   public final MmuAction hitJtlb = new MmuAction("HIT_JTLB", jtlb,
-      new MmuAssignment(v0),
-      new MmuAssignment(d0),
-      new MmuAssignment(c0),
-      new MmuAssignment(pfn0),
-      new MmuAssignment(v1),
-      new MmuAssignment(d1),
-      new MmuAssignment(c1),
-      new MmuAssignment(pfn1));
+      new MmuBinding(v0),
+      new MmuBinding(d0),
+      new MmuBinding(c0),
+      new MmuBinding(pfn0),
+      new MmuBinding(v1),
+      new MmuBinding(d1),
+      new MmuBinding(c1),
+      new MmuBinding(pfn1));
   public final MmuAction selectVpn = new MmuAction("SELECT_VPN");
   public final MmuAction getLo0 = new MmuAction("GET_LO0",
-      new MmuAssignment(v, MmuExpression.var(v0)),
-      new MmuAssignment(d, MmuExpression.var(d0)),
-      new MmuAssignment(c, MmuExpression.var(c0)),
-      new MmuAssignment(pfn, MmuExpression.var(pfn0)));
+      new MmuBinding(v, MmuExpression.var(v0)),
+      new MmuBinding(d, MmuExpression.var(d0)),
+      new MmuBinding(c, MmuExpression.var(c0)),
+      new MmuBinding(pfn, MmuExpression.var(pfn0)));
   public final MmuAction getLo1 = new MmuAction("GET_LO1",
-      new MmuAssignment(v, MmuExpression.var(v1)),
-      new MmuAssignment(d, MmuExpression.var(d1)),
-      new MmuAssignment(c, MmuExpression.var(c1)),
-      new MmuAssignment(pfn, MmuExpression.var(pfn1)));
+      new MmuBinding(v, MmuExpression.var(v1)),
+      new MmuBinding(d, MmuExpression.var(d1)),
+      new MmuBinding(c, MmuExpression.var(c1)),
+      new MmuBinding(pfn, MmuExpression.var(pfn1)));
   public final MmuAction checkV = new MmuAction("CHECK_V");
   public final MmuAction checkD = new MmuAction("CHECK_D");
   public final MmuAction checkG = new MmuAction("CHECK_G");
   public final MmuAction local = new MmuAction("LOCAL");
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
-      new MmuAssignment(pa, MmuExpression.rcat(new IntegerField(pfn), new IntegerField(va, 0, 11))));
+      new MmuBinding(pa, MmuExpression.rcat(new IntegerField(pfn), new IntegerField(va, 0, 11))));
   public final MmuAction checkCache = new MmuAction("CHECK_CACHE");
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1", l1);
   public final MmuAction hitL1 = new MmuAction("HIT_L1", l1,
-      new MmuAssignment(data));
+      new MmuBinding(data));
   public final MmuAction checkL2 = new MmuAction("CHECK_L2");
   public final MmuAction startL2 = new MmuAction("START_L2", l2);
   public final MmuAction hitL2 = new MmuAction("HIT_L2", l2,
-      new MmuAssignment(data));
+      new MmuBinding(data));
   public final MmuAction startMem = new MmuAction("START_MEM", mem,
-          new MmuAssignment(data));
+          new MmuBinding(data));
   public final MmuAction tlbRefill = new MmuAction("TLB_REFILL");
   public final MmuAction tlbInvalid = new MmuAction("TLB_INVALID");
   public final MmuAction tlbModified = new MmuAction("TLB_MODIFIED");

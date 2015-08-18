@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
@@ -61,16 +61,16 @@ public class AssignmentBuilder {
     final Iterator<?> leftIt = newVariableIterator(lhs);
     final Iterator<MmuExpression> rightIt = newExpressionIterator(rhs);
 
-    final List<MmuAssignment> assignments = new ArrayList<>();
+    final List<MmuBinding> assignments = new ArrayList<>();
     while (leftIt.hasNext() && rightIt.hasNext()) {
       final Object leftVar = leftIt.next();
       final MmuExpression rightExpr = rightIt.next();
 
-      final MmuAssignment assignment;
+      final MmuBinding assignment;
       if (leftVar instanceof IntegerVariable) {
-        assignment = new MmuAssignment((IntegerVariable) leftVar, rightExpr);
+        assignment = new MmuBinding((IntegerVariable) leftVar, rightExpr);
       } else {
-        assignment= new MmuAssignment((IntegerField) leftVar, rightExpr);
+        assignment= new MmuBinding((IntegerField) leftVar, rightExpr);
       }
 
       assignments.add(assignment);
@@ -84,7 +84,7 @@ public class AssignmentBuilder {
       throw new IllegalStateException("Nothing to assign.");
     }
 
-    final MmuAssignment[] array = assignments.toArray(new MmuAssignment[assignments.size()]);
+    final MmuBinding[] array = assignments.toArray(new MmuBinding[assignments.size()]);
     return new MmuAction(name, device, array);
   }
 

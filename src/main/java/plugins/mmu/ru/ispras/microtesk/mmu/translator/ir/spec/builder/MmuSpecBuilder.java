@@ -42,7 +42,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAssignment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -220,7 +220,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
   private void registerControlFlowForMemory(final Memory memory) {
     final MmuAddressType address = spec.getAddress(memory.getAddress().getId());
 
-    final MmuAction root = new MmuAction("ROOT", new MmuAssignment(address.getVariable()));
+    final MmuAction root = new MmuAction("ROOT", new MmuBinding(address.getVariable()));
     registerAction(root);
     spec.setStartAction(root);
 
