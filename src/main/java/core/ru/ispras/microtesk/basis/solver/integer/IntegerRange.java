@@ -18,8 +18,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -31,12 +33,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerRange {
-
-  /** The lower bound of the range. */
-  private BigInteger min;
-  /** The upper bound of the range. */
-  private BigInteger max;
-
   /**
    * This enumeration contains types of range bounds.
    */
@@ -50,9 +46,9 @@ public final class IntegerRange {
   }
 
   /**
-   * Transforms the list of ranges to the list of disjoint ranges.
+   * Transforms the collection of ranges to the list of disjoint ranges.
    * 
-   * @param ranges the set of ranges.
+   * @param ranges the collection of ranges.
    * @return the list of disjoint ranges.
    * @throws IllegalArgumentException if {@code ranges} is null.
    */
@@ -121,6 +117,36 @@ public final class IntegerRange {
 
     return dividedRanges;
   }
+
+  /**
+   * Selects all ranges from the the given collection that are within the given bounds.
+   * 
+   * @param ranges the collection of ranges.
+   * @param bounds the bounds.
+   * @return the ranges included into the bounds.
+   * @throws IllegalArgumentException if some of the parameters are null.
+   */
+  public static Collection<IntegerRange> select(
+      final Collection<IntegerRange> ranges,
+      final IntegerRange bounds) {
+    InvariantChecks.checkNotNull(ranges);
+    InvariantChecks.checkNotNull(bounds);
+
+    final Set<IntegerRange> result = new LinkedHashSet<>();
+
+    for (final IntegerRange range : ranges) {
+      if (bounds.contains(range)) {
+        result.add(range);
+      }
+    }
+
+    return result;
+  }
+
+  /** The lower bound of the range. */
+  private BigInteger min;
+  /** The upper bound of the range. */
+  private BigInteger max;
 
   /**
    * Constructs a range with the given lower ({@code min}) and upper ({@code max}) bounds.
@@ -266,6 +292,16 @@ public final class IntegerRange {
     InvariantChecks.checkNotNull(value);
 
     return min.compareTo(value) <= 0 && max.compareTo(value) >= 0;
+  }
+
+  /**
+   * Returns the shifted variant of this range ({@code [min + value, max + value]}).
+   *  
+   * @param value the shift value.
+   * @return the shifted range.
+   */
+  public IntegerRange shift(final int value) {
+    return new IntegerRange(min.add(BigInteger.valueOf(value)), max.add(BigInteger.valueOf(value)));
   }
 
   /**

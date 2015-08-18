@@ -93,23 +93,6 @@ final class MemoryAccessVariableStore {
     return result;
   }
 
-  private static Set<IntegerRange> getRangesIncludedIntoAnotherOne(
-      final Collection<IntegerRange> ranges,
-      final IntegerRange range) {
-    InvariantChecks.checkNotNull(ranges);
-    InvariantChecks.checkNotNull(range);
-
-    final Set<IntegerRange> result = new LinkedHashSet<>();
-
-    for (final IntegerRange item : ranges) {
-      if (range.contains(item)) {
-        result.add(item);
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Maps a left-hand side field to the set of right-hand side fields used in the assignments.
    * 
@@ -209,10 +192,8 @@ final class MemoryAccessVariableStore {
 
     final Map<IntegerVariable, List<IntegerRange>> disjointRanges2 = getDisjointRanges(ranges);
 
-    if (!fieldAssignments.isEmpty()) {
-      for (final IntegerField field : fieldAssignments.keySet()) {
-        linkedUniqueRange(disjointRanges2, field);
-      }
+    for (final IntegerField field : fieldAssignments.keySet()) {
+      linkedUniqueRange(disjointRanges2, field);
     }
 
     disjointRanges.putAll(disjointRanges2);
@@ -553,14 +534,14 @@ final class MemoryAccessVariableStore {
     List<IntegerRange> variableRanges = disjointRanges.get(baseTerm.getVariable());
 
     if (variableRanges != null) {
-      final Set<IntegerRange> baseRanges = getRangesIncludedIntoAnotherOne(variableRanges, baseRange);
+      final Collection<IntegerRange> baseRanges = IntegerRange.select(variableRanges, baseRange);
       final List<IntegerRange> rangesList = IntegerRange.divide(baseRanges);
 
       for (final IntegerField term : fieldAssignments.get(baseTerm)) {
         int shift = term.getLoIndex() - baseTerm.getLoIndex();
         List<IntegerRange> termVariableRanges = disjointRanges.get(term.getVariable());
         final IntegerRange termRange = new IntegerRange(term.getLoIndex(), term.getHiIndex());
-        final Set<IntegerRange> termRanges = getRangesIncludedIntoAnotherOne(termVariableRanges, termRange);
+        final Collection<IntegerRange> termRanges = IntegerRange.select(termVariableRanges, termRange);
         final List<IntegerRange> termRangesList = IntegerRange.divide(termRanges);
 
         boolean recalculation = false;

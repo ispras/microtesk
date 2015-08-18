@@ -17,11 +17,11 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.BitUtils;
@@ -33,16 +33,25 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * {@link IntegerFieldFormulaSolver} implements an integer-field-constraints solver.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
- * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariable, BigInteger>> {
-  private static Map<IntegerVariable, List<IntegerRange>> getDisjointRanges(
-      final Map<IntegerVariable, Set<IntegerRange>> ranges) {
+  private static IntegerRange getRange(final IntegerField field) {
+    InvariantChecks.checkNotNull(field);
+    return new IntegerRange(field.getLoIndex(), field.getHiIndex());
+  }
+
+  private static IntegerRange getRange(final IntegerVariable variable) {
+    InvariantChecks.checkNotNull(variable);
+    return new IntegerRange(0, variable.getWidth() - 1);
+  }
+
+  private static Map<IntegerVariable, List<IntegerRange>> getDividedRanges(
+      final Map<IntegerVariable, Collection<IntegerRange>> ranges) {
     InvariantChecks.checkNotNull(ranges);
 
     final Map<IntegerVariable, List<IntegerRange>> disjointRanges = new LinkedHashMap<>();
 
-    for (final Map.Entry<IntegerVariable, Set<IntegerRange>> entry : ranges.entrySet()) {
+    for (final Map.Entry<IntegerVariable, Collection<IntegerRange>> entry : ranges.entrySet()) {
       final IntegerVariable var = entry.getKey();
       final List<IntegerRange> varRanges = IntegerRange.divide(entry.getValue());
 
@@ -57,12 +66,19 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   /** Variables used in the formula. */
   private final Collection<IntegerVariable> variables;
 
-  /** Maps a variable to the list of ranges. */
-  private final Map<IntegerVariable, List<IntegerRange>> disjointRanges;
-  /** Maps a variable to the list of fields (variables used in the formula). */
-  private final Map<IntegerVariable, List<IntegerVariable>> varToFields;
+  /** Maps an original variable to the list of ranges. */
+  private final Map<IntegerVariable, List<IntegerRange>> dividedRanges;
+
+  /** Maps a variable field into the set of fields it is linked with. */
+  private final Map<IntegerField, Collection<IntegerField>> linkedWith;
+
+  /** Maps an original variable to the list of fields (variables used in the formula). */
+  private final Map<IntegerVariable, Collection<IntegerVariable>> varToFields;
   /** Maps a field to the range. */
   private final Map<IntegerVariable, IntegerRange> fieldToRange;
+
+  /** Caches field variables. */
+  private final Map<String, IntegerVariable> fieldCache;
 
   public IntegerFieldFormulaSolver(
     final Collection<IntegerVariable> variables, final IntegerFormula<IntegerField> formula) {
@@ -72,16 +88,19 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     this.variables = variables;
     this.formula = formula;
 
-    // Auxiliary data structures.
-    this.disjointRanges = getDisjointRanges(getRanges(formula));
+    // Initialize auxiliary data structures.
+    this.linkedWith = new LinkedHashMap<>();
+    this.dividedRanges = getDividedRanges(formula);
+
     this.varToFields = new LinkedHashMap<>();
     this.fieldToRange = new LinkedHashMap<>();
+    this.fieldCache = new HashMap<>();
 
-    for (final Map.Entry<IntegerVariable, List<IntegerRange>> entry : disjointRanges.entrySet()) {
+    for (final Map.Entry<IntegerVariable, List<IntegerRange>> entry : dividedRanges.entrySet()) {
       final IntegerVariable var = entry.getKey();
-      final List<IntegerRange> varRanges = entry.getValue();
+      final Collection<IntegerRange> varRanges = entry.getValue();
 
-      final List<IntegerVariable> varFields = new ArrayList<>();
+      final Collection<IntegerVariable> varFields = new ArrayList<>();
       varToFields.put(var, varFields);
 
       for (final IntegerRange varRange : varRanges) {
@@ -116,9 +135,9 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final List<IntegerVariable> fieldVars = new ArrayList<>();
 
     final IntegerVariable var = field.getVariable();
-    final List<IntegerRange> varRanges = disjointRanges.get(var);
+    final Collection<IntegerRange> varRanges = dividedRanges.get(var);
 
-    final IntegerRange fieldRange = new IntegerRange(field.getLoIndex(), field.getHiIndex());
+    final IntegerRange fieldRange = getRange(field);
 
     for (final IntegerRange varRange : varRanges) {
       if (fieldRange.contains(varRange)) {
@@ -137,24 +156,100 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final String name = String.format("%s$%s", var, range);
     final int width = range.size().intValue();
 
-    return new IntegerVariable(name, width);
+    IntegerVariable fieldVar = fieldCache.get(name);
+    if (fieldVar == null) {
+      fieldCache.put(name, fieldVar = new IntegerVariable(name, width));
+    }
+
+    return fieldVar;
   }
 
-  private Map<IntegerVariable, Set<IntegerRange>> getRanges(
+  private Map<IntegerVariable, List<IntegerRange>> getDividedRanges(
       final IntegerFormula<IntegerField> formula) {
     InvariantChecks.checkNotNull(formula);
 
-    final Map<IntegerVariable, Set<IntegerRange>> ranges = new LinkedHashMap<>();
+    // Gather the ranges used in the formula.
+    final Map<IntegerVariable, Collection<IntegerRange>> ranges = new LinkedHashMap<>();
 
     for (final IntegerClause<IntegerField> clause : formula.getEquationClauses()) {
       gatherRanges(ranges, clause);
     }
 
-    return ranges;
+    // Construct the disjoint ranges not taking into account the links between the fields.
+    // Two fields, F1 and F2, are called linked if the formula contains (F1 == F2).
+    final Map<IntegerVariable, List<IntegerRange>> dividedRanges = getDividedRanges(ranges);
+
+    // Perform further splitting taking into account the links between the fields.
+    final Map<IntegerField, Collection<IntegerRange>> fieldRanges = new LinkedHashMap<>();
+
+    for (final IntegerField field : linkedWith.keySet()) {
+      final Collection<IntegerRange> all = dividedRanges.get(field.getVariable());
+      final Collection<IntegerRange> selected = IntegerRange.select(all, getRange(field));
+
+      fieldRanges.put(field, selected);
+    }
+
+    boolean divideRanges;
+
+    do {
+      divideRanges = false;
+
+      for (final Map.Entry<IntegerField, Collection<IntegerField>> entry : linkedWith.entrySet()) {
+        final IntegerField field = entry.getKey();
+        final Collection<IntegerField> links = entry.getValue();
+
+        final Collection<IntegerRange> oldDividedRanges = fieldRanges.get(field);
+        InvariantChecks.checkNotNull(oldDividedRanges);
+
+        for (final IntegerField link : links) {
+          InvariantChecks.checkTrue(field.getWidth() == link.getWidth());
+
+          final Collection<IntegerRange> linkRanges = fieldRanges.get(link);
+          InvariantChecks.checkFalse(linkRanges.isEmpty());
+
+          // Possibly, the field should be split.
+          if (linkRanges.size() > 1) {
+            final int offset = field.getLoIndex() - link.getLoIndex();
+            final Collection<IntegerRange> newRanges = new LinkedHashSet<>(oldDividedRanges);
+
+            for (final IntegerRange linkRange : linkRanges) {
+              newRanges.add(linkRange.shift(offset));
+            }
+
+            final Collection<IntegerRange> newDividedRanges = IntegerRange.divide(newRanges);
+            InvariantChecks.checkTrue(newDividedRanges.size() >= oldDividedRanges.size());
+
+            // Definitely, the field should be split.
+            if (newDividedRanges.size() > oldDividedRanges.size()) {
+              fieldRanges.put(field, newDividedRanges);
+              divideRanges = true;
+            }
+          }
+        }
+      } // for field-links.
+    } while(divideRanges);
+
+    // Update the variable ranges.
+    for (final Map.Entry<IntegerField, Collection<IntegerRange>> entry : fieldRanges.entrySet()) {
+      final IntegerField field = entry.getKey();
+      final Collection<IntegerRange> newFieldRanges = entry.getValue();
+      final List<IntegerRange> oldVarRanges = dividedRanges.get(field.getVariable());
+
+      final Collection<IntegerRange> oldFieldRanges =
+          IntegerRange.select(oldVarRanges, getRange(field));
+      InvariantChecks.checkFalse(oldFieldRanges.isEmpty());
+
+      final int index = oldVarRanges.indexOf(oldFieldRanges.iterator().next());
+
+      oldVarRanges.removeAll(oldFieldRanges);
+      oldVarRanges.addAll(index, newFieldRanges);
+    }
+
+    return dividedRanges;
   }
 
   private void gatherRanges(
-      final Map<IntegerVariable, Set<IntegerRange>> ranges,
+      final Map<IntegerVariable, Collection<IntegerRange>> ranges,
       final IntegerClause<IntegerField> clause) {
     InvariantChecks.checkNotNull(ranges);
     InvariantChecks.checkNotNull(clause);
@@ -166,12 +261,12 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   }
 
   private void gatherRanges(
-      final Map<IntegerVariable, Set<IntegerRange>> ranges,
+      final Map<IntegerVariable, Collection<IntegerRange>> ranges,
       final IntegerEquation<IntegerField> equation) {
     InvariantChecks.checkNotNull(ranges);
     InvariantChecks.checkNotNull(equation);
 
-    final List<IntegerField> fields = new ArrayList<>();
+    final Collection<IntegerField> fields = new ArrayList<>();
 
     if (equation.lhs != null) {
       fields.add(equation.lhs);
@@ -180,16 +275,31 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       fields.add(equation.rhs);
     }
 
+    // Add the link between the fields (to be able to split the variables into disjoint ranges).
+    if (equation.lhs != null && equation.rhs != null) {
+      Collection<IntegerField> lhsLinkedWith = linkedWith.get(equation.lhs);
+      if (lhsLinkedWith == null) {
+        linkedWith.put(equation.lhs, lhsLinkedWith = new LinkedHashSet<>());
+      }
+      Collection<IntegerField> rhsLinkedWith = linkedWith.get(equation.rhs);
+      if (rhsLinkedWith == null) {
+        linkedWith.put(equation.rhs, rhsLinkedWith = new LinkedHashSet<>());
+      }
+
+      lhsLinkedWith.add(equation.rhs);
+      rhsLinkedWith.add(equation.lhs);
+    }
+
     for (final IntegerField field : fields) {
       final IntegerVariable var = field.getVariable();
 
-      Set<IntegerRange> varRanges = ranges.get(var);
+      Collection<IntegerRange> varRanges = ranges.get(var);
       if (varRanges == null) {
         ranges.put(var, varRanges = new LinkedHashSet<>());
-        varRanges.add(new IntegerRange(0, var.getWidth() - 1));
+        varRanges.add(getRange(var));
       }
 
-      varRanges.add(new IntegerRange(field.getLoIndex(), field.getHiIndex()));
+      varRanges.add(getRange(field));
     }
   }
 
@@ -246,7 +356,10 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     final List<IntegerVariable> lhsFields = getFieldVars(oldLhs);
     final List<IntegerVariable> rhsFields = getFieldVars(oldRhs);
-    InvariantChecks.checkTrue(lhsFields.size() == rhsFields.size(), "Different number of fields");
+
+    InvariantChecks.checkTrue(lhsFields.size() == rhsFields.size(),
+        String.format("Fields %s and %s have different number of ranges: %s and %s",
+            oldLhs, oldRhs, lhsFields, rhsFields));
 
     for (int i = 0; i < lhsFields.size(); i++) {
       final IntegerVariable newLhs = lhsFields.get(i);
@@ -293,7 +406,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final Map<IntegerVariable, BigInteger> oldSolution = new LinkedHashMap<>();
 
     for (final IntegerVariable variable : variables) {
-      final List<IntegerVariable> fields = varToFields.get(variable);
+      final Collection<IntegerVariable> fields = varToFields.get(variable);
 
       BigInteger value = Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
 
