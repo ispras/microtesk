@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -77,6 +79,9 @@ public final class BufferExprAnalyzer {
   }
 
   private class VisitorIndex extends ExprTreeVisitorDefault {
+    private final Set<StandardOperation> SUPPORTED_OPS = EnumSet.of(
+        StandardOperation.BVEXTRACT, StandardOperation.BVCONCAT);
+
     private final List<IntegerField> fields = new ArrayList<>();
 
     public List<IntegerField> getFields() {
@@ -86,9 +91,7 @@ public final class BufferExprAnalyzer {
     @Override
     public void onOperationBegin(final NodeOperation node) {
       final Enum<?> op = node.getOperationId();
-
-      if (op != StandardOperation.BVEXTRACT &&
-          op != StandardOperation.BVCONCAT) {
+      if (!SUPPORTED_OPS.contains(op)) {
         throw new IllegalStateException(String.format(
             "Operation %s is not supported in index expressions.", op));
       }
@@ -108,10 +111,22 @@ public final class BufferExprAnalyzer {
   }
 
   private class VisitorMatch extends ExprTreeVisitorDefault {
+    private final Set<StandardOperation> SUPPORTED_OPS = EnumSet.of(
+        StandardOperation.EQ, StandardOperation.AND, StandardOperation.BVEXTRACT);
+
     private final List<IntegerField> fields = new ArrayList<>();
 
     public List<IntegerField> getTagFields() {
       return fields;
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation node) {
+      final Enum<?> op = node.getOperationId();
+      if (!SUPPORTED_OPS.contains(op)) {
+        throw new IllegalStateException(String.format(
+            "Operation %s is not supported in match expressions.", op));
+      }
     }
   }
 
