@@ -26,6 +26,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
@@ -115,9 +116,14 @@ public final class BufferExprAnalyzer {
         StandardOperation.EQ, StandardOperation.AND, StandardOperation.BVEXTRACT);
 
     private final List<IntegerField> fields = new ArrayList<>();
+    private final List<Pair<IntegerField, Node>> bindings = new ArrayList<>();
 
     public List<IntegerField> getTagFields() {
       return fields;
+    }
+
+    public List<Pair<IntegerField, Node>> getMatchBindings() {
+      return bindings;
     }
 
     @Override
@@ -126,6 +132,12 @@ public final class BufferExprAnalyzer {
       if (!SUPPORTED_OPS.contains(op)) {
         throw new IllegalStateException(String.format(
             "Operation %s is not supported in match expressions.", op));
+      }
+
+      if (op == StandardOperation.BVEXTRACT) {
+        final IntegerField addressField = newAddressField(node);
+        fields.add(addressField);
+        setStatus(Status.SKIP);
       }
     }
   }
