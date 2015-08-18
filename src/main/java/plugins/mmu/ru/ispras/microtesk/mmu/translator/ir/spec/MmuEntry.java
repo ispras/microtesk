@@ -40,6 +40,10 @@ public final class MmuEntry {
     }
   }
 
+  public Collection<IntegerVariable> getVariables() {
+    return fields.keySet();
+  }
+
   public BigInteger getValue(final IntegerVariable variable) {
     InvariantChecks.checkNotNull(variable);
     return fields.get(variable);
