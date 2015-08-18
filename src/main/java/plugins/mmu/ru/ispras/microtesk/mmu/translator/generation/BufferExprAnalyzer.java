@@ -124,7 +124,7 @@ public final class BufferExprAnalyzer {
 
     final int addressSize = address.getAddressType().getBitSize();
 
-    final String addressName = 
+    final String addressName =
         address.getId() + "." + Utils.listToString(address.getAccessChain());
 
     this.variableForAddress = new IntegerVariable(addressName, addressSize);
