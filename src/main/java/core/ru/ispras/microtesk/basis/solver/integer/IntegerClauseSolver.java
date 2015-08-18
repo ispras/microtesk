@@ -192,10 +192,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     if (equation.value) {
       // Constraint X == C or X != C.
       final IntegerDomain lhsDomain = domains.get(equation.lhs);
-
-      if (lhsDomain == null) {
-        throw new IllegalStateException("The variable has not been declared");
-      }
+      InvariantChecks.checkNotNull(lhsDomain, "The variable has not been declared");
 
       if (equation.equal) {
         // Equality (X == C): restricts the domain to the single value.
@@ -206,16 +203,14 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
     } else {
       // Constraint X == Y or X != Y.
-      if (equation.lhs.equals(equation.rhs)) {
-        throw new IllegalArgumentException("The LHS variable is equal to the RHS variable");
-      }
+      InvariantChecks.checkFalse(equation.lhs.equals(equation.rhs),
+          "The LHS variable is equal to the RHS variable");
 
       final IntegerDomain lhsDomain = domains.get(equation.lhs);
       final IntegerDomain rhsDomain = domains.get(equation.rhs);
 
-      if (lhsDomain == null || rhsDomain == null) {
-        throw new IllegalStateException("The variable has not been declared");
-      }
+      InvariantChecks.checkTrue(lhsDomain != null && rhsDomain != null,
+          "The variable has not been declared");
 
       // The equal-to and not-equal-to maps are symmetrical.
       updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.lhs, equation.rhs);
@@ -330,9 +325,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     final IntegerDomain rhsDomain = domains.get(rhs);
 
     // The trivial equalities, like x == x, are unexpected.
-    if (lhs.equals(rhs)) {
-      throw new IllegalStateException(String.format("Unexpected equality %s == %s", lhs, rhs));
-    }
+    InvariantChecks.checkFalse(lhs.equals(rhs),
+        String.format("Unexpected equality %s == %s", lhs, rhs));
 
     // Intersect domains of the variables from the equation.
     lhsDomain.intersect(rhsDomain);
@@ -368,10 +362,9 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     final IntegerDomain lhsDomain = domains.get(lhs);
     final IntegerDomain rhsDomain = domains.get(rhs);
 
-    // The trivial equalities, like x == x, are unexpected.
-    if (lhs.equals(rhs)) {
-      throw new IllegalStateException(String.format("Unexpected inequality %s != %s", lhs, rhs));
-    }
+    // The trivial equalities, like x != x, are unexpected.
+    InvariantChecks.checkFalse(lhs.equals(rhs),
+        String.format("Unexpected inequality %s != %s", lhs, rhs));
 
     // If the variables' domains are disjoint, the inequality is redundant.
     if (!lhsDomain.overlaps(rhsDomain)) {
