@@ -129,7 +129,7 @@ public final class STBSpecification implements STBuilder {
 
     for(final Buffer buffer : ir.getBuffers().values()) {
       final ST stDef = group.getInstanceOf("buffer_def");
-      buildFields(buffer.getEntry(), buffer.getId(), st, stDef, group);
+      buildFields(buffer.getId(), buffer.getEntry(), st, stDef, group);
 
       stDef.add("name", buffer.getId());
       stDef.add("ways", String.format("%dL", buffer.getWays().longValue()));
@@ -151,23 +151,30 @@ public final class STBSpecification implements STBuilder {
   }
 
   private static void buildFields(
+      final String name,
       final Type type,
-      final String prefix,
       final ST st,
       final ST stBuffer,
       final STGroup group) {
       if (type.isStruct()) {
         for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
           buildFields(
+              name + "." + field.getKey(),
               field.getValue(),
-              prefix + "." + field.getKey(),
               st,
               stBuffer,
               group
               );
         }
       } else {
-        
+        final String id = name.replace('.', '_');
+        stBuffer.add("fields", id);
+
+        final ST stVariable = group.getInstanceOf("variable_def");
+        stVariable.add("id", id);
+        stVariable.add("name", name);
+        stVariable.add("size", type.getBitSize());
+        st.add("members", stVariable);
       }
   }
 

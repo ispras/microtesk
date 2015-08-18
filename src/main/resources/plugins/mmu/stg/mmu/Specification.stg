@@ -16,7 +16,8 @@ group Specification;
 
 body(name, spec, members, stmts) ::= <<
 private final <spec> spec;
-<\n><members : {m | <m>}; separator="\n"><\n>
+<\n><members : {m | <m>}; separator="\n">
+<separator("Constructor")>
 public <name>() {
   final <spec>.Builder builder = new <spec>.Builder();<\n>
   <stmts : {stmt | <stmt>}; separator="\n"><\n>
@@ -34,7 +35,7 @@ separator(text) ::= <<
 // ===============================================================================================
 >>
 
-variable(id, name, size) ::= <<
+variable_def(id, name, size) ::= <<
 private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
 >>
 
