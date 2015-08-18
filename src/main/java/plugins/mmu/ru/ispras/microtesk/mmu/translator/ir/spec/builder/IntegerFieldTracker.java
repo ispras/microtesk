@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class IntegerFieldTracker {
+public final class IntegerFieldTracker {
   private final IntegerVariable variable;
   private List<IntegerField> fields;
 
@@ -54,7 +54,7 @@ final class IntegerFieldTracker {
     }
 
     final List<IntegerField> newFields = new ArrayList<>();
-    for (IntegerField field : fields) {
+    for (final IntegerField field : fields) {
       final boolean isLoInField = inField(field, lo);
       final boolean isHiInField = inField(field, hi);
 
