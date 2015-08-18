@@ -138,6 +138,7 @@ public final class STBSpecification implements STBuilder {
       stDef.add("tag", "null");
       stDef.add("index", "null");
       stDef.add("offset", "null");
+      stDef.add("match", "null");
       stDef.add("guard_cond", "null");
       stDef.add("guard", "null");
       stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));

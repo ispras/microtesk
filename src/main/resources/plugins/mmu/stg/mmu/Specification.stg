@@ -65,18 +65,19 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>);
 >>
 
-buffer_def(name, ways, sets, addr, tag, index, offset,
+buffer_def(name, ways, sets, addr, tag, index, offset, match,
            guard_cond, guard, replaceable, parent, fields) ::= <<
 private final MmuBuffer <name> = new MmuBuffer(
     "<name>",
     <ways>,
     <sets>,
     <addr>,
-    <tag>,
-    <index>,
-    <offset>,
-    <guard_cond>,
-    <guard>,
+    <tag>,    // TODO
+    <index>,    // TODO
+    <offset>,    // TODO
+    <match>,    // TODO
+    <guard_cond>,    // TODO
+    <guard>,    // TODO
     <replaceable>,
     <parent>
     );
