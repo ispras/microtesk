@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -48,6 +49,7 @@ public class MmuBufferTestCase {
 
   public static final IntegerVariable isMapped = new IntegerVariable("isMapped", 1);
   public static final IntegerVariable isCached = new IntegerVariable("isCached", 1);
+  public static final IntegerVariable VPN2 = new IntegerVariable("VPN2", 27);
   public static final IntegerVariable V0 = new IntegerVariable("V0", 1);
   public static final IntegerVariable D0 = new IntegerVariable("D0", 1);
   public static final IntegerVariable G0 = new IntegerVariable("G0", 1);
@@ -63,50 +65,56 @@ public class MmuBufferTestCase {
   public static final IntegerVariable G = new IntegerVariable("G", 1);
   public static final IntegerVariable C = new IntegerVariable("C", 3);
   public static final IntegerVariable PFN = new IntegerVariable("PFN", 24);
+  public static final IntegerVariable L1_TAG = new IntegerVariable("TAG1", 24);
+  public static final IntegerVariable L2_TAG = new IntegerVariable("TAG2", 24);
+  public static final IntegerVariable L1_DATA = new IntegerVariable("DATA1", 8 * 32);
+  public static final IntegerVariable L2_DATA = new IntegerVariable("DATA2", 8 * 32);
   public static final IntegerVariable DATA = new IntegerVariable("DATA", 8 * 32);
 
   public static final MmuBuffer JTLB = new MmuBuffer("JTLB", 64, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
+      Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
       null, null, false, null);
 
   static {
-    JTLB.addField(new IntegerVariable("VPN2", 27));
+    JTLB.addField(VPN2);
 
-    JTLB.addField(new IntegerVariable("V0", 1));
-    JTLB.addField(new IntegerVariable("D0", 1));
-    JTLB.addField(new IntegerVariable("G0", 1));
-    JTLB.addField(new IntegerVariable("C0", 1));
-    JTLB.addField(new IntegerVariable("PFN0", 24));
+    JTLB.addField(V0);
+    JTLB.addField(D0);
+    JTLB.addField(G0);
+    JTLB.addField(C0);
+    JTLB.addField(PFN0);
 
-    JTLB.addField(new IntegerVariable("V1", 1));
-    JTLB.addField(new IntegerVariable("D1", 1));
-    JTLB.addField(new IntegerVariable("G1", 1));
-    JTLB.addField(new IntegerVariable("C1", 1));
-    JTLB.addField(new IntegerVariable("PFN1", 24));
+    JTLB.addField(V1);
+    JTLB.addField(D1);
+    JTLB.addField(G1);
+    JTLB.addField(C1);
+    JTLB.addField(PFN1);
   }
 
   public static final MmuBuffer DTLB = new MmuBuffer("DTLB", 4, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
+      Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
       null, null, true, JTLB);
 
   static {
-    DTLB.addField(new IntegerVariable("VPN2", 27));
+    DTLB.addField(VPN2);
 
-    DTLB.addField(new IntegerVariable("V0", 1));
-    DTLB.addField(new IntegerVariable("D0", 1));
-    DTLB.addField(new IntegerVariable("G0", 1));
-    DTLB.addField(new IntegerVariable("C0", 1));
-    DTLB.addField(new IntegerVariable("PFN0", 24));
+    DTLB.addField(V0);
+    DTLB.addField(D0);
+    DTLB.addField(G0);
+    DTLB.addField(C0);
+    DTLB.addField(PFN0);
 
-    DTLB.addField(new IntegerVariable("V1", 1));
-    DTLB.addField(new IntegerVariable("D1", 1));
-    DTLB.addField(new IntegerVariable("G1", 1));
-    DTLB.addField(new IntegerVariable("C1", 1));
-    DTLB.addField(new IntegerVariable("PFN1", 24));
+    DTLB.addField(V1);
+    DTLB.addField(D1);
+    DTLB.addField(G1);
+    DTLB.addField(C1);
+    DTLB.addField(PFN1);
   }
 
   public static final AddressView<Long> DTLB_ADDR_VIEW = new AddressView<Long>(
@@ -136,11 +144,13 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 12, 35), // Tag
       MmuExpression.var(PA, 5, 11), // Index
       MmuExpression.var(PA, 0, 4), // Offset
+      Collections.singleton(
+          new MmuBinding(new IntegerField(L1_TAG), MmuExpression.var(PA, 12, 35))),
       null, null, true, null);
 
   static {
-    L1.addField(new IntegerVariable("TAG", 24));
-    L1.addField(new IntegerVariable("DATA", 8 * 32));
+    L1.addField(L1_TAG);
+    L1.addField(L1_DATA);
   }
 
   public static final AddressView<Long> L1_ADDR_VIEW = new AddressView<Long>(
@@ -169,11 +179,13 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 17, 35), // Tag
       MmuExpression.var(PA, 5, 16), // Index
       MmuExpression.var(PA, 0, 4), // Offset
+      Collections.singleton(
+          new MmuBinding(new IntegerField(L2_TAG), MmuExpression.var(PA, 17, 35))),
       null, null, true, null);
 
   static {
-    L1.addField(new IntegerVariable("TAG", 19));
-    L1.addField(new IntegerVariable("DATA", 8 * 32));
+    L2.addField(L2_TAG);
+    L2.addField(L2_DATA);
   }
 
   public static final AddressView<Long> L2_ADDR_VIEW = new AddressView<Long>(
@@ -201,10 +213,11 @@ public class MmuBufferTestCase {
       MmuExpression.empty(),        // Tag
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
+      Collections.<MmuBinding>emptySet(),
       null, null, false, null);
 
   static {
-    MEM.addField(new IntegerVariable("DATA", 8 * 32));
+    MEM.addField(DATA);
   }
 
   private void runTest(

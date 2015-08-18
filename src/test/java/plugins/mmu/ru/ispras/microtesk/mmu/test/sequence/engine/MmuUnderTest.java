@@ -136,6 +136,7 @@ public final class MmuUnderTest {
   public final IntegerVariable va = vaAddr.getVariable();
   public final IntegerVariable pa = paAddr.getVariable();
   public final IntegerVariable cachePolicy = new IntegerVariable("cachePolicy", 3); 
+  public final IntegerVariable vpn2 = new IntegerVariable("VPN2", 27);
   public final IntegerVariable v0 = new IntegerVariable("V0", 1);
   public final IntegerVariable d0 = new IntegerVariable("D0", 1);
   public final IntegerVariable g0 = new IntegerVariable("G0", 1);
@@ -151,6 +152,10 @@ public final class MmuUnderTest {
   public final IntegerVariable g = new IntegerVariable("G", 1);
   public final IntegerVariable c = new IntegerVariable("C", 3);
   public final IntegerVariable pfn = new IntegerVariable("PFN", 24);
+  public final IntegerVariable l1Tag = new IntegerVariable("TAG1", 24);
+  public final IntegerVariable l2Tag = new IntegerVariable("TAG2", 19);
+  public final IntegerVariable l1Data = new IntegerVariable("DATA1", 8 * 32);
+  public final IntegerVariable l2Data = new IntegerVariable("DATA2", 8 * 32);
   public final IntegerVariable data = new IntegerVariable("DATA", 8 * 32);
 
   // ===============================================================================================
@@ -180,23 +185,24 @@ public final class MmuUnderTest {
       MmuExpression.var(va, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(va, 0, 12),  // Offset
+      Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       null, null,                    // Guard
       false, null);
 
   {
-    jtlb.addField(new IntegerVariable("VPN2", 27));
+    jtlb.addField(vpn2);
 
-    jtlb.addField(new IntegerVariable("V0", 1));
-    jtlb.addField(new IntegerVariable("D0", 1));
-    jtlb.addField(new IntegerVariable("G0", 1));
-    jtlb.addField(new IntegerVariable("C0", 1));
-    jtlb.addField(new IntegerVariable("PFN0", 24));
+    jtlb.addField(v0);
+    jtlb.addField(d0);
+    jtlb.addField(g0);
+    jtlb.addField(c0);
+    jtlb.addField(pfn0);
 
-    jtlb.addField(new IntegerVariable("V1", 1));
-    jtlb.addField(new IntegerVariable("D1", 1));
-    jtlb.addField(new IntegerVariable("G1", 1));
-    jtlb.addField(new IntegerVariable("C1", 1));
-    jtlb.addField(new IntegerVariable("PFN1", 24));
+    jtlb.addField(v1);
+    jtlb.addField(d1);
+    jtlb.addField(g1);
+    jtlb.addField(c1);
+    jtlb.addField(pfn1);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -216,6 +222,7 @@ public final class MmuUnderTest {
       MmuExpression.var(va, 13, 39),                 // Tag
       MmuExpression.empty(),                         // Index
       MmuExpression.var(va, 0, 12),                  // Offset
+      Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       MmuCondition.eq(v, BigInteger.ONE), dtlbGuard, // Guard
       true, jtlb);
 
@@ -240,12 +247,15 @@ public final class MmuUnderTest {
       MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
+      Collections.singleton(
+          new MmuBinding(new IntegerField(l1Tag),
+              MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
       true, null);
 
   {
-    l1.addField(new IntegerVariable("TAG", 24));
-    l1.addField(new IntegerVariable("DATA", 8 * 32));
+    l1.addField(l1Tag);
+    l1.addField(l1Data);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -253,12 +263,15 @@ public final class MmuUnderTest {
       MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
+      Collections.singleton(
+          new MmuBinding(new IntegerField(l2Tag),
+              MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
       true, null);
 
   {
-    l1.addField(new IntegerVariable("TAG", 19));
-    l1.addField(new IntegerVariable("DATA", 8 * 32));
+    l2.addField(l2Tag);
+    l2.addField(l2Data);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -266,11 +279,12 @@ public final class MmuUnderTest {
       MmuExpression.empty(),                        // Tag
       MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
+      Collections.<MmuBinding>emptySet(),
       null, null,                                   // Guard
       false, null);
 
   {
-    mem.addField(new IntegerVariable("DATA", 8 * 32));
+    mem.addField(data);
   }
 
   // ===============================================================================================

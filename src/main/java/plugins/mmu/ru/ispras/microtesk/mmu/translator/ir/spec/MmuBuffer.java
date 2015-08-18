@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -50,6 +51,8 @@ public final class MmuBuffer {
   /** The offset calculation function. */
   private final MmuExpression offsetExpression;
 
+  private final Collection<MmuBinding> matchBindings;
+
   /** Guard condition (only for views). */
   private final MmuCondition guardCondition;
   // TODO: Temporal solution.
@@ -66,19 +69,6 @@ public final class MmuBuffer {
   /** The address view. */
   private final AddressView<Long> addressView;
 
-  /**
-   * Constructs an MMU buffer.
-   * 
-   * @param name the buffer name.
-   * @param ways the number of ways.
-   * @param sets the number of sets.
-   * @param address the address type.
-   * @param tagExpression the tag calculation function.
-   * @param indexExpression the index calculation function.
-   * @param offsetExpression the offset calculation function.
-   * @param replaceable the flag indicating that data stored in the buffer are replaceable.
-   * @param parent TODO
-   */
   public MmuBuffer(
       final String name,
       final long ways,
@@ -87,16 +77,17 @@ public final class MmuBuffer {
       final MmuExpression tagExpression,
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
+      final Collection<MmuBinding> matchBindings,
       final MmuCondition guardCondition,
       final Predicate<MemoryAccess> guard,
       final boolean replaceable,
       final MmuBuffer parent) {
-
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(tagExpression);
     InvariantChecks.checkNotNull(indexExpression);
     InvariantChecks.checkNotNull(offsetExpression);
+    InvariantChecks.checkNotNull(matchBindings);
 
     this.name = name;
     this.ways = ways;
@@ -107,6 +98,7 @@ public final class MmuBuffer {
     this.tagExpression = tagExpression;
     this.indexExpression = indexExpression;
     this.offsetExpression = offsetExpression;
+    this.matchBindings = matchBindings;
 
     this.guardCondition = guardCondition;
     this.guard = guard;
@@ -204,6 +196,10 @@ public final class MmuBuffer {
    */
   public MmuExpression getOffsetExpression() {
     return offsetExpression;
+  }
+
+  public Collection<MmuBinding> getMatchBindings() {
+    return matchBindings;
   }
 
   /**

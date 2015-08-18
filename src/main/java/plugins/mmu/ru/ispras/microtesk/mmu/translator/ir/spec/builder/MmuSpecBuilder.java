@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.translator.TranslatorHandler;
-
 import static ru.ispras.microtesk.mmu.translator.ir.spec.builder.ScopeStorage.dotConc;
 
 /**
@@ -194,6 +194,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getTagExpr(),
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
+          Collections.<MmuBinding>emptySet(), // TODO: Bindings
           guardCondition,
           null, // TODO: Guard
           isReplaceable,
