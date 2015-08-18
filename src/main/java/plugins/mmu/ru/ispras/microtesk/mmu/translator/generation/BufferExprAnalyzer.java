@@ -87,7 +87,7 @@ public final class BufferExprAnalyzer {
     public void onOperationBegin(final NodeOperation node) {
       final Enum<?> op = node.getOperationId();
 
-      if (op != StandardOperation.BVEXTRACT && 
+      if (op != StandardOperation.BVEXTRACT &&
           op != StandardOperation.BVCONCAT) {
         throw new IllegalStateException(String.format(
             "Operation %s is not supported in index expressions.", op));
