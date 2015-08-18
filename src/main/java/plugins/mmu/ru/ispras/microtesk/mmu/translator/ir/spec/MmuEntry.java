@@ -70,6 +70,21 @@ public final class MmuEntry {
 
   @Override
   public String toString() {
-    return fields.toString();
+    final StringBuilder builder = new StringBuilder();
+
+    builder.append("[");
+
+    boolean comma = false; 
+    for (final Map.Entry<IntegerVariable, BigInteger> entry : fields.entrySet()) {
+      builder.append(comma ? ", " : "");
+      builder.append(entry.getKey());
+      builder.append("=");
+      builder.append(entry.getValue().toString(16));
+      comma = true;
+    }
+
+    builder.append("]");
+
+    return builder.toString();
   }
 }
