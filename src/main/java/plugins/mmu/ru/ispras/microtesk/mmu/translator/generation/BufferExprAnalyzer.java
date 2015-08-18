@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -117,6 +119,7 @@ public final class BufferExprAnalyzer {
 
     private final List<IntegerField> fields = new ArrayList<>();
     private final List<Pair<IntegerField, Node>> bindings = new ArrayList<>();
+    private final Deque<Enum<?>> opStack = new ArrayDeque<Enum<?>>();
 
     public List<IntegerField> getTagFields() {
       return fields;
@@ -135,10 +138,26 @@ public final class BufferExprAnalyzer {
       }
 
       if (op == StandardOperation.BVEXTRACT) {
+        if (opStack.isEmpty() || opStack.peek() != StandardOperation.EQ) {
+          
+        }
+
         final IntegerField addressField = newAddressField(node);
         fields.add(addressField);
         setStatus(Status.SKIP);
+      } else if (op == StandardOperation.EQ) {
+        if (!opStack.isEmpty() && opStack.peek() != StandardOperation.AND) {
+          
+        }
+        
+        // TODO
       }
+
+      opStack.push(op);
+    }
+
+    public void onOperationEnd(final NodeOperation node) {
+      opStack.pop();
     }
   }
 
