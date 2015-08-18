@@ -139,7 +139,8 @@ public final class BufferExprAnalyzer {
 
       if (op == StandardOperation.BVEXTRACT) {
         if (opStack.isEmpty() || opStack.peek() != StandardOperation.EQ) {
-          
+          throw new IllegalStateException(
+              "Illegal match expression. BVEXTRACT must be used only as part of EQ expression.");
         }
 
         final IntegerField addressField = newAddressField(node);
@@ -147,9 +148,11 @@ public final class BufferExprAnalyzer {
         setStatus(Status.SKIP);
       } else if (op == StandardOperation.EQ) {
         if (!opStack.isEmpty() && opStack.peek() != StandardOperation.AND) {
-          
+          throw new IllegalStateException(
+              "Illegal match expression. EQ cannot be used as part of " +
+              opStack.peek() + " expression");
         }
-        
+
         // TODO
       }
 
