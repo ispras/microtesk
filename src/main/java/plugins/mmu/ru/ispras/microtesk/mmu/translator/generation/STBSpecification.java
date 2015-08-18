@@ -14,12 +14,14 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.util.List;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -82,14 +84,16 @@ public final class STBSpecification implements STBuilder {
     st.add("stmts", "");
 
     for(final Address address : ir.getAddresses().values()) {
+      final String name = address.getId();
+      buildFields(name, address.getContentType(), st, null, group);
+
       final ST stDef = group.getInstanceOf("type_def");
-      stDef.add("name", address.getId());
-      stDef.add("var_name", Utils.listToString(address.getAccessChain()));
-      stDef.add("var_size", address.getAddressType().getBitSize());
+      stDef.add("name", name);
+      stDef.add("value_name", name + "_" + Utils.listToString(address.getAccessChain(), '_'));
       st.add("members", stDef);
 
       final ST stReg = group.getInstanceOf("type_reg");
-      stReg.add("name", address.getId());
+      stReg.add("name", name);
       st.add("stmts", stReg);
     }
   }
@@ -97,7 +101,6 @@ public final class STBSpecification implements STBuilder {
   private void buildSegments(final ST st, final STGroup group) {
     final ST stSeparator = group.getInstanceOf("separator");
     stSeparator.add("text", "Segments");
-    st.add("members", "");
     st.add("members", stSeparator);
     st.add("stmts", "");
 
@@ -122,7 +125,6 @@ public final class STBSpecification implements STBuilder {
   private void buildBuffers(final ST st, final STGroup group) {
     final ST stSeparator = group.getInstanceOf("separator");
     stSeparator.add("text", "Buffers");
-    st.add("members", "");
     st.add("members", stSeparator);
     st.add("stmts", "");
 
@@ -130,20 +132,16 @@ public final class STBSpecification implements STBuilder {
       final ST stDef = group.getInstanceOf("buffer_def");
       buildFields(buffer.getId(), buffer.getEntry(), st, stDef, group);
 
-      final BufferExprAnalyzer addressFormatExtractor = new BufferExprAnalyzer(
+      final BufferExprAnalyzer analyzer = new BufferExprAnalyzer(
           buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
-
-      System.out.println("Index:  " + addressFormatExtractor.getIndexFields());
-      System.out.println("Tag:    " + addressFormatExtractor.getTagFields());
-      System.out.println("Offset: " + addressFormatExtractor.getOffsetFields());
 
       stDef.add("name", buffer.getId());
       stDef.add("ways", String.format("%dL", buffer.getWays().longValue()));
       stDef.add("sets", String.format("%dL", buffer.getSets().longValue()));
       stDef.add("addr", buffer.getAddress().getId());
-      stDef.add("tag", "null");
-      stDef.add("index", "null");
-      stDef.add("offset", "null");
+      stDef.add("tag", toMmuExpressionText(analyzer.getTagFields()));
+      stDef.add("index", toMmuExpressionText(analyzer.getIndexFields()));
+      stDef.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
       stDef.add("match", "null");
       stDef.add("guard_cond", "null");
       stDef.add("guard", "null");
@@ -175,7 +173,10 @@ public final class STBSpecification implements STBuilder {
       }
     } else {
       final String id = name.replace('.', '_');
-      stBuffer.add("fields", id);
+
+      if (null != stBuffer) {
+        stBuffer.add("fields", id);
+      }
 
       final ST stVariable = group.getInstanceOf("variable_def");
       stVariable.add("id", id);
@@ -183,5 +184,25 @@ public final class STBSpecification implements STBuilder {
       stVariable.add("size", type.getBitSize());
       st.add("members", stVariable);
     }
+  }
+
+  private static String toMmuExpressionText(final List<IntegerField> fields) {
+    if (fields.isEmpty()) {
+      return "MmuExpression.empty()";
+    }
+
+    if (fields.size() == 1) {
+      final IntegerField field = fields.get(0);
+      final String name = field.getVariable().getName().replace('.', '_');
+
+      if (field.getWidth() == field.getVariable().getWidth()) {
+        return String.format("MmuExpression.var(%s)", name);
+      } else {
+        return String.format("MmuExpression.var(%s, %d, %d)",
+            name, field.getLoIndex(), field.getHiIndex());
+      }
+    }
+
+    return "null";
   }
 }

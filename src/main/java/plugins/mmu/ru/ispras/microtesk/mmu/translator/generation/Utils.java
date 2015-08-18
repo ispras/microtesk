@@ -22,12 +22,16 @@ public final class Utils {
   private Utils() {}
 
   public static String listToString(final List<String> list) {
+    return listToString(list, '.');
+  }
+
+  public static String listToString(final List<String> list, final char ch) {
     InvariantChecks.checkNotNull(list);
 
     final StringBuilder sb = new StringBuilder();
     for (final String string : list) {
       if (sb.length() != 0) {
-        sb.append('.');
+        sb.append(ch);
       }
       sb.append(string);
     }

@@ -39,9 +39,8 @@ variable_def(id, name, size) ::= <<
 private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
 >>
 
-type_def(name, var_name, var_size) ::= <<
-private final MmuAddressType <name> = new MmuAddressType(
-    null, new IntegerVariable("<name>.<var_name>", <var_size>));
+type_def(name, value_name) ::= <<
+private final MmuAddressType <name> = new MmuAddressType(null, <value_name>);<\n>
 >>
 
 type_reg(name) ::= <<
@@ -72,12 +71,12 @@ private final MmuBuffer <name> = new MmuBuffer(
     <ways>,
     <sets>,
     <addr>,
-    <tag>,    // TODO
-    <index>,    // TODO
-    <offset>,    // TODO
-    <match>,    // TODO
-    <guard_cond>,    // TODO
-    <guard>,    // TODO
+    <tag>,
+    <index>,
+    <offset>,
+    <match>,  // TODO
+    <guard_cond>,  // TODO
+    <guard>,  // TODO
     <replaceable>,
     <parent>
     );
