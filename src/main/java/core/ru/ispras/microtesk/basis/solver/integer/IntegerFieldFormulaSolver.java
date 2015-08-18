@@ -388,8 +388,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerVariable newLhs = lhsFields.get(i);
       final IntegerRange newRange = fieldToRange.get(newLhs);
 
-      final int lo = newRange.getMin().intValue();
-      final int hi = newRange.getMax().intValue();
+      final int lo = newRange.getMin().intValue() - oldLhs.getLoIndex();
+      final int hi = newRange.getMax().intValue() - oldLhs.getLoIndex();;
 
       final BigInteger newRhs = BitUtils.getField(oldRhs, lo, hi);
 

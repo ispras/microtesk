@@ -172,6 +172,6 @@ public final class IntegerEquation<V> {
   @Override
   public String toString() {
     return String.format("%s %s %s", lhs, (equal ? "==" : "!="),
-        (value ? val.toString() : rhs.toString()));
+        (value ? val.toString(16) : rhs.toString()));
   }
 }
