@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
-import java.util.List;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
@@ -85,7 +84,7 @@ public final class STBSpecification implements STBuilder {
     for(final Address address : ir.getAddresses().values()) {
       final ST stDef = group.getInstanceOf("type_def");
       stDef.add("name", address.getId());
-      stDef.add("var_name", listToString(address.getAccessChain()));
+      stDef.add("var_name", Utils.listToString(address.getAccessChain()));
       stDef.add("var_size", address.getAddressType().getBitSize());
       st.add("members", stDef);
 
@@ -131,6 +130,13 @@ public final class STBSpecification implements STBuilder {
       final ST stDef = group.getInstanceOf("buffer_def");
       buildFields(buffer.getId(), buffer.getEntry(), st, stDef, group);
 
+      final BufferExprAnalyzer addressFormatExtractor = new BufferExprAnalyzer(
+          buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
+
+      System.out.println("Index:  " + addressFormatExtractor.getIndexFields());
+      System.out.println("Tag:    " + addressFormatExtractor.getTagFields());
+      System.out.println("Offset: " + addressFormatExtractor.getOffsetFields());
+
       stDef.add("name", buffer.getId());
       stDef.add("ways", String.format("%dL", buffer.getWays().longValue()));
       stDef.add("sets", String.format("%dL", buffer.getSets().longValue()));
@@ -157,36 +163,25 @@ public final class STBSpecification implements STBuilder {
       final ST st,
       final ST stBuffer,
       final STGroup group) {
-      if (type.isStruct()) {
-        for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-          buildFields(
-              name + "." + field.getKey(),
-              field.getValue(),
-              st,
-              stBuffer,
-              group
-              );
-        }
-      } else {
-        final String id = name.replace('.', '_');
-        stBuffer.add("fields", id);
-
-        final ST stVariable = group.getInstanceOf("variable_def");
-        stVariable.add("id", id);
-        stVariable.add("name", name);
-        stVariable.add("size", type.getBitSize());
-        st.add("members", stVariable);
+    if (type.isStruct()) {
+      for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+        buildFields(
+            name + "." + field.getKey(),
+            field.getValue(),
+            st,
+            stBuffer,
+            group
+            );
       }
-  }
+    } else {
+      final String id = name.replace('.', '_');
+      stBuffer.add("fields", id);
 
-  private static String listToString(final List<String> list) {
-    final StringBuilder sb = new StringBuilder();
-    for (final String string : list) {
-      if (sb.length() != 0) {
-        sb.append('.');
-      }
-      sb.append(string);
+      final ST stVariable = group.getInstanceOf("variable_def");
+      stVariable.add("id", id);
+      stVariable.add("name", name);
+      stVariable.add("size", type.getBitSize());
+      st.add("members", stVariable);
     }
-    return sb.toString();
   }
 }
