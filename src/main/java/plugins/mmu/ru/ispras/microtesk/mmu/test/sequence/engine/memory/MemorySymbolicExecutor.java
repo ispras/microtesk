@@ -27,6 +27,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -81,86 +82,141 @@ public final class MemorySymbolicExecutor {
     final IntegerFormula<IntegerField> formula = new IntegerFormula<>();
 
     for (final MmuTransition transition : path.getTransitions()) {
-      final MmuGuard guard = transition.getGuard();
-
-      if (guard != null) {
-        final MmuCondition condition = guard.getCondition();
-
-        if (condition != null) {
-          InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
-
-          for (final MmuConditionAtom atom : condition.getAtoms()) {
-            InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
-
-            final IntegerClause<IntegerField> clause = new IntegerClause<>(
-                !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
-
-            final MmuExpression expression = atom.getExpression();
-            final BigInteger constant = atom.getConstant();
-
-            int offset = 0;
-
-            for (final IntegerField term : expression.getTerms()) {
-              final int lo = offset;
-              final int hi = offset + (term.getWidth() - 1);
-
-              final BigInteger value = BitUtils.getField(constant, lo, hi);
-
-              clause.addEquation(term, value, !atom.isNegated());
-              offset += term.getWidth();
-
-              variables.add(term.getVariable());
-            }
-
-            formula.addEquationClause(clause);
-          }
-        }
-      }
-
-      final MmuAction action = transition.getTarget();
-
-      if (action != null) {
-        final Map<IntegerField, MmuBinding> assignments = action.getAction();
-
-        if (assignments != null) {
-          final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.AND);
-
-          for (final MmuBinding assignment : assignments.values()) {
-            final IntegerField lhs = assignment.getLhs();
-            final MmuExpression rhs = assignment.getRhs();
-
-            final IntegerVariable lhsVar = lhs.getVariable();
-            variables.add(lhsVar);
-
-            if (rhs != null) {
-              int offset = lhs.getLoIndex();
-
-              for (final IntegerField term : rhs.getTerms()) {
-                final int lo = offset;
-                final int hi = (offset + term.getWidth()) - 1;
-
-                clause.addEquation(new IntegerField(lhsVar, lo, hi), term, true);
-                offset += term.getWidth();
-
-                variables.add(term.getVariable());
-              }
-
-              if (offset <= lhs.getHiIndex()) {
-                final int lo = offset;
-                final int hi = lhs.getHiIndex();
-
-                clause.addEquation(new IntegerField(lhsVar, lo, hi), BigInteger.ZERO, true);
-              }
-            }
-          }
-
-          if (clause.size() != 0) {
-            formula.addEquationClause(clause);
-          }
-        }
-      }
+      execute(transition, variables, formula);
     }
 
     return new Result(variables, formula);
+  }
+
+  private void execute(
+      final MmuTransition transition,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(transition);
+
+    final MmuGuard guard = transition.getGuard();
+    if (guard != null) {
+      execute(guard, variables, formula);
+    }
+
+    final MmuAction action = transition.getTarget();
+    if (action != null) {
+      execute(action, variables, formula);
+    }
+  }
+
+  private void execute(
+      final MmuGuard guard,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(guard);
+
+    final MmuBuffer buffer = guard.getBuffer();
+    if (buffer != null) {
+      execute(buffer, variables, formula);
+    }
+
+    final MmuCondition condition = guard.getCondition();
+    if (condition != null) {
+      execute(condition, variables, formula);
+    }
+  }
+
+  private void execute(
+      final MmuAction action,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(action);
+
+    final Map<IntegerField, MmuBinding> assignments = action.getAction();
+    if (assignments != null) {
+      execute(assignments.values(), variables, formula);
+    }
+  }
+
+  private void execute(
+      final MmuBuffer buffer,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(buffer);
+
+    variables.addAll(buffer.getFields());
+    execute(buffer.getMatchBindings(), variables, formula);
+  }
+
+  private void execute(
+      final MmuCondition condition,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(condition);
+    InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
+
+    for (final MmuConditionAtom atom : condition.getAtoms()) {
+      InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
+
+      final IntegerClause<IntegerField> clause = new IntegerClause<>(
+          !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+
+      final MmuExpression expression = atom.getExpression();
+      final BigInteger constant = atom.getConstant();
+
+      int offset = 0;
+
+      for (final IntegerField term : expression.getTerms()) {
+        final int lo = offset;
+        final int hi = offset + (term.getWidth() - 1);
+
+        final BigInteger value = BitUtils.getField(constant, lo, hi);
+
+        clause.addEquation(term, value, !atom.isNegated());
+        offset += term.getWidth();
+
+        variables.add(term.getVariable());
+      }
+
+      formula.addEquationClause(clause);
+    }
+  }
+
+  private void execute(
+      final Collection<MmuBinding> bindings,
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula) {
+    InvariantChecks.checkNotNull(bindings);
+
+    final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.AND);
+
+    for (final MmuBinding binding : bindings) {
+      final IntegerField lhs = binding.getLhs();
+      final MmuExpression rhs = binding.getRhs();
+
+      final IntegerVariable lhsVar = lhs.getVariable();
+      variables.add(lhsVar);
+
+      if (rhs != null) {
+        int offset = lhs.getLoIndex();
+
+        for (final IntegerField term : rhs.getTerms()) {
+          final int lo = offset;
+          final int hi = offset + (term.getWidth() - 1);
+
+          clause.addEquation(new IntegerField(lhsVar, lo, hi), term, true);
+          offset += term.getWidth();
+
+          variables.add(term.getVariable());
+        }
+
+        if (offset <= lhs.getHiIndex()) {
+          final int lo = offset;
+          final int hi = lhs.getHiIndex();
+  
+          clause.addEquation(new IntegerField(lhsVar, lo, hi), BigInteger.ZERO, true);
+        }
+      }
+    } // for binding.
+
+    if (clause.size() != 0) {
+      formula.addEquationClause(clause);
+    }
   }
 }
