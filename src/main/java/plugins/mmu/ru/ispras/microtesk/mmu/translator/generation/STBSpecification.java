@@ -65,7 +65,6 @@ public final class STBSpecification implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME); 
     st.add("pack", packageName);
-    st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
   }
@@ -259,8 +258,11 @@ public final class STBSpecification implements STBuilder {
       final String rightText;
 
       if (binding.second.getVariable().getValue() != null) {
-        rightText = String.format("MmuExpression.val(new BigInteger(\"%s\", 10), %d)",
-            binding.second.getVariable().getValue(), binding.second.getWidth()); 
+        rightText = String.format("MmuExpression.val(new %s(\"%s\", 10), %d)",
+            BigInteger.class.getName(),
+            binding.second.getVariable().getValue(),
+            binding.second.getWidth()
+            ); 
       } else {
         rightText = toMmuExpressionText(binding.second);
       }

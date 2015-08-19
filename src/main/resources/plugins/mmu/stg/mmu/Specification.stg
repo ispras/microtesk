@@ -78,8 +78,8 @@ private final MmuBuffer <name> = new MmuBuffer(
     <index>,
     <offset>,
     <match>,
-    <guard_cond>,  // TODO
-    <guard>,  // TODO
+    <guard_cond>,
+    <guard>,
     <replaceable>,
     <parent>
     );
