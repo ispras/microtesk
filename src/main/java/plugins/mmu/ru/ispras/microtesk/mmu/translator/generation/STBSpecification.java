@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,8 @@ final class STBSpecification implements STBuilder {
 
   private final String packageName;
   private final Ir ir;
+
+  private List<String> currentMarks = null;
 
   public STBSpecification(final String packageName, final Ir ir) {
     InvariantChecks.checkNotNull(packageName);
@@ -225,6 +228,7 @@ final class STBSpecification implements STBuilder {
           "Undefined attribute: %s.%s", memory.getId(), attributeName));
     }
 
+    currentMarks = null;
     final String stop = buildControlFlowForStmts(st, group, start, attribute.getStmts());
     if (null != stop) {
       st.add("stmts", String.format(
@@ -254,7 +258,7 @@ final class STBSpecification implements STBuilder {
           break;
           
         case MARK:
-          buildStmtMark(st, group, (StmtMark) stmt);
+          buildStmtMark((StmtMark) stmt);
           break;
 
         case TRACE: // Ignored
@@ -294,11 +298,11 @@ final class STBSpecification implements STBuilder {
     return null;
   }
 
-  private void buildStmtMark(
-      final ST st,
-      final STGroup group,
-      final StmtMark stmt) {
-    // TODO Auto-generated method stub
+  private void buildStmtMark(final StmtMark stmt) {
+    if (null == currentMarks) {
+      currentMarks = new ArrayList<>();
+    }
+    currentMarks.add(stmt.getName());
   }
 
   private static void buildFields(
@@ -332,16 +336,25 @@ final class STBSpecification implements STBuilder {
     }
   }
 
-  private static void buildAction(
+  private void buildAction(
       final ST st,
       final STGroup group,
       final String name,
       final String... args) {
     final ST stDef = group.getInstanceOf("action_def");
     stDef.add("name", name);
+
     for (final String arg : args) {
       stDef.add("args", arg);
     }
+
+    if (null != currentMarks) {
+      for (final String mark : currentMarks) {
+        stDef.add("marks", mark);
+      }
+      currentMarks = null;
+    }
+
     st.add("members", stDef);
 
     final ST stReg = group.getInstanceOf("action_reg");
