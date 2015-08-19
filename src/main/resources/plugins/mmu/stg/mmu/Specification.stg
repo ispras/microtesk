@@ -39,11 +39,14 @@ variable_def(id, name, size) ::= <<
 private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
 >>
 
-type_def(name, value_name) ::= <<
-private final MmuAddressType <name> = new MmuAddressType(null, <value_name>);<\n>
+address_def(name, value_name, fields) ::= <<
+private final MmuAddressType <name> = new MmuAddressType(null, <value_name>);
+{
+  <fields : {field | <name>.addField(<field>);}; separator="\n">
+}<\n>
 >>
 
-type_reg(name) ::= <<
+address_reg(name) ::= <<
 builder.registerAddress(<name>);
 >>
 

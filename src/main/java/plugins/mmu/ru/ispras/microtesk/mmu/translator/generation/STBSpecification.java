@@ -85,14 +85,15 @@ public final class STBSpecification implements STBuilder {
 
     for(final Address address : ir.getAddresses().values()) {
       final String name = address.getId();
-      buildFields(name, address.getContentType(), st, null, group);
+      final ST stDef = group.getInstanceOf("address_def");
 
-      final ST stDef = group.getInstanceOf("type_def");
+      buildFields(name, address.getContentType(), st, stDef, group);
+
       stDef.add("name", name);
       stDef.add("value_name", name + "_" + Utils.listToString(address.getAccessChain(), '_'));
       st.add("members", stDef);
 
-      final ST stReg = group.getInstanceOf("type_reg");
+      final ST stReg = group.getInstanceOf("address_reg");
       stReg.add("name", name);
       st.add("stmts", stReg);
     }

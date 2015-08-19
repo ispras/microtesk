@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -28,6 +31,9 @@ public final class MmuAddressType {
   /** Address description (the variable contains the name and the bit length). */
   private final Variable addrStruct;
   private final IntegerVariable address;
+
+  /** The entry fields. */
+  private final List<IntegerVariable> fields = new ArrayList<>();
 
   public MmuAddressType(final Variable addrStruct, final IntegerVariable address) {
     InvariantChecks.checkNotNull(address);
@@ -49,6 +55,25 @@ public final class MmuAddressType {
 
   public Variable getStruct() {
     return addrStruct;
+  }
+
+  /**
+   * Returns address fields.
+   * 
+   * @return the list of entry fields.
+   */
+  public List<IntegerVariable> getFields() {
+    return fields;
+  }
+
+  /**
+   * Registers an address field.
+   * 
+   * @param field an address field to be registered.
+   */
+  public void addField(final IntegerVariable field) {
+    InvariantChecks.checkNotNull(field);
+    fields.add(field);
   }
 
   @Override
