@@ -32,7 +32,7 @@ public final class MmuAddressType {
   private final Variable addrStruct;
   private final IntegerVariable address;
 
-  /** The entry fields. */
+  /** Address fields. */
   private final List<IntegerVariable> fields = new ArrayList<>();
 
   public MmuAddressType(final Variable addrStruct, final IntegerVariable address) {
