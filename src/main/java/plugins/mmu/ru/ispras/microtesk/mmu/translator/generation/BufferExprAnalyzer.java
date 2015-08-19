@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -21,10 +22,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -35,6 +38,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 public final class BufferExprAnalyzer {
@@ -46,6 +50,7 @@ public final class BufferExprAnalyzer {
   private final List<IntegerField> indexFields;
   private final List<IntegerField> tagFields;
   private final List<IntegerField> offsetFields;
+  private final List<Pair<IntegerVariable, IntegerField>> matchBindings;
 
   private IntegerField newAddressField(final NodeOperation node) {
     InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
@@ -117,15 +122,18 @@ public final class BufferExprAnalyzer {
     private final Set<StandardOperation> SUPPORTED_OPS = EnumSet.of(
         StandardOperation.EQ, StandardOperation.AND, StandardOperation.BVEXTRACT);
 
-    private final List<IntegerField> fields = new ArrayList<>();
-    private final List<Pair<IntegerField, Node>> bindings = new ArrayList<>();
     private final Deque<Enum<?>> opStack = new ArrayDeque<Enum<?>>();
+    private final List<IntegerField> fields = new ArrayList<>();
+    private final List<Pair<IntegerVariable, IntegerField>> bindings = new ArrayList<>();
+
+    private IntegerVariable left = null;
+    private IntegerField right = null;
 
     public List<IntegerField> getTagFields() {
       return fields;
     }
 
-    public List<Pair<IntegerField, Node>> getMatchBindings() {
+    public List<Pair<IntegerVariable, IntegerField>> getMatchBindings() {
       return bindings;
     }
 
@@ -145,6 +153,10 @@ public final class BufferExprAnalyzer {
 
         final IntegerField addressField = newAddressField(node);
         fields.add(addressField);
+
+        InvariantChecks.checkTrue(right == null);
+        right = addressField;
+
         setStatus(Status.SKIP);
       } else if (op == StandardOperation.EQ) {
         if (!opStack.isEmpty() && opStack.peek() != StandardOperation.AND) {
@@ -153,14 +165,66 @@ public final class BufferExprAnalyzer {
               opStack.peek() + " expression");
         }
 
-        // TODO
+        if (node.getOperandCount() != 2) {
+          throw new IllegalStateException("Wrong operand count (2 is expected): " + node);
+        }
+
+        left = null;
+        right = null;
       }
 
       opStack.push(op);
     }
 
     public void onOperationEnd(final NodeOperation node) {
+      final Enum<?> op = node.getOperationId();
+      if (op == StandardOperation.EQ) {
+        InvariantChecks.checkNotNull(right);
+        InvariantChecks.checkNotNull(left);
+
+        if (right.getVariable().getValue() != null && right.getWidth() != left.getWidth()) {
+          right = new IntegerField(new IntegerVariable(
+              right.getVariable().getName(), left.getWidth(), right.getVariable().getValue()));
+        }
+
+        bindings.add(new Pair<>(left, right));
+      }
+
       opStack.pop();
+    }
+
+    @Override
+    public void onVariable(final NodeVariable node) {
+      if (node.equals(addressVariable.getNode())) {
+        final IntegerField addressField = newAddressField(node);
+        fields.add(addressField);
+
+        InvariantChecks.checkTrue(right == null);
+        right = addressField; 
+      } else {
+        InvariantChecks.checkTrue(left == null);
+        left = new IntegerVariable(node.getName(), node.getDataType().getSize());
+      }
+    }
+
+    @Override
+    public void onValue(final NodeValue node) {
+      InvariantChecks.checkTrue(right == null);
+
+      final BigInteger value;
+      final int width;
+
+      if (node.isType(DataTypeId.LOGIC_INTEGER)) {
+        value = node.getInteger();
+        width = value.bitLength() + 1;
+      } else if (node.isType(DataTypeId.BIT_VECTOR)) {
+        value = node.getBitVector().bigIntegerValue(false);
+        width = node.getBitVector().getBitSize();
+      } else {
+        throw new IllegalStateException("Unsupported value type: " + node.getDataType());
+      }
+
+      right = new IntegerField(new IntegerVariable("#fake", width, value));
     }
   }
 
@@ -188,6 +252,7 @@ public final class BufferExprAnalyzer {
     final ExprTreeWalker walkerMatch = new ExprTreeWalker(visitorMatch);
     walkerMatch.visit(match);
     this.tagFields = visitorMatch.getTagFields();
+    this.matchBindings = visitorMatch.getMatchBindings();
 
     this.offsetFields = fieldTrackerForAddress.getFields();
   }
@@ -202,5 +267,9 @@ public final class BufferExprAnalyzer {
 
   public List<IntegerField> getOffsetFields() {
     return offsetFields;
+  }
+
+  public List<Pair<IntegerVariable, IntegerField>> getMatchBindings() {
+    return matchBindings;
   }
 }

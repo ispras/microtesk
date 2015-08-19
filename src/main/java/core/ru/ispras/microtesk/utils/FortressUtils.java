@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.utils;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
