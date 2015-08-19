@@ -33,6 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBSpecification implements STBuilder {
@@ -177,11 +178,12 @@ public final class STBSpecification implements STBuilder {
 
     st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
 
-    final ST stData = group.getInstanceOf("variable_def");
-    stData.add("id", memory.getDataArg().getName().replace('.', '_'));
-    stData.add("name", memory.getDataArg().getName());
-    stData.add("size", memory.getDataArg().getBitSize());
-    st.add("members", stData);
+    buildFields(memory.getDataArg().getName(), memory.getDataArg().getType(), st, null, group);
+    st.add("members", "");
+
+    for (final Variable variable : memory.getVariables()) {
+      buildFields(variable.getName(), variable.getType(), st, null, group);
+    }
   }
 
   private static void buildFields(
