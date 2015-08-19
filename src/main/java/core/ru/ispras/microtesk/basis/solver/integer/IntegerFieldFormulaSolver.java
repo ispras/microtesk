@@ -168,7 +168,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerFormula<IntegerField> formula) {
     InvariantChecks.checkNotNull(formula);
 
-    // Gather the ranges used in the formula.
+    // Gather the variables' ranges used in the formula.
     final Map<IntegerVariable, Collection<IntegerRange>> ranges = new LinkedHashMap<>();
 
     for (final IntegerClause<IntegerField> clause : formula.getEquationClauses()) {
@@ -176,17 +176,24 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     }
 
     // Construct the disjoint ranges not taking into account the links between the fields.
-    // Two fields, F1 and F2, are called linked if the formula contains (F1 == F2).
+    // Two fields, F1 and F2, are called linked if the formula contains (F1 == F2) or (F1 != F2).
     final Map<IntegerVariable, List<IntegerRange>> dividedRanges = getDividedRanges(ranges);
 
     // Perform further splitting taking into account the links between the fields.
     final Map<IntegerField, Collection<IntegerRange>> fieldRanges = new LinkedHashMap<>();
+    final Map<IntegerVariable, Collection<IntegerField>> varFields = new LinkedHashMap<>();
 
     for (final IntegerField field : linkedWith.keySet()) {
       final Collection<IntegerRange> all = dividedRanges.get(field.getVariable());
       final Collection<IntegerRange> selected = IntegerRange.select(all, getRange(field));
 
       fieldRanges.put(field, selected);
+
+      Collection<IntegerField> fields = varFields.get(field.getVariable());
+      if (fields == null) {
+        varFields.put(field.getVariable(), fields = new LinkedHashSet<>());
+      }
+      fields.add(field);
     }
 
     boolean divideRanges;
@@ -230,19 +237,17 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     } while(divideRanges);
 
     // Update the variable ranges.
-    for (final Map.Entry<IntegerField, Collection<IntegerRange>> entry : fieldRanges.entrySet()) {
-      final IntegerField field = entry.getKey();
-      final Collection<IntegerRange> newFieldRanges = entry.getValue();
-      final List<IntegerRange> oldVarRanges = dividedRanges.get(field.getVariable());
+    for (final IntegerVariable variable : variables) {
+      final Collection<IntegerRange> newRanges = new LinkedHashSet<>();
+      final Collection<IntegerField> fields = varFields.get(variable);
 
-      final Collection<IntegerRange> oldFieldRanges =
-          IntegerRange.select(oldVarRanges, getRange(field));
-      InvariantChecks.checkFalse(oldFieldRanges.isEmpty());
+      if (fields != null) {
+        for (final IntegerField field : fields) {
+          newRanges.addAll(fieldRanges.get(field));
+        }
 
-      final int index = oldVarRanges.indexOf(oldFieldRanges.iterator().next());
-
-      oldVarRanges.removeAll(oldFieldRanges);
-      oldVarRanges.addAll(index, newFieldRanges);
+        dividedRanges.put(variable, IntegerRange.divide(newRanges));
+      }
     }
 
     return dividedRanges;
@@ -270,24 +275,31 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     if (equation.lhs != null) {
       fields.add(equation.lhs);
+
+      if (!linkedWith.containsKey(equation.lhs)) {
+        linkedWith.put(equation.lhs, new LinkedHashSet<IntegerField>());
+      }
     }
     if (equation.rhs != null) {
       fields.add(equation.rhs);
+
+      if (!linkedWith.containsKey(equation.rhs)) {
+        linkedWith.put(equation.rhs, new LinkedHashSet<IntegerField>());
+      }
     }
 
     // Add the link between the fields (to be able to split the variables into disjoint ranges).
     if (equation.lhs != null && equation.rhs != null) {
-      Collection<IntegerField> lhsLinkedWith = linkedWith.get(equation.lhs);
-      if (lhsLinkedWith == null) {
-        linkedWith.put(equation.lhs, lhsLinkedWith = new LinkedHashSet<>());
-      }
-      Collection<IntegerField> rhsLinkedWith = linkedWith.get(equation.rhs);
-      if (rhsLinkedWith == null) {
-        linkedWith.put(equation.rhs, rhsLinkedWith = new LinkedHashSet<>());
-      }
+      final Collection<IntegerField> lhsLinkedWith = linkedWith.get(equation.lhs);
+      final Collection<IntegerField> rhsLinkedWith = linkedWith.get(equation.rhs);
 
       lhsLinkedWith.add(equation.rhs);
+      lhsLinkedWith.addAll(rhsLinkedWith);
+      lhsLinkedWith.remove(equation.lhs);
+
       rhsLinkedWith.add(equation.lhs);
+      rhsLinkedWith.addAll(lhsLinkedWith);
+      rhsLinkedWith.remove(equation.rhs);
     }
 
     for (final IntegerField field : fields) {

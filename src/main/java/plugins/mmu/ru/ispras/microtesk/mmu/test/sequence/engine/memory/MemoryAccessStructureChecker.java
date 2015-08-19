@@ -60,7 +60,7 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
 
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
-System.out.println(formula);
+
     final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
 
     return solver.solve();
