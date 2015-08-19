@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +28,10 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
@@ -34,6 +39,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
@@ -45,15 +51,15 @@ import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AccessSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.Range;
-import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
-import ru.ispras.microtesk.utils.function.TriConsumer;
 
 /**
  * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.)
@@ -68,25 +74,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Memory access structures being processed. */
   private final MemoryAccessStructure structure;
 
-  /**
-   * Refers to the address object constructor.
-   * 
-   * <p>A address object constructor is a user-defined function that maps a memory access (an object
-   * of {@link MemoryAccess}) to the address object (an object of {@link AddressObject}).</p>
-   */
-  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
-
-  /**
-   * Given a non-replaceable buffer, contains the entry provider.
-   * 
-   * <p>An entry provider is a user-defined function that fills a given entry with appropriate data
-   * (the data are produced on the basis the memory access and the address object).</p>
-   */
-  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
-
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
 
   private final long pageMask;
+  private final DataType alignType;
 
   private final AddressAllocator addressAllocator;
   private final EntryIdAllocator entryIdAllocator;
@@ -108,19 +99,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Current solution. */
   private MemorySolution solution;
 
-  /**
-   * Constructs a solver for the given memory access structure.
-   * 
-   * @param structure the memory access structure.
-   * @param context the memory engine context.
-   * @throws IllegalArgumentException if some parameters are null.
-   */
   public MemorySolver(
       final MemoryAccessStructure structure,
       final MemoryEngineContext context,
       final AddressAllocator addressAllocator,
       final EntryIdAllocator entryIdAllocator,
       final long pageMask,
+      final DataType alignType,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
@@ -134,11 +119,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.addressAllocator = addressAllocator;
     this.entryIdAllocator = entryIdAllocator;
 
-    this.addrObjectConstructor = context.getAddrObjectConstructor();
     this.hitCheckers = context.getHitCheckers();
-    this.entryProviders = context.getEntryProviders();
 
     this.pageMask = pageMask;
+    this.alignType = alignType;
 
     this.settings = settings;
   }
@@ -385,16 +369,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       // Update the entry (the map contains one entry).
       for (final MmuEntry entry : entries.values()) {
-        entryProviders.get(buffer).accept(access, addrObject, entry);
+        fillEntry(access, addrObject, entry);
       }
 
       addrObject.setEntries(buffer, entries);
     }
 
     if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
-      final TriConsumer<MemoryAccess, AddressObject, MmuEntry> entryProvider =
-          entryProviders.get(buffer);
-
       final Long bufferEntryId = allocateEntryId(buffer, false);
       final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
 
@@ -403,7 +384,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       // Filling the entry with appropriate data.
-      entryProvider.accept(access, addrObject, bufferEntry);
+      fillEntry(access, addrObject, bufferEntry);
 
       addrObject.addEntry(buffer, bufferEntryId, bufferEntry);
       solution.addEntry(buffer, bufferEntryId, bufferEntry);
@@ -651,7 +632,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
-    final AddressObject addrObject = addrObjectConstructor.apply(access);
+    final AddressObject addrObject = constructAddressObject(access);
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
@@ -822,8 +803,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return replacedTags;
   }
 
-  // TODO: The method is public to be used in user-defined constructors.
-  public long allocateAddress(
+  private long allocateAddress(
       final MmuAddressType addrType,
       final Range<Long> region,
       final boolean peek) {
@@ -838,8 +818,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return allocateAddress(addrType, insignificantBits, region, peek);
   }
 
-  // TODO: The method is public to be used in user-defined constructors.
-  public long allocateAddress(
+  private long allocateAddress(
       final MmuAddressType addrType,
       final long partialAddress, // Offset
       final Range<Long> region,
@@ -915,13 +894,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(access);
 
     // Construct a valid address object.
-    final AddressObject addrObject = addrObjectConstructor.apply(access);
+    final AddressObject addrObject = constructAddressObject(access);
 
     // Construct the corresponding entry.
-    final TriConsumer<MemoryAccess, AddressObject, MmuEntry> entryProvider =
-        entryProviders.get(parent);
     final MmuEntry entry = new MmuEntry(parent.getFields());
-    entryProvider.accept(access, addrObject, entry);
+    fillEntry(access, addrObject, entry);
 
     solution.addEntry(parent, index, entry);
 
@@ -933,22 +910,130 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return entryIdAllocator.allocate(buffer, peek, null);
   }
 
+  private Map<IntegerVariable, BigInteger> generateData(
+      final MemoryAccessPath path, final Map<IntegerField, BigInteger> knownValues) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(knownValues);
+
+    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
+    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+
+    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
+    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
+
+    // Fix the known values of the addresses.
+    for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
+      formula.addEquation(entry.getKey(), entry.getValue(), true);
+    }
+
+    final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
+
+    final SolverResult<Map<IntegerVariable, BigInteger>> concreteResult = solver.solve();
+    InvariantChecks.checkTrue(concreteResult.getStatus() == SolverResult.Status.SAT,
+        String.format("The path is infeasible: path=%s, formula=%s", path, formula));
+
+    // Solution contains only such variables that are used in the path.
+    return concreteResult.getResult();
+  }
+
+  private AddressObject constructAddressObject(final MemoryAccess access) {
+    InvariantChecks.checkNotNull(access);
+
+    final MmuSubsystem memory = MmuTranslator.getSpecification();
+
+    final MmuAddressType vaType = memory.getVirtualAddress();
+    final MmuAddressType paType = memory.getPhysicalAddress();
+
+    final IntegerVariable vaVar = vaType.getVariable();
+    final IntegerVariable paVar = paType.getVariable();
+
+    final AddressObject addrObject = new AddressObject(access);
+
+    final RegionSettings region = access.getRegion(); // PA constraint.
+    final MmuSegment segment = access.getSegment();   // VA constraint.
+
+    // Allocate physical and virtual addresses.
+    long pa = allocateAddress(paType, region, false);
+    long va = segment.isMapped() ? allocateAddress(vaType, 0, segment, false) : segment.getVa(pa);
+
+    // The address should be aligned not to cause the exception.
+    pa = addrObject.getType().getDataType().align(pa);
+
+    // Align the addresses if the option is set.
+    if (alignType != null) {
+      pa = alignType.align(pa);
+    }
+
+    addrObject.setAddress(vaType, va);
+    addrObject.setAddress(paType, pa);
+
+    correctOffset(addrObject);
+
+    // Fix the address tags, indices and page offsets.
+    final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
+
+    for (final MmuBuffer buffer : access.getPath().getBuffers()) {
+      final MmuAddressType addrType = buffer.getAddress();
+      final long address = addrObject.getAddress(addrType);
+
+      final MmuExpression tagExpr = buffer.getTagExpression();
+      final long tag = buffer.getTag(address);
+      knownValues.putAll(IntegerField.split(tagExpr.getTerms(), BigInteger.valueOf(tag)));
+
+      final MmuExpression indexExpr = buffer.getIndexExpression();
+      final long index = buffer.getIndex(address);
+      knownValues.putAll(IntegerField.split(indexExpr.getTerms(), BigInteger.valueOf(index)));
+    }
+
+    final BigInteger pageMaskValue = BigIntegerUtils.valueOfUnsignedLong(pageMask);
+    knownValues.put(IntegerField.create(vaVar, pageMaskValue), BigInteger.valueOf(pa & pageMask));
+    knownValues.put(IntegerField.create(paVar, pageMaskValue), BigInteger.valueOf(pa & pageMask));
+
+    final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
+    InvariantChecks.checkNotNull(values);
+
+    // Set the addresses having been refined.
+    addrObject.setAddress(vaType, values.get(vaVar).longValue());
+    addrObject.setAddress(paType, values.get(paVar).longValue());
+
+    // Set the attributes to be used in an adapter (if required).
+    for (final Map.Entry<IntegerVariable, BigInteger> attribute : values.entrySet()) {
+      final IntegerVariable key = attribute.getKey();
+      final BigInteger value = attribute.getValue();
+
+      addrObject.setAttrValue(key, value.longValue());
+    }
+
+    return addrObject;
+  }
+
+  private void correctOffset(final AddressObject addrObject) {
+    InvariantChecks.checkNotNull(addrObject);
+
+    final MmuAddressType vaType = memory.getVirtualAddress();
+    final MmuAddressType paType = memory.getPhysicalAddress();
+
+    final long va = addrObject.getAddress(vaType);
+    final long pa = addrObject.getAddress(paType);
+
+    addrObject.setAddress(vaType, (va & ~pageMask) | (pa & pageMask));
+  }
+
   /**
    * Avoids inconsistencies that may appear during the constraint solving.
    * 
    * @param addrObject the address object to be corrected.
    */
-  public void correctAddressObject(final AddressObject addrObject) {
+  private void correctAddressObject(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
+
+    correctOffset(addrObject);
 
     final MmuAddressType vaType = memory.getVirtualAddress();
     final MmuAddressType paType = memory.getPhysicalAddress();
 
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
-
-    // Correct the virtual address offset.
-    va = (va & ~pageMask) | (pa & pageMask);
 
     // Correct the virtual memory segment.
     boolean regionFound = false;
@@ -1002,5 +1087,46 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     InvariantChecks.checkTrue(regionFound);
     addrObject.setAddress(vaType, va);
+  }
+
+  /**
+   * Fills the given entry with appropriate data produced on the basis the memory access and
+   * the address object.
+   * 
+   * @param access the memory access.
+   * @param addrObject the address object.
+   * @param entry the entry to be filled.
+   */
+  private void fillEntry(
+      final MemoryAccess access,
+      final AddressObject addrObject,
+      final MmuEntry entry) {
+    InvariantChecks.checkNotNull(access);
+    InvariantChecks.checkNotNull(addrObject);
+    InvariantChecks.checkNotNull(entry);
+
+    correctAddressObject(addrObject);
+
+    // Fix the known values of the addresses.
+    final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
+
+    for (final Map.Entry<MmuAddressType, Long> addrEntry : addrObject.getAddresses().entrySet()) {
+      final MmuAddressType addrType = addrEntry.getKey();
+      final long address = addrEntry.getValue();
+
+      knownValues.put(new IntegerField(addrType.getVariable()), BigInteger.valueOf(address));
+    }
+
+    final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
+    InvariantChecks.checkNotNull(values);
+
+    // Set the entry fields.
+    entry.setValid(true);
+    for (final IntegerVariable field : entry.getVariables()) {
+      // If an entry field is not used in the path it remains unchanged.
+      if (values.containsKey(field)) {
+        entry.setValue(field, values.get(field));
+      }
+    }
   }
 }

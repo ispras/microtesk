@@ -88,7 +88,7 @@ public final class MemoryHazard {
   private final MmuAddressType address;
   /** The device being used. */
   private final MmuBuffer device;
-  /** The list of address condition. */
+  /** The address condition. */
   private final MmuCondition condition;
 
   /**

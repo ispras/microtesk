@@ -17,14 +17,9 @@ package ru.ispras.microtesk.mmu.test.sequence.engine;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
-import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.microtesk.utils.function.Predicate;
-import ru.ispras.microtesk.utils.function.TriConsumer;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -36,35 +31,19 @@ public final class MemoryEngineContext {
   // TODO: Integration with MMU TestGen.
   private final Iterator<MemoryAccessStructure> structureIterator;
 
-  private final Function<MemoryAccess, AddressObject> addrObjectConstructor;
-  private final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders;
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
-      final Function<MemoryAccess, AddressObject> addrObjectConstructor,
-      final Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> entryProviders,
       final Map<MmuAddressType, Predicate<Long>> hitCheckers) {
-    InvariantChecks.checkNotNull(addrObjectConstructor);
-    InvariantChecks.checkNotNull(entryProviders);
     InvariantChecks.checkNotNull(hitCheckers);
 
     this.structureIterator = structureIterator;
-    this.addrObjectConstructor = addrObjectConstructor;
-    this.entryProviders = entryProviders;
     this.hitCheckers = hitCheckers;
   }
 
   public Iterator<MemoryAccessStructure> getStructureIterator() {
     return structureIterator;
-  }
-
-  public Function<MemoryAccess, AddressObject> getAddrObjectConstructor() {
-    return addrObjectConstructor;
-  }
-
-  public Map<MmuBuffer, TriConsumer<MemoryAccess, AddressObject, MmuEntry>> getEntryProviders() {
-    return entryProviders;
   }
 
   public Map<MmuAddressType, Predicate<Long>> getHitCheckers() {

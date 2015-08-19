@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
+import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -22,6 +28,38 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerField {
+  public static Map<IntegerField, BigInteger> split(
+      final List<IntegerField> cat, final BigInteger value) {
+    InvariantChecks.checkNotNull(cat);
+    InvariantChecks.checkNotNull(value);
+
+    final Map<IntegerField, BigInteger> result = new LinkedHashMap<>();
+
+    int offset = 0;
+    for (final IntegerField field : cat) {
+      final int lo = offset;
+      final int hi = offset + (field.getWidth() - 1);
+
+      final BigInteger fieldValue = BitUtils.getField(value, lo, hi);
+
+      result.put(field, fieldValue);
+      offset += field.getWidth();
+    }
+
+    return result;
+  }
+
+  public static IntegerField create(final IntegerVariable variable, final BigInteger mask) {
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(mask);
+    InvariantChecks.checkTrue(mask.compareTo(BigInteger.ZERO) > 0);
+
+    final int lo = mask.getLowestSetBit();
+    final int hi = mask.bitLength() - 1;
+
+    return new IntegerField(variable, lo, hi);
+  }
+
   /** The variable. */
   private final IntegerVariable var;
   /** The lower bit index. */

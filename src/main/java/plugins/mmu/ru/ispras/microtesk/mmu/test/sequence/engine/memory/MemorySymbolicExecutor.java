@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemorySymbolicExecutor} implements a simple symbolic executor of memory accesses.
+ * {@link MemorySymbolicExecutor} implements a simple symbolic executor of memory access structures.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -63,91 +64,173 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  public static MemorySymbolicExecutor instance = null;
-
-  public static MemorySymbolicExecutor get() {
-    if (instance == null) {
-      instance = new MemorySymbolicExecutor();
-    }
-
-    return instance;
+  public static String getVarName(final String varName, final int pathIndex) {
+    InvariantChecks.checkNotNull(varName);
+    return String.format("%s$%d", varName, pathIndex);
   }
 
-  private MemorySymbolicExecutor() {}
+  private final MemoryAccessPath path;
+  private final MemoryAccessStructure structure;
 
-  public Result execute(final MemoryAccessPath path) {
+  private final Collection<IntegerVariable> variables = new LinkedHashSet<>();
+  private final IntegerFormula<IntegerField> formula = new IntegerFormula<>();
+
+  private final Map<String, IntegerVariable> varCache = new HashMap<>();
+
+  public MemorySymbolicExecutor(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
 
-    final Collection<IntegerVariable> variables = new LinkedHashSet<>();
-    final IntegerFormula<IntegerField> formula = new IntegerFormula<>();
+    this.path = path;
+    this.structure = null;
+  }
 
-    for (final MmuTransition transition : path.getTransitions()) {
-      execute(transition, variables, formula);
+  public MemorySymbolicExecutor(final MemoryAccessStructure structure) {
+    InvariantChecks.checkNotNull(structure);
+
+    this.path = null;
+    this.structure = structure;
+  }
+
+  public Result execute() {
+    InvariantChecks.checkTrue(variables.isEmpty());
+    InvariantChecks.checkTrue(formula.size() == 0);
+
+    if (path != null) {
+      execute(path);
+    } else {
+      execute(structure);
     }
 
     return new Result(variables, formula);
   }
 
+  private void execute(final MemoryAccessStructure structure) {
+    InvariantChecks.checkNotNull(structure);
+    InvariantChecks.checkGreaterThanZero(structure.size());
+
+    for (int j = 0; j < structure.size(); j++) {
+      final MemoryAccessPath path2 = structure.getAccess(j).getPath();
+
+      for (int i = 0; i < j; i++) {
+        final MemoryAccessPath path1 = structure.getAccess(i).getPath();
+        final MemoryDependency dependency = structure.getDependency(i, j);
+
+        // It does not execute the paths (only the dependency).
+        execute(path1, i, path2, j, dependency);
+      }
+
+      execute(path2, j);
+    }
+  }
+
+  private void execute(final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(path);
+
+    execute(path, -1);
+  }
+
+  private void execute(final MemoryAccessPath path, final int pathIndex) {
+    InvariantChecks.checkNotNull(path);
+
+    for (final MmuTransition transition : path.getTransitions()) {
+      execute(transition, pathIndex);
+    }
+  }
+
   private void execute(
-      final MmuTransition transition,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+      final MemoryAccessPath path1,
+      final int pathIndex1,
+      final MemoryAccessPath path2,
+      final int pathIndex2,
+      final MemoryDependency dependency) {
+    InvariantChecks.checkNotNull(path1);
+    InvariantChecks.checkNotNull(path2);
+    InvariantChecks.checkNotNull(dependency);
+
+    for (final MemoryHazard hazard : dependency.getHazards()) {
+      execute(hazard, pathIndex1, pathIndex2);
+    }
+  }
+
+  private void execute(final MemoryHazard hazard, final int pathIndex1, final int pathIndex2) {
+    InvariantChecks.checkNotNull(hazard);
+
+    final MmuCondition condition = hazard.getCondition();
+    if (condition != null) {
+      execute(condition, pathIndex1, pathIndex2);
+    }
+  }
+
+  private void execute(final MmuCondition condition, final int pathIndex1, final int pathIndex2) {
+    InvariantChecks.checkNotNull(condition);
+
+    for (final MmuConditionAtom atom : condition.getAtoms()) {
+      if (atom.getType() != MmuConditionAtom.Type.EQUAL) {
+        continue;
+      }
+
+      final MmuExpression expression = atom.getExpression();
+
+      final IntegerClause<IntegerField> clause = new IntegerClause<>(
+          !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+
+      for (final IntegerField term : expression.getTerms()) {
+        final IntegerField field1 = getPathField(term, pathIndex1);
+        final IntegerField field2 = getPathField(term, pathIndex2);
+
+        clause.addEquation(field1, field2, !atom.isNegated());
+
+        variables.add(field1.getVariable());
+        variables.add(field2.getVariable());
+      }
+
+      formula.addEquationClause(clause);
+    }
+  }
+
+  private void execute(final MmuTransition transition, final int pathIndex) {
     InvariantChecks.checkNotNull(transition);
 
     final MmuGuard guard = transition.getGuard();
     if (guard != null) {
-      execute(guard, variables, formula);
+      execute(guard, pathIndex);
     }
 
     final MmuAction action = transition.getTarget();
     if (action != null) {
-      execute(action, variables, formula);
+      execute(action, pathIndex);
     }
   }
 
-  private void execute(
-      final MmuGuard guard,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+  private void execute(final MmuGuard guard, final int pathIndex) {
     InvariantChecks.checkNotNull(guard);
 
     final MmuBuffer buffer = guard.getBuffer();
     if (buffer != null) {
-      execute(buffer, variables, formula);
+      execute(buffer, pathIndex);
     }
 
     final MmuCondition condition = guard.getCondition();
     if (condition != null) {
-      execute(condition, variables, formula);
+      execute(condition, pathIndex);
     }
   }
 
-  private void execute(
-      final MmuAction action,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+  private void execute(final MmuAction action, final int pathIndex) {
     InvariantChecks.checkNotNull(action);
 
     final Map<IntegerField, MmuBinding> assignments = action.getAction();
     if (assignments != null) {
-      execute(assignments.values(), variables, formula);
+      execute(assignments.values(), pathIndex);
     }
   }
 
-  private void execute(
-      final MmuBuffer buffer,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+  private void execute(final MmuBuffer buffer, final int pathIndex) {
     InvariantChecks.checkNotNull(buffer);
-
-    variables.addAll(buffer.getFields());
-    execute(buffer.getMatchBindings(), variables, formula);
+    execute(buffer.getMatchBindings(), pathIndex);
   }
 
-  private void execute(
-      final MmuCondition condition,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+  private void execute(final MmuCondition condition, final int pathIndex) {
     InvariantChecks.checkNotNull(condition);
     InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
 
@@ -166,22 +249,20 @@ public final class MemorySymbolicExecutor {
         final int lo = offset;
         final int hi = offset + (term.getWidth() - 1);
 
+        final IntegerField field = getPathField(term, pathIndex);
         final BigInteger value = BitUtils.getField(constant, lo, hi);
 
-        clause.addEquation(term, value, !atom.isNegated());
+        clause.addEquation(field, value, !atom.isNegated());
         offset += term.getWidth();
 
-        variables.add(term.getVariable());
+        variables.add(field.getVariable());
       }
 
       formula.addEquationClause(clause);
     }
   }
 
-  private void execute(
-      final Collection<MmuBinding> bindings,
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerField> formula) {
+  private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
     InvariantChecks.checkNotNull(bindings);
 
     final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.AND);
@@ -190,20 +271,22 @@ public final class MemorySymbolicExecutor {
       final IntegerField lhs = binding.getLhs();
       final MmuExpression rhs = binding.getRhs();
 
-      final IntegerVariable lhsVar = lhs.getVariable();
+      final IntegerVariable lhsVar = getPathVar(lhs.getVariable(), pathIndex);
       variables.add(lhsVar);
 
       if (rhs != null) {
         int offset = lhs.getLoIndex();
 
         for (final IntegerField term : rhs.getTerms()) {
+          final IntegerField field = getPathField(term, pathIndex);
+
           final int lo = offset;
-          final int hi = offset + (term.getWidth() - 1);
+          final int hi = offset + (field.getWidth() - 1);
 
-          clause.addEquation(new IntegerField(lhsVar, lo, hi), term, true);
-          offset += term.getWidth();
+          clause.addEquation(new IntegerField(lhsVar, lo, hi), field, true);
+          offset += field.getWidth();
 
-          variables.add(term.getVariable());
+          variables.add(field.getVariable());
         }
 
         if (offset <= lhs.getHiIndex()) {
@@ -218,5 +301,37 @@ public final class MemorySymbolicExecutor {
     if (clause.size() != 0) {
       formula.addEquationClause(clause);
     }
+  }
+
+  private IntegerVariable getPathVar(final IntegerVariable var, final int pathIndex) {
+    InvariantChecks.checkNotNull(var);
+
+    if (pathIndex == -1) {
+      return var;
+    }
+
+    final String pathVarName = getVarName(var.getName(), pathIndex);
+
+    IntegerVariable pathVar = varCache.get(pathVarName);
+    if (pathVar == null) {
+      varCache.put(pathVarName, pathVar = new IntegerVariable(pathVarName, var.getWidth()));
+    }
+
+    return pathVar;
+  }
+
+  private IntegerField getPathField(final IntegerField field, final int pathIndex) {
+    InvariantChecks.checkNotNull(field);
+
+    if (pathIndex == -1) {
+      return field;
+    }
+
+    final IntegerVariable var = getPathVar(field.getVariable(), pathIndex);
+
+    final int lo = field.getLoIndex();
+    final int hi = field.getHiIndex();
+
+    return new IntegerField(var, lo, hi);
   }
 }

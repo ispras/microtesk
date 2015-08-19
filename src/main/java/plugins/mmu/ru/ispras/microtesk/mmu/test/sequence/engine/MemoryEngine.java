@@ -63,6 +63,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public static final String PARAM_PAGE_MASK = "page_mask";
   public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
 
+  public static final String PARAM_ALIGN = "align";
+  public static final DataType PARAM_ALIGN_DEFAULT = null;
+
   private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
     final String id = value != null ? value.toString() : null;
 
@@ -90,8 +93,20 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return id.longValue();
   }
 
+  private static DataType getAlign(final Object value) {
+    if (value == null) {
+      return PARAM_ALIGN_DEFAULT;
+    }
+
+    final Number id =
+        value instanceof Number ? (Number) value : Long.parseLong(value.toString(), 10);
+
+    return DataType.type(id.intValue());
+  }
+
   private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT;
   private long pageMask = PARAM_PAGE_MASK_DEFAULT;
+  private DataType align = PARAM_ALIGN_DEFAULT;
 
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
@@ -113,6 +128,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     classifier = getClassifier(attributes.get(PARAM_CLASSIFIER));
     pageMask = getPageMask(attributes.get(PARAM_PAGE_MASK));
+    align = getAlign(attributes.get(PARAM_ALIGN));
   }
 
   @Override
@@ -219,7 +235,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           entryIdAllocator.reset();
 
           solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
-              pageMask, engineContext.getSettings());
+              pageMask, align, engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve();
           InvariantChecks.checkNotNull(result);
