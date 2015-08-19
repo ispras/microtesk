@@ -396,7 +396,7 @@ final class STBSpecification implements STBuilder {
       sb.append(String.format("var(%s", name));
 
       if (field.getWidth() != field.getVariable().getWidth()) {
-        sb.append(String.format(", %d, %d", name, field.getLoIndex(), field.getHiIndex()));
+        sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
       }
     }
 

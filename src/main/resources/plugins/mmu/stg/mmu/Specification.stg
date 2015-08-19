@@ -92,8 +92,11 @@ buffer_reg(name) ::= <<
 builder.registerBuffer(<name>);
 >>
 
-action_def(name, args) ::= <<
-private final MmuAction <name> = new MmuAction("<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);
+action_def(name, args, marks) ::= <<
+private final MmuAction <name> = new MmuAction("<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);<if(marks)>
+{
+  <marks : {m | name.addMark("<m>");}; separator="\n">
+}<endif>
 >>
 
 action_reg(name) ::= <<
