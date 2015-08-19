@@ -163,18 +163,25 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildControlFlow(final ST st, final STGroup group) {
-    final ST stSeparator = group.getInstanceOf("separator");
-    stSeparator.add("text", "Control Flow");
-    st.add("members", stSeparator);
-    st.add("stmts", "");
-
     final Map<String, Memory> memories = ir.getMemories();
     if (memories.size() > 1) {
-      throw new IllegalStateException("Only one load/store specification is allowed.");
+      throw new IllegalStateException("Only one mmu specification is allowed.");
     }
 
     final Memory memory = memories.values().iterator().next();
+
+    final ST stSeparator = group.getInstanceOf("separator");
+    stSeparator.add("text", String.format("Control Flow (%s)", memory.getId()));
+    st.add("members", stSeparator);
+    st.add("stmts", "");
+
     st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
+
+    final ST stData = group.getInstanceOf("variable_def");
+    stData.add("id", memory.getDataArg().getName().replace('.', '_'));
+    stData.add("name", memory.getDataArg().getName());
+    stData.add("size", memory.getDataArg().getBitSize());
+    st.add("members", stData);
   }
 
   private static void buildFields(
