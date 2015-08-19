@@ -77,7 +77,7 @@ private final MmuBuffer <name> = new MmuBuffer(
     <tag>,
     <index>,
     <offset>,
-    <match>,  // TODO
+    <match>,
     <guard_cond>,  // TODO
     <guard>,  // TODO
     <replaceable>,

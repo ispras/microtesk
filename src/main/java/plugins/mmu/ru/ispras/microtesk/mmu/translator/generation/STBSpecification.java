@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +23,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -61,6 +65,7 @@ public final class STBSpecification implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME); 
     st.add("pack", packageName);
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
   }
@@ -143,7 +148,7 @@ public final class STBSpecification implements STBuilder {
       stDef.add("tag", toMmuExpressionText(analyzer.getTagFields()));
       stDef.add("index", toMmuExpressionText(analyzer.getIndexFields()));
       stDef.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
-      stDef.add("match", "null");
+      stDef.add("match", toMmuBindingsText(analyzer.getMatchBindings()));
       stDef.add("guard_cond", "null");
       stDef.add("guard", "null");
       stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
@@ -194,14 +199,7 @@ public final class STBSpecification implements STBuilder {
 
     if (fields.size() == 1) {
       final IntegerField field = fields.get(0);
-      final String name = field.getVariable().getName().replace('.', '_');
-
-      if (field.getWidth() == field.getVariable().getWidth()) {
-        return String.format("MmuExpression.var(%s)", name);
-      } else {
-        return String.format("MmuExpression.var(%s, %d, %d)",
-            name, field.getLoIndex(), field.getHiIndex());
-      }
+      return toMmuExpressionText(field);
     }
 
     final StringBuilder sb = new StringBuilder();
@@ -209,14 +207,13 @@ public final class STBSpecification implements STBuilder {
 
     boolean isFirst = true;
     for (final IntegerField field : fields) {
-      final String name = field.getVariable().getName().replace('.', '_');
-
       if (isFirst) {
         isFirst = false;
       } else {
         sb.append(", ");
       }
 
+      final String name = field.getVariable().getName().replace('.', '_');
       sb.append("new IntegerField(");
       sb.append(name);
       sb.append(", ");
@@ -224,6 +221,51 @@ public final class STBSpecification implements STBuilder {
       sb.append(", ");
       sb.append(field.getHiIndex());
       sb.append(')');
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+
+  private static String toMmuExpressionText(final IntegerField field) {
+    final String name = field.getVariable().getName().replace('.', '_');
+
+    if (field.getWidth() == field.getVariable().getWidth()) {
+      return String.format("MmuExpression.var(%s)", name);
+    } else {
+      return String.format("MmuExpression.var(%s, %d, %d)",
+          name, field.getLoIndex(), field.getHiIndex());
+    }
+  }
+
+  private static String toMmuBindingsText(
+      final List<Pair<IntegerVariable, IntegerField>> bindings) {
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append(String.format("%s.<MmuBinding>asList(", Arrays.class.getName()));
+
+    boolean isFirst = true;
+    for (final Pair<IntegerVariable, IntegerField> binding : bindings) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(',');
+      }
+
+      sb.append(System.lineSeparator());
+      sb.append("    ");
+
+      final String leftText = binding.first.getName().replace('.', '_');
+      final String rightText;
+
+      if (binding.second.getVariable().getValue() != null) {
+        rightText = String.format("MmuExpression.val(new BigInteger(\"%s\", 10), %d)",
+            binding.second.getVariable().getValue(), binding.second.getWidth()); 
+      } else {
+        rightText = toMmuExpressionText(binding.second);
+      }
+
+      sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
     }
 
     sb.append(')');
