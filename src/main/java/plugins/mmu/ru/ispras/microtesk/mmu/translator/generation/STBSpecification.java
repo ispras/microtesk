@@ -148,8 +148,8 @@ public final class STBSpecification implements STBuilder {
       stDef.add("index", toMmuExpressionText(analyzer.getIndexFields()));
       stDef.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
       stDef.add("match", toMmuBindingsText(analyzer.getMatchBindings()));
-      stDef.add("guard_cond", "null");
-      stDef.add("guard", "null");
+      stDef.add("guard_cond", "null"); // TODO
+      stDef.add("guard", "null"); // TODO
       stDef.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
       stDef.add("parent", buffer.getParent() != null ? buffer.getParent().getId() : "null");
       st.add("members", stDef);
