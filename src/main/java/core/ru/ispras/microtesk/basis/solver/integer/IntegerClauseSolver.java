@@ -158,10 +158,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     }
 
     // Debug check.
-    if (!equalTo.isEmpty()) {
-      throw new IllegalStateException(
+    InvariantChecks.checkTrue(equalTo.isEmpty(), 
           String.format("The set of equalities has not been reduced: %s", this));
-    }
 
     return solveInequalities();
   }
@@ -342,7 +340,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     // Update the domains of the variables that are equal to the LHS variable.
     // The domain of the LHS variable has been already updated.
     for (final IntegerVariable var : lhsEqualVars) {
-      domains.get(var).set(lhsDomain);
+      domains.get(var).intersect(lhsDomain);
     }
 
     // Replace the LHS variable with the RHS one.
