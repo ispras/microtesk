@@ -42,6 +42,9 @@ public final class STBSpecification implements STBuilder {
   private static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
+  private static final Class<?> MMU_OPERATION_CLASS =
+      ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
+
   private static final Class<?> INTEGER_CLASS = 
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
 
@@ -68,6 +71,7 @@ public final class STBSpecification implements STBuilder {
     st.add("name", CLASS_NAME); 
     st.add("pack", packageName);
     st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
+    st.add("imps", String.format("%s.*", MMU_OPERATION_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
   }
 
@@ -84,7 +88,10 @@ public final class STBSpecification implements STBuilder {
     buildControlFlow(stBody, group);
   }
 
-  private static void buildSeparator(final String text, final ST st, final STGroup group) {
+  private static void buildSeparator(
+      final ST st,
+      final STGroup group,
+      final String text) {
     final ST stSeparator = group.getInstanceOf("separator");
     stSeparator.add("text", text);
     st.add("members", stSeparator);
@@ -92,7 +99,7 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildAddresses(final ST st, final STGroup group) {
-    buildSeparator("Addresses", st, group);
+    buildSeparator(st, group, "Addresses");
 
     for(final Address address : ir.getAddresses().values()) {
       final String name = address.getId();
@@ -111,7 +118,7 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildSegments(final ST st, final STGroup group) {
-    buildSeparator("Segments", st, group);
+    buildSeparator(st, group, "Segments");
 
     for(final Segment segment : ir.getSegments().values()) {
       final ST stDef = group.getInstanceOf("segment_def");
@@ -132,7 +139,7 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildBuffers(final ST st, final STGroup group) {
-    buildSeparator("Buffers", st, group);
+    buildSeparator(st, group, "Buffers");
 
     for(final Buffer buffer : ir.getBuffers().values()) {
       final ST stDef = group.getInstanceOf("buffer_def");
@@ -168,7 +175,7 @@ public final class STBSpecification implements STBuilder {
     }
 
     final Memory memory = memories.values().iterator().next();
-    buildSeparator(String.format("Control Flow (%s)", memory.getId()), st, group);
+    buildSeparator(st, group, String.format("Control Flow (%s)", memory.getId()));
 
     st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
 
@@ -178,6 +185,21 @@ public final class STBSpecification implements STBuilder {
     for (final Variable variable : memory.getVariables()) {
       buildFields(variable.getName(), variable.getType(), st, null, group);
     }
+
+    st.add("members", "");
+    st.add("stmts", "");
+
+    buildAction(st, group, "ROOT",
+        String.format("new MmuBinding(%s.getVariable())", memory.getAddress().getId()));
+    st.add("stmts", "builder.setStartAction(ROOT);");
+    st.add("stmts", "");
+
+    buildAction(st, group, "START");
+    st.add("stmts", "builder.registerTransition(new MmuTransition(ROOT, START, new MmuGuard(MemoryOperation.LOAD)));");
+    st.add("stmts", "");
+
+    buildAction(st, group, "STOP");
+    st.add("stmts", "builder.registerTransition(new MmuTransition(ROOT, START, new MmuGuard(MemoryOperation.STORE)));");
   }
 
   private static void buildFields(
@@ -209,6 +231,23 @@ public final class STBSpecification implements STBuilder {
       stVariable.add("size", type.getBitSize());
       st.add("members", stVariable);
     }
+  }
+
+  private static void buildAction(
+      final ST st,
+      final STGroup group,
+      final String name,
+      final String... args) {
+    final ST stDef = group.getInstanceOf("action_def");
+    stDef.add("name", name);
+    for (final String arg : args) {
+      stDef.add("args", arg);
+    }
+    st.add("members", stDef);
+
+    final ST stReg = group.getInstanceOf("action_reg");
+    stReg.add("name", name);
+    st.add("stmts", stReg);
   }
 
   private static String toMmuExpressionText(final List<IntegerField> fields) {
