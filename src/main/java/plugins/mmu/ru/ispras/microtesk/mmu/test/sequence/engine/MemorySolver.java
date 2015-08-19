@@ -978,16 +978,20 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       final MmuExpression tagExpr = buffer.getTagExpression();
       final long tag = buffer.getTag(address);
-      knownValues.putAll(IntegerField.split(tagExpr.getTerms(), BigInteger.valueOf(tag)));
+      knownValues.putAll(
+          IntegerField.split(tagExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(tag)));
 
       final MmuExpression indexExpr = buffer.getIndexExpression();
       final long index = buffer.getIndex(address);
-      knownValues.putAll(IntegerField.split(indexExpr.getTerms(), BigInteger.valueOf(index)));
+      knownValues.putAll(
+          IntegerField.split(indexExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(index)));
     }
 
     final BigInteger pageMaskValue = BigIntegerUtils.valueOfUnsignedLong(pageMask);
-    knownValues.put(IntegerField.create(vaVar, pageMaskValue), BigInteger.valueOf(pa & pageMask));
-    knownValues.put(IntegerField.create(paVar, pageMaskValue), BigInteger.valueOf(pa & pageMask));
+    knownValues.put(
+        IntegerField.create(vaVar, pageMaskValue), BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
+    knownValues.put(
+        IntegerField.create(paVar, pageMaskValue), BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
 
     final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
     InvariantChecks.checkNotNull(values);
@@ -1114,7 +1118,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MmuAddressType addrType = addrEntry.getKey();
       final long address = addrEntry.getValue();
 
-      knownValues.put(new IntegerField(addrType.getVariable()), BigInteger.valueOf(address));
+      knownValues.put(
+          new IntegerField(addrType.getVariable()), BigIntegerUtils.valueOfUnsignedLong(address));
     }
 
     final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);

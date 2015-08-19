@@ -229,6 +229,30 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
             // Definitely, the field should be split.
             if (newDividedRanges.size() > oldDividedRanges.size()) {
               fieldRanges.put(field, newDividedRanges);
+
+              // All fields overlapping the split field should be split.
+              final Collection<IntegerField> otherFields = varFields.get(field.getVariable());
+
+              for (final IntegerField otherField : otherFields) {
+                final IntegerRange otherRange = getRange(otherField);
+
+                if (getRange(field).overlaps(otherRange)) {
+                  final Collection<IntegerRange> oldOtherRanges = fieldRanges.get(otherField);
+                  InvariantChecks.checkNotNull(oldOtherRanges);
+
+                  final Collection<IntegerRange> newOtherRanges =
+                      new LinkedHashSet<>(oldOtherRanges);
+
+                  for (final IntegerRange newRange : newDividedRanges) {
+                    if (newRange.overlaps(getRange(otherField))) {
+                      newOtherRanges.add(newRange.intersect(otherRange));
+                    }
+                  }
+
+                  fieldRanges.put(otherField, IntegerRange.divide(newOtherRanges));
+                }
+              }
+
               divideRanges = true;
             }
           }
