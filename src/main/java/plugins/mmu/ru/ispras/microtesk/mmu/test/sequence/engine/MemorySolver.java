@@ -988,10 +988,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final BigInteger pageMaskValue = BigIntegerUtils.valueOfUnsignedLong(pageMask);
-    knownValues.put(
-        IntegerField.create(vaVar, pageMaskValue), BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
-    knownValues.put(
-        IntegerField.create(paVar, pageMaskValue), BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
+    knownValues.put(IntegerField.create(vaVar, pageMaskValue),
+        BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
+    knownValues.put(IntegerField.create(paVar, pageMaskValue),
+        BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
 
     final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
     InvariantChecks.checkNotNull(values);
