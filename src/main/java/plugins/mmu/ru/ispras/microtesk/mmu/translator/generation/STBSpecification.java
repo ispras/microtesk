@@ -27,11 +27,14 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -200,6 +203,34 @@ public final class STBSpecification implements STBuilder {
 
     buildAction(st, group, "STOP");
     st.add("stmts", "builder.registerTransition(new MmuTransition(ROOT, START, new MmuGuard(MemoryOperation.STORE)));");
+    st.add("stmts", "");
+
+    buildControlFlowForAttribute(st, group, "START", memory, AbstractStorage.READ_ATTR_NAME);
+    buildControlFlowForAttribute(st, group, "START", memory, AbstractStorage.WRITE_ATTR_NAME);
+  }
+
+  private void buildControlFlowForAttribute(
+      final ST st,
+      final STGroup group,
+      final String start,
+      final Memory memory,
+      final String attributeName) {
+    final Attribute attribute = memory.getAttribute(attributeName);
+    if (null == attribute) {
+      throw new IllegalStateException(String.format(
+          "Undefined attribute: %s.%s", memory.getId(), attributeName));
+    }
+
+    final String stop = buildControlFlowForStmts(start, attribute.getStmts());
+    if (null != stop) {
+      st.add("stmts", String.format(
+          "builder.registerTransition(new MmuTransition(%s, STOP));", stop));
+    }
+  }
+
+  private String buildControlFlowForStmts(final String start, final List<Stmt> stmts) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   private static void buildFields(
