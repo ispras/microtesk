@@ -387,7 +387,10 @@ public final class STBSpecification implements STBuilder {
   private static String toMmuExpressionText(final IntegerField field) {
     final String name = field.getVariable().getName().replace('.', '_');
 
-    if (field.getWidth() == field.getVariable().getWidth()) {
+    if (field.getVariable().isDefined()) {
+      return String.format("MmuExpression.val(new %s(\"%s\", 10), %d)",
+          BigInteger.class.getName(), field.getVariable().getValue(), field.getWidth());
+    } else if (field.getWidth() == field.getVariable().getWidth()) {
       return String.format("MmuExpression.var(%s)", name);
     } else {
       return String.format("MmuExpression.var(%s, %d, %d)",
@@ -413,17 +416,7 @@ public final class STBSpecification implements STBuilder {
       sb.append("    ");
 
       final String leftText = binding.first.getName().replace('.', '_');
-      final String rightText;
-
-      if (binding.second.getVariable().getValue() != null) {
-        rightText = String.format("MmuExpression.val(new %s(\"%s\", 10), %d)",
-            BigInteger.class.getName(),
-            binding.second.getVariable().getValue(),
-            binding.second.getWidth()
-            );
-      } else {
-        rightText = toMmuExpressionText(binding.second);
-      }
+      final String rightText = toMmuExpressionText(binding.second);
 
       sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
     }
