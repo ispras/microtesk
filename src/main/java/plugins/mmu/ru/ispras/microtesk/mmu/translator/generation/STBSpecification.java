@@ -30,6 +30,7 @@ import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -79,6 +80,7 @@ public final class STBSpecification implements STBuilder {
     buildAddresses(stBody, group);
     buildSegments(stBody, group);
     buildBuffers(stBody, group);
+    buildControlFlow(stBody, group);
   }
 
   private void buildAddresses(final ST st, final STGroup group) {
@@ -158,6 +160,21 @@ public final class STBSpecification implements STBuilder {
       stReg.add("name", buffer.getId());
       st.add("stmts", stReg);
     }
+  }
+
+  private void buildControlFlow(final ST st, final STGroup group) {
+    final ST stSeparator = group.getInstanceOf("separator");
+    stSeparator.add("text", "Control Flow");
+    st.add("members", stSeparator);
+    st.add("stmts", "");
+
+    final Map<String, Memory> memories = ir.getMemories();
+    if (memories.size() > 1) {
+      throw new IllegalStateException("Only one load/store specification is allowed.");
+    }
+
+    final Memory memory = memories.values().iterator().next();
+    st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
   }
 
   private static void buildFields(
@@ -262,7 +279,7 @@ public final class STBSpecification implements STBuilder {
             BigInteger.class.getName(),
             binding.second.getVariable().getValue(),
             binding.second.getWidth()
-            ); 
+            );
       } else {
         rightText = toMmuExpressionText(binding.second);
       }
