@@ -35,6 +35,10 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtException;
+import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -221,16 +225,80 @@ public final class STBSpecification implements STBuilder {
           "Undefined attribute: %s.%s", memory.getId(), attributeName));
     }
 
-    final String stop = buildControlFlowForStmts(start, attribute.getStmts());
+    final String stop = buildControlFlowForStmts(st, group, start, attribute.getStmts());
     if (null != stop) {
       st.add("stmts", String.format(
           "builder.registerTransition(new MmuTransition(%s, STOP));", stop));
     }
   }
 
-  private String buildControlFlowForStmts(final String start, final List<Stmt> stmts) {
+  private String buildControlFlowForStmts(
+      final ST st,
+      final STGroup group,
+      final String start,
+      final List<Stmt> stmts) {
+    String current = start;
+
+    for (final Stmt stmt : stmts) {
+      switch(stmt.getKind()) {
+        case ASSIGN:
+          current = buildStmtAssign(st, group, current, (StmtAssign) stmt);
+          break;
+
+        case EXCEPT:
+          buildStmtException(st, group, current, (StmtException) stmt);
+          return null; // Control flow cannot be continued after exception.
+
+        case IF:
+          current = buildStmtIf(st, group, current, (StmtIf) stmt);
+          break;
+          
+        case MARK:
+          buildStmtMark(st, group, (StmtMark) stmt);
+          break;
+
+        case TRACE: // Ignored
+          break;
+
+        default:
+          throw new IllegalStateException("Unknown statement: " + stmt.getKind());
+      }
+    }
+
+    return current;
+  }
+
+  private void buildStmtException(
+      final ST st,
+      final STGroup group,
+      final String current,
+      final StmtException stmt) {
+    // TODO Auto-generated method stub
+  }
+
+  private String buildStmtIf(
+      final ST st,
+      final STGroup group,
+      final String current,
+      final StmtIf stmt) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  private String buildStmtAssign(
+      final ST st,
+      final STGroup group,
+      final String current,
+      final StmtAssign stmt) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private void buildStmtMark(
+      final ST st,
+      final STGroup group,
+      final StmtMark stmt) {
+    // TODO Auto-generated method stub
   }
 
   private static void buildFields(
