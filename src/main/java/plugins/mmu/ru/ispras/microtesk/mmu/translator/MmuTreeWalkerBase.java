@@ -38,6 +38,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -139,15 +140,44 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * the Java Integer allowed range; (4) if the width value is less or equal 0. 
    */
 
-  protected final Address newAddress(
-      final CommonTree addressId, final Type type) throws SemanticException {
-
+  protected final Address newAddress(final CommonTree addressId,
+                                     final Type type,
+                                     final List<CommonTree> memberChain) throws SemanticException {
     checkNotNull(addressId, type);
 
-    final Address address =
-        new Address(addressId.getText(), type, Collections.singletonList("value"));
+    final ArrayList<String> path = new ArrayList<>();
+    if (memberChain != null) {
+      path.ensureCapacity(memberChain.size());
+      for (final CommonTree member : memberChain) {
+        path.add(member.getText());
+      }
+    }
+    if (!path.isEmpty()) {
+      final Type nested = type.searchNested(path);
+      if (nested == null) {
+        raiseError(where(addressId), "Invalid value member specified.");
+      }
+      if (nested.isStruct()) {
+        raiseError(where(addressId), "Address value member should be bit vector.");
+      }
+    }
+    if (path.isEmpty() && type.isStruct()) {
+      final String name = type.getFields().keySet().iterator().next();
+      final Type nested = type.getFields().get(name);
+
+      if (nested.isStruct()) {
+        raiseError(where(addressId), "Address value member needs to be specified.");
+      }
+      path.add(name);
+    }
+    final Address address;
+    if (type.isStruct()) {
+      address = new Address(addressId.getText(), type, Collections.unmodifiableList(path));
+    } else {
+      address = new Address(addressId.getText(), type.getBitSize());
+    }
     ir.addAddress(address);
-    newType(addressId, type);
+    // newType(addressId, type);
 
     return address;
   }
@@ -157,19 +187,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final class StructBuilder {
-    private String id = null;
+    private final String id;
     private final Map<String, Type> fields = new LinkedHashMap<>();
 
-    public StructBuilder() {}
-
-    public StructBuilder setId(final CommonTree id) {
-      this.id = id.getText();
-      return this;
-    }
-
-    public StructBuilder setIdAsEntry(final CommonTree id) {
-      this.id = id.getText() + ".Entry";
-      return this;
+    public StructBuilder(final String id) {
+      InvariantChecks.checkNotNull(id);
+      this.id = id;
     }
 
     /**
@@ -242,11 +265,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final CommonTree typeId, final Type type) throws SemanticException {
     checkNotNull(typeId, type);
 
-    if (ir.getTypes().containsKey(type.getId())) {
-      raiseError(where(typeId), String.format("Redefinition of '%s'.", type.getId()));
+    final String typeName = typeId.getText();
+    if (ir.getTypes().containsKey(typeName)) {
+      raiseError(where(typeId), String.format("Redefinition of '%s'.", typeName));
     }
 
-    ir.addType(type);
+    ir.addType(type, typeName);
+    return type;
+  }
+
+  protected final Type findType(final CommonTree typeId) throws SemanticException {
+    checkNotNull(typeId, typeId);
+
+    final Type type = ir.getTypes().get(typeId.getText());
+    if (type == null) {
+      raiseError(where(typeId),
+                 String.format("'%s' is not defined or is not a type.", typeId.getText()));
+    }
     return type;
   }
 

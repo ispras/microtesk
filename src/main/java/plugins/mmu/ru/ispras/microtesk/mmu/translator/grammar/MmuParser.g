@@ -55,6 +55,16 @@ import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 }
 
+@members {
+  boolean isInBitField() {
+    return commonParser.isInBitField();
+  }
+
+  void setInBitField(boolean value) {
+    commonParser.setInBitField(value);
+  }
+}
+
 //==================================================================================================
 // MMU Specification
 //==================================================================================================
@@ -80,12 +90,25 @@ let
     : MMU_LET^ id=ID ASSIGN! expr {declare($id, NmlSymbolKind.LET_CONST, false);}
     ;
 
+fields
+    : field (COMMA! field)*
+    ;
+
+field
+    : ID COLON! typeRef
+    ;
+
+typeRef
+    : ID
+    | expr (ASSIGN! expr)?
+    ;
+
 //==================================================================================================
 // Struct
 //==================================================================================================
 
 struct
-    : MMU_STRUCT^ ID LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
+    : MMU_STRUCT^ ID LEFT_PARENTH! fields RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -93,7 +116,16 @@ struct
 //==================================================================================================
 
 address
-    : MMU_ADDRESS^ ID LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
+    : MMU_ADDRESS^ ID LEFT_PARENTH! addressType RIGHT_PARENTH! (COLON! addressValue)?
+    ;
+
+addressType
+    : fields -> ^(MMU_STRUCT fields)
+    | ID
+    ;
+
+addressValue
+    : ID (DOT! ID)*
     ;
 
 //==================================================================================================
@@ -151,16 +183,7 @@ sets
 //--------------------------------------------------------------------------------------------------
 
 entry
-    : MMU_ENTRY^ ASSIGN! LEFT_PARENTH! field (COMMA! field)* RIGHT_PARENTH!
-    ;
-
-field
-    : ID COLON! typeRef
-    ;
-
-typeRef
-    : ID
-    | expr (ASSIGN! expr)?
+    : MMU_ENTRY^ ASSIGN! LEFT_PARENTH! fields RIGHT_PARENTH!
     ;
 
 //--------------------------------------------------------------------------------------------------

@@ -22,14 +22,23 @@ abstract class Nested<T extends Nested<T>> {
   protected abstract T getNested(final String name);
 
   @SuppressWarnings("unchecked")
-  public T accessNested(final List<String> accessChain) {
+  public T searchNested(final List<String> accessChain) {
     checkNotNull(accessChain);
 
     T container = (T) this;
     for (final String name : accessChain) {
       container = container.getNested(name);
-      checkNotNull(container);
+      if (container == null) {
+        break;
+      }
     }
     return container;
+  }
+
+  public T accessNested(final List<String> accessChain) {
+    final T nested = searchNested(accessChain);
+    checkNotNull(nested);
+
+    return nested;
   }
 }

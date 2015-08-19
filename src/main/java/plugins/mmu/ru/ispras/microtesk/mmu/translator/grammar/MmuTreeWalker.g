@@ -95,14 +95,14 @@ let
 // Struct
 //==================================================================================================
 
-struct
+struct returns [Type res]
     : ^(MMU_STRUCT structId=ID
        {declareAndPushSymbolScope($structId, MmuSymbolKind.TYPE);}
-       type=structFields) {newType($structId, $type.res.setId($structId).build());}
+       type=structFields[$structId.getText()]) {res = newType($structId, $type.res.build());}
     ; finally { popSymbolScope(); }
 
-structFields returns [StructBuilder res]
-@init  { final StructBuilder builder = new StructBuilder(); }
+structFields [String id] returns [StructBuilder res]
+@init  { final StructBuilder builder = new StructBuilder(id); }
 @after { $res = builder; }
     : ( fieldId=ID { declare($fieldId, MmuSymbolKind.FIELD, false); }
         typeId=ID { builder.addField($fieldId, $typeId); }
@@ -117,10 +117,14 @@ structFields returns [StructBuilder res]
 //==================================================================================================
 
 address
-    : ^(MMU_ADDRESS addressId=ID
-        {declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);}
-        e=structFields)
-        {newAddress($addressId, $e.res.setId($addressId).build());}
+@init { Type addressType = null; }
+    : ^(MMU_ADDRESS addressId=ID {declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);}
+                    ( ref=ID { addressType = findType($ref); }
+                    | ^(MMU_STRUCT type=structFields[$addressId.getText()] {
+                        addressType = newType($addressId, $type.res.build());
+                      }))
+                    chain=memberChain?)
+      { newAddress($addressId, addressType, $chain.res); }
     ; finally {popSymbolScope();}
 
 //==================================================================================================
@@ -155,7 +159,7 @@ buffer
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
           | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
-          | ^(w=MMU_ENTRY e=structFields){builder.setEntry($w, $e.res.setIdAsEntry($bufferId).build());}
+          | ^(w=MMU_ENTRY e=structFields[$bufferId.getText() + ".Entry"]) {builder.setEntry($w, $e.res.build());}
           | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
           | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
           | ^(w=MMU_GUARD guard=expr[0]) {builder.setGuard($w, $guard.res);}

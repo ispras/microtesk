@@ -97,12 +97,15 @@ public final class Ir {
     memories.put(memory.getId(), memory);
   }
 
+  public void addType(final Type type, final String name) {
+    checkNotNull(type);
+    checkNotNull(name);
+    types.put(name, type);
+  }
+
   public void addType(final Type type) {
     checkNotNull(type);
-    final String id = type.getId();
-
-    checkNotNull(id);
-    types.put(id, type);
+    addType(type, type.getId());
   }
 
   @Override
