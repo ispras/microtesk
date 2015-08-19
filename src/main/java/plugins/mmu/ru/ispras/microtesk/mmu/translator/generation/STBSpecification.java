@@ -42,6 +42,8 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSpecification implements STBuilder {
@@ -205,7 +207,7 @@ final class STBSpecification implements STBuilder {
     st.add("stmts", "");
 
     buildAction(st, group, "START");
-    st.add("stmts", "builder.registerTransition(new MmuTransition(ROOT, START, new MmuGuard(MemoryOperation.LOAD)));");
+    buildTransition(st, "ROOT", "START", "new MmuGuard(MemoryOperation.LOAD)");
     st.add("stmts", "");
 
     buildAction(st, group, "STOP");
@@ -231,8 +233,7 @@ final class STBSpecification implements STBuilder {
     currentMarks = null;
     final String stop = buildControlFlowForStmts(st, group, start, attribute.getStmts());
     if (null != stop) {
-      st.add("stmts", String.format(
-          "builder.registerTransition(new MmuTransition(%s, STOP));", stop));
+      buildTransition(st, stop, "STOP");
     }
   }
 
@@ -277,7 +278,11 @@ final class STBSpecification implements STBuilder {
       final STGroup group,
       final String current,
       final StmtException stmt) {
-    // TODO Auto-generated method stub
+    final String name = stmt.getMessage();
+    buildAction(st, group, name);
+
+    st.add("stmts", String.format(
+        "builder.registerTransition(new MmuTransition(%s, %s));", current, name));
   }
 
   private String buildStmtIf(
@@ -360,6 +365,34 @@ final class STBSpecification implements STBuilder {
     final ST stReg = group.getInstanceOf("action_reg");
     stReg.add("name", name);
     st.add("stmts", stReg);
+  }
+
+  private void buildTransition(
+      final ST st,
+      final String source,
+      final String target) {
+    buildTransition(st, source, target, null);
+  }
+
+  private void buildTransition(
+      final ST st,
+      final String source,
+      final String target,
+      final String guard) {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append("builder.registerTransition(new MmuTransition(");
+    sb.append(source);
+    sb.append(", ");
+    sb.append(target);
+
+    if (null != guard) {
+      sb.append(", ");
+      sb.append(guard);
+    }
+
+    sb.append("));");
+    st.add("stmts", sb.toString());
   }
 
   private static String toMmuExpressionText(final List<IntegerField> fields) {
