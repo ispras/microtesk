@@ -29,7 +29,7 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class IntegerFormulaSolverTestCase {
+public final class IntegerFormulaSolverTestCase {
   private final static IntegerVariable a = new IntegerVariable("a", 4);
   private final static IntegerVariable b = new IntegerVariable("b", 4);
   private final static IntegerVariable c = new IntegerVariable("c", 4);
