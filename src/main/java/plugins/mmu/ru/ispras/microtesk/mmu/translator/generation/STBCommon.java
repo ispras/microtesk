@@ -39,7 +39,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.utils.FormatMarker;
 
-public abstract class STBCommon {
+abstract class STBCommon {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 

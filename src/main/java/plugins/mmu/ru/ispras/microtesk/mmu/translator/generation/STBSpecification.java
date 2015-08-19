@@ -43,7 +43,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-public final class STBSpecification implements STBuilder {
+final class STBSpecification implements STBuilder {
   public static final String CLASS_NAME = "Specification";
 
   private static final Class<?> SPEC_CLASS =
