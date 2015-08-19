@@ -84,11 +84,15 @@ public final class STBSpecification implements STBuilder {
     buildControlFlow(stBody, group);
   }
 
-  private void buildAddresses(final ST st, final STGroup group) {
+  private static void buildSeparator(final String text, final ST st, final STGroup group) {
     final ST stSeparator = group.getInstanceOf("separator");
-    stSeparator.add("text", "Addresses");
+    stSeparator.add("text", text);
     st.add("members", stSeparator);
     st.add("stmts", "");
+  }
+
+  private void buildAddresses(final ST st, final STGroup group) {
+    buildSeparator("Addresses", st, group);
 
     for(final Address address : ir.getAddresses().values()) {
       final String name = address.getId();
@@ -107,10 +111,7 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildSegments(final ST st, final STGroup group) {
-    final ST stSeparator = group.getInstanceOf("separator");
-    stSeparator.add("text", "Segments");
-    st.add("members", stSeparator);
-    st.add("stmts", "");
+    buildSeparator("Segments", st, group);
 
     for(final Segment segment : ir.getSegments().values()) {
       final ST stDef = group.getInstanceOf("segment_def");
@@ -131,10 +132,7 @@ public final class STBSpecification implements STBuilder {
   }
 
   private void buildBuffers(final ST st, final STGroup group) {
-    final ST stSeparator = group.getInstanceOf("separator");
-    stSeparator.add("text", "Buffers");
-    st.add("members", stSeparator);
-    st.add("stmts", "");
+    buildSeparator("Buffers", st, group);
 
     for(final Buffer buffer : ir.getBuffers().values()) {
       final ST stDef = group.getInstanceOf("buffer_def");
@@ -170,11 +168,7 @@ public final class STBSpecification implements STBuilder {
     }
 
     final Memory memory = memories.values().iterator().next();
-
-    final ST stSeparator = group.getInstanceOf("separator");
-    stSeparator.add("text", String.format("Control Flow (%s)", memory.getId()));
-    st.add("members", stSeparator);
-    st.add("stmts", "");
+    buildSeparator(String.format("Control Flow (%s)", memory.getId()), st, group);
 
     st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
 
