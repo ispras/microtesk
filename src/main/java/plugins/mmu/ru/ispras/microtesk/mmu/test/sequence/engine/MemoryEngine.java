@@ -211,7 +211,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     return new MemoryAccessStructureIterator(
-        accessTypes, classifier, customContext, engineContext.getSettings());
+        accessTypes, classifier, customContext.getConstraints(), engineContext.getSettings());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

@@ -24,7 +24,8 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
-import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngineContext;
+import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -111,12 +112,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
       final Classifier<MemoryAccessPath> classifier,
-      final MemoryEngineContext context,
+      final Collection<IntegerConstraint<IntegerField>> constraints,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
-    // Parameter {@code context} can be null.
+    // Parameter {@code constraints} can be null.
     // Parameter {@code settings} can be null.
  
     this.accessTypes = accessTypes;
@@ -130,8 +131,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     for (final MemoryAccessType accessType : accessTypes) {
       final Collection<MemoryAccessPath> paths = 
           CoverageExtractor.get().getPaths(MmuTranslator.getSpecification(), accessType);
-      final Collection<MemoryAccessPath> feasiblePaths = context != null ?
-          MemoryEngineUtils.getFeasiblePaths(paths, context.getConstraints()) : paths;
+      final Collection<MemoryAccessPath> feasiblePaths = constraints != null ?
+          MemoryEngineUtils.getFeasiblePaths(paths, constraints) : paths;
 
       final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
 
