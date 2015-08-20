@@ -132,21 +132,17 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   private List<IntegerVariable> getFieldVars(final IntegerField field) {
     InvariantChecks.checkNotNull(field);
 
-    final List<IntegerVariable> fieldVars = new ArrayList<>();
-
     final IntegerVariable var = field.getVariable();
-    final Collection<IntegerRange> varRanges = dividedRanges.get(var);
 
-    final IntegerRange fieldRange = getRange(field);
+    final Collection<IntegerRange> fieldRanges =
+        IntegerRange.select(dividedRanges.get(var), getRange(field));
 
-    for (final IntegerRange varRange : varRanges) {
-      if (fieldRange.contains(varRange)) {
-        final IntegerVariable fieldVar = getFieldVar(var, varRange);
-        fieldVars.add(fieldVar);
-      }
+    final List<IntegerVariable> result = new ArrayList<>();
+    for (final IntegerRange fieldRange : fieldRanges) {
+      result.add(getFieldVar(var, fieldRange));
     }
 
-    return fieldVars;
+    return result;
   }
 
   private IntegerVariable getFieldVar(final IntegerVariable var, final IntegerRange range) {
@@ -180,22 +176,6 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final Map<IntegerVariable, List<IntegerRange>> dividedRanges = getDividedRanges(ranges);
 
     // Perform further splitting taking into account the links between the fields.
-    final Map<IntegerField, Collection<IntegerRange>> fieldRanges = new LinkedHashMap<>();
-    final Map<IntegerVariable, Collection<IntegerField>> varFields = new LinkedHashMap<>();
-
-    for (final IntegerField field : linkedWith.keySet()) {
-      final Collection<IntegerRange> all = dividedRanges.get(field.getVariable());
-      final Collection<IntegerRange> selected = IntegerRange.select(all, getRange(field));
-
-      fieldRanges.put(field, selected);
-
-      Collection<IntegerField> fields = varFields.get(field.getVariable());
-      if (fields == null) {
-        varFields.put(field.getVariable(), fields = new LinkedHashSet<>());
-      }
-      fields.add(field);
-    }
-
     boolean divideRanges;
 
     do {
@@ -205,74 +185,39 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
         final IntegerField field = entry.getKey();
         final Collection<IntegerField> links = entry.getValue();
 
-        final Collection<IntegerRange> oldDividedRanges = fieldRanges.get(field);
-        InvariantChecks.checkNotNull(oldDividedRanges);
+        final Collection<IntegerRange> oldDividedRanges = dividedRanges.get(field.getVariable());
+        InvariantChecks.checkFalse(oldDividedRanges.isEmpty());
 
         for (final IntegerField link : links) {
           InvariantChecks.checkTrue(field.getWidth() == link.getWidth());
 
-          final Collection<IntegerRange> linkRanges = fieldRanges.get(link);
-          InvariantChecks.checkFalse(linkRanges.isEmpty());
+          final Collection<IntegerRange> linkDividedRanges =
+              IntegerRange.select(dividedRanges.get(link.getVariable()), getRange(link));
+          InvariantChecks.checkFalse(linkDividedRanges.isEmpty());
 
-          // Possibly, the field should be split.
-          if (linkRanges.size() > 1) {
+          // Possibly, the ranges should be split.
+          if (linkDividedRanges.size() > 1) {
             final int offset = field.getLoIndex() - link.getLoIndex();
             final Collection<IntegerRange> newRanges = new LinkedHashSet<>(oldDividedRanges);
 
-            for (final IntegerRange linkRange : linkRanges) {
+            for (final IntegerRange linkRange : linkDividedRanges) {
               newRanges.add(linkRange.shift(offset));
             }
 
-            final Collection<IntegerRange> newDividedRanges = IntegerRange.divide(newRanges);
-            InvariantChecks.checkTrue(newDividedRanges.size() >= oldDividedRanges.size());
+            if (newRanges.size() > oldDividedRanges.size()) {
+              final List<IntegerRange> newDividedRanges = IntegerRange.divide(newRanges);
+              InvariantChecks.checkTrue(newDividedRanges.size() >= oldDividedRanges.size());
 
-            // Definitely, the field should be split.
-            if (newDividedRanges.size() > oldDividedRanges.size()) {
-              fieldRanges.put(field, newDividedRanges);
-
-              // All fields overlapping the split field should be split.
-              final Collection<IntegerField> otherFields = varFields.get(field.getVariable());
-
-              for (final IntegerField otherField : otherFields) {
-                final IntegerRange otherRange = getRange(otherField);
-
-                if (getRange(field).overlaps(otherRange)) {
-                  final Collection<IntegerRange> oldOtherRanges = fieldRanges.get(otherField);
-                  InvariantChecks.checkNotNull(oldOtherRanges);
-
-                  final Collection<IntegerRange> newOtherRanges =
-                      new LinkedHashSet<>(oldOtherRanges);
-
-                  for (final IntegerRange newRange : newDividedRanges) {
-                    if (newRange.overlaps(getRange(otherField))) {
-                      newOtherRanges.add(newRange.intersect(otherRange));
-                    }
-                  }
-
-                  fieldRanges.put(otherField, IntegerRange.divide(newOtherRanges));
-                }
+              // Definitely, the field should be split.
+              if (newDividedRanges.size() > oldDividedRanges.size()) {
+                dividedRanges.put(field.getVariable(), newDividedRanges);
+                divideRanges = true;
               }
-
-              divideRanges = true;
             }
           }
         }
       } // for field-links.
     } while(divideRanges);
-
-    // Update the variable ranges.
-    for (final IntegerVariable variable : variables) {
-      final Collection<IntegerRange> newRanges = new LinkedHashSet<>();
-      final Collection<IntegerField> fields = varFields.get(variable);
-
-      if (fields != null) {
-        for (final IntegerField field : fields) {
-          newRanges.addAll(fieldRanges.get(field));
-        }
-
-        dividedRanges.put(variable, IntegerRange.divide(newRanges));
-      }
-    }
 
     return dividedRanges;
   }
