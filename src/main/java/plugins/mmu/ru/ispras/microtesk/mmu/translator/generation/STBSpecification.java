@@ -247,6 +247,7 @@ final class STBSpecification implements STBuilder {
       final STGroup group,
       final String start,
       final List<Stmt> stmts) {
+    InvariantChecks.checkNotNull(start);
     String current = start;
 
     for (final Stmt stmt : stmts) {
@@ -262,7 +263,7 @@ final class STBSpecification implements STBuilder {
         case IF:
           current = buildStmtIf(st, group, current, (StmtIf) stmt);
           break;
-          
+
         case MARK:
           buildStmtMark((StmtMark) stmt);
           break;
@@ -298,6 +299,8 @@ final class STBSpecification implements STBuilder {
       final STGroup group,
       final String source,
       final StmtIf stmt) {
+    InvariantChecks.checkNotNull(source);
+
     final String join = newJoin();
     buildAction(st, group, join);
 
@@ -323,7 +326,6 @@ final class STBSpecification implements STBuilder {
       buildAction(st, group, ifFalseStart);
 
       buildTransition(st, current, ifFalseStart, guardPrinter.getNegatedGuard());
-
       current = ifFalseStart;
     }
 
@@ -343,7 +345,7 @@ final class STBSpecification implements STBuilder {
       final String current,
       final StmtAssign stmt) {
     // TODO Auto-generated method stub
-    return null;
+    return current;
   }
 
   private void buildStmtMark(final StmtMark stmt) {
@@ -389,6 +391,8 @@ final class STBSpecification implements STBuilder {
       final STGroup group,
       final String name,
       final String... args) {
+    InvariantChecks.checkNotNull(name);
+
     final ST stDef = group.getInstanceOf("action_def");
     stDef.add("name", name);
 
@@ -422,6 +426,9 @@ final class STBSpecification implements STBuilder {
       final String source,
       final String target,
       final String guard) {
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(target);
+
     final String name = String.format("%s_%s_%d", source, target, transitionIndex++);
     final StringBuilder sb = new StringBuilder();
 
