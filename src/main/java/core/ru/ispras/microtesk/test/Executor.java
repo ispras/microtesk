@@ -196,6 +196,11 @@ final class Executor {
             observer.accessLocation("PC").setValue(BigInteger.valueOf(nextAddress));
             continue;
           }
+
+          throw new GenerationAbortedException(String.format(
+              "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
+              "is not accessible in the scope of the current test sequence.",
+              reference.getReference().getName(), call.getText(), call.getAddress()));
         }
 
         // If no label references are found within the delay slot we try to use PC to jump
