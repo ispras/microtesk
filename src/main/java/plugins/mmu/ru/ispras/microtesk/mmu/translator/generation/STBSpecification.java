@@ -310,7 +310,8 @@ final class STBSpecification implements STBuilder {
       st.add("members", "// IF " + condition.toString());
       buildAction(st, group, ifTrueStart);
 
-      // TODO Transition with guard
+      // FIXME Guard is needed
+      buildTransition(st, current, ifTrueStart);
 
       final String ifTrueStop = buildControlFlowForStmts(st, group, ifTrueStart, stmts);
       if (null != ifTrueStop) {
@@ -321,7 +322,8 @@ final class STBSpecification implements STBuilder {
       st.add("members", "// IF NOT " + condition.toString());
       buildAction(st, group, ifFalseStart);
 
-      // TODO transition with guard
+      // FIXME Guard is needed
+      buildTransition(st, current, ifFalseStart);
 
       current = ifFalseStart;
     }
