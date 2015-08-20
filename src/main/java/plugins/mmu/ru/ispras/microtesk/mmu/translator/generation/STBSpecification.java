@@ -23,6 +23,7 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -62,6 +63,8 @@ final class STBSpecification implements STBuilder {
   private final Ir ir;
 
   private List<String> currentMarks = null;
+  private int actionIndex = 0;
+  private int transitionIndex = 0;
 
   public STBSpecification(final String packageName, final Ir ir) {
     InvariantChecks.checkNotNull(packageName);
@@ -213,6 +216,7 @@ final class STBSpecification implements STBuilder {
     buildAction(st, group, "STOP");
     buildTransition(st, "ROOT", "START", "new MmuGuard(MemoryOperation.STORE)");
     st.add("stmts", "");
+    st.add("members", "");
 
     buildControlFlowForAttribute(st, group, "START", memory, AbstractStorage.READ_ATTR_NAME);
     buildControlFlowForAttribute(st, group, "START", memory, AbstractStorage.WRITE_ATTR_NAME);
@@ -286,10 +290,42 @@ final class STBSpecification implements STBuilder {
   private String buildStmtIf(
       final ST st,
       final STGroup group,
-      final String current,
+      final String source,
       final StmtIf stmt) {
-    // TODO Auto-generated method stub
-    return null;
+    final String join = newJoin();
+    buildAction(st, group, join);
+
+    String current = source;
+    for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
+      final Node condition = block.first;
+      final List<Stmt> stmts = block.second;
+
+      final String ifTrueStart = newBranch();
+      st.add("members", "// IF " + condition.toString());
+      buildAction(st, group, ifTrueStart);
+
+      // TODO Transition with guard
+
+      final String ifTrueStop = buildControlFlowForStmts(st, group, ifTrueStart, stmts);
+      if (null != ifTrueStop) {
+        buildTransition(st, ifTrueStop, join);
+      }
+
+      final String ifFalseStart = newBranch();
+      st.add("members", "// IF NOT " + condition.toString());
+      buildAction(st, group, ifFalseStart);
+
+      // TODO transition with guard
+
+      current = ifFalseStart;
+    }
+
+    current = buildControlFlowForStmts(st, group, current, stmt.getElseBlock());
+    if (null != current) {
+      buildTransition(st, current, join);
+    }
+
+    return join;
   }
 
   private String buildStmtAssign(
@@ -377,9 +413,12 @@ final class STBSpecification implements STBuilder {
       final String source,
       final String target,
       final String guard) {
+    final String name = String.format("%s_%s_%d", source, target, transitionIndex++);
     final StringBuilder sb = new StringBuilder();
 
-    sb.append("builder.registerTransition(new MmuTransition(");
+    sb.append("private final MmuTransition ");
+    sb.append(name);
+    sb.append(" = new MmuTransition(");
     sb.append(source);
     sb.append(", ");
     sb.append(target);
@@ -389,8 +428,18 @@ final class STBSpecification implements STBuilder {
       sb.append(guard);
     }
 
-    sb.append("));");
-    st.add("stmts", sb.toString());
+    sb.append(");");
+
+    st.add("members", sb.toString());
+    st.add("stmts", String.format("builder.registerTransition(%s);", name));
+  }
+
+  private String newBranch() {
+    return String.format("BRANCH_%d", actionIndex++);
+  }
+
+  private String newJoin() {
+    return String.format("JOIN_%d", actionIndex++);
   }
 
   private static String toMmuExpressionText(final List<IntegerField> fields) {
