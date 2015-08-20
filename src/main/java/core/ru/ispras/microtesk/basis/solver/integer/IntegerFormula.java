@@ -57,10 +57,22 @@ public final class IntegerFormula<V> {
   }
 
   /**
-   * Adds the formula's clauses to the formula.
+   * Adds the constraint to the formula.
    * 
-   * @param formula the formula to be added.
-   * @throws IllegalArgumentException if {@formula clause} is null.
+   * @param constraint the constraint to be added.
+   * @throws IllegalArgumentException if {@code constraint} is null.
+   */
+  public void addConstraint(final IntegerConstraint<V> constraint) {
+    InvariantChecks.checkNotNull(constraint);
+
+    addFormula(constraint.getFormula());
+  }
+
+  /**
+   * Adds the sub-formula to the formula.
+   * 
+   * @param formula the sub-formula to be added.
+   * @throws IllegalArgumentException if {@code formula} is null.
    */
   public void addFormula(final IntegerFormula<V> formula) {
     InvariantChecks.checkNotNull(formula);
