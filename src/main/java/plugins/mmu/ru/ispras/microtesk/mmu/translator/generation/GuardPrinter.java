@@ -80,7 +80,7 @@ final class GuardPrinter {
         guards = getGuards(expr.getOperand(0), true);
       } else {
         guards = new Pair<String, String>("null", "null");
-        //guards = getConditionGuards(expr); // FIXME
+        //guards = getConditionGuards(expr);
       }
     } else {
       throw new IllegalStateException("Unsupported condition expression format: " + cond);
@@ -105,17 +105,11 @@ final class GuardPrinter {
     final AbstractStorage target = attrRef.getTarget();
     if (target instanceof Segment) {
       final String segmentId = ((Segment) target).getId();
-      final StringBuilder allOtherSegmentId = new StringBuilder();
 
       final Set<String> allSegmentIds = new HashSet<>(ir.getSegments().keySet());
       allSegmentIds.remove(segmentId);
 
-      for (final String id : allSegmentIds) {
-        if (allOtherSegmentId.length() > 0) {
-          allOtherSegmentId.append(", ");
-        }
-        allOtherSegmentId.append(id);
-      }
+      final String allOtherSegmentId = Utils.toString(allSegmentIds, ", ");
 
       hit = String.format(
           "new MmuGuard(null, %s.asList(%s))", Arrays.class.getName(), segmentId);
@@ -129,26 +123,34 @@ final class GuardPrinter {
 
     return new Pair<>(hit, miss);
   }
-
-  /*
+/*
   private Pair<String, String> getConditionGuards(final NodeOperation e) {
     final Enum<?> opId = e.getOperationId();
+
     if (opId == StandardOperation.AND || opId == StandardOperation.OR) {
-      final List<MmuConditionAtom> atoms = getConditionAtoms(e.getOperands());
-      final List<MmuConditionAtom> negated = new ArrayList<>(atoms.size());
-      for (final MmuConditionAtom atom : atoms) {
-        negated.add(MmuConditionAtom.not(atom));
+      final List<String> atoms = getConditionAtoms(e.getOperands());
+      final List<String> negated = new ArrayList<>(atoms.size());
+
+      for (final String atom : atoms) {
+        negated.add(String.format("MmuConditionAtom.not(%s)", atom));
       }
-      final MmuGuard directGuard;
-      final MmuGuard negatedGuard;
+
+      final String directGuard;
+      final String negatedGuard;
+
       if (opId == StandardOperation.AND) {
-        directGuard = new MmuGuard(MmuCondition.and(atoms));
-        negatedGuard = new MmuGuard(MmuCondition.or(negated));
+        directGuard = String.format(
+            "new MmuGuard(MmuCondition.and(%s))", Utils.toString(atoms, ", "));
+        negatedGuard = String.format(
+            "new MmuGuard(MmuCondition.or(%s))", Utils.toString(negated, ", "));
       } else {
-        directGuard = new MmuGuard(MmuCondition.or(atoms));
-        negatedGuard = new MmuGuard(MmuCondition.and(negated));
+        directGuard = String.format(
+            "new MmuGuard(MmuCondition.or(%s))", Utils.toString(atoms, ", "));
+        negatedGuard = String.format(
+            "new MmuGuard(MmuCondition.and(%s))", Utils.toString(negated, ", "));
       }
-      return new MmuGuard[] {directGuard, negatedGuard};
+
+      return new Pair<>(directGuard, negatedGuard);
     }
 
     return getEqualityBasedGuards(e);
@@ -221,5 +223,5 @@ final class GuardPrinter {
     return (StandardOperation.EQ == operator) ?
         new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
   }
-  */
+*/
 }

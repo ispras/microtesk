@@ -15,24 +15,24 @@
 package ru.ispras.microtesk.mmu.translator.generation;
 
 import java.math.BigInteger;
-import java.util.List;
+import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Utils {
   private Utils() {}
 
-  public static String listToString(final List<String> list) {
-    return listToString(list, '.');
+  public static String toString(final Collection<String> list) {
+    return toString(list, ".");
   }
 
-  public static String listToString(final List<String> list, final char ch) {
+  public static String toString(final Collection<String> list, final String sep) {
     InvariantChecks.checkNotNull(list);
 
     final StringBuilder sb = new StringBuilder();
     for (final String string : list) {
       if (sb.length() != 0) {
-        sb.append(ch);
+        sb.append(sep);
       }
       sb.append(string);
     }

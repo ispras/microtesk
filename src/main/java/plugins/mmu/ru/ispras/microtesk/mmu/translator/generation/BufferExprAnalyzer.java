@@ -235,9 +235,7 @@ public final class BufferExprAnalyzer {
     this.addressVariable = addressVariable.accessNested(address.getAccessChain());
 
     final int addressSize = address.getAddressType().getBitSize();
-
-    final String addressName =
-        address.getId() + "." + Utils.listToString(address.getAccessChain());
+    final String addressName = address.getId() + "." + Utils.toString(address.getAccessChain());
 
     this.variableForAddress = new IntegerVariable(addressName, addressSize);
     this.fieldTrackerForAddress = new IntegerFieldTracker(variableForAddress);

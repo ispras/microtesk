@@ -124,7 +124,7 @@ final class STBSpecification implements STBuilder {
       buildFields(name, address.getContentType(), st, stDef, group);
 
       stDef.add("name", name);
-      stDef.add("value_name", name + "_" + Utils.listToString(address.getAccessChain(), '_'));
+      stDef.add("value_name", name + "_" + Utils.toString(address.getAccessChain(), "_"));
       st.add("members", stDef);
 
       final ST stReg = group.getInstanceOf("address_reg");
