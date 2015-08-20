@@ -16,6 +16,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -77,7 +78,19 @@ public final class IntegerFormula<V> {
   public void addFormula(final IntegerFormula<V> formula) {
     InvariantChecks.checkNotNull(formula);
 
-    for (final IntegerClause<V> clause : formula.getClauses()) {
+    addClauses(formula.getClauses());
+  }
+
+  /**
+   * Adds the clauses to the formula.
+   * 
+   * @param clauses the clauses to be added.
+   * @throws IllegalArgumentException if {@code clauses} is null.
+   */
+  public void addClauses(final Collection<IntegerClause<V>> clauses) {
+    InvariantChecks.checkNotNull(clauses);
+
+    for (final IntegerClause<V> clause : clauses) {
       addClause(clause);
     }
   }

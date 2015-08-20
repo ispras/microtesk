@@ -34,7 +34,8 @@ public enum AllocationStrategyId implements AllocationStrategy {
   FREE() {
     @Override 
     public <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes) {
-      InvariantChecks.checkNotEmpty(free);
+      InvariantChecks.checkTrue(!free.isEmpty(),
+          String.format("No free objects: free=%s, used=%s", free, used));
       return Randomizer.get().choose(free);
     }
   },
@@ -43,7 +44,8 @@ public enum AllocationStrategyId implements AllocationStrategy {
   TRY_FREE() {
     @Override 
     public <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes) {
-      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty());
+      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty(),
+          String.format("No free objects: free=%s, used=%s", free, used));
       return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
     }
   },
@@ -55,7 +57,8 @@ public enum AllocationStrategyId implements AllocationStrategy {
 
     @Override 
     public <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes) {
-      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty());
+      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty(),
+          String.format("No free objects: free=%s, used=%s", free, used));
 
       if (free.isEmpty() || used.isEmpty()) {
         final Set<T> nonEmptySet = free.isEmpty() ? used : free;

@@ -79,7 +79,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
           return new SolverResult<>("Empty OR clause");
         }
       } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
-        kernel.addEquationClause(clause);
+        kernel.addClause(clause);
       } else {
         clauses.add(clause);
       }

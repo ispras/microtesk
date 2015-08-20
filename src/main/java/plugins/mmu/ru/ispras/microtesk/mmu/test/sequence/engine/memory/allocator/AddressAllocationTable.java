@@ -38,16 +38,19 @@ import ru.ispras.microtesk.utils.Range;
  */
 public final class AddressAllocationTable {
   private static final int ALLOC_TABLE_SIZE(int width) {
-    if (width < 8) {
-      return 32;
-    }
+    final int defaultSize;
+
     if (width < 16) {
-      return 64;
+      defaultSize = 64; 
+    } else if (width < 32) {
+      defaultSize = 128;
+    } else {
+      defaultSize = 256;
     }
-    if (width < 32) {
-      return 128;
-    }
-    return 256;
+
+    final int maximumSize = width >= Integer.SIZE ? Integer.MAX_VALUE : (1 << width);
+
+    return maximumSize < defaultSize ? maximumSize : defaultSize;
   }
 
   /**
@@ -119,10 +122,7 @@ public final class AddressAllocationTable {
       final int width, final long fieldMask, final long placeMask) {
     InvariantChecks.checkTrue(width > 0);
 
-    final int maximumSize = (1 << width);
-    final int defaultSize = ALLOC_TABLE_SIZE(width);
-
-    final int size = maximumSize < defaultSize ? maximumSize : defaultSize;
+    final int size = ALLOC_TABLE_SIZE(width);
 
     final Set<Long> values = new LinkedHashSet<>();
     for (int i = 0; i < size; i++) {
@@ -154,7 +154,7 @@ public final class AddressAllocationTable {
       }
     }
 
-    return BitUtils.getLongMask(i);
+    return ~BitUtils.getLongMask(i);
   }
 
   private static long allocate(

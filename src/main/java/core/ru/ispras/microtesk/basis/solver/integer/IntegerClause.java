@@ -31,7 +31,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class IntegerClause<V> {
   /**
-   * {@link Type} contains equation clause types.
+   * {@link Type} contains clause types.
    */
   public static enum Type {
     /** Conjunction. */
@@ -40,15 +40,15 @@ public final class IntegerClause<V> {
     OR
   };
 
-  /** The equation clause type: {@code AND} or {@code OR}. */
+  /** The clause type: {@code AND} or {@code OR}. */
   private final Type type;
   /** The equations. */
   private final List<IntegerEquation<V>> equations = new ArrayList<>();
 
   /**
-   * Constructs an equation clause of the given type
+   * Constructs an clause of the given type
    * 
-   * @param type the equation clause type.
+   * @param type the clause type.
    * @throws IllegalArgumentException if {@code type} is null.
    */
   public IntegerClause(final Type type) {
@@ -58,9 +58,9 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Constructs an equation clause of the given type with the given set of equations.
+   * Constructs an clause of the given type with the given set of equations.
    * 
-   * @param type the equation clause type.
+   * @param type the clause type.
    * @param equations the equations.
    * @throws IllegalArgumentException if {@code type} or {@code equations} is null.
    */
@@ -73,9 +73,9 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Constructs a copy of the equation clause.
+   * Constructs a copy of the clause.
    * 
-   * @param rhs the equation clause to be copied.
+   * @param rhs the clause to be copied.
    * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public IntegerClause(final IntegerClause<V> rhs) {
@@ -86,25 +86,25 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Returns the type of the equation clause.
+   * Returns the type of the clause.
    * 
-   * @return the equation clause type.
+   * @return the clause type.
    */
   public Type getType() {
     return type;
   }
 
   /**
-   * Returns the number of equations in the equation clause.
+   * Returns the number of equations in the clause.
    * 
-   * @return the size of the equation clause.
+   * @return the size of the clause.
    */
   public int size() {
     return equations.size();
   }
 
   /**
-   * Adds the equation to the equation clause.
+   * Adds the equation to the clause.
    * 
    * @param equation the equation to be added.
    * @throws IllegalArgumentException if {@code equation} is null.
@@ -115,7 +115,7 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the equation clause.
+   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the clause.
    * 
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side variable.
@@ -128,7 +128,7 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Adds the equality {@code var == val} or inequality {@code var != val} to the equation clause.
+   * Adds the equality {@code var == val} or inequality {@code var != val} to the clause.
    * 
    * @param var the left-hand-side variable.
    * @param val the right-hand-side value.
@@ -152,14 +152,28 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Adds the equations of the given equation clause to this clause.
+   * Adds the equations of the given clause to this clause.
    * 
    * @param clause the clause whose equations to be added.
    * @throws IllegalArgumentException if {@code clause} is null.
    */
-  public void addEquationClause(final IntegerClause<V> clause) {
+  public void addClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
     equations.addAll(clause.getEquations());
+  }
+
+  /**
+   * Adds the equations of the given clauses to this clause.
+   * 
+   * @param clauses the clauses whose equations to be added.
+   * @throws IllegalArgumentException if {@code clauses} is null.
+   */
+  public void addClauses(final Collection<IntegerClause<V>> clauses) {
+    InvariantChecks.checkNotNull(clauses);
+
+    for (final IntegerClause<V> clause : clauses) {
+      addClause(clause);
+    }
   }
 
   /**

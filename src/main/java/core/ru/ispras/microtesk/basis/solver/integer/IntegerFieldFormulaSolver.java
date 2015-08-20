@@ -291,28 +291,49 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final IntegerFormula<IntegerVariable> newFormula = new IntegerFormula<IntegerVariable>();
 
     for (final IntegerClause<IntegerField> oldClause : oldFormula.getClauses()) {
-      newFormula.addClause(getClause(oldClause));
+      newFormula.addClauses(getClauses(oldClause));
     }
 
     return newFormula;
   }
 
-  private IntegerClause<IntegerVariable> getClause(
+  private Collection<IntegerClause<IntegerVariable>> getClauses(
       final IntegerClause<IntegerField> oldClause) {
     InvariantChecks.checkNotNull(oldClause);
 
-    final IntegerClause<IntegerVariable> newClause =
-        new IntegerClause<IntegerVariable>(oldClause.getType());
+    final List<IntegerEquation<IntegerVariable>> conjunctions = new ArrayList<>();
+    final List<IntegerEquation<IntegerVariable>> disjunctions = new ArrayList<>();
 
     for (final IntegerEquation<IntegerField> oldEquation : oldClause.getEquations()) {
-      final IntegerClause<IntegerVariable> newSubClause = getClause(oldEquation);
-      InvariantChecks.checkTrue(
-          newSubClause.size() == 1 || newSubClause.getType() == newClause.getType());
+      final IntegerClause<IntegerVariable> clause = getClause(oldEquation);
 
-      newClause.addEquationClause(newSubClause);
+      final List<IntegerEquation<IntegerVariable>> equations =
+          (clause.getType() == IntegerClause.Type.AND ? conjunctions : disjunctions);
+
+      equations.addAll(clause.getEquations());
     }
 
-    return newClause;
+    final Collection<IntegerClause<IntegerVariable>> newClauses = new ArrayList<>();
+
+    if (oldClause.getType() == IntegerClause.Type.AND
+        || conjunctions.isEmpty() || disjunctions.isEmpty()) {
+      if (!conjunctions.isEmpty()) {
+        newClauses.add(new IntegerClause<>(IntegerClause.Type.AND, conjunctions));
+      }
+      if (!disjunctions.isEmpty()) {
+        newClauses.add(new IntegerClause<>(IntegerClause.Type.OR, disjunctions));
+      }
+    } else {
+      for (final IntegerEquation<IntegerVariable> conjunction : conjunctions) {
+        final IntegerClause<IntegerVariable> newClause =
+            new IntegerClause<>(IntegerClause.Type.OR, disjunctions);
+
+        newClause.addEquation(conjunction);
+        newClauses.add(newClause);
+      }
+    }
+
+    return newClauses;
   }
 
   private IntegerClause<IntegerVariable> getClause(
