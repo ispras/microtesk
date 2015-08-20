@@ -211,7 +211,7 @@ final class STBSpecification implements STBuilder {
     st.add("stmts", "");
 
     buildAction(st, group, "STOP");
-    st.add("stmts", "builder.registerTransition(new MmuTransition(ROOT, START, new MmuGuard(MemoryOperation.STORE)));");
+    buildTransition(st, "ROOT", "START", "new MmuGuard(MemoryOperation.STORE)");
     st.add("stmts", "");
 
     buildControlFlowForAttribute(st, group, "START", memory, AbstractStorage.READ_ATTR_NAME);
@@ -280,9 +280,7 @@ final class STBSpecification implements STBuilder {
       final StmtException stmt) {
     final String name = stmt.getMessage();
     buildAction(st, group, name);
-
-    st.add("stmts", String.format(
-        "builder.registerTransition(new MmuTransition(%s, %s));", current, name));
+    buildTransition(st, current, name);
   }
 
   private String buildStmtIf(
