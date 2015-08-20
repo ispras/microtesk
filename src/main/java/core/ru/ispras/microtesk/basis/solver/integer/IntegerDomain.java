@@ -22,15 +22,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * This class represents a finite integer domain (a finite set of integer values). The domain is
- * defined as a set of disjoint ranges {@link IntegerRange}.
+ * {@link IntegerDomain} class represents a finite integer domain (a finite set of integer values).
+ * 
+ * <p>The domain is defined as a set of disjoint ranges {@link IntegerRange}.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerDomain {
-
   /**
-   * This class implements an iterator over the domain's values.
+   * {@link DomainIterator} class implements an iterator over the domain's values.
    */
   private final class DomainIterator implements Iterator<BigInteger> {
     /** The range index. */

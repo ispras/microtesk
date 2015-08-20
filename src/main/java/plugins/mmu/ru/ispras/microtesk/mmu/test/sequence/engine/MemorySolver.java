@@ -75,6 +75,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessStructure structure;
 
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
+  private final Map<IntegerVariable, Set<BigInteger>> userConstraints;
 
   private final long pageMask;
   private final DataType alignType;
@@ -86,10 +87,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   /** Given a buffer, maps indices to sets of tags to be explicitly loaded into the buffer. */
   private final Map<MmuBuffer, Map<Long, Set<Long>>> bufferHitTags = new LinkedHashMap<>();
-
   /** Given a buffer, contains indices for which replacing sequences have been constructed. */
   private final Map<MmuBuffer, Set<Long>> bufferReplacedIndices = new LinkedHashMap<>();
-
   /** Given an access index, contains the buffers having been processed. */
   private final Map<Integer, Set<MmuBuffer>> handledBuffers = new LinkedHashMap<>();
 
@@ -120,6 +119,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.entryIdAllocator = entryIdAllocator;
 
     this.hitCheckers = context.getHitCheckers();
+    this.userConstraints = context.getUserConstraints();
 
     this.pageMask = pageMask;
     this.alignType = alignType;
@@ -921,14 +921,22 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
-    // Fix the known values of the addresses.
+    // Append the user-defined constraints.
+    for (final Map.Entry<IntegerVariable, Set<BigInteger>> entry : userConstraints.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final Set<BigInteger> values = entry.getValue();
+
+      
+    }
+
+    // Fix the known values.
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       formula.addEquation(entry.getKey(), entry.getValue(), true);
     }
 
     final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
-
     final SolverResult<Map<IntegerVariable, BigInteger>> concreteResult = solver.solve();
+
     InvariantChecks.checkTrue(concreteResult.getStatus() == SolverResult.Status.SAT,
         String.format("The path is infeasible: path=%s, formula=%s", path, formula));
 

@@ -21,8 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link IntegerFormula} represents a formula, which is a set of clauses
- * (objects of {@link IntegerClause}).
+ * {@link IntegerFormula} represents a formula, which is a set of {@link IntegerClause}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -31,16 +30,16 @@ public final class IntegerFormula<V> {
   private final List<IntegerClause<V>> clauses = new ArrayList<>();
 
   /**
-   * Constructs the equation formula.
+   * Constructs the formula.
    */
   public IntegerFormula() {
     // Do nothing.
   }
 
   /**
-   * Constructs a copy of the equation formula.
+   * Constructs a copy of the formula.
    * 
-   * @param rhs the equation formula to be copied.
+   * @param rhs the formula to be copied.
    * @throws IllegalArgumentException if {@code rhs} is null.
    */
   public IntegerFormula(final IntegerFormula<V> rhs) {
@@ -49,21 +48,35 @@ public final class IntegerFormula<V> {
   }
 
   /**
-   * Returns the number of clauses in the equation formula.
+   * Returns the number of clauses in the formula.
    * 
-   * @return the size of the equation formula.
+   * @return the size of the formula.
    */
   public int size() {
     return clauses.size();
   }
 
   /**
-   * Adds the equation clause to the equation formula.
+   * Adds the formula's clauses to the formula.
+   * 
+   * @param formula the formula to be added.
+   * @throws IllegalArgumentException if {@formula clause} is null.
+   */
+  public void addFormula(final IntegerFormula<V> formula) {
+    InvariantChecks.checkNotNull(formula);
+
+    for (final IntegerClause<V> clause : formula.getClauses()) {
+      addClause(clause);
+    }
+  }
+
+  /**
+   * Adds the equation clause to the formula.
    * 
    * @param clause the equation clause to be added.
    * @throws IllegalArgumentException if {@code clause} is null.
    */
-  public void addEquationClause(final IntegerClause<V> clause) {
+  public void addClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
 
     if (clause.getType() == IntegerClause.Type.OR) {
@@ -76,7 +89,7 @@ public final class IntegerFormula<V> {
   }
 
   /**
-   * Adds the equation to the equation formula.
+   * Adds the equation to the formula.
    * 
    * @param equation the equation to be added.
    * @throws IllegalArgumentException if {@code equation} is null.
@@ -91,7 +104,7 @@ public final class IntegerFormula<V> {
   }
 
   /**
-   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the equation formula.
+   * Adds the equality {@code lhs == rhs} or inequality {@code lhs != rhs} to the formula.
    * 
    * @param lhs the left-hand-side variable.
    * @param rhs the right-hand-side variable.
@@ -104,7 +117,7 @@ public final class IntegerFormula<V> {
   }
 
   /**
-   * Adds the equality {@code var == val} or inequality {@code var != val} to the equation formula.
+   * Adds the equality {@code var == val} or inequality {@code var != val} to the formula.
    * 
    * @param var the left-hand-side variable.
    * @param val the right-hand-side value.
@@ -120,7 +133,7 @@ public final class IntegerFormula<V> {
    * 
    * @return the equation clauses.
    */
-  public List<IntegerClause<V>> getEquationClauses() {
+  public List<IntegerClause<V>> getClauses() {
     return clauses;
   }
 

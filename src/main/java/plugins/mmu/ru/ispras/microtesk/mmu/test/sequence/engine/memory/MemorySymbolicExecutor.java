@@ -184,7 +184,7 @@ public final class MemorySymbolicExecutor {
         variables.add(field2.getVariable());
       }
 
-      formula.addEquationClause(clause);
+      formula.addClause(clause);
     }
   }
 
@@ -258,7 +258,7 @@ public final class MemorySymbolicExecutor {
         variables.add(field.getVariable());
       }
 
-      formula.addEquationClause(clause);
+      formula.addClause(clause);
     }
   }
 
@@ -299,7 +299,7 @@ public final class MemorySymbolicExecutor {
     } // for binding.
 
     if (clause.size() != 0) {
-      formula.addEquationClause(clause);
+      formula.addClause(clause);
     }
   }
 

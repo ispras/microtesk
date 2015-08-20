@@ -73,7 +73,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     final List<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
 
     // Construct the formula kernel (the common AND clause).
-    for (final IntegerClause<IntegerVariable> clause : formula.getEquationClauses()) {
+    for (final IntegerClause<IntegerVariable> clause : formula.getClauses()) {
       if (clause.size() == 0) {
         if (clause.getType() == IntegerClause.Type.OR) {
           return new SolverResult<>("Empty OR clause");

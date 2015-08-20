@@ -30,7 +30,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerClause<V> {
-
   /**
    * {@link Type} contains equation clause types.
    */

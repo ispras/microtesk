@@ -232,12 +232,12 @@ public final class IntegerFormulaSolverTestCase {
     final IntegerClause<IntegerVariable> set1 = new IntegerClause<>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
-    formula.addEquationClause(set1);
+    formula.addClause(set1);
 
     final IntegerClause<IntegerVariable> set2 = new IntegerClause<>(IntegerClause.Type.OR);
     set2.addEquation(a, c, false);
     set2.addEquation(a, d, false);
-    formula.addEquationClause(set2);
+    formula.addClause(set2);
 
     check("I: a == b && (b == c || b == d) && (a != c || a != d)", formula, true);
   }
@@ -254,12 +254,12 @@ public final class IntegerFormulaSolverTestCase {
     final IntegerClause<IntegerVariable> set1 = new IntegerClause<>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
-    formula.addEquationClause(set1);
+    formula.addClause(set1);
 
     final IntegerClause<IntegerVariable> set2 = new IntegerClause<>(IntegerClause.Type.AND);
     set2.addEquation(a, c, false);
     set2.addEquation(a, d, false);
-    formula.addEquationClause(set2);
+    formula.addClause(set2);
 
     check("J: a == b && (b == c || b == d) && (a != c && a != d)", formula, false);
   }
@@ -277,25 +277,25 @@ public final class IntegerFormulaSolverTestCase {
         new IntegerClause<>(IntegerClause.Type.OR);
     set1.addEquation(b, c, true);
     set1.addEquation(b, d, true);
-    formula.addEquationClause(set1);
+    formula.addClause(set1);
 
     final IntegerClause<IntegerVariable> set2 =
         new IntegerClause<>(IntegerClause.Type.OR);
     set2.addEquation(c, d, true);
     set2.addEquation(c, e, true);
-    formula.addEquationClause(set2);
+    formula.addClause(set2);
 
     final IntegerClause<IntegerVariable> set3 =
         new IntegerClause<>(IntegerClause.Type.OR);
     set3.addEquation(d, e, true);
     set3.addEquation(d, f, true);
-    formula.addEquationClause(set3);
+    formula.addClause(set3);
 
     final IntegerClause<IntegerVariable> set4 =
         new IntegerClause<>(IntegerClause.Type.AND);
     set4.addEquation(a, e, false);
     set4.addEquation(a, f, false);
-    formula.addEquationClause(set4);
+    formula.addClause(set4);
 
     check("K: a == b && (b == c || b == d) && (c == d || c == e) && (d == e || d == f) && (a != e && a != f)",
         formula, false);
@@ -329,7 +329,7 @@ public final class IntegerFormulaSolverTestCase {
         set.addEquation(arrayVariable[i][j], arrayVariable[i - 1][j], true);
       }
 
-      formula.addEquationClause(set);
+      formula.addClause(set);
     }
 
     check("N: OutOfMemoryError", vars, formula, true);

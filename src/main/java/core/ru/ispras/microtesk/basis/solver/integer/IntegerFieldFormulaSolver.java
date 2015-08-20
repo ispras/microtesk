@@ -167,7 +167,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     // Gather the variables' ranges used in the formula.
     final Map<IntegerVariable, Collection<IntegerRange>> ranges = new LinkedHashMap<>();
 
-    for (final IntegerClause<IntegerField> clause : formula.getEquationClauses()) {
+    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
       gatherRanges(ranges, clause);
     }
 
@@ -290,8 +290,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     final IntegerFormula<IntegerVariable> newFormula = new IntegerFormula<IntegerVariable>();
 
-    for (final IntegerClause<IntegerField> oldClause : oldFormula.getEquationClauses()) {
-      newFormula.addEquationClause(getClause(oldClause));
+    for (final IntegerClause<IntegerField> oldClause : oldFormula.getClauses()) {
+      newFormula.addClause(getClause(oldClause));
     }
 
     return newFormula;
