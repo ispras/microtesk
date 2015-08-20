@@ -425,6 +425,9 @@ public final class TestEngine {
           if (TestSettings.isSelfChecks()) {
             Logger.debugHeader("Preparing Self-Checks for %s", sequenceId);
             selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
+
+            Logger.debugHeader("Executing Self-Checks for %s", sequenceId);
+            executor.executeSequence(selfCheckSequence, testCaseIndex);
           } else {
             selfCheckSequence = null;
           }
