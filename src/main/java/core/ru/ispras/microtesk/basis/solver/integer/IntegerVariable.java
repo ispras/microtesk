@@ -100,6 +100,17 @@ public final class IntegerVariable {
     return value;
   }
 
+  /**
+   * Creates an integer field for the current variable.
+   * 
+   * @param lo the lower bit index.
+   * @param hi the upper bit index.
+   * @return An integer field.
+   */
+  public IntegerField field(final int lo, final int hi) {
+    return new IntegerField(this, lo, hi);
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o == null || !(o instanceof IntegerVariable)) {

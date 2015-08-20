@@ -75,7 +75,7 @@ public final class IntegerField {
    * @param hi the upper bit index.
    * @throws IllegalArgumentException if {@code var} is null.
    */
-  public IntegerField(final IntegerVariable var, int lo, int hi) {
+  public IntegerField(final IntegerVariable var, final int lo, final int hi) {
     InvariantChecks.checkNotNull(var);
 
     this.var = var;
@@ -89,7 +89,7 @@ public final class IntegerField {
    * @param var the variable whose bits to be selected.
    * @param bit the bit index.
    */
-  public IntegerField(final IntegerVariable var, int bit) {
+  public IntegerField(final IntegerVariable var, final int bit) {
     this(var, bit, bit);
   }
 
