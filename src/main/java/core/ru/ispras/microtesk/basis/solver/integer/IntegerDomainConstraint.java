@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -48,6 +49,25 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
     this.type = type;
     this.variable = variable;
     this.values = values;
+  }
+
+  public IntegerDomainConstraint(
+      final V variable,
+      final Set<BigInteger> values) {
+    this(Type.RETAIN, variable, values);
+  }
+
+  public IntegerDomainConstraint(
+      final Type type,
+      final V variable,
+      final BigInteger value) {
+    this(type, variable, Collections.singleton(value));
+  }
+
+  public IntegerDomainConstraint(
+      final V variable,
+      final BigInteger value) {
+    this(Type.RETAIN, variable, Collections.singleton(value));
   }
 
   public Type getType() {

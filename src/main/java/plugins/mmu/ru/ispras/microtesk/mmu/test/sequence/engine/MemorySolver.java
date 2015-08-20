@@ -29,9 +29,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
@@ -40,7 +39,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemorySymbolicExecutor;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
@@ -911,37 +910,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return entryIdAllocator.allocate(buffer, peek, null);
   }
 
-  private Map<IntegerVariable, BigInteger> generateData(
-      final MemoryAccessPath path, final Map<IntegerField, BigInteger> knownValues) {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(knownValues);
-
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
-
-    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
-    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
-
-    // Take into account the user-defined constraints.
-    for (final IntegerConstraint<IntegerField> constraint : constraints) {
-      formula.addConstraint(constraint);
-    }
-
-    // Take into account the fields with known values.
-    for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
-      formula.addEquation(entry.getKey(), entry.getValue(), true);
-    }
-
-    final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
-    final SolverResult<Map<IntegerVariable, BigInteger>> concreteResult = solver.solve();
-
-    InvariantChecks.checkTrue(concreteResult.getStatus() == SolverResult.Status.SAT,
-        String.format("The path is infeasible: path=%s, formula=%s", path, formula));
-
-    // Solution contains only such variables that are used in the path.
-    return concreteResult.getResult();
-  }
-
   private AddressObject constructAddressObject(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
 
@@ -999,7 +967,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
     knownValues.put(IntegerField.create(paVar, pageMaskValue),
         BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
 
-    final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
+    final Collection<IntegerConstraint<IntegerField>> constraints =
+        new ArrayList<>(this.constraints);
+
+    for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
+      final IntegerField field = entry.getKey();
+      final BigInteger value = entry.getValue();
+
+      constraints.add(new IntegerDomainConstraint<IntegerField>(field, value));
+    }
+
+    final Map<IntegerVariable, BigInteger> values =
+        MemoryEngineUtils.generateData(access.getPath(), constraints);
     InvariantChecks.checkNotNull(values);
 
     // Set the addresses having been refined.
@@ -1118,17 +1097,19 @@ public final class MemorySolver implements Solver<MemorySolution> {
     correctAddressObject(addrObject);
 
     // Fix the known values of the addresses.
-    final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
+    final Collection<IntegerConstraint<IntegerField>> constraints =
+        new ArrayList<>(this.constraints);
 
     for (final Map.Entry<MmuAddressType, Long> addrEntry : addrObject.getAddresses().entrySet()) {
       final MmuAddressType addrType = addrEntry.getKey();
       final long address = addrEntry.getValue();
 
-      knownValues.put(
-          new IntegerField(addrType.getVariable()), BigIntegerUtils.valueOfUnsignedLong(address));
+      constraints.add(new IntegerDomainConstraint<IntegerField>(
+          new IntegerField(addrType.getVariable()), BigIntegerUtils.valueOfUnsignedLong(address)));
     }
 
-    final Map<IntegerVariable, BigInteger> values = generateData(access.getPath(), knownValues);
+    final Map<IntegerVariable, BigInteger> values =
+        MemoryEngineUtils.generateData(access.getPath(), constraints);
     InvariantChecks.checkNotNull(values);
 
     // Set the entry fields.

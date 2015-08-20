@@ -128,10 +128,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     final ProductIterator<Integer> accessPathIterator = new ProductIterator<>();
 
     for (final MemoryAccessType accessType : accessTypes) {
-      final Collection<MemoryAccessPath> accessPaths = 
+      final Collection<MemoryAccessPath> paths = 
           CoverageExtractor.get().getPaths(MmuTranslator.getSpecification(), accessType);
+      final Collection<MemoryAccessPath> feasiblePaths = context != null ?
+          MemoryEngineUtils.getFeasiblePaths(paths, context.getConstraints()) : paths;
 
-      final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(accessPaths);
+      final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
 
       this.accessPathClasses.add(accessPathClasses);
       accessPathIterator.registerIterator(new IntRangeIterator(0, accessPathClasses.size() - 1));
