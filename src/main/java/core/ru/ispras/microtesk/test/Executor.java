@@ -370,10 +370,15 @@ final class Executor {
             searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
           } else {
             // For unrecognized labels
+            uniqueName = source.getName();
+            searchPattern = String.format("<label>0");
+
+            /*
             throw new GenerationAbortedException(String.format(
                 "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
                 "is not accessible in the scope of the current test sequence.",
                 source.getName(), call.getText(), call.getAddress()));
+            */
           }
         }
 
