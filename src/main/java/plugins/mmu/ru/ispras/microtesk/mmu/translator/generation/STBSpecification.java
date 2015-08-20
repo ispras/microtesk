@@ -17,8 +17,10 @@ package ru.ispras.microtesk.mmu.translator.generation;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -43,8 +45,6 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSpecification implements STBuilder {
@@ -62,6 +62,7 @@ final class STBSpecification implements STBuilder {
   private final String packageName;
   private final Ir ir;
 
+  private final Set<String> exceptions = new HashSet<>();
   private List<String> currentMarks = null;
   private int actionIndex = 0;
   private int transitionIndex = 0;
@@ -282,9 +283,14 @@ final class STBSpecification implements STBuilder {
       final STGroup group,
       final String current,
       final StmtException stmt) {
-    final String name = stmt.getMessage();
-    buildAction(st, group, name);
-    buildTransition(st, current, name);
+    final String exception = stmt.getMessage();
+
+    if (!exceptions.contains(exception)) {
+      buildAction(st, group, exception);
+      exceptions.add(exception);
+    }
+
+    buildTransition(st, current, exception);
   }
 
   private String buildStmtIf(
