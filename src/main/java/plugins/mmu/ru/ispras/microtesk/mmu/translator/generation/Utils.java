@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -35,6 +36,12 @@ public final class Utils {
       }
       sb.append(string);
     }
+
     return sb.toString();
+  }
+
+  public String bigIntegerToString(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    return String.format("new BigInteger(\"%d\", 10)", value);
   }
 }

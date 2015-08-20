@@ -305,13 +305,13 @@ final class STBSpecification implements STBuilder {
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
+      final GuardPrinter guardPrinter = new GuardPrinter(ir, condition);
 
       final String ifTrueStart = newBranch();
       st.add("members", "// IF " + condition.toString());
       buildAction(st, group, ifTrueStart);
 
-      // FIXME Guard is needed
-      buildTransition(st, current, ifTrueStart);
+      buildTransition(st, current, ifTrueStart, guardPrinter.getGuard());
 
       final String ifTrueStop = buildControlFlowForStmts(st, group, ifTrueStart, stmts);
       if (null != ifTrueStop) {
@@ -322,8 +322,7 @@ final class STBSpecification implements STBuilder {
       st.add("members", "// IF NOT " + condition.toString());
       buildAction(st, group, ifFalseStart);
 
-      // FIXME Guard is needed
-      buildTransition(st, current, ifFalseStart);
+      buildTransition(st, current, ifFalseStart, guardPrinter.getNegatedGuard());
 
       current = ifFalseStart;
     }
