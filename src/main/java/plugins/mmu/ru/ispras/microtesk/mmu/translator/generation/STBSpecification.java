@@ -500,8 +500,8 @@ final class STBSpecification implements STBuilder {
     sb.append("MmuExpression.");
 
     if (field.getVariable().isDefined()) {
-      sb.append(String.format("val(new %s(\"%s\", 10), %d",
-          BigInteger.class.getName(), field.getVariable().getValue(), field.getWidth()));
+      sb.append(String.format("val(%s, %d",
+          Utils.toJavaCode(field.getVariable().getValue()), field.getWidth()));
     } else {
       final String name = field.getVariable().getName().replace('.', '_');
       sb.append(String.format("var(%s", name));

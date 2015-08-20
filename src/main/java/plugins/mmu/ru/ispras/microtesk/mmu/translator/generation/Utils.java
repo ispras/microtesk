@@ -40,7 +40,7 @@ public final class Utils {
     return sb.toString();
   }
 
-  public String bigIntegerToString(final BigInteger value) {
+  public static String toJavaCode(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
     return String.format("new BigInteger(\"%d\", 10)", value);
   }
