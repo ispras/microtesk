@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
@@ -149,7 +150,7 @@ public final class AddressAllocationTable {
       }
     }
 
-    return i == Long.SIZE ? -1L : ~((1L << i) - 1);
+    return BitUtils.getLongMask(i);
   }
 
   private static long allocate(
@@ -182,7 +183,7 @@ public final class AddressAllocationTable {
     final Set<Long> globalValues = new HashSet<>();
 
     final int width = (hi - lo) + 1;
-    final long mask = width == Long.SIZE ? -1L : (1L << width) - 1;
+    final long mask = BitUtils.getLongMask(width);
 
     final boolean isInsignificant = ((mask << lo) | addressMask) != addressMask;
 

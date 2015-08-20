@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
@@ -181,7 +182,8 @@ public final class AddressAllocationEngine {
       }
 
       final long maskedAddress = (address & mask);
-      final long prevFieldsValue = lower == 0 ? 0 : (maskedAddress & ((1L << (lower - 1)) - 1));
+      final long prevFieldsValue =
+          lower == 0 ? 0 : (maskedAddress & BitUtils.getLongMask(lower - 1));
 
       AddressAllocationTable allocTable = fieldAllocator.get(prevFieldsValue);
       if (allocTable == null) {
@@ -189,7 +191,7 @@ public final class AddressAllocationEngine {
             allocTable = new AddressAllocationTable(lower, upper, mask, regions));
       }
 
-      final long fieldMask = width == Long.SIZE ? -1L : (1L << width) - 1;
+      final long fieldMask = BitUtils.getLongMask(width);
       final Set<Long> excludeFields = exclude != null ? new HashSet<Long>() : null;
 
       if (exclude != null) {
@@ -203,8 +205,7 @@ public final class AddressAllocationEngine {
 
       // Insignificant bits are taken from the partial address.
       if (((fieldMask << lower) | mask) == mask) {
-        address &= ~(fieldMask << lower);
-        address |= (fieldValue << lower);
+        BitUtils.setField(address, lower, upper, fieldValue);
       }
     }
 
