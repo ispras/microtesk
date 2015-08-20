@@ -15,14 +15,17 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -76,7 +79,19 @@ final class MemoryCoverageExtractor {
       }
     }
 
-    return paths;
+    // TODO: This code needs to be optimized.
+    final List<MemoryAccessPath> result = new ArrayList<>(paths.size());
+    for (final MemoryAccessPath path : paths) {
+      final Collection<MmuSegment> segments = MemoryAccess.getPossibleSegments(path);
+
+      if (segments.isEmpty()) {
+        continue;
+      }
+
+      result.add(path);
+    }
+
+    return result;
   }
 
   /**

@@ -24,6 +24,7 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngineContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -98,7 +99,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final Iterator<List<Integer>> accessPathIterator;
 
   private final GeneratorSettings settings;
-  
+
   /** Checks the consistency of execution path pairs. */
   private Predicate<MemoryAccessStructure> accessPairChecker;
   /** Checks the consistency of whole test templates. */
@@ -110,10 +111,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
       final Classifier<MemoryAccessPath> classifier,
+      final MemoryEngineContext context,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
+    // Parameter {@code context} can be null.
     // Parameter {@code settings} can be null.
  
     this.accessTypes = accessTypes;

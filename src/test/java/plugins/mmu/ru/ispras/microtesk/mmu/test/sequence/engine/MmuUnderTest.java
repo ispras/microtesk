@@ -296,8 +296,10 @@ public final class MmuUnderTest {
   public final MmuAction root = new MmuAction("ROOT",
       new MmuBinding(va));
   public final MmuAction start = new MmuAction("START");
-  public final MmuAction getUpa = new MmuAction("GET_UPA",
+  public final MmuAction getUpaKseg = new MmuAction("GET_UPA_KSEG",
       new MmuBinding(pa, MmuExpression.var(va, 0, 28)));
+  public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
+      new MmuBinding(pa, MmuExpression.var(va, 0, 35)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB", dtlb);
   public final MmuAction hitDtlb = new MmuAction("HIT_DTLB", dtlb,
       new MmuBinding(v0),
@@ -364,11 +366,14 @@ public final class MmuUnderTest {
       new MmuGuard(MemoryOperation.LOAD));
   public final MmuTransition ifWrite = new MmuTransition(root, start,
       new MmuGuard(MemoryOperation.STORE));
-  public final MmuTransition ifUnmapped = new MmuTransition(start, getUpa,
-      new MmuGuard(null, Arrays.asList(new MmuSegment[] {kseg0, kseg1, xkphys})));
+  public final MmuTransition ifUnmappedKseg = new MmuTransition(start, getUpaKseg,
+      new MmuGuard(null, Arrays.asList(new MmuSegment[] {kseg0, kseg1})));
+  public final MmuTransition ifUnmappedXkphys = new MmuTransition(start, getUpaXkphys,
+      new MmuGuard(null, Collections.singleton(xkphys)));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
       new MmuGuard(null, Collections.singleton(xuseg)));
-  public final MmuTransition afterUpa = new MmuTransition(getUpa, checkSegment);
+  public final MmuTransition afterUpaKseg = new MmuTransition(getUpaKseg, checkSegment);
+  public final MmuTransition afterUpaXkphys = new MmuTransition(getUpaXkphys, checkSegment);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
       new MmuGuard(dtlb, BufferAccessEvent.MISS));
   public final MmuTransition ifDtlbHit = new MmuTransition(startDtlb, hitDtlb,
@@ -472,7 +477,8 @@ public final class MmuUnderTest {
 
     builder.registerAction(root);
     builder.registerAction(start);
-    builder.registerAction(getUpa);
+    builder.registerAction(getUpaKseg);
+    builder.registerAction(getUpaXkphys);
     builder.registerAction(startDtlb);
     builder.registerAction(hitDtlb);
     builder.registerAction(startJtlb);
@@ -504,9 +510,11 @@ public final class MmuUnderTest {
 
     builder.registerTransition(ifRead);
     builder.registerTransition(ifWrite);
-    builder.registerTransition(ifUnmapped);
+    builder.registerTransition(ifUnmappedKseg);
+    builder.registerTransition(ifUnmappedXkphys);
     builder.registerTransition(ifMapped);
-    builder.registerTransition(afterUpa);
+    builder.registerTransition(afterUpaKseg);
+    builder.registerTransition(afterUpaXkphys);
     builder.registerTransition(ifDtlbMiss);
     builder.registerTransition(ifDtlbHit);
     builder.registerTransition(afterDtlb);
@@ -557,7 +565,8 @@ public final class MmuUnderTest {
     // Disable some of the transitions to reduce testing time.
     if (REDUCE) {
       ifWrite.setEnabled(false);
-      ifUnmapped.setEnabled(false);
+      ifUnmappedKseg.setEnabled(false);
+      ifUnmappedXkphys.setEnabled(false);
       ifVpn1.setEnabled(false);
       ifInvalid.setEnabled(false);
       ifDirty.setEnabled(false);

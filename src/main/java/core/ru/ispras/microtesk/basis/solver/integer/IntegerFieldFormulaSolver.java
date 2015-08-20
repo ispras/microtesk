@@ -120,6 +120,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
 
     if (result.getStatus() != SolverResult.Status.SAT) {
+      System.out.println("UNSAT: " + newFormula);
       return result;
     }
 

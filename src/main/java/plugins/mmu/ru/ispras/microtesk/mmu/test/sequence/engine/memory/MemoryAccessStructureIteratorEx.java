@@ -25,6 +25,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngineContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -42,6 +43,7 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAccessStructure> {
   private List<Map<MemoryOperation, Collection<MemoryAccessType>>> accessTypeGroups;
   private final Classifier<MemoryAccessPath> classifier;
+  private final MemoryEngineContext context;
 
   private final GeneratorSettings settings;
 
@@ -57,14 +59,17 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
       final List<Collection<MemoryAccessType>> accessTypes,
       final boolean randomDataType,
       final Classifier<MemoryAccessPath> classifier,
+      final MemoryEngineContext context,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
+    // Parameter {@code context} can be null.
     // Parameter {@code settings} can be null.
 
     this.accessTypeGroups = randomDataType ? getAccessTypeGroups(accessTypes) : null;
     this.classifier = classifier;
+    this.context = context;
     this.settings = settings;
 
     final ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
@@ -165,7 +170,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private void initStructure() {
     structureIterator =
-        new MemoryAccessStructureIterator(typesIterator.value(), classifier, settings);
+        new MemoryAccessStructureIterator(typesIterator.value(), classifier, context, settings);
     structureIterator.addFilterBuilder(filterBuilder);
     structureIterator.init();
   }

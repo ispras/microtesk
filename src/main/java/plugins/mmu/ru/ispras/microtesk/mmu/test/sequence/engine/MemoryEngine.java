@@ -210,7 +210,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits >>> 3)));
     }
 
-    return new MemoryAccessStructureIterator(accessTypes, classifier, engineContext.getSettings());
+    return new MemoryAccessStructureIterator(
+        accessTypes, classifier, customContext, engineContext.getSettings());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

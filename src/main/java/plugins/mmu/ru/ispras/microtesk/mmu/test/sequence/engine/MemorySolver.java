@@ -1003,8 +1003,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(values);
 
     // Set the addresses having been refined.
-    addrObject.setAddress(vaType, values.get(vaVar).longValue());
-    addrObject.setAddress(paType, values.get(paVar).longValue());
+    //addrObject.setAddress(vaType, values.get(vaVar).longValue());
+    //addrObject.setAddress(paType, values.get(paVar).longValue());
 
     // Set the attributes to be used in an adapter (if required).
     for (final Map.Entry<IntegerVariable, BigInteger> attribute : values.entrySet()) {
