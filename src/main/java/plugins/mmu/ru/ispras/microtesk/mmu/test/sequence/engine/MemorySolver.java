@@ -28,6 +28,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -75,7 +76,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessStructure structure;
 
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
-  private final Map<IntegerVariable, Set<BigInteger>> userConstraints;
+  private final Collection<IntegerConstraint<IntegerField>> constraints;
 
   private final long pageMask;
   private final DataType alignType;
@@ -119,7 +120,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.entryIdAllocator = entryIdAllocator;
 
     this.hitCheckers = context.getHitCheckers();
-    this.userConstraints = context.getUserConstraints();
+    this.constraints = context.getConstraints();
 
     this.pageMask = pageMask;
     this.alignType = alignType;
@@ -921,15 +922,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
-    // Append the user-defined constraints.
-    for (final Map.Entry<IntegerVariable, Set<BigInteger>> entry : userConstraints.entrySet()) {
-      final IntegerVariable variable = entry.getKey();
-      final Set<BigInteger> values = entry.getValue();
-
-      
+    // Take into account the user-defined constraints.
+    for (final IntegerConstraint<IntegerField> constraint : constraints) {
+      formula.addConstraint(constraint);
     }
 
-    // Fix the known values.
+    // Take into account the fields with known values.
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       formula.addEquation(entry.getKey(), entry.getValue(), true);
     }

@@ -56,7 +56,7 @@ public final class AddressAllocationTable {
    * @param mask the mask to be analyzed.
    * @return the list of ranges.
    */
-  private static List<IntegerRange> getZeroFields(final long mask) {
+  private static List<IntegerRange> getZeroFieldRanges(final long mask) {
     final List<IntegerRange> result = new ArrayList<>();
 
     int j = -1;
@@ -85,22 +85,26 @@ public final class AddressAllocationTable {
    * @return the masked value.
    */
   private static long getMaskedValue(final long value, final long fieldMask, final long placeMask) {
-    final List<IntegerRange> zeroFields = getZeroFields(placeMask);
+    final List<IntegerRange> zeroFieldRanges = getZeroFieldRanges(placeMask);
 
     long result = 0;
     long remain = value;
 
-    for (final IntegerRange range : zeroFields) {
-      result |= remain << range.getMin().intValue();
-      remain >>>= range.getMax().intValue() + 1;
+    for (final IntegerRange zeroFieldRange : zeroFieldRanges) {
+      final int lower = zeroFieldRange.getMin().intValue();
+      final int upper = zeroFieldRange.getMax().intValue();
+      final int width = (upper - lower) + 1;
+
+      result |= BitUtils.getField(remain, 0, width - 1) << lower;
+      remain >>>= width;
 
       if (remain == 0) {
         break;
       }
     }
 
-    InvariantChecks.checkTrue(remain == 0);
-    return (result & ~placeMask) | fieldMask;
+    InvariantChecks.checkTrue(remain == 0, "Some data cannot be set into the given places");
+    return result | fieldMask;
   }
 
   /**
