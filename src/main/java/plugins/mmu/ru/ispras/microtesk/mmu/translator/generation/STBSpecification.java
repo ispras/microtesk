@@ -86,6 +86,9 @@ final class STBSpecification implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME); 
     st.add("pack", packageName);
+
+    st.add("imps", Arrays.class.getName());
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", MMU_OPERATION_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
@@ -480,9 +483,8 @@ final class STBSpecification implements STBuilder {
       }
 
       final String name = field.getVariable().getName().replace('.', '_');
-      sb.append("new IntegerField(");
       sb.append(name);
-      sb.append(", ");
+      sb.append(".field(");
       sb.append(field.getLoIndex());
       sb.append(", ");
       sb.append(field.getHiIndex());
@@ -517,7 +519,7 @@ final class STBSpecification implements STBuilder {
       final List<Pair<IntegerVariable, IntegerField>> bindings) {
 
     final StringBuilder sb = new StringBuilder();
-    sb.append(String.format("%s.<MmuBinding>asList(", Arrays.class.getName()));
+    sb.append(String.format("Arrays.<MmuBinding>asList(", Arrays.class.getSimpleName()));
 
     boolean isFirst = true;
     for (final Pair<IntegerVariable, IntegerField> binding : bindings) {
