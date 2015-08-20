@@ -205,7 +205,7 @@ public final class AddressAllocationEngine {
 
       // Insignificant bits are taken from the partial address.
       if (((fieldMask << lower) | mask) == mask) {
-        BitUtils.setField(address, lower, upper, fieldValue);
+        address = BitUtils.setField(address, lower, upper, fieldValue);
       }
     }
 
