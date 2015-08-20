@@ -331,6 +331,8 @@ final class STBSpecification implements STBuilder {
       buildTransition(st, current, join);
     }
 
+    st.add("members", "// END IF");
+    st.add("members", "");
     return join;
   }
 
