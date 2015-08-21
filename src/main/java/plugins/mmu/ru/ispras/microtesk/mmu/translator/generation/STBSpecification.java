@@ -209,7 +209,7 @@ final class STBSpecification implements STBuilder {
 
     public void build() {
       buildAddresses();
-      buildSegments();
+      //buildSegments();
       buildBuffers();
       buildControlFlow();
     }
