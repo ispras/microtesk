@@ -487,38 +487,28 @@ final class STBSpecification implements STBuilder {
       st.add("stmts", stReg);
     }
 
-    private void buildTransition(
-        final String source,
-        final String target) {
+    private void buildTransition(final String source, final String target) {
       buildTransition(source, target, null);
     }
 
-    private void buildTransition(
-        final String source,
-        final String target,
-        final String guard) {
+    private void buildTransition(final String source, final String target, final String guard) {
       InvariantChecks.checkNotNull(source);
       InvariantChecks.checkNotNull(target);
 
       final String name = String.format("%s_%s_%d", source, target, transitionIndex++);
-      final StringBuilder sb = new StringBuilder();
 
-      sb.append("private final MmuTransition ");
-      sb.append(name);
-      sb.append(" = new MmuTransition(");
-      sb.append(source);
-      sb.append(", ");
-      sb.append(target);
-
+      final ST stDef = group.getInstanceOf("transition_def");
+      stDef.add("name", name);
+      stDef.add("source", source);
+      stDef.add("target", target);
       if (null != guard) {
-        sb.append(", ");
-        sb.append(guard);
+        stDef.add("guard", guard);
       }
+      st.add("members", stDef);
 
-      sb.append(");");
-
-      st.add("members", sb.toString());
-      st.add("stmts", String.format("builder.registerTransition(%s);", name));
+      final ST stReg = group.getInstanceOf("transition_reg");
+      stReg.add("name", name);
+      st.add("stmts", stReg);
     }
 
     private String newBranch() {

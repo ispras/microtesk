@@ -102,3 +102,11 @@ private final MmuAction <name> = new MmuAction("<name>"<if(args)>, <args : {a | 
 action_reg(name) ::= <<
 builder.registerAction(<name>);
 >>
+
+transition_def(name, source, target, guard) ::= <<
+private final MmuTransition <name> = new MmuTransition(<source>, <target><if(guard)>, <guard><endif>);
+>>
+
+transition_reg(name) ::= <<
+builder.registerTransition(<name>);
+>>
