@@ -39,6 +39,10 @@ variable_def(id, name, size) ::= <<
 private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
 >>
 
+struct_def(id, name, fields) ::= <<
+private final MmuStruct <id> = new MmuStruct("<name>", <fields : {f | <f>}; separator=", ">);
+>>
+
 address_def(name, value_name, fields) ::= <<
 private final MmuAddressType <name> = new MmuAddressType("<name>", <value_name>);
 {

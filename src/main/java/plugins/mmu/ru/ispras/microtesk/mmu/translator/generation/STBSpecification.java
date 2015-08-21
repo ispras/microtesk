@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -212,20 +213,38 @@ final class STBSpecification implements STBuilder {
       st.add("stmts", "");
     }
 
-    private void buildFields(final String name, final Type type, final ST stBuffer) {
+    private List<String> buildFields(
+        final String name,
+        final Type type,
+        final ST stStruct,
+        final boolean needStructs) {
+      final String id = name.replace('.', '_');
       if (type.isStruct()) {
-        for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
-          buildFields(
-              name + "." + field.getKey(),
-              field.getValue(),
-              stBuffer
-              );
-        }
-      } else {
-        final String id = name.replace('.', '_');
+        final List<String> names = new ArrayList<>(); 
 
-        if (null != stBuffer) {
-          stBuffer.add("fields", id);
+        for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+          final String fieldName = name + "." + field.getKey();
+          final Type fieldType = field.getValue();
+
+          final List<String> fieldNames = buildFields(fieldName, fieldType, stStruct, needStructs);
+          names.addAll(fieldNames);
+        }
+
+        if (needStructs && 
+            names.size() > 1 && 
+            !ir.getAddresses().containsKey(name) && 
+            !ir.getSegments().containsKey(name)) {
+          final ST stVariable = group.getInstanceOf("struct_def");
+          stVariable.add("id", id);
+          stVariable.add("name", name);
+          stVariable.add("fields", names);
+          st.add("members", stVariable);
+        }
+
+        return names;
+      } else {
+        if (null != stStruct) {
+          stStruct.add("fields", id);
         }
 
         final ST stVariable = group.getInstanceOf("variable_def");
@@ -233,6 +252,8 @@ final class STBSpecification implements STBuilder {
         stVariable.add("name", name);
         stVariable.add("size", type.getBitSize());
         st.add("members", stVariable);
+
+        return Collections.singletonList(id);
       }
     }
 
@@ -243,7 +264,7 @@ final class STBSpecification implements STBuilder {
         final String name = address.getId();
         final ST stDef = group.getInstanceOf("address_def");
 
-        buildFields(name, address.getContentType(), stDef);
+        buildFields(name, address.getContentType(), stDef, true);
 
         stDef.add("name", name);
         stDef.add("value_name", name + "_" + Utils.toString(address.getAccessChain(), "_"));
@@ -281,7 +302,7 @@ final class STBSpecification implements STBuilder {
 
       for(final Buffer buffer : ir.getBuffers().values()) {
         final ST stDef = group.getInstanceOf("buffer_def");
-        buildFields(buffer.getId(), buffer.getEntry(), stDef);
+        buildFields(buffer.getId(), buffer.getEntry(), stDef, false);
 
         final BufferExprAnalyzer analyzer = new BufferExprAnalyzer(
             buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
@@ -317,11 +338,11 @@ final class STBSpecification implements STBuilder {
 
       st.add("stmts", String.format("builder.setVirtualAddress(%s);", memory.getAddress().getId()));
 
-      buildFields(memory.getDataArg().getName(), memory.getDataArg().getType(), null);
+      buildFields(memory.getDataArg().getName(), memory.getDataArg().getType(), null, true);
       st.add("members", "");
 
       for (final Variable variable : memory.getVariables()) {
-        buildFields(variable.getName(), variable.getType(), null);
+        buildFields(variable.getName(), variable.getType(), null, true);
       }
 
       st.add("members", "");
