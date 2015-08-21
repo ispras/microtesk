@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -27,15 +24,14 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MmuAddressType {
+public final class MmuAddressType extends MmuStruct {
   /** Address description (the variable contains the name and the bit length). */
   private final Variable addrStruct;
   private final IntegerVariable address;
 
-  /** Address fields. */
-  private final List<IntegerVariable> fields = new ArrayList<>();
-
   public MmuAddressType(final Variable addrStruct, final IntegerVariable address) {
+    super (addrStruct != null ? addrStruct.getName() : null);
+
     InvariantChecks.checkNotNull(address);
     this.addrStruct = addrStruct;
     this.address = address;
@@ -45,35 +41,12 @@ public final class MmuAddressType {
     return address;
   }
 
-  public String getName() {
-    return addrStruct.getName();
-  }
-
   public int getWidth() {
     return getVariable().getWidth();
   }
 
   public Variable getStruct() {
     return addrStruct;
-  }
-
-  /**
-   * Returns address fields.
-   * 
-   * @return the list of entry fields.
-   */
-  public List<IntegerVariable> getFields() {
-    return fields;
-  }
-
-  /**
-   * Registers an address field.
-   * 
-   * @param field an address field to be registered.
-   */
-  public void addField(final IntegerVariable field) {
-    InvariantChecks.checkNotNull(field);
-    fields.add(field);
   }
 
   @Override

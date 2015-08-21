@@ -40,7 +40,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
 import ru.ispras.microtesk.utils.FortressUtils;
 
-public final class BufferExprAnalyzer {
+final class BufferExprAnalyzer {
   private final Variable addressVariable;
 
   private final IntegerVariable variableForAddress;
