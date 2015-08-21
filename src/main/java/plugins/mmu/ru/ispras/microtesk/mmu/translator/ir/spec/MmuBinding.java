@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
@@ -41,8 +43,32 @@ public final class MmuBinding {
     this.rhs = rhs;
   }
 
+  public MmuBinding(final IntegerField lhs, final IntegerField rhs) {
+    this(lhs, MmuExpression.field(rhs));
+  }
+
+  public MmuBinding(final IntegerField lhs, final IntegerVariable rhs) {
+    this(lhs, MmuExpression.var(rhs));
+  }
+
+  public MmuBinding(final IntegerField lhs, final BigInteger rhs) {
+    this(lhs, MmuExpression.val(rhs, lhs != null ? lhs.getWidth() : 0));
+  }
+
   public MmuBinding(final IntegerVariable lhs, final MmuExpression rhs) {
     this(new IntegerField(lhs), rhs);
+  }
+
+  public MmuBinding(final IntegerVariable lhs, final IntegerField rhs) {
+    this(lhs, MmuExpression.field(rhs));
+  }
+
+  public MmuBinding(final IntegerVariable lhs, final IntegerVariable rhs) {
+    this(lhs, MmuExpression.var(rhs));
+  }
+
+  public MmuBinding(final IntegerVariable lhs, final BigInteger rhs) {
+    this(lhs, MmuExpression.val(rhs, lhs != null ? lhs.getWidth() : 0));
   }
 
   public MmuBinding(final IntegerField lhs) {
