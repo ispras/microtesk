@@ -145,7 +145,8 @@ public final class IntegerFieldFormulaSolverTestCase {
     formula.addEquation(new IntegerField(va, 13, 39), BigInteger.valueOf(0x40032), true);
     formula.addEquation(new IntegerField(va, 40, 63), BigInteger.ZERO, true);
 
-    final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
+    final IntegerFieldFormulaSolver solver =
+        new IntegerFieldFormulaSolver(variables, formula, IntegerVariableInitializer.RANDOM);
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
     final Map<IntegerVariable, BigInteger> values = result.getResult();
 

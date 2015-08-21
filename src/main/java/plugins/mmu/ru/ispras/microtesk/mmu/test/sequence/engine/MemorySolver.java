@@ -32,6 +32,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
@@ -132,11 +133,31 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution = new MemorySolution(structure);
 
     SolverResult<MemorySolution> result = null;
+
+    // Construct address objects.
     for (int j = 0; j < structure.size(); j++) {
       result = solve(j);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
-        break;
+        return result;
+      }
+    }
+
+    // Correct the address objects.
+    for (int j = 0; j < structure.size(); j++) {
+      result = correct(j);
+
+      if (result.getStatus() == SolverResult.Status.UNSAT) {
+        return result;
+      }
+    }
+
+    // Fill the allocated entries.
+    for (int j = 0; j < structure.size(); j++) {
+      result = fill(j);
+
+      if (result.getStatus() == SolverResult.Status.UNSAT) {
+        return result;
       }
     }
 
@@ -355,7 +376,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuBuffer buffer) {
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MemoryAccess access = structure.getAccess(j);
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
@@ -368,9 +388,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final Map<Long, MmuEntry> entries = prevAddrObject.getEntries(buffer);
 
       // Update the entry (the map contains one entry).
-      for (final MmuEntry entry : entries.values()) {
-        fillEntry(access, addrObject, entry);
-      }
+
+      // Do not call fillEntry().
+      //for (final MmuEntry entry : entries.values()) {
+        // fillEntry(access, addrObject, entry);
+      //}
 
       addrObject.setEntries(buffer, entries);
     }
@@ -384,7 +406,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       // Filling the entry with appropriate data.
-      fillEntry(access, addrObject, bufferEntry);
+
+      // Do not call fillEntry().
+      // fillEntry(access, addrObject, bufferEntry);
 
       addrObject.addEntry(buffer, bufferEntryId, bufferEntry);
       solution.addEntry(buffer, bufferEntryId, bufferEntry);
@@ -632,7 +656,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
-    final AddressObject addrObject = constructAddressObject(access);
+    final AddressObject addrObject = constructAddr(access, true);
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
@@ -675,7 +699,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    // Solve the hit and miss constraints for the buffers.
+    // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
     final List<MmuBuffer> buffers = path.getBuffers();
 
     for (final MmuBuffer buffer : buffers) {
@@ -686,8 +710,62 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    // Avoid address inconsistencies.
-    correctAddressObject(addrObject);
+    return new SolverResult<MemorySolution>(solution);
+  }
+
+  private SolverResult<MemorySolution> correct(final int j) {
+    final MemoryAccess access = structure.getAccess(j);
+    final MemoryAccessPath path = access.getPath();
+    final AddressObject addrObject = solution.getAddressObject(j);
+
+    // Satisfying dependencies may lead to changing the memory access path.
+    if (correctAddr(addrObject)) {
+      System.out.println("CORRECTED1:" + addrObject);
+      final Collection<MemoryAccessPath> paths =
+          CoverageExtractor.get().getPaths(memory, access.getType());
+      final Collection<MemoryAccessPath> variants =
+          MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints);
+
+      boolean pathFound = false;
+
+      if (!(pathFound = refineAddr(path, addrObject, true))) {
+        for (final MemoryAccessPath variant : variants) {
+          if (path == variant) {
+            continue;
+          }
+
+          if (pathFound = refineAddr(variant, addrObject, true)) {
+            // Update the memory access path in the address object.
+            addrObject.setPath(variant);
+            break;
+          }
+        }
+      }
+
+      if (!pathFound) {
+        return new SolverResult<MemorySolution>(
+            String.format("No feasible variant found: %s", variants));
+      }
+      System.out.println("CORRECTED2:" + addrObject);
+    }
+
+    return new SolverResult<MemorySolution>(solution);
+  }
+
+  private SolverResult<MemorySolution> fill(final int j) {
+    final MemoryAccess access = structure.getAccess(j);
+    final MemoryAccessPath path = access.getPath();
+    final AddressObject addrObject = solution.getAddressObject(j);
+
+    for (final MmuBuffer buffer : path.getBuffers()) {
+      if (buffer.isReplaceable()) {
+        continue;
+      }
+
+      for (final MmuEntry entry : addrObject.getEntries(buffer).values()) {
+        fillEntry(access, addrObject, entry);
+      }
+    }
 
     return new SolverResult<MemorySolution>(solution);
   }
@@ -803,7 +881,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return replacedTags;
   }
 
-  private long allocateAddress(
+  private long allocateAddr(
       final MmuAddressType addrType,
       final Range<Long> region,
       final boolean peek) {
@@ -815,10 +893,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
         & ~significantBitsMask
         & (addrType.getWidth() == Long.SIZE ? -1L : (1L << addrType.getWidth()) - 1);
 
-    return allocateAddress(addrType, insignificantBits, region, peek);
+    return allocateAddr(addrType, insignificantBits, region, peek);
   }
 
-  private long allocateAddress(
+  private long allocateAddr(
       final MmuAddressType addrType,
       final long partialAddress, // Offset
       final Range<Long> region,
@@ -844,8 +922,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * it does not belong to the buffer set (the set is determined by the index defined in the
    * address) and was not returned previously for that set.</p>
    */
-  // TODO: The method is public to be used in user-defined constructors.
-  public long allocateTag(
+  private long allocateTag(
       final MmuBuffer buffer,
       final long partialAddress, // Index and offset
       final Range<Long> region,
@@ -855,8 +932,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Predicate<Long> hitChecker = hitCheckers.get(buffer.getAddress());
 
     while (true) {
-      final long address =
-          addressAllocator.allocateTag(buffer, partialAddress, region, peek, null);
+      final long address = addressAllocator.allocateTag(
+          buffer, partialAddress, region, peek, null);
 
       if (hitChecker == null || !hitChecker.test(address)) {
         return buffer.getTag(address);
@@ -884,33 +961,39 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Long index = allocateEntryId(parent, false);
     InvariantChecks.checkNotNull(index);
 
-    // Choose a normal memory access that affects the parent buffer.
-    final Collection<MemoryAccessPath> paths =
-        CoverageExtractor.get().getNormalPaths(memory, parent);
-    final MemoryAccessType type = MemoryAccessType.LOAD(DataType.BYTE);
-    final MemoryAccessPath path = Randomizer.get().choose(paths);
+    final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
 
-    final MemoryAccess access = MemoryAccess.create(type, path, settings);
-    InvariantChecks.checkNotNull(access);
+    // Select normal paths that affect the parent buffer.
+    final Collection<MemoryAccessPath> normalPaths =
+        CoverageExtractor.get().getNormalPaths(memory, parent);
+    // The normal paths satisfying the user-defined constraints are of greater priority.
+    final Collection<MemoryAccessPath> bestPaths =
+        MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints);
+
+    final MemoryAccessPath normalPath = Randomizer.get().choose(
+        bestPaths.isEmpty() ? normalPaths : bestPaths);
+
+    final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath, settings);
+    InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.
-    final AddressObject addrObject = constructAddressObject(access);
+    final AddressObject normalAddrObject = constructAddr(normalAccess, !bestPaths.isEmpty());
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());
-    fillEntry(access, addrObject, entry);
+    fillEntry(normalAccess, normalAddrObject, entry);
 
     solution.addEntry(parent, index, entry);
 
     // Return the tag of the constructed address object.
-    return buffer.getTag(addrObject.getAddress(buffer.getAddress()));
+    return buffer.getTag(normalAddrObject.getAddress(buffer.getAddress()));
   }
 
   private long allocateEntryId(final MmuBuffer buffer, final boolean peek) {
     return entryIdAllocator.allocate(buffer, peek, null);
   }
 
-  private AddressObject constructAddressObject(final MemoryAccess access) {
+  private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
     InvariantChecks.checkNotNull(access);
 
     final MmuSubsystem memory = MmuTranslator.getSpecification();
@@ -918,17 +1001,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MmuAddressType vaType = memory.getVirtualAddress();
     final MmuAddressType paType = memory.getPhysicalAddress();
 
-    final IntegerVariable vaVar = vaType.getVariable();
-    final IntegerVariable paVar = paType.getVariable();
-
     final AddressObject addrObject = new AddressObject(access);
 
     final RegionSettings region = access.getRegion(); // PA constraint.
     final MmuSegment segment = access.getSegment();   // VA constraint.
 
     // Allocate physical and virtual addresses.
-    long pa = allocateAddress(paType, region, false);
-    long va = segment.isMapped() ? allocateAddress(vaType, 0, segment, false) : segment.getVa(pa);
+    long pa = allocateAddr(paType, region, false);
+    long va = segment.isMapped() ? allocateAddr(vaType, 0, segment, false) : segment.getVa(pa);
 
     // The address should be aligned not to cause the exception.
     pa = addrObject.getType().getDataType().align(pa);
@@ -941,12 +1021,37 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
 
+    final boolean done = refineAddr(access.getPath(), addrObject, applyConstraints);
+    InvariantChecks.checkTrue(done, String.format("Infeasible path=%s", access.getPath()));
+
+    return addrObject;
+  }
+
+  /**
+   * Returns {@code true} if success.
+   */
+  private boolean refineAddr(
+      final MemoryAccessPath path,
+      final AddressObject addrObject,
+      final boolean applyConstraints) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(addrObject);
+
     correctOffset(addrObject);
+
+    final MmuAddressType vaType = memory.getVirtualAddress();
+    final MmuAddressType paType = memory.getPhysicalAddress();
+
+    final IntegerVariable vaVar = vaType.getVariable();
+    final IntegerVariable paVar = paType.getVariable();
+
+    long va = addrObject.getAddress(vaType);
+    long pa = addrObject.getAddress(paType);
 
     // Fix the address tags, indices and page offsets.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
-    for (final MmuBuffer buffer : access.getPath().getBuffers()) {
+    for (final MmuBuffer buffer : path.getBuffers()) {
       final MmuAddressType addrType = buffer.getAddress();
       final long address = addrObject.getAddress(addrType);
 
@@ -967,8 +1072,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     knownValues.put(IntegerField.create(paVar, pageMaskValue),
         BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
 
-    final Collection<IntegerConstraint<IntegerField>> constraints =
-        new ArrayList<>(this.constraints);
+    final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
+        new ArrayList<>(this.constraints) : new ArrayList<IntegerConstraint<IntegerField>>();
 
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       final IntegerField field = entry.getKey();
@@ -977,23 +1082,34 @@ public final class MemorySolver implements Solver<MemorySolution> {
       constraints.add(new IntegerDomainConstraint<IntegerField>(field, value));
     }
 
-    final Map<IntegerVariable, BigInteger> values =
-        MemoryEngineUtils.generateData(access.getPath(), constraints);
-    InvariantChecks.checkNotNull(values);
+    // It is important to fill unused fields with zeros.
+    Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
+        path, constraints, IntegerVariableInitializer.ZEROS);
 
-    // Set the addresses having been refined.
-    //addrObject.setAddress(vaType, values.get(vaVar).longValue());
-    //addrObject.setAddress(paType, values.get(paVar).longValue());
+    if (values == null) {
+      return false;
+    }
+
+    // Correct the address values.
+    va |= values.get(vaVar).longValue();
+    pa |= values.get(paVar).longValue();
+
+    addrObject.setAddress(vaType, va);
+    addrObject.setAddress(paType, pa);
 
     // Set the attributes to be used in an adapter (if required).
+    addrObject.clearAttrs();
+
     for (final Map.Entry<IntegerVariable, BigInteger> attribute : values.entrySet()) {
       final IntegerVariable key = attribute.getKey();
       final BigInteger value = attribute.getValue();
 
-      addrObject.setAttrValue(key, value.longValue());
+      if (!key.equals(vaVar) && !key.equals(paVar)) {
+        addrObject.setAttrValue(key, value.longValue());
+      }
     }
 
-    return addrObject;
+    return true;
   }
 
   private void correctOffset(final AddressObject addrObject) {
@@ -1011,9 +1127,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Avoids inconsistencies that may appear during the constraint solving.
    * 
-   * @param addrObject the address object to be corrected.
+   * Returns {@code true} if the address has been corrected.
    */
-  private void correctAddressObject(final AddressObject addrObject) {
+  private boolean correctAddr(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
 
     correctOffset(addrObject);
@@ -1024,7 +1140,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
 
-    // Correct the virtual memory segment.
+    boolean addressCorrected = false;
     boolean regionFound = false;
 
     for (final RegionSettings region : settings.getMemory().getRegions()) {
@@ -1037,8 +1153,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
         final Collection<MmuSegment> segments = new ArrayList<>();
 
-        for (final AccessSettings access : region.getAccesses()) {
-          final MmuSegment segment = memory.getSegment(access.getSegment());
+        for (final AccessSettings regionAccess : region.getAccesses()) {
+          final MmuSegment segment = memory.getSegment(regionAccess.getSegment());
           InvariantChecks.checkNotNull(segment);
 
           if (segment.checkVa(va)) {
@@ -1067,6 +1183,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
           // An adapter should take into account additional attributes (e.g., CP in XKPHYS).
           va = segment.checkVa(va) ? segment.getVa(pa, segment.getRest(va)) : segment.getVa(pa);
+          addrObject.setAddress(vaType, va);
+
+          addressCorrected = true;
         }
 
         regionFound = true;
@@ -1075,7 +1194,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     InvariantChecks.checkTrue(regionFound);
-    addrObject.setAddress(vaType, va);
+    return addressCorrected;
   }
 
   /**
@@ -1094,8 +1213,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(addrObject);
     InvariantChecks.checkNotNull(entry);
 
-    correctAddressObject(addrObject);
-
     // Fix the known values of the addresses.
     final Collection<IntegerConstraint<IntegerField>> constraints =
         new ArrayList<>(this.constraints);
@@ -1108,8 +1225,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
           new IntegerField(addrType.getVariable()), BigIntegerUtils.valueOfUnsignedLong(address)));
     }
 
-    final Map<IntegerVariable, BigInteger> values =
-        MemoryEngineUtils.generateData(access.getPath(), constraints);
+    // Use the effective memory access path to generate test data.
+    final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
+        addrObject.getPath(), constraints, IntegerVariableInitializer.RANDOM);
     InvariantChecks.checkNotNull(values);
 
     // Set the entry fields.

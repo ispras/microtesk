@@ -16,8 +16,8 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,104 +26,80 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link ClassifierEventBased} classifies memory accesses using devices and events. Memory accesses
- * are considered to be equivalent if they use the same devices and causes the same events.
+ * {@link ClassifierEventBased} classifies memory accesses using buffers and events. Memory accesses
+ * are considered to be equivalent if they use the same buffers and causes the same events.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class ClassifierEventBased implements Classifier<MemoryAccessPath> {
-  @Override
-  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
+  /**
+   * Returns the buffers-to-events map of the memory access path.
+   * 
+   * @param path the memory access path.
+   * @return the buffers and events.
+   */
+  public static Map<MmuBuffer, BufferAccessEvent> getBuffersAndEvents(final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(path);
+
+    final Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
+
+    for (final MmuTransition transition : path.getTransitions()) {
+      final MmuGuard guard = transition.getGuard();
+      if (guard == null) {
+        continue;
+      }
+
+      final MmuBuffer buffer = guard.getBuffer();
+      if (buffer == null) {
+        continue;
+      }
+
+      final BufferAccessEvent event = guard.getEvent();
+      InvariantChecks.checkNotNull(event);
+
+      final BufferAccessEvent oldEvent = result.put(buffer, event);
+      InvariantChecks.checkTrue(oldEvent == null || event.equals(oldEvent),
+          String.format("Usage of the same buffer %s with different events", buffer.getName()));
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the collection of the memory access paths grouped by the buffer-event pairs.
+   * 
+   * @param paths the memory access paths,
+   * @return the classes of memory access pairs.
+   */
+  public static Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>>
+    getBuffersAndEvents(final Collection<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);
 
-    final List<Set<MemoryAccessPath>> pathClasses = new ArrayList<>();
-
-    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> buffersEventsAndPaths =
+    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> result =
         new LinkedHashMap<>();
 
     for (final MemoryAccessPath path : paths) {
-      final Map<MmuBuffer, BufferAccessEvent> buffersAndEvents =
-          getBuffersAndEvents(path.getTransitions());
+      final Map<MmuBuffer, BufferAccessEvent> buffersAndEvents = getBuffersAndEvents(path);
 
-      Set<MemoryAccessPath> pathClass = buffersEventsAndPaths.get(buffersAndEvents);
-      if (pathClass == null) {
-        buffersEventsAndPaths.put(buffersAndEvents, pathClass = new HashSet<>());
+      Set<MemoryAccessPath> group = result.get(buffersAndEvents);
+      if (group == null) {
+        result.put(buffersAndEvents, group = new LinkedHashSet<>());
       }
 
-      pathClass.add(path);
+      group.add(path);
     }
-
-    pathClasses.addAll(new ArrayList<>(buffersEventsAndPaths.values()));
-
-    return pathClasses;
-  }
-
-  /**
-   * Returns the map of devices and events of this execution.
-   * 
-   * @param transitions list of transition
-   * @return the map of devices and events.
-   */
-  private Map<MmuBuffer, BufferAccessEvent> getBuffersAndEvents(
-      final List<MmuTransition> transitions) {
-    InvariantChecks.checkNotNull(transitions);
-
-    Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
-
-    for (final MmuTransition transition : transitions) {
-      final MmuAction action = transition.getSource();
-      result = addDeviceAndEvent(action, transition, result);
-    }
-
-    final MmuTransition transition = transitions.get(transitions.size() - 1);
-    final MmuAction action = transition.getTarget();
-    result = addDeviceAndEvent(action, transition, result);
 
     return result;
   }
 
-  /**
-   * Adds to the map the device and event of this execution.
-   * 
-   * @param action the transition action
-   * @param transition contains an event
-   * @param result the map of devices and events
-   * @return the map of devices and events.
-   */
-  private Map<MmuBuffer, BufferAccessEvent> addDeviceAndEvent(final MmuAction action,
-      final MmuTransition transition, final Map<MmuBuffer, BufferAccessEvent> result) {
-    InvariantChecks.checkNotNull(action);
-    InvariantChecks.checkNotNull(transition);
-    InvariantChecks.checkNotNull(result);
-
-    final MmuBuffer device = action.getBuffer();
-    BufferAccessEvent event;
-    if (transition.getGuard() != null) {
-      event = transition.getGuard().getEvent();
-    } else {
-      event = null;
-    }
-
-    if (device != null) {
-      if (result.get(device) == null) {
-        result.put(device, event);
-      } else {
-        BufferAccessEvent eventResult = result.get(device);
-        if ((eventResult == null) || (eventResult.equals(event))) {
-          result.put(device, event);
-        } else if (event == null) {
-          result.put(device, eventResult);
-        } else {
-          throw new IllegalStateException("Error: Using the same device: " + device.getName()
-              + " for different events: (" + eventResult + ", " + event + ")");
-        }
-      }
-    }
-    return result;
+  @Override
+  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
+    InvariantChecks.checkNotNull(paths);
+    return new ArrayList<>(getBuffersAndEvents(paths).values());
   }
 }

@@ -23,7 +23,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -61,10 +60,12 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     return disjointRanges;
   }
 
-  /** Formula (constraint) to be solved. */
-  private final IntegerFormula<IntegerField> formula;
   /** Variables used in the formula. */
   private final Collection<IntegerVariable> variables;
+  /** Formula (constraint) to be solved. */
+  private final IntegerFormula<IntegerField> formula;
+  /** Initializer used to fill the unused fields of the variables. */
+  private final IntegerVariableInitializer initializer;
 
   /** Maps an original variable to the list of ranges. */
   private final Map<IntegerVariable, List<IntegerRange>> dividedRanges;
@@ -80,13 +81,23 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   /** Caches field variables. */
   private final Map<String, IntegerVariable> fieldCache;
 
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the variables to be included into a solution.
+   * @param formula the constraint to be solved.
+   * @param initializer the initializer to be used to fill the unused fields. 
+   */
   public IntegerFieldFormulaSolver(
-    final Collection<IntegerVariable> variables, final IntegerFormula<IntegerField> formula) {
+    final Collection<IntegerVariable> variables,
+    final IntegerFormula<IntegerField> formula,
+    final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formula);
 
     this.variables = variables;
     this.formula = formula;
+    this.initializer = initializer;
 
     // Initialize auxiliary data structures.
     this.linkedWith = new LinkedHashMap<>();
@@ -120,7 +131,6 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
 
     if (result.getStatus() != SolverResult.Status.SAT) {
-      System.out.println("UNSAT: " + newFormula);
       return result;
     }
 
@@ -411,7 +421,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     for (final IntegerVariable variable : variables) {
       final Collection<IntegerVariable> fields = varToFields.get(variable);
 
-      BigInteger value = Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
+      BigInteger value = initializer.getValue(variable);
 
       if (fields != null) {
         for (final IntegerVariable field : fields) {

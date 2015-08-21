@@ -20,6 +20,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
@@ -45,9 +46,6 @@ public final class AddressObject {
    */
   private final MmuSubsystem memory = MmuTranslator.getSpecification();
 
-  /** Refers to the memory access. */
-  private final MemoryAccess access;
-
   /** Contains addresses (virtual, physical and intermediate addresses). */
   private final Map<MmuAddressType, Long> addresses = new LinkedHashMap<>();
 
@@ -61,6 +59,9 @@ public final class AddressObject {
    * contains exactly one entry.</p>
    */
   private final Map<MmuBuffer, Map<Long, MmuEntry>> entries = new LinkedHashMap<>();
+
+  /** Refers to the memory access. */
+  private MemoryAccess access;
 
   /**
    * Constructs uninitialized test data for the given access of the given memory subsystem.
@@ -76,13 +77,21 @@ public final class AddressObject {
     this.access = access;
   }
 
-  /**
-   * Returns the memory access type.
-   * 
-   * @return the memory access type.
-   */
   public MemoryAccessType getType() {
     return access.getType();
+  }
+
+  public MemoryAccessPath getPath() {
+    return access.getPath();
+  }
+
+  public void setPath(final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(path);
+
+    final MemoryAccess access = new MemoryAccess(
+        this.access.getType(), path, this.access.getRegion(), this.access.getSegment());
+
+    this.access = access;
   }
 
   /**
@@ -107,6 +116,10 @@ public final class AddressObject {
   public void setAttrValue(final IntegerVariable variable, final long value) {
     InvariantChecks.checkNotNull(variable);
     attributes.put(variable, value);
+  }
+
+  public void clearAttrs() {
+    attributes.clear();
   }
 
   /**

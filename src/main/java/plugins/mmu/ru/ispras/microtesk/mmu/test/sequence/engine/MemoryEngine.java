@@ -111,12 +111,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
 
-  // TODO:
-  private MemorySolver solver;
-  public MemorySolver getSolver() {
-    return solver;
-  }
-
   @Override
   public Class<MemorySolution> getSolutionClass() {
     return MemorySolution.class;
@@ -235,7 +229,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           addressAllocator.reset();
           entryIdAllocator.reset();
 
-          solver = new MemorySolver(structure, customContext, addressAllocator, entryIdAllocator,
+          final MemorySolver solver = new MemorySolver(
+              structure, customContext, addressAllocator, entryIdAllocator,
               pageMask, align, engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve();

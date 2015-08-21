@@ -14,16 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -34,8 +25,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
 public final class MemoryAccessStructureChecker implements Predicate<MemoryAccessStructure> {
   private final Predicate<MemoryAccessStructure> filter;
 
-  public MemoryAccessStructureChecker(
-      final Predicate<MemoryAccessStructure> filter) {
+  public MemoryAccessStructureChecker(final Predicate<MemoryAccessStructure> filter) {
     InvariantChecks.checkNotNull(filter);
     this.filter = filter;
   }
@@ -48,21 +38,6 @@ public final class MemoryAccessStructureChecker implements Predicate<MemoryAcces
       return false;
     }
 
-    return solve(structure).getStatus() == SolverResult.Status.SAT;
-  }
-
-  private SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MemoryAccessStructure structure) {
-    InvariantChecks.checkNotNull(structure);
-
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(structure);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
-
-    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
-    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
-
-    final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
-
-    return solver.solve();
+    return MemoryEngineUtils.isFeasibleStructure(structure);
   }
 }

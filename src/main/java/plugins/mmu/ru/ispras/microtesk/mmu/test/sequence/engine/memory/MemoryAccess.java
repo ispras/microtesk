@@ -113,7 +113,12 @@ public final class MemoryAccess {
 
     return possibleSegments;
   }
-  
+
+  private final MemoryAccessType type;
+  private final MemoryAccessPath path;
+  private final RegionSettings region;
+  private final MmuSegment segment;
+
   /**
    * Constructs a memory access.
    * 
@@ -151,11 +156,6 @@ public final class MemoryAccess {
 
     return null;
   }
-
-  private final MemoryAccessType type;
-  private final MemoryAccessPath path;
-  private final RegionSettings region;
-  private final MmuSegment segment;
 
   public MemoryAccess(
       final MemoryAccessType type,

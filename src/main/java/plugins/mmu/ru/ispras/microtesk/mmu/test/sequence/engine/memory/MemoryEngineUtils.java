@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.SolverResult;
@@ -26,10 +27,14 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
- *  
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngineUtils {
@@ -41,7 +46,9 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(constraints);
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solve(path, constraints);
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        solve(path, constraints, IntegerVariableInitializer.ZEROS);
+
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
@@ -62,26 +69,66 @@ public final class MemoryEngineUtils {
     return result;
   }
 
-  public static Map<IntegerVariable, BigInteger> generateData(
+  public static Collection<MemoryAccessPath> getSimilarPaths(
       final MemoryAccessPath path,
+      final Collection<MemoryAccessPath> paths) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(paths);
+
+    // TODO: This implementation needs to be optimized.
+    final Map<MmuBuffer, BufferAccessEvent> pathSkeleton =
+        ClassifierEventBased.getBuffersAndEvents(path);
+    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> pathClasses =
+        ClassifierEventBased.getBuffersAndEvents(paths);
+
+    return pathClasses.get(pathSkeleton);
+  }
+
+  public static Collection<MemoryAccessPath> getFeasibleSimilarPaths(
+      final MemoryAccessPath path,
+      final Collection<MemoryAccessPath> paths,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
     InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(paths);
     InvariantChecks.checkNotNull(constraints);
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solve(path, constraints);
+    final Collection<MemoryAccessPath> similarPaths = getSimilarPaths(path, paths);
+    InvariantChecks.checkNotNull(similarPaths);
 
-    InvariantChecks.checkTrue(result.getStatus() == SolverResult.Status.SAT,
-        String.format("Infeasible path=%s", path));
+    return getFeasiblePaths(similarPaths, constraints);
+  }
+
+  public static Map<IntegerVariable, BigInteger> generateData(
+      final MemoryAccessPath path,
+      final Collection<IntegerConstraint<IntegerField>> constraints,
+      final IntegerVariableInitializer initializer) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(constraints);
+    InvariantChecks.checkNotNull(initializer);
+
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        solve(path, constraints, initializer);
 
     // Solution contains only such variables that are used in the path.
-    return result.getResult();
+    return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
+  }
+
+  public static boolean isFeasibleStructure(final MemoryAccessStructure structure) {
+    InvariantChecks.checkNotNull(structure);
+
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        solve(structure, IntegerVariableInitializer.ZEROS);
+
+    return result.getStatus() == SolverResult.Status.SAT;
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MemoryAccessPath path,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
+      final Collection<IntegerConstraint<IntegerField>> constraints,
+      final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(constraints);
+    InvariantChecks.checkNotNull(initializer);
 
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
@@ -93,8 +140,26 @@ public final class MemoryEngineUtils {
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
       formula.addConstraint(constraint);
     }
+System.out.println(formula);
+    final IntegerFieldFormulaSolver solver =
+        new IntegerFieldFormulaSolver(variables, formula, initializer);
 
-    final IntegerFieldFormulaSolver solver = new IntegerFieldFormulaSolver(variables, formula);
+    return solver.solve();
+  }
+
+  private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
+      final MemoryAccessStructure structure,
+      final IntegerVariableInitializer initializer) {
+    InvariantChecks.checkNotNull(structure);
+
+    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(structure);
+    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+
+    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
+    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
+
+    final IntegerFieldFormulaSolver solver =
+        new IntegerFieldFormulaSolver(variables, formula, initializer);
 
     return solver.solve();
   }
