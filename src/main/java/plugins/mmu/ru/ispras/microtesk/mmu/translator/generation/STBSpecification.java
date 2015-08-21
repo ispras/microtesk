@@ -33,6 +33,8 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.translator.generation.spec.Atom;
+import ru.ispras.microtesk.mmu.translator.generation.spec.AtomExtractor;
 import ru.ispras.microtesk.mmu.translator.generation.spec.BufferExprAnalyzer;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -49,6 +51,10 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.mmu.translator.ir.spec.builder.AssignmentBuilder;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSpecification implements STBuilder {
@@ -149,7 +155,7 @@ final class STBSpecification implements STBuilder {
       final String name = field.getVariable().getName().replace('.', '_');
       sb.append(String.format("var(%s", name));
 
-      if (field.getWidth() != field.getVariable().getWidth()) {
+      if (!field.isVariable()) {
         sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
       }
     }
@@ -258,6 +264,50 @@ final class STBSpecification implements STBuilder {
         return Collections.singletonList(id);
       }
     }
+/*
+    private void buildFieldAliases(
+        final String name,
+        final Type type,
+        final String aliasName) {
+      final String id = name.replace('.', '_');
+      final String aliasId = aliasName.replace('.', '_');
+
+      if (type.isStruct()) {
+        final List<String> names = new ArrayList<>(); 
+
+        for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+          final String fieldName = name + "." + field.getKey();
+          final Type fieldType = field.getValue();
+
+          final List<String> fieldNames = buildFields(fieldName, fieldType, stStruct, needStructs);
+          names.addAll(fieldNames);
+        }
+
+        if (needStructs && 
+            names.size() > 1 && 
+            !ir.getAddresses().containsKey(name) && 
+            !ir.getSegments().containsKey(name)) {
+          final ST stVariable = group.getInstanceOf("struct_def");
+          stVariable.add("id", id);
+          stVariable.add("name", name);
+          stVariable.add("fields", names);
+          st.add("members", stVariable);
+        }
+
+        return names;
+      } else {
+        
+
+        final String text = String.format("private , args)
+        final ST stVariable = group.getInstanceOf("variable_def");
+        stVariable.add("id", id);
+        stVariable.add("name", name);
+        stVariable.add("size", type.getBitSize());
+        
+        st.add("members", stVariable);
+      }
+    }
+*/
 
     private void buildAddresses() {
       buildSeparator("Addresses");
@@ -436,12 +486,37 @@ final class STBSpecification implements STBuilder {
       }
 
       if (isAddressTranslation(right)) {
+        // TODO
         //return registerCall(source, left, (AttributeRef) right.getUserData());
+        return source;
       }
 
+      final Atom lhs = AtomExtractor.extract(left);
+      final Atom rhs = AtomExtractor.extract(right);
 
-      // TODO Auto-generated method stub
-      return source;
+      if (Atom.Kind.VARIABLE != lhs.getKind() && 
+          Atom.Kind.GROUP != lhs.getKind() &&
+          Atom.Kind.FIELD != lhs.getKind()) {
+        throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
+      }
+
+      System.out.println("!!!!! LEFT = " + lhs);
+      System.out.println("!!!!! RIGHT = " + rhs);
+
+      final String target = newAssign();
+      st.add("members", String.format("// ASSIGN %s = %s", left, right));
+
+      /*
+      if (!lhs.getKind().isStruct() && !rhs.getKind().isStruct()) {
+        buildAction(target, String.format("new MmuBinding(%s, %s)", lhs.getText(), rhs.getText()));
+      } else {
+        // TODO: NEED BINDINGS
+        buildAction(target);
+      }*/
+
+      buildAction(target);
+      buildTransition(source, target);
+      return target;
     }
 
     private void buildStmtException(final String current, final StmtException stmt) {
@@ -557,6 +632,10 @@ final class STBSpecification implements STBuilder {
 
     private String newJoin() {
       return String.format("JOIN_%d", actionIndex++);
+    }
+
+    private String newAssign() {
+      return String.format("ASSIGN_%d", actionIndex++);
     }
 
     private boolean isDataVariable(final Node expr) {
