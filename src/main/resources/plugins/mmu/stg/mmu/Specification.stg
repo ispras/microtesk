@@ -40,7 +40,7 @@ private final IntegerVariable <id> = new IntegerVariable("<name>", <size>);
 >>
 
 address_def(name, value_name, fields) ::= <<
-private final MmuAddressType <name> = new MmuAddressType(null, <value_name>);
+private final MmuAddressType <name> = new MmuAddressType("<name>", <value_name>);
 {
   <fields : {field | <name>.addField(<field>);}; separator="\n">
 }<\n>
