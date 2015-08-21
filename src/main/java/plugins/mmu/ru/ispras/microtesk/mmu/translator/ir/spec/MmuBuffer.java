@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -28,11 +27,9 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * {@link MmuBuffer} represents an MMU buffer.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MmuBuffer {
-  /** The device name. */
-  private final String name;
-
+public final class MmuBuffer extends MmuStruct {
   /** The number of ways (associativity). */
   private final long ways;
   /** The number of sets. */
@@ -40,9 +37,6 @@ public final class MmuBuffer {
 
   /** The MMU address. */
   private final MmuAddressType address;
-
-  /** The entry fields. */
-  private final List<IntegerVariable> fields = new ArrayList<>();
 
   /** The tag calculation function. */
   private final MmuExpression tagExpression;
@@ -82,14 +76,15 @@ public final class MmuBuffer {
       final Predicate<MemoryAccess> guard,
       final boolean replaceable,
       final MmuBuffer parent) {
-    InvariantChecks.checkNotNull(name);
+    super(name);
+    setDevice(this);
+
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(tagExpression);
     InvariantChecks.checkNotNull(indexExpression);
     InvariantChecks.checkNotNull(offsetExpression);
     InvariantChecks.checkNotNull(matchBindings);
 
-    this.name = name;
     this.ways = ways;
     this.sets = sets;
 
@@ -113,16 +108,6 @@ public final class MmuBuffer {
 
     this.addressView = new MmuAddressViewBuilder(address,
         tagExpression, indexExpression, offsetExpression).build();
-  }
-
-
-  /**
-   * Returns the name of the buffer.
-   * 
-   * @return the buffer name.
-   */
-  public String getName() {
-    return name;
   }
 
   /**
@@ -150,25 +135,6 @@ public final class MmuBuffer {
    */
   public MmuAddressType getAddress() {
     return address;
-  }
-
-  /**
-   * Returns the entry fields.
-   * 
-   * @return the entry fields.
-   */
-  public List<IntegerVariable> getFields() {
-    return fields;
-  }
-
-  /**
-   * Registers the entry field.
-   * 
-   * @param field the entry field to be registered.
-   */
-  public void addField(final IntegerVariable field) {
-    InvariantChecks.checkNotNull(field);
-    fields.add(field);
   }
 
   /**
@@ -300,10 +266,5 @@ public final class MmuBuffer {
   // TODO:
   public List<MmuBuffer> getChildren() {
     return children;
-  }
-
-  @Override
-  public String toString() {
-    return name;
   }
 }

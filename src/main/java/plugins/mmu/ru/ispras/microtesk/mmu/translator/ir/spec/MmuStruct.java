@@ -27,28 +27,12 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class MmuStruct {
   private final String name;
-  private final MmuBuffer device;
-
+  
+  private MmuBuffer device = null;
   private final List<IntegerVariable> fields = new ArrayList<>();
   private int bitSize = 0;
-
-  /**
-   * Constructs an MmuStruct object.
-   * 
-   * @param name structure name.
-   * @param variables field variables.
-   * 
-   * @throws IllegalArgumentException if {@code name} equals {@code null} or
-   *         if any of the field variables equals {@code null}.
-   */
-  public MmuStruct(
-      final String name,
-      final IntegerVariable... variables) {
-    this(name, null, variables);
-  }
 
   /**
    * Constructs an MmuStruct object.
@@ -62,12 +46,9 @@ public class MmuStruct {
    */
   public MmuStruct(
       final String name,
-      final MmuBuffer device,
       final IntegerVariable... variables) {
     InvariantChecks.checkNotNull(name);
-
     this.name = name;
-    this.device = device;
 
     for (final IntegerVariable variable : variables) {
       addField(variable);
@@ -81,6 +62,18 @@ public class MmuStruct {
    */
   public final String getName() {
     return name;
+  }
+
+  /**
+   * Sets the device associated with the structure (for buffer entries).
+   * 
+   * @param device the device to be associated with the structure.
+   * 
+   * @throws IllegalArgumentException if {@code device} equals {@code null}.
+   */
+  public void setDevice(final MmuBuffer device) {
+    InvariantChecks.checkNotNull(device);
+    this.device = device;
   }
 
   /**
