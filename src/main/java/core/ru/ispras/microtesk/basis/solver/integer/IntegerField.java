@@ -103,6 +103,16 @@ public final class IntegerField {
   }
 
   /**
+   * Checks whether the field matches the variable
+   * ({@code lo == 0 and hi == W - 1}, where W is width of the variable).
+   * 
+   * @return {@code true} if the field matches the variable of {@code false} otherwise.
+   */
+  public boolean isVariable() {
+    return lo == 0 && hi == var.getWidth() - 1;
+  }
+
+  /**
    * Returns the variable of the integer field.
    * 
    * @return the variable.
