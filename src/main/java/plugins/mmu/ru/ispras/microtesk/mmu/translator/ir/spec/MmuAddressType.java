@@ -30,10 +30,18 @@ public final class MmuAddressType extends MmuStruct {
   private final IntegerVariable address;
 
   public MmuAddressType(final Variable addrStruct, final IntegerVariable address) {
-    super (addrStruct != null ? addrStruct.getName() : null);
+    super(addrStruct != null ? addrStruct.getName() : null);
 
     InvariantChecks.checkNotNull(address);
     this.addrStruct = addrStruct;
+    this.address = address;
+  }
+
+  public MmuAddressType(final String name, final IntegerVariable address) {
+    super(name);
+
+    InvariantChecks.checkNotNull(address);
+    this.addrStruct = null;
     this.address = address;
   }
 
@@ -60,7 +68,7 @@ public final class MmuAddressType extends MmuStruct {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
