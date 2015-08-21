@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.generation;
+package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -35,12 +35,13 @@ import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.generation.Utils;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
 import ru.ispras.microtesk.utils.FortressUtils;
 
-final class BufferExprAnalyzer {
+public final class BufferExprAnalyzer {
   private final Variable addressVariable;
 
   private final IntegerVariable variableForAddress;
@@ -232,6 +233,11 @@ final class BufferExprAnalyzer {
       final Variable addressVariable,
       final Node index,
       final Node match) {
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(addressVariable);
+    InvariantChecks.checkNotNull(index);
+    InvariantChecks.checkNotNull(match);
+
     this.addressVariable = addressVariable.accessNested(address.getAccessChain());
 
     final int addressSize = address.getAddressType().getBitSize();
