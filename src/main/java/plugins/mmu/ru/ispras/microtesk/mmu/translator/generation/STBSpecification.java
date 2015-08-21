@@ -27,6 +27,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -36,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.generation.spec.BufferExprAnalyzer;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -280,6 +282,10 @@ final class STBSpecification implements STBuilder {
       buildSeparator("Segments");
 
       for(final Segment segment : ir.getSegments().values()) {
+        for (final Variable variable : segment.getVariables()) {
+          buildFields(variable.getName(), variable.getType(), null, true);
+        }
+
         final ST stDef = group.getInstanceOf("segment_def");
         stDef.add("name", segment.getId());
         stDef.add("va", segment.getAddress().getId());
@@ -420,9 +426,22 @@ final class STBSpecification implements STBuilder {
       return current;
     }
 
-    private String buildStmtAssign(final String current,final StmtAssign stmt) {
+    private String buildStmtAssign(final String source, final StmtAssign stmt) {
+      final Node left = stmt.getLeft();
+      final Node right = stmt.getRight();
+
+      // Assignments that use the "data" MMU variable are ignored.
+      if (isDataVariable(left) || isDataVariable(right)) {
+        return source;
+      }
+
+      if (isAddressTranslation(right)) {
+        //return registerCall(source, left, (AttributeRef) right.getUserData());
+      }
+
+
       // TODO Auto-generated method stub
-      return current;
+      return source;
     }
 
     private void buildStmtException(final String current, final StmtException stmt) {
@@ -538,6 +557,31 @@ final class STBSpecification implements STBuilder {
 
     private String newJoin() {
       return String.format("JOIN_%d", actionIndex++);
+    }
+
+    private boolean isDataVariable(final Node expr) {
+      if (expr.getKind() != Node.Kind.VARIABLE) {
+        return false;
+      }
+
+      if (expr.getUserData() instanceof Variable) {
+        final Variable variable = (Variable) expr.getUserData();
+        for (final Memory memory : ir.getMemories().values()) {
+          if (memory.getDataArg().equals(variable)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    private boolean isAddressTranslation(final Node expr) {
+      if (expr.getUserData() instanceof AttributeRef) {
+        final AttributeRef ref = (AttributeRef) expr.getUserData();
+        return ref.getTarget() instanceof Segment;
+      }
+      return false;
     }
   }
 }
