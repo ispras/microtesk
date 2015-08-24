@@ -27,7 +27,6 @@ private <name>() {
 }
 >>
 
-
 field_decl(type, name) ::= <<
 public final <type> <name>;
 >>

@@ -29,7 +29,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MmuBuffer extends MmuStruct {
+public class MmuBuffer extends MmuStruct {
   /** The number of ways (associativity). */
   private final long ways;
   /** The number of sets. */
@@ -115,7 +115,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the number of ways.
    */
-  public long getWays() {
+  public final long getWays() {
     return ways;
   }
 
@@ -124,7 +124,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the number of sets.
    */
-  public long getSets() {
+  public final long getSets() {
     return sets;
   }
 
@@ -133,7 +133,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the input parameter.
    */
-  public MmuAddressType getAddress() {
+  public final MmuAddressType getAddress() {
     return address;
   }
 
@@ -142,7 +142,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the tag calculation function.
    */
-  public MmuExpression getTagExpression() {
+  public final MmuExpression getTagExpression() {
     return tagExpression;
   }
 
@@ -151,7 +151,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the index calculation function.
    */
-  public MmuExpression getIndexExpression() {
+  public final MmuExpression getIndexExpression() {
     return indexExpression;
   }
 
@@ -160,11 +160,11 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the offset calculation function.
    */
-  public MmuExpression getOffsetExpression() {
+  public final MmuExpression getOffsetExpression() {
     return offsetExpression;
   }
 
-  public Collection<MmuBinding> getMatchBindings() {
+  public final Collection<MmuBinding> getMatchBindings() {
     return matchBindings;
   }
 
@@ -173,7 +173,7 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return the address view.
    */
-  public AddressView<Long> getAddressView() {
+  public final AddressView<Long> getAddressView() {
     return addressView;
   }
 
@@ -183,7 +183,7 @@ public final class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the tag.
    */
-  public long getTag(long address) {
+  public final long getTag(long address) {
     return addressView.getTag(address);
   }
 
@@ -203,7 +203,7 @@ public final class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the offset.
    */
-  public long getOffset(long address) {
+  public final long getOffset(long address) {
     return addressView.getOffset(address);
   }
 
@@ -215,24 +215,24 @@ public final class MmuBuffer extends MmuStruct {
    * @param offset the offset.
    * @return the value of the address.
    */
-  public long getAddress(long tag, long index, long offset) {
+  public final long getAddress(long tag, long index, long offset) {
     return addressView.getAddress(tag, index, offset);
   }
 
-  public long getTagMask() {
+  public final long getTagMask() {
     return getAddress(getTag(-1L), 0, 0);
   }
 
-  public long getIndexMask() {
+  public final long getIndexMask() {
     return getAddress(0, getIndex(-1L), 0);
   }
 
-  public long getOffsetMask() {
+  public final long getOffsetMask() {
     return getAddress(0, 0, getOffset(-1L));
   }
 
   // TODO:
-  public boolean checkGuard(final MemoryAccess access) {
+  public final boolean checkGuard(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkTrue((guardCondition == null) == (guard == null));
 
@@ -244,27 +244,27 @@ public final class MmuBuffer extends MmuStruct {
    * 
    * @return {@code true} if the buffer supports data replacement; {@code false} otherwise.
    */
-  public boolean isReplaceable() {
+  public final boolean isReplaceable() {
     return replaceable;
   }
 
   // TODO:
-  public boolean isView() {
+  public final boolean isView() {
     return parent != null;
   }
 
   // TODO:
-  public MmuBuffer getParent() {
+  public final MmuBuffer getParent() {
     return parent;
   }
 
   // TODO:
-  public boolean isParent() {
+  public final boolean isParent() {
     return !children.isEmpty();
   }
 
   // TODO:
-  public List<MmuBuffer> getChildren() {
+  public final List<MmuBuffer> getChildren() {
     return children;
   }
 }
