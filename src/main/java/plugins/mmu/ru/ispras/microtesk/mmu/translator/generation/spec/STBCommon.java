@@ -29,7 +29,7 @@ abstract class STBCommon implements STBuilder {
   public static final Class<?> MMU_OPERATION_CLASS =
       ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
 
-  public static final Class<?> INTEGER_CLASS = 
+  public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
 
   private final String packageName;
