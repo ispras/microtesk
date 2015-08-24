@@ -14,22 +14,20 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBStruct implements STBuilder {
-  public static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
-
-  public static final Class<?> MMU_OPERATION_CLASS =
-      ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
+  public static final Class<?> STRUCT_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
@@ -48,18 +46,60 @@ final class STBStruct implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
+
     buildHeader(st);
+    buildFields(st, group);
+
     return st;
   }
 
   private void buildHeader(final ST st) {
     st.add("name", type.getId()); 
     st.add("pack", packageName);
+    st.add("ext",  STRUCT_CLASS.getSimpleName());
 
-    st.add("imps", Arrays.class.getName());
-    st.add("imps", BigInteger.class.getName());
-    st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
-    st.add("imps", String.format("%s.*", MMU_OPERATION_CLASS.getPackage().getName()));
-    st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
+    st.add("imps", InvariantChecks.class.getName());
+    st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", STRUCT_CLASS.getName());
+  }
+
+  private void buildFields(final ST st, final STGroup group) {
+    final ST stConstructor = group.getInstanceOf("constructor");
+    stConstructor.add("name", type.getId());
+
+    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+      final String name = field.getKey();
+      final Type type = field.getValue();
+
+      final ST fieldDecl = group.getInstanceOf("field_decl");
+      final ST fieldDef;
+      if (type.isStruct()) {
+        fieldDecl.add("type", MmuStruct.class.getSimpleName());
+
+        fieldDef = group.getInstanceOf("field_def_struct");
+        fieldDef.add("type", type.getId());
+      } else {
+        fieldDecl.add("type", IntegerVariable.class.getSimpleName());
+
+        fieldDef = group.getInstanceOf("field_def_var");
+        fieldDef.add("size", type.getBitSize());
+      }
+
+      fieldDecl.add("name", name);
+      fieldDef.add("name", name);
+
+      st.add("members", fieldDecl);
+      stConstructor.add("stmts", fieldDef);
+    }
+
+    stConstructor.add("stmts", "");
+    for (final String fieldName : type.getFields().keySet()) {
+      final ST addField = group.getInstanceOf("add_field");
+      addField.add("name", fieldName);
+      stConstructor.add("stmts", addField);
+    }
+
+    st.add("members", "");
+    st.add("members", stConstructor);
   }
 }

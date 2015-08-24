@@ -31,6 +31,9 @@ final class SpecGeneratorFactory {
 
   private static final String COMMON_STG = MMU_STG_DIR + "Common.stg";
   private static final String[] COMMON_STGS = new String[] {JAVA_COMMON_STG, COMMON_STG};
+  
+  private static final String STRUCT_STG = MMU_STG_DIR + "Struct.stg";
+  private static final String[] STRUCT_STGS = new String[] {JAVA_COMMON_STG, STRUCT_STG};
 
   private final String outDir;
   private final String packageName;
@@ -53,7 +56,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(structType.getId());
     final STBuilder builder = new STBStruct(packageName, structType);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
 
   public FileGenerator newAddressGenerator(final Address address) {
