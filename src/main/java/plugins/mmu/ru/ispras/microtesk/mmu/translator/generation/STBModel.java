@@ -36,9 +36,6 @@ final class STBModel implements STBuilder {
   private static final Class<?> MEM_CLASS =
       ru.ispras.microtesk.model.api.memory.MemoryAccessor.class;
 
-  private static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
-
   private final String packageName;
   private final Ir ir;
 
@@ -67,15 +64,12 @@ final class STBModel implements STBuilder {
     st.add("imps", java.util.HashMap.class.getName());
     st.add("imps", MEM_CLASS.getName());
     st.add("imps", String.format("%s.*", MODEL_CLASS.getPackage().getName()));
-    st.add("imps", SPEC_CLASS.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("body");
 
     stBody.add("name", CLASS_NAME);
-    stBody.add("spec", SPEC_CLASS.getSimpleName());
-
     stBody.add("buf_type", BUF_CLASS.getSimpleName());
     stBody.add("mem_type", MEM_CLASS.getSimpleName()); 
 

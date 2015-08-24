@@ -14,7 +14,7 @@
 
 group Model;
 
-body(name, spec, mem_type, buf_type, buffers, memories) ::= <<
+body(name, mem_type, buf_type, buffers, memories) ::= <<
 private final Map\<String, <buf_type>\> buffers;
 private final Map\<String, <mem_type>\> memories;
 
