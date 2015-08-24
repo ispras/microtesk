@@ -34,18 +34,12 @@ final class GeneratorFactory {
 
   private static final String MMU_COMMON_STG = MMU_STG_DIR + "Common.stg";
 
-  private static final String[] STRUCT_STGS =
+  private static final String[] COMMON_STGS =
       new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
 
   private static final String   BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
   private static final String[] BUFFER_STGS =
       new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, BUFFER_STG};
-
-  private static final String[] SEGMENT_STGS =
-      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
-
-  private static final String[] MEMORY_STGS =
-      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
 
   private static final String   MODEL_STG = MMU_STG_DIR + "Model.stg";
   private static final String[] MODEL_STGS =
@@ -72,7 +66,7 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(address.getId());
     final STBuilder builder = new STBStruct(packageName, address);
 
-    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newStructGenerator(final Type structType) {
@@ -81,7 +75,7 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(structType.getId());
     final STBuilder builder = new STBStruct(packageName, structType);
 
-    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newBufferGenerator(final Buffer buffer) {
@@ -99,7 +93,7 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(segment.getId());
     final STBuilder builder = new STBSegment(packageName, segment);
 
-    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newMemoryGenerator(final Memory memory) {
@@ -108,7 +102,7 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(memory.getId());
     final STBuilder builder = new STBMemory(packageName, memory);
 
-    return new STFileGenerator(outputFileName, MEMORY_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newModelGenerator(final Ir ir) {
