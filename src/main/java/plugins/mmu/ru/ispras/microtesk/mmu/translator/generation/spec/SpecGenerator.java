@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import java.io.IOException;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -42,9 +43,8 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
         new SpecGeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
-      /*
-      processStructs(ir, factory);
       processAddresses(ir, factory);
+      /*
       processBuffers(ir, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
@@ -55,16 +55,6 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  /*
-  private void processStructs(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
-    for (final Type type : ir.getTypes().values()) {
-      if (!ir.getAddresses().containsKey(type.getId())) {
-        final FileGenerator fileGenerator = factory.newStructGenerator(type);
-        fileGenerator.generate();
-      }
-    }
-  }
-
   private void processAddresses(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Address address : ir.getAddresses().values()) {
       final FileGenerator fileGenerator = factory.newAddressGenerator(address);
@@ -72,6 +62,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
+  /*
   private void processBuffers(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Buffer buffer : ir.getBuffers().values()) {
       final FileGenerator fileGenerator = factory.newBufferGenerator(buffer);
