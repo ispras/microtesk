@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MmuAddressType extends MmuStruct {
+public class MmuAddressType extends MmuStruct {
   /** Address description (the variable contains the name and the bit length). */
   private final Variable addrStruct;
   private final IntegerVariable address;
@@ -45,15 +45,15 @@ public final class MmuAddressType extends MmuStruct {
     this.address = address;
   }
 
-  public IntegerVariable getVariable() {
+  public final IntegerVariable getVariable() {
     return address;
   }
 
-  public int getWidth() {
+  public final int getWidth() {
     return getVariable().getWidth();
   }
 
-  public Variable getStruct() {
+  public final Variable getStruct() {
     return addrStruct;
   }
 
