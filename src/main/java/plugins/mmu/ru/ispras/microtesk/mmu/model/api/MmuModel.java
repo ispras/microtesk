@@ -14,11 +14,9 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
 
 public interface MmuModel {
   BufferObserver getBufferObserver(String bufferId);
   MemoryAccessor getMemoryAccessor(String deviceId);
-  MmuSubsystem getSpecification();
 }
