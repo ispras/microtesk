@@ -384,20 +384,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int i = tagEqualRelation.iterator().next();
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
-      // Instruction uses the same entry of the buffer.
+      // Instruction uses the same entry of the buffer (the map contains one entry).
       final Map<Long, MmuEntry> entries = prevAddrObject.getEntries(buffer);
-
-      // Update the entry (the map contains one entry).
-
-      // Do not call fillEntry().
-      //for (final MmuEntry entry : entries.values()) {
-        // fillEntry(access, addrObject, entry);
-      //}
-
+      // Set the reference to the entry (filling is done when all dependencies are resolved).
       addrObject.setEntries(buffer, entries);
     }
 
     if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
+      // Allocate an entry of the buffer.
       final Long bufferEntryId = allocateEntryId(buffer, false);
       final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
 
@@ -405,11 +399,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return new SolverResult<>(String.format("Cannot allocate an entry for buffer %s", buffer));
       }
 
-      // Filling the entry with appropriate data.
-
-      // Do not call fillEntry().
-      // fillEntry(access, addrObject, bufferEntry);
-
+      // Filling the entry with appropriate data is done when all dependencies are resolved.
       addrObject.addEntry(buffer, bufferEntryId, bufferEntry);
       solution.addEntry(buffer, bufferEntryId, bufferEntry);
     }
@@ -720,7 +710,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Satisfying dependencies may lead to changing the memory access path.
     if (correctAddr(addrObject)) {
-      System.out.println("CORRECTED1:" + addrObject);
       final Collection<MemoryAccessPath> paths =
           CoverageExtractor.get().getPaths(memory, access.getType());
       final Collection<MemoryAccessPath> variants =
@@ -746,24 +735,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return new SolverResult<MemorySolution>(
             String.format("No feasible variant found: %s", variants));
       }
-      System.out.println("CORRECTED2:" + addrObject);
     }
 
     return new SolverResult<MemorySolution>(solution);
   }
 
   private SolverResult<MemorySolution> fill(final int j) {
-    final MemoryAccess access = structure.getAccess(j);
-    final MemoryAccessPath path = access.getPath();
     final AddressObject addrObject = solution.getAddressObject(j);
+    final Map<MmuBuffer, Map<Long, MmuEntry>> pathEntries = addrObject.getEntries();
 
-    for (final MmuBuffer buffer : path.getBuffers()) {
-      if (buffer.isReplaceable()) {
-        continue;
-      }
-
-      for (final MmuEntry entry : addrObject.getEntries(buffer).values()) {
-        fillEntry(access, addrObject, entry);
+    for (final MmuBuffer buffer : pathEntries.keySet()) {
+      for (final MmuEntry entry : pathEntries.get(buffer).values()) {
+        fillEntry(addrObject, entry);
       }
     }
 
@@ -981,7 +964,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());
-    fillEntry(normalAccess, normalAddrObject, entry);
+    fillEntry(normalAddrObject, entry);
 
     solution.addEntry(parent, index, entry);
 
@@ -1201,15 +1184,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Fills the given entry with appropriate data produced on the basis the memory access and
    * the address object.
    * 
-   * @param access the memory access.
    * @param addrObject the address object.
    * @param entry the entry to be filled.
    */
   private void fillEntry(
-      final MemoryAccess access,
       final AddressObject addrObject,
       final MmuEntry entry) {
-    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(addrObject);
     InvariantChecks.checkNotNull(entry);
 
@@ -1228,7 +1208,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         addrObject.getPath(), constraints, IntegerVariableInitializer.RANDOM);
-    InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkTrue(values != null && !values.isEmpty());
 
     // Set the entry fields.
     entry.setValid(true);

@@ -155,6 +155,10 @@ public final class AddressObject {
     addresses.put(addressType, value);
   }
 
+  public Map<MmuBuffer, Map<Long, MmuEntry>> getEntries() {
+    return entries;
+  }
+
   /**
    * Returns the entries to be written to the given buffer.
    * 

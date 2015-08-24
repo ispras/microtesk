@@ -140,7 +140,7 @@ public final class MemoryEngineUtils {
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
       formula.addConstraint(constraint);
     }
-System.out.println(formula);
+
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
