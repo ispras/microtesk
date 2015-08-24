@@ -15,9 +15,8 @@
 group Struct;
 
 constructor(name, stmts) ::= <<
-public <name>(final String prefix) {
-  super(prefix + ".<name>");
-  InvariantChecks.checkNotNull(prefix);<\n>
+public <name>(final String name) {
+  super(name);<\n>
   <stmts; separator="\n">
 }
 >>
@@ -27,14 +26,14 @@ public final <type> <name>;
 >>
 
 field_def_var(name, size, value) ::= <<
-this.<name> = new IntegerVariable(prefix + ".<name>", <size><if(value)>, <value><endif>);
+this.<name> = new IntegerVariable(name + ".<name>", <size><if(value)>, <value><endif>);
 >>
 
 field_def_struct(name, type) ::= <<
-this.<name> = new <type>(prefix + ".<name>");
+this.<name> = new <type>(name + ".<name>");
 >>
 
 add_field(name) ::= <<
-addField(this.<name>);
+addField(<name>);
 >>
 

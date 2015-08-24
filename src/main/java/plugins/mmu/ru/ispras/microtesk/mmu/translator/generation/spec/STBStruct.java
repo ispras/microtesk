@@ -58,7 +58,6 @@ final class STBStruct implements STBuilder {
     st.add("pack", packageName);
     st.add("ext",  STRUCT_CLASS.getSimpleName());
 
-    st.add("imps", InvariantChecks.class.getName());
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
   }
