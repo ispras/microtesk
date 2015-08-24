@@ -109,6 +109,20 @@ public class MmuStruct {
   }
 
   /**
+   * Registers fields defined in the specified structure.
+   * 
+   * @param struct Structure which contains fields to be registered.
+   * 
+   * @throws IllegalArgumentException if {@code struct} or any field it contains is {@code null}.
+   */
+  public final void addField(final MmuStruct struct) {
+    InvariantChecks.checkNotNull(struct);
+    for (final IntegerVariable field : struct.getFields()) {
+      addField(field);
+    }
+  }
+
+  /**
    * Returns the number of fields in the structure.
    * 
    * @return number of fields in the structure.

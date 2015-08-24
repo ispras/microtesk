@@ -65,7 +65,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(address.getId());
     final STBuilder builder = new STBAddress(packageName, address);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
 
   /*

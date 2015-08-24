@@ -21,6 +21,13 @@ public <name>(final String name) {
 }
 >>
 
+constructor_default(name) ::= <<
+private <name>() {
+  this("<name>");
+}
+>>
+
+
 field_decl(type, name) ::= <<
 public final <type> <name>;
 >>

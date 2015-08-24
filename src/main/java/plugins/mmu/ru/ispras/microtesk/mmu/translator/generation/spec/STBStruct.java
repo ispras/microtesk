@@ -62,16 +62,30 @@ final class STBStruct implements STBuilder {
 
   private void buildFields(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
-    stConstructor.add("name", type.getId());
 
-    for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
+    stConstructor.add("name", type.getId());
+    buildFieldDecls(type, st, stConstructor, group);
+
+    stConstructor.add("stmts", "");
+    buildAddField(type, stConstructor, group);
+
+    st.add("members", "");
+    st.add("members", stConstructor);
+  }
+
+  protected static void buildFieldDecls(
+      final Type structType,
+      final ST st,
+      final ST stConstructor,
+      final STGroup group) {
+    for (final Map.Entry<String, Type> field : structType.getFields().entrySet()) {
       final String name = field.getKey();
       final Type type = field.getValue();
 
       final ST fieldDecl = group.getInstanceOf("field_decl");
       final ST fieldDef;
       if (type.isStruct()) {
-        fieldDecl.add("type", STRUCT_CLASS.getSimpleName());
+        fieldDecl.add("type", type.getId());
 
         fieldDef = group.getInstanceOf("field_def_struct");
         fieldDef.add("type", type.getId());
@@ -88,16 +102,13 @@ final class STBStruct implements STBuilder {
       st.add("members", fieldDecl);
       stConstructor.add("stmts", fieldDef);
     }
-
-    stConstructor.add("stmts", "");
-    buildAddField(type, stConstructor, group);
-
-    st.add("members", "");
-    st.add("members", stConstructor);
   }
 
-  private void buildAddField(final Type type, final ST stConstructor, final STGroup group) {
-    for (final String fieldName : type.getFields().keySet()) {
+  protected static void buildAddField(
+      final Type structType,
+      final ST stConstructor,
+      final STGroup group) {
+    for (final String fieldName : structType.getFields().keySet()) {
       final ST addField = group.getInstanceOf("add_field");
       addField.add("name", fieldName);
       stConstructor.add("stmts", addField);

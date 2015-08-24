@@ -19,26 +19,68 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBAddress extends STBCommon {
+final class STBAddress implements STBuilder {
+  public static final Class<?> ADDRESS_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType.class;
+
+  public static final Class<?> INTEGER_CLASS =
+      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+
+  private final String packageName;
   private final Address address;
 
   protected STBAddress(final String packageName, final Address address) {
-    super(packageName);
-
+    InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(address);
+
+    this.packageName = packageName;
     this.address = address;
   }
 
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
+
     buildHeader(st);
+    buildFields(st, group);
+
     return st;
   }
 
-  @Override
-  protected String getClassName() {
-    return address.getId();
+  private void buildHeader(final ST st) {
+    st.add("name", address.getId()); 
+    st.add("pack", packageName);
+    st.add("ext", ADDRESS_CLASS.getSimpleName());
+    st.add("instance", "INSTANCE");
+
+    st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", ADDRESS_CLASS.getName());
+  }
+
+  private void buildFields(final ST st, final STGroup group) {
+    final Type type = address.getContentType();
+
+    final ST stConstructorDef = group.getInstanceOf("constructor_default");
+    final ST stConstructor = group.getInstanceOf("constructor");
+
+    stConstructorDef.add("name", address.getId());
+    stConstructor.add("name", type.getId());
+
+    STBStruct.buildFieldDecls(type, st, stConstructor, group);
+    stConstructor.add("stmts", "");
+    STBStruct.buildAddField(type, stConstructor, group);
+
+    stConstructor.add("stmts", "");
+    stConstructor.add("stmts", String.format("setVariable(%s);",
+                      Utils.toString(address.getAccessChain(), ".")));
+
+    st.add("members", "");
+    st.add("members", stConstructorDef);
+
+    st.add("members", "");
+    st.add("members", stConstructor);
   }
 }
