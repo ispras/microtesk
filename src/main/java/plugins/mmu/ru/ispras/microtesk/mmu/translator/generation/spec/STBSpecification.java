@@ -46,9 +46,8 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSpecification extends STBCommon implements STBuilder {
+final class STBSpecification extends STBCommon {
   public static final String CLASS_NAME = "Specification";
   private final Ir ir;
 

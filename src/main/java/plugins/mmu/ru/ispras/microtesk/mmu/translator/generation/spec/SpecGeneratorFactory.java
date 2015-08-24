@@ -27,8 +27,8 @@ final class SpecGeneratorFactory {
   private static final String JAVA_COMMON_STG =
       PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg";
 
-  private static final String   SPEC_STG = MMU_STG_DIR + "Specification.stg";
-  private static final String[] SPEC_STGS = new String[] {JAVA_COMMON_STG, SPEC_STG};
+  private static final String COMMON_STG = MMU_STG_DIR + "Common.stg";
+  private static final String[] COMMON_STGS = new String[] {JAVA_COMMON_STG, COMMON_STG};
 
   private final String outDir;
   private final String packageName;
@@ -98,6 +98,6 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
     final STBuilder builder = new STBSpecification(packageName, ir);
 
-    return new STFileGenerator(outputFileName, SPEC_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 }
