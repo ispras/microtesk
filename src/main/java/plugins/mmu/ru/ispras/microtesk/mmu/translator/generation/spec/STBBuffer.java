@@ -26,6 +26,9 @@ final class STBBuffer implements STBuilder {
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
 
+  public static final Class<?> STRUCT_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
+
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
 
@@ -43,8 +46,11 @@ final class STBBuffer implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
+
     buildHeader(st);
+    buildEntry(st, group);
     buildConstructor(st, group);
+
     return st;
   }
 
@@ -56,6 +62,26 @@ final class STBBuffer implements STBuilder {
 
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
+    st.add("imps", STRUCT_CLASS.getName());
+  }
+
+  private void buildEntry(final ST st, final STGroup group) {
+    final ST stEntry = group.getInstanceOf("entry");
+    stEntry.add("name", "Entry");
+    stEntry.add("ext", STRUCT_CLASS.getSimpleName());
+
+    final ST stConstructor = group.getInstanceOf("entry_constructor");
+    stConstructor.add("name", "Entry");
+
+    STBStruct.buildFieldDecls(buffer.getEntry(), stEntry, stConstructor, group);
+    stConstructor.add("stmts", "");
+    STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
+
+    stEntry.add("members", "");
+    stEntry.add("members", stConstructor);
+
+    st.add("members", "");
+    st.add("members", stEntry);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
