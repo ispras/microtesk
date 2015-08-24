@@ -16,12 +16,8 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.data.DataTypeId;
@@ -29,21 +25,11 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 final class GuardPrinter {
   private final Ir ir;

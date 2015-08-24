@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -657,25 +656,3 @@ final class STBSpecification implements STBuilder {
     }
   }
 }
-
-/*
-  public FileGenerator newSpecificationGenerator(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-
-    final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
-    final STBuilder builder = new STBSpecification(packageName, ir);
-
-    return new STFileGenerator(outputFileName, SPECIFICATION_STGS, builder);
-  }
-
-  private static final String   SPECIFICATION_STG = MMU_STG_DIR + "Specification.stg";
-  private static final String[] SPECIFICATION_STGS =
-      new String[] {JAVA_COMMON_STG, SPECIFICATION_STG};
-      
-
-  private void processSpecification(final Ir ir, final GeneratorFactory factory) throws IOException {
-    final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
-    fileGenerator.generate();
-  }
-
-*/
