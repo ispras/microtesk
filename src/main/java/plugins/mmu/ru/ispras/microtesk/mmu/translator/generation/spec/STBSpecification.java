@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,27 +48,18 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSpecification implements STBuilder {
+final class STBSpecification extends STBCommon implements STBuilder {
   public static final String CLASS_NAME = "Specification";
-
-  private static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
-
-  private static final Class<?> MMU_OPERATION_CLASS =
-      ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
-
-  private static final Class<?> INTEGER_CLASS = 
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
-
-  private final String packageName;
   private final Ir ir;
 
   public STBSpecification(final String packageName, final Ir ir) {
-    InvariantChecks.checkNotNull(packageName);
-    InvariantChecks.checkNotNull(ir);
-
-    this.packageName = packageName;
+    super(packageName);
     this.ir = ir;
+  }
+
+  @Override
+  protected String getClassName() {
+    return CLASS_NAME;
   }
 
   @Override
@@ -78,17 +68,6 @@ final class STBSpecification implements STBuilder {
     buildHeader(st);
     buildBody(st, group);
     return st;
-  }
-
-  private void buildHeader(final ST st) {
-    st.add("name", CLASS_NAME); 
-    st.add("pack", packageName);
-
-    st.add("imps", Arrays.class.getName());
-    st.add("imps", BigInteger.class.getName());
-    st.add("imps", String.format("%s.*", INTEGER_CLASS.getPackage().getName()));
-    st.add("imps", String.format("%s.*", MMU_OPERATION_CLASS.getPackage().getName()));
-    st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {
