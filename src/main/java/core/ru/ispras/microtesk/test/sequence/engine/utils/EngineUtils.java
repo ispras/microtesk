@@ -257,6 +257,22 @@ public final class EngineUtils {
 
   private static List<LabelReference> labelRefs = null; 
 
+  public static List<ConcreteCall> makeConcreteCalls(
+      final EngineContext engineContext,
+      final List<Call> abstractSequence) throws ConfigurationException {
+    checkNotNull(engineContext);
+    checkNotNull(abstractSequence);
+
+    final List<ConcreteCall> concreteSequence = new ArrayList<>();
+
+    for (final Call abstractCall : abstractSequence) {
+      final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
+      concreteSequence.add(concreteCall);
+    }
+
+    return concreteSequence;
+  }
+  
   public static ConcreteCall makeConcreteCall(
       final EngineContext engineContext,
       final Call abstractCall) throws ConfigurationException {
