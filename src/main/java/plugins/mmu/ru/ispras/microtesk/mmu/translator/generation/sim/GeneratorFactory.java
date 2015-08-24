@@ -48,8 +48,8 @@ final class GeneratorFactory {
     InvariantChecks.checkNotNull(outDir);
     InvariantChecks.checkNotNull(modelName);
 
-    this.outDir = String.format("%s/%s/mmu", PackageInfo.getModelOutDir(outDir), modelName);
-    this.packageName = String.format("%s.%s.mmu", PackageInfo.MODEL_PACKAGE, modelName);
+    this.outDir = String.format("%s/%s/mmu/sim", PackageInfo.getModelOutDir(outDir), modelName);
+    this.packageName = String.format("%s.%s.mmu.sim", PackageInfo.MODEL_PACKAGE, modelName);
   }
 
   private String getOutputFileName(final String name) {
