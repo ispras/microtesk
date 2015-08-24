@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
 
-final class GeneratorFactory {
+final class SimGeneratorFactory {
   private static final String MMU_STG_DIR = "stg/mmu/sim/";
 
   private static final String JAVA_COMMON_STG =
@@ -44,7 +44,7 @@ final class GeneratorFactory {
   private final String outDir;
   private final String packageName;
 
-  public GeneratorFactory(final String outDir, final String modelName) {
+  public SimGeneratorFactory(final String outDir, final String modelName) {
     InvariantChecks.checkNotNull(outDir);
     InvariantChecks.checkNotNull(modelName);
 

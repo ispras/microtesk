@@ -30,7 +30,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.mmu.translator.generation.sim.Generator;
+import ru.ispras.microtesk.mmu.translator.generation.sim.SimGenerator;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
@@ -71,7 +71,7 @@ public final class MmuTranslator extends Translator<Ir> {
     specBuilder = new MmuSpecBuilder();
 
     addHandler(specBuilder);
-    addHandler(new Generator(this));
+    addHandler(new SimGenerator(this));
   }
 
   private final Preprocessor pp = new Preprocessor(this);

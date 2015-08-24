@@ -27,10 +27,10 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 
-public final class Generator implements TranslatorHandler<Ir> {
+public final class SimGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
 
-  public Generator(final Translator<Ir> translator) {
+  public SimGenerator(final Translator<Ir> translator) {
     InvariantChecks.checkNotNull(translator);
     this.translator = translator;
   }
@@ -43,8 +43,8 @@ public final class Generator implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
 
-    final GeneratorFactory factory =
-        new GeneratorFactory(getOutDir(), ir.getModelName());
+    final SimGeneratorFactory factory =
+        new SimGeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
       processStructs(ir, factory);
@@ -58,7 +58,7 @@ public final class Generator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processStructs(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processStructs(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     for (final Type type : ir.getTypes().values()) {
       if (!ir.getAddresses().containsKey(type.getId())) {
         final FileGenerator fileGenerator = factory.newStructGenerator(type);
@@ -67,35 +67,35 @@ public final class Generator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processAddresses(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processAddresses(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     for (final Address address : ir.getAddresses().values()) {
       final FileGenerator fileGenerator = factory.newAddressGenerator(address);
       fileGenerator.generate();
     }
   }
 
-  private void processBuffers(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processBuffers(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     for (final Buffer buffer : ir.getBuffers().values()) {
       final FileGenerator fileGenerator = factory.newBufferGenerator(buffer);
       fileGenerator.generate();
     }
   }
 
-  private void processSegments(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processSegments(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     for (final Segment segment : ir.getSegments().values()) {
       final FileGenerator fileGenerator = factory.newSegmentGenerator(segment);
       fileGenerator.generate();
     }
   }
 
-  private void processMemories(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processMemories(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
       final FileGenerator fileGenerator = factory.newMemoryGenerator(memory);
       fileGenerator.generate();
     }
   }
 
-  private void processModel(final Ir ir, final GeneratorFactory factory) throws IOException {
+  private void processModel(final Ir ir, final SimGeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newModelGenerator(ir);
     fileGenerator.generate();
   }
