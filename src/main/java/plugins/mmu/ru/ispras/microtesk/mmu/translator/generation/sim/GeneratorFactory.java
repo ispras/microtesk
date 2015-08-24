@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
 
 final class GeneratorFactory {
-  private static final String MMU_STG_DIR = "stg/mmu/";
+  private static final String MMU_STG_DIR = "stg/mmu/sim/";
 
   private static final String JAVA_COMMON_STG =
       PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg";
