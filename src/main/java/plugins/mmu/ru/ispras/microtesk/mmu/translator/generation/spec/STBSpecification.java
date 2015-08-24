@@ -12,8 +12,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.generation.sim;
+package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,15 +28,11 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
-import ru.ispras.microtesk.mmu.translator.generation.spec.Atom;
-import ru.ispras.microtesk.mmu.translator.generation.spec.AtomExtractor;
-import ru.ispras.microtesk.mmu.translator.generation.spec.BufferExprAnalyzer;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
@@ -51,10 +48,6 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.builder.AssignmentBuilder;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSpecification implements STBuilder {
@@ -664,3 +657,25 @@ final class STBSpecification implements STBuilder {
     }
   }
 }
+
+/*
+  public FileGenerator newSpecificationGenerator(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+
+    final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
+    final STBuilder builder = new STBSpecification(packageName, ir);
+
+    return new STFileGenerator(outputFileName, SPECIFICATION_STGS, builder);
+  }
+
+  private static final String   SPECIFICATION_STG = MMU_STG_DIR + "Specification.stg";
+  private static final String[] SPECIFICATION_STGS =
+      new String[] {JAVA_COMMON_STG, SPECIFICATION_STG};
+      
+
+  private void processSpecification(final Ir ir, final GeneratorFactory factory) throws IOException {
+    final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
+    fileGenerator.generate();
+  }
+
+*/
