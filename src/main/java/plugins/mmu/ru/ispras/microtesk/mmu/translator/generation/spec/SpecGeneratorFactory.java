@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -45,16 +46,16 @@ final class SpecGeneratorFactory {
     return String.format("%s/%s%s", outDir, name, PackageInfo.JAVA_EXT);
   }
 
-  /*
   public FileGenerator newAddressGenerator(final Address address) {
     InvariantChecks.checkNotNull(address);
 
     final String outputFileName = getOutputFileName(address.getId());
-    final STBuilder builder = new STBStruct(packageName, address);
+    final STBuilder builder = new STBAddress(packageName, address);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
+  /*
   public FileGenerator newStructGenerator(final Type structType) {
     InvariantChecks.checkNotNull(structType);
 
