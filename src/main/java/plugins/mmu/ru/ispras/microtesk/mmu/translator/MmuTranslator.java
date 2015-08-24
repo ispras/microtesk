@@ -30,7 +30,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.mmu.translator.generation.Generator;
+import ru.ispras.microtesk.mmu.translator.generation.sim.Generator;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;

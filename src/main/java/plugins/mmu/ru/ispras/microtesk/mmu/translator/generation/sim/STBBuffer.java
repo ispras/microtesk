@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.generation;
+package ru.ispras.microtesk.mmu.translator.generation.sim;
 
 import java.math.BigInteger;
 

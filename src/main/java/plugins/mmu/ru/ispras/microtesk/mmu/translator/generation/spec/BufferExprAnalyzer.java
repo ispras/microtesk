@@ -35,7 +35,7 @@ import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.generation.Utils;
+import ru.ispras.microtesk.mmu.translator.generation.sim.Utils;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
