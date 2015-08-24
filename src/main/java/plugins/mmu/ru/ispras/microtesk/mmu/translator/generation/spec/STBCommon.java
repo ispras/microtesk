@@ -15,16 +15,11 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 abstract class STBCommon implements STBuilder {
