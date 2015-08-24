@@ -77,6 +77,47 @@ private <name>() {
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Buffer-related templates
+
+buffer_entry(members) ::= <<
+<class(["public", "static", "final"],
+       "Entry",
+       false,
+       false,
+       members)>
+>>
+
+buffer_indexer(addr_type, addr_name, expr) ::= <<
+private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>() {
+  @Override
+  public BitVector getIndex(final <addr_type> <addr_name>) {
+    return <expr>;
+  }
+};
+>>
+
+buffer_matcher(entry_type, addr_type, addr_name, data_name, expr) ::= <<
+private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\<<entry_type>, <addr_type>\>() {
+  @Override
+  public boolean areMatching(final <entry_type> <data_name>, final <addr_type> <addr_name>) {
+    return <expr>;
+  }
+};
+>>
+
+buffer_constructor(name, ways, sets, policy) ::= <<
+private <name>() {
+  super(
+    new BigInteger("<sets>", 10),
+    <ways>,
+    <policy>,
+    INDEXER,
+    MATCHER
+    );
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 get_size(addr_size, data_size) ::= <<
 @Override

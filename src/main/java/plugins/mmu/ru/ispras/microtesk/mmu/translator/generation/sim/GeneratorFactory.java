@@ -37,10 +37,6 @@ final class GeneratorFactory {
   private static final String[] COMMON_STGS =
       new String[] {JAVA_COMMON_STG, MMU_COMMON_STG};
 
-  private static final String   BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
-  private static final String[] BUFFER_STGS =
-      new String[] {JAVA_COMMON_STG, MMU_COMMON_STG, BUFFER_STG};
-
   private static final String   MODEL_STG = MMU_STG_DIR + "Model.stg";
   private static final String[] MODEL_STGS =
       new String[] {JAVA_COMMON_STG, MODEL_STG};
@@ -84,7 +80,7 @@ final class GeneratorFactory {
     final String outputFileName = getOutputFileName(buffer.getId());
     final STBuilder builder = new STBBuffer(packageName, buffer);
 
-    return new STFileGenerator(outputFileName, BUFFER_STGS, builder);
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newSegmentGenerator(final Segment segment) {

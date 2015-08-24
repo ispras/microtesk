@@ -102,7 +102,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       return;
     }
 
-    final ST stEntry = group.getInstanceOf("entry");
+    final ST stEntry = group.getInstanceOf("buffer_entry");
 
     final Type type = buffer.getEntry();
     STBStruct.buildFields(stEntry, group, "Entry", type);
@@ -111,7 +111,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
-    final ST stIndexer = group.getInstanceOf("indexer");
+    final ST stIndexer = group.getInstanceOf("buffer_indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
     stIndexer.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
@@ -122,7 +122,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
 
   private void buildMatcher(final ST st, final STGroup group) {
     buildNewLine(st);
-    final ST stMatcher = group.getInstanceOf("matcher");
+    final ST stMatcher = group.getInstanceOf("buffer_matcher");
 
     stMatcher.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
     stMatcher.add("addr_type", buffer.getAddress().getId());
@@ -135,7 +135,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
 
   private void buildConstructor(final ST st, final STGroup group) {
     buildNewLine(st);
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
     stConstructor.add("name", buffer.getId());
     stConstructor.add("ways", buffer.getWays());
