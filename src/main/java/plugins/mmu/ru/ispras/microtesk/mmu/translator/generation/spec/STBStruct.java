@@ -20,9 +20,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBStruct implements STBuilder {
@@ -35,7 +33,7 @@ final class STBStruct implements STBuilder {
   private final String packageName;
   private final Type type;
 
-  public  STBStruct(final String packageName, final Type type) {
+  public STBStruct(final String packageName, final Type type) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(type);
 
@@ -73,12 +71,12 @@ final class STBStruct implements STBuilder {
       final ST fieldDecl = group.getInstanceOf("field_decl");
       final ST fieldDef;
       if (type.isStruct()) {
-        fieldDecl.add("type", MmuStruct.class.getSimpleName());
+        fieldDecl.add("type", STRUCT_CLASS.getSimpleName());
 
         fieldDef = group.getInstanceOf("field_def_struct");
         fieldDef.add("type", type.getId());
       } else {
-        fieldDecl.add("type", IntegerVariable.class.getSimpleName());
+        fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
 
         fieldDef = group.getInstanceOf("field_def_var");
         fieldDef.add("size", type.getBitSize());
@@ -92,13 +90,17 @@ final class STBStruct implements STBuilder {
     }
 
     stConstructor.add("stmts", "");
+    buildAddField(type, stConstructor, group);
+
+    st.add("members", "");
+    st.add("members", stConstructor);
+  }
+
+  private void buildAddField(final Type type, final ST stConstructor, final STGroup group) {
     for (final String fieldName : type.getFields().keySet()) {
       final ST addField = group.getInstanceOf("add_field");
       addField.add("name", fieldName);
       stConstructor.add("stmts", addField);
     }
-
-    st.add("members", "");
-    st.add("members", stConstructor);
   }
 }
