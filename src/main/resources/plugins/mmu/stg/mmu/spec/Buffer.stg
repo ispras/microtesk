@@ -70,7 +70,7 @@ addField(<name>);
 >>
 
 match_field_decl() ::= <<
-private final Collection\<MmuBinding\> matchBindings;<\n>
+<\n>private final Collection\<MmuBinding\> matchBindings;<\n>
 @Override
 public Collection\<MmuBinding\> getMatchBindings() {
   return matchBindings;
