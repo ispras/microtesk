@@ -349,6 +349,15 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
-    return source;
+    final String segmentStart = String.format("%s.get().START", rhs.getTarget().getId());
+    buildTransition(source, segmentStart);
+
+    final String segmentStop = String.format("%s.get().STOP", rhs.getTarget().getId());
+    final String assignResult = newAssign();
+ 
+    buildAction(assignResult); // TODO FIXME BINDINGS!
+    buildTransition(segmentStop, assignResult);
+
+    return assignResult;
   }
 }

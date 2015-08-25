@@ -29,7 +29,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  */
 public class MmuStruct {
   private final String name;
-  
+
   private MmuBuffer device = null;
   private final List<IntegerVariable> fields = new ArrayList<>();
   private int bitSize = 0;

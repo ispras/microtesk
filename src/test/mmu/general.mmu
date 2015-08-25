@@ -196,7 +196,7 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      pa.value = USEG(va);
+      pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
       pa.value = va.value<28..0>;
@@ -270,7 +270,7 @@ mmu pmem (va: VA) = (data: 64)
 
     // The address is from the USEG segment (only USEG and KSEG segments are supported).
     if USEG(va).hit then
-      pa.value = USEG(va);
+      pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
       pa.value = va.value<28..0>;
