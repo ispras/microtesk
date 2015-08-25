@@ -25,6 +25,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -41,7 +42,9 @@ final class ControlFlowBuilder {
   public static final Class<?> TRANSITION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition.class;
 
+  private final Ir ir;
   private final String context;
+
   private final ST st;
   private final STGroup group;
   private final ST stReg;
@@ -54,15 +57,18 @@ final class ControlFlowBuilder {
   private int assignIndex = 0;
 
   protected ControlFlowBuilder(
+      final Ir ir,
       final String context,
       final ST st,
       final STGroup group,
       final ST stReg) {
+    InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(st);
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkNotNull(stReg);
 
+    this.ir = ir;
     this.context = context;
     this.st = st;
     this.group = group;
@@ -161,6 +167,10 @@ final class ControlFlowBuilder {
 
   private String buildStmtAssign(final String source, final StmtAssign stmt) {
     InvariantChecks.checkNotNull(source);
+
+    final Node left = stmt.getLeft();
+    final Node right = stmt.getRight();
+
     return source;
   }
 

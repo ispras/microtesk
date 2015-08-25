@@ -22,6 +22,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -39,13 +40,15 @@ final class STBMemory implements STBuilder {
       ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
 
   private final String packageName;
+  private final Ir ir;
   private final Memory memory;
 
-  protected STBMemory(final String packageName, final Memory memory) {
+  protected STBMemory(final String packageName, final Ir ir, final Memory memory) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(memory);
 
     this.packageName = packageName;
+    this.ir = ir;
     this.memory = memory;
   }
 
@@ -115,6 +118,7 @@ final class STBMemory implements STBuilder {
     final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
 
     final ControlFlowBuilder builder = new ControlFlowBuilder(
+        ir,
         memory.getId(),
         st,
         group,

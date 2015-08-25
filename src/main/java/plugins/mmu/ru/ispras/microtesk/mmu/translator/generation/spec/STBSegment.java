@@ -20,6 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -36,13 +37,16 @@ final class STBSegment implements STBuilder {
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
   private final String packageName;
+  private final Ir ir;
   private final Segment segment;
 
-  protected STBSegment(final String packageName, final Segment segment) {
+  protected STBSegment(final String packageName, final Ir ir, final Segment segment) {
     InvariantChecks.checkNotNull(packageName);
+    InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(segment);
 
     this.packageName = packageName;
+    this.ir = ir;
     this.segment = segment;
   }
 
@@ -121,6 +125,7 @@ final class STBSegment implements STBuilder {
     final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null != read) {
       final ControlFlowBuilder builder = new ControlFlowBuilder(
+          ir,
           segment.getId(),
           st,
           group,

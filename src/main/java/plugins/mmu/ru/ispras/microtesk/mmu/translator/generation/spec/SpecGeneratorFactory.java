@@ -87,20 +87,20 @@ final class SpecGeneratorFactory {
     return new STFileGenerator(outputFileName, BUFFER_STGS, builder);
   }
 
-  public FileGenerator newSegmentGenerator(final Segment segment) {
+  public FileGenerator newSegmentGenerator(final Ir ir, final Segment segment) {
     InvariantChecks.checkNotNull(segment);
 
     final String outputFileName = getOutputFileName(segment.getId());
-    final STBuilder builder = new STBSegment(packageName, segment);
+    final STBuilder builder = new STBSegment(packageName, ir, segment);
 
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 
-  public FileGenerator newMemoryGenerator(final Memory memory) {
+  public FileGenerator newMemoryGenerator(final Ir ir, final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
-    final STBuilder builder = new STBMemory(packageName, memory);
+    final STBuilder builder = new STBMemory(packageName, ir, memory);
 
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }

@@ -83,14 +83,14 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
 
   private void processSegments(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Segment segment : ir.getSegments().values()) {
-      final FileGenerator fileGenerator = factory.newSegmentGenerator(segment);
+      final FileGenerator fileGenerator = factory.newSegmentGenerator(ir, segment);
       fileGenerator.generate();
     }
   }
 
   private void processMemories(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
-      final FileGenerator fileGenerator = factory.newMemoryGenerator(memory);
+      final FileGenerator fileGenerator = factory.newMemoryGenerator(ir, memory);
       fileGenerator.generate();
     }
   }
