@@ -164,7 +164,7 @@ public class MmuBuffer extends MmuStruct {
     return offsetExpression;
   }
 
-  public final Collection<MmuBinding> getMatchBindings() {
+  public Collection<MmuBinding> getMatchBindings() {
     return matchBindings;
   }
 

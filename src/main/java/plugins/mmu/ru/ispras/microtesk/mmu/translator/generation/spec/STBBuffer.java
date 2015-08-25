@@ -14,10 +14,13 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.util.List;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -25,6 +28,9 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 final class STBBuffer implements STBuilder {
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
+
+  public static final Class<?> EXPRESSION_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
 
   public static final Class<?> STRUCT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
@@ -62,6 +68,7 @@ final class STBBuffer implements STBuilder {
 
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
+    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
   }
 
@@ -90,14 +97,17 @@ final class STBBuffer implements STBuilder {
     STBStruct.buildFieldDecls(buffer.getEntry(), st, stConstructor, group);
     stConstructor.add("stmts", "");
     STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
+
+    final BufferExprAnalyzer analyzer = new BufferExprAnalyzer(
+        buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
  
     stConstructor.add("name", buffer.getId());
     stConstructor.add("ways", String.format("%dL", buffer.getWays().longValue()));
     stConstructor.add("sets", String.format("%dL", buffer.getSets().longValue()));
     stConstructor.add("addr", buffer.getAddress().getId());
-    stConstructor.add("tag", "null" /*toMmuExpressionText(analyzer.getTagFields())*/);
-    stConstructor.add("index", "null" /*toMmuExpressionText(analyzer.getIndexFields())*/);
-    stConstructor.add("offset", "null" /*toMmuExpressionText(analyzer.getOffsetFields())*/);
+    stConstructor.add("tag",  toMmuExpressionText(analyzer.getTagFields()));
+    stConstructor.add("index", toMmuExpressionText(analyzer.getIndexFields()));
+    stConstructor.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
     stConstructor.add("match", "null" /*toMmuBindingsText(analyzer.getMatchBindings())*/);
     stConstructor.add("guard_cond", "null"); // TODO
     stConstructor.add("guard", "null"); // TODO
@@ -109,4 +119,101 @@ final class STBBuffer implements STBuilder {
     st.add("members", "");
     st.add("members", stConstructor);
   }
+
+  private String getVariableName(final String prefixedName) {
+    final int dotIndex = prefixedName.indexOf('.');
+    if (dotIndex == -1) {
+      return prefixedName;
+    }
+
+    final String prefix = prefixedName.substring(0, dotIndex);
+    final String suffix = prefixedName.substring(dotIndex + 1, prefixedName.length());
+
+    if (prefix.equals(buffer.getId())) {
+      return suffix;
+    }
+
+    return prefix + ".get()." + suffix;
+  }
+
+  private String toMmuExpressionText(final List<IntegerField> fields) {
+    if (fields.isEmpty()) {
+      return "MmuExpression.empty()";
+    }
+
+    if (fields.size() == 1) {
+      final IntegerField field = fields.get(0);
+      return toMmuExpressionText(field);
+    }
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append("MmuExpression.rcat(");
+
+    boolean isFirst = true;
+    for (final IntegerField field : fields) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(", ");
+      }
+
+      final String name = getVariableName(field.getVariable().getName());
+      sb.append(name);
+      sb.append(".field(");
+      sb.append(field.getLoIndex());
+      sb.append(", ");
+      sb.append(field.getHiIndex());
+      sb.append(')');
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+
+  private String toMmuExpressionText(final IntegerField field) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("MmuExpression.");
+
+    if (field.getVariable().isDefined()) {
+      sb.append(String.format("val(%s, %d",
+          Utils.toString(field.getVariable().getValue()), field.getWidth()));
+    } else {
+      final String name = getVariableName(field.getVariable().getName());
+      sb.append(String.format("var(%s", name));
+
+      if (!field.isVariable()) {
+        sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
+      }
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+
+/*
+  private String toMmuBindingsText(final List<Pair<IntegerVariable, IntegerField>> bindings) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(String.format("Arrays.<MmuBinding>asList(", Arrays.class.getSimpleName()));
+
+    boolean isFirst = true;
+    for (final Pair<IntegerVariable, IntegerField> binding : bindings) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(',');
+      }
+
+      sb.append(System.lineSeparator());
+      sb.append("    ");
+
+      final String leftText = binding.first.getName().replace('.', '_');
+      final String rightText = toMmuExpressionText(binding.second);
+
+      sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+*/
 }
