@@ -14,18 +14,27 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
+  public static final Class<?> BINDING_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
 
@@ -66,7 +75,12 @@ final class STBBuffer implements STBuilder {
     st.add("ext",  BUFFER_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
+    st.add("imps", Collection.class.getName());
+    st.add("imps", Collections.class.getName());
+    st.add("imps", Arrays.class.getName());
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", BINDING_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
@@ -108,15 +122,23 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("tag",  toMmuExpressionText(analyzer.getTagFields()));
     stConstructor.add("index", toMmuExpressionText(analyzer.getIndexFields()));
     stConstructor.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
-    stConstructor.add("match", "null" /*toMmuBindingsText(analyzer.getMatchBindings())*/);
+    stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
     stConstructor.add("guard_cond", "null"); // TODO
     stConstructor.add("guard", "null"); // TODO
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
     }
+
+    if (!analyzer.getMatchBindings().isEmpty()) {
+      final ST stDecl = group.getInstanceOf("match_field_decl");
+      st.add("members", stDecl);
+
+      final ST stDef = group.getInstanceOf("match_field_def");
+      stDef.add("value", toMmuBindingsText(analyzer.getMatchBindings()));
+      stConstructor.add("stmts", stDef);
+    }
  
-    st.add("members", "");
     st.add("members", stConstructor);
   }
 
@@ -190,7 +212,6 @@ final class STBBuffer implements STBuilder {
     return sb.toString();
   }
 
-/*
   private String toMmuBindingsText(final List<Pair<IntegerVariable, IntegerField>> bindings) {
     final StringBuilder sb = new StringBuilder();
     sb.append(String.format("Arrays.<MmuBinding>asList(", Arrays.class.getSimpleName()));
@@ -206,7 +227,7 @@ final class STBBuffer implements STBuilder {
       sb.append(System.lineSeparator());
       sb.append("    ");
 
-      final String leftText = binding.first.getName().replace('.', '_');
+      final String leftText = getVariableName(binding.first.getName());
       final String rightText = toMmuExpressionText(binding.second);
 
       sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
@@ -215,5 +236,4 @@ final class STBBuffer implements STBuilder {
     sb.append(')');
     return sb.toString();
   }
-*/
 }

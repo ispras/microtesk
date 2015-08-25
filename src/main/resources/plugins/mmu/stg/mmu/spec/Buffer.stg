@@ -21,7 +21,7 @@ private <name>() {
 }<\n>
 private <name>(final String name) {
   super(
-      "<name>",
+      name,
       <ways>,
       <sets>,
       <addr>.get(),
@@ -69,3 +69,14 @@ add_field(name) ::= <<
 addField(<name>);
 >>
 
+match_field_decl() ::= <<
+private final Collection\<MmuBinding\> matchBindings;<\n>
+@Override
+public Collection\<MmuBinding\> getMatchBindings() {
+  return matchBindings;
+}<\n>
+>>
+
+match_field_def(value) ::= <<
+<\n>this.matchBindings = <value>;
+>>
