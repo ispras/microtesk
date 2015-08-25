@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,8 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -35,11 +38,16 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 
 final class ControlFlowBuilder {
   public static final Class<?> ACTION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction.class;
+
+  public static final Class<?> BINDING_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+
+  public static final Class<?> EXPRESSION_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
 
   public static final Class<?> GUARD_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard.class;
@@ -79,7 +87,10 @@ final class ControlFlowBuilder {
     this.group = group;
     this.stReg = stReg;
 
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", ACTION_CLASS.getName());
+    st.add("imps", BINDING_CLASS.getName());
+    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", GUARD_CLASS.getName());
     st.add("imps", TRANSITION_CLASS.getName());
   }
@@ -111,10 +122,10 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(stmtsWrite);
 
     st.add("members", "");
-
     buildAction(start, true);
     buildAction(stop, true);
 
+    st.add("members", "");
     buildAction(startRead);
     buildAction(startWrite);
 
@@ -124,6 +135,7 @@ final class ControlFlowBuilder {
       buildTransition(stopRead, stop);
     }
 
+    st.add("members", "");
     buildTransition(start, startWrite, "new MmuGuard(MemoryOperation.STORE)");
     final String stopWrite = buildStmts(startWrite, stmtsWrite);
     if (null != stopWrite) {
@@ -209,7 +221,13 @@ final class ControlFlowBuilder {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
-    return source;
+    final String target = newAssign();
+    final String targetBindings = buildBindings(lhs, rhs);
+
+    buildAction(target, targetBindings);
+    buildTransition(source, target);
+
+    return target;
   }
 
   private String buildStmtIf(final String source, final StmtIf stmt) {
@@ -355,18 +373,22 @@ final class ControlFlowBuilder {
     return false;
   }
 
-  private String buildSegmentAccess(final String source, final Node lhs, final AttributeRef rhs) {
+  private String buildSegmentAccess(final String source, final Node left, final AttributeRef right) {
     InvariantChecks.checkNotNull(source);
-    InvariantChecks.checkNotNull(lhs);
-    InvariantChecks.checkNotNull(rhs);
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
 
-    final String segmentStart = String.format("%s.get().START", rhs.getTarget().getId());
+    final String segmentStart = String.format("%s.get().START", right.getTarget().getId());
+    final String segmentStop = String.format("%s.get().STOP", right.getTarget().getId());
     buildTransition(source, segmentStart);
 
-    final String segmentStop = String.format("%s.get().STOP", rhs.getTarget().getId());
-    final String assignResult = newAssign();
+    final Atom lhs = AtomExtractor.extract(left);
+    final Atom rhs = AtomExtractor.extract(right.getTarget().getDataArg().getNode());
  
-    buildAction(assignResult); // TODO FIXME BINDINGS!
+    final String assignResult = newAssign();
+    final String assignResultBindings = buildBindings(lhs, rhs);
+
+    buildAction(assignResult, assignResultBindings);
     buildTransition(segmentStop, assignResult);
 
     return assignResult;
@@ -376,6 +398,45 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
-    return "";
+    if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
+      // TODO
+      return "/*TODO: both structs*/ null";
+    } else if (lhs.getKind().isStruct()) {
+      // TODO
+      return "/*TODO: left struct*/ null";
+    } else if (rhs.getKind().isStruct()) {
+      // TODO
+      return "/*TODO: right struct*/ null";
+    } else {
+      return String.format("new MmuBinding(%s, %s)", toString(lhs), toString(rhs));
+    }
+  }
+
+  private String toString(final Atom atom) {
+    InvariantChecks.checkNotNull(atom);
+
+    final Object object = atom.getObject();
+    switch (atom.getKind()) {
+      case VALUE:
+        return Utils.toString((BigInteger) object);
+
+      case VARIABLE:
+        return Utils.getVariableName(context, ((IntegerVariable) object).getName());
+
+      case FIELD:
+        return String.format("%s.field(%d, %d)", 
+            Utils.getVariableName(context, ((IntegerField) object).getVariable().getName()),
+            ((IntegerField) object).getLoIndex(),
+            ((IntegerField) object).getHiIndex());
+
+      case GROUP:
+        return ((Variable) object).getName();
+
+      case CONCAT:
+        return "/* TODO MmuExpression.XXX */ (MmuExpression) null";
+
+      default:
+        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
   }
 }
