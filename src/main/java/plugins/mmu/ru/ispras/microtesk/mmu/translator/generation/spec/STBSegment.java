@@ -23,7 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-public final class STBSegment implements STBuilder {
+final class STBSegment implements STBuilder {
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 

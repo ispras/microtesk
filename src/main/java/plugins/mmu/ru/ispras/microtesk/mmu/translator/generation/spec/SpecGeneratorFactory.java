@@ -18,6 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
@@ -94,7 +95,6 @@ final class SpecGeneratorFactory {
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 
-  /*
   public FileGenerator newMemoryGenerator(final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 
@@ -103,7 +103,6 @@ final class SpecGeneratorFactory {
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
-  */
 
   public FileGenerator newSpecificationGenerator(final Ir ir) {
     InvariantChecks.checkNotNull(ir);

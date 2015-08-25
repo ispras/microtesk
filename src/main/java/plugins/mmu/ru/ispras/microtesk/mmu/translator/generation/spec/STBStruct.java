@@ -33,7 +33,7 @@ final class STBStruct implements STBuilder {
   private final String packageName;
   private final Type type;
 
-  public STBStruct(final String packageName, final Type type) {
+  protected STBStruct(final String packageName, final Type type) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(type);
 
