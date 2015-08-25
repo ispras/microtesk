@@ -79,12 +79,14 @@ final class STBSegment implements STBuilder {
     stData.add("name", getVariableName(segment.getDataArg().getName()));
     stData.add("type", segment.getDataArgAddress().getId());
     st.add("members", stData);
-
-    st.add("members", "");
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
+
+    if (!segment.getVariables().isEmpty()) {
+      st.add("members", "");
+    }
 
     for (final Variable variable : segment.getVariables()) {
       final String name = getVariableName(variable.getName());
