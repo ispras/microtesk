@@ -1,0 +1,43 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group Segment;
+
+constructor(name, va, pa, start, end, mapped, va_expr, pa_expr) ::= <<
+private <name>() {
+  super(
+      "<name>",
+      <va>.get(),
+      <pa>.get(),
+      <start>,
+      <end>,
+      <mapped>,
+      <va_expr>,
+      <pa_expr>
+  );
+  <if(stmts)><\n><stmts; separator="\n"><endif>
+}
+>>
+
+field_decl(type, name) ::= <<
+public final <type> <name>;
+>>
+
+field_def_var(name, size, value) ::= <<
+this.<name> = new IntegerVariable(name + ".<name>", <size><if(value)>, <value><endif>);
+>>
+
+field_def_struct(name, type) ::= <<
+this.<name> = new <type>(name + ".<name>");
+>>

@@ -29,7 +29,7 @@ import ru.ispras.microtesk.utils.Range;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MmuSegment implements Range<Long> {
+public class MmuSegment implements Range<Long> {
   private final String name;
   private final MmuAddressType vaType;
   private final MmuAddressType paType;
@@ -72,23 +72,23 @@ public final class MmuSegment implements Range<Long> {
     this.range = new IntegerRange(min, max);
   }
 
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
-  public MmuAddressType getVaType() {
+  public final MmuAddressType getVaType() {
     return vaType;
   }
 
-  public MmuAddressType getPaType() {
+  public final MmuAddressType getPaType() {
     return paType;
   }
 
-  public long getStartAddress() {
+  public final long getStartAddress() {
     return startAddress;
   }
 
-  public long getEndAddress() {
+  public final long getEndAddress() {
     return endAddress;
   }
 
@@ -96,27 +96,27 @@ public final class MmuSegment implements Range<Long> {
     return isMapped;
   }
 
-  public MmuExpression getPaExpression() {
+  public final MmuExpression getPaExpression() {
     return paExpression;
   }
 
-  public MmuExpression getRestExpression() {
+  public final MmuExpression getRestExpression() {
     return restExpression;
   }
 
-  public boolean checkVa(final long va) {
+  public final boolean checkVa(final long va) {
     return range.contains(BigIntegerUtils.valueOfUnsignedLong(va));
   }
 
-  public long getPa(long address) {
+  public final long getPa(long address) {
     return addressView.getField(address, 0);
   }
 
-  public long getRest(long address) {
+  public final long getRest(long address) {
     return addressView.getField(address, 1);
   }
 
-  public long getVa(final long pa, final long rest) {
+  public final long getVa(final long pa, final long rest) {
     final List<Long> fields = new ArrayList<>();
 
     fields.add(pa);
@@ -125,19 +125,19 @@ public final class MmuSegment implements Range<Long> {
     return addressView.getAddress(fields);
   }
 
-  public long getVa(final long pa) {
+  public final long getVa(final long pa) {
     final long startAddressRest = getRest(startAddress);
 
     return getVa(pa, startAddressRest);
   }
 
   @Override
-  public Long getMin() {
+  public final Long getMin() {
     return startAddress;
   }
 
   @Override
-  public Long getMax() {
+  public final Long getMax() {
     return endAddress;
   }
 

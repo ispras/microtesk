@@ -18,6 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -38,6 +39,9 @@ final class SpecGeneratorFactory {
 
   private static final String BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
   private static final String[] BUFFER_STGS = new String[] {JAVA_COMMON_STG, BUFFER_STG};
+
+  private static final String SEGMENT_STG = MMU_STG_DIR + "Segment.stg";
+  private static final String[] SEGMENT_STGS = new String[] {JAVA_COMMON_STG, SEGMENT_STG};
 
   private final String outDir;
   private final String packageName;
@@ -81,16 +85,16 @@ final class SpecGeneratorFactory {
     return new STFileGenerator(outputFileName, BUFFER_STGS, builder);
   }
 
-  /*
   public FileGenerator newSegmentGenerator(final Segment segment) {
     InvariantChecks.checkNotNull(segment);
 
     final String outputFileName = getOutputFileName(segment.getId());
     final STBuilder builder = new STBSegment(packageName, segment);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 
+  /*
   public FileGenerator newMemoryGenerator(final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 

@@ -20,6 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -48,8 +49,8 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       processStructs(ir, factory);
       processAddresses(ir, factory);
       processBuffers(ir, factory);
-      /*
       processSegments(ir, factory);
+      /*
       processMemories(ir, factory);
       */
       processSpecification(ir, factory);
@@ -81,7 +82,6 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  /*
   private void processSegments(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Segment segment : ir.getSegments().values()) {
       final FileGenerator fileGenerator = factory.newSegmentGenerator(segment);
@@ -89,6 +89,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
+  /*
   private void processMemories(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
       final FileGenerator fileGenerator = factory.newMemoryGenerator(memory);
