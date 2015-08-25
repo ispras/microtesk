@@ -43,6 +43,7 @@ final class STBMemory implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
 
     buildHeader(st);
+    buildAddress(st, group);
     buildConstructor(st, group);
 
     return st;
@@ -55,12 +56,28 @@ final class STBMemory implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
   }
 
+  private void buildAddress(final ST st, final STGroup group) {
+    final ST stAddress = group.getInstanceOf("field_alias");
+    stAddress.add("name", getVariableName(memory.getAddressArg().getName()));
+    stAddress.add("type", memory.getAddress().getId());
+    st.add("members", stAddress);
+    st.add("members", "");
+  }
+
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor_memory");
     stConstructor.add("name", memory.getId());
 
+    STBStruct.buildFieldDecl(
+        getVariableName(memory.getDataArg().getName()),
+        memory.getDataArg().getType(),
+        st,
+        stConstructor,
+        group
+        );
+
     for (final Variable variable : memory.getVariables()) {
-      final String name = variable.getName().replaceFirst(memory.getId() + ".", "");
+      final String name = getVariableName(variable.getName());
       final Type type = variable.getType();
 
       STBStruct.buildFieldDecl(
@@ -74,5 +91,9 @@ final class STBMemory implements STBuilder {
 
     st.add("members", "");
     st.add("members", stConstructor);
+  }
+
+  private String getVariableName(final String prefixedName) {
+    return Utils.getVariableName(memory.getId(), prefixedName);
   }
 }

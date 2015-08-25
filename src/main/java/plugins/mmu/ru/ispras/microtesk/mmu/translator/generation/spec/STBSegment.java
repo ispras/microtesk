@@ -80,7 +80,7 @@ final class STBSegment implements STBuilder {
     final ST stConstructor = group.getInstanceOf("constructor");
 
     for (final Variable variable : segment.getVariables()) {
-      final String name = variable.getName().replaceFirst(segment.getId() + ".", "");
+      final String name = getVariableName(variable.getName());
       final Type type = variable.getType();
 
       STBStruct.buildFieldDecl(
