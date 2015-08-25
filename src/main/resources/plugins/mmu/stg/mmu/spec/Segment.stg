@@ -33,6 +33,15 @@ private <name>(final String name) {
 }
 >>
 
+constructor_memory(name, stmts) ::= <<
+private <name>() {
+  this("<name>");
+}<\n>
+private <name>(final String name) {
+  <stmts; separator="\n">
+}
+>>
+
 field_decl(type, name) ::= <<
 public final <type> <name>;
 >>

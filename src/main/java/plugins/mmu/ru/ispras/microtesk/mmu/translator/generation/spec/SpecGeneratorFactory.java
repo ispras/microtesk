@@ -101,7 +101,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(memory.getId());
     final STBuilder builder = new STBMemory(packageName, memory);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
 
   public FileGenerator newSpecificationGenerator(final Ir ir) {
