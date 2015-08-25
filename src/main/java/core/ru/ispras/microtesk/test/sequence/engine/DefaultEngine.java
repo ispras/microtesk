@@ -17,10 +17,8 @@ package ru.ispras.microtesk.test.sequence.engine;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.checkRootOp;
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.setUnknownImmValues;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,24 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.sequence.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.utils.FortressUtils;
-import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
@@ -173,9 +164,12 @@ public final class DefaultEngine implements Engine<TestSequence> {
       }
     }
 
-    generateData(engineContext, primitive);
+    final List<Call> initializingCalls = makeInitializer(
+        engineContext, primitive, primitive.getSituation(), initializedModes);
+    addCallsToPrologue(engineContext, initializingCalls);
   }
 
+  /* TODO:
   private void generateData(
       final EngineContext engineContext,
       final Primitive primitive) throws ConfigurationException {
@@ -228,6 +222,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
       initializedModes.add(targetMode);
     }
   }
+*/
 
   private void addCallsToPrologue(
       final EngineContext engineContext,

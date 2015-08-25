@@ -134,6 +134,14 @@ public final class AddressObject {
     return addresses.get(addressType); 
   }
 
+  public long getVirtualAddress() {
+    return getAddress(memory.getVirtualAddress());
+  }
+
+  public long getPhysicalAddress() {
+    return getAddress(memory.getPhysicalAddress());
+  }
+
   /**
    * Returns the address map, which maps address types to address values.
    * 
@@ -153,6 +161,14 @@ public final class AddressObject {
   public void setAddress(final MmuAddressType addressType, final long value) {
     InvariantChecks.checkNotNull(addressType);
     addresses.put(addressType, value);
+  }
+
+  public void setVirtualAddress(final long value) {
+    setAddress(memory.getVirtualAddress(), value);
+  }
+
+  public void setPhysicalAddress(final long value) {
+    setAddress(memory.getPhysicalAddress(), value);
   }
 
   public Map<MmuBuffer, Map<Long, MmuEntry>> getEntries() {

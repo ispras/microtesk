@@ -66,6 +66,7 @@ import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -117,6 +118,65 @@ public final class EngineUtils {
     }
 
     return testBase;
+  }
+
+  public static List<Call> makeInitializer(
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final Situation situation,
+      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+    checkNotNull(engineContext);
+    checkNotNull(primitive);
+    checkNotNull(initializedModes);
+    // Parameter {@code situation} can be null.
+
+    final List<Call> prologue = new ArrayList<>();
+
+    final TestBaseQueryCreator queryCreator =
+        new TestBaseQueryCreator(engineContext, situation, primitive);
+
+    final TestData testData = getTestData(engineContext, primitive, queryCreator);
+    Logger.debug(testData.toString());
+
+    setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
+
+    // Set model state using preparators that create initializing
+    // sequences based on addressing modes.
+    for (final Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
+      final String name = e.getKey();
+
+      final Argument arg = queryCreator.getModes().get(name);
+
+      if (null == arg) {
+        continue;
+      }
+
+      // No point to assign output variables even if values for them are provided.
+      // We do not want extra code and conflicts when same registers are used
+      // as input and output (see Bug #6057)
+      if (arg.getMode() == ArgumentMode.OUT) {
+        continue;
+      }
+
+      final Primitive mode = (Primitive) arg.getValue();
+
+      final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
+      if (initializedModes.contains(targetMode)) {
+        Logger.debug("%s has already been used to set up the processor state. " +
+              "No initialization code will be created.", targetMode);
+        continue;
+      }
+
+      final BitVector value = FortressUtils.extractBitVector(e.getValue());
+
+      Logger.debug("Creating code to assign %s to %s...", value, targetMode);
+      final List<Call> initializingCalls = makeInitializer(engineContext, mode, value);
+
+      prologue.addAll(initializingCalls);
+      initializedModes.add(targetMode);
+    }
+
+    return prologue;
   }
 
   private static TestData getDefaultTestData(

@@ -23,10 +23,12 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
@@ -40,64 +42,81 @@ import ru.ispras.testbase.stub.Utils;
  */
 public final class AddressDataGenerator implements DataGenerator {
   /** Instruction operand for the address base. */
-  private static final String PARAM_ADDRESS_BASE = "base";
+  public static final String PARAM_ADDRESS_BASE = "base";
   /** Instruction operand for the address offset (optional). */
-  private static final String PARAM_ADDRESS_OFFSET = "offset";
-  /** Memory region to choose an address from. */
-  private static final String PARAM_MEMORY_REGION = "region";
-  /** Size of a data block being accessed (in bytes). */
-  private static final String PARAM_BLOCK_SIZE = "size";
+  public static final String PARAM_ADDRESS_OFFSET = "offset";
+  /** Memory region to choose an address from (ignored if {@code PARAM_ADDRESS_VALUE} is set). */
+  public static final String PARAM_MEMORY_REGION = "region";
+  /** Size of a data block being accessed (ignored if {@code PARAM_ADDRESS_VALUE} is set). */
+  public static final String PARAM_BLOCK_SIZE = "size";
+  /** Address to be set (optional). */
+  public static final String PARAM_ADDRESS_VALUE = "address";
 
   @Override
   public boolean isSuitable(final TestBaseQuery query) {
-    final String addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE).toString();
-    final String memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION).toString();
-    final String blockSize = Utils.getParameter(query, PARAM_BLOCK_SIZE).toString();
+    InvariantChecks.checkNotNull(query);
 
-    if (addressBase == null || memoryRegion == null || blockSize == null) {
+    final Object base = Utils.getParameter(query, PARAM_ADDRESS_BASE);
+    final Object region = Utils.getParameter(query, PARAM_MEMORY_REGION);
+    final Object size = Utils.getParameter(query, PARAM_BLOCK_SIZE);
+    final Object address = Utils.getParameter(query, PARAM_ADDRESS_VALUE);
+
+    if (base == null || ((region == null || size == null) && address == null)) {
       return false;
     }
 
-    final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
-    if (generatorSettings == null) {
-      return false;
+    if (address == null) {
+      final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+      if (generatorSettings == null) {
+        return false;
+      }
+
+      final MemorySettings memorySettings = generatorSettings.getMemory();
+      if (memorySettings == null) {
+        return false;
+      }
+
+      final RegionSettings regionSettings = memorySettings.getRegion(region.toString());
+      if (regionSettings == null) {
+        return false;
+      }
+
+      return regionSettings.isEnabled();
     }
 
-    final MemorySettings memorySettings = generatorSettings.getMemory();
-    if (memorySettings == null) {
-      return false;
-    }
-
-    final RegionSettings regionSettings = memorySettings.getRegion(memoryRegion);
-    if (regionSettings == null) {
-      return false;
-    }
-
-    return regionSettings.isEnabled();
+    return true;
   }
 
   @Override
   public TestDataProvider generate(final TestBaseQuery query) {
-    final Object addressBase = Utils.getParameter(query, PARAM_ADDRESS_BASE);
-    final Object addressOffset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
-    final Object memoryRegion = Utils.getParameter(query, PARAM_MEMORY_REGION);
-    final long blockSize = Utils.getParameterAsInt(query, PARAM_BLOCK_SIZE);
+    final Object base = Utils.getParameter(query, PARAM_ADDRESS_BASE);
+    final Object offset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
+    final Object region = Utils.getParameter(query, PARAM_MEMORY_REGION);
+    final Object size = Utils.getParameter(query, PARAM_BLOCK_SIZE);
+    final Object address = Utils.getParameterAsInt(query, PARAM_ADDRESS_VALUE);
 
-    final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
-    final MemorySettings memorySettings = generatorSettings.getMemory();
-    final RegionSettings regionSettings = memorySettings.getRegion(memoryRegion.toString());
+    final BigInteger addressValue;
 
-    final long min = regionSettings.getStartAddress();
-    final long max = regionSettings.getEndAddress();
+    if (address != null) {
+      InvariantChecks.checkTrue(address instanceof Number, "Address is of incorrect type");
 
-    final BigInteger startAddress = min >= 0 ? BigInteger.valueOf(min) :
-        BigInteger.valueOf(min).add(BigInteger.ONE.shiftLeft(Long.SIZE));
+      addressValue = BigIntegerUtils.valueOfUnsignedLong(((Number) address).longValue());
+    } else {
+      InvariantChecks.checkTrue(size instanceof Number, "Size is of incorrect type");
 
-    final BigInteger endAddress = max >= 0 ? BigInteger.valueOf(max) :
-      BigInteger.valueOf(max).add(BigInteger.ONE.shiftLeft(Long.SIZE));
+      final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+      final MemorySettings memorySettings = generatorSettings.getMemory();
+      final RegionSettings regionSettings = memorySettings.getRegion(region.toString());
 
-    final BigInteger address = Randomizer.get().nextBigIntegerRange(startAddress, endAddress);
-    final BigInteger alignedAddress = BigInteger.valueOf(address.longValue() & ~(blockSize - 1));
+      final BigInteger min = BigIntegerUtils.valueOfUnsignedLong(regionSettings.getStartAddress());
+      final BigInteger max = BigIntegerUtils.valueOfUnsignedLong(regionSettings.getEndAddress());
+
+      final BigInteger mask = BigInteger.valueOf(((Number) size).longValue() - 1);
+      final BigInteger random = Randomizer.get().nextBigIntegerRange(min, max);
+      final BigInteger aligned = random.andNot(mask);
+
+      addressValue = aligned;
+    }
 
     final Map<String, Node> unknowns = Utils.extractUnknown(query);
     final Map<String, Node> bindings = new LinkedHashMap<>();
@@ -106,10 +125,10 @@ public final class AddressDataGenerator implements DataGenerator {
       final String name = entry.getKey();
       final DataType type = entry.getValue().getDataType();
 
-      if (name.equals(addressBase)) {
-        final BitVector data = BitVector.valueOf(alignedAddress, type.getSize());
+      if (name.equals(base)) {
+        final BitVector data = BitVector.valueOf(addressValue, type.getSize());
         bindings.put(name, NodeValue.newBitVector(data));
-      } else if (addressOffset != null && name.equals(addressOffset)) {
+      } else if (offset != null && name.equals(offset)) {
         final BitVector data = BitVector.valueOf(0, type.getSize());
         bindings.put(name, NodeValue.newBitVector(data));
       }

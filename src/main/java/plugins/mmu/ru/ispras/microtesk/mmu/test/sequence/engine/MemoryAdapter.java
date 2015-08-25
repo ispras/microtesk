@@ -17,9 +17,12 @@ package ru.ispras.microtesk.mmu.test.sequence.engine;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -35,11 +38,15 @@ import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 
 /**
  * {@link MemoryAdapter} implements adapter of {@link MemorySolution}.
@@ -74,9 +81,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     builder.addToPrologue(prepareEntries(engineContext, solution));
     // Load data into the replaceable buffers.
     builder.addToPrologue(prepareData(engineContext, solution));
-
-    // TODO: prepare data (ST only).
-    // TODO: prepare addresses.
+    // Load addresses and data into the registers.
+    builder.addToPrologue(prepareAddresses(engineContext, abstractSequence, solution));
 
     // Convert the abstract sequence into the concrete one.
     builder.add(prepareSequence(engineContext, abstractSequence));
@@ -128,7 +134,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
-      final List<ConcreteCall> initializer = makeInitializer(
+      final List<ConcreteCall> initializer = prepareBuffer(
           buffer, engineContext, addressValue, entryFieldValues);
       InvariantChecks.checkNotNull(initializer);
 
@@ -170,7 +176,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     for (final Load load : loads) {
       final BitVector address = BitVector.valueOf(load.getAddress(), addressType.getWidth());
 
-      final List<ConcreteCall> initializer = makeInitializer(
+      final List<ConcreteCall> initializer = prepareBuffer(
           load.getBuffer(), engineContext, address, Collections.<String, BitVector>emptyMap());
       InvariantChecks.checkNotNull(initializer);
 
@@ -180,7 +186,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     return preparation;
   }
 
-  private List<ConcreteCall> makeInitializer(
+  private List<ConcreteCall> prepareBuffer(
       final MmuBuffer buffer,
       final EngineContext engineContext,
       final BitVector address,
@@ -211,7 +217,69 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     try {
       return EngineUtils.makeConcreteCalls(engineContext, abstractSequence);
     } catch (final ConfigurationException e) {
-      InvariantChecks.checkTrue(false, "Configuration exception");
+      InvariantChecks.checkTrue(false, e.getMessage());
+      return null;
+    }
+  }
+
+  private List<ConcreteCall> prepareAddresses(
+      final EngineContext engineContext,
+      final List<Call> abstractSequence,
+      final MemorySolution solution) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+    InvariantChecks.checkNotNull(solution);
+
+    final List<ConcreteCall> preparation = new ArrayList<>();
+    final Set<AddressingModeWrapper> initializedModes = new LinkedHashSet<>();
+
+    for (int i = 0; i < abstractSequence.size(); i++) {
+      final Call abstractCall = abstractSequence.get(i);
+      final AddressObject addressObject = solution.getAddressObject(i);
+
+      final List<ConcreteCall> callPreparation = prepareAddress(
+          engineContext, abstractCall, addressObject, initializedModes);
+
+      preparation.addAll(callPreparation);
+    }
+
+    return preparation;
+  }
+
+  private List<ConcreteCall> prepareAddress(
+      final EngineContext engineContext,
+      final Call abstractCall,
+      final AddressObject addressObject,
+      final Set<AddressingModeWrapper> initializedModes) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(initializedModes);
+
+    InvariantChecks.checkTrue(abstractCall.isLoad() || abstractCall.isStore());
+
+    final Primitive primitive = abstractCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive, "Primitive is null");
+
+    final Situation situation = primitive.getSituation();
+    InvariantChecks.checkNotNull(situation, "Situation is null");
+
+    final Map<String, Object> attributes = situation.getAttributes();
+    InvariantChecks.checkNotNull(attributes, "Attributes map is null");
+
+    // Specify the situation's parameter (address value).
+    final Map<String, Object> newAttributes = new HashMap<>(attributes);
+    newAttributes.put(AddressDataGenerator.PARAM_ADDRESS_VALUE, addressObject.getVirtualAddress());
+
+    final Situation newSituation = new Situation(situation.getName(), newAttributes);
+
+    try {
+      final List<Call> abstractInitializer = EngineUtils.makeInitializer(
+          engineContext, primitive, newSituation, initializedModes);
+      InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
+
+      return prepareSequence(engineContext, abstractInitializer);
+    } catch (final ConfigurationException e) {
+      InvariantChecks.checkTrue(false, e.getMessage());
       return null;
     }
   }
