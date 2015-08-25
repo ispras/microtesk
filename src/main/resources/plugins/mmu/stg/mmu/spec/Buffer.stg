@@ -16,7 +16,7 @@ group Buffer;
 
 constructor(name, ways, sets, addr, tag, index, offset, match,
            guard_cond, guard, replaceable, parent, stmts) ::= <<
-private <name>() {
+<\n>private <name>() {
   this("<name>");
 }<\n>
 private <name>(final String name) {
@@ -74,7 +74,7 @@ private final Collection\<MmuBinding\> matchBindings;<\n>
 @Override
 public Collection\<MmuBinding\> getMatchBindings() {
   return matchBindings;
-}<\n>
+}
 >>
 
 match_field_def(value) ::= <<

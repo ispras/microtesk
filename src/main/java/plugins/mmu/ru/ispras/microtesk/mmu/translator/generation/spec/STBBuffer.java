@@ -75,8 +75,8 @@ final class STBBuffer implements STBuilder {
     st.add("ext",  BUFFER_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
-    st.add("imps", Collection.class.getName());
     st.add("imps", Collections.class.getName());
+    st.add("imps", Collection.class.getName());
     st.add("imps", Arrays.class.getName());
     st.add("imps", BigInteger.class.getName());
     st.add("imps", INTEGER_CLASS.getName());
