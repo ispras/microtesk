@@ -61,7 +61,7 @@ final class STBSegment implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
   }
-  
+
   private void buildArguments(final ST st, final STGroup group) {
     final ST stAddress = group.getInstanceOf("field_alias");
     stAddress.add("name", getVariableName(segment.getAddressArg().getName()));

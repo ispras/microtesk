@@ -178,10 +178,10 @@ final class STBSpecification extends STBCommon {
     }
 
     public void build() {
-      buildAddresses();
+      //buildAddresses();
       //buildSegments();
-      buildBuffers();
-      buildControlFlow();
+      //buildBuffers();
+      //buildControlFlow();
     }
 
     private void buildSeparator(final String text) {
