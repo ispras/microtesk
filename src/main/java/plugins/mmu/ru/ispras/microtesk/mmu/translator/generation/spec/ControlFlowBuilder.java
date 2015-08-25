@@ -14,13 +14,20 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtException;
+import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 
 final class ControlFlowBuilder {
   public static final Class<?> ACTION_CLASS =
@@ -34,6 +41,7 @@ final class ControlFlowBuilder {
   private final STGroup group;
   private final ST stReg;
 
+  private final Set<String> exceptions = new HashSet<>();
   private List<String> currentMarks = null;
 
   protected ControlFlowBuilder(
@@ -83,8 +91,71 @@ final class ControlFlowBuilder {
     buildAction(start, true);
     buildAction(stop, true);
 
-    final String current = start;
-    buildTransition(current, stop, null);
+    final String current = buildStmts(start, stmts);
+    if (null != current) {
+      buildTransition(current, stop);
+    }
+  }
+
+  private String buildStmts(final String start, final List<Stmt> stmts) {
+    InvariantChecks.checkNotNull(start);
+    String current = start;
+
+    for (final Stmt stmt : stmts) {
+      switch(stmt.getKind()) {
+        case ASSIGN:
+          current = buildStmtAssign(current, (StmtAssign) stmt);
+          break;
+
+        case IF:
+          current = buildStmtIf(current, (StmtIf) stmt);
+          break;
+
+        case EXCEPT:
+          buildStmtException(current, (StmtException) stmt);
+          return null; // Control flow cannot be continued after exception.
+
+        case MARK:
+          buildStmtMark((StmtMark) stmt);
+          break;
+
+        case TRACE: // Ignored
+          break;
+
+        default:
+          throw new IllegalStateException("Unknown statement: " + stmt.getKind());
+      }
+    }
+
+    return current;
+  }
+
+  private String buildStmtAssign(final String source, final StmtAssign stmt) {
+    InvariantChecks.checkNotNull(source);
+    return source;
+  }
+
+  private String buildStmtIf(final String source, final StmtIf stmt) {
+    InvariantChecks.checkNotNull(source);
+    return source;
+  }
+
+  private void buildStmtException(final String source, final StmtException stmt) {
+    final String exception = stmt.getMessage();
+
+    if (!exceptions.contains(exception)) {
+      buildAction(exception);
+      exceptions.add(exception);
+    }
+
+    buildTransition(source, exception);
+  }
+
+  private void buildStmtMark(final StmtMark stmt) {
+    if (null == currentMarks) {
+      currentMarks = new ArrayList<>();
+    }
+    currentMarks.add(stmt.getName());
   }
 
   private void buildAction(final String id, final String... args) {
@@ -117,7 +188,11 @@ final class ControlFlowBuilder {
       stReg.add("acts", id);
     }
   }
-  
+
+  private void buildTransition(final String source, final String target) {
+    buildTransition(source, target, null);
+  }
+
   private void buildTransition(final String source, final String target, final String guard) {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(target);
