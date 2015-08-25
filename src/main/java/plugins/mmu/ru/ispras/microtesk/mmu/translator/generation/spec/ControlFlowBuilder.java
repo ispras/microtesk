@@ -65,13 +65,13 @@ final class ControlFlowBuilder {
 
   public void build(
       final String start,
-      final String end,
+      final String stop,
       final String startRead,
       final List<Stmt> stmtsRead,
       final String startWrite,
       final List<Stmt> stmtsWrite) {
     InvariantChecks.checkNotNull(start);
-    InvariantChecks.checkNotNull(end);
+    InvariantChecks.checkNotNull(stop);
     InvariantChecks.checkNotNull(startRead);
     InvariantChecks.checkNotNull(startWrite);
     InvariantChecks.checkNotNull(stmtsRead);

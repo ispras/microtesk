@@ -14,11 +14,16 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.util.Collections;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -26,6 +31,9 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 final class STBMemory implements STBuilder {
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+
+  public static final Class<?> SPEC_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
   private final String packageName;
   private final Memory memory;
@@ -45,6 +53,7 @@ final class STBMemory implements STBuilder {
     buildHeader(st);
     buildAddress(st, group);
     buildConstructor(st, group);
+    buildControlFlow(st, group);
 
     return st;
   }
@@ -54,6 +63,7 @@ final class STBMemory implements STBuilder {
     st.add("pack", packageName);
     st.add("instance", "INSTANCE");
     st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", SPEC_CLASS.getName());
   }
 
   private void buildAddress(final ST st, final STGroup group) {
@@ -91,6 +101,33 @@ final class STBMemory implements STBuilder {
 
     st.add("members", "");
     st.add("members", stConstructor);
+  }
+
+  private void buildControlFlow(final ST st, final STGroup group) {
+    final ST stReg = group.getInstanceOf("register");
+    stReg.add("type", SPEC_CLASS.getSimpleName());
+
+    final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
+    final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
+
+    final ControlFlowBuilder builder = new ControlFlowBuilder(
+        memory.getId(),
+        st,
+        group,
+        stReg
+        );
+
+    builder.build(
+        "START",
+        "STOP",
+        "IF_READ",
+        read != null ? read.getStmts() : Collections.<Stmt>emptyList(),
+        "IF_WRITE",
+        write != null ? write.getStmts() : Collections.<Stmt>emptyList()
+        );
+
+    st.add("members", "");
+    st.add("members", stReg);
   }
 
   private String getVariableName(final String prefixedName) {
