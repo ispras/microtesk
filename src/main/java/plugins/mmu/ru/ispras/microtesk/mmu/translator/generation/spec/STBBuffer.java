@@ -143,19 +143,7 @@ final class STBBuffer implements STBuilder {
   }
 
   private String getVariableName(final String prefixedName) {
-    final int dotIndex = prefixedName.indexOf('.');
-    if (dotIndex == -1) {
-      return prefixedName;
-    }
-
-    final String prefix = prefixedName.substring(0, dotIndex);
-    final String suffix = prefixedName.substring(dotIndex + 1, prefixedName.length());
-
-    if (prefix.equals(buffer.getId())) {
-      return suffix;
-    }
-
-    return prefix + ".get()." + suffix;
+    return Utils.getVariableName(buffer.getId(), prefixedName);
   }
 
   private String toMmuExpressionText(final List<IntegerField> fields) {

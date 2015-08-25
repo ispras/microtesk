@@ -46,6 +46,7 @@ final class STBSegment implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
 
     buildHeader(st);
+    buildArguments(st, group);
     buildConstructor(st, group);
 
     return st;
@@ -59,6 +60,20 @@ final class STBSegment implements STBuilder {
 
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
+  }
+  
+  private void buildArguments(final ST st, final STGroup group) {
+    final ST stAddress = group.getInstanceOf("field_alias");
+    stAddress.add("name", getVariableName(segment.getAddressArg().getName()));
+    stAddress.add("type", segment.getAddress().getId());
+    st.add("members", stAddress);
+
+    final ST stData = group.getInstanceOf("field_alias");
+    stData.add("name", getVariableName(segment.getDataArg().getName()));
+    stData.add("type", segment.getDataArgAddress().getId());
+    st.add("members", stData);
+
+    st.add("members", "");
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
@@ -88,5 +103,9 @@ final class STBSegment implements STBuilder {
 
     st.add("members", "");
     st.add("members", stConstructor);
+  }
+
+  private String getVariableName(final String prefixedName) {
+    return Utils.getVariableName(segment.getId(), prefixedName);
   }
 }

@@ -44,4 +44,23 @@ public final class Utils {
     InvariantChecks.checkNotNull(value);
     return String.format("new BigInteger(\"%d\", 10)", value);
   }
+
+  public static String getVariableName(final String context, final String name) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(name);
+
+    final int dotIndex = name.indexOf('.');
+    if (dotIndex == -1) {
+      return name;
+    }
+
+    final String prefix = name.substring(0, dotIndex);
+    final String suffix = name.substring(dotIndex + 1, name.length());
+
+    if (prefix.equals(context)) {
+      return suffix;
+    }
+
+    return prefix + ".get()." + suffix;
+  }
 }
