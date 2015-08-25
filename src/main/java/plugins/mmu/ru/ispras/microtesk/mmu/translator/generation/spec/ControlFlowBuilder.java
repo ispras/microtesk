@@ -84,6 +84,18 @@ final class ControlFlowBuilder {
     st.add("imps", TRANSITION_CLASS.getName());
   }
 
+  private String newBranch() {
+    return String.format("BRANCH_%d", branchIndex++);
+  }
+
+  private String newJoin() {
+    return String.format("JOIN_%d", joinIndex++);
+  }
+
+  private String newAssign() {
+    return String.format("ASSIGN_%d", assignIndex++);
+  }
+
   public void build(
       final String start,
       final String stop,
@@ -182,8 +194,19 @@ final class ControlFlowBuilder {
       return source;
     }
 
+    // Reading from a segment (address translation) is performed
+    // by connecting to a control flow graph of a corresponding segment.
     if (isSegmentAccess(right)) {
       return buildSegmentAccess(source, left, (AttributeRef) right.getUserData());
+    }
+
+    final Atom lhs = AtomExtractor.extract(left);
+    final Atom rhs = AtomExtractor.extract(right);
+
+    if (Atom.Kind.VARIABLE != lhs.getKind() && 
+        Atom.Kind.GROUP != lhs.getKind() &&
+        Atom.Kind.FIELD != lhs.getKind()) {
+      throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
     return source;
@@ -302,18 +325,6 @@ final class ControlFlowBuilder {
     stReg.add("trans", stTrans);
   }
 
-  private String newBranch() {
-    return String.format("BRANCH_%d", branchIndex++);
-  }
-
-  private String newJoin() {
-    return String.format("JOIN_%d", joinIndex++);
-  }
-
-  private String newAssign() {
-    return String.format("ASSIGN_%d", assignIndex++);
-  }
-
   private boolean isDataVariable(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
@@ -359,5 +370,12 @@ final class ControlFlowBuilder {
     buildTransition(segmentStop, assignResult);
 
     return assignResult;
+  }
+
+  private String buildBindings(final Atom lhs, final Atom rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    return "";
   }
 }
