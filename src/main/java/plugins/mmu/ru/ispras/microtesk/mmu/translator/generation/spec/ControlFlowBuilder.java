@@ -33,6 +33,9 @@ final class ControlFlowBuilder {
   public static final Class<?> ACTION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction.class;
 
+  public static final Class<?> GUARD_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard.class;
+
   public static final Class<?> TRANSITION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition.class;
 
@@ -60,6 +63,7 @@ final class ControlFlowBuilder {
     this.stReg = stReg;
 
     st.add("imps", ACTION_CLASS.getName());
+    st.add("imps", GUARD_CLASS.getName());
     st.add("imps", TRANSITION_CLASS.getName());
   }
 
@@ -76,6 +80,26 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(startWrite);
     InvariantChecks.checkNotNull(stmtsRead);
     InvariantChecks.checkNotNull(stmtsWrite);
+
+    st.add("members", "");
+
+    buildAction(start, true);
+    buildAction(stop, true);
+
+    buildAction(startRead);
+    buildAction(startWrite);
+
+    buildTransition(start, startRead, "new MmuGuard(MemoryOperation.LOAD)");
+    final String stopRead = buildStmts(startRead, stmtsRead);
+    if (null != stopRead) {
+      buildTransition(stopRead, stop);
+    }
+
+    buildTransition(start, startWrite, "new MmuGuard(MemoryOperation.STORE)");
+    final String stopWrite = buildStmts(startWrite, stmtsWrite);
+    if (null != stopWrite) {
+      buildTransition(stopWrite, stop);
+    }
   }
 
   public void build(
@@ -87,7 +111,6 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(stmts);
 
     st.add("members", "");
-
     buildAction(start, true);
     buildAction(stop, true);
 

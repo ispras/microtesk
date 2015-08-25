@@ -35,6 +35,9 @@ final class STBMemory implements STBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
+  public static final Class<?> OPERATION_CLASS =
+      ru.ispras.microtesk.mmu.basis.MemoryOperation.class;
+
   private final String packageName;
   private final Memory memory;
 
@@ -63,6 +66,7 @@ final class STBMemory implements STBuilder {
     st.add("pack", packageName);
     st.add("instance", "INSTANCE");
     st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", OPERATION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
   }
 
