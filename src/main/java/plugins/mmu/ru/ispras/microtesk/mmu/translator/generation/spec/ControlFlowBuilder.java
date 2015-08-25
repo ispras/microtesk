@@ -22,7 +22,9 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -46,6 +48,10 @@ final class ControlFlowBuilder {
 
   private final Set<String> exceptions = new HashSet<>();
   private List<String> currentMarks = null;
+
+  private int branchIndex = 0;
+  private int joinIndex = 0;
+  private int assignIndex = 0;
 
   protected ControlFlowBuilder(
       final String context,
@@ -160,7 +166,40 @@ final class ControlFlowBuilder {
 
   private String buildStmtIf(final String source, final StmtIf stmt) {
     InvariantChecks.checkNotNull(source);
-    return source;
+    String current = source;
+
+    final String join = newJoin();
+    buildAction(join);
+
+    for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
+      // TODO: FIXME: GUARDS NEEDED !!!
+
+      final Node condition = block.first;
+      final List<Stmt> stmts = block.second;
+
+      final String ifTrueStart = newBranch();
+      buildAction(ifTrueStart);
+
+      buildTransition(current, ifTrueStart);
+
+      final String ifTrueStop = buildStmts(ifTrueStart, stmts);
+      if (null != ifTrueStop) {
+        buildTransition(ifTrueStop, join);
+      }
+
+      final String ifFalseStart = newBranch();
+      buildAction(ifFalseStart);
+
+      buildTransition(current, ifFalseStart);
+      current = ifFalseStart;
+    }
+
+    current = buildStmts(current, stmt.getElseBlock());
+    if (null != current) {
+      buildTransition(current, join);
+    }
+
+    return join;
   }
 
   private void buildStmtException(final String source, final StmtException stmt) {
@@ -230,5 +269,17 @@ final class ControlFlowBuilder {
     }
 
     stReg.add("trans", stTrans);
+  }
+
+  private String newBranch() {
+    return String.format("BRANCH_%d", branchIndex++);
+  }
+
+  private String newJoin() {
+    return String.format("JOIN_%d", joinIndex++);
+  }
+
+  private String newAssign() {
+    return String.format("ASSIGN_%d", assignIndex++);
   }
 }
