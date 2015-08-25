@@ -42,4 +42,3 @@ this.<name> = new <type>(name + ".<name>");
 add_field(name) ::= <<
 addField(<name>);
 >>
-

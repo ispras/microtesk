@@ -1,0 +1,37 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group ControlFlow;
+
+register(type, start, stop, acts, trans) ::= <<
+public void preregisterControlFlow(final <type>.Builder builder) {
+  <if(start)>builder.registerAction(<start>);<endif>
+  <if(stop)>builder.registerAction(<stop>);<endif>
+}<\n>
+public void registerControlFlow(final <type>.Builder builder) {
+<if(acts)><acts  : {a | builder.registerAction(<a>);}; separator="\n"><\n><endif>
+<if(trans)><trans : {t | builder.registerTransition(<t>);}; separator="\n"><endif>
+}
+>>
+
+action(id, name, args, marks) ::= <<
+public final MmuAction <id> = new MmuAction("<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);<if(marks)>
+{
+  <marks : {m | name.addMark("<m>");}; separator="\n">
+}<endif>
+>>
+
+transition(id, source, target, guard) ::= <<
+public final MmuTransition <id> = new MmuTransition(<source>, <target><if(guard)>, <guard><endif>);
+>>

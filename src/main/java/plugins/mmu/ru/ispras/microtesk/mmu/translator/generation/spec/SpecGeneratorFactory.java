@@ -41,8 +41,9 @@ final class SpecGeneratorFactory {
   private static final String BUFFER_STG = MMU_STG_DIR + "Buffer.stg";
   private static final String[] BUFFER_STGS = new String[] {JAVA_COMMON_STG, BUFFER_STG};
 
+  private static final String CF_STG = MMU_STG_DIR + "ControlFlow.stg";
   private static final String SEGMENT_STG = MMU_STG_DIR + "Segment.stg";
-  private static final String[] SEGMENT_STGS = new String[] {JAVA_COMMON_STG, SEGMENT_STG};
+  private static final String[] SEGMENT_STGS = new String[] {JAVA_COMMON_STG, SEGMENT_STG, CF_STG};
 
   private final String outDir;
   private final String packageName;
