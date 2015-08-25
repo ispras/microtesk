@@ -118,15 +118,15 @@ final class STBSegment implements STBuilder {
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());
 
-    final ControlFlowBuilder builder = new ControlFlowBuilder(
-        segment.getId(),
-        st,
-        group,
-        stReg
-        );
-
     final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null != read) {
+      final ControlFlowBuilder builder = new ControlFlowBuilder(
+          segment.getId(),
+          st,
+          group,
+          stReg
+          );
+
       builder.build("START", "STOP", read.getStmts());
     }
 

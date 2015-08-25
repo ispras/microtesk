@@ -14,14 +14,13 @@
 
 group ControlFlow;
 
-register(type, start, stop, acts, trans) ::= <<
+register(type, pres, acts, trans) ::= <<
 public void preregisterControlFlow(final <type>.Builder builder) {
-  <if(start)>builder.registerAction(<start>);<endif>
-  <if(stop)>builder.registerAction(<stop>);<endif>
+  <if(pres)><pres  : {p | builder.registerAction(<p>);}; separator="\n"><endif>
 }<\n>
 public void registerControlFlow(final <type>.Builder builder) {
-<if(acts)><acts  : {a | builder.registerAction(<a>);}; separator="\n"><\n><endif>
-<if(trans)><trans : {t | builder.registerTransition(<t>);}; separator="\n"><endif>
+  <if(acts)><acts  : {a | builder.registerAction(<a>);}; separator="\n"><\n><endif>
+  <if(trans)><trans : {t | builder.registerTransition(<t>);}; separator="\n"><endif>
 }
 >>
 
@@ -32,6 +31,6 @@ public final MmuAction <id> = new MmuAction("<name>"<if(args)>, <args : {a | <a>
 }<endif>
 >>
 
-transition(id, source, target, guard) ::= <<
-public final MmuTransition <id> = new MmuTransition(<source>, <target><if(guard)>, <guard><endif>);
+transition( source, target, guard) ::= <<
+new MmuTransition(<source>, <target><if(guard)>, <guard><endif>)
 >>
