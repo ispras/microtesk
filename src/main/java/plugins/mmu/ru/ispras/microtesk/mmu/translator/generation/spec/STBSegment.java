@@ -57,7 +57,6 @@ final class STBSegment implements STBuilder {
     buildHeader(st);
     buildArguments(st, group);
     buildConstructor(st, group);
-    buildControlFlow(st, group);
 
     return st;
   }
@@ -88,6 +87,15 @@ final class STBSegment implements STBuilder {
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
 
+    stConstructor.add("name", segment.getId());
+    stConstructor.add("va", segment.getAddress().getId());
+    stConstructor.add("pa", segment.getDataArgAddress().getId());
+    stConstructor.add("start", String.format("0x%xL", segment.getMin()));
+    stConstructor.add("end", String.format("0x%xL", segment.getMax()));
+    stConstructor.add("mapped", "false");
+    stConstructor.add("va_expr", "null");
+    stConstructor.add("pa_expr", "null");
+
     if (!segment.getVariables().isEmpty()) {
       st.add("members", "");
     }
@@ -105,20 +113,6 @@ final class STBSegment implements STBuilder {
           );
     }
 
-    stConstructor.add("name", segment.getId());
-    stConstructor.add("va", segment.getAddress().getId());
-    stConstructor.add("pa", segment.getDataArgAddress().getId());
-    stConstructor.add("start", String.format("0x%xL", segment.getMin()));
-    stConstructor.add("end", String.format("0x%xL", segment.getMax()));
-    stConstructor.add("mapped", "false");
-    stConstructor.add("va_expr", "null");
-    stConstructor.add("pa_expr", "null");
-
-    st.add("members", "");
-    st.add("members", stConstructor);
-  }
-
-  private void buildControlFlow(final ST st, final STGroup group) {
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());
 
@@ -129,12 +123,16 @@ final class STBSegment implements STBuilder {
           segment.getId(),
           st,
           group,
+          stConstructor,
           stReg
           );
 
       builder.build("START", "STOP", read.getStmts());
     }
 
+    st.add("members", "");
+    st.add("members", stConstructor);
+ 
     st.add("members", "");
     st.add("members", stReg);
   }

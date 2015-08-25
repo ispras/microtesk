@@ -60,6 +60,7 @@ final class ControlFlowBuilder {
 
   private final ST st;
   private final STGroup group;
+  private final ST stDef;
   private final ST stReg;
 
   private final Set<String> exceptions = new HashSet<>();
@@ -74,17 +75,20 @@ final class ControlFlowBuilder {
       final String context,
       final ST st,
       final STGroup group,
+      final ST stDef,
       final ST stReg) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(st);
     InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkNotNull(stDef);
     InvariantChecks.checkNotNull(stReg);
 
     this.ir = ir;
     this.context = context;
     this.st = st;
     this.group = group;
+    this.stDef = stDef;
     this.stReg = stReg;
 
     st.add("imps", BigInteger.class.getName());
@@ -299,22 +303,25 @@ final class ControlFlowBuilder {
   private void buildAction(final String id, boolean isPre, final String... args) {
     InvariantChecks.checkNotNull(id);
 
-    final ST stAction = group.getInstanceOf("action");
-    stAction.add("id", id);
-    stAction.add("name", context + "." + id);
+    final ST stActionDecl = group.getInstanceOf("action_decl");
+    stActionDecl.add("id", id);
+    st.add("members", stActionDecl);
+
+    final ST stActionDef = group.getInstanceOf("action_def");
+    stActionDef.add("id", id);
+    stActionDef.add("name", context + "." + id);
 
     for (final String arg : args) {
-      stAction.add("args", arg);
+      stActionDef.add("args", arg);
     }
 
     if (null != currentMarks) {
       for (final String mark : currentMarks) {
-        stAction.add("marks", mark);
+        stActionDef.add("marks", mark);
       }
       currentMarks = null;
     }
-
-    st.add("members", stAction);
+    stDef.add("stmts", stActionDef);
 
     if (isPre) {
       stReg.add("pres", id);

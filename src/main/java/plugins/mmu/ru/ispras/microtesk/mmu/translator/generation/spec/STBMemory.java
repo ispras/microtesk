@@ -59,7 +59,6 @@ final class STBMemory implements STBuilder {
     buildHeader(st);
     buildAddress(st, group);
     buildConstructor(st, group);
-    buildControlFlow(st, group);
 
     return st;
   }
@@ -106,11 +105,6 @@ final class STBMemory implements STBuilder {
           );
     }
 
-    st.add("members", "");
-    st.add("members", stConstructor);
-  }
-
-  private void buildControlFlow(final ST st, final STGroup group) {
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());
 
@@ -122,6 +116,7 @@ final class STBMemory implements STBuilder {
         memory.getId(),
         st,
         group,
+        stConstructor,
         stReg
         );
 
@@ -133,6 +128,9 @@ final class STBMemory implements STBuilder {
         "IF_WRITE",
         write != null ? write.getStmts() : Collections.<Stmt>emptyList()
         );
+
+    st.add("members", "");
+    st.add("members", stConstructor);
 
     st.add("members", "");
     st.add("members", stReg);
