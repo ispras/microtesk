@@ -25,12 +25,17 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 
 final class ControlFlowBuilder {
   public static final Class<?> ACTION_CLASS =
@@ -167,15 +172,27 @@ final class ControlFlowBuilder {
 
   private String buildStmtAssign(final String source, final StmtAssign stmt) {
     InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(stmt);
 
     final Node left = stmt.getLeft();
     final Node right = stmt.getRight();
+
+    // Assignments that use the "data" MMU variable are ignored.
+    if (isDataVariable(left) || isDataVariable(right)) {
+      return source;
+    }
+
+    if (isSegmentAccess(right)) {
+      return buildSegmentAccess(source, left, (AttributeRef) right.getUserData());
+    }
 
     return source;
   }
 
   private String buildStmtIf(final String source, final StmtIf stmt) {
     InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(stmt);
+
     String current = source;
 
     final String join = newJoin();
@@ -213,8 +230,10 @@ final class ControlFlowBuilder {
   }
 
   private void buildStmtException(final String source, final StmtException stmt) {
-    final String exception = stmt.getMessage();
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(stmt);
 
+    final String exception = stmt.getMessage();
     if (!exceptions.contains(exception)) {
       buildAction(exception);
       exceptions.add(exception);
@@ -224,6 +243,8 @@ final class ControlFlowBuilder {
   }
 
   private void buildStmtMark(final StmtMark stmt) {
+    InvariantChecks.checkNotNull(stmt);
+
     if (null == currentMarks) {
       currentMarks = new ArrayList<>();
     }
@@ -291,5 +312,43 @@ final class ControlFlowBuilder {
 
   private String newAssign() {
     return String.format("ASSIGN_%d", assignIndex++);
+  }
+
+  private boolean isDataVariable(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    final Memory memory = ir.getMemories().get(context);
+    if (null == memory) {
+      return false;
+    }
+
+    if (expr.getKind() != Node.Kind.VARIABLE) {
+      return false;
+    }
+
+    if (!(expr.getUserData() instanceof Variable)) {
+      return false;
+    }
+
+    final Variable variable = (Variable) expr.getUserData();
+    return variable.equals(memory.getDataArg());
+  }
+
+  private boolean isSegmentAccess(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    if (expr.getUserData() instanceof AttributeRef) {
+      final AttributeRef ref = (AttributeRef) expr.getUserData();
+      return ref.getTarget() instanceof Segment;
+    }
+    return false;
+  }
+
+  private String buildSegmentAccess(final String source, final Node lhs, final AttributeRef rhs) {
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    return source;
   }
 }
