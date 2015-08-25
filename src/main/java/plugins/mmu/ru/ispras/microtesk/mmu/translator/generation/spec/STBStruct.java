@@ -81,27 +81,35 @@ final class STBStruct implements STBuilder {
     for (final Map.Entry<String, Type> field : structType.getFields().entrySet()) {
       final String name = field.getKey();
       final Type type = field.getValue();
-
-      final ST fieldDecl = group.getInstanceOf("field_decl");
-      final ST fieldDef;
-      if (type.isStruct()) {
-        fieldDecl.add("type", type.getId());
-
-        fieldDef = group.getInstanceOf("field_def_struct");
-        fieldDef.add("type", type.getId());
-      } else {
-        fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
-
-        fieldDef = group.getInstanceOf("field_def_var");
-        fieldDef.add("size", type.getBitSize());
-      }
-
-      fieldDecl.add("name", name);
-      fieldDef.add("name", name);
-
-      st.add("members", fieldDecl);
-      stConstructor.add("stmts", fieldDef);
+      buildFieldDecl(name, type, st, stConstructor, group);
     }
+  }
+
+  protected static void buildFieldDecl(
+      final String name,
+      final Type type,
+      final ST st,
+      final ST stConstructor,
+      final STGroup group) {
+    final ST fieldDecl = group.getInstanceOf("field_decl");
+    final ST fieldDef;
+    if (type.isStruct()) {
+      fieldDecl.add("type", type.getId());
+
+      fieldDef = group.getInstanceOf("field_def_struct");
+      fieldDef.add("type", type.getId());
+    } else {
+      fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
+
+      fieldDef = group.getInstanceOf("field_def_var");
+      fieldDef.add("size", type.getBitSize());
+    }
+
+    fieldDecl.add("name", name);
+    fieldDef.add("name", name);
+
+    st.add("members", fieldDecl);
+    stConstructor.add("stmts", fieldDef);
   }
 
   protected static void buildAddField(

@@ -14,8 +14,11 @@
 
 group Segment;
 
-constructor(name, va, pa, start, end, mapped, va_expr, pa_expr) ::= <<
+constructor(name, va, pa, start, end, mapped, va_expr, pa_expr, stmts) ::= <<
 private <name>() {
+  this("<name>");
+}<\n>
+private <name>(final String name) {
   super(
       "<name>",
       <va>.get(),

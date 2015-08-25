@@ -19,6 +19,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBSegment implements STBuilder {
@@ -61,6 +63,19 @@ public final class STBSegment implements STBuilder {
 
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("constructor");
+
+    for (final Variable variable : segment.getVariables()) {
+      final String name = variable.getName().replaceFirst(segment.getId() + ".", "");
+      final Type type = variable.getType();
+
+      STBStruct.buildFieldDecl(
+          name,
+          type,
+          st,
+          stConstructor,
+          group
+          );
+    }
 
     stConstructor.add("name", segment.getId());
     stConstructor.add("va", segment.getAddress().getId());
