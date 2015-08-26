@@ -134,9 +134,9 @@ final class ControlFlowBuilder {
     buildAction(stop, true);
 
     st.add("members", "");
-    buildAction(startRead);
-    buildAction(startWrite);
+    stDef.add("stmts", "");
 
+    buildAction(startRead);
     buildTransition(start, startRead, "new MmuGuard(MemoryOperation.LOAD)");
     final String stopRead = buildStmts(startRead, stmtsRead);
     if (null != stopRead) {
@@ -144,6 +144,9 @@ final class ControlFlowBuilder {
     }
 
     st.add("members", "");
+    stDef.add("stmts", "");
+
+    buildAction(startWrite);
     buildTransition(start, startWrite, "new MmuGuard(MemoryOperation.STORE)");
     final String stopWrite = buildStmts(startWrite, stmtsWrite);
     if (null != stopWrite) {
@@ -164,6 +167,9 @@ final class ControlFlowBuilder {
 
     buildAction(start, true);
     buildAction(stop, true);
+
+    st.add("members", "");
+    stDef.add("stmts", "");
 
     final String current = buildStmts(start, stmts);
     if (null != current) {
