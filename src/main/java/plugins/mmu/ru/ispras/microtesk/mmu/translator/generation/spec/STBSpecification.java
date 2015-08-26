@@ -64,12 +64,11 @@ final class STBSpecification implements STBuilder {
     this.packageName = packageName;
     this.ir = ir;
   }
-  
+
   protected final void buildHeader(final ST st) {
     st.add("name", CLASS_NAME); 
     st.add("pack", packageName);
-
-    st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
+    st.add("imps", SPEC_CLASS.getName());
   }
 
   @Override
@@ -77,7 +76,6 @@ final class STBSpecification implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
     buildHeader(st);
     buildBody(st, group);
-    
     return st;
   }
 
@@ -88,8 +86,67 @@ final class STBSpecification implements STBuilder {
     stBody.add("spec", SPEC_CLASS.getSimpleName());
     st.add("members", stBody);
 
-    final BodyBuilder build = new BodyBuilder(ir, stBody, group);
-    build.build();
+    registerAddresses(stBody, group);
+    registerBuffers(stBody, group);
+    registerSegments(stBody, group);
+    registerMemories(stBody, group);
+  }
+
+  private void registerAddresses(final ST st, final STGroup group) {
+    for(final Address address : ir.getAddresses().values()) {
+      final String name = address.getId();
+      final ST stReg = group.getInstanceOf("address_reg");
+
+      stReg.add("name", name);
+      st.add("stmts", stReg);
+    }
+  }
+
+  private void registerBuffers(final ST st, final STGroup group) {
+    st.add("stmts", "");
+    for(final Buffer buffer : ir.getBuffers().values()) {
+      final ST stReg = group.getInstanceOf("buffer_reg");
+      stReg.add("name", buffer.getId());
+      st.add("stmts", stReg);
+    }
+  }
+
+  private void registerSegments(final ST st, final STGroup group) {
+    st.add("stmts", "");
+    for(final Segment segment : ir.getSegments().values()) {
+      final ST stReg = group.getInstanceOf("segment_reg");
+      stReg.add("name", segment.getId());
+      st.add("stmts", stReg);
+    }
+
+    st.add("stmts", "");
+    for(final Segment segment : ir.getSegments().values()) {
+      final ST stReg = group.getInstanceOf("preregister_flow");
+      stReg.add("name", segment.getId());
+      st.add("stmts", stReg);
+    }
+
+    st.add("stmts", "");
+    for(final Segment segment : ir.getSegments().values()) {
+      final ST stReg = group.getInstanceOf("register_flow");
+      stReg.add("name", segment.getId());
+      st.add("stmts", stReg);
+    }
+  }
+
+  private void registerMemories(final ST st, final STGroup group) {
+    st.add("stmts", "");
+    for(final Memory memory : ir.getMemories().values()) {
+      final ST stReg = group.getInstanceOf("preregister_flow");
+      stReg.add("name", memory.getId());
+      st.add("stmts", stReg);
+    }
+
+    for(final Memory memory : ir.getMemories().values()) {
+      final ST stReg = group.getInstanceOf("register_flow");
+      stReg.add("name", memory.getId());
+      st.add("stmts", stReg);
+    }
   }
 
   private static String toMmuExpressionText(final List<IntegerField> fields) {
