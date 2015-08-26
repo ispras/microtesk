@@ -90,6 +90,14 @@ final class STBSpecification implements STBuilder {
     registerBuffers(stBody, group);
     registerSegments(stBody, group);
     registerMemories(stBody, group);
+
+    final Map<String, Memory> memories = ir.getMemories();
+    if (memories.size() > 1) {
+      throw new IllegalStateException("Only one mmu specification is allowed.");
+    }
+
+    final Memory memory = memories.values().iterator().next();
+    buildEntryPoint(memory, stBody, group); 
   }
 
   private void registerAddresses(final ST st, final STGroup group) {
@@ -147,6 +155,26 @@ final class STBSpecification implements STBuilder {
       stReg.add("name", memory.getId());
       st.add("stmts", stReg);
     }
+  }
+
+  private void buildEntryPoint(final Memory memory, final ST st, final STGroup group) {
+    st.add("stmts", "");
+
+    final ST stVA = group.getInstanceOf("set_va");
+    stVA.add("name", memory.getAddress().getId());
+    st.add("stmts", stVA);
+
+    final ST stPA = group.getInstanceOf("set_pa");
+    stPA.add("name", "XXX"); // TODO
+    st.add("stmts", stPA);
+
+    final ST stStart = group.getInstanceOf("set_start_action");
+    stStart.add("name", memory.getId());
+    st.add("stmts", stStart);
+
+    final ST stTarget = group.getInstanceOf("set_target_buffer");
+    stTarget.add("name", "XXX"); // TODO
+    st.add("stmts", stTarget);
   }
 
   private static String toMmuExpressionText(final List<IntegerField> fields) {
