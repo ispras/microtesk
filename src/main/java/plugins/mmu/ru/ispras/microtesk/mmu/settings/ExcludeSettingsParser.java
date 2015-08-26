@@ -14,27 +14,27 @@
 
 package ru.ispras.microtesk.mmu.settings;
 
+import java.math.BigInteger;
 import java.util.Map;
 
-import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.settings.GeneratorSettingsParser;
+import ru.ispras.microtesk.settings.AbstractSettingsParser;
 
 /**
- * {@link MmuSettingsParser} implements a parser of {@link GeneratorSettings}.
+ * {@link ExcludeSettingsParser} implements a parser of {@link ExcludeSettings}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuSettingsParser extends GeneratorSettingsParser {
-  public MmuSettingsParser() {
-    // Parsers for the custom sections.
-    addParser(new BooleanValuesSettingsParser());
-    addParser(new BooleanOptionSettingsParser());
-    addParser(new IntegerValuesSettingsParser());
-    addParser(new BufferEventsSettingsParser());
+public final class ExcludeSettingsParser extends AbstractSettingsParser<ExcludeSettings> {
+  public static final String ATTR_VALUE = "value";
+
+  public ExcludeSettingsParser() {
+    super(ExcludeSettings.TAG);
   }
 
   @Override
-  public MmuSettings createSettings(final Map<String, String> attributes) {
-    return new MmuSettings();
+  protected ExcludeSettings createSettings(final Map<String, String> attributes) {
+    final BigInteger value = AbstractSettingsParser.getHexBigInteger(attributes.get(ATTR_VALUE));
+
+    return new ExcludeSettings(value);
   }
 }

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.math.BigInteger;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +52,14 @@ public abstract class AbstractSettingsParser<T extends AbstractSettings> {
 
   public static long getDecLong(final String value) {
     return Long.parseLong(clearString(value));
+  }
+
+  public static BigInteger getHexBigInteger(final String value) {
+    return new BigInteger(clearString(value), 16);
+  }
+
+  public static BigInteger getDecBigInteger(final String value) {
+    return new BigInteger(clearString(value));
   }
 
   public static boolean getBoolean(final String value) {

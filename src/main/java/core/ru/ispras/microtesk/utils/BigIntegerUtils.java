@@ -17,6 +17,9 @@ package ru.ispras.microtesk.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -43,5 +46,45 @@ public final class BigIntegerUtils {
     }
 
     return result;
+  }
+
+  public static Collection<Integer> toIntegerCollection(final Collection<BigInteger> values) {
+    InvariantChecks.checkNotNull(values);
+
+    final Collection<Integer> result = new ArrayList<>(values.size());
+
+    for (final BigInteger value : values) {
+      result.add(value.intValue());
+    }
+
+    return result;
+  }
+
+  public static List<Integer> toIntegerList(final Collection<BigInteger> values) {
+    return new ArrayList<Integer>(toIntegerCollection(values));
+  }
+
+  public static Set<Integer> toIntegerSet(final Collection<BigInteger> values) {
+    return new LinkedHashSet<Integer>(toIntegerCollection(values));
+  }
+
+  public static Collection<Long> toLongCollection(final Collection<BigInteger> values) {
+    InvariantChecks.checkNotNull(values);
+
+    final Collection<Long> result = new ArrayList<>(values.size());
+
+    for (final BigInteger value : values) {
+      result.add(value.longValue());
+    }
+
+    return result;
+  }
+
+  public static List<Long> toLongList(final Collection<BigInteger> values) {
+    return new ArrayList<Long>(toLongCollection(values));
+  }
+
+  public static Set<Long> toLongSet(final Collection<BigInteger> values) {
+    return new LinkedHashSet<Long>(toLongCollection(values));
   }
 }
