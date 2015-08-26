@@ -53,6 +53,32 @@ public final class MmuAction {
     this(name, null, assignments);
   }
 
+  public MmuAction(final String name, final MmuStruct lhs, final MmuStruct rhs) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    this.name = name;
+
+    if (null != lhs.getDevice() && null != rhs.getDevice()) {
+      InvariantChecks.checkTrue(
+          lhs.getDevice() == rhs.getDevice(),
+          "Devices at both sides of assignment"
+          );
+      this.buffer = lhs.getDevice();
+    } else if (null != lhs.getDevice()) {
+      this.buffer = lhs.getDevice();
+    } else if (null != rhs.getDevice()) {
+      this.buffer = rhs.getDevice();
+    } else {
+      this.buffer = null;
+    }
+
+    for (final MmuBinding assignment : lhs.bindings(rhs)) {
+      action.put(assignment.getLhs(), assignment);
+    }
+  }
+
   public String getName() {
     return name;
   }

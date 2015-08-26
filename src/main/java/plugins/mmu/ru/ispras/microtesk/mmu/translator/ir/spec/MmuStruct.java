@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -138,6 +139,37 @@ public class MmuStruct {
    */
   public final int getBitSize() {
     return bitSize;
+  }
+
+  /**
+   * Creates bindings between fields of two structures.
+   * 
+   * @param other Structure to be bound with the current one.
+   * @return List of bindings between fields of two structures.
+   * 
+   * @throws IllegalArgumentException if {@code other} equals {@code null};
+   *         if the structures differ in size or field count;
+   *         if any of two fields to be bound differ in size.
+   */
+  public List<MmuBinding> bindings(final MmuStruct other) {
+    InvariantChecks.checkNotNull(other);
+    InvariantChecks.checkTrue(this.getBitSize() == other.getBitSize());
+    InvariantChecks.checkTrue(this.getFieldCount() == other.getFieldCount());
+
+    final List<MmuBinding> result = new ArrayList<MmuBinding>();
+
+    final Iterator<IntegerVariable> thisIt = this.fields.iterator();
+    final Iterator<IntegerVariable> otherIt = other.fields.iterator();
+
+    while(thisIt.hasNext() && otherIt.hasNext()) {
+      final IntegerVariable thisVar = thisIt.next();
+      final IntegerVariable otherVar = otherIt.next();
+
+      InvariantChecks.checkTrue(thisVar.getWidth() == otherVar.getWidth());
+      result.add(new MmuBinding(thisVar, otherVar));
+    }
+
+    return result;
   }
 
   @Override

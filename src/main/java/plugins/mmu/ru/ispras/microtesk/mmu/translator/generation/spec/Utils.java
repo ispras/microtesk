@@ -51,7 +51,7 @@ public final class Utils {
 
     final int dotIndex = name.indexOf('.');
     if (dotIndex == -1) {
-      return name;
+      return name + ".get()";
     }
 
     final String prefix = name.substring(0, dotIndex);

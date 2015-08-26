@@ -226,11 +226,14 @@ final class ControlFlowBuilder {
     }
 
     final String target = newAssign();
-    final String targetBindings = buildBindings(lhs, rhs);
+    if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
+      buildAction(target, toString(lhs), toString(rhs));
+    } else {
+      final String targetBindings = buildBindings(lhs, rhs);
+      buildAction(target, targetBindings);
+    }
 
-    buildAction(target, targetBindings);
     buildTransition(source, target);
-
     return target;
   }
 
@@ -393,11 +396,14 @@ final class ControlFlowBuilder {
     final Atom rhs = AtomExtractor.extract(right.getTarget().getDataArg().getNode());
  
     final String assignResult = newAssign();
-    final String assignResultBindings = buildBindings(lhs, rhs);
+    if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
+      buildAction(assignResult, toString(lhs), toString(rhs));
+    } else {
+      final String assignResultBindings = buildBindings(lhs, rhs);
+      buildAction(assignResult, assignResultBindings);
+    }
 
-    buildAction(assignResult, assignResultBindings);
     buildTransition(segmentStop, assignResult);
-
     return assignResult;
   }
 
@@ -437,7 +443,7 @@ final class ControlFlowBuilder {
             ((IntegerField) object).getHiIndex());
 
       case GROUP:
-        return ((Variable) object).getName();
+        return Utils.getVariableName(context, ((Variable) object).getName());
 
       case CONCAT:
         return "/* TODO MmuExpression.XXX */ (MmuExpression) null";
