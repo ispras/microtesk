@@ -65,8 +65,8 @@ final class GuardPrinter {
         guards = getGuards(expr.getOperand(0), true);
       } else {
         guards = new Pair<String, String>(
-            "null /* TODO: GUARD -> if true */",
-            "null /* TODO: GUARD -> if false */");
+            String.format("null /* TODO: GUARD -> if %s */", cond),
+            String.format("null /* TODO: GUARD -> if not %s */", cond));
         //guards = getConditionGuards(expr);
       }
     } else {
