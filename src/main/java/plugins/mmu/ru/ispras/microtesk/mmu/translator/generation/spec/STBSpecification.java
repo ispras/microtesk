@@ -139,12 +139,15 @@ final class STBSpecification implements STBuilder {
   private void buildEntryPoint(final Memory memory, final ST st, final STGroup group) {
     st.add("stmts", "");
 
+    final ControlFlowExplorer flowExplorer = new ControlFlowExplorer(memory);
+    final Buffer targetBuffer = flowExplorer.getTargetBuffer(); 
+
     final ST stVA = group.getInstanceOf("set_va");
     stVA.add("name", memory.getAddress().getId());
     st.add("stmts", stVA);
 
     final ST stPA = group.getInstanceOf("set_pa");
-    stPA.add("name", "XXX"); // TODO
+    stPA.add("name", "XXX" /* TODO: targetBuffer.getAddress().getId() */);
     st.add("stmts", stPA);
 
     final ST stStart = group.getInstanceOf("set_start_action");
@@ -152,8 +155,7 @@ final class STBSpecification implements STBuilder {
     st.add("stmts", stStart);
 
     final ST stTarget = group.getInstanceOf("set_target_buffer");
-    stTarget.add("name", "XXX"); // TODO
+    stTarget.add("name", "XXX" /* TODO: targetBuffer.getId() */);
     st.add("stmts", stTarget);
   }
 }
-
