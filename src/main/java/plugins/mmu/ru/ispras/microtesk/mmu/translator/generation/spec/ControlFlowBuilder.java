@@ -430,24 +430,30 @@ final class ControlFlowBuilder {
       return String.format("%s, %s", toString(lhs), toString(rhs));
     } else if (lhs.getKind().isStruct()) {
       final Variable left = (Variable) lhs.getObject();
-      final Variable leftField = left.getFields().values().iterator().next();
-      final Atom lhsAtom = AtomExtractor.extract(leftField.getNode());
+      InvariantChecks.checkTrue(left.getFields().size() == 1);
 
+      final Variable leftField = left.getFields().values().iterator().next();
+      InvariantChecks.checkFalse(leftField.isStruct());
+
+      final Atom lhsField = AtomExtractor.extract(leftField.getNode());
       return String.format("%snew MmuBinding(%s, %s)",
           isBufferAccess(left.getName()) ? toString(lhs) + ", " : "",
-          toString(lhsAtom),
+          toString(lhsField),
           toString(rhs)
           );
     } else if (rhs.getKind().isStruct()) {
       final Variable right = (Variable) rhs.getObject();
-      final Variable rightField = right.getFields().values().iterator().next();
-      final Atom rhsAtom = AtomExtractor.extract(rightField.getNode());
+      InvariantChecks.checkTrue(right.getFields().size() == 1);
 
+      final Variable rightField = right.getFields().values().iterator().next();
+      InvariantChecks.checkFalse(rightField.isStruct());
+
+      final Atom rhsField = AtomExtractor.extract(rightField.getNode());
       return String.format(
           "%snew MmuBinding(%s, %s)",
           isBufferAccess(right.getName()) ? toString(rhs) + ", " : "",
           toString(lhs),
-          toString(rhsAtom)
+          toString(rhsField)
           );
     } else {
       return String.format("new MmuBinding(%s, %s)", toString(lhs), toString(rhs));
