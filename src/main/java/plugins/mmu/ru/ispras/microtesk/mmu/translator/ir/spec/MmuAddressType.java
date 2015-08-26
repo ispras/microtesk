@@ -48,7 +48,6 @@ public class MmuAddressType extends MmuStruct {
   protected MmuAddressType(final String name) {
     super(name);
 
-    InvariantChecks.checkNotNull(address);
     this.addrStruct = null;
     this.address = null;
   }
