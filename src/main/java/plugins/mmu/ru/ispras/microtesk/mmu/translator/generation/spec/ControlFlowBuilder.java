@@ -16,11 +16,11 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jruby.compiler.ASTCompiler.VariableArityArguments;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -38,10 +38,12 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
-import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 final class ControlFlowBuilder {
+  public static final Class<?> BUFFER_EVENT_CLASS =
+      ru.ispras.microtesk.mmu.basis.BufferAccessEvent.class;
+
   public static final Class<?> ACTION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction.class;
 
@@ -53,6 +55,9 @@ final class ControlFlowBuilder {
 
   public static final Class<?> GUARD_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard.class;
+
+  public static final Class<?> SEGMENT_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
   public static final Class<?> TRANSITION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition.class;
@@ -93,11 +98,14 @@ final class ControlFlowBuilder {
     this.stDef = stDef;
     this.stReg = stReg;
 
+    st.add("imps", Arrays.class.getName());
     st.add("imps", BigInteger.class.getName());
+    st.add("imps", BUFFER_EVENT_CLASS.getName());
     st.add("imps", ACTION_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", GUARD_CLASS.getName());
+    st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", TRANSITION_CLASS.getName());
   }
 
@@ -256,15 +264,15 @@ final class ControlFlowBuilder {
     buildAction(join);
 
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
-      // TODO: FIXME: GUARDS NEEDED !!!
-
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
+
+      final GuardPrinter guardPrinter = new GuardPrinter(ir, condition);
 
       final String ifTrueStart = newBranch();
       buildAction(ifTrueStart);
 
-      buildTransition(current, ifTrueStart);
+      buildTransition(current, ifTrueStart, guardPrinter.getGuard());
 
       final String ifTrueStop = buildStmts(ifTrueStart, stmts);
       if (null != ifTrueStop) {
@@ -274,7 +282,7 @@ final class ControlFlowBuilder {
       final String ifFalseStart = newBranch();
       buildAction(ifFalseStart);
 
-      buildTransition(current, ifFalseStart);
+      buildTransition(current, ifFalseStart, guardPrinter.getNegatedGuard());
       current = ifFalseStart;
     }
 

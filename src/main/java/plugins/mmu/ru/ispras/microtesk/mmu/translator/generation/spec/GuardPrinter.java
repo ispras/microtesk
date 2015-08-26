@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,7 +64,9 @@ final class GuardPrinter {
       if (expr.getOperationId() == StandardOperation.NOT) {
         guards = getGuards(expr.getOperand(0), true);
       } else {
-        guards = new Pair<String, String>("null", "null");
+        guards = new Pair<String, String>(
+            "null /* TODO: GUARD -> if true */",
+            "null /* TODO: GUARD -> if false */");
         //guards = getConditionGuards(expr);
       }
     } else {
@@ -95,16 +96,17 @@ final class GuardPrinter {
       final Set<String> allSegmentIds = new HashSet<>(ir.getSegments().keySet());
       allSegmentIds.remove(segmentId);
 
-      final String allOtherSegmentId = Utils.toString(allSegmentIds, ", ");
+      final String allOtherSegmentId =
+          Utils.toString(allSegmentIds, ".get(), ") + ".get()";
 
       hit = String.format(
-          "new MmuGuard(null, %s.asList(%s))", Arrays.class.getName(), segmentId);
+          "new MmuGuard(null, Arrays.<MmuSegment>asList(%s.get()))", segmentId);
       miss = String.format(
-          "new MmuGuard(null, %s.asList(%s))", Arrays.class.getName(), allOtherSegmentId);
+          "new MmuGuard(null, Arrays.<MmuSegment>asList(%s))", allOtherSegmentId);
     } else {
       final String bufferId = attrRef.getTarget().getId();
-      hit = String.format("new MmuGuard(%s, BufferAccessEvent.HIT)", bufferId);
-      miss = String.format("new MmuGuard(%s, BufferAccessEvent.MISS)", bufferId);
+      hit = String.format("new MmuGuard(%s.get(), BufferAccessEvent.HIT)", bufferId);
+      miss = String.format("new MmuGuard(%s.get(), BufferAccessEvent.MISS)", bufferId);
     }
 
     return new Pair<>(hit, miss);
