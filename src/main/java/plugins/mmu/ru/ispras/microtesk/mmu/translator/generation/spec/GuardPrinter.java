@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.data.DataTypeId;
@@ -236,14 +238,23 @@ final class GuardPrinter {
       }
 
       case CONCAT: {
-        /*
-        final MmuExpression mmuExpr = (MmuExpression) variableAtom.getObject();
-        eq = new MmuGuard(MmuCondition.eq(mmuExpr));
-        noteq = new MmuGuard(MmuCondition.neq(mmuExpr));
-        */
+        @SuppressWarnings("unchecked")
+        final List<IntegerField> fields = (List<IntegerField>) variableAtom.getObject();
+        final List<String> fieldTexts = new ArrayList<>();
 
-        eq = "";
-        noteq = "";
+        for (final IntegerField field : fields) {
+          fieldTexts.add(Utils.toString(context, field));
+        }
+
+        final String variableText = String.format(
+            "MmuExpression.rcat(%s)", Utils.toString(fieldTexts, ", "));
+        final String valueText = Utils.toString(value);
+
+        eq = String.format(
+            "MmuConditionAtom.eq(%s, %s)", variableText, valueText);
+
+        noteq = String.format(
+            "MmuConditionAtom.neq(%s, %s)", variableText, valueText);
 
         break;
       }
