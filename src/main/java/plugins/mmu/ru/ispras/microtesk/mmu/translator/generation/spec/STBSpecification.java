@@ -46,19 +46,30 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSpecification extends STBCommon {
+final class STBSpecification implements STBuilder {
+  public static final Class<?> SPEC_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
+
   public static final String CLASS_NAME = "Specification";
+
+  private final String packageName;
   private final Ir ir;
 
   public STBSpecification(final String packageName, final Ir ir) {
-    super(packageName);
+    InvariantChecks.checkNotNull(packageName);
+    InvariantChecks.checkNotNull(ir);
+
+    this.packageName = packageName;
     this.ir = ir;
   }
+  
+  protected final void buildHeader(final ST st) {
+    st.add("name", CLASS_NAME); 
+    st.add("pack", packageName);
 
-  @Override
-  protected String getClassName() {
-    return CLASS_NAME;
+    st.add("imps", String.format("%s.*", SPEC_CLASS.getPackage().getName()));
   }
 
   @Override
@@ -66,6 +77,7 @@ final class STBSpecification extends STBCommon {
     final ST st = group.getInstanceOf("source_file");
     buildHeader(st);
     buildBody(st, group);
+    
     return st;
   }
 
