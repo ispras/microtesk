@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +24,10 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
@@ -32,13 +36,16 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
 final class GuardPrinter {
   private final Ir ir;
+  private final String context;
   private final Pair<String, String> guards;
 
-  public GuardPrinter(final Ir ir, final Node condition) {
+  public GuardPrinter(final Ir ir, final String context, final Node condition) {
     checkNotNull(ir);
+    checkNotNull(context);
     checkNotNull(condition);
 
     this.ir = ir;
+    this.context = context;
     this.guards = getGuards(condition, false);
   }
 
@@ -56,7 +63,8 @@ final class GuardPrinter {
     }
 
     final Pair<String, String> guards;
-    if (cond.getKind() == Node.Kind.VARIABLE && cond.getUserData() instanceof AttributeRef) {
+    if (cond.getKind() == Node.Kind.VARIABLE && 
+        cond.getUserData() instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) cond.getUserData();
       guards = getEventBasedGuards(attrRef);
     } else if (cond.getKind() == Node.Kind.OPERATION) {
@@ -64,10 +72,7 @@ final class GuardPrinter {
       if (expr.getOperationId() == StandardOperation.NOT) {
         guards = getGuards(expr.getOperand(0), true);
       } else {
-        guards = new Pair<String, String>(
-            String.format("null /* TODO: GUARD -> if %s */", cond),
-            String.format("null /* TODO: GUARD -> if not %s */", cond));
-        //guards = getConditionGuards(expr);
+        guards = getConditionGuards(expr);
       }
     } else {
       throw new IllegalStateException("Unsupported condition expression format: " + cond);
@@ -111,7 +116,24 @@ final class GuardPrinter {
 
     return new Pair<>(hit, miss);
   }
-/*
+
+  private Pair<String, String> getConditionGuards(final NodeOperation expr) {
+    final Enum<?> op = expr.getOperationId();
+
+    if (op == StandardOperation.EQ || op == StandardOperation.NOTEQ) {
+      final Pair<String, String> equalityAtoms = getEqualityConditionAtoms(expr);
+
+      return new Pair<String, String>(
+          String.format("new MmuGuard(%s)", equalityAtoms.first),
+          String.format("new MmuGuard(%s)", equalityAtoms.second));
+    }
+
+    return new Pair<String, String>(
+        String.format("null /* TODO: GUARD -> if %s */", expr),
+        String.format("null /* TODO: GUARD -> if not %s */", expr));
+  }
+
+  /*
   private Pair<String, String> getConditionGuards(final NodeOperation e) {
     final Enum<?> opId = e.getOperationId();
 
@@ -152,15 +174,18 @@ final class GuardPrinter {
     }
     return atoms;
   }
+  */
 
-  private MmuGuard[] getEqualityBasedGuards(final NodeOperation expr) {
+  private Pair<String, String> getEqualityConditionAtoms(final NodeOperation expr) {
+    InvariantChecks.checkNotNull(expr);
+
     final Enum<?> operator = expr.getOperationId();
     if (StandardOperation.EQ != operator && StandardOperation.NOTEQ != operator) {
       throw new IllegalStateException("Not an equality based condition: " + expr);
     }
 
-    final Atom lhs = atomExtractor.extract(expr.getOperand(0));
-    final Atom rhs = atomExtractor.extract(expr.getOperand(1));
+    final Atom lhs = AtomExtractor.extract(expr.getOperand(0));
+    final Atom rhs = AtomExtractor.extract(expr.getOperand(1));
 
     final BigInteger value;
     final Atom variableAtom;
@@ -176,30 +201,50 @@ final class GuardPrinter {
           "Both sides of an equality expression are constants.");
     }
 
-    final MmuGuard eq;
-    final MmuGuard noteq;
+    final String eq;
+    final String noteq;
+
     switch (variableAtom.getKind()) {
       case VARIABLE: {
         final IntegerVariable intVar = (IntegerVariable) variableAtom.getObject();
-        eq = new MmuGuard(MmuCondition.eq(intVar, value));
-        noteq = new MmuGuard(MmuCondition.neq(intVar, value));
+
+        final String variableText = Utils.getVariableName(context, intVar.getName());
+        final String valueText = Utils.toString(value); 
+
+        eq = String.format(
+            "MmuConditionAtom.eq(%s, %s)", variableText, valueText);
+
+        noteq = String.format(
+            "MmuConditionAtom.neq(%s, %s)", variableText, valueText);
+
         break;
       }
 
       case FIELD: {
         final IntegerField intField = (IntegerField) variableAtom.getObject();
-        final IntegerVariable intVar = intField.getVariable();
-        final int lo = intField.getLoIndex();
-        final int hi = intField.getHiIndex();
-        eq = new MmuGuard(MmuCondition.eq(new IntegerField(intVar, lo, hi), value));
-        noteq = new MmuGuard(MmuCondition.neq(new IntegerField(intVar, lo, hi), value));
+
+        final String variableText = Utils.toString(context, intField);
+        final String valueText = Utils.toString(value);
+
+        eq = String.format(
+            "MmuConditionAtom.eq(%s, %s)", variableText, valueText);
+
+        noteq = String.format(
+            "MmuConditionAtom.neq(%s, %s)", variableText, valueText);
+
         break;
       }
 
       case CONCAT: {
+        /*
         final MmuExpression mmuExpr = (MmuExpression) variableAtom.getObject();
         eq = new MmuGuard(MmuCondition.eq(mmuExpr));
         noteq = new MmuGuard(MmuCondition.neq(mmuExpr));
+        */
+
+        eq = "";
+        noteq = "";
+
         break;
       }
 
@@ -209,7 +254,7 @@ final class GuardPrinter {
     }
 
     return (StandardOperation.EQ == operator) ?
-        new MmuGuard[] {eq, noteq} : new MmuGuard[] {noteq, eq};
+        new Pair<String, String>(eq, noteq) :
+        new Pair<String, String>(noteq, eq);
   }
-*/
 }

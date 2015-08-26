@@ -510,7 +510,7 @@ final class STBSpecification extends STBCommon {
       for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
         final Node condition = block.first;
         final List<Stmt> stmts = block.second;
-        final GuardPrinter guardPrinter = new GuardPrinter(ir, condition);
+        final GuardPrinter guardPrinter = new GuardPrinter(ir, "", condition);
 
         final String ifTrueStart = newBranch();
         st.add("members", "// IF " + condition.toString());

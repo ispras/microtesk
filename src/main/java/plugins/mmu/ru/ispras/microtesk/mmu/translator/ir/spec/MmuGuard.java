@@ -68,6 +68,10 @@ public final class MmuGuard {
     this(null, null, null, condition, null, null);
   }
 
+  public MmuGuard(final MmuConditionAtom condition) {
+    this(null, null, null, new MmuCondition(condition), null, null);
+  }
+
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
     this(operation, null, null, condition, null, null);
   }

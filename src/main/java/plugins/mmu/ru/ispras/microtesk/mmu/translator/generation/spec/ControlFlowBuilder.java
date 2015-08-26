@@ -50,6 +50,9 @@ final class ControlFlowBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
+  public static final Class<?> COND_ATOM_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom.class;
+
   public static final Class<?> EXPRESSION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
 
@@ -103,6 +106,7 @@ final class ControlFlowBuilder {
     st.add("imps", BUFFER_EVENT_CLASS.getName());
     st.add("imps", ACTION_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
+    st.add("imps", COND_ATOM_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", GUARD_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
@@ -267,7 +271,8 @@ final class ControlFlowBuilder {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
 
-      final GuardPrinter guardPrinter = new GuardPrinter(ir, condition);
+      final GuardPrinter guardPrinter = 
+          new GuardPrinter(ir, context, condition);
 
       final String ifTrueStart = newBranch();
       buildAction(ifTrueStart);

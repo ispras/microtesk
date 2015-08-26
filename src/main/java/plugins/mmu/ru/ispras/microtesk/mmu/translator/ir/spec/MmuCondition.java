@@ -195,7 +195,7 @@ public final class MmuCondition {
 
   private final List<MmuConditionAtom> atoms = new ArrayList<>();
 
-  private MmuCondition(final Type type, final List<MmuConditionAtom> atoms) {
+  protected MmuCondition(final Type type, final List<MmuConditionAtom> atoms) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(atoms);
 
@@ -203,14 +203,14 @@ public final class MmuCondition {
     this.atoms.addAll(atoms);
   }
 
-  private MmuCondition(final MmuCondition condition) {
+  protected MmuCondition(final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
 
     this.type = condition.type;
     this.atoms.addAll(condition.getAtoms());
   }
 
-  private MmuCondition(final MmuConditionAtom atom) {
+  protected MmuCondition(final MmuConditionAtom atom) {
     InvariantChecks.checkNotNull(atom);
 
     this.type = Type.AND;
