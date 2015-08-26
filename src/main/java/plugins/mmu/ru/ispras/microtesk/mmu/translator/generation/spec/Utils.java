@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 
 public final class Utils {
   private Utils() {}
@@ -62,5 +63,22 @@ public final class Utils {
     }
 
     return prefix + ".get()." + suffix;
+  }
+
+  public static String toString(final String context, final IntegerField field) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(field);
+
+    if (field.getVariable().isDefined()) {
+      return Utils.toString(field.getVariable().getValue());
+    }
+
+    final String name = getVariableName(context, field.getVariable().getName());
+    if (field.isVariable()) {
+      return name;
+    }
+
+    return String.format(
+        "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex());
   }
 }

@@ -31,7 +31,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 public final class AtomExtractor {
   private AtomExtractor() {}
@@ -159,6 +158,6 @@ public final class AtomExtractor {
       }
     }
 
-    return Atom.newConcat(MmuExpression.rcat(concat));
+    return Atom.newConcat(concat);
   }
 }

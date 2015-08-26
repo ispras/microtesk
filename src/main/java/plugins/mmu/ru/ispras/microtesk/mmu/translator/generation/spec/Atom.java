@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -30,7 +31,7 @@ public final class Atom {
     VARIABLE (IntegerVariable.class, false),
     FIELD    (IntegerField.class, false),
     GROUP    (Variable.class, true),
-    CONCAT   (MmuExpression.class, false);
+    CONCAT   (List.class, false);
 
     private final Class<?> objectClass;
     private final boolean isStruct;
@@ -65,8 +66,8 @@ public final class Atom {
     return new Atom(Kind.FIELD, field);
   }
 
-  public static Atom newConcat(final MmuExpression concat) {
-    return new Atom(Kind.CONCAT, concat);
+  public static Atom newConcat(final List<IntegerField> fields) {
+    return new Atom(Kind.CONCAT, fields);
   }
 
   private final Kind kind;
@@ -76,9 +77,10 @@ public final class Atom {
     checkNotNull(kind);
     checkNotNull(object);
 
-    if (!object.getClass().equals(kind.getObjectClass())) {
+    if (!kind.getObjectClass().isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(
-          kind.getObjectClass().getSimpleName() + " is expected.");
+          kind.getObjectClass().getName() + " is expected," +
+          object.getClass().getName() + " is found");
     }
 
     this.kind = kind;

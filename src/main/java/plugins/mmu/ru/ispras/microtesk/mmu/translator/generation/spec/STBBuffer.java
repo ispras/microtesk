@@ -212,26 +212,12 @@ final class STBBuffer implements STBuilder {
       sb.append("    ");
 
       final String leftText = getVariableName(binding.first.getName());
-      final String rightText = toString(binding.second);
+      final String rightText = Utils.toString(buffer.getId(), binding.second);
 
       sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
     }
 
     sb.append(')');
     return sb.toString();
-  }
-
-  private String toString(final IntegerField field) {
-    if (field.getVariable().isDefined()) {
-      return Utils.toString(field.getVariable().getValue());
-    }
-
-    final String name = getVariableName(field.getVariable().getName());
-    if (field.isVariable()) {
-      return name;
-    }
-
-    return String.format(
-        "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex());
   }
 }

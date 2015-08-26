@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jruby.compiler.ASTCompiler.VariableArityArguments;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -127,6 +128,8 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(stmtsWrite);
 
     st.add("members", "");
+    stDef.add("stmts", "");
+
     buildAction(start, true);
     buildAction(stop, true);
 
@@ -157,6 +160,8 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(stmts);
 
     st.add("members", "");
+    stDef.add("stmts", "");
+
     buildAction(start, true);
     buildAction(stop, true);
 
@@ -371,6 +376,10 @@ final class ControlFlowBuilder {
     return variable.equals(memory.getDataArg());
   }
 
+  private boolean isBufferAccess(final String variableName) {
+    return ir.getBuffers().containsKey(variableName);
+  }
+
   private boolean isSegmentAccess(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
@@ -407,20 +416,39 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(rhs);
 
     if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
-      final Type lhsType = ((Variable) lhs.getObject()).getType();
-      final Type rhsType = ((Variable) rhs.getObject()).getType();
+      final Variable left = (Variable) lhs.getObject();
+      final Variable right = (Variable) rhs.getObject();
 
-      if (!lhsType.equals(rhsType)) {
-        throw new IllegalArgumentException(String.format("Type mismatch: %s = %s", lhs, rhs));
+      if (!left.getType().equals(right.getType())) {
+        throw new IllegalArgumentException(String.format("Type mismatch: %s = %s", left, right));
+      }
+
+      if (isBufferAccess(left.getName())) {
+        return String.format("%s /* no bindings for write */", toString(lhs));
       }
 
       return String.format("%s, %s", toString(lhs), toString(rhs));
     } else if (lhs.getKind().isStruct()) {
-      // TODO
-      return "/*TODO: left struct*/ null";
+      final Variable left = (Variable) lhs.getObject();
+      final Variable leftField = left.getFields().values().iterator().next();
+      final Atom lhsAtom = AtomExtractor.extract(leftField.getNode());
+
+      return String.format("%snew MmuBinding(%s, %s)",
+          isBufferAccess(left.getName()) ? toString(lhs) + ", " : "",
+          toString(lhsAtom),
+          toString(rhs)
+          );
     } else if (rhs.getKind().isStruct()) {
-      // TODO
-      return "/*TODO: right struct*/ null";
+      final Variable right = (Variable) rhs.getObject();
+      final Variable rightField = right.getFields().values().iterator().next();
+      final Atom rhsAtom = AtomExtractor.extract(rightField.getNode());
+
+      return String.format(
+          "%snew MmuBinding(%s, %s)",
+          isBufferAccess(right.getName()) ? toString(rhs) + ", " : "",
+          toString(lhs),
+          toString(rhsAtom)
+          );
     } else {
       return String.format("new MmuBinding(%s, %s)", toString(lhs), toString(rhs));
     }
@@ -446,8 +474,18 @@ final class ControlFlowBuilder {
       case GROUP:
         return Utils.getVariableName(context, ((Variable) object).getName());
 
-      case CONCAT:
-        return "/* TODO MmuExpression.XXX */ (MmuExpression) null";
+      case CONCAT: {
+        @SuppressWarnings("unchecked")
+        final List<IntegerField> fields = (List<IntegerField>) object;
+        final List<String> fieldTexts = new ArrayList<>();
+
+        for (final IntegerField field : fields) {
+          fieldTexts.add(Utils.toString(context, field));
+        }
+
+        return String.format(
+            "MmuExpression.rcat(%s)", Utils.toString(fieldTexts, ", "));
+      }
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
