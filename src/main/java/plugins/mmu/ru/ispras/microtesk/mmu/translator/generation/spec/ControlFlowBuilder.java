@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 final class ControlFlowBuilder {
@@ -226,14 +227,11 @@ final class ControlFlowBuilder {
     }
 
     final String target = newAssign();
-    if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
-      buildAction(target, toString(lhs), toString(rhs));
-    } else {
-      final String targetBindings = buildBindings(lhs, rhs);
-      buildAction(target, targetBindings);
-    }
+    final String targetBindings = buildBindings(lhs, rhs);
 
+    buildAction(target, targetBindings);
     buildTransition(source, target);
+
     return target;
   }
 
@@ -396,14 +394,11 @@ final class ControlFlowBuilder {
     final Atom rhs = AtomExtractor.extract(right.getTarget().getDataArg().getNode());
  
     final String assignResult = newAssign();
-    if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
-      buildAction(assignResult, toString(lhs), toString(rhs));
-    } else {
-      final String assignResultBindings = buildBindings(lhs, rhs);
-      buildAction(assignResult, assignResultBindings);
-    }
+    final String assignResultBindings = buildBindings(lhs, rhs);
 
+    buildAction(assignResult, assignResultBindings);
     buildTransition(segmentStop, assignResult);
+
     return assignResult;
   }
 
@@ -412,8 +407,14 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(rhs);
 
     if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
-      // TODO
-      return "/*TODO: both structs*/ null";
+      final Type lhsType = ((Variable) lhs.getObject()).getType();
+      final Type rhsType = ((Variable) rhs.getObject()).getType();
+
+      if (!lhsType.equals(rhsType)) {
+        throw new IllegalArgumentException(String.format("Type mismatch: %s = %s", lhs, rhs));
+      }
+
+      return String.format("%s, %s", toString(lhs), toString(rhs));
     } else if (lhs.getKind().isStruct()) {
       // TODO
       return "/*TODO: left struct*/ null";
