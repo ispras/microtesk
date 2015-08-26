@@ -29,6 +29,7 @@ public class MmuSettingsParser extends GeneratorSettingsParser {
     // Parsers for the custom sections.
     addParser(new BooleanValuesSettingsParser());
     addParser(new BooleanOptionSettingsParser());
+    addParser(new BufferEventsSettingsParser());
   }
 
   @Override

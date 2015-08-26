@@ -17,39 +17,40 @@ package ru.ispras.microtesk.mmu.settings;
 import java.util.HashSet;
 import java.util.Set;
 
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.settings.AbstractSettings;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BooleanValuesSettings extends AbstractSettings {
-  public static final String TAG = String.format("%s-booleanValues", MmuSettings.TAG_PREFIX);
+public final class BufferEventsSettings extends AbstractSettings {
+  public static final String TAG = String.format("%s-bufferEvents", MmuSettings.TAG_PREFIX);
 
   public static enum Values {
-    TRUE,
-    FALSE,
+    HIT,
+    MISS,
     ALL,
     NONE
   }
 
   private final String name;
-  private final Set<Boolean> values = new HashSet<>();
+  private final Set<BufferAccessEvent> values = new HashSet<>();
 
-  public BooleanValuesSettings(final String name, final Values values) {
+  public BufferEventsSettings(final String name, final Values values) {
     super(TAG);
 
     this.name = name;
 
     switch (values) {
-      case TRUE:
-        this.values.add(true);
+      case HIT:
+        this.values.add(BufferAccessEvent.HIT);
         break;
-      case FALSE:
-        this.values.add(false);
+      case MISS:
+        this.values.add(BufferAccessEvent.MISS);
         break;
       case ALL:
-        this.values.add(true);
-        this.values.add(false);
+        this.values.add(BufferAccessEvent.HIT);
+        this.values.add(BufferAccessEvent.MISS);
         break;
       default:
         break;
@@ -61,7 +62,7 @@ public final class BooleanValuesSettings extends AbstractSettings {
     return name;
   }
 
-  public final Set<Boolean> getValues() {
+  public final Set<BufferAccessEvent> getValues() {
     return values;
   }
 
