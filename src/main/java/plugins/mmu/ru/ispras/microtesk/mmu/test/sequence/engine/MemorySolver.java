@@ -138,7 +138,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (int j = 0; j < structure.size(); j++) {
       result = solve(j);
 
-      if (result.getStatus() == SolverResult.Status.UNSAT) {
+      if (result.getStatus() != SolverResult.Status.SAT) {
         return result;
       }
     }
@@ -147,7 +147,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (int j = 0; j < structure.size(); j++) {
       result = correct(j);
 
-      if (result.getStatus() == SolverResult.Status.UNSAT) {
+      if (result.getStatus() != SolverResult.Status.SAT) {
         return result;
       }
     }
@@ -156,7 +156,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (int j = 0; j < structure.size(); j++) {
       result = fill(j);
 
-      if (result.getStatus() == SolverResult.Status.UNSAT) {
+      if (result.getStatus() != SolverResult.Status.SAT) {
         return result;
       }
     }

@@ -44,8 +44,19 @@ public abstract class AbstractSettings {
     return tag;
   }
 
+  /**
+   * Returns the name of the settings (to be overridden in subclasses).
+   * 
+   * @return the settings name.
+   */
+  public String getName() {
+    throw new UnsupportedOperationException();
+  }
+
   @SuppressWarnings("unchecked")
   public final <T extends AbstractSettings> T getSingle(final String tag) {
+    InvariantChecks.checkNotNull(tag);
+
     final Collection<AbstractSettings> sections = get(tag);
     if (null == sections) {
       return null;
@@ -58,17 +69,37 @@ public abstract class AbstractSettings {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
+  public final <T extends AbstractSettings> T getSingle(final String tag, final String name) {
+    InvariantChecks.checkNotNull(tag);
+    InvariantChecks.checkNotNull(name);
+
+    final Collection<AbstractSettings> sections = get(tag);
+    if (null == sections) {
+      return null;
+    }
+
+    for (final AbstractSettings section : sections) {
+      if (name.equals(section.getName())) {
+        return (T) section;
+      }
+    }
+
+    return null;
+  }
+
   /**
-   * Default implementation (can be overloaded in subclasses).
+   * Default implementation (to be overridden in subclasses).
    * 
    * @param tag the tag of the sections to be returned.
    */
   public Collection<AbstractSettings> get(final String tag) {
+    InvariantChecks.checkNotNull(tag);
     return sections.get(tag);
   }
 
   /**
-   * Default implementation (can be overloaded in subclasses).
+   * Default implementation (to be overridden in subclasses).
    * 
    * @param section the settings's section to be added.
    */
