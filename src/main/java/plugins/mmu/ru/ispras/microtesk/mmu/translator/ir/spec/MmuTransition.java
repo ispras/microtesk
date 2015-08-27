@@ -25,9 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuTransition {
-  /** Flag indicating whether the transition is enabled, i.e. included into the specification. */
-  private boolean enabled = true;
-
   /** Source action. */
   private final MmuAction source;
   /** Target action. */
@@ -46,14 +43,6 @@ public final class MmuTransition {
 
   public MmuTransition(final MmuAction source, final MmuAction target) {
     this(source, target, null);
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(final boolean enabled) {
-    this.enabled = enabled;
   }
 
   public MmuAction getSource() {

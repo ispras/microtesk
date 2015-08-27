@@ -534,40 +534,46 @@ public final class MmuUnderTest {
     builder.setStartAction(root);
 
     builder.registerTransition(ifRead);
-    builder.registerTransition(ifWrite);
-    builder.registerTransition(ifUnmappedKseg);
-    builder.registerTransition(ifUnmappedXkphys);
+
+    if (!REDUCE) {
+      builder.registerTransition(ifWrite);
+      builder.registerTransition(ifUnmappedKseg);
+      builder.registerTransition(ifUnmappedXkphys);
+    }
+
     builder.registerTransition(ifMapped);
     builder.registerTransition(afterUpaKseg);
     builder.registerTransition(afterUpaXkphys);
     builder.registerTransition(ifDtlbMiss);
     builder.registerTransition(ifDtlbHit);
     builder.registerTransition(afterDtlb);
-
     builder.registerTransition(ifJtlbMiss);
     builder.registerTransition(ifJtlbHit);
-
     builder.registerTransition(afterJtlb);
     builder.registerTransition(ifVpn0);
-    builder.registerTransition(ifVpn1);
+    if (!REDUCE) {
+      builder.registerTransition(ifVpn1);
+    }
     builder.registerTransition(afterLo0);
     builder.registerTransition(afterLo1);
-
-    builder.registerTransition(ifLocal);
-    builder.registerTransition(afterLocal);
-
+    if (!REDUCE) {
+      builder.registerTransition(ifLocal);
+      builder.registerTransition(afterLocal);
+    }
     builder.registerTransition(ifGlobal);
     builder.registerTransition(afterGlobal);
-
-    builder.registerTransition(ifInvalid);
+    if (!REDUCE) {
+      builder.registerTransition(ifInvalid);
+    }
     builder.registerTransition(ifValid);
-
-    builder.registerTransition(ifDirty);
+    if (!REDUCE) {
+      builder.registerTransition(ifDirty);
+    }
     builder.registerTransition(ifClean);
-
     builder.registerTransition(ifLoMemory);
-    builder.registerTransition(ifHiMemory);
-
+    if (!REDUCE) {
+      builder.registerTransition(ifHiMemory);
+    }
     builder.registerTransition(ifKseg0);
     builder.registerTransition(ifKseg1);
     builder.registerTransition(ifXkphys);
@@ -581,24 +587,13 @@ public final class MmuUnderTest {
     builder.registerTransition(ifL1Hit);
     builder.registerTransition(afterL1);
     builder.registerTransition(ifL2Bypass);
-    builder.registerTransition(ifL2Used);
+    if (!REDUCE) {
+      builder.registerTransition(ifL2Used);
+    }
     builder.registerTransition(ifL2Miss);
     builder.registerTransition(ifL2Hit);
     builder.registerTransition(afterL2);
     builder.registerTransition(afterMem);
-
-    // Disable some of the transitions to reduce testing time.
-    if (REDUCE) {
-      ifWrite.setEnabled(false);
-      ifUnmappedKseg.setEnabled(false);
-      ifUnmappedXkphys.setEnabled(false);
-      ifVpn1.setEnabled(false);
-      ifInvalid.setEnabled(false);
-      ifDirty.setEnabled(false);
-      ifLocal.setEnabled(false);
-      ifHiMemory.setEnabled(false);
-      ifL2Used.setEnabled(false);
-    }
 
     mmu = builder.build();
   }

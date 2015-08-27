@@ -26,13 +26,8 @@ import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.settings.BooleanValuesSettings;
-import ru.ispras.microtesk.mmu.settings.IntegerValuesSettings;
-import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
@@ -116,8 +111,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
 
-  private Collection<IntegerConstraint<IntegerField>> constraints;
-
   @Override
   public Class<MemorySolution> getSolutionClass() {
     return MemorySolution.class;
@@ -169,12 +162,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     this.addressAllocator = new AddressAllocator(memory, addressToRegions);
     this.entryIdAllocator = new EntryIdAllocator(memory);
 
-    this.constraints = new ArrayList<>();
-    this.constraints.addAll(
-        MmuSettingsUtils.getConstraints(settings.get(IntegerValuesSettings.TAG)));
-    this.constraints.addAll(
-        MmuSettingsUtils.getConstraints(settings.get(BooleanValuesSettings.TAG)));
-
     return new EngineResult<MemorySolution>(solutionIterator);
   }
 
@@ -218,7 +205,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     return new MemoryAccessStructureIterator(
-        accessTypes, classifier, constraints, engineContext.getSettings());
+        accessTypes, classifier, engineContext.getSettings());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

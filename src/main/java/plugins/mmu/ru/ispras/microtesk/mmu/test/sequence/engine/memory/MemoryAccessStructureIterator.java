@@ -26,6 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -112,12 +113,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
       final Classifier<MemoryAccessPath> classifier,
-      final Collection<IntegerConstraint<IntegerField>> constraints,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
-    // Parameter {@code constraints} can be null.
     // Parameter {@code settings} can be null.
  
     this.accessTypes = accessTypes;
@@ -128,9 +127,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     // Classify the memory access paths and initialize the path iterator.
     final ProductIterator<Integer> accessPathIterator = new ProductIterator<>();
 
+    final Collection<IntegerConstraint<IntegerField>> constraints =
+        settings != null ? MmuSettingsUtils.getConstraints(settings) : null;
+
     for (final MemoryAccessType accessType : accessTypes) {
-      final Collection<MemoryAccessPath> paths = 
-          CoverageExtractor.get().getPaths(MmuTranslator.getSpecification(), accessType);
+      final Collection<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
+          MmuTranslator.getSpecification(), accessType, settings);
       final Collection<MemoryAccessPath> feasiblePaths = constraints != null ?
           MemoryEngineUtils.getFeasiblePaths(paths, constraints) : paths;
 

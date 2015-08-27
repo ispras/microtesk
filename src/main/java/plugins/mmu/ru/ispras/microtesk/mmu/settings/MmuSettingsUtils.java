@@ -41,17 +41,17 @@ public final class MmuSettingsUtils extends GeneratorSettings {
   private static final MmuSubsystem memory = MmuTranslator.getSpecification();
 
   public static Collection<IntegerConstraint<IntegerField>> getConstraints(
-      final Collection<AbstractSettings> settings) {
+      final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
     final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
 
-    for (final AbstractSettings section : settings) {
-      if (section instanceof IntegerValuesSettings) {
-        constraints.add(getConstraint((IntegerValuesSettings) section));
-      } else if (section instanceof BooleanValuesSettings) {
-        constraints.add(getConstraint((BooleanValuesSettings) section));
-      }
+    for (final AbstractSettings section : settings.get(IntegerValuesSettings.TAG)) {
+      constraints.add(getConstraint((IntegerValuesSettings) section));
+    }
+      
+    for (final AbstractSettings section : settings.get(BooleanValuesSettings.TAG)) {
+      constraints.add(getConstraint((BooleanValuesSettings) section));
     }
 
     return constraints;

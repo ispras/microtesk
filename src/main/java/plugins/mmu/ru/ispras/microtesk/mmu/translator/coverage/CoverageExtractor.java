@@ -18,14 +18,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.settings.BufferEventsSettings;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.AbstractSettings;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -41,7 +49,7 @@ public final class CoverageExtractor {
   private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
   private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
 
-  private final Map<MmuSubsystem, Map<MemoryAccessType, Collection<MemoryAccessPath>>> typePaths =
+  private final Map<MmuSubsystem, Map<MemoryAccessType, Collection<MemoryAccessPath>>> typeEnabledPaths =
       new HashMap<>();
 
   private final Map<MmuSubsystem, Map<MmuBuffer, Collection<MemoryAccessPath>>> bufferNormalPaths =
@@ -73,14 +81,68 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public Collection<MemoryAccessPath> getPaths(
-      final MmuSubsystem memory, final MemoryAccessType type) {
+  private static boolean isEnabledPath(
+      final MmuSubsystem memory, final MemoryAccessPath path, final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(settings);
+
+    final Map<RegionSettings, Collection<MmuSegment>> segments =
+        MemoryAccess.getPossibleSegments(path, settings);
+
+    if (segments.isEmpty()) {
+      return false;
+    }
+
+    final Collection<AbstractSettings> bufferEventsSettings = settings.get(BufferEventsSettings.TAG);
+    for (final AbstractSettings section : bufferEventsSettings) {
+      final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
+
+      final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
+      InvariantChecks.checkNotNull(buffer);
+
+      final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
+      InvariantChecks.checkNotNull(events);
+
+      if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static Collection<MemoryAccessPath> getEnabledPaths(
+      final MmuSubsystem memory,
+      final Collection<MemoryAccessPath> paths,
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(paths);
+    // Parameter {@code settings} can be null.
+
+    if (settings == null) {
+      return paths;
+    }
+
+    final Collection<MemoryAccessPath> enabledPaths = new ArrayList<>(paths.size());
+
+    for (final MemoryAccessPath path : paths) {
+      if (isEnabledPath(memory, path, settings)) {
+        enabledPaths.add(path);
+      }
+    }
+
+    return enabledPaths;
+  }
+
+  public Collection<MemoryAccessPath> getEnabledPaths(
+      final MmuSubsystem memory, final MemoryAccessType type, final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(type);
+    // Parameter {@code settings} can be null.
 
-    Map<MemoryAccessType, Collection<MemoryAccessPath>> typeToPaths = typePaths.get(memory);
+    Map<MemoryAccessType, Collection<MemoryAccessPath>> typeToPaths = typeEnabledPaths.get(memory);
     if (typeToPaths == null) {
-      typePaths.put(memory,
+      typeEnabledPaths.put(memory,
           typeToPaths = new HashMap<MemoryAccessType, Collection<MemoryAccessPath>>());
     }
 
@@ -90,13 +152,14 @@ public final class CoverageExtractor {
       typeToPaths.put(type, paths = extractor.getPaths(type));
     }
 
-    return paths;
+    return getEnabledPaths(memory, paths, settings);
   }
 
   public Collection<MemoryAccessPath> getNormalPaths(
-      final MmuSubsystem memory, final MmuBuffer buffer) {
+      final MmuSubsystem memory, final MmuBuffer buffer, final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(buffer);
+    // Parameter {@code settings} can be null.
 
     Map<MmuBuffer, Collection<MemoryAccessPath>> bufferToPaths = bufferNormalPaths.get(memory);
     if (bufferToPaths == null) {
@@ -108,9 +171,10 @@ public final class CoverageExtractor {
     if (paths == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
       final Collection<MemoryAccessPath> allPaths = extractor.getPaths(null);
+      final Collection<MemoryAccessPath> enabledPaths = getEnabledPaths(memory, allPaths, settings);
 
       paths = new ArrayList<>();
-      for (final MemoryAccessPath path : allPaths) {
+      for (final MemoryAccessPath path : enabledPaths) {
         if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
           paths.add(path);
         }

@@ -54,10 +54,6 @@ final class MemoryCoverageExtractor {
       for (final MmuTransition next : out) {
         final MmuGuard guard = next.getGuard();
 
-        if (!next.isEnabled()) {
-          continue;
-        }
-
         if (type == null || guard.getOperation() == type.getOperation()) {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
@@ -113,10 +109,6 @@ final class MemoryCoverageExtractor {
       final List<MemoryAccessPath> elongatedPaths = new ArrayList<>();
 
       for (final MmuTransition next : out) {
-        if (!next.isEnabled()) {
-          continue;
-        }
-
         final MmuGuard guard = next.getGuard();
         final MemoryOperation operation = guard != null ? guard.getOperation() : null;
 
