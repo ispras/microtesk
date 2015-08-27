@@ -25,6 +25,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -275,6 +276,32 @@ final class ControlFlowBuilder {
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
+
+      if (condition.getKind() == Node.Kind.VALUE) {
+        final boolean isCondition = ((NodeValue) condition).getBoolean();
+
+        if (isCondition) {
+          // If condition is true, the current block is visited unconditionally
+          // and all other subsequent blocks are ignored (as never reached).
+          current = buildStmts(current, stmts);
+
+          if (null != current) {
+            // If all other condition branches ended with null (exception)
+            // and action 'join' for merging branches was not created,
+            // we do not need it since there is only one branch (else).
+            if (null == join) {
+              join = current;
+            } else {
+              buildTransition(current, join);
+            }
+          }
+
+          return join;
+        } else {
+          // If condition is false, the current block is ignored (as never reached).
+          continue;
+        }
+      }
 
       final GuardPrinter guardPrinter = 
           new GuardPrinter(ir, context, condition);
