@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -32,7 +32,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  */
 public final class MemoryAccessStructure {
   /** Memory subsystem specification. */
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   /** Memory accesses (accesses). */
   private final List<MemoryAccess> accesses;

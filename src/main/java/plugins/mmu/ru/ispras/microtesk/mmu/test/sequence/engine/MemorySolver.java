@@ -33,6 +33,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
@@ -48,7 +49,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllo
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -95,7 +95,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<Integer, Set<MmuBuffer>> handledBuffers = new LinkedHashMap<>();
 
   /** Contains a reference to the memory subsystem specification. */
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   /** Current solution. */
   private MemorySolution solution;
@@ -980,7 +980,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
     InvariantChecks.checkNotNull(access);
 
-    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final MmuAddressType vaType = memory.getVirtualAddress();
     final MmuAddressType paType = memory.getPhysicalAddress();

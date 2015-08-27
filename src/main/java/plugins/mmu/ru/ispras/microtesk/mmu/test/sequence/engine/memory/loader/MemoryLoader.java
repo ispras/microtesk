@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -32,7 +32,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryLoader implements Loader {
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
   private final Map<MmuBuffer, BufferLoader> bufferLoaders = new LinkedHashMap<>();
 
   public MemoryLoader() {

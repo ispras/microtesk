@@ -26,6 +26,7 @@ import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -35,7 +36,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -147,7 +147,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
     }
 
-    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuAddressType addrType : memory.getSortedListOfAddresses()) {
       if (addrType.equals(memory.getVirtualAddress())) {

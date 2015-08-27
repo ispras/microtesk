@@ -22,6 +22,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
@@ -34,6 +35,10 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuPlugin implements Plugin {
+  public static MmuSubsystem getSpecification() {
+    return MmuTranslator.getSpecification();
+  }
+
   @Override
   public Translator<?> getTranslator() {
     return new MmuTranslator();

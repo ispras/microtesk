@@ -25,7 +25,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -38,7 +38,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 public final class MmuSettingsUtils extends GeneratorSettings {
   private MmuSettingsUtils() {}
 
-  private static final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private static final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   public static Collection<IntegerConstraint<IntegerField>> getConstraints(
       final GeneratorSettings settings) {

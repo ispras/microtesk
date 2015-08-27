@@ -26,6 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
@@ -38,7 +39,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterParentMi
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqualTagReplaced;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -132,7 +132,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     for (final MemoryAccessType accessType : accessTypes) {
       final Collection<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
-          MmuTranslator.getSpecification(), accessType, settings);
+          MmuPlugin.getSpecification(), accessType, settings);
       final Collection<MemoryAccessPath> feasiblePaths = constraints != null ?
           MemoryEngineUtils.getFeasiblePaths(paths, constraints) : paths;
 

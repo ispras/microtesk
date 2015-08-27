@@ -17,11 +17,11 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -36,7 +36,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 public final class FilterVaEqualPaNotEqual implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
   public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
-    final MmuAddressType va = MmuTranslator.getSpecification().getVirtualAddress();
+    final MmuAddressType va = MmuPlugin.getSpecification().getVirtualAddress();
     final MemoryUnitedHazard vaHazard = dependency.getHazard(va);
 
     final Set<Integer> vaEqualRelation =

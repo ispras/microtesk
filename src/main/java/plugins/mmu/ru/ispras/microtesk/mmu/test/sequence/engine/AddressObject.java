@@ -19,10 +19,10 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
@@ -44,7 +44,7 @@ public final class AddressObject {
    * <p>It is used to initialize the auxiliary data structures and to build a string representation
    * of the test data (to print tags and indices for all relevant buffers).</p>
    */
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   /** Contains addresses (virtual, physical and intermediate addresses). */
   private final Map<MmuAddressType, Long> addresses = new LinkedHashMap<>();

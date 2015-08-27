@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 
@@ -72,7 +72,7 @@ public final class MemorySolution {
       this.solution.add(new AddressObject(execution));
     }
 
-    for (final MmuBuffer device : MmuTranslator.getSpecification().getBuffers()) {
+    for (final MmuBuffer device : MmuPlugin.getSpecification().getBuffers()) {
       this.entries.put(device, new LinkedHashMap<Long, MmuEntry>());
     }
 

@@ -27,8 +27,8 @@ import java.util.Set;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
@@ -54,7 +54,7 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAdapter implements Adapter<MemorySolution> {
-  private final MmuSubsystem memory = MmuTranslator.getSpecification();
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   @Override
   public Class<MemorySolution> getSolutionClass() {

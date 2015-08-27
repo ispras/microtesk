@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.MmuTranslator;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -40,7 +40,7 @@ public final class MemoryAccess {
   public static Collection<MmuSegment> getPossibleSegments(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
 
-    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
     final Collection<MmuSegment> segments = new LinkedHashSet<>(memory.getSegments());
 
     for (final MmuTransition transition : path.getTransitions()) {
@@ -63,7 +63,7 @@ public final class MemoryAccess {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(settings);
 
-    final MmuSubsystem memory = MmuTranslator.getSpecification();
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final Collection<RegionSettings> regions = new LinkedHashSet<>();
     final Collection<MmuSegment> segments = getPossibleSegments(path);
