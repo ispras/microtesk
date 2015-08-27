@@ -130,9 +130,14 @@ final class GuardPrinter {
           String.format("new MmuGuard(%s)", equalityAtoms.second));
     }
 
-    return new Pair<String, String>(
-        String.format("null /* TODO: GUARD -> if %s */", expr),
-        String.format("null /* TODO: GUARD -> if not %s */", expr));
+    if (op == StandardOperation.AND || op == StandardOperation.OR) {
+      return new Pair<String, String>(
+          String.format("null /* TODO: GUARD -> if %s */", expr),
+          String.format("null /* TODO: GUARD -> if not %s */", expr));
+    }
+
+    throw new IllegalStateException(String.format(
+        "Unsupported operatior %s in a condition expression: %s", op, expr));
   }
 
   /*
