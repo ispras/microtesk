@@ -456,7 +456,32 @@ public final class MmuUnderTest {
   public final MmuSubsystem mmu;
 
   {
-    final ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.Builder builder = new MmuSubsystem.Builder();
+    final MmuSubsystem.Builder builder = new MmuSubsystem.Builder();
+
+    builder.registerVariable(va);
+    builder.registerVariable(pa);
+    builder.registerVariable(kseg0Cp);
+    builder.registerVariable(vpn2);
+    builder.registerVariable(v0);
+    builder.registerVariable(d0);
+    builder.registerVariable(g0);
+    builder.registerVariable(c0);
+    builder.registerVariable(pfn0);
+    builder.registerVariable(v1);
+    builder.registerVariable(d1);
+    builder.registerVariable(g1);
+    builder.registerVariable(c1);
+    builder.registerVariable(pfn1);
+    builder.registerVariable(v);
+    builder.registerVariable(d);
+    builder.registerVariable(g);
+    builder.registerVariable(c);
+    builder.registerVariable(pfn);
+    builder.registerVariable(l1Tag);
+    builder.registerVariable(l2Tag);
+    builder.registerVariable(l1Data);
+    builder.registerVariable(l2Data);
+    builder.registerVariable(data);
 
     builder.registerAddress(vaAddr);
     builder.registerAddress(paAddr);

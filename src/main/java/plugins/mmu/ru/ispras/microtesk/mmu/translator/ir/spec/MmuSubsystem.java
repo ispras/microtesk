@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
  * {@link MmuSubsystem} describes a memory management unit (MMU).
@@ -35,6 +36,9 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 
 public final class MmuSubsystem {
+  /** Stores available variables. */
+  private final Map<String, IntegerVariable> variables;
+
   /**
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
@@ -73,6 +77,7 @@ public final class MmuSubsystem {
    */
 
   private MmuSubsystem(
+      final Map<String, IntegerVariable> variables,
       final Map<String, MmuAddressType> addresses,
       final List<MmuAddressType> sortedAddresses,
       final MmuAddressType virtualAddress,
@@ -83,6 +88,7 @@ public final class MmuSubsystem {
       final MmuBuffer targetBuffer,
       final Map<MmuAction, List<MmuTransition>> actions,
       final MmuAction startAction) {
+    InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(addresses);
     InvariantChecks.checkNotNull(sortedAddresses);
     // InvariantChecks.checkNotNull(virtualAddress);
@@ -96,6 +102,7 @@ public final class MmuSubsystem {
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(startAction);
 
+    this.variables = Collections.unmodifiableMap(variables);
     this.addresses = Collections.unmodifiableMap(addresses);
     this.sortedAddresses = Collections.unmodifiableList(sortedAddresses);
     this.virtualAddress = virtualAddress;
@@ -108,6 +115,10 @@ public final class MmuSubsystem {
 
     this.actions = Collections.unmodifiableMap(actions);
     this.startAction = startAction;
+  }
+
+  public IntegerVariable getVariable(final String name) {
+    return variables.get(name);
   }
 
   /**
@@ -269,6 +280,9 @@ public final class MmuSubsystem {
   }
 
   public static final class Builder {
+    /** Stores available address types. */
+    private Map<String, IntegerVariable> variables = new LinkedHashMap<>();
+
     /**
      * Stores available address types.
      * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
@@ -304,6 +318,7 @@ public final class MmuSubsystem {
 
     public MmuSubsystem build() {
       return new MmuSubsystem(
+          variables,
           addresses,
           sortedAddresses,
           virtualAddress,
@@ -315,6 +330,11 @@ public final class MmuSubsystem {
           actions,
           startAction
           );
+    }
+
+    public void registerVariable(final IntegerVariable variable) {
+      InvariantChecks.checkNotNull(variable);
+      variables.put(variable.getName(), variable);
     }
 
     /**
