@@ -205,7 +205,8 @@ final class ControlFlowBuilder {
 
         case EXCEPT:
           buildStmtException(current, (StmtException) stmt);
-          return null; // Control flow cannot be continued after exception.
+          current = null;
+          break;
 
         case MARK:
           buildStmtMark((StmtMark) stmt);
@@ -216,6 +217,12 @@ final class ControlFlowBuilder {
 
         default:
           throw new IllegalStateException("Unknown statement: " + stmt.getKind());
+      }
+
+      // If current became null as a result of exception,
+      // other statements will not be traversed.
+      if (null == current) {
+        break;
       }
     }
 
@@ -263,9 +270,7 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(stmt);
 
     String current = source;
-
-    final String join = newJoin();
-    buildAction(join);
+    String join = null;
 
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
@@ -281,6 +286,11 @@ final class ControlFlowBuilder {
 
       final String ifTrueStop = buildStmts(ifTrueStart, stmts);
       if (null != ifTrueStop) {
+        if (null == join) {
+          join = newJoin();
+          buildAction(join);
+        }
+
         buildTransition(ifTrueStop, join);
       }
 
@@ -293,7 +303,14 @@ final class ControlFlowBuilder {
 
     current = buildStmts(current, stmt.getElseBlock());
     if (null != current) {
-      buildTransition(current, join);
+      // If all other condition branches ended with null (exception)
+      // and action 'join' for merging branches was not created,
+      // we do not need it since there is only one branch (else).
+      if (null == join) {
+        join = current;
+      } else {
+        buildTransition(current, join);
+      }
     }
 
     return join;
