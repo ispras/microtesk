@@ -51,6 +51,9 @@ final class ControlFlowBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
+  public static final Class<?> COND_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition.class;
+
   public static final Class<?> COND_ATOM_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom.class;
 
@@ -107,6 +110,7 @@ final class ControlFlowBuilder {
     st.add("imps", BUFFER_EVENT_CLASS.getName());
     st.add("imps", ACTION_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
+    st.add("imps", COND_CLASS.getName());
     st.add("imps", COND_ATOM_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", GUARD_CLASS.getName());
