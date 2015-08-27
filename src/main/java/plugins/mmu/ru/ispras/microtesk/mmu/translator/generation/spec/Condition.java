@@ -107,7 +107,7 @@ public final class Condition {
     }
   }
 
-  private Condition not() {
+  public Condition not() {
     if (isSingle()) {
       return new Condition(not(atoms.get(0)));
     }
@@ -120,12 +120,12 @@ public final class Condition {
     return new Condition(Type.not(type), atoms);
   }
 
-  private Condition and(final Condition other) {
+  public Condition and(final Condition other) {
     InvariantChecks.checkNotNull(other);
     return merge(Type.AND, other);
   }
 
-  private Condition or(final Condition other) {
+  public Condition or(final Condition other) {
     InvariantChecks.checkNotNull(other);
     return merge(Type.OR, other);
   }

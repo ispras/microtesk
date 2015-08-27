@@ -39,16 +39,24 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 final class GuardPrinter {
   private final Ir ir;
   private final String context;
+
+  private final Condition condTrue;
+  private final Condition condFalse;
+
   private final Pair<String, String> guards;
 
-  public GuardPrinter(final Ir ir, final String context, final Node condition) {
+  public GuardPrinter(final Ir ir, final String context, final Node expr) {
     checkNotNull(ir);
     checkNotNull(context);
-    checkNotNull(condition);
+    checkNotNull(expr);
 
     this.ir = ir;
     this.context = context;
-    this.guards = getGuards(condition, false);
+
+    this.condTrue = Condition.extract(expr);
+    this.condFalse = condTrue.not();
+
+    this.guards = getGuards(expr, false);
   }
 
   public String getGuard() {
@@ -60,8 +68,6 @@ final class GuardPrinter {
   }
 
   private Pair<String, String> getGuards(final Node cond, boolean reversed) {
-    final Condition condition = Condition.extract(cond);
-
     if (!cond.isType(DataTypeId.LOGIC_BOOLEAN)) {
       throw new IllegalStateException("Boolean expression is expected: " + cond);
     }
