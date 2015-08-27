@@ -192,15 +192,22 @@ final class GuardPrinter {
     final BigInteger value;
     final Atom variableAtom;
 
-    if (Atom.Kind.VALUE == lhs.getKind()) {
+    if (Atom.Kind.VALUE == lhs.getKind() && Atom.Kind.VALUE == rhs.getKind()) {
+      throw new IllegalArgumentException(String.format(
+          "Both sides of an equality expression are constants: %s = %s",
+          expr.getOperand(0), expr.getOperand(1))
+          );
+    } else if (Atom.Kind.VALUE == lhs.getKind()) {
       value = (BigInteger) lhs.getObject();
       variableAtom = rhs;
     } else if (Atom.Kind.VALUE == rhs.getKind()) {
       value = (BigInteger) rhs.getObject();
       variableAtom = lhs;
     } else {
-      throw new IllegalArgumentException(
-          "Both sides of an equality expression are constants.");
+      throw new IllegalArgumentException(String.format( 
+          "Both sides of an equality expression are variables: %s = %s",
+          expr.getOperand(0), expr.getOperand(1))
+          );
     }
 
     final String eq;
