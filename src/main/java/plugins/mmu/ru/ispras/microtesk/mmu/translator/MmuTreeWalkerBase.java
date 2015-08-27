@@ -36,8 +36,10 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
@@ -72,9 +74,48 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Map<String, AbstractStorage> globals = new HashMap<>();
   protected ConstantPropagator propagator = new ConstantPropagator();
 
+  private final NodeTransformer equalityExpander;
+  private static final class ExpandEqualityRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      if (Node.Kind.OPERATION != expr.getKind()) {
+        return false;
+      }
+
+      final NodeOperation op = (NodeOperation) expr;
+      return op.getOperationId() == StandardOperation.EQ &&
+             op.getOperandCount() > 2;
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+      Node reference = op.getOperand(0);
+
+      for (final Node operand : op.getOperands()) {
+        if (Node.Kind.VALUE == operand.getKind()) {
+          reference = operand;
+          break;
+        }
+      }
+
+      final List<Node> operands = new ArrayList<>(op.getOperandCount() - 1);
+      for (final Node operand : op.getOperands()) {
+        if (operand != reference) {
+          operands.add(new NodeOperation(StandardOperation.EQ, operand, reference));
+        }
+      }
+
+      return new NodeOperation(StandardOperation.AND, operands);
+    }
+  }
+
   public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
     this.ir = null;
+
+    this.equalityExpander = new NodeTransformer();
+    this.equalityExpander.addRule(StandardOperation.EQ, new ExpandEqualityRule());
   }
 
   public final void assignIR(final Ir ir) {
@@ -712,7 +753,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.elseBlock = Collections.emptyList();
 
       checkIsBoolean(where, cond);
-      ifBlocks.add(new Pair<>(cond, stmts));
+      ifBlocks.add(new Pair<>(standardize(cond), stmts));
     }
 
     public void addElseIf(
@@ -721,7 +762,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkNotNull(where, cond);
 
       checkIsBoolean(where, cond);
-      ifBlocks.add(new Pair<>(cond, stmts));
+      ifBlocks.add(new Pair<>(standardize(cond), stmts));
+    }
+
+    private Node standardize(final Node cond) {
+      final Node stdCond = Transformer.standardize(cond);
+
+      equalityExpander.walk(stdCond);
+      final Node result = equalityExpander.getResult().iterator().next();
+
+      equalityExpander.reset();
+      return result;
     }
 
     public void setElse(final CommonTree where, final List<Stmt> stmts) throws SemanticException {
@@ -779,8 +830,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       folded[i] = propagator.get(operands[i]);
     }
 
-    DataType type =
-        IntegerCast.findCommonType(Arrays.asList(folded));
+    DataType type = IntegerCast.findCommonType(Arrays.asList(folded));
     if (op.toFortressFor(type.getTypeId()) == null) {
       type = IntegerCast.findCommonType(Arrays.asList(operands));
     }
@@ -790,19 +840,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
     }
 
-    final Node TRUE = NodeValue.newBoolean(true);
-    final Node FALSE = NodeValue.newBoolean(false);
-
-    final boolean isAnd = StandardOperation.AND == fortressOp; 
-    final boolean isOr = StandardOperation.OR == fortressOp;
-
     for (int i = 0; i < folded.length; ++i) {
       final Node castNode = IntegerCast.cast(folded[i], type);
       folded[i] = castNode;
-
-      if (isAnd && castNode.equals(FALSE) || isOr && castNode.equals(TRUE)) {
-        return castNode;
-      }
     }
 
     return Transformer.reduce(ReduceOptions.NEW_INSTANCE,
