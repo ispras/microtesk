@@ -38,8 +38,7 @@ public final class Condition {
   private final List<Node> atoms;
 
   private Condition(final Node atom) {
-    InvariantChecks.checkNotNull(atom);
-    InvariantChecks.checkTrue(atom.isType(DataTypeId.LOGIC_BOOLEAN));
+    checkBoolean(atom);
 
     this.type = Type.AND;
     this.atoms = Collections.singletonList(atom);
@@ -50,11 +49,18 @@ public final class Condition {
     InvariantChecks.checkNotEmpty(atoms);
 
     for (final Node atom : atoms) {
-      InvariantChecks.checkTrue(atom.isType(DataTypeId.LOGIC_BOOLEAN));
+      checkBoolean(atom);
     }
 
     this.type = type;
     this.atoms = Collections.unmodifiableList(atoms);
+  }
+
+  private static void checkBoolean(final Node atom) {
+    InvariantChecks.checkNotNull(atom);
+    if (!atom.isType(DataTypeId.LOGIC_BOOLEAN)) {
+      throw new IllegalStateException("Boolean expression is expected: " + atom);
+    }
   }
 
   public boolean isSingle() {
