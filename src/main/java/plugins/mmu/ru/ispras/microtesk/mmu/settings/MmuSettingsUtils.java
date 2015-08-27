@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.mmu.settings;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 
 /**
@@ -36,6 +39,23 @@ public final class MmuSettingsUtils extends GeneratorSettings {
   private MmuSettingsUtils() {}
 
   private static final MmuSubsystem memory = MmuTranslator.getSpecification();
+
+  public static Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final Collection<AbstractSettings> settings) {
+    InvariantChecks.checkNotNull(settings);
+
+    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+
+    for (final AbstractSettings section : settings) {
+      if (section instanceof IntegerValuesSettings) {
+        constraints.add(getConstraint((IntegerValuesSettings) section));
+      } else if (section instanceof BooleanValuesSettings) {
+        constraints.add(getConstraint((BooleanValuesSettings) section));
+      }
+    }
+
+    return constraints;
+  }
 
   /**
    * Returns the constraint corresponding to the values settings or {@code null} if no constraint is

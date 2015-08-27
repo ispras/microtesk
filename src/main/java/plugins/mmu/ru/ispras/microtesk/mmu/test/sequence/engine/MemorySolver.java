@@ -36,6 +36,9 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.settings.BooleanValuesSettings;
+import ru.ispras.microtesk.mmu.settings.IntegerValuesSettings;
+import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
@@ -120,7 +123,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.entryIdAllocator = entryIdAllocator;
 
     this.hitCheckers = context.getHitCheckers();
-    this.constraints = context.getConstraints();
+
+    this.constraints = new ArrayList<>();
+    this.constraints.addAll(
+        MmuSettingsUtils.getConstraints(settings.get(IntegerValuesSettings.TAG)));
+    this.constraints.addAll(
+        MmuSettingsUtils.getConstraints(settings.get(BooleanValuesSettings.TAG)));
 
     this.pageMask = pageMask;
     this.alignType = alignType;

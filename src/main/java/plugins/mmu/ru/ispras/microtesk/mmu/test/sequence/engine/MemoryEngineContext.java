@@ -14,12 +14,9 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
-import java.util.Collection;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -35,18 +32,14 @@ public final class MemoryEngineContext {
   private final Iterator<MemoryAccessStructure> structureIterator;
 
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
-  private final Collection<IntegerConstraint<IntegerField>> constraints;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
-      final Map<MmuAddressType, Predicate<Long>> hitCheckers,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
+      final Map<MmuAddressType, Predicate<Long>> hitCheckers) {
     InvariantChecks.checkNotNull(hitCheckers);
-    InvariantChecks.checkNotNull(constraints);
 
     this.structureIterator = structureIterator;
     this.hitCheckers = hitCheckers;
-    this.constraints = constraints;
   }
 
   public Iterator<MemoryAccessStructure> getStructureIterator() {
@@ -55,9 +48,5 @@ public final class MemoryEngineContext {
 
   public Map<MmuAddressType, Predicate<Long>> getHitCheckers() {
     return hitCheckers;
-  }
-
-  public Collection<IntegerConstraint<IntegerField>> getConstraints() {
-    return constraints;
   }
 }
