@@ -337,6 +337,13 @@ public final class MmuSubsystem {
       variables.put(variable.getName(), variable);
     }
 
+    public void registerVariable(final MmuStruct struct) {
+      InvariantChecks.checkNotNull(struct);
+      for (final IntegerVariable variable : struct.getFields()) {
+        registerVariable(variable);
+      }
+    }
+
     /**
      * Registers the address type in the MMU. Address that have the same 
      * name are considered as duplicates and ignored.
@@ -346,6 +353,8 @@ public final class MmuSubsystem {
      */
     public void registerAddress(final MmuAddressType address) {
       InvariantChecks.checkNotNull(address);
+      registerVariable(address);
+
       addresses.put(address.getName(), address);
       sortedAddresses.add(address);
     }
@@ -400,6 +409,8 @@ public final class MmuSubsystem {
      */
     public void registerBuffer(final MmuBuffer buffer) {
       InvariantChecks.checkNotNull(buffer);
+      registerVariable(buffer);
+
       buffers.put(buffer.getName(), buffer);
       sortedBuffers.add(buffer);
     }

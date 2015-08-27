@@ -96,6 +96,9 @@ final class STBSegment implements STBuilder {
     stConstructor.add("va_expr", "null");
     stConstructor.add("pa_expr", "null");
 
+    final ST stReg = group.getInstanceOf("register");
+    stReg.add("type", SPEC_CLASS.getSimpleName());
+
     if (!segment.getVariables().isEmpty()) {
       st.add("members", "");
     }
@@ -111,10 +114,9 @@ final class STBSegment implements STBuilder {
           stConstructor,
           group
           );
-    }
 
-    final ST stReg = group.getInstanceOf("register");
-    stReg.add("type", SPEC_CLASS.getSimpleName());
+      stReg.add("vars", name);
+    }
 
     final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null != read) {
