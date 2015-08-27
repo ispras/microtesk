@@ -60,6 +60,8 @@ final class GuardPrinter {
   }
 
   private Pair<String, String> getGuards(final Node cond, boolean reversed) {
+    final Condition condition = Condition.extract(cond);
+
     if (!cond.isType(DataTypeId.LOGIC_BOOLEAN)) {
       throw new IllegalStateException("Boolean expression is expected: " + cond);
     }
