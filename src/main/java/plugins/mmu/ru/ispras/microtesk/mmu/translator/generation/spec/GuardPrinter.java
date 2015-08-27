@@ -33,6 +33,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
@@ -59,11 +60,98 @@ final class GuardPrinter {
     this.guards = getGuards(expr, false);
   }
 
+  private String printGuard(final Condition cond) {
+    InvariantChecks.checkNotNull(cond);
+
+    final List<Node> equalities = new ArrayList<>();
+    final List<Node> segmentAccesses = new ArrayList<>();
+    final List<Node> bufferEvents = new ArrayList<>();
+
+    for (final Node atom : cond.getAtoms()) {
+      if (isEquality(atom)) {
+        equalities.add(atom);
+      } else if (isSegmentAccess(atom)) {
+        segmentAccesses.add(atom);
+      } else if (isBufferEvent(atom)) {
+        bufferEvents.add(atom);
+      } else {
+        throw new IllegalStateException("Illegal atomic condition: " + atom);
+      }
+    }
+
+    InvariantChecks.checkFalse(
+        equalities.isEmpty() &&
+        segmentAccesses.isEmpty() &&
+        bufferEvents.isEmpty()
+        );
+
+    if (!segmentAccesses.isEmpty() || !bufferEvents.isEmpty()) {
+      System.out.println("#######################");
+      System.out.println(cond);
+
+      System.out.println("EQ:  " + equalities);
+      System.out.println("SEG: " + segmentAccesses);
+      System.out.println("BUF: " + bufferEvents);
+    }
+
+    return "";
+  }
+
+  private static boolean isEquality(final Node node) {
+    InvariantChecks.checkNotNull(node);
+
+    if (node.getKind() == Node.Kind.OPERATION) {
+      final NodeOperation op = (NodeOperation) node;
+      return op.getOperationId() == StandardOperation.EQ ||
+             op.getOperationId() == StandardOperation.NOTEQ;
+    }
+
+    return false;
+  }
+
+  private static boolean isSegmentAccess(final Node node) {
+    InvariantChecks.checkNotNull(node);
+
+    if (node.getKind() == Node.Kind.VARIABLE &&
+        node.getUserData() instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) node.getUserData();
+      return attrRef.getTarget() instanceof Segment;
+    }
+
+    if (node.getKind() == Node.Kind.OPERATION) {
+      final NodeOperation op = (NodeOperation) node;
+      return op.getOperationId() == StandardOperation.NOT &&
+             isSegmentAccess(op.getOperand(0));
+    }
+
+    return false;
+  }
+
+  private static boolean isBufferEvent(final Node node) {
+    InvariantChecks.checkNotNull(node);
+
+    if (node.getKind() == Node.Kind.VARIABLE &&
+        node.getUserData() instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) node.getUserData();
+      return attrRef.getTarget() instanceof Buffer;
+    }
+
+    if (node.getKind() == Node.Kind.OPERATION) {
+      final NodeOperation op = (NodeOperation) node;
+      return op.getOperationId() == StandardOperation.NOT &&
+             isBufferEvent(op.getOperand(0));
+    }
+
+    return false;
+  }
+
   public String getGuard() {
+    printGuard(condTrue);
     return guards.first;
   }
 
   public String getNegatedGuard() {
+    printGuard(condFalse);
     return guards.second;
   }
 
