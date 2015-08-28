@@ -142,8 +142,10 @@ final class GuardPrinter {
     final String operation =
         cond.getType() == Condition.Type.AND ? "and" : "or";
 
-    return String.format("MmuCondition.%s(%s))",
-        operation, Utils.toString(conditionAtoms, ", "));
+    return String.format("MmuCondition.%s(%s%s)",
+        operation,
+        System.lineSeparator() + "    ",
+        Utils.toString(conditionAtoms, "," + System.lineSeparator() + "    "));
   }
 
   private static boolean isEquality(final Node node) {
@@ -294,7 +296,7 @@ final class GuardPrinter {
           final List<String> fieldTexts = new ArrayList<>();
 
           for (final IntegerField field : fields) {
-            fieldTexts.add(Utils.toString(context, field));
+            fieldTexts.add(Utils.toString(context, field, false));
           }
 
           variableText = String.format(

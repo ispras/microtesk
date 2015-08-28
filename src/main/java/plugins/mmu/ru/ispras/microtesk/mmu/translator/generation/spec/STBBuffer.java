@@ -29,6 +29,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
@@ -37,6 +38,12 @@ final class STBBuffer implements STBuilder {
 
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
+
+  public static final Class<?> COND_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition.class;
+
+  public static final Class<?> COND_ATOM_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom.class;
 
   public static final Class<?> EXPRESSION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
@@ -94,6 +101,11 @@ final class STBBuffer implements STBuilder {
     final ST stConstructor = group.getInstanceOf("entry_constructor");
     stConstructor.add("name", "Entry");
 
+    final ST stAddress = group.getInstanceOf("field_alias");
+    stAddress.add("name", getVariableName(buffer.getAddressArg().getName()));
+    stAddress.add("type", buffer.getAddress().getId());
+    st.add("members", stAddress);
+
     STBStruct.buildFieldDecls(buffer.getEntry(), stEntry, stConstructor, group);
     stConstructor.add("stmts", "");
     STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
@@ -123,8 +135,8 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("index", toMmuExpressionText(analyzer.getIndexFields()));
     stConstructor.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
     stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
-    stConstructor.add("guard_cond", "null"); // TODO
-    stConstructor.add("guard", "null"); // TODO
+    stConstructor.add("guard_cond", "null");
+    stConstructor.add("guard", "null");
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
@@ -137,6 +149,18 @@ final class STBBuffer implements STBuilder {
       final ST stDef = group.getInstanceOf("match_field_def");
       stDef.add("value", toMmuBindingsText(analyzer.getMatchBindings()));
       stConstructor.add("stmts", stDef);
+    }
+
+    if (buffer.getGuard() != null) {
+      st.add("imps", COND_CLASS.getName());
+      st.add("imps", COND_ATOM_CLASS.getName());
+
+      final GuardPrinter guardPrinter =
+          new GuardPrinter(new Ir(""), buffer.getId(), buffer.getGuard());
+
+      stConstructor.add("stmts", "");
+      stConstructor.add("stmts",
+          String.format("setGuardCondition(%s);", guardPrinter.getCondition()));
     }
  
     st.add("members", stConstructor);

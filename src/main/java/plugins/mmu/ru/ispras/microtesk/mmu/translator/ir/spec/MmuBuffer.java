@@ -48,7 +48,7 @@ public class MmuBuffer extends MmuStruct {
   private final Collection<MmuBinding> matchBindings;
 
   /** Guard condition (only for views). */
-  private final MmuCondition guardCondition;
+  private MmuCondition guardCondition;
   // TODO: Temporal solution.
   private final Predicate<MemoryAccess> guard;
 
@@ -229,6 +229,11 @@ public class MmuBuffer extends MmuStruct {
 
   public final long getOffsetMask() {
     return getAddress(0, 0, getOffset(-1L));
+  }
+
+  protected final void setGuardCondition(final MmuCondition condition) {
+    InvariantChecks.checkNotNull(condition);
+    this.guardCondition = condition;
   }
 
   // TODO:

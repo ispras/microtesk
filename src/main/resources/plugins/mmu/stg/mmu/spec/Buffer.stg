@@ -53,6 +53,10 @@ public <name>(final String name) {
 }
 >>
 
+field_alias(name, type) ::= <<
+public final <type> <name> = <type>.get();
+>>
+
 field_decl(type, name) ::= <<
 public final <type> <name>;
 >>
