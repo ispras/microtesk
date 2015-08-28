@@ -17,6 +17,9 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -98,14 +101,18 @@ final class ControlFlowExplorer {
 
   private static Buffer visitStmtIf(final StmtIf stmt, final String attrId) {
     InvariantChecks.checkNotNull(stmt);
-
     Buffer latestAccess = null;
+
+    // Flag that states that the most recent if condition was BUFFER.MISS
+    boolean isIfMiss = false;
+
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node cond = block.first;
       final List<Stmt> stmts = block.second;
 
-      // We do not visit branches with BUFFER.HIT condition.
-      if (isBufferHit(cond)) {
+      isIfMiss = isBufferMiss(cond);
+      if (!isIfMiss && isBufferHit(cond)) {
+        // Blocks with BUFFER.HIT condition are not visited.
         continue;
       }
 
@@ -115,12 +122,12 @@ final class ControlFlowExplorer {
       }
     }
 
-    final Buffer currentAccess = visitStmts(stmt.getElseBlock(), attrId);
-    if (null != currentAccess) {
-      latestAccess = currentAccess;
+    // Else block is not visited if the previous condition was BUFFER.MISS
+    if (isIfMiss) {
+      return latestAccess;
     }
 
-    return latestAccess;
+    return visitStmts(stmt.getElseBlock(), attrId);
   }
 
   private static boolean isBufferHit(final Node expr) {
@@ -128,13 +135,45 @@ final class ControlFlowExplorer {
 
     final Condition cond = Condition.extract(expr);
     for (final Node atom : cond.getAtoms()) {
-      if (atom.getKind() == Node.Kind.VARIABLE &&
-          atom.getUserData() instanceof AttributeRef) {
-        final AttributeRef attrRef = (AttributeRef) atom.getUserData();
-        if (attrRef.getTarget() instanceof Buffer &&
-            attrRef.getAttribute().getId().equals(AbstractStorage.HIT_ATTR_NAME)) {
-          return true;
-        }
+      if (atom.getKind() == Node.Kind.VARIABLE && isBufferHit((NodeVariable) atom)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isBufferHit(final NodeVariable var) {
+    InvariantChecks.checkNotNull(var);
+
+    if (var.getUserData() instanceof AttributeRef) {
+      final AttributeRef attrRef = (AttributeRef) var.getUserData();
+      if (attrRef.getTarget() instanceof Buffer &&
+          attrRef.getAttribute().getId().equals(AbstractStorage.HIT_ATTR_NAME)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isBufferMiss(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    final Condition cond = Condition.extract(expr);
+    for (final Node atom : cond.getAtoms()) {
+      if (atom.getKind() != Node.Kind.OPERATION) {
+        continue;
+      }
+
+      final NodeOperation op = (NodeOperation) atom;
+      if (op.getOperationId() != StandardOperation.NOT) {
+        continue;
+      }
+
+      final Node notAtom = op.getOperand(0);
+      if (notAtom.getKind() == Node.Kind.VARIABLE && isBufferHit((NodeVariable) notAtom)) {
+        return true;
       }
     }
 
