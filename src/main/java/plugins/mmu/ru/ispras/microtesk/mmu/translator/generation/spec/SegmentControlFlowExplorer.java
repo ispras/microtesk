@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 
