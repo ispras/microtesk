@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
@@ -35,8 +36,15 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuPlugin implements Plugin {
+  private static MmuSubsystem spec = null;
+
   public static MmuSubsystem getSpecification() {
-    return MmuTranslator.getSpecification();
+    return spec;
+  }
+
+  public static void setSpecification(final MmuSubsystem mmu) {
+    InvariantChecks.checkNotNull(mmu);
+    spec = mmu;
   }
 
   @Override

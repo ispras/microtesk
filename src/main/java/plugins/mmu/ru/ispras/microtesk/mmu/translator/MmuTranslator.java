@@ -49,17 +49,6 @@ public final class MmuTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".mmu");
   private final SymbolTable symbols = new SymbolTable();
 
-  private static MmuSubsystem spec = null;
-
-  public static MmuSubsystem getSpecification() {
-    return spec;
-  }
-
-  public static void setSpecification(final MmuSubsystem mmu) {
-    InvariantChecks.checkNotNull(mmu);
-    spec = mmu;
-  }
-
   public MmuTranslator() {
     super(FILTER);
 
