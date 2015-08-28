@@ -58,7 +58,7 @@ public final class AtomExtractor {
     if (node.isType(DataTypeId.LOGIC_INTEGER)) {
       value = node.getInteger();
     } else {
-      value = node.getBitVector().bigIntegerValue();
+      value = node.getBitVector().bigIntegerValue(false);
     }
     return Atom.newValue(value);
   }
@@ -130,7 +130,9 @@ public final class AtomExtractor {
     final int intHi = ((BigInteger) hi.getObject()).intValue();
     final IntegerVariable intVar = (IntegerVariable) var.getObject();
 
-    final IntegerField field = new IntegerField(intVar, intLo, intHi);
+    final IntegerField field = new IntegerField(
+        intVar, Math.min(intLo, intHi), Math.max(intLo, intHi));
+
     return Atom.newField(field);
   }
 
