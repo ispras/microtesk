@@ -92,9 +92,10 @@ final class STBSegment implements STBuilder {
     stConstructor.add("pa", segment.getDataArgAddress().getId());
     stConstructor.add("start", String.format("0x%xL", segment.getMin()));
     stConstructor.add("end", String.format("0x%xL", segment.getMax()));
-    stConstructor.add("mapped", "false");
-    stConstructor.add("va_expr", "null");
-    stConstructor.add("pa_expr", "null");
+
+    stConstructor.add("mapped", "false"); // TODO
+    stConstructor.add("va_expr", "null"); // TODO
+    stConstructor.add("pa_expr", "null"); // TODO
 
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());
