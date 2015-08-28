@@ -117,7 +117,7 @@ public final class Condition {
       notAtoms.add(not(atom));
     }
 
-    return new Condition(Type.not(type), atoms);
+    return new Condition(Type.not(type), notAtoms);
   }
 
   public Condition and(final Condition other) {
