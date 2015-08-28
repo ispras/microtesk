@@ -117,13 +117,9 @@ final class GuardPrinter {
           "new MmuGuard(%s.get(), %s)", bufferEvent.first, bufferEvent.second);
     }
 
-    if (!equalities.isEmpty() && segments.isEmpty() && !buffers.isEmpty()) {
-      return String.format("null /* TODO: GUARD ->  %s */", cond);
-    }
-
     throw new UnsupportedOperationException(
-        "Guards for complex conditions that include sevel condition types " +
-        "are not suppotred: " + cond); 
+        "Guards for complex conditions that include several condition types " +
+        "are not supported: " + cond);
   }
 
   private static boolean isEquality(final Node node) {
