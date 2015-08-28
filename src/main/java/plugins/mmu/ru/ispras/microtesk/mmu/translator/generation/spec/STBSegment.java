@@ -93,7 +93,10 @@ final class STBSegment implements STBuilder {
     stConstructor.add("start", String.format("0x%xL", segment.getMin()));
     stConstructor.add("end", String.format("0x%xL", segment.getMax()));
 
-    stConstructor.add("mapped", "false"); // TODO
+    final SegmentControlFlowExplorer explorer =
+        new SegmentControlFlowExplorer(segment);
+
+    stConstructor.add("mapped", Boolean.toString(explorer.isMapped()));
     stConstructor.add("va_expr", "null"); // TODO
     stConstructor.add("pa_expr", "null"); // TODO
 
