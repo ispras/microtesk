@@ -66,6 +66,13 @@ public final class Utils {
   }
 
   public static String toString(final String context, final IntegerField field) {
+    return toString(context, field, true);
+  }
+
+  public static String toString(
+      final String context,
+      final IntegerField field,
+      final boolean printAsVariable) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(field);
 
@@ -74,7 +81,7 @@ public final class Utils {
     }
 
     final String name = getVariableName(context, field.getVariable().getName());
-    if (field.isVariable()) {
+    if (field.isVariable() && printAsVariable) {
       return name;
     }
 
