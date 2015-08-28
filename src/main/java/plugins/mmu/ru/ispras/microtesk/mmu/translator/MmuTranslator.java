@@ -36,7 +36,6 @@ import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
