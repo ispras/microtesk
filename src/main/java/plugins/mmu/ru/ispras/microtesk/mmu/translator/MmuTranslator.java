@@ -37,7 +37,6 @@ import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.builder.MmuSpecBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
@@ -61,17 +60,12 @@ public final class MmuTranslator extends Translator<Ir> {
     spec = mmu;
   }
 
-  private final MmuSpecBuilder specBuilder;
-
   public MmuTranslator() {
     super(FILTER);
 
     symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
-    specBuilder = new MmuSpecBuilder();
-
-    addHandler(specBuilder);
     addHandler(new SimGenerator(this));
     addHandler(new SpecGenerator(this));
   }
@@ -161,12 +155,7 @@ public final class MmuTranslator extends Translator<Ir> {
       }
 
       processIr(ir);
-
-      final MmuSubsystem spec = specBuilder.getSpecification();
-
-      System.out.println(spec);
-      setSpecification(spec);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
   }
