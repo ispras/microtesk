@@ -87,7 +87,7 @@ final class SegmentControlFlowExplorer {
           break;
 
         case ASSIGN:
-          if (!isExternalAccess((StmtAssign) stmt)) {
+          if (isExternalAccess((StmtAssign) stmt)) {
             return true;
           }
           break;
