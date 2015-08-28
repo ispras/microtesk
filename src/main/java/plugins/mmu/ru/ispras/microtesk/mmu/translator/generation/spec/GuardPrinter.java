@@ -62,6 +62,10 @@ final class GuardPrinter {
     return printGuard(condFalse);
   }
 
+  public String getCondition() {
+    return printCondition(condTrue);
+  }
+
   private String printGuard(final Condition cond) {
     InvariantChecks.checkNotNull(cond);
 
@@ -120,6 +124,26 @@ final class GuardPrinter {
     throw new UnsupportedOperationException(
         "Guards for complex conditions that include several condition types " +
         "are not supported: " + cond);
+  }
+
+  private String printCondition(final Condition cond) {
+    InvariantChecks.checkNotNull(cond);
+
+    for (final Node atom : cond.getAtoms()) {
+      if (!isEquality(atom)) {
+        throw new IllegalStateException(
+            "Only equality conditions are allowed: " + atom);
+      } 
+    }
+
+    final List<String> conditionAtoms = extractEqualityConditionAtoms(cond.getAtoms());
+    InvariantChecks.checkNotEmpty(conditionAtoms);
+
+    final String operation =
+        cond.getType() == Condition.Type.AND ? "and" : "or";
+
+    return String.format("MmuCondition.%s(%s))",
+        operation, Utils.toString(conditionAtoms, ", "));
   }
 
   private static boolean isEquality(final Node node) {
