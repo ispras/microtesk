@@ -31,10 +31,10 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 
-final class ControlFlowExplorer {
+final class MemoryControlFlowExplorer {
   private final Buffer target;
 
-  public ControlFlowExplorer(final Memory memory) {
+  public MemoryControlFlowExplorer(final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 
     final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);

@@ -139,7 +139,9 @@ final class STBSpecification implements STBuilder {
   private void buildEntryPoint(final Memory memory, final ST st, final STGroup group) {
     st.add("stmts", "");
 
-    final ControlFlowExplorer flowExplorer = new ControlFlowExplorer(memory);
+    final MemoryControlFlowExplorer flowExplorer =
+        new MemoryControlFlowExplorer(memory);
+
     final Buffer targetBuffer = flowExplorer.getTargetBuffer();
 
     final ST stVA = group.getInstanceOf("set_va");
