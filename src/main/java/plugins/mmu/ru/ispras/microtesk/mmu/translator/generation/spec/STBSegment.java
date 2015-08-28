@@ -27,6 +27,9 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
+  public static final Class<?> EXPRESSION_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
+
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
@@ -68,6 +71,7 @@ final class STBSegment implements STBuilder {
     st.add("instance", "INSTANCE");
 
     st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
   }
@@ -97,8 +101,8 @@ final class STBSegment implements STBuilder {
         new SegmentControlFlowExplorer(segment);
 
     stConstructor.add("mapped", Boolean.toString(explorer.isMapped()));
-    stConstructor.add("va_expr", "null"); // TODO
-    stConstructor.add("pa_expr", "null"); // TODO
+    stConstructor.add("va_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getPaExpr()));
+    stConstructor.add("pa_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getRestExpr()));
 
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -87,5 +88,65 @@ public final class Utils {
 
     return String.format(
         "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex());
+  }
+
+  public static String toMmuExpressionText(final String context, final List<IntegerField> fields) {
+    InvariantChecks.checkNotNull(context);
+
+    if (null == fields) {
+      return "null";
+    }
+
+    if (fields.isEmpty()) {
+      return "MmuExpression.empty()";
+    }
+
+    if (fields.size() == 1) {
+      return toMmuExpressionText(context, fields.get(0));
+    }
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append("MmuExpression.rcat(");
+
+    boolean isFirst = true;
+    for (final IntegerField field : fields) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(", ");
+      }
+
+      final String name = 
+          getVariableName(context, field.getVariable().getName());
+
+      sb.append(String.format(
+          "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex()));
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+
+  public static String toMmuExpressionText(final String context, final IntegerField field) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(field);
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append("MmuExpression.");
+
+    if (field.getVariable().isDefined()) {
+      sb.append(String.format(
+          "val(%s, %d", toString(field.getVariable().getValue()), field.getWidth()));
+    } else {
+      final String name = getVariableName(context, field.getVariable().getName());
+      sb.append(String.format("var(%s", name));
+
+      if (!field.isVariable()) {
+        sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
+      }
+    }
+
+    sb.append(')');
+    return sb.toString();
   }
 }

@@ -14,16 +14,20 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -31,27 +35,32 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 
-public final class SegmentControlFlowExplorer {
+final class SegmentControlFlowExplorer {
   private final boolean isMapped;
-  private final Node paExpr;
-  private final Node restExpr;
+  private final List<IntegerField> paExpr;
+  private final List<IntegerField> restExpr;
 
   public SegmentControlFlowExplorer(final Segment segment) {
     InvariantChecks.checkNotNull(segment);
 
+    final Address va = segment.getAddress();
+    final int vaSize = va.getAddressType().getBitSize();
+    final String vaId = va.getId() + "." + Utils.toString(va.getAccessChain());
+    final IntegerVariable vaVariable = new IntegerVariable(vaId, vaSize);
+
     final Attribute attribute = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null == attribute) {
       isMapped = false;
-      paExpr = segment.getAddressArg().getNode();
-      restExpr = NodeValue.newInteger(0);
+      paExpr = Collections.singletonList(new IntegerField(vaVariable));
+      restExpr = Collections.emptyList();
     } else if (isExternalAccess(attribute.getStmts())) {
       isMapped = true;
       paExpr = null;
       restExpr = null;
     } else {
       isMapped = false;
-      paExpr = NodeValue.newInteger(0); // TODO: extract from Stmts
-      restExpr = NodeValue.newInteger(0); // TODO: extract from Stmts
+      paExpr = Collections.emptyList();   // FIXME: TODO: extract from Stmts
+      restExpr = Collections.emptyList(); // FIXME: TODO: extract from Stmts
     }
   }
 
@@ -59,11 +68,11 @@ public final class SegmentControlFlowExplorer {
     return isMapped;
   }
 
-  public Node getPaExpr() {
+  public List<IntegerField>  getPaExpr() {
     return paExpr;
   }
 
-  public Node getRestExpr() {
+  public List<IntegerField>  getRestExpr() {
     return restExpr;
   }
 

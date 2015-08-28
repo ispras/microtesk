@@ -131,9 +131,9 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("ways", String.format("%dL", buffer.getWays().longValue()));
     stConstructor.add("sets", String.format("%dL", buffer.getSets().longValue()));
     stConstructor.add("addr", buffer.getAddress().getId());
-    stConstructor.add("tag",  toMmuExpressionText(analyzer.getTagFields()));
-    stConstructor.add("index", toMmuExpressionText(analyzer.getIndexFields()));
-    stConstructor.add("offset", toMmuExpressionText(analyzer.getOffsetFields()));
+    stConstructor.add("tag", Utils.toMmuExpressionText(buffer.getId(), analyzer.getTagFields()));
+    stConstructor.add("index", Utils.toMmuExpressionText(buffer.getId(), analyzer.getIndexFields()));
+    stConstructor.add("offset", Utils.toMmuExpressionText(buffer.getId(), analyzer.getOffsetFields()));
     stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
     stConstructor.add("guard_cond", "null");
     stConstructor.add("guard", "null");
@@ -168,56 +168,6 @@ final class STBBuffer implements STBuilder {
 
   private String getVariableName(final String prefixedName) {
     return Utils.getVariableName(buffer.getId(), prefixedName);
-  }
-
-  private String toMmuExpressionText(final List<IntegerField> fields) {
-    if (fields.isEmpty()) {
-      return "MmuExpression.empty()";
-    }
-
-    if (fields.size() == 1) {
-      final IntegerField field = fields.get(0);
-      return toMmuExpressionText(field);
-    }
-
-    final StringBuilder sb = new StringBuilder();
-    sb.append("MmuExpression.rcat(");
-
-    boolean isFirst = true;
-    for (final IntegerField field : fields) {
-      if (isFirst) {
-        isFirst = false;
-      } else {
-        sb.append(", ");
-      }
-
-      final String name = getVariableName(field.getVariable().getName());
-      sb.append(String.format(
-          "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex()));
-    }
-
-    sb.append(')');
-    return sb.toString();
-  }
-
-  private String toMmuExpressionText(final IntegerField field) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append("MmuExpression.");
-
-    if (field.getVariable().isDefined()) {
-      sb.append(String.format("val(%s, %d",
-          Utils.toString(field.getVariable().getValue()), field.getWidth()));
-    } else {
-      final String name = getVariableName(field.getVariable().getName());
-      sb.append(String.format("var(%s", name));
-
-      if (!field.isVariable()) {
-        sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
-      }
-    }
-
-    sb.append(')');
-    return sb.toString();
   }
 
   private String toMmuBindingsText(final List<Pair<IntegerVariable, IntegerField>> bindings) {
