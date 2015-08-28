@@ -30,20 +30,20 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 
 final class ControlFlowExplorer {
   private final Buffer target;
-  
+
   public ControlFlowExplorer(final Memory memory) {
     InvariantChecks.checkNotNull(memory);
 
     final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
     InvariantChecks.checkNotNull(read);
 
-    final Buffer readTarget = visitStmts(read.getStmts());
+    final Buffer readTarget = visitStmts(read.getStmts(), AbstractStorage.READ_ATTR_NAME);
     InvariantChecks.checkNotNull(readTarget);
 
     final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
     InvariantChecks.checkNotNull(write);
 
-    final Buffer writeTarget = visitStmts(write.getStmts());
+    final Buffer writeTarget = visitStmts(write.getStmts(), AbstractStorage.WRITE_ATTR_NAME);
     InvariantChecks.checkNotNull(writeTarget);
 
     if (readTarget != writeTarget) {
@@ -60,7 +60,7 @@ final class ControlFlowExplorer {
     return target;
   }
 
-  private static Buffer visitStmts(final List<Stmt> stmts) {
+  private static Buffer visitStmts(final List<Stmt> stmts, final String attrId) {
     InvariantChecks.checkNotNull(stmts);
 
     Buffer latestAccess = null;
@@ -68,11 +68,11 @@ final class ControlFlowExplorer {
       Buffer currentAccess = null;
       switch(stmt.getKind()) {
         case IF:
-          currentAccess = visitStmtIf((StmtIf) stmt);
+          currentAccess = visitStmtIf((StmtIf) stmt, attrId);
           break;
 
         case ASSIGN:
-          currentAccess = visitStmtAssign((StmtAssign) stmt);
+          currentAccess = visitStmtAssign((StmtAssign) stmt, attrId);
           break;
 
         case EXCEPT: // Other statements cannot be visited after exception
@@ -96,18 +96,26 @@ final class ControlFlowExplorer {
     return latestAccess;
   }
 
-  private static Buffer visitStmtIf(final StmtIf stmt) {
+  private static Buffer visitStmtIf(final StmtIf stmt, final String attrId) {
     InvariantChecks.checkNotNull(stmt);
 
     Buffer latestAccess = null;
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
-      final Buffer currentAccess = visitStmts(block.second);
+      final Node cond = block.first;
+      final List<Stmt> stmts = block.second;
+
+      // We do not visit branches with BUFFER.HIT condition.
+      if (isBufferHit(cond)) {
+        continue;
+      }
+
+      final Buffer currentAccess = visitStmts(stmts, attrId);
       if (null != currentAccess) {
         latestAccess = currentAccess;
       }
     }
 
-    final Buffer currentAccess = visitStmts(stmt.getElseBlock());
+    final Buffer currentAccess = visitStmts(stmt.getElseBlock(), attrId);
     if (null != currentAccess) {
       latestAccess = currentAccess;
     }
@@ -115,24 +123,43 @@ final class ControlFlowExplorer {
     return latestAccess;
   }
 
-  private static Buffer visitStmtAssign(final StmtAssign stmt) {
+  private static boolean isBufferHit(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    final Condition cond = Condition.extract(expr);
+    for (final Node atom : cond.getAtoms()) {
+      if (atom.getKind() == Node.Kind.VARIABLE &&
+          atom.getUserData() instanceof AttributeRef) {
+        final AttributeRef attrRef = (AttributeRef) atom.getUserData();
+        if (attrRef.getTarget() instanceof Buffer &&
+            attrRef.getAttribute().getId().equals(AbstractStorage.HIT_ATTR_NAME)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static Buffer visitStmtAssign(final StmtAssign stmt, final String attrId) {
     InvariantChecks.checkNotNull(stmt);
 
     final Node left = stmt.getLeft(); 
-    final Buffer leftAccess = extractBufferAccess(left);
+    final Buffer leftAccess = extractBufferAccess(left, attrId);
 
     final Node right = stmt.getRight();
-    final Buffer rightAccess = extractBufferAccess(right);
+    final Buffer rightAccess = extractBufferAccess(right, attrId);
 
     return rightAccess != null ? rightAccess : leftAccess;
   }
 
-  private static Buffer extractBufferAccess(final Node expr) {
+  private static Buffer extractBufferAccess(final Node expr, final String attrId) {
     InvariantChecks.checkNotNull(expr);
 
     if (expr.getUserData() instanceof AttributeRef) {
       final AttributeRef ref = (AttributeRef) expr.getUserData();
-      if (ref.getTarget() instanceof Buffer) {
+      if (ref.getTarget() instanceof Buffer &&
+          ref.getAttribute().getId().equals(attrId)) {
         return (Buffer) ref.getTarget();
       }
     }
