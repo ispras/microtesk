@@ -21,6 +21,7 @@ public <name>() {
   <stmts : {stmt | <stmt>}; separator="\n"><\n>
   this.spec = builder.build();
 }<\n>
+@Override
 public <spec> getSpecification() {
   return spec;
 }<\n>

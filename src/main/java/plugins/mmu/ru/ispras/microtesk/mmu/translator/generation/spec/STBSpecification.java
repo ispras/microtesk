@@ -45,9 +45,10 @@ final class STBSpecification implements STBuilder {
   }
 
   protected final void buildHeader(final ST st) {
-    st.add("name", CLASS_NAME); 
-    st.add("pack", packageName);
-    st.add("imps", SPEC_CLASS.getName());
+    st.add("name",  CLASS_NAME); 
+    st.add("pack",  packageName);
+    st.add("impls", SPEC_CLASS.getSimpleName() + ".Holder");
+    st.add("imps",  SPEC_CLASS.getName());
   }
 
   @Override

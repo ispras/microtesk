@@ -279,6 +279,18 @@ public final class MmuSubsystem {
     return builder.toString();
   }
 
+  /**
+   * The {@link Holder} interface must be implemented by classes generated
+   * by the MMU translator which hold MMU specifications. This is needed
+   * to deal with such classes in a uniform way.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+
+  public static interface Holder {
+    MmuSubsystem getSpecification();
+  }
+
   public static final class Builder {
     /** Stores available address types. */
     private Map<String, IntegerVariable> variables = new LinkedHashMap<>();
