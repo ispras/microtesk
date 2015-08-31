@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
@@ -870,12 +872,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(addrType);
+    Logger.debug("Allocate address: %s", addrType);
 
     final long significantBitsMask = addressAllocator.getSignificatBitsMask(addrType);
+    Logger.debug("Significant bits: %x", significantBitsMask);
 
     final long insignificantBits = Randomizer.get().nextLong()
         & ~significantBitsMask
-        & (addrType.getWidth() == Long.SIZE ? -1L : (1L << addrType.getWidth()) - 1);
+        & BitUtils.getLongMask(addrType.getWidth());
 
     return allocateAddr(addrType, insignificantBits, region, peek);
   }
@@ -886,6 +890,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(addrType);
+    Logger.debug("Partial address: %x", partialAddress);
 
     final Predicate<Long> hitChecker = hitCheckers.get(addrType);
 
@@ -894,6 +899,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           addressAllocator.allocateAddress(addrType, partialAddress, region, peek);
 
       if (hitChecker == null || !hitChecker.test(address)) {
+        Logger.debug("Allocated address: %x", address);
         return address;
       }
     }
@@ -1024,13 +1030,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
     correctOffset(addrObject);
 
     final MmuAddressType vaType = memory.getVirtualAddress();
+    InvariantChecks.checkNotNull(vaType, "Virtual address type is null");
+
     final MmuAddressType paType = memory.getPhysicalAddress();
+    InvariantChecks.checkNotNull(paType, "Physical address type is null");
 
     final IntegerVariable vaVar = vaType.getVariable();
     final IntegerVariable paVar = paType.getVariable();
 
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
+    Logger.debug("Refine address: VA=%x, PA=%x", va, pa);
 
     // Fix the address tags, indices and page offsets.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
@@ -1040,11 +1050,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long address = addrObject.getAddress(addrType);
 
       final MmuExpression tagExpr = buffer.getTagExpression();
+      InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
+
       final long tag = buffer.getTag(address);
       knownValues.putAll(
           IntegerField.split(tagExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(tag)));
 
       final MmuExpression indexExpr = buffer.getIndexExpression();
+      InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
+
       final long index = buffer.getIndex(address);
       knownValues.putAll(
           IntegerField.split(indexExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(index)));

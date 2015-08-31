@@ -63,6 +63,7 @@ public final class AllocationTable<T, V> {
       final Collection<T> objects) {
     InvariantChecks.checkNotNull(strategy);
     InvariantChecks.checkNotNull(objects);
+    InvariantChecks.checkNotEmpty(objects);
 
     this.strategy = strategy;
     this.attributes = attributes;

@@ -48,8 +48,7 @@ public final class AddressAllocationTable {
       defaultSize = 256;
     }
 
-    final int maximumSize = width >= Integer.SIZE ? Integer.MAX_VALUE : (1 << width);
-
+    final int maximumSize = width >= Integer.SIZE - 1 ? Integer.MAX_VALUE : (1 << width);
     return maximumSize < defaultSize ? maximumSize : defaultSize;
   }
 
@@ -123,6 +122,7 @@ public final class AddressAllocationTable {
     InvariantChecks.checkTrue(width > 0);
 
     final int size = ALLOC_TABLE_SIZE(width);
+    InvariantChecks.checkTrue(size > 0, "Incorrect allocation table size");
 
     final Set<Long> values = new LinkedHashSet<>();
     for (int i = 0; i < size; i++) {
@@ -208,12 +208,14 @@ public final class AddressAllocationTable {
 
       // Two cases: either all regions have the same field (region-insensitive field allocation)
       // or each region has a unique field (region-sensitive field allocation).
-      InvariantChecks.checkTrue(regionFields.size() == 1 || regionFields.size() == regions.size());
+      InvariantChecks.checkTrue(regionFields.size() == 1
+          || regionFields.size() == regions.size());
 
       for (final Range<Long> region : regions) {
         final long regionField = (region.getMin() >> lo) & mask;
         final Set<Long> regionValues =
             getAddressFieldValues(width, regionField, getPlaceMask(width, regionFields));
+        InvariantChecks.checkFalse(regionValues.isEmpty(), "Empty set of local values");
 
         globalValues.addAll(regionValues);
         if (regionFields.size() == regions.size()) {
@@ -224,6 +226,7 @@ public final class AddressAllocationTable {
       }
     }
 
+    InvariantChecks.checkFalse(globalValues.isEmpty(), "Empty set of global values");
     this.globalAllocTable = new AllocationTable<>(strategy, globalValues);
   }
 
