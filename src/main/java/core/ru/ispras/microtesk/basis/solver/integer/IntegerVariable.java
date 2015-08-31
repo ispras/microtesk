@@ -16,6 +16,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -44,8 +45,8 @@ public final class IntegerVariable {
     InvariantChecks.checkGreaterThanZero(width);
 
     if (value != null) {
-      InvariantChecks.checkTrue(value.compareTo(BigInteger.valueOf(0)) >= 0);
-      InvariantChecks.checkTrue(value.compareTo(BigInteger.ONE.shiftLeft(width - 1)) <= 0);
+      InvariantChecks.checkTrue(value.compareTo(BigInteger.ZERO) >= 0);
+      InvariantChecks.checkTrue(value.compareTo(BitUtils.getBigIntegerMask(width)) <= 0);
     }
 
     this.name = name;
