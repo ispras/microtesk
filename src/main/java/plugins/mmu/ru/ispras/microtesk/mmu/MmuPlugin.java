@@ -20,6 +20,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
@@ -40,6 +41,7 @@ import ru.ispras.testbase.generator.DataGenerator;
  */
 public final class MmuPlugin implements Plugin {
   private static MmuSubsystem spec = null;
+  private static MmuModel model = null;
 
   public static MmuSubsystem getSpecification() {
     if (null != spec) {
@@ -71,6 +73,32 @@ public final class MmuPlugin implements Plugin {
   public static void setSpecification(final MmuSubsystem mmu) {
     InvariantChecks.checkNotNull(mmu);
     spec = mmu;
+  }
+
+  public static MmuModel getModel() {
+    if (null != model) {
+      return model;
+    }
+
+    final TestEngine testEngine = TestEngine.getInstance();
+    if (null == testEngine) {
+      throw new IllegalStateException("TestEngine is not initialized.");
+    }
+
+    final String modelName =
+        testEngine.getModel().getName();
+
+    final String modelClassName = String.format(
+        "%s.%s.mmu.sim.Model", PackageInfo.MODEL_PACKAGE, modelName);
+
+    final MmuModel mmuModel = (MmuModel) SysUtils.loadFromModel(modelClassName);
+
+    if (null == mmuModel) {
+      throw new IllegalStateException("Failed to load " + modelClassName);
+    }
+
+    model = mmuModel;
+    return model;
   }
 
   @Override
