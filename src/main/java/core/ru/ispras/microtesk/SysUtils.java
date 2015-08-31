@@ -80,7 +80,7 @@ public final class SysUtils {
     final Class<?> cls;
     try {
       cls = cl.loadClass(className);
-    } catch (ClassNotFoundException e) {
+    } catch (final ClassNotFoundException e) {
       Logger.error("Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage());
       return null;
     }
