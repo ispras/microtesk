@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.utils.Range;
+import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -214,9 +216,26 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(structureIterator);
 
-    final MemoryEngineContext customContext =
-        (MemoryEngineContext) engineContext.getCustomContext(ID);
-    InvariantChecks.checkNotNull(customContext);
+    // TODO: Remove the custom context (it is required for MMU TestGen only).
+    final MemoryEngineContext customContext;
+    
+    if (engineContext.getCustomContext(ID) != null) {
+      customContext = (MemoryEngineContext) engineContext.getCustomContext(ID);
+    } else {
+      final MmuSubsystem memory = MmuPlugin.getSpecification();
+      final Map<MmuAddressType, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
+
+      for (final MmuAddressType addressType : memory.getSortedListOfAddresses()) {
+        hitCheckers.put(addressType, new Predicate<Long>() {
+          @Override
+          public boolean test(final Long address) {
+            return false;
+          }
+        });
+      }
+
+      customContext = new MemoryEngineContext(null, hitCheckers);
+    }
 
     return new Iterator<MemorySolution>() {
       private MemorySolution solution = null;

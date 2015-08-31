@@ -54,8 +54,6 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAdapter implements Adapter<MemorySolution> {
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
-
   @Override
   public Class<MemorySolution> getSolutionClass() {
     return MemorySolution.class;
@@ -97,6 +95,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
 
     final List<ConcreteCall> sequence = new ArrayList<>(); 
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
       if (!buffer.isReplaceable()) {
@@ -151,6 +150,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
 
     final List<ConcreteCall> preparation = new ArrayList<>(); 
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuAddressType addressType : memory.getSortedListOfAddresses()) {
       preparation.addAll(prepareData(addressType, engineContext, solution));

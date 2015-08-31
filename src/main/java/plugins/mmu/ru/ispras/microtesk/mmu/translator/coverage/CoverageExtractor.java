@@ -83,6 +83,7 @@ public final class CoverageExtractor {
 
   private static boolean isEnabledPath(
       final MmuSubsystem memory, final MemoryAccessPath path, final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(settings);
 
@@ -94,17 +95,20 @@ public final class CoverageExtractor {
     }
 
     final Collection<AbstractSettings> bufferEventsSettings = settings.get(BufferEventsSettings.TAG);
-    for (final AbstractSettings section : bufferEventsSettings) {
-      final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
 
-      final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
-      InvariantChecks.checkNotNull(buffer);
+    if (bufferEventsSettings != null) {
+      for (final AbstractSettings section : bufferEventsSettings) {
+        final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
 
-      final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
-      InvariantChecks.checkNotNull(events);
+        final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
+        InvariantChecks.checkNotNull(buffer);
 
-      if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
-        return false;
+        final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
+        InvariantChecks.checkNotNull(events);
+
+        if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
+          return false;
+        }
       }
     }
 

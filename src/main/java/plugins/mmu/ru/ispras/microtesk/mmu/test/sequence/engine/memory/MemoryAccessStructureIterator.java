@@ -59,8 +59,8 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  */
 public final class MemoryAccessStructureIterator implements Iterator<MemoryAccessStructure> {
   /** Checks the consistency of memory access pairs (template parts) and whole templates. */
-  private static final FilterBuilder BASIC_FILTERS = new FilterBuilder();
-  static {
+  private /*static*/ final FilterBuilder BASIC_FILTERS = new FilterBuilder();
+  /*static*/ {
     BASIC_FILTERS.addHazardFilter(new FilterNonReplaceableTagEqual());
     BASIC_FILTERS.addUnitedHazardFilter(new FilterHitAndTagReplaced());
     BASIC_FILTERS.addUnitedHazardFilter(new FilterTagEqualTagReplaced());
@@ -73,8 +73,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   /** Checks the consistency of whole templates (not applicable to template parts). */
-  private static final FilterBuilder ADVANCED_FILTERS = new FilterBuilder();
-  static {
+  private /*static*/ final FilterBuilder ADVANCED_FILTERS = new FilterBuilder();
+  /*static*/ {
     ADVANCED_FILTERS.addUnitedDependencyFilter(new FilterAccessThenMiss());
   }
 
