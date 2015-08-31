@@ -46,12 +46,22 @@ public final class MmuSettingsUtils extends GeneratorSettings {
 
     final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
 
-    for (final AbstractSettings section : settings.get(IntegerValuesSettings.TAG)) {
-      constraints.add(getConstraint((IntegerValuesSettings) section));
+    final Collection<AbstractSettings> integerValuesSettings =
+        settings.get(IntegerValuesSettings.TAG);
+
+    if (integerValuesSettings != null) {
+      for (final AbstractSettings section : integerValuesSettings) {
+        constraints.add(getConstraint((IntegerValuesSettings) section));
+      }
     }
-      
-    for (final AbstractSettings section : settings.get(BooleanValuesSettings.TAG)) {
-      constraints.add(getConstraint((BooleanValuesSettings) section));
+
+    final Collection<AbstractSettings> booleanValuesSettings =
+        settings.get(BooleanValuesSettings.TAG);
+
+    if (booleanValuesSettings != null) {
+      for (final AbstractSettings section : booleanValuesSettings) {
+        constraints.add(getConstraint((BooleanValuesSettings) section));
+      }
     }
 
     return constraints;
