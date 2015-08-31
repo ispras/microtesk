@@ -109,7 +109,7 @@ public final class Config {
     try {
       final DocumentBuilder builder = factory.newDocumentBuilder();
       return builder.parse(new InputSource(url.openStream()));
-    } catch (ParserConfigurationException | SAXException | IOException e) {
+    } catch (final ParserConfigurationException | SAXException | IOException e) {
       return null;
     }
   }
@@ -124,7 +124,7 @@ public final class Config {
     try {
       final DocumentBuilder builder = factory.newDocumentBuilder();
       return builder.parse(file);
-    } catch (ParserConfigurationException | SAXException | IOException e) {
+    } catch (final ParserConfigurationException | SAXException | IOException e) {
       return null;
     }
   }
