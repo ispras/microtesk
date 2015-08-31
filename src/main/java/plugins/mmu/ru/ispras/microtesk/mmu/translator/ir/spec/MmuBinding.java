@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
@@ -52,7 +53,13 @@ public final class MmuBinding {
   }
 
   public MmuBinding(final IntegerField lhs, final BigInteger rhs) {
-    this(lhs, MmuExpression.val(rhs, lhs != null ? lhs.getWidth() : 0));
+    this(
+        lhs,
+        MmuExpression.val(
+            BitUtils.getField(rhs, 0, lhs != null ? lhs.getWidth() - 1 : 0),
+            lhs != null ? lhs.getWidth() : 0
+        )
+    );
   }
 
   public MmuBinding(final IntegerVariable lhs, final MmuExpression rhs) {
@@ -68,7 +75,7 @@ public final class MmuBinding {
   }
 
   public MmuBinding(final IntegerVariable lhs, final BigInteger rhs) {
-    this(lhs, MmuExpression.val(rhs, lhs != null ? lhs.getWidth() : 0));
+    this(new IntegerField(lhs), rhs);
   }
 
   public MmuBinding(final IntegerField lhs) {
