@@ -93,7 +93,7 @@ public final class AddressDataGenerator implements DataGenerator {
     final Object offset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
     final Object region = Utils.getParameter(query, PARAM_MEMORY_REGION);
     final Object size = Utils.getParameter(query, PARAM_BLOCK_SIZE);
-    final Object address = Utils.getParameterAsInt(query, PARAM_ADDRESS_VALUE);
+    final Object address = Utils.getParameter(query, PARAM_ADDRESS_VALUE);
 
     final BigInteger addressValue;
 
