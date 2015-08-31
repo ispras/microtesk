@@ -59,7 +59,11 @@ public final class MmuPlugin implements Plugin {
 
     final MmuSubsystem.Holder specHolder =
         (MmuSubsystem.Holder) SysUtils.loadFromModel(specClassName);
-    
+
+    if (null == specHolder) {
+      throw new IllegalStateException("Failed to load " + specClassName);
+    }
+
     spec = specHolder.getSpecification();
     return spec;
   }
