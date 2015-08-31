@@ -55,7 +55,7 @@ public final class MmuPlugin implements Plugin {
         testEngine.getModel().getName();
 
     final String specClassName = String.format(
-        "%s.%s.mmu.Specification", PackageInfo.MODEL_PACKAGE, modelName);
+        "%s.%s.mmu.spec.Specification", PackageInfo.MODEL_PACKAGE, modelName);
 
     final MmuSubsystem.Holder specHolder =
         (MmuSubsystem.Holder) SysUtils.loadFromModel(specClassName);
