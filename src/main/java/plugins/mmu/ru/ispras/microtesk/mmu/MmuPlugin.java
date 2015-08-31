@@ -19,14 +19,17 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Plugin;
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.testbase.generator.DataGenerator;
 
 /**
@@ -39,6 +42,25 @@ public final class MmuPlugin implements Plugin {
   private static MmuSubsystem spec = null;
 
   public static MmuSubsystem getSpecification() {
+    if (null != spec) {
+      return spec;
+    }
+
+    final TestEngine testEngine = TestEngine.getInstance();
+    if (null == testEngine) {
+      throw new IllegalStateException("TestEngine is not initialized.");
+    }
+
+    final String modelName =
+        testEngine.getModel().getName();
+
+    final String specClassName = String.format(
+        "%s.%s.mmu.Specification", PackageInfo.MODEL_PACKAGE, modelName);
+
+    final MmuSubsystem.Holder specHolder =
+        (MmuSubsystem.Holder) SysUtils.loadFromModel(specClassName);
+    
+    spec = specHolder.getSpecification();
     return spec;
   }
 
