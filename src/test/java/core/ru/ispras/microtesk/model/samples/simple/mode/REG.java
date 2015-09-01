@@ -31,7 +31,6 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.nibble;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
@@ -101,6 +100,6 @@ public final class REG extends AddressingMode
     @Override
     public Location access()
     {
-        return R.access(DataEngine.intValue(i.load()));
+        return R.access(i.load());
     }
 }
