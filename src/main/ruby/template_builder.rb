@@ -17,7 +17,6 @@
 require 'set'
 
 require_relative 'template'
-require_relative 'utils'
 
 # TODO:
 # make errors display file/line numbers (there's an example of
