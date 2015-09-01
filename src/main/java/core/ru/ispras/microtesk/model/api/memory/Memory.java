@@ -44,14 +44,6 @@ public abstract class Memory {
       final Kind kind,
       final String name,
       final Type type,
-      final int length) {
-    return def(kind, name, type, (long) length);
-  }
-
-  public static Memory def(
-      final Kind kind,
-      final String name,
-      final Type type,
       final long length) {
     return def(kind, name, type, BigInteger.valueOf(length));
   }
@@ -66,15 +58,6 @@ public abstract class Memory {
 
     INSTANCES.put(name, result);
     return result;
-  }
-
-  public static Memory def(
-      final Kind kind,
-      final String name,
-      final Type type,
-      final int length,
-      final Location alias) {
-    return def(kind, name, type, (long) length, alias);
   }
 
   public static Memory def(
@@ -101,17 +84,6 @@ public abstract class Memory {
 
     INSTANCES.put(name, result);
     return result;
-  }
-
-  public static Memory def(
-      final Kind kind,
-      final String name,
-      final Type type,
-      final int length,
-      final Memory memory,
-      final int min,
-      final int max) {
-    return def(kind, name, type, (long) length, memory, min, max);
   }
 
   public static Memory def(
