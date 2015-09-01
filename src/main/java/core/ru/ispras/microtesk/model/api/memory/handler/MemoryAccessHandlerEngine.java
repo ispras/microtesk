@@ -23,7 +23,6 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.memory.MemoryStorage;
 
 public final class MemoryAccessHandlerEngine implements MemoryAccessHandler {
-  
   private static final MemoryAccessHandlerEngine handlerEngine = new MemoryAccessHandlerEngine();
   private static boolean isHandlingEnabled = false;
 
