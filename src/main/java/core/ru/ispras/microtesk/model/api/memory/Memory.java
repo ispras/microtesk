@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -53,7 +52,7 @@ public abstract class Memory {
       final Type type,
       final BigInteger length) {
     checkDefined(name);
-    final Memory result = new MemoryDirect(kind, name, type, length);
+    final Memory result = new PhysicalMemory(kind, name, type, length);
 
     INSTANCES.put(name, result);
     return result;
@@ -193,56 +192,5 @@ public abstract class Memory {
   public String toString() {
     return String.format("%s %s[%d, %s], alias=%b",
         kind.name().toLowerCase(), name, length, type, isAlias);
-  }
-
-  private static final class MemoryDirect extends Memory {
-    private final MemoryStorage storage;
-
-    public MemoryDirect(
-        final Kind kind,
-        final String name,
-        final Type type,
-        final BigInteger length) {
-      super(kind, name, type, length, false);
-      this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
-    }
-
-    @Override
-    public Location access(final int index) {
-      return access((long) index);
-    }
-
-    @Override
-    public Location access(final long index) {
-      final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
-      return Location.newLocationForRegion(getType(), storage, address);
-    }
-
-    @Override
-    public Location access(final BigInteger index) {
-      final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
-      return Location.newLocationForRegion(getType(), storage, address);
-    }
-
-    @Override
-    public Location access(final Data address) {
-      checkNotNull(address);
-      return Location.newLocationForRegion(getType(), storage, address.getRawData());
-    }
-
-    @Override
-    public void reset() {
-      storage.reset();
-    }
-
-    @Override
-    public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-      return new MemoryAllocator(storage, addressableUnitBitSize);
-    }
-
-    @Override
-    public void setUseTempCopy(boolean value) {
-      storage.setUseTempCopy(value);
-    }
   }
 }
