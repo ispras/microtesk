@@ -78,6 +78,10 @@ public final class TestEngine {
     return model;
   }
 
+  public String getModelName() {
+    return model.getName();
+  }
+
   public MetaModel getMetaModel() {
     return model.getMetaData();
   }
@@ -154,7 +158,7 @@ public final class TestEngine {
     return STATISTICS;
   }
 
-  private TestEngine(IModel model) {
+  private TestEngine(final IModel model) {
     InvariantChecks.checkNotNull(model);
     this.model = model;
 
