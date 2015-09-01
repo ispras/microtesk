@@ -14,16 +14,21 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class Label {
   private final String name;
   private final Memory memory;
   private final int index;
 
-  public Label(String name, Memory memory) {
+  public Label(final String name, final Memory memory) {
     this(name, memory, 0);
   }
 
-  public Label(String name, Memory memory, int index) {
+  public Label(final String name, final Memory memory, final int index) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(memory);
+
     this.name = name;
     this.memory = memory;
     this.index = index;
