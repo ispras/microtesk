@@ -33,7 +33,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class MemoryStorage {
+public final class MemoryStorage implements MemoryAccessor {
   private String id;
   private boolean isReadOnly;
 
@@ -159,6 +159,26 @@ public final class MemoryStorage {
     this.addressMap = new HashMap<>();
   }
 
+  @Override
+  public int getAddressBitSize() {
+    return addressBitSize;
+  }
+
+  @Override
+  public int getDataBitSize() {
+    return getRegionBitSize();
+  }
+
+  @Override
+  public BitVector load(final BitVector address) {
+    return read(address);
+  }
+
+  @Override
+  public void store(final BitVector address, final BitVector data) {
+    write(address, data);
+  }
+
   public void setUseTempCopy(final boolean value) {
     if (isReadOnly()) {
       return; // Makes not sense for read-only stores
@@ -216,10 +236,6 @@ public final class MemoryStorage {
 
   public int getRegionBitSize() {
     return regionBitSize;
-  }
-
-  public int getAddressBitSize() {
-    return addressBitSize;
   }
 
   public boolean isInitialized(final int address) {
