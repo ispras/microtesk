@@ -43,6 +43,7 @@ public <type>(final BitVector value) {
 public void assign(final <type> other) {
   <fnames:{n | this.<n>.assign(other.<n>);}; separator="\n">
 }<\n>
+@Override
 public BitVector asBitVector() {
   <if(fnames)>
   return BitVector.newMapping(
@@ -83,7 +84,7 @@ buffer_entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
        false,
-       false,
+       "Data",
        members)>
 >>
 

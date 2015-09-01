@@ -32,6 +32,9 @@ final class STBStruct implements STBuilder {
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.model.api.Address.class;
 
+  public static final Class<?> DATA_CLASS =
+      ru.ispras.microtesk.mmu.model.api.Data.class;
+
   private final String packageName; 
   private final boolean isAddress;
   private final Type type;
@@ -78,8 +81,10 @@ final class STBStruct implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", type.getId());
     st.add("pack", packageName);
+    st.add("impls", DATA_CLASS.getSimpleName());
 
     st.add("imps", BIT_VECTOR_CLASS.getName());
+    st.add("imps", DATA_CLASS.getName());
 
     if (isAddress) {
       st.add("impls", ADDRESS_CLASS.getSimpleName());
