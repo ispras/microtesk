@@ -228,7 +228,7 @@ public final class Location implements LocationAccessor {
       if (sourceStart <= start && start <= sourceEnd) {
         if (end <= sourceEnd) {
           final int newStartBitPos = source.startBitPos + (start - pos);
-          final Source newSource = source.resize(newBitSize, newStartBitPos); 
+          final Source newSource = source.resize(newBitSize, newStartBitPos);
           newSources.add(newSource);
           break;
         } else {
