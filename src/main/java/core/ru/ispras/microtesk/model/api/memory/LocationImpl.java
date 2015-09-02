@@ -148,7 +148,7 @@ final class LocationImpl extends Location {
   }
 
   public Data load() {
-    final BitVector rawData = readDataDirecty(getAtoms());
+    final BitVector rawData = readData(getAtoms(), true);
     return new Data(rawData, getType());
   }
 
@@ -163,18 +163,18 @@ final class LocationImpl extends Location {
     final BitVector rawData = data.getRawData();
     InvariantChecks.checkNotNull(rawData);
 
-    writeDataDirecty(rawData, getAtoms());
+    writeData(getAtoms(), rawData, true);
   }
 
   @Override
   public String toBinString() {
-    final BitVector rawData = readDataDirecty(getAtoms()); 
+    final BitVector rawData = readData(getAtoms(), false); 
     return rawData.toBinString();
   }
 
   @Override
   public BigInteger getValue() {
-    final BitVector rawData = readDataDirecty(getAtoms());
+    final BitVector rawData = readData(getAtoms(), false);
     return rawData.bigIntegerValue(false);
   }
 
@@ -182,34 +182,7 @@ final class LocationImpl extends Location {
   public void setValue(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
 
-    // System.out.println("############## " + toBinString()); 
-    // System.out.println("############## Before Assigning 0x" + value);
-
     final BitVector rawData = BitVector.valueOf(value, getBitSize());
-    writeDataDirecty(rawData, getAtoms());
-
-    // System.out.println("############## " + toBinString()); 
-    // System.out.println("############## After Assigning 0x" + value);
-  }
-
-  private static BitVector readDataDirecty(List<Atom> atoms) {
-    final BitVector[] dataItems = new BitVector[atoms.size()]; 
-    for (int index = 0; index < atoms.size(); ++index) {
-      final Atom atom = atoms.get(index);
-      dataItems[index] = atom.load();
-    }
-
-    return BitVector.newMapping(dataItems).copy();
-  }
-
-  private static void writeDataDirecty(BitVector data, List<Atom> atoms) {
-    int position = 0;
-    for (final Atom atom : atoms) {
-      final BitVector dataItem =
-          BitVector.newMapping(data, position, atom.getBitSize());
-
-      atom.store(dataItem);
-      position += dataItem.getBitSize();
-    }
+    writeData(getAtoms(), rawData, false);
   }
 }

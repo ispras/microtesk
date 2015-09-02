@@ -208,4 +208,30 @@ public abstract class Location implements LocationAccessor {
 
     return concat(array); 
   }
+
+  protected static BitVector readData(
+      final List<Atom> atoms,
+      final boolean callHandlers) {
+    final BitVector[] dataItems = new BitVector[atoms.size()];
+    for (int index = 0; index < atoms.size(); ++index) {
+      final Atom atom = atoms.get(index);
+      dataItems[index] = atom.load();
+    }
+
+    return BitVector.newMapping(dataItems).copy();
+  }
+
+  protected static void writeData(
+      final List<Atom> atoms,
+      final BitVector data,
+      final boolean callHandlers) {
+    int position = 0;
+    for (final Atom atom : atoms) {
+      final BitVector dataItem =
+          BitVector.newMapping(data, position, atom.getBitSize());
+
+      atom.store(dataItem);
+      position += dataItem.getBitSize();
+    }
+  }
 }
