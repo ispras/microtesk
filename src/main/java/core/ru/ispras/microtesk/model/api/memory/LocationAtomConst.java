@@ -18,19 +18,19 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Location.Atom;
 
-final class LocationAtomImm implements Location.Atom {
+final class LocationAtomConst implements Location.Atom {
   private final BitVector value;
   private final int bitSize;
   private final int startBitPos;
 
-  protected LocationAtomImm(final BitVector value) {
+  protected LocationAtomConst(final BitVector value) {
     InvariantChecks.checkNotNull(value);
     this.value = value;
     this.bitSize = value.getBitSize();
     this.startBitPos = 0;
   }
 
-  private LocationAtomImm(
+  private LocationAtomConst(
       final BitVector value,
       final int bitSize,
       final int startBitPos) {
@@ -64,7 +64,7 @@ final class LocationAtomImm implements Location.Atom {
 
   @Override
   public Atom resize(final int newBitSize, final int newStartBitPos) {
-    return new LocationAtomImm(value, newBitSize, newStartBitPos);
+    return new LocationAtomConst(value, newBitSize, newStartBitPos);
   }
 
   @Override
@@ -79,8 +79,7 @@ final class LocationAtomImm implements Location.Atom {
   @Override
   public void store(final BitVector data) {
     throw new UnsupportedOperationException(
-        "Assigning values to immediate arguments is illegal.");
-
+        "Constant cannot be assigned a value.");
     /*
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(data.getBitSize() == bitSize);
