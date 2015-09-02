@@ -25,8 +25,6 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandler;
-import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandlerEngine;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
@@ -138,15 +136,7 @@ final class LocationImpl extends Location {
   }
 
   public Data load() {
-    final MemoryAccessHandler handler = MemoryAccessHandlerEngine.getGlobalHandler();
-
-    final BitVector rawData;
-    if (null == handler) {
-      rawData = readDataDirecty(sources);
-    } else {
-      rawData = readDataViaHandler(handler, sources);
-    }
-
+    final BitVector rawData = readDataDirecty(sources);
     return new Data(rawData, getType());
   }
 
@@ -161,12 +151,7 @@ final class LocationImpl extends Location {
     final BitVector rawData = data.getRawData();
     checkNotNull(rawData);
 
-    final MemoryAccessHandler handler = MemoryAccessHandlerEngine.getGlobalHandler();
-    if (null == handler) {
-        writeDataDirecty(rawData, sources);
-    } else {
-      writeDataViaHandler(handler, rawData, sources);
-    }
+    writeDataDirecty(rawData, sources);
   }
 
   public LocationImpl assign(Location source) {
@@ -295,11 +280,6 @@ final class LocationImpl extends Location {
     return BitVector.newMapping(dataItems).copy();
   }
 
-  private static BitVector readDataViaHandler(MemoryAccessHandler handler, List<Source> sources) {
-    //TODO: NOT IMPLEMENTED
-    throw new UnsupportedOperationException();
-  }
-
   private static void writeDataDirecty(BitVector data, List<Source> sources) {
     int position = 0;
     for (Source source : sources) {
@@ -324,11 +304,5 @@ final class LocationImpl extends Location {
       storage.write(source.address, regionData);
       position += source.bitSize;
     }
-  }
-
-  private static void writeDataViaHandler(
-      MemoryAccessHandler handler, BitVector rawData, List<Source> sources) {
-    //TODO: NOT IMPLEMENTED
-    throw new UnsupportedOperationException();
   }
 }

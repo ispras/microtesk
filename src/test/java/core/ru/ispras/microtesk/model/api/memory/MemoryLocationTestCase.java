@@ -24,7 +24,6 @@ import org.junit.Test;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandlerEngine;
 import ru.ispras.microtesk.model.api.type.Type;
 
 public final class MemoryLocationTestCase {
@@ -41,8 +40,6 @@ public final class MemoryLocationTestCase {
   
   @Test
   public void testRandom() {
-    MemoryAccessHandlerEngine.setHandlingEnabled(false);
-
     // Allocates memory
     final Memory mem = Memory.def(Memory.Kind.MEM, "MEM", WORD, COUNT);
 
