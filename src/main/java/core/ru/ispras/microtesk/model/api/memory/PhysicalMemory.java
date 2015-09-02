@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -36,25 +37,25 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public Location access(final int index) {
-    return access((long) index);
+    return access(index & 0x00000000FFFFFFFFL);
   }
 
   @Override
   public Location access(final long index) {
     final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
-    return Location.newLocationForRegion(getType(), storage, address);
+    return newLocationForRegion(address);
   }
 
   @Override
   public Location access(final BigInteger index) {
     final BitVector address = BitVector.valueOf(index, storage.getAddressBitSize());
-    return Location.newLocationForRegion(getType(), storage, address);
+    return newLocationForRegion(address);
   }
 
   @Override
   public Location access(final Data address) {
     checkNotNull(address);
-    return Location.newLocationForRegion(getType(), storage, address.getRawData());
+    return newLocationForRegion(address.getRawData());
   }
 
   @Override
@@ -70,5 +71,96 @@ final class PhysicalMemory extends Memory {
   @Override
   public void setUseTempCopy(boolean value) {
     storage.setUseTempCopy(value);
+  }
+
+  private Location newLocationForRegion(final BitVector address) {
+    //checkBounds(regionIndex, storage.getRegionCount());
+    final Type type = getType();
+
+    if (type.getBitSize() != storage.getRegionBitSize()) {
+      throw new IllegalArgumentException();
+    }
+
+    final PhysicalMemoryAtom atom = new PhysicalMemoryAtom(
+        storage, address, type.getBitSize(), 0);
+
+    return new Location(type, atom);
+  }
+
+  private static final class PhysicalMemoryAtom implements Location.Atom {
+    private final MemoryStorage storage;
+    private final BitVector address;
+
+    private final int bitSize;
+    private final int startBitPos;
+
+    public PhysicalMemoryAtom(
+        final MemoryStorage storage,
+        final BitVector address,
+        final int bitSize,
+        final int startBitPos) {
+      this.storage = storage;
+      this.address = address;
+      this.bitSize = bitSize;
+      this.startBitPos = startBitPos;
+    }
+
+    @Override
+    public boolean isInitialized() {
+      return storage.isInitialized(address);
+    }
+
+    @Override
+    public PhysicalMemoryAtom resize(
+        final int newBitSize,
+        final int newStartBitPos) {
+      return new PhysicalMemoryAtom(storage, address, newBitSize, newStartBitPos);
+    }
+
+    @Override
+    public int getBitSize() {
+      return bitSize;
+    }
+
+    @Override
+    public int getStartBitPos() {
+      return startBitPos;
+    }
+
+    @Override
+    public BitVector load() {
+      final BitVector region = storage.read(address);
+
+      if (region.getBitSize() == bitSize) {
+        return region;
+      } 
+
+      return BitVector.newMapping(region, startBitPos, bitSize);
+    }
+
+    @Override
+    public void store(final BitVector data) {
+      InvariantChecks.checkNotNull(data);
+
+      final BitVector region;
+      if (bitSize == storage.getRegionBitSize()) {
+        region = data;
+      } else {
+        region = storage.read(address).copy();
+        final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
+        mapping.assign(data);
+      }
+
+      storage.write(address, region);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s[%d]<%d..%d>",
+          storage.getId(),
+          address.bigIntegerValue(false),
+          startBitPos,
+          startBitPos + bitSize - 1);
+    }
   }
 }

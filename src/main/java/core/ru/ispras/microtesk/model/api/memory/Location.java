@@ -65,13 +65,6 @@ public final class Location implements LocationAccessor {
         );
   }
 
-  public static Location newLocationForRegion(
-      final Type type,
-      final MemoryStorage storage,
-      final BitVector address) {
-    return LocationImpl.newLocationForRegion(type, storage, address);
-  }
-
   public Type getType() {
     return type;
   }
