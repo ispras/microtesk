@@ -15,17 +15,15 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
-final class LocationImpl extends Location {
+final class LocationImpl {
 
-  private static final class Source implements Atom {
+  private static final class Source implements Location.Atom {
     private final MemoryStorage storage;
     private final BitVector address;
 
@@ -101,16 +99,8 @@ final class LocationImpl extends Location {
           startBitPos + bitSize - 1);
     }
   }
-
-  private LocationImpl(final Type type, final Atom atom) {
-    this(type, Collections.singletonList(atom));
-  }
-
-  public LocationImpl(final Type type, final List<Atom> atoms) {
-    super(type, atoms);
-  }
-
-  public static LocationImpl newLocationForConst(final Data data) {
+  
+  public static Location newLocationForConst(final Data data) {
     InvariantChecks.checkNotNull(data);
 
     final String storageId = "#constant";
@@ -126,10 +116,10 @@ final class LocationImpl extends Location {
     storage.setReadOnly(false);
 
     final Source source = new Source(storage, zeroAddress, bitSize, 0);
-    return new LocationImpl(type, source);
+    return new Location(type, source);
   }
 
-  public static LocationImpl newLocationForRegion(
+  public static Location newLocationForRegion(
       final Type type,
       final MemoryStorage storage,
       final BitVector address) {
@@ -144,45 +134,6 @@ final class LocationImpl extends Location {
     final Source source = new Source(
         storage, address, type.getBitSize(), 0);
 
-    return new LocationImpl(type, source);
-  }
-
-  public Data load() {
-    final BitVector rawData = readData(getAtoms(), true);
-    return new Data(rawData, getType());
-  }
-
-  public void store(Data data) {
-    InvariantChecks.checkNotNull(data);
-
-    if (getBitSize() != data.getType().getBitSize()) {
-      throw new IllegalArgumentException(String.format(
-          "Assigning %d-bit data to %d-bit location.", data.getType().getBitSize(), getBitSize()));
-    }
-
-    final BitVector rawData = data.getRawData();
-    InvariantChecks.checkNotNull(rawData);
-
-    writeData(getAtoms(), rawData, true);
-  }
-
-  @Override
-  public String toBinString() {
-    final BitVector rawData = readData(getAtoms(), false); 
-    return rawData.toBinString();
-  }
-
-  @Override
-  public BigInteger getValue() {
-    final BitVector rawData = readData(getAtoms(), false);
-    return rawData.bigIntegerValue(false);
-  }
-
-  @Override
-  public void setValue(final BigInteger value) {
-    InvariantChecks.checkNotNull(value);
-
-    final BitVector rawData = BitVector.valueOf(value, getBitSize());
-    writeData(getAtoms(), rawData, false);
+    return new Location(type, source);
   }
 }
