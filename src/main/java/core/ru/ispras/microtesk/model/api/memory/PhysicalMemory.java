@@ -75,16 +75,11 @@ final class PhysicalMemory extends Memory {
 
   private Location newLocationForRegion(final BitVector address) {
     //checkBounds(regionIndex, storage.getRegionCount());
-    final Type type = getType();
-
-    if (type.getBitSize() != storage.getRegionBitSize()) {
-      throw new IllegalArgumentException();
-    }
 
     final PhysicalMemoryAtom atom = new PhysicalMemoryAtom(
-        storage, address, type.getBitSize(), 0);
+        storage, address, getType().getBitSize(), 0);
 
-    return new Location(type, atom);
+    return new Location(getType(), atom);
   }
 
   private static final class PhysicalMemoryAtom implements Location.Atom {
