@@ -18,19 +18,19 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Location.Atom;
 
-final class LocationAtomVariable implements Location.Atom {
+final class VariableAtom implements Location.Atom {
   private final BitVector value;
   private final int bitSize;
   private final int startBitPos;
 
-  protected LocationAtomVariable(final BitVector value) {
+  protected VariableAtom(final BitVector value) {
     InvariantChecks.checkNotNull(value);
     this.value = value;
     this.bitSize = value.getBitSize();
     this.startBitPos = 0;
   }
 
-  private LocationAtomVariable(
+  private VariableAtom(
       final BitVector value,
       final int bitSize,
       final int startBitPos) {
@@ -64,7 +64,7 @@ final class LocationAtomVariable implements Location.Atom {
 
   @Override
   public Atom resize(final int newBitSize, final int newStartBitPos) {
-    return new LocationAtomVariable(value, newBitSize, newStartBitPos);
+    return new VariableAtom(value, newBitSize, newStartBitPos);
   }
 
   @Override

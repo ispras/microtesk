@@ -61,7 +61,7 @@ public final class Location implements LocationAccessor {
     InvariantChecks.checkNotNull(data);
     return new Location(
         data.getType(),
-        new LocationAtomVariable(data.getRawData())
+        new VariableAtom(data.getRawData())
         );
   }
 
