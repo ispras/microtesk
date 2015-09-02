@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,10 +22,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
 
 final class LocationImpl extends Location {
-  private final List<Source> sources;
 
   private static final class Source implements Atom {
     private final MemoryStorage storage;
@@ -105,15 +102,12 @@ final class LocationImpl extends Location {
     }
   }
 
-  private LocationImpl(final Type type, final Source source) {
-    this(type, Collections.singletonList(source));
+  private LocationImpl(final Type type, final Atom atom) {
+    this(type, Collections.singletonList(atom));
   }
 
-  private LocationImpl(final Type type, final List<Source> sources) {
-    super(type);
-
-    InvariantChecks.checkNotEmpty(sources);
-    this.sources = sources;
+  public LocationImpl(final Type type, final List<Atom> atoms) {
+    super(type, atoms);
   }
 
   public static LocationImpl newLocationForConst(final Data data) {
@@ -153,27 +147,8 @@ final class LocationImpl extends Location {
     return new LocationImpl(type, source);
   }
 
-  public LocationImpl castTo(TypeId typeId) {
-    InvariantChecks.checkNotNull(typeId);
-
-    if (getType().getTypeId() == typeId) {
-      return this;
-    }
-
-    return new LocationImpl(getType().castTo(typeId), sources);
-  }
-
-  public boolean isInitialized() {
-    for (final Source source : sources) {
-      if (!source.isInitialized()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   public Data load() {
-    final BitVector rawData = readDataDirecty(sources);
+    final BitVector rawData = readDataDirecty(getAtoms());
     return new Data(rawData, getType());
   }
 
@@ -188,86 +163,18 @@ final class LocationImpl extends Location {
     final BitVector rawData = data.getRawData();
     InvariantChecks.checkNotNull(rawData);
 
-    writeDataDirecty(rawData, sources);
-  }
-
-  public LocationImpl bitField(int start, int end) {
-    // System.out.printf("Bit field: %d %d %n", start, end);
-
-    InvariantChecks.checkBounds(start, getBitSize());
-    InvariantChecks.checkBounds(end, getBitSize());
-
-    if (start > end) {
-      return bitField(end, start);
-    }
-
-    if ((start == 0) && (end == (getBitSize() - 1))) {
-      return this;
-    }
-
-    final int newBitSize = end - start + 1;
-    final Type newType = getType().resize(newBitSize);
-
-    final List<Source> newSources = new ArrayList<Source>();
-
-    int pos = 0;
-    for (Source source : sources) {
-      final int sourceStart = pos; 
-      final int sourceEnd = pos + source.bitSize - 1;
-
-      if (sourceStart <= start && start <= sourceEnd) {
-        if (end <= sourceEnd) {
-          final int newStartBitPos = source.startBitPos + (start - pos);
-          final Source newSource = source.resize(newBitSize, newStartBitPos);
-          newSources.add(newSource);
-          break;
-        } else {
-          newSources.add(source);
-        }
-      } else if (sourceStart <= end && end <= sourceEnd) {
-        newSources.add(source.resize(source.bitSize - (sourceEnd - end), source.startBitPos));
-        break;
-      }
-
-      pos = sourceEnd + 1;
-    }
-
-    return new LocationImpl(newType, newSources);
-  }
-
-  public Location concat(Location argument) {
-    return Location.concat(this, argument);
-  }
-
-  public static Location concat(Location ... locations) {
-    InvariantChecks.checkNotEmpty(locations);
-
-    if (locations.length == 1) {
-      return locations[0];
-    }
-
-    int newBitSize = 0;
-    final List<Source> newSources = new ArrayList<Source>();
-
-    for (Location location : locations) {
-      InvariantChecks.checkNotNull(location);
-      newBitSize += location.getBitSize();
-      newSources.addAll(((LocationImpl) location).sources);
-    }
-
-    final Type newType = locations[0].getType().resize(newBitSize);
-    return new LocationImpl(newType, newSources);
+    writeDataDirecty(rawData, getAtoms());
   }
 
   @Override
   public String toBinString() {
-    final BitVector rawData = readDataDirecty(sources); 
+    final BitVector rawData = readDataDirecty(getAtoms()); 
     return rawData.toBinString();
   }
 
   @Override
   public BigInteger getValue() {
-    final BitVector rawData = readDataDirecty(sources);
+    final BitVector rawData = readDataDirecty(getAtoms());
     return rawData.bigIntegerValue(false);
   }
 
@@ -279,29 +186,29 @@ final class LocationImpl extends Location {
     // System.out.println("############## Before Assigning 0x" + value);
 
     final BitVector rawData = BitVector.valueOf(value, getBitSize());
-    writeDataDirecty(rawData, sources);
+    writeDataDirecty(rawData, getAtoms());
 
     // System.out.println("############## " + toBinString()); 
     // System.out.println("############## After Assigning 0x" + value);
   }
 
-  private static BitVector readDataDirecty(List<Source> sources) {
-    final BitVector[] dataItems = new BitVector[sources.size()]; 
-    for (int index = 0; index < sources.size(); ++index) {
-      final Source source = sources.get(index);
-      dataItems[index] = source.load();
+  private static BitVector readDataDirecty(List<Atom> atoms) {
+    final BitVector[] dataItems = new BitVector[atoms.size()]; 
+    for (int index = 0; index < atoms.size(); ++index) {
+      final Atom atom = atoms.get(index);
+      dataItems[index] = atom.load();
     }
 
     return BitVector.newMapping(dataItems).copy();
   }
 
-  private static void writeDataDirecty(BitVector data, List<Source> sources) {
+  private static void writeDataDirecty(BitVector data, List<Atom> atoms) {
     int position = 0;
-    for (final Source source : sources) {
+    for (final Atom atom : atoms) {
       final BitVector dataItem =
-          BitVector.newMapping(data, position, source.getBitSize());
+          BitVector.newMapping(data, position, atom.getBitSize());
 
-      source.store(dataItem);
+      atom.store(dataItem);
       position += dataItem.getBitSize();
     }
   }

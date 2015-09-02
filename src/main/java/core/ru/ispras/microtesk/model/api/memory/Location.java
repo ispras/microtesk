@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -43,13 +43,9 @@ public abstract class Location implements LocationAccessor {
   private final Type type;
   private final List<Atom> atoms;
 
-  protected Location(final Type type) {
-    this(type, Collections.<Atom>emptyList());
-  }
-
   protected Location(final Type type, final List<Atom> atoms) {
     InvariantChecks.checkNotNull(type);
-    //InvariantChecks.checkNotEmpty(atoms);
+    InvariantChecks.checkNotEmpty(atoms);
 
     this.type = type;
     this.atoms = atoms;
@@ -79,9 +75,25 @@ public abstract class Location implements LocationAccessor {
     return type.getBitSize();
   }
 
-  public abstract Location castTo(TypeId typeId);
+  public final Location castTo(final TypeId typeId) {
+    InvariantChecks.checkNotNull(typeId);
 
-  public abstract boolean isInitialized();
+    if (getType().getTypeId() == typeId) {
+      return this;
+    }
+
+    return new LocationImpl(getType().castTo(typeId), atoms);
+  }
+
+  public final boolean isInitialized() {
+    for (final Atom atom : atoms) {
+      if (!atom.isInitialized()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public abstract Data load();
   public abstract void store(Data data);
 
@@ -91,7 +103,47 @@ public abstract class Location implements LocationAccessor {
     return this;
   }
 
-  public abstract Location bitField(int start, int end);
+  public final Location bitField(final int start, final int end) {
+    InvariantChecks.checkBounds(start, getBitSize());
+    InvariantChecks.checkBounds(end, getBitSize());
+
+    if (start > end) {
+      return bitField(end, start);
+    }
+
+    if ((start == 0) && (end == (getBitSize() - 1))) {
+      return this;
+    }
+
+    final int newBitSize = end - start + 1;
+    final Type newType = getType().resize(newBitSize);
+
+    final List<Atom> newAtoms = new ArrayList<Atom>();
+
+    int position = 0;
+    for (final Atom atom : atoms) {
+      final int atomStart = position; 
+      final int atomEnd = position + atom.getBitSize() - 1;
+
+      if (atomStart <= start && start <= atomEnd) {
+        if (end <= atomEnd) {
+          final int newStartBitPos = atom.getStartBitPos() + (start - position);
+          final Atom newSource = atom.resize(newBitSize, newStartBitPos);
+          newAtoms.add(newSource);
+          break;
+        } else {
+          newAtoms.add(atom);
+        }
+      } else if (atomStart <= end && end <= atomEnd) {
+        newAtoms.add(atom.resize(atom.getBitSize() - (atomEnd - end), atom.getStartBitPos()));
+        break;
+      }
+
+      position = atomEnd + 1;
+    }
+
+    return new LocationImpl(newType, newAtoms);
+  }
 
   public final Location bitField(final int index) {
     return bitField(index, index);
@@ -114,10 +166,29 @@ public abstract class Location implements LocationAccessor {
     return bitField(index.getRawData().intValue());
   }
 
-  public abstract Location concat(Location argument);
+  public final Location concat(final Location other) {
+    InvariantChecks.checkNotNull(other);
+    return Location.concat(this, other);
+  }
 
   public static Location concat(final Location... locations) {
-    return LocationImpl.concat(locations);
+    InvariantChecks.checkNotEmpty(locations);
+
+    if (locations.length == 1) {
+      return locations[0];
+    }
+
+    int newBitSize = 0;
+    final List<Atom> newAtoms = new ArrayList<Atom>();
+
+    for (final Location location : locations) {
+      InvariantChecks.checkNotNull(location);
+      newBitSize += location.getBitSize();
+      newAtoms.addAll(location.getAtoms());
+    }
+
+    final Type newType = locations[0].getType().resize(newBitSize);
+    return new LocationImpl(newType, newAtoms);
   }
 
   public final Location repeat(final int count) {
