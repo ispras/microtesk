@@ -40,7 +40,7 @@ final class LocationAtomConst implements Location.Atom {
     InvariantChecks.checkGreaterOrEqZero(startBitPos);
 
     InvariantChecks.checkBounds(startBitPos, value.getBitSize());
-    InvariantChecks.checkBounds(startBitPos + bitSize, value.getBitSize());
+    InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, value.getBitSize());
 
     this.value = value;
     this.bitSize = bitSize;
@@ -78,9 +78,6 @@ final class LocationAtomConst implements Location.Atom {
 
   @Override
   public void store(final BitVector data) {
-    throw new UnsupportedOperationException(
-        "Constant cannot be assigned a value.");
-    /*
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(data.getBitSize() == bitSize);
 
@@ -92,6 +89,5 @@ final class LocationAtomConst implements Location.Atom {
     }
 
     target.assign(data);
-    */
   }
 }
