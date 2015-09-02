@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -42,6 +43,10 @@ public abstract class Location implements LocationAccessor {
 
   private final Type type;
   private final List<Atom> atoms;
+
+  protected Location(final Type type, final Atom atom) {
+    this(type, atom != null ? Collections.singletonList(atom) : null);
+  }
 
   protected Location(final Type type, final List<Atom> atoms) {
     InvariantChecks.checkNotNull(type);
