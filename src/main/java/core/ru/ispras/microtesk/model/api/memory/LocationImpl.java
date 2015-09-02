@@ -29,8 +29,8 @@ final class LocationImpl extends Location {
   private final List<Source> sources;
 
   private static final class Source implements Atom {
-    public final MemoryStorage storage;
-    public final BitVector address;
+    private final MemoryStorage storage;
+    private final BitVector address;
 
     private final int bitSize;
     private final int startBitPos;
@@ -66,6 +66,33 @@ final class LocationImpl extends Location {
     @Override
     public int getStartBitPos() {
       return startBitPos;
+    }
+
+    @Override
+    public BitVector load() {
+      final BitVector region = storage.read(address);
+
+      if (region.getBitSize() == bitSize) {
+        return region;
+      } 
+
+      return BitVector.newMapping(region, startBitPos, bitSize);
+    }
+
+    @Override
+    public void store(final BitVector data) {
+      InvariantChecks.checkNotNull(data);
+
+      final BitVector region;
+      if (bitSize == storage.getRegionBitSize()) {
+        region = data;
+      } else {
+        region = storage.read(address).copy();
+        final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
+        mapping.assign(data);
+      }
+
+      storage.write(address, region);
     }
 
     @Override
@@ -262,17 +289,7 @@ final class LocationImpl extends Location {
     final BitVector[] dataItems = new BitVector[sources.size()]; 
     for (int index = 0; index < sources.size(); ++index) {
       final Source source = sources.get(index);
-      final BitVector region = source.storage.read(source.address);
-
-      if (region.getBitSize() == source.bitSize) {
-        dataItems[index] = region;
-      } else {
-        dataItems[index] = BitVector.newMapping(region, source.startBitPos, source.bitSize);
-      }
-    }
-
-    if (1 == dataItems.length) {
-      return dataItems[0].copy();
+      dataItems[index] = source.load();
     }
 
     return BitVector.newMapping(dataItems).copy();
@@ -280,27 +297,12 @@ final class LocationImpl extends Location {
 
   private static void writeDataDirecty(BitVector data, List<Source> sources) {
     int position = 0;
-    for (Source source : sources) {
-      final MemoryStorage storage = source.storage;
+    for (final Source source : sources) {
+      final BitVector dataItem =
+          BitVector.newMapping(data, position, source.getBitSize());
 
-      final BitVector dataItem = 
-          BitVector.newMapping(data, position, source.bitSize);
-
-      final BitVector regionData;
-
-      if (source.bitSize == storage.getRegionBitSize()) {
-        regionData = dataItem;
-      } else {
-        regionData = storage.read(source.address).copy();
-
-        final BitVector mapping = 
-            BitVector.newMapping(regionData, source.startBitPos, source.bitSize);
-
-        mapping.assign(dataItem);
-      }
-
-      storage.write(source.address, regionData);
-      position += source.bitSize;
+      source.store(dataItem);
+      position += dataItem.getBitSize();
     }
   }
 }

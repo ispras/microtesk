@@ -31,9 +31,13 @@ public abstract class Location implements LocationAccessor {
 
   protected interface Atom {
     boolean isInitialized();
+
     int getBitSize();
     int getStartBitPos();
     Atom resize(int newBitSize, int newStartBitPos);
+
+    BitVector load();
+    void store(BitVector data);
   }
 
   private final Type type;
