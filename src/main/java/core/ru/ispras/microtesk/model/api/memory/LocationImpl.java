@@ -28,11 +28,12 @@ import ru.ispras.microtesk.model.api.type.TypeId;
 final class LocationImpl extends Location {
   private final List<Source> sources;
 
-  private static final class Source {
+  private static final class Source implements Atom {
     public final MemoryStorage storage;
     public final BitVector address;
-    public final int bitSize;
-    public final int startBitPos;
+
+    private final int bitSize;
+    private final int startBitPos;
 
     public Source(
         final MemoryStorage storage,
@@ -45,14 +46,26 @@ final class LocationImpl extends Location {
       this.startBitPos = startBitPos;
     }
 
+    @Override
     public boolean isInitialized() {
       return storage.isInitialized(address);
     }
 
+    @Override
     public Source resize(
         final int newBitSize,
         final int newStartBitPos) {
       return new Source(storage, address, newBitSize, newStartBitPos);
+    }
+
+    @Override
+    public int getBitSize() {
+      return bitSize;
+    }
+
+    @Override
+    public int getStartBitPos() {
+      return startBitPos;
     }
 
     @Override
