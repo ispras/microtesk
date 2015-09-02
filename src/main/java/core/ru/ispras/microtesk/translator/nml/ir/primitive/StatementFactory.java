@@ -26,6 +26,7 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
+import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFactory extends WalkerFactoryBase {
@@ -49,7 +50,26 @@ public final class StatementFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public Statement createAssignment(Location left, Expr right) {
+  public Statement createAssignment(
+      final Where where,
+      final Location left,
+      final Expr right) throws SemanticException {
+
+    if (left instanceof LocationAtom) {
+      final LocationAtom atom = (LocationAtom) left;
+      if (atom.getSource() instanceof LocationAtom.PrimitiveSource) {
+        final LocationAtom.PrimitiveSource source =
+            (LocationAtom.PrimitiveSource) atom.getSource();
+
+        if (source.getPrimitive().getKind() == Primitive.Kind.IMM) {
+          raiseError(where, String.format(
+              "'%s' is an input argument and it cannot be assigned a value.",
+              atom.getName()
+              ));
+        }
+      }
+    }
+
     return new StatementAssignment(left, right);
   }
 

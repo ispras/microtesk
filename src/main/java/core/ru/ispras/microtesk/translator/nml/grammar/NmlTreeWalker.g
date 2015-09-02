@@ -551,7 +551,7 @@ getLocationFactory().beginRhs();
 {
 checkNotNull($me.start, $me.res, $me.text);
 final List<Statement> result = new ArrayList<>();
-result.add(getStatementFactory().createAssignment($le.res, $me.res));
+result.add(getStatementFactory().createAssignment(where($le.start), $le.res, $me.res));
 
 final int ctIndex = analyzer.getControlTransferIndex();
 if (ctIndex > 0)
@@ -572,9 +572,22 @@ conditionalStatement returns [List<Statement> res]
 
 ifStmt returns [List<Statement> res]
 @init  {final List<StatementCondition.Block> blocks = new ArrayList<>();}
-    :  ^(IF {getLocationFactory().beginRhs();} cond=logicExpr {getLocationFactory().endAssignment();} stmts=sequence {blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));}
-        (elifb=elseIfStmt                 {blocks.add($elifb.res);})*
-        (eb=elseStmt                      {blocks.add($eb.res);})?)
+    :  ^(IF {getLocationFactory().beginRhs();} cond=logicExpr {getLocationFactory().endAssignment();}
+         stmts=sequence
+{
+checkNotNull($stmts.start, $stmts.res, $stmts.text);
+blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));
+}
+        (elifb=elseIfStmt
+{
+checkNotNull($elifb.start, $elifb.res, $elifb.text);
+blocks.add($elifb.res);
+})*
+        (eb=elseStmt
+{
+checkNotNull($eb.start, $eb.res, $eb.text);
+blocks.add($eb.res);
+})?)
 {
 $res = Collections.singletonList(getStatementFactory().createCondition(blocks));
 }
@@ -583,6 +596,7 @@ $res = Collections.singletonList(getStatementFactory().createCondition(blocks));
 elseIfStmt returns [StatementCondition.Block res]
     :  ^(ELSEIF {getLocationFactory().beginRhs();}cond=logicExpr{getLocationFactory().endAssignment();} stmts=sequence)
 {
+checkNotNull($stmts.start, $stmts.res, $stmts.text);
 $res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);
 }
     ;
