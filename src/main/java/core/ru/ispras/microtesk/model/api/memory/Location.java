@@ -59,15 +59,27 @@ public abstract class Location implements LocationAccessor {
   public abstract void store(Data data);
   public abstract Location assign(Location source);
 
-  public abstract Location bitField(Data start, Data end);
   public abstract Location bitField(int start, int end);
-
-  public final Location bitField(final Data index) {
-    return bitField(index, index);
-  }
 
   public final Location bitField(final int index) {
     return bitField(index, index);
+  }
+
+  public final Location bitField(final Data start, final Data end) {
+    InvariantChecks.checkNotNull(start);
+    InvariantChecks.checkTrue(start.getRawData().getBitSize() <= Integer.SIZE);
+
+    InvariantChecks.checkNotNull(end);
+    InvariantChecks.checkTrue(end.getRawData().getBitSize() <= Integer.SIZE);
+
+    return bitField(start.getRawData().intValue(), end.getRawData().intValue());
+  }
+
+  public final Location bitField(final Data index) {
+    InvariantChecks.checkNotNull(index);
+    InvariantChecks.checkTrue(index.getRawData().getBitSize() <= Integer.SIZE);
+
+    return bitField(index.getRawData().intValue());
   }
 
   public abstract Location concat(Location argument);

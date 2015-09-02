@@ -160,10 +160,6 @@ final class LocationImpl extends Location {
     return this;
   }
 
-  public LocationImpl bitField(Data start, Data end) {
-    return bitField(start.getRawData().intValue(), end.getRawData().intValue());
-  }
-
   public LocationImpl bitField(int start, int end) {
     // System.out.printf("Bit field: %d %d %n", start, end);
 
