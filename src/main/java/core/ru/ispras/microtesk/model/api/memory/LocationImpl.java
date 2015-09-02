@@ -20,12 +20,10 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandler;
 import ru.ispras.microtesk.model.api.memory.handler.MemoryAccessHandlerEngine;
@@ -249,19 +247,6 @@ final class LocationImpl extends Location {
 
     final Type newType = locations[0].getType().resize(newBitSize);
     return new LocationImpl(newType, newSources);
-  }
-
-  public Location repeat(final int count) {
-    InvariantChecks.checkGreaterThanZero(count);
-
-    if (count == 1) {
-      return this;
-    }
-
-    final LocationImpl[] array = new LocationImpl[count];
-    Arrays.fill(array, this);
-
-    return concat(array); 
   }
 
   @Override

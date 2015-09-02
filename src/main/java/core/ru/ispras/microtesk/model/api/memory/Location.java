@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
+import java.util.Arrays;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -69,9 +71,21 @@ public abstract class Location implements LocationAccessor {
   }
 
   public abstract Location concat(Location argument);
-  public abstract Location repeat(int count);
 
   public static Location concat(final Location... locations) {
     return LocationImpl.concat(locations);
+  }
+
+  public final Location repeat(final int count) {
+    InvariantChecks.checkGreaterThanZero(count);
+
+    if (count == 1) {
+      return this;
+    }
+
+    final Location[] array = new Location[count];
+    Arrays.fill(array, this);
+
+    return concat(array); 
   }
 }
