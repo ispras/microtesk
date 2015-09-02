@@ -57,7 +57,12 @@ public abstract class Location implements LocationAccessor {
   public abstract boolean isInitialized();
   public abstract Data load();
   public abstract void store(Data data);
-  public abstract Location assign(Location source);
+
+  public final Location assign(final Location source) {
+    InvariantChecks.checkNotNull(source);
+    store(source.load());
+    return this;
+  }
 
   public abstract Location bitField(int start, int end);
 

@@ -154,12 +154,6 @@ final class LocationImpl extends Location {
     writeDataDirecty(rawData, sources);
   }
 
-  public LocationImpl assign(Location source) {
-    checkNotNull(source);
-    store(source.load());
-    return this;
-  }
-
   public LocationImpl bitField(int start, int end) {
     // System.out.printf("Bit field: %d %d %n", start, end);
 
