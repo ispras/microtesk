@@ -80,5 +80,19 @@ final class LocationAtomImm implements Location.Atom {
   public void store(final BitVector data) {
     throw new UnsupportedOperationException(
         "Assigning values to immediate arguments is illegal.");
+
+    /*
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkTrue(data.getBitSize() == bitSize);
+
+    final BitVector target;
+    if (startBitPos == 0) {
+      target = value;
+    } else {
+      target = BitVector.newMapping(value, startBitPos, bitSize);
+    }
+
+    target.assign(data);
+    */
   }
 }
