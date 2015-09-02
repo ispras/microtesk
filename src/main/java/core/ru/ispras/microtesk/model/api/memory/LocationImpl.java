@@ -99,25 +99,6 @@ final class LocationImpl {
           startBitPos + bitSize - 1);
     }
   }
-  
-  public static Location newLocationForConst(final Data data) {
-    InvariantChecks.checkNotNull(data);
-
-    final String storageId = "#constant";
-    final BitVector zeroAddress = BitVector.valueOf(0, 1);
-
-    final Type type = data.getType();
-    final int bitSize = type.getBitSize();
-
-    final MemoryStorage storage =
-        new MemoryStorage(BigInteger.ONE, bitSize).setId(storageId);
-
-    storage.write(zeroAddress, data.getRawData());
-    storage.setReadOnly(false);
-
-    final Source source = new Source(storage, zeroAddress, bitSize, 0);
-    return new Location(type, source);
-  }
 
   public static Location newLocationForRegion(
       final Type type,

@@ -58,15 +58,11 @@ public final class Location implements LocationAccessor {
   }
 
   public static Location newLocationForConst(final Data data) {
-    return LocationImpl.newLocationForConst(data);
-
-    /*
     InvariantChecks.checkNotNull(data);
     return new Location(
         data.getType(),
-        new LocationAtomConst(data.getRawData())
+        new LocationAtomImm(data.getRawData())
         );
-     */
   }
 
   public static Location newLocationForRegion(
