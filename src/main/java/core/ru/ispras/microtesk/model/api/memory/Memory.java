@@ -52,7 +52,13 @@ public abstract class Memory {
       final Type type,
       final BigInteger length) {
     checkDefined(name);
-    final Memory result = new PhysicalMemory(kind, name, type, length);
+
+    final Memory result;
+    if (kind == Kind.VAR) {
+      result = new VariableArray(name, type, length);
+    } else {
+      result = new PhysicalMemory(kind, name, type, length);
+    }
 
     INSTANCES.put(name, result);
     return result;
