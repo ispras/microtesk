@@ -33,7 +33,6 @@ import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 final class LocationImpl extends Location {
-  private final Type type;
   private final List<Source> sources;
 
   private static final class Source {
@@ -78,10 +77,9 @@ final class LocationImpl extends Location {
   }
 
   private LocationImpl(final Type type, final List<Source> sources) {
-    checkNotNull(type);
-    checkNotEmpty(sources);
+    super(type);
 
-    this.type = type;
+    checkNotEmpty(sources);
     this.sources = sources;
   }
 
@@ -125,20 +123,11 @@ final class LocationImpl extends Location {
   public LocationImpl castTo(TypeId typeId) {
     checkNotNull(typeId);
 
-    if (type.getTypeId() == typeId) {
+    if (getType().getTypeId() == typeId) {
       return this;
     }
 
-    return new LocationImpl(type.castTo(typeId), sources);
-  }
-
-  public Type getType() {
-    return type;
-  }
-
-  @Override
-  public int getBitSize() {
-    return type.getBitSize();
+    return new LocationImpl(getType().castTo(typeId), sources);
   }
 
   public boolean isInitialized() {
@@ -160,7 +149,7 @@ final class LocationImpl extends Location {
       rawData = readDataViaHandler(handler, sources);
     }
 
-    return new Data(rawData, type);
+    return new Data(rawData, getType());
   }
 
   public void store(Data data) {
@@ -207,7 +196,7 @@ final class LocationImpl extends Location {
     }
 
     final int newBitSize = end - start + 1;
-    final Type newType = type.resize(newBitSize);
+    final Type newType = getType().resize(newBitSize);
 
     final List<Source> newSources = new ArrayList<Source>();
 

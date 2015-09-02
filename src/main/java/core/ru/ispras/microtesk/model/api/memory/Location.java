@@ -15,12 +15,20 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 public abstract class Location implements LocationAccessor {
+  private final Type type;
+
+  protected Location(final Type type) {
+    InvariantChecks.checkNotNull(type);
+    this.type = type;
+  }
 
   public static Location newLocationForConst(final Data data) {
     return LocationImpl.newLocationForConst(data);
@@ -33,7 +41,15 @@ public abstract class Location implements LocationAccessor {
     return LocationImpl.newLocationForRegion(type, storage, address);
   }
 
-  public abstract Type getType();
+  public final Type getType() {
+    return type;
+  }
+
+  @Override
+  public final int getBitSize() {
+    return type.getBitSize();
+  }
+
   public abstract Location castTo(TypeId typeId);
 
   public abstract boolean isInitialized();
