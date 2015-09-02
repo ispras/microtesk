@@ -14,16 +14,13 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
@@ -75,12 +72,12 @@ final class LocationImpl extends Location {
   private LocationImpl(final Type type, final List<Source> sources) {
     super(type);
 
-    checkNotEmpty(sources);
+    InvariantChecks.checkNotEmpty(sources);
     this.sources = sources;
   }
 
   public static LocationImpl newLocationForConst(final Data data) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
 
     final String storageId = "#constant";
     final BitVector zeroAddress = BitVector.valueOf(0, 1);
@@ -102,8 +99,8 @@ final class LocationImpl extends Location {
       final Type type,
       final MemoryStorage storage,
       final BitVector address) {
-    checkNotNull(type);
-    checkNotNull(storage);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(storage);
     //checkBounds(regionIndex, storage.getRegionCount());
 
     if (type.getBitSize() != storage.getRegionBitSize()) {
@@ -117,7 +114,7 @@ final class LocationImpl extends Location {
   }
 
   public LocationImpl castTo(TypeId typeId) {
-    checkNotNull(typeId);
+    InvariantChecks.checkNotNull(typeId);
 
     if (getType().getTypeId() == typeId) {
       return this;
@@ -141,7 +138,7 @@ final class LocationImpl extends Location {
   }
 
   public void store(Data data) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
 
     if (getBitSize() != data.getType().getBitSize()) {
       throw new IllegalArgumentException(String.format(
@@ -149,7 +146,7 @@ final class LocationImpl extends Location {
     }
 
     final BitVector rawData = data.getRawData();
-    checkNotNull(rawData);
+    InvariantChecks.checkNotNull(rawData);
 
     writeDataDirecty(rawData, sources);
   }
@@ -157,8 +154,8 @@ final class LocationImpl extends Location {
   public LocationImpl bitField(int start, int end) {
     // System.out.printf("Bit field: %d %d %n", start, end);
 
-    checkBounds(start, getBitSize());
-    checkBounds(end, getBitSize());
+    InvariantChecks.checkBounds(start, getBitSize());
+    InvariantChecks.checkBounds(end, getBitSize());
 
     if (start > end) {
       return bitField(end, start);
@@ -203,9 +200,7 @@ final class LocationImpl extends Location {
   }
 
   public static Location concat(Location ... locations) {
-    if (locations.length == 0) {
-      throw new IllegalArgumentException();
-    }
+    InvariantChecks.checkNotEmpty(locations);
 
     if (locations.length == 1) {
       return locations[0];
@@ -215,7 +210,7 @@ final class LocationImpl extends Location {
     final List<Source> newSources = new ArrayList<Source>();
 
     for (Location location : locations) {
-      checkNotNull(location);
+      InvariantChecks.checkNotNull(location);
       newBitSize += location.getBitSize();
       newSources.addAll(((LocationImpl) location).sources);
     }
@@ -238,7 +233,7 @@ final class LocationImpl extends Location {
 
   @Override
   public void setValue(final BigInteger value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
 
     // System.out.println("############## " + toBinString()); 
     // System.out.println("############## Before Assigning 0x" + value);
