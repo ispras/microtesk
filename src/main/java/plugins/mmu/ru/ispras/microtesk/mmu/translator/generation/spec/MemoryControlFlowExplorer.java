@@ -41,13 +41,15 @@ final class MemoryControlFlowExplorer {
     InvariantChecks.checkNotNull(read, "Undefined attribute: " + AbstractStorage.READ_ATTR_NAME);
 
     final Buffer readTarget = visitStmts(read.getStmts(), AbstractStorage.READ_ATTR_NAME);
-    InvariantChecks.checkNotNull(readTarget);
+    InvariantChecks.checkNotNull(readTarget,
+        "Failed to determine target buffer for attribute: " + AbstractStorage.READ_ATTR_NAME);
 
     final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
     InvariantChecks.checkNotNull(write, "Undefined attribute: " + AbstractStorage.WRITE_ATTR_NAME);
 
     final Buffer writeTarget = visitStmts(write.getStmts(), AbstractStorage.WRITE_ATTR_NAME);
-    InvariantChecks.checkNotNull(writeTarget);
+    InvariantChecks.checkNotNull(writeTarget,
+        "Failed to determine target buffer for attribute: " + AbstractStorage.WRITE_ATTR_NAME);
 
     if (readTarget != writeTarget) {
       throw new IllegalStateException(String.format(
