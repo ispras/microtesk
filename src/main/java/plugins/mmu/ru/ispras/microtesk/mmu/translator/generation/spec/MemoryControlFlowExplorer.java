@@ -56,7 +56,11 @@ final class MemoryControlFlowExplorer {
       throw new IllegalStateException(String.format(
           "Invariant is violated: control flow of read and write attributes of %s " +
           "must use the same buffer for the last access. This buffer will be " + 
-          "recognized as target buffer.", memory.getId()));
+          "recognized as target buffer. Now %s (for read) vs. %s (for write).",
+          memory.getId(),
+          readTarget.getId(),
+          writeTarget.getId())
+          );
     }
 
     this.target = readTarget;
