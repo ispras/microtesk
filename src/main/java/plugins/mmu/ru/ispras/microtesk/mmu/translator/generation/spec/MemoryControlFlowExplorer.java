@@ -38,13 +38,13 @@ final class MemoryControlFlowExplorer {
     InvariantChecks.checkNotNull(memory);
 
     final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
-    InvariantChecks.checkNotNull(read);
+    InvariantChecks.checkNotNull(read, "Undefined attribute: " + AbstractStorage.READ_ATTR_NAME);
 
     final Buffer readTarget = visitStmts(read.getStmts(), AbstractStorage.READ_ATTR_NAME);
     InvariantChecks.checkNotNull(readTarget);
 
     final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
-    InvariantChecks.checkNotNull(write);
+    InvariantChecks.checkNotNull(write, "Undefined attribute: " + AbstractStorage.WRITE_ATTR_NAME);
 
     final Buffer writeTarget = visitStmts(write.getStmts(), AbstractStorage.WRITE_ATTR_NAME);
     InvariantChecks.checkNotNull(writeTarget);
