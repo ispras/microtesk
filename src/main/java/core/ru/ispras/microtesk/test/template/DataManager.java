@@ -506,8 +506,8 @@ public final class DataManager {
 
     final MemoryAllocator oldAllocator = allocator;
     try {
-      allocator = new MemoryAllocator(
-          oldAllocator.getMemoryStorage(), oldAllocator.getAddressableUnitBitSize(), address);
+      allocator = oldAllocator.newAllocator(address);
+
       final BitVector bvAddress =
           BitVector.valueOf(address, allocator.getAddressBitSize());
 
@@ -572,11 +572,7 @@ public final class DataManager {
 
     final MemoryAllocator oldAllocator = allocator;
     try {
-      allocator = new MemoryAllocator(
-          oldAllocator.getMemoryStorage(),
-          oldAllocator.getAddressableUnitBitSize(),
-          startAddress
-          );
+      allocator = oldAllocator.newAllocator(startAddress);
 
       if (isSeparateFile) {
         pushScope();
