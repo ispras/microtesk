@@ -79,7 +79,7 @@ final class STBSpecification implements STBuilder {
     }
 
     final Memory memory = memories.values().iterator().next();
-    InvariantChecks.checkNotNull(memory, "Specification mmu is null");
+    InvariantChecks.checkNotNull(memory, "Specification mmu is null.");
 
     buildEntryPoint(memory, stBody, group); 
   }
