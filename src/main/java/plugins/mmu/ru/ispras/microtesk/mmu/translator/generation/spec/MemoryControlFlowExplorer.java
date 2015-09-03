@@ -27,6 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
@@ -202,6 +203,11 @@ final class MemoryControlFlowExplorer {
       if (ref.getTarget() instanceof Buffer &&
           ref.getAttribute().getId().equals(attrId)) {
         return (Buffer) ref.getTarget();
+      } else if (ref.getTarget() instanceof Segment &&
+            ref.getAttribute().getId().equals(attrId)) {
+        final Segment segment = (Segment) ref.getTarget();
+        final Attribute attribute = segment.getAttribute(attrId);
+        return visitStmts(attribute.getStmts(), attrId);
       }
     }
 
