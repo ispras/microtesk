@@ -217,10 +217,8 @@ final class MemoryControlFlowExplorer {
       if (ref.getTarget() instanceof Buffer &&
           ref.getAttribute().getId().equals(attrId)) {
         return (Buffer) ref.getTarget();
-      } else if (ref.getTarget() instanceof Segment &&
-            ref.getAttribute().getId().equals(attrId)) {
-        final Segment segment = (Segment) ref.getTarget();
-        final Attribute attribute = segment.getAttribute(attrId);
+      } else if (ref.getTarget() instanceof Segment) {
+        final Attribute attribute = ref.getAttribute();
         return visitStmts(attribute.getStmts(), attrId);
       }
     }
