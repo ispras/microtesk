@@ -121,6 +121,27 @@ final class RegisterFile extends Memory {
       this.startBitPos = 0;
     }
 
+    private RegisterAtom(
+        final BitVector value,
+        final BitVector flags,
+        final int bitSize,
+        final int startBitPos) {
+      InvariantChecks.checkNotNull(value);
+      InvariantChecks.checkNotNull(flags);
+      InvariantChecks.checkTrue(value.getBitSize() == flags.getBitSize());
+
+      InvariantChecks.checkGreaterThanZero(bitSize);
+      InvariantChecks.checkGreaterOrEqZero(startBitPos);
+
+      InvariantChecks.checkBounds(startBitPos, value.getBitSize());
+      InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, value.getBitSize());
+
+      this.value = value;
+      this.flags = flags;
+      this.bitSize = bitSize;
+      this.startBitPos = startBitPos;
+    }
+
     @Override
     public boolean isInitialized() {
       final BitVector initialized;
@@ -129,9 +150,7 @@ final class RegisterFile extends Memory {
       } else {
         initialized = BitVector.newMapping(flags, startBitPos, bitSize);
       }
-
-      // All bits  must be 1.
-      return false;
+      return initialized.isAllSet();
     }
 
     @Override
@@ -146,20 +165,33 @@ final class RegisterFile extends Memory {
 
     @Override
     public Atom resize(final int newBitSize, final int newStartBitPos) {
-      // TODO Auto-generated method stub
-      return null;
+      return new RegisterAtom(value, flags, newBitSize, newStartBitPos);
     }
 
     @Override
     public BitVector load() {
-      // TODO Auto-generated method stub
-      return null;
+      if (value.getBitSize() == bitSize) {
+        return value;
+      } 
+
+      return BitVector.newMapping(value, startBitPos, bitSize);
     }
 
     @Override
     public void store(final BitVector data) {
-      // TODO Auto-generated method stub
-      
+      InvariantChecks.checkNotNull(data);
+      InvariantChecks.checkTrue(data.getBitSize() == bitSize);
+
+      final BitVector target;
+      if (startBitPos == 0) {
+        target = value;
+        flags.setAll();
+      } else {
+        target = BitVector.newMapping(value, startBitPos, bitSize);
+        BitVector.newMapping(flags, startBitPos, bitSize).setAll();
+      }
+
+      target.assign(data);
     }
   }
 }
