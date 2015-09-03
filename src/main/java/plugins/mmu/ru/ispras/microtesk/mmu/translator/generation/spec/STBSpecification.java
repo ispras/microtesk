@@ -72,13 +72,15 @@ final class STBSpecification implements STBuilder {
     registerMemories(stBody, group);
 
     final Map<String, Memory> memories = ir.getMemories();
-    InvariantChecks.checkNotEmpty(memories.keySet());
+    InvariantChecks.checkFalse(memories.isEmpty(), "Collection of mmu specifications is empty.");
 
     if (memories.size() > 1) {
       throw new IllegalStateException("Only one mmu specification is allowed.");
     }
 
     final Memory memory = memories.values().iterator().next();
+    InvariantChecks.checkNotNull(memory, "Specification mmu is null");
+
     buildEntryPoint(memory, stBody, group); 
   }
 
