@@ -81,7 +81,7 @@ final class RegisterFile extends Memory {
 
   @Override
   public void reset() {
-    // Do nothing
+    // Do nothing. Registers are not reset.
   }
 
   @Override

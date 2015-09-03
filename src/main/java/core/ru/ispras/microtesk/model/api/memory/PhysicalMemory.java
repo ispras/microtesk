@@ -59,7 +59,7 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public void reset() {
-    storage.reset();
+    // Do nothing. Memory is not reset.
   }
 
   @Override
