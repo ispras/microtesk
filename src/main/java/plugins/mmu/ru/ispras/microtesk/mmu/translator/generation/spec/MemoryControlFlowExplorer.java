@@ -136,6 +136,11 @@ final class MemoryControlFlowExplorer {
   private static boolean isBufferHit(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
+    if (expr.getKind() != Node.Kind.VARIABLE &&
+        expr.getKind() != Node.Kind.OPERATION) {
+      return false;
+    }
+
     final Condition cond = Condition.extract(expr);
     for (final Node atom : cond.getAtoms()) {
       if (atom.getKind() == Node.Kind.VARIABLE && isBufferHit((NodeVariable) atom)) {
@@ -162,6 +167,11 @@ final class MemoryControlFlowExplorer {
 
   private static boolean isBufferMiss(final Node expr) {
     InvariantChecks.checkNotNull(expr);
+
+    if (expr.getKind() != Node.Kind.VARIABLE &&
+        expr.getKind() != Node.Kind.OPERATION) {
+      return false;
+    }
 
     final Condition cond = Condition.extract(expr);
     for (final Node atom : cond.getAtoms()) {
