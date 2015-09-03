@@ -34,7 +34,7 @@ final class STBModel implements STBuilder {
       ru.ispras.microtesk.mmu.model.api.BufferObserver.class;
 
   private static final Class<?> MEM_CLASS =
-      ru.ispras.microtesk.model.api.memory.MemoryAccessor.class;
+      ru.ispras.microtesk.model.api.memory.MemoryDevice.class;
 
   private final String packageName;
   private final Ir ir;

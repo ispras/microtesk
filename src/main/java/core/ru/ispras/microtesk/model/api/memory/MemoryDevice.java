@@ -17,13 +17,13 @@ package ru.ispras.microtesk.model.api.memory;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * The {@code MemoryAccessor} interface provides a unified access
+ * The {@code MemoryDevice} interface provides a unified access
  * to an abstract memory device, which can be implemented as a simple
  * data array or as a complex hierarchy of data buffers.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface MemoryAccessor {
+public interface MemoryDevice {
   /**
    * Returns the size of address used to perform an access to the memory device. 
    * 
@@ -43,7 +43,7 @@ public interface MemoryAccessor {
    * Loads data from the given address.
    * 
    * @param address Load address.
-   * @return Data of size equal to returned by {@link MemoryAccessor#getDataBitSize()}.
+   * @return Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
   BitVector load(final BitVector address);
 
@@ -51,7 +51,7 @@ public interface MemoryAccessor {
    * Stored the specified data at the given address.
    * 
    * @param address Store address
-   * @param data Data of size equal to returned by {@link MemoryAccessor#getDataBitSize()}.
+   * @param data Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
   void store(final BitVector address, final BitVector data);
 }

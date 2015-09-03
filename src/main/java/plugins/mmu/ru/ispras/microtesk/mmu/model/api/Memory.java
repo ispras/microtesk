@@ -17,10 +17,10 @@ package ru.ispras.microtesk.mmu.model.api;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
-import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public abstract class Memory <A extends Address>
-    extends StandardFunctions implements Buffer<BitVector, A>, MemoryAccessor {
+    extends StandardFunctions implements Buffer<BitVector, A>, MemoryDevice {
   @Override
   public boolean isHit(final A address) {
     return true;

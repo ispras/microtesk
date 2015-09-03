@@ -33,7 +33,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class MemoryStorage implements MemoryAccessor {
+public final class MemoryStorage implements MemoryDevice {
   private String id;
   private boolean isReadOnly;
 

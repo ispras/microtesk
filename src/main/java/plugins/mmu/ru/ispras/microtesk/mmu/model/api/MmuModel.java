@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import ru.ispras.microtesk.model.api.memory.MemoryAccessor;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public interface MmuModel {
   BufferObserver getBufferObserver(String bufferId);
-  MemoryAccessor getMemoryAccessor(String deviceId);
+  MemoryDevice getMemoryAccessor(String deviceId);
 }
