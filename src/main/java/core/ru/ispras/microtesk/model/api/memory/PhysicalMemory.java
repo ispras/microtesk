@@ -27,11 +27,10 @@ final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
 
   public PhysicalMemory(
-      final Kind kind,
       final String name,
       final Type type,
       final BigInteger length) {
-    super(kind, name, type, length, false);
+    super(Kind.MEM, name, type, length, false);
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
   }
 

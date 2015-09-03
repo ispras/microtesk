@@ -56,7 +56,7 @@ public abstract class Memory {
     final Memory result;
     switch (kind) {
       case MEM:
-        result = new PhysicalMemory(kind, name, type, length);
+        result = new PhysicalMemory(name, type, length);
         break;
 
       case REG:
