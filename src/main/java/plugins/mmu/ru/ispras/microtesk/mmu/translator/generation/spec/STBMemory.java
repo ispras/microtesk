@@ -21,6 +21,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -73,10 +74,31 @@ final class STBMemory implements STBuilder {
   }
 
   private void buildAddress(final ST st, final STGroup group) {
-    final ST stAddress = group.getInstanceOf("field_alias");
-    stAddress.add("name", getVariableName(memory.getAddressArg().getName()));
-    stAddress.add("type", memory.getAddress().getId());
-    st.add("members", stAddress);
+    STBSegment.buildFieldAlias(
+        memory.getId(),
+        memory.getAddressArg(),
+        memory.getAddress(),
+        st,
+        group
+        );
+
+    // FIXME: All addresses are considered singletons. This assumption is not always correct.
+    // There may be several local variables having type which corresponds to some address.
+    // In this case they will refer to the same instance causing troubles. 
+
+    for (final Variable variable : memory.getVariables()) {
+      final Address address = ir.getAddresses().get(variable.getType().getId());
+      if (null != address) {
+        STBSegment.buildFieldAlias(
+            memory.getId(),
+            variable,
+            address,
+            st,
+            group
+            );
+      }
+    }
+
     st.add("members", "");
   }
 
@@ -96,18 +118,23 @@ final class STBMemory implements STBuilder {
         );
 
     for (final Variable variable : memory.getVariables()) {
-      final String name = getVariableName(variable.getName());
       final Type type = variable.getType();
+      if (!ir.getAddresses().containsKey(type.getId())) {
+        // FIXME: All addresses are considered singletons. This assumption is not always correct.
+        // There may be several local variables having type which corresponds to some address.
+        // In this case they will refer to the same instance causing troubles. 
 
-      STBStruct.buildFieldDecl(
-          name,
-          type,
-          st,
-          stConstructor,
-          group
-          );
+        final String name = getVariableName(variable.getName());
+        STBStruct.buildFieldDecl(
+            name,
+            type,
+            st,
+            stConstructor,
+            group
+            );
 
-      stReg.add("vars", name);
+        stReg.add("vars", name);
+      }
     }
 
     final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);

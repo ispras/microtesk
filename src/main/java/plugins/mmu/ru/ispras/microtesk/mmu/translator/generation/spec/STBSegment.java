@@ -19,6 +19,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -77,15 +78,39 @@ final class STBSegment implements STBuilder {
   }
 
   private void buildArguments(final ST st, final STGroup group) {
-    final ST stAddress = group.getInstanceOf("field_alias");
-    stAddress.add("name", getVariableName(segment.getAddressArg().getName()));
-    stAddress.add("type", segment.getAddress().getId());
-    st.add("members", stAddress);
+    buildFieldAlias(
+        segment.getId(),
+        segment.getAddressArg(),
+        segment.getAddress(),
+        st,
+        group
+        );
 
-    final ST stData = group.getInstanceOf("field_alias");
-    stData.add("name", getVariableName(segment.getDataArg().getName()));
-    stData.add("type", segment.getDataArgAddress().getId());
-    st.add("members", stData);
+    buildFieldAlias(
+        segment.getId(),
+        segment.getDataArg(),
+        segment.getDataArgAddress(),
+        st,
+        group
+        );
+  }
+
+  public static void buildFieldAlias(
+      final String context,
+      final Variable variable,
+      final Address address,
+      final ST st,
+      final STGroup group) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(st);
+    InvariantChecks.checkNotNull(group);
+
+    final ST stAddress = group.getInstanceOf("field_alias");
+    stAddress.add("name", Utils.getVariableName(context, variable.getName()));
+    stAddress.add("type", address.getId());
+    st.add("members", stAddress);
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
