@@ -77,6 +77,8 @@ final class STBSpecification implements STBuilder {
     }
 
     final Memory memory = memories.values().iterator().next();
+    InvariantChecks.checkNotNull(memory);
+
     buildEntryPoint(memory, stBody, group); 
   }
 
