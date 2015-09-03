@@ -89,7 +89,7 @@ final class PhysicalMemory extends Memory {
     private final int bitSize;
     private final int startBitPos;
 
-    public PhysicalMemoryAtom(
+    private PhysicalMemoryAtom(
         final MemoryStorage storage,
         final BitVector address,
         final int bitSize,

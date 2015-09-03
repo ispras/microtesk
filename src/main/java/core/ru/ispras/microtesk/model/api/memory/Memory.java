@@ -54,10 +54,21 @@ public abstract class Memory {
     checkDefined(name);
 
     final Memory result;
-    if (kind == Kind.VAR) {
-      result = new VariableArray(name, type, length);
-    } else {
-      result = new PhysicalMemory(kind, name, type, length);
+    switch (kind) {
+      case MEM:
+        result = new PhysicalMemory(kind, name, type, length);
+        break;
+
+      case REG:
+        result = new RegisterFile(name, type, length);
+        break;
+        
+      case VAR:
+        result = new VariableArray(name, type, length);
+        break;
+
+      default:
+        throw new IllegalArgumentException("Unknown kind: " + kind);
     }
 
     INSTANCES.put(name, result);

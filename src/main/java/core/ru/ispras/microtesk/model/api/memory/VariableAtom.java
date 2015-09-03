@@ -23,7 +23,7 @@ final class VariableAtom implements Location.Atom {
   private final int bitSize;
   private final int startBitPos;
 
-  public VariableAtom(final BitVector value) {
+  protected VariableAtom(final BitVector value) {
     InvariantChecks.checkNotNull(value);
     this.value = value;
     this.bitSize = value.getBitSize();

@@ -111,7 +111,7 @@ final class RegisterFile extends Memory {
     private final int bitSize;
     private final int startBitPos;
 
-    public RegisterAtom(final int bitSize) {
+    private RegisterAtom(final int bitSize) {
       InvariantChecks.checkGreaterThanZero(bitSize);
 
       this.value = BitVector.newEmpty(bitSize);
