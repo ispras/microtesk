@@ -85,7 +85,13 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     // Convert the abstract sequence into the concrete one.
     builder.add(prepareSequence(engineContext, abstractSequence));
 
-    return new AdapterResult(builder.build());
+    final TestSequence sequence = builder.build();
+
+    final long baseAddress = engineContext.getAddress();
+    final long newAddress = sequence.setAddress(baseAddress);
+    engineContext.setAddress(newAddress);
+
+    return new AdapterResult(sequence);
   }
 
   private List<ConcreteCall> prepareEntries(
