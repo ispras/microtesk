@@ -25,6 +25,7 @@ import ru.ispras.microtesk.model.api.type.Type;
 
 final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
+  private MemoryDevice handler;
 
   public PhysicalMemory(
       final String name,
@@ -32,6 +33,20 @@ final class PhysicalMemory extends Memory {
       final BigInteger length) {
     super(Kind.MEM, name, type, length, false);
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
+    this.handler = null;
+  }
+
+  public MemoryDevice getStorage() {
+    return storage;
+  }
+
+  public MemoryDevice getHandler() {
+    return handler;
+  }
+
+  public void setHandler(final MemoryDevice handler) {
+    InvariantChecks.checkNotNull(handler);
+    this.handler = handler;
   }
 
   @Override
