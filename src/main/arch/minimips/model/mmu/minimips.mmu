@@ -78,11 +78,6 @@ mmu pmem (va: VA) = (data: 32)
   var cacheData: 256;
 
   read = {
-    // The address is unaligned at 32-bit border.
-    if va.value<0..1> != 0 then
-      exception("AddressError");
-    endif; // If the address is unaligned.
-
     // The default cache policy.
     c = 3;
 
@@ -147,11 +142,6 @@ mmu pmem (va: VA) = (data: 32)
   }
 
   write = {
-    // The address is unaligned at 32-bit border.
-    if va.value<0..1> != 0 then
-      exception("AddressError");
-    endif; // If the address is unaligned.
-
     // The default cache policy.
     c = 3;
 
