@@ -45,10 +45,6 @@ public final class Location implements LocationAccessor {
   private final Type type;
   private final List<Atom> atoms;
 
-  protected Location(final Type type, final Atom atom) {
-    this(type, atom != null ? Collections.singletonList(atom) : null);
-  }
-
   protected Location(final Type type, final List<Atom> atoms) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotEmpty(atoms);
@@ -57,12 +53,19 @@ public final class Location implements LocationAccessor {
     this.atoms = atoms;
   }
 
+  protected Location(final Type type, final Atom atom) {
+    this(type, atom != null ? Collections.singletonList(atom) : null);
+  }
+
+  public Location (final Data data) {
+    this(
+        data != null ? data.getType() : null,
+        data != null ? new VariableAtom(data.getRawData()) : null
+    );
+  }
+
   public static Location newLocationForConst(final Data data) {
-    InvariantChecks.checkNotNull(data);
-    return new Location(
-        data.getType(),
-        new VariableAtom(data.getRawData())
-        );
+    return new Location(data);
   }
 
   public Type getType() {
