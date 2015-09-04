@@ -17,6 +17,8 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -33,6 +35,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 final class MemoryCoverageExtractor {
+  private static final int MAX_RECURSION_DEPTH = 5;
+
   private final MmuSubsystem memory;
 
   public MemoryCoverageExtractor(final MmuSubsystem memory) {
@@ -62,13 +66,19 @@ final class MemoryCoverageExtractor {
         }
       }
 
+      final Map<String, Integer> observed = new HashMap<>();
+
       int i = 0;
       while (i < paths.size()) {
-        final List<MemoryAccessPath> pathPrefixes = elongatePath(type, paths.get(i));
+        final MemoryAccessPath path = paths.get(i);
+        final List<MemoryAccessPath> pathPrefixes = elongatePath(type, path);
+        final int occurences = increment(observed, path.toString());
 
         if (pathPrefixes != null) {
           paths.remove(i);
-          paths.addAll(pathPrefixes);
+          if (occurences < MAX_RECURSION_DEPTH) {
+            paths.addAll(pathPrefixes);
+          }
         } else {
           i++;
         }
@@ -88,6 +98,16 @@ final class MemoryCoverageExtractor {
     }
 
     return result;
+  }
+
+  private static int increment(final Map<String, Integer> observed, final String key) {
+    Integer n = observed.get(key);
+    if (n == null) {
+      n = 0;
+    }
+    observed.put(key, n + 1);
+
+    return n;
   }
 
   /**
