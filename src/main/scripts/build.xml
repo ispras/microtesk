@@ -37,12 +37,13 @@
 
   <!-- Target for building models -->
   <target name="build">
-  	<mkdir dir="${bin}"/>
+    <mkdir dir="${bin}"/>
     <javac
       srcdir="${src}"
       destdir="${bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
+      debug="true"
     />
     <mkdir dir="${res}"/>
     <jar destfile="${models.jar}" basedir="${bin}">
