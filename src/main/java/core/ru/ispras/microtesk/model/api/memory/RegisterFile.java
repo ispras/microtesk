@@ -170,10 +170,6 @@ final class RegisterFile extends Memory {
 
     @Override
     public BitVector load() {
-      if (value.getBitSize() == bitSize) {
-        return value;
-      } 
-
       return BitVector.newMapping(value, startBitPos, bitSize);
     }
 
@@ -182,16 +178,8 @@ final class RegisterFile extends Memory {
       InvariantChecks.checkNotNull(data);
       InvariantChecks.checkTrue(data.getBitSize() == bitSize);
 
-      final BitVector target;
-      if (startBitPos == 0) {
-        target = value;
-        flags.setAll();
-      } else {
-        target = BitVector.newMapping(value, startBitPos, bitSize);
-        BitVector.newMapping(flags, startBitPos, bitSize).setAll();
-      }
-
-      target.assign(data);
+      BitVector.newMapping(value, startBitPos, bitSize).assign(data);
+      BitVector.newMapping(flags, startBitPos, bitSize).setAll();
     }
   }
 }

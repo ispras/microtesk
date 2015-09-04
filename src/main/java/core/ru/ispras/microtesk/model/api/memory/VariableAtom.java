@@ -69,10 +69,6 @@ final class VariableAtom implements Location.Atom {
 
   @Override
   public BitVector load() {
-    if (value.getBitSize() == bitSize) {
-      return value;
-    } 
-
     return BitVector.newMapping(value, startBitPos, bitSize);
   }
 
@@ -81,13 +77,7 @@ final class VariableAtom implements Location.Atom {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(data.getBitSize() == bitSize);
 
-    final BitVector target;
-    if (startBitPos == 0) {
-      target = value;
-    } else {
-      target = BitVector.newMapping(value, startBitPos, bitSize);
-    }
-
+    final BitVector target = BitVector.newMapping(value, startBitPos, bitSize);
     target.assign(data);
   }
 }

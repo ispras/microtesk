@@ -139,11 +139,6 @@ final class PhysicalMemory extends Memory {
     @Override
     public BitVector load() {
       final BitVector region = storage.read(address);
-
-      if (region.getBitSize() == bitSize) {
-        return region;
-      } 
-
       return BitVector.newMapping(region, startBitPos, bitSize);
     }
 
