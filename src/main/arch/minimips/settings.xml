@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 
+  <memory>
+    <region type="data" name="region" start="0000_0000" end="ffff_ffff" mode="rwxrwx">
+      <access segment="SEG"/>
+    </region>
+  </memory>
+
   <allocation>
     <mode name="REG">
       <strategy name="random" free-bias="50" used-bias="50"/>
