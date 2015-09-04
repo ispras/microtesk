@@ -955,6 +955,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final Node newAttributeCall(
       final CommonTree id, final List<CommonTree> memberChain) throws SemanticException {
 
+    if (isAddressId(id) && memberChain.size() == 1) {
+      return newImmediateAttribute(id, memberChain.get(0));
+    }
+
     Variable variable = getVariableObject(id);
     for (final CommonTree member : memberChain) {
       final Variable field = variable.getFields().get(member.getText());
@@ -967,6 +971,27 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       variable = field;
     }
     return variable.getNode();
+  }
+
+  private boolean isAddressId(final CommonTree id) {
+    return ir.getAddresses().containsKey(id.getText());
+  }
+
+  private Node newImmediateAttribute(final CommonTree idNode,
+                                     final CommonTree attrNode) throws SemanticException {
+    checkNotNull(idNode, attrNode);
+
+    // FIXME generalize
+    final Address addr = ir.getAddresses().get(idNode.getText());
+    if (addr == null) {
+      raiseError(where(idNode), "Immediate attributes being supported for addresses only");
+    }
+
+    final String attrName = attrNode.getText();
+    if (!attrName.equals("width")) {
+      raiseError(where(idNode), "Unknown immediate attribute: " + attrName);
+    }
+    return NodeValue.newInteger(addr.getAddressType().getBitSize());
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
