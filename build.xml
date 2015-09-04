@@ -392,6 +392,7 @@
       <arg value="-od"/>
       <arg value="${dist.gen}"/>
       <arg value="${dist}/arch/minimips/model/minimips.nml"/>
+      <arg value="${dist}/arch/minimips/model/mmu/minimips.mmu"/>
       <classpath>
         <pathelement location="${dist.jars}/${jar}"/>
       </classpath>
