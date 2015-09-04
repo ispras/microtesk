@@ -97,7 +97,7 @@ public final class Preparator {
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    return calls;
+    return Call.newCopy(calls);
   }
 
   protected static final class Mask {

@@ -68,6 +68,6 @@ public final class BufferPreparator {
       field.setValue(fieldValue);
     }
 
-    return calls;
+    return Call.newCopy(calls);
   }
 }
