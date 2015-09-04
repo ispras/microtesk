@@ -66,7 +66,9 @@ final class ValueInfoCast {
 
   private static ValueInfo getCastMixed(ValueInfo.Kind target, List<ValueInfo> values) {
     for (ValueInfo vi : values) {
-      if (vi.getValueKind() == target) {
+      // andrewt > we cast to model type because native types do not work correctly
+      // with large types (size > Integer.SIZE)
+      if (vi.getValueKind() == ValueInfo.Kind.MODEL) {
         return vi.typeInfoOnly();
       }
     }
