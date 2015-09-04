@@ -9,7 +9,7 @@
  2015/09/04 MicroTESK 2.3.0 alpha
 
  The new build contains the following changes:
- 
+
  - Basic support for MMU-directed test program generation was implemented
  - Some bug fixes and general improvements were made
 
