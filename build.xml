@@ -249,6 +249,7 @@
        classpath="${classpath}"
        includeantruntime="false"
        deprecation="true"
+       debug="true"
     />
   </target>
 
@@ -261,6 +262,7 @@
        classpath="${classpath}"
        includeantruntime="false"
        deprecation="true"
+       debug="true"
     />
   </target>
 
@@ -407,6 +409,7 @@
       destdir="${models.bin}"
       classpath="${models.classpath}"
       includeantruntime="false"
+      debug="true"
     />
 
     <mkdir dir="${dist.gen}/src/resources"/>
