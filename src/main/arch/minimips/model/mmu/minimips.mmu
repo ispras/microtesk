@@ -80,7 +80,7 @@ mmu pmem (va: VA) = (data: 32)
     c = 3;
 
     // Physical address is equal to virtual address.
-    pa = va;
+    pa.value = va.value;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -149,7 +149,7 @@ mmu pmem (va: VA) = (data: 32)
     c = 3;
 
     // Physical address is equal to virtual address.
-    pa = va;
+    pa.value = va.value;
 
     // The address is cacheable.
     if c<1..0> != 2 then
