@@ -78,12 +78,6 @@ final class VariableArray extends Memory {
   }
 
   @Override
-  public MemoryAllocator newAllocator(int addressableUnitBitSize) {
-    throw new UnsupportedOperationException(
-        "Allocators are not supported for variables.");
-  }
-
-  @Override
   public void setUseTempCopy(boolean value) {
     // Do nothing. Temporary copies are not required for variables
     // since they are reset each time an instruction is executed.

@@ -61,11 +61,6 @@ final class AliasForLocation extends Memory {
   }
 
   @Override
-  public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-    throw new UnsupportedOperationException("Allocators are not supported for aliases.");
-  }
-
-  @Override
   public void setUseTempCopy(boolean value) {
     // Do nothing.
   }

@@ -36,6 +36,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.api.memory.PhysicalMemory;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.Printer;
@@ -207,7 +208,13 @@ public final class DataManager {
 
     sectionText = text;
     final Memory memory = Memory.get(target);
-    allocator = memory.newAllocator(addressableSize);
+
+    if (memory instanceof PhysicalMemory) {
+      allocator = new MemoryAllocator(
+          ((PhysicalMemory) memory).getStorage(), addressableSize);
+    } else {
+      throw new IllegalArgumentException(target + " is not a memory storage.");
+    }
   }
 
   public boolean isInitialized() {

@@ -85,12 +85,6 @@ final class RegisterFile extends Memory {
   }
 
   @Override
-  public MemoryAllocator newAllocator(int addressableUnitBitSize) {
-    throw new UnsupportedOperationException(
-        "Allocators are not supported for registers.");
-  }
-
-  @Override
   public void setUseTempCopy(final boolean value) {
     final boolean isUsed = null != tempLocations;
     if (value == isUsed) {

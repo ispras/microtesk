@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
-final class PhysicalMemory extends Memory {
+public final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
   private MemoryDevice handler;
 
@@ -79,11 +79,6 @@ final class PhysicalMemory extends Memory {
   @Override
   public void reset() {
     // Do nothing. Memory is not reset.
-  }
-
-  @Override
-  public final MemoryAllocator newAllocator(final int addressableUnitBitSize) {
-    return new MemoryAllocator(storage, addressableUnitBitSize);
   }
 
   @Override

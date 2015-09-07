@@ -203,7 +203,6 @@ public abstract class Memory {
   public abstract Location access(Data address);
 
   public abstract void reset();
-  public abstract MemoryAllocator newAllocator(int addressableUnitBitSize);
 
   @Override
   public String toString() {
