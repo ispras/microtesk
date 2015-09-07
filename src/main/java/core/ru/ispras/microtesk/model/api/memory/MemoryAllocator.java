@@ -35,7 +35,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 
 public final class MemoryAllocator {
-  private final MemoryStorage memory;
+  private final MemoryDevice memory;
 
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
@@ -59,14 +59,14 @@ public final class MemoryAllocator {
    */
 
   public MemoryAllocator(
-      final MemoryStorage memory,
+      final MemoryDevice memory,
       final int addressableUnitBitSize,
       final BigInteger baseAddress) {
 
     checkNotNull(memory);
     checkGreaterThanZero(addressableUnitBitSize);
 
-    final int regionBitSize = memory.getRegionBitSize();
+    final int regionBitSize = memory.getDataBitSize();
     if (regionBitSize % addressableUnitBitSize != 0) {
       throw new IllegalArgumentException(String.format(
           ERROR_INVALID_SIZE, regionBitSize, addressableUnitBitSize));
@@ -80,7 +80,7 @@ public final class MemoryAllocator {
   }
   
   public MemoryAllocator(
-      final MemoryStorage memory,
+      final MemoryDevice memory,
       final int addressableUnitBitSize) {
     this(memory, addressableUnitBitSize, BigInteger.ZERO);
   }
@@ -125,7 +125,7 @@ public final class MemoryAllocator {
    */
 
   public int getRegionBitSize() {
-    return memory.getRegionBitSize();
+    return memory.getDataBitSize();
   }
 
   /**
@@ -164,22 +164,24 @@ public final class MemoryAllocator {
     BigInteger regionIndex = regionIndexForAddress(address);
     int regionBitOffset = regionBitOffsetForAddress(address);
 
+    final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
+
     int bitPos = 0;
     while (bitPos < dataBitSize) {
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
 
       final BitVector dataToWrite;
-      if (bitsToWrite == memory.getRegionBitSize()) {
+      if (bitsToWrite == getRegionBitSize()) {
         dataToWrite = dataItem;
       } else {
-        final BitVector dataToMerge = memory.read(regionIndex);
+        final BitVector dataToMerge = memory.load(regionAddress);
         dataToWrite = dataToMerge.copy();
         final BitVector mapping = BitVector.newMapping(dataToWrite, regionBitOffset, bitsToWrite);
         mapping.assign(dataItem);
       }
 
-      memory.write(regionIndex, dataToWrite);
+      memory.store(regionAddress, dataToWrite);
       bitPos += bitsToWrite;
 
       regionIndex = regionIndex.add(BigInteger.ONE);
