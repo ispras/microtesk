@@ -67,8 +67,8 @@ public interface MemoryDevice {
    * Switches the device from main context to temporary context or vice versa. Using a temporary
    * context means using temporary copies of data structures holding the memory state.
    * 
-   * @param value {@code true} to switch from main context to temporary context or {@false}
-   *        to switch from temporary context to main context.
+   * @param value {@code true} to switch from main context to temporary context
+   *        or {@false} to switch from temporary context to main context.
    */
   void useTemporaryContext(final boolean value);
 }
