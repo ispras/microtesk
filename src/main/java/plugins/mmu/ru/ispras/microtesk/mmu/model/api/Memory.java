@@ -21,6 +21,20 @@ import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public abstract class Memory <A extends Address>
     extends StandardFunctions implements Buffer<BitVector, A>, MemoryDevice {
+
+  @Override
+  public boolean isInitialized(final BitVector address) {
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkTrue(address.getBitSize() == getAddressBitSize());
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public void useTemporaryContext(final boolean value) {
+    // TODO Auto-generated method stub
+  }
+
   @Override
   public boolean isHit(final A address) {
     return true;

@@ -44,6 +44,10 @@ final class PhysicalMemory extends Memory {
     return handler;
   }
 
+  public MemoryDevice getDevice() {
+    return null != handler ? handler : storage;
+  }
+
   public void setHandler(final MemoryDevice handler) {
     InvariantChecks.checkNotNull(handler);
     this.handler = handler;

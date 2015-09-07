@@ -179,6 +179,11 @@ public final class MemoryStorage implements MemoryDevice {
     write(address, data);
   }
 
+  @Override
+  public void useTemporaryContext(boolean value) {
+    setUseTempCopy(value);
+  }
+
   public void setUseTempCopy(final boolean value) {
     if (isReadOnly()) {
       return; // Makes not sense for read-only stores
@@ -246,6 +251,7 @@ public final class MemoryStorage implements MemoryDevice {
     return isInitialized(BitVector.valueOf(address, addressBitSize));
   }
 
+  @Override
   public boolean isInitialized(final BitVector address) {
     checkNotNull(address);
     final Index index = new Index(address, addressBitSize);

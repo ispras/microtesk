@@ -48,10 +48,27 @@ public interface MemoryDevice {
   BitVector load(final BitVector address);
 
   /**
-   * Stored the specified data at the given address.
+   * Stores the specified data at the given address.
    * 
-   * @param address Store address
+   * @param address Store address.
    * @param data Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
   void store(final BitVector address, final BitVector data);
+
+  /**
+   * Checks whether the specified address location has been initialized.
+   * 
+   * @param address Address to be checked.
+   * @return {@code true} is the address location is initialized or {@code false} otherwise.
+   */
+  boolean isInitialized(final BitVector address);
+
+  /**
+   * Switches the device from main context to temporary context or vice versa. Using a temporary
+   * context means using temporary copies of data structures holding the memory state.
+   * 
+   * @param value {@code true} to switch from main context to temporary context or {@false}
+   *        to switch from temporary context to main context.
+   */
+  void useTemporaryContext(final boolean value);
 }
