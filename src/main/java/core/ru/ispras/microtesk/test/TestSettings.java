@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.test;
 
+import java.math.BigInteger;
+
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.SysUtils;
 
 public final class TestSettings {
@@ -23,6 +26,8 @@ public final class TestSettings {
   private static String separatorToken = "=";
   private static String originFormat   = ".org 0x%x";
   private static String alignFormat    = ".align %d";
+  private static BigInteger baseVirtualAddress  = BigInteger.ZERO;
+  private static BigInteger basePhysicalAddress = BigInteger.ZERO;
 
   // Settings from command line and configuration file
   private static String outDir              = SysUtils.getHomeDir();
@@ -77,6 +82,24 @@ public final class TestSettings {
 
   public static void setAlignFormat(final String alignFormat) {
     TestSettings.alignFormat = alignFormat;
+  }
+
+  public static BigInteger getBaseVirtualAddress() {
+    return baseVirtualAddress;
+  }
+
+  public static void setBaseVirtualAddress(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    TestSettings.baseVirtualAddress = value;
+  }
+
+  public static BigInteger getBasePhysicalAddress() {
+    return basePhysicalAddress;
+  }
+
+  public static void setBasePhysicalAddress(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    TestSettings.basePhysicalAddress = value;
   }
 
   public static String getOutDir() {

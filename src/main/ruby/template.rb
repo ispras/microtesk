@@ -51,9 +51,15 @@ module Settings
   # Format of the directive responsible for memory alignment
   attr_reader :align_format
 
+  # Base virtual address (required for direct access to memory)
+  attr_reader :base_virtual_address
+
+  # Base physical address (required for direct access to memory)
+  attr_reader :base_physical_address
+
   #
   # Assigns default values to the attributes.
-  # 
+  #
   def initialize
     @sl_comment_starts_with = "//"
     @ml_comment_starts_with = "/*"
@@ -64,6 +70,9 @@ module Settings
 
     @org_format = ".org 0x%x"
     @align_format = ".align %d"
+
+    @base_virtual_address = 0x0
+    @base_physical_address = 0x0
   end
 
 end # Settings
@@ -755,6 +764,9 @@ class Template
 
     TestSettings.setOriginFormat org_format
     TestSettings.setAlignFormat align_format
+
+    TestSettings.setBaseVirtualAddress base_virtual_address
+    TestSettings.setBasePhysicalAddress base_physical_address
 
     @template = engine.newTemplate
 
