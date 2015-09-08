@@ -130,13 +130,13 @@ final class PhysicalMemory extends Memory {
     }
 
     @Override
-    public BitVector load() {
+    public BitVector load(final boolean callHandler) {
       final BitVector region = storage.load(address);
       return BitVector.newMapping(region, startBitPos, bitSize);
     }
 
     @Override
-    public void store(final BitVector data) {
+    public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
 
       final BitVector region;

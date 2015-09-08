@@ -24,7 +24,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.Data;
-
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
@@ -38,8 +37,8 @@ public final class Location implements LocationAccessor {
     int getStartBitPos();
     Atom resize(int newBitSize, int newStartBitPos);
 
-    BitVector load();
-    void store(BitVector data);
+    BitVector load(boolean useHandler);
+    void store(BitVector data, boolean callHandler);
   }
 
   private final Type type;
@@ -251,7 +250,7 @@ public final class Location implements LocationAccessor {
     final BitVector[] dataItems = new BitVector[atoms.size()];
     for (int index = 0; index < atoms.size(); ++index) {
       final Atom atom = atoms.get(index);
-      dataItems[index] = atom.load();
+      dataItems[index] = atom.load(callHandlers);
     }
 
     return BitVector.newMapping(dataItems).copy();
@@ -266,7 +265,7 @@ public final class Location implements LocationAccessor {
       final BitVector dataItem =
           BitVector.newMapping(data, position, atom.getBitSize());
 
-      atom.store(dataItem);
+      atom.store(dataItem, callHandlers);
       position += dataItem.getBitSize();
     }
   }
