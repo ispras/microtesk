@@ -244,7 +244,7 @@ public final class Location implements LocationAccessor {
     writeData(atoms, rawData, false);
   }
 
-  protected static BitVector readData(
+  private static BitVector readData(
       final List<Atom> atoms,
       final boolean callHandlers) {
     final BitVector[] dataItems = new BitVector[atoms.size()];
@@ -256,7 +256,7 @@ public final class Location implements LocationAccessor {
     return BitVector.newMapping(dataItems).copy();
   }
 
-  protected static void writeData(
+  private static void writeData(
       final List<Atom> atoms,
       final BitVector data,
       final boolean callHandlers) {
