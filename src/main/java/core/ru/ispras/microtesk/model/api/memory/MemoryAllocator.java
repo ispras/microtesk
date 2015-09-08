@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
@@ -83,11 +82,6 @@ public final class MemoryAllocator {
       final MemoryDevice memory,
       final int addressableUnitBitSize) {
     this(memory, addressableUnitBitSize, BigInteger.ZERO);
-  }
-
-  public MemoryAllocator newAllocator(final BigInteger baseAddress) {
-    InvariantChecks.checkNotNull(baseAddress);
-    return new MemoryAllocator(memory, addressableUnitBitSize, baseAddress);
   }
 
   /**

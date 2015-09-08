@@ -505,9 +505,9 @@ public final class DataManager {
 
     final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
 
-    final MemoryAllocator oldAllocator = allocator;
+    final BigInteger oldAddress = allocator.getCurrentAddress();
     try {
-      allocator = oldAllocator.newAllocator(address);
+      allocator.setCurrentAddress(address);
 
       final BitVector bvAddress =
           BitVector.valueOf(address, allocator.getAddressBitSize());
@@ -543,7 +543,7 @@ public final class DataManager {
       if (isSeparateFile) {
         popScope();
       }
-      allocator = oldAllocator;
+      allocator.setCurrentAddress(oldAddress);
     }
   }
 
@@ -571,9 +571,9 @@ public final class DataManager {
     final TypeInfo typeInfo = getTypeInfoForSize(unitSize);
     final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
 
-    final MemoryAllocator oldAllocator = allocator;
+    final BigInteger oldAddress = allocator.getCurrentAddress();
     try {
-      allocator = oldAllocator.newAllocator(startAddress);
+      allocator.setCurrentAddress(startAddress);
 
       if (isSeparateFile) {
         pushScope();
@@ -621,7 +621,7 @@ public final class DataManager {
       if (isSeparateFile) {
         popScope();
       }
-      allocator = oldAllocator;
+      allocator.setCurrentAddress(oldAddress);
     }
   }
 
