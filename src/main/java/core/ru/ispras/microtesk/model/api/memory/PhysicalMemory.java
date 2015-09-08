@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
-public final class PhysicalMemory extends Memory {
+final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
   private MemoryDevice handler;
 

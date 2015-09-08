@@ -58,7 +58,7 @@ public final class MemoryAllocator {
    *         of memory region size.
    */
 
-  public MemoryAllocator(
+  protected MemoryAllocator(
       final MemoryDevice memory,
       final int addressableUnitBitSize,
       final BigInteger baseAddress) {
@@ -78,8 +78,8 @@ public final class MemoryAllocator {
 
     this.currentAddress = baseAddress;
   }
-  
-  public MemoryAllocator(
+
+  protected MemoryAllocator(
       final MemoryDevice memory,
       final int addressableUnitBitSize) {
     this(memory, addressableUnitBitSize, BigInteger.ZERO);

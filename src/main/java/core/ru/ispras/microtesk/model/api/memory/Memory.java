@@ -14,13 +14,11 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
@@ -148,10 +146,10 @@ public abstract class Memory {
       final Type type,
       final BigInteger length,
       final boolean isAlias) {
-    checkNotNull(kind);
-    checkNotNull(name);
-    checkNotNull(type);
-    checkGreaterThan(length, BigInteger.ZERO);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
 
     this.kind = kind;
     this.name = name;
@@ -159,6 +157,18 @@ public abstract class Memory {
     this.length = length;
     this.isAlias = isAlias;
     this.addressBitSize = MemoryStorage.calculateAddressSize(length);
+  }
+
+  public final MemoryAllocator newAllocator(final int addressableSize) {
+    InvariantChecks.checkGreaterThanZero(addressableSize);
+
+    if (this instanceof PhysicalMemory) {
+      return new MemoryAllocator(
+          ((PhysicalMemory) this).getStorage(), addressableSize);
+    }
+
+    throw new IllegalArgumentException(
+        "Not a physical memory storage: " + toString());
   }
 
   public static void setUseTempCopies(boolean value) {
