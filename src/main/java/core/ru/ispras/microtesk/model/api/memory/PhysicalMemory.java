@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -24,7 +22,7 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
 
 final class PhysicalMemory extends Memory {
-  private final MemoryStorage storage;
+  private final MemoryDevice storage;
   private MemoryDevice handler;
 
   public PhysicalMemory(
@@ -72,7 +70,7 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public Location access(final Data address) {
-    checkNotNull(address);
+    InvariantChecks.checkNotNull(address);
     return newLocationForRegion(address.getRawData());
   }
 
@@ -83,31 +81,27 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public void setUseTempCopy(boolean value) {
-    storage.setUseTempCopy(value);
+    storage.useTemporaryContext(value);
   }
 
   private Location newLocationForRegion(final BitVector address) {
-    //checkBounds(regionIndex, storage.getRegionCount());
+    InvariantChecks.checkNotNull(address);
 
-    final PhysicalMemoryAtom atom = new PhysicalMemoryAtom(
-        storage, address, getType().getBitSize(), 0);
+    final PhysicalMemoryAtom atom =
+        new PhysicalMemoryAtom(address, getType().getBitSize(), 0);
 
     return new Location(getType(), atom);
   }
 
-  private static final class PhysicalMemoryAtom implements Location.Atom {
-    private final MemoryStorage storage;
+  private final class PhysicalMemoryAtom implements Location.Atom {
     private final BitVector address;
-
     private final int bitSize;
     private final int startBitPos;
 
     private PhysicalMemoryAtom(
-        final MemoryStorage storage,
         final BitVector address,
         final int bitSize,
         final int startBitPos) {
-      this.storage = storage;
       this.address = address;
       this.bitSize = bitSize;
       this.startBitPos = startBitPos;
@@ -122,7 +116,7 @@ final class PhysicalMemory extends Memory {
     public PhysicalMemoryAtom resize(
         final int newBitSize,
         final int newStartBitPos) {
-      return new PhysicalMemoryAtom(storage, address, newBitSize, newStartBitPos);
+      return new PhysicalMemoryAtom(address, newBitSize, newStartBitPos);
     }
 
     @Override
@@ -137,7 +131,7 @@ final class PhysicalMemory extends Memory {
 
     @Override
     public BitVector load() {
-      final BitVector region = storage.read(address);
+      final BitVector region = storage.load(address);
       return BitVector.newMapping(region, startBitPos, bitSize);
     }
 
@@ -146,21 +140,21 @@ final class PhysicalMemory extends Memory {
       InvariantChecks.checkNotNull(data);
 
       final BitVector region;
-      if (bitSize == storage.getRegionBitSize()) {
+      if (bitSize == storage.getDataBitSize()) {
         region = data;
       } else {
-        region = storage.read(address).copy();
+        region = storage.load(address).copy();
         final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
         mapping.assign(data);
       }
 
-      storage.write(address, region);
+      storage.store(address, region);
     }
 
     @Override
     public String toString() {
       return String.format("%s[%d]<%d..%d>",
-          storage.getId(),
+          getName(),
           address.bigIntegerValue(false),
           startBitPos,
           startBitPos + bitSize - 1);
