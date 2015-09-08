@@ -29,8 +29,11 @@ public class MemoryAllocatorTestCase {
 
   @Test
   public void test() {
-    final MemoryStorage memory = new MemoryStorage(REGION_COUNT, REGION_SIZE);
-    final MemoryAllocator allocator = new MemoryAllocator(memory, ADDRESSABLE_UNIT_SIZE);
+    final MemoryStorage memory =
+        new MemoryStorage(REGION_COUNT, REGION_SIZE);
+
+    final MemoryAllocator allocator =
+        new MemoryAllocator(memory, ADDRESSABLE_UNIT_SIZE, BigInteger.ZERO);
 
     System.out.println(allocator);
 
@@ -59,21 +62,21 @@ public class MemoryAllocatorTestCase {
     assertEquals(BigInteger.valueOf(8), address);
     assertEquals(BitVector.valueOf(0xFFFFFFFF, 32), memory.read(2));
     assertEquals(BitVector.valueOf(0x000000FF, 32), memory.read(3));
-    
+
     address = allocator.allocateAsciiString("TEST", true);
     assertEquals(BigInteger.valueOf(13), address);
     assertEquals(BitVector.valueOf(0x534554ff, 32), memory.read(3));
     assertEquals(BitVector.valueOf(0x00000054, 32), memory.read(4));
-    
+
     address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32), BitVector.valueOf(0xBAADF00D, 32));
     assertEquals(BigInteger.valueOf(20), address);
     assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(5));
     assertEquals(BitVector.valueOf(0xBAADF00D, 32), memory.read(6));
-    
+
     address = allocator.allocate(BitVector.valueOf(0xC0DE, 16), BitVector.valueOf(0xC001, 16));
     assertEquals(BigInteger.valueOf(28), address);
     assertEquals(BitVector.valueOf(0xC001C0DE, 32), memory.read(7));
-    
+
     allocator.allocate(BitVector.valueOf(0xFF, 8));
     allocator.allocate(BitVector.valueOf(0xF00D, 16));
 

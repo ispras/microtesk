@@ -159,12 +159,15 @@ public abstract class Memory {
     this.addressBitSize = MemoryStorage.calculateAddressSize(length);
   }
 
-  public final MemoryAllocator newAllocator(final int addressableSize) {
+  public final MemoryAllocator newAllocator(
+      final int addressableSize,
+      final BigInteger baseAddress) {
     InvariantChecks.checkGreaterThanZero(addressableSize);
+    InvariantChecks.checkNotNull(baseAddress);
 
     if (this instanceof PhysicalMemory) {
       return new MemoryAllocator(
-          ((PhysicalMemory) this).getStorage(), addressableSize);
+          ((PhysicalMemory) this).getStorage(), addressableSize, baseAddress);
     }
 
     throw new IllegalArgumentException(

@@ -56,7 +56,6 @@ public final class MemoryAllocator {
    *         if the specified size of an addressable unit is negative or is not a divisor
    *         of memory region size.
    */
-
   protected MemoryAllocator(
       final MemoryDevice memory,
       final int addressableUnitBitSize,
@@ -78,18 +77,11 @@ public final class MemoryAllocator {
     this.currentAddress = baseAddress;
   }
 
-  protected MemoryAllocator(
-      final MemoryDevice memory,
-      final int addressableUnitBitSize) {
-    this(memory, addressableUnitBitSize, BigInteger.ZERO);
-  }
-
   /**
    * Returns the current address.
    * 
    * @return Current address (in addressable units).
    */
-
   public BigInteger getCurrentAddress() {
     return currentAddress;
   }
@@ -107,7 +99,6 @@ public final class MemoryAllocator {
    * 
    * @return Size of an addressable unit in bits.
    */
-
   public int getAddressableUnitBitSize() {
     return addressableUnitBitSize;
   }
@@ -117,7 +108,6 @@ public final class MemoryAllocator {
    * 
    * @return Bit size of memory regions stored in the memory storage.
    */
-
   public int getRegionBitSize() {
     return memory.getDataBitSize();
   }
@@ -127,7 +117,6 @@ public final class MemoryAllocator {
    * 
    * @return Number of addressable units in a memory region
    */
-
   public int getAddressableUnitsInRegion() {
     return addressableUnitsInRegion;
   }
@@ -147,7 +136,6 @@ public final class MemoryAllocator {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public BigInteger allocate(final BitVector data) {
     checkNotNull(data);
     final int dataBitSize = data.getBitSize();
@@ -205,7 +193,6 @@ public final class MemoryAllocator {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public BigInteger allocate(final BitVector data, final int count) {
     checkNotNull(data);
     checkGreaterThanZero(count);
@@ -220,7 +207,7 @@ public final class MemoryAllocator {
 
     return address;
   }
-  
+
   /**
    * Allocates memory in the memory storage to hold data elements provided as arguments
    * and return the address (in addressable units) of the first element. The data is aligned
@@ -233,7 +220,6 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the list is empty or it list elements have
    * different sizes. 
    */
-
   public BigInteger allocate(final BitVector... data) {
     checkGreaterThanZero(data.length);
     return allocate(Arrays.asList(data));
@@ -251,7 +237,6 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the parameter is {@code null};
    *         if the list is empty or it list elements have different sizes.
    */
-
   public BigInteger allocate(final List<BitVector> data) {
     checkNotNull(data);
 
@@ -278,7 +263,6 @@ public final class MemoryAllocator {
    * @param data List of bit vectors to be checked.
    * @throws IllegalArgumentException if bit vectors in the list have different sizes.
    */
-
   private static void checkEqualBitSize(final List<BitVector> data) {
     final Iterator<BitVector> it = data.iterator();
     final BitVector first = it.next();
@@ -304,7 +288,6 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code string} parameter equals {@code null};
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
-
   public BigInteger allocateAsciiString(final String string, final boolean zeroTerm) {
     checkNotNull(string);
 
@@ -340,7 +323,6 @@ public final class MemoryAllocator {
    * 
    * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
    */
-
   public int bitsToAddressableUnits(final int bitSize) {
     checkGreaterThanZero(bitSize);
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
@@ -355,7 +337,6 @@ public final class MemoryAllocator {
    * 
    * @throws IllegalArgumentException if any of the parameters is negative.
    */
-
   static BigInteger alignAddress(final BigInteger address, final int alignment) {
     checkGreaterOrEq(address, BigInteger.ZERO);
     checkGreaterOrEqZero(alignment);
@@ -384,7 +365,6 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code string} argument is {@code null}.
    * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */
-
   private BitVector toAsciiBinary(final String string, final boolean zeroTerm) {
     checkNotNull(string);
 

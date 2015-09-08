@@ -208,7 +208,7 @@ public final class DataManager {
     sectionText = text;
 
     final Memory memory = Memory.get(target);
-    allocator = memory.newAllocator(addressableSize);
+    allocator = memory.newAllocator(addressableSize, BigInteger.ZERO);
   }
 
   public boolean isInitialized() {
@@ -224,7 +224,6 @@ public final class DataManager {
    * 
    * @return List of data declaration used in the current scope.
    */
-
   private List<DataDeclItem> getDataDecls() {
     return dataDeclsStack.peek();
   }
@@ -334,7 +333,6 @@ public final class DataManager {
   /**
    * Sets allocation address. Inserts the ".org" directive in the test program.
    */
-
   public void setAddress(final BigInteger value) {
     checkNotNull(value);
 
@@ -352,7 +350,6 @@ public final class DataManager {
   /**
    * @param value Alignment amount in addressable units.
    */
-
   public void align(final BigInteger value, final BigInteger valueInBytes) {
     checkNotNull(value);
 
