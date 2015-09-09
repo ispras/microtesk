@@ -100,7 +100,7 @@ public final class Location implements LocationAccessor {
 
     if (getBitSize() != data.getType().getBitSize()) {
       throw new IllegalArgumentException(String.format(
-          "Assigning %d-bit data to %d-bit location is now allowed.",
+          "Assigning %d-bit data to %d-bit location is not allowed.",
           data.getType().getBitSize(),
           getBitSize())
           );
