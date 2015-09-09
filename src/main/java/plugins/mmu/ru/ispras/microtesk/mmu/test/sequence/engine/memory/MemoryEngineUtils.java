@@ -17,12 +17,15 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -133,18 +136,33 @@ public final class MemoryEngineUtils {
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
-    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
+    final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
       formula.addConstraint(constraint);
+      collectFormulaVariables(constraint.getFormula(), variables);
     }
 
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
     return solver.solve();
+  }
+
+  private static Set<IntegerVariable> collectFormulaVariables(
+      final IntegerFormula<IntegerField> formula,
+      final Set<IntegerVariable> variables) {
+    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
+      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
+        variables.add(equation.lhs.getVariable());
+        if (!equation.value) {
+          variables.add(equation.rhs.getVariable());
+        }
+      }
+    }
+    return variables;
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
