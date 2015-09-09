@@ -29,6 +29,8 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerDomain {
+  public static final IntegerDomain EMPTY = new IntegerDomain();
+
   /**
    * {@link DomainIterator} class implements an iterator over the domain's values.
    */

@@ -200,19 +200,22 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         lhsDomain.exclude(new IntegerRange(equation.val));
       }
     } else {
-      // Constraint X == Y or X != Y.
-      InvariantChecks.checkFalse(equation.lhs.equals(equation.rhs),
-          "The LHS variable is equal to the RHS variable");
-
       final IntegerDomain lhsDomain = domains.get(equation.lhs);
       final IntegerDomain rhsDomain = domains.get(equation.rhs);
 
-      InvariantChecks.checkTrue(lhsDomain != null && rhsDomain != null,
-          "The variable has not been declared");
+      // Constraint X == Y or X != Y.
+      if (equation.lhs.equals(equation.rhs)) {
+        if (!equation.equal) {
+          lhsDomain.set(IntegerDomain.EMPTY);
+        }
+      } else {
+        InvariantChecks.checkTrue(lhsDomain != null && rhsDomain != null,
+            "The variable has not been declared");
 
-      // The equal-to and not-equal-to maps are symmetrical.
-      updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.lhs, equation.rhs);
-      updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.rhs, equation.lhs);
+        // The equal-to and not-equal-to maps are symmetrical.
+        updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.lhs, equation.rhs);
+        updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.rhs, equation.lhs);
+      }
     }
   }
 
