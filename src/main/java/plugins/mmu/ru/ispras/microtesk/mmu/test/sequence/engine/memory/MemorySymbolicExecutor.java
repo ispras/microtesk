@@ -232,13 +232,17 @@ public final class MemorySymbolicExecutor {
 
   private void execute(final MmuCondition condition, final int pathIndex) {
     InvariantChecks.checkNotNull(condition);
-    InvariantChecks.checkTrue(condition.getType() == MmuCondition.Type.AND);
+
+    final IntegerClause.Type definedType = condition.getType() == MmuCondition.Type.AND ?
+        IntegerClause.Type.AND : IntegerClause.Type.OR;
+    final IntegerClause.Type negatedType = condition.getType() == MmuCondition.Type.AND ?
+        IntegerClause.Type.OR : IntegerClause.Type.AND;
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
 
       final IntegerClause<IntegerField> clause = new IntegerClause<>(
-          !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+          !atom.isNegated() ? definedType : negatedType);
 
       final MmuExpression expression = atom.getExpression();
       final BigInteger constant = atom.getConstant();

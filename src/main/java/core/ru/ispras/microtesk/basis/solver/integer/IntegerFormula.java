@@ -104,7 +104,7 @@ public final class IntegerFormula<V> {
   public void addClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
 
-    if (clause.getType() == IntegerClause.Type.OR) {
+    if (clause.getType() == IntegerClause.Type.OR && clause.size() != 1) {
       clauses.add(clause);
     } else {
       for (final IntegerEquation<V> equation : clause.getEquations()) {
