@@ -74,10 +74,11 @@ final class STBMemory implements STBuilder {
   }
 
   private void buildAddress(final ST st, final STGroup group) {
-    STBSegment.buildFieldAlias(
+    STBStruct.buildFieldAlias(
         memory.getId(),
         memory.getAddressArg(),
         memory.getAddress(),
+        true,
         st,
         group
         );
@@ -89,10 +90,11 @@ final class STBMemory implements STBuilder {
     for (final Variable variable : memory.getVariables()) {
       final Address address = ir.getAddresses().get(variable.getType().getId());
       if (null != address) {
-        STBSegment.buildFieldAlias(
+        STBStruct.buildFieldAlias(
             memory.getId(),
             variable,
             address,
+            false,
             st,
             group
             );
@@ -112,6 +114,7 @@ final class STBMemory implements STBuilder {
     STBStruct.buildFieldDecl(
         getVariableName(memory.getDataArg().getName()),
         memory.getDataArg().getType(),
+        true,
         st,
         stConstructor,
         group
@@ -128,6 +131,7 @@ final class STBMemory implements STBuilder {
         STBStruct.buildFieldDecl(
             name,
             type,
+            false,
             st,
             stConstructor,
             group

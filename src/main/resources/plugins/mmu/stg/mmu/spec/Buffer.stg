@@ -14,7 +14,7 @@
 
 group Buffer;
 
-constructor(name, ways, sets, addr, tag, index, offset, match,
+buffer_constructor(name, ways, sets, addr, tag, index, offset, match,
            guard_cond, guard, replaceable, parent, stmts) ::= <<
 <\n>private <name>() {
   this("<name>");
@@ -51,26 +51,6 @@ public <name>(final String name) {
   super(name);<\n>
   <stmts; separator="\n">
 }
->>
-
-field_alias(name, type) ::= <<
-public final <type> <name> = <type>.get();
->>
-
-field_decl(type, name) ::= <<
-public final <type> <name>;
->>
-
-field_def_var(name, size, value) ::= <<
-this.<name> = new IntegerVariable(name + ".<name>", <size><if(value)>, <value><endif>);
->>
-
-field_def_struct(name, type) ::= <<
-this.<name> = new <type>(name + ".<name>");
->>
-
-add_field(name) ::= <<
-addField(<name>);
 >>
 
 match_field_decl() ::= <<

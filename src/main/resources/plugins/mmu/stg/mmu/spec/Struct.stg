@@ -14,21 +14,25 @@
 
 group Struct;
 
-constructor(name, stmts) ::= <<
+struct_constructor(name, stmts) ::= <<
 public <name>(final String name) {
   super(name);<\n>
   <stmts; separator="\n">
 }
 >>
 
-constructor_default(name) ::= <<
+struct_constructor_default(name) ::= <<
 private <name>() {
   this("<name>");
 }
 >>
 
-field_decl(type, name) ::= <<
-public final <type> <name>;
+field_alias(name, type, is_public) ::= <<
+<if(is_public)>public<else>private<endif> final <type> <name> = <type>.get();
+>>
+
+field_decl(type, name, is_public) ::= <<
+<if(is_public)>public<else>private<endif> final <type> <name>;
 >>
 
 field_def_var(name, size, value) ::= <<

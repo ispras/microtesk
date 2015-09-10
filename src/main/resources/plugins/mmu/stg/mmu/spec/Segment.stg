@@ -41,19 +41,3 @@ private <name>(final String name) {
   <stmts; separator="\n">
 }
 >>
-
-field_alias(name, type) ::= <<
-public final <type> <name> = <type>.get();
->>
-
-field_decl(type, name) ::= <<
-public final <type> <name>;
->>
-
-field_def_var(name, size, value) ::= <<
-this.<name> = new IntegerVariable(name + ".<name>", <size><if(value)>, <value><endif>);
->>
-
-field_def_struct(name, type) ::= <<
-this.<name> = new <type>(name + ".<name>");
->>

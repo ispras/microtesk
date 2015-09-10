@@ -20,7 +20,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBStruct implements STBuilder {
@@ -61,7 +63,7 @@ final class STBStruct implements STBuilder {
   }
 
   private void buildFields(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructor = group.getInstanceOf("struct_constructor");
 
     stConstructor.add("name", type.getId());
     buildFieldDecls(type, st, stConstructor, group);
@@ -81,13 +83,14 @@ final class STBStruct implements STBuilder {
     for (final Map.Entry<String, Type> field : structType.getFields().entrySet()) {
       final String name = field.getKey();
       final Type type = field.getValue();
-      buildFieldDecl(name, type, st, stConstructor, group);
+      buildFieldDecl(name, type, true, st, stConstructor, group);
     }
   }
 
   protected static void buildFieldDecl(
       final String name,
       final Type type,
+      final boolean isPublic,
       final ST st,
       final ST stConstructor,
       final STGroup group) {
@@ -105,6 +108,7 @@ final class STBStruct implements STBuilder {
       fieldDef.add("size", type.getBitSize());
     }
 
+    fieldDecl.add("is_public", isPublic);
     fieldDecl.add("name", name);
     fieldDef.add("name", name);
 
@@ -121,5 +125,25 @@ final class STBStruct implements STBuilder {
       addField.add("name", fieldName);
       stConstructor.add("stmts", addField);
     }
+  }
+
+  protected static void buildFieldAlias(
+      final String context,
+      final Variable variable,
+      final Address address,
+      final boolean isPublic,
+      final ST st,
+      final STGroup group) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(st);
+    InvariantChecks.checkNotNull(group);
+
+    final ST stAddress = group.getInstanceOf("field_alias");
+    stAddress.add("name", Utils.getVariableName(context, variable.getName()));
+    stAddress.add("type", address.getId());
+    stAddress.add("is_public", isPublic);
+    st.add("members", stAddress);
   }
 }

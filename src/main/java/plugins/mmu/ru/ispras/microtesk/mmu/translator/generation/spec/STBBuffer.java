@@ -118,7 +118,7 @@ final class STBBuffer implements STBuilder {
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
     STBStruct.buildFieldDecls(buffer.getEntry(), st, stConstructor, group);
     stConstructor.add("stmts", "");

@@ -63,8 +63,8 @@ final class STBAddress implements STBuilder {
   private void buildFields(final ST st, final STGroup group) {
     final Type type = address.getContentType();
 
-    final ST stConstructorDef = group.getInstanceOf("constructor_default");
-    final ST stConstructor = group.getInstanceOf("constructor");
+    final ST stConstructorDef = group.getInstanceOf("struct_constructor_default");
+    final ST stConstructor = group.getInstanceOf("struct_constructor");
 
     stConstructorDef.add("name", address.getId());
     stConstructor.add("name", type.getId());
