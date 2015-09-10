@@ -16,27 +16,25 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 final class MemoryCoverageExtractor {
-  private static final int MAX_RECURSION_DEPTH = 5;
-
   private final MmuSubsystem memory;
 
   public MemoryCoverageExtractor(final MmuSubsystem memory) {
@@ -51,10 +49,12 @@ final class MemoryCoverageExtractor {
    * @return the memory access paths
    */
   public List<MemoryAccessPath> getPaths(final MemoryAccessType type) {
-    final List<MemoryAccessPath> paths = new ArrayList<>();
+    final ArrayList<MemoryAccessPath> paths = new ArrayList<>();
     final List<MmuTransition> out = memory.getTransitions(memory.getStartAction());
 
     if (out != null && !out.isEmpty()) {
+      final List<MemoryAccessPath> queue = new ArrayList<>();
+
       for (final MmuTransition next : out) {
         final MmuGuard guard = next.getGuard();
 
@@ -62,52 +62,35 @@ final class MemoryCoverageExtractor {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
           builder.add(next);
-          paths.add(builder.build());
+          queue.add(builder.build());
         }
       }
 
-      final Map<String, Integer> observed = new HashMap<>();
-
-      int i = 0;
-      while (i < paths.size()) {
-        final MemoryAccessPath path = paths.get(i);
-        final List<MemoryAccessPath> pathPrefixes = elongatePath(type, path);
-        final int occurences = increment(observed, path.toString());
-
-        if (pathPrefixes != null) {
-          paths.remove(i);
-          if (occurences < MAX_RECURSION_DEPTH) {
-            paths.addAll(pathPrefixes);
-          }
+      while (!queue.isEmpty()) {
+        final MemoryAccessPath path = queue.remove(queue.size() - 1);
+        final List<MemoryAccessPath> prefixes = elongatePath(type, path);
+        if (prefixes == null) {
+          continue;
+        } else if (!prefixes.isEmpty()) {
+          queue.addAll(prefixes);
         } else {
-          i++;
+          paths.add(path);
         }
       }
     }
 
-    // TODO: This code needs to be optimized.
-    final List<MemoryAccessPath> result = new ArrayList<>(paths.size());
-    for (final MemoryAccessPath path : paths) {
-      final Collection<MmuSegment> segments = MemoryAccess.getPossibleSegments(path);
-
-      if (segments.isEmpty()) {
-        continue;
+    // TODO: This code needs to be optimized?
+    for (int i = paths.size() - 1; i >= 0; --i) {
+      final MemoryAccessPath path = paths.get(i);
+      if (MemoryAccess.getPossibleSegments(path).isEmpty()) {
+        final int lastIndex = paths.size() - 1;
+        paths.set(i, paths.get(lastIndex));
+        paths.remove(lastIndex);
       }
-
-      result.add(path);
     }
+    paths.trimToSize();
 
-    return result;
-  }
-
-  private static int increment(final Map<String, Integer> observed, final String key) {
-    Integer n = observed.get(key);
-    if (n == null) {
-      n = 0;
-    }
-    observed.put(key, n + 1);
-
-    return n;
+    return paths;
   }
 
   /**
@@ -115,7 +98,8 @@ final class MemoryCoverageExtractor {
    * 
    * @param type the memory access type or {@code null}.
    * @param path the memory access path to be elongated.
-   * @return the list of all possible elongations of the given memory access path.
+   * @return the list of all possible elongations of the given memory access path,
+             empty list for terminal paths, null for infeasible paths
    */
   private List<MemoryAccessPath> elongatePath(
       final MemoryAccessType type, final MemoryAccessPath path) {
@@ -125,6 +109,9 @@ final class MemoryCoverageExtractor {
     final MmuAction target = last.getTarget();
     final List<MmuTransition> out = memory.getTransitions(target);
 
+    if (!MemoryEngineUtils.isFeasiblePath(path)) {
+      return null;
+    }
     if (out != null && !out.isEmpty()) {
       final List<MemoryAccessPath> elongatedPaths = new ArrayList<>();
 
@@ -144,7 +131,6 @@ final class MemoryCoverageExtractor {
 
       return elongatedPaths;
     }
-
-    return null;
+    return Collections.emptyList();
   }
 }

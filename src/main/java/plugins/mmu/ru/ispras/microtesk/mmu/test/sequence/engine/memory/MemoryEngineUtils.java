@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,10 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class MemoryEngineUtils {
   private MemoryEngineUtils() {}
+
+  public static boolean isFeasiblePath(final MemoryAccessPath path) {
+    return isFeasiblePath(path, Collections.<IntegerConstraint<IntegerField>>emptyList());
+  }
 
   public static boolean isFeasiblePath(
       final MemoryAccessPath path,
