@@ -206,7 +206,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(preparators, "Preparator store is null");
 
     final BufferPreparator preparator = preparators.getPreparatorFor(buffer.getName());
-    InvariantChecks.checkNotNull(preparator, "Preparator is null");
+    InvariantChecks.checkNotNull(preparator, "Missing preparator for " + buffer.getName());
 
     final List<Call> abstractInitializer = preparator.makeInitializer(address, entry);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
