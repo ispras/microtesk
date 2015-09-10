@@ -25,19 +25,12 @@ public void registerControlFlow(final <type>.Builder builder) {
 }
 >>
 
-action(id, name, args, marks) ::= <<
-public final MmuAction <id> = new MmuAction("<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);<if(marks)>
-{
-  <marks : {m | name.addMark("<m>");}; separator="\n">
-}<endif>
->>
-
 action_decl(id) ::= <<
 public final MmuAction <id>;
 >>
 
 action_def(id, name, args, marks) ::= <<
-this.<id> = new MmuAction("<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);<if(marks)>
+this.<id> = new MmuAction(name + ".<name>"<if(args)>, <args : {a | <a>}; separator=", "><endif>);<if(marks)>
 <marks : {m | this.<id>.addMark("<m>");}; separator="\n"><endif>
 >>
 

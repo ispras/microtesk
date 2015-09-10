@@ -382,7 +382,7 @@ final class ControlFlowBuilder {
 
     final ST stActionDef = group.getInstanceOf("action_def");
     stActionDef.add("id", id);
-    stActionDef.add("name", context + "." + id);
+    stActionDef.add("name", id);
 
     for (final String arg : args) {
       stActionDef.add("args", arg);
