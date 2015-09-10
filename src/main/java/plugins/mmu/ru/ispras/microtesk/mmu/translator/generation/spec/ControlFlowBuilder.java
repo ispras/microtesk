@@ -402,12 +402,7 @@ final class ControlFlowBuilder {
     }
     stDef.add("stmts", stActionDef);
 
-    // Public action are registered during pregistration.
-    if (isPublic) {
-      stReg.add("pres", id);
-    } else {
-      stReg.add("acts", id);
-    }
+    stReg.add("acts", id);
   }
 
   private void buildTransition(final String source, final String target) {

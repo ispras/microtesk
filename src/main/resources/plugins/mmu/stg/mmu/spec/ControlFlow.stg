@@ -14,10 +14,7 @@
 
 group ControlFlow;
 
-register(type, pres, vars, acts, trans, funcs) ::= <<
-public void preregisterControlFlow(final <type>.Builder builder) {
-  <if(pres)><pres  : {p | builder.registerAction(<p>);}; separator="\n"><endif>
-}<\n>
+register(type, vars, acts, trans, funcs) ::= <<
 public void registerControlFlow(final <type>.Builder builder) {
   <if(vars)><vars  : {v | builder.registerVariable(<v>);}; separator="\n"><\n><endif>
   <if(acts)><acts  : {a | builder.registerAction(<a>);}; separator="\n"><\n><endif>
