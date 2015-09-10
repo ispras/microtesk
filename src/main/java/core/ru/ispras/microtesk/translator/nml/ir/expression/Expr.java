@@ -55,6 +55,11 @@ public final class Expr {
       this.constant = constant;
       this.polynomial = polynomial;
     }
+
+    @Override
+    public String toString() {
+      return "Reduced [constant=" + constant + ", polynomial=" + polynomial.getNode() + "]";
+    }
   }
 
   private final Node node;
