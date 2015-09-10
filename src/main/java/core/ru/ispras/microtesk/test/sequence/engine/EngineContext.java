@@ -67,7 +67,7 @@ public final class EngineContext {
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(bufferPreparators);
     InvariantChecks.checkNotNull(streams);
-    InvariantChecks.checkNotNull(settings);
+    InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
 
     this.model = model;
     this.dataManager = dataManager;
