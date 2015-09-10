@@ -113,14 +113,8 @@ final class STBSegment implements STBuilder {
     stConstructor.add("va_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getPaExpr()));
     stConstructor.add("pa_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getRestExpr()));
 
-    final ST stReg = group.getInstanceOf("register");
-    stReg.add("type", SPEC_CLASS.getSimpleName());
-
     st.add("members", "");
     st.add("members", stConstructor);
- 
-    st.add("members", "");
-    st.add("members", stReg);
   }
 
   private String getVariableName(final String prefixedName) {

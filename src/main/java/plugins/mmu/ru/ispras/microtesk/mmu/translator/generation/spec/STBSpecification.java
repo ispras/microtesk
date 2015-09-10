@@ -110,20 +110,6 @@ final class STBSpecification implements STBuilder {
       stReg.add("name", segment.getId());
       st.add("stmts", stReg);
     }
-
-    st.add("stmts", "");
-    for(final Segment segment : ir.getSegments().values()) {
-      final ST stReg = group.getInstanceOf("preregister_flow");
-      stReg.add("name", segment.getId());
-      st.add("stmts", stReg);
-    }
-
-    st.add("stmts", "");
-    for(final Segment segment : ir.getSegments().values()) {
-      final ST stReg = group.getInstanceOf("register_flow");
-      stReg.add("name", segment.getId());
-      st.add("stmts", stReg);
-    }
   }
 
   private void registerMemories(final ST st, final STGroup group) {
