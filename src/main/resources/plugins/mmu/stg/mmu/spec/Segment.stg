@@ -43,6 +43,7 @@ private <name>(final String name) {
 >>
 
 function(name, members) ::= <<
+<function_new()><\n>
 <class(["public", "static", "final"],
        name,
        false,
@@ -58,3 +59,13 @@ private <name>(final String name) {
   <if(stmts)><stmts; separator="\n"><endif>
 }
 >>
+
+function_new() ::= <<
+private final List\<Function\> functions = new ArrayList\<Function\>();<\n>
+public final Function newCall() {
+  final Function result = new Function(functions.size());
+  functions.add(result);
+  return result;
+}
+>>
+

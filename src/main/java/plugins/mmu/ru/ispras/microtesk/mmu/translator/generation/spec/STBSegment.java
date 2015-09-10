@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -152,6 +149,7 @@ final class STBSegment implements STBuilder {
           );
 
       builder.build("START", "STOP", read.getStmts());
+      stReg.add("funcs", true);
     }
 
     st.add("members", "");
@@ -170,6 +168,9 @@ final class STBSegment implements STBuilder {
     if (read == null) {
       return;
     }
+
+    st.add("imps", java.util.ArrayList.class.getName());
+    st.add("imps", java.util.List.class.getName());
 
     final ST stFunction = group.getInstanceOf("function");
     stFunction.add("name", "Function");
