@@ -373,11 +373,12 @@ final class ControlFlowBuilder {
     buildAction(id, false, args);
   }
 
-  private void buildAction(final String id, boolean isPre, final String... args) {
+  private void buildAction(final String id, boolean isPublic, final String... args) {
     InvariantChecks.checkNotNull(id);
 
     final ST stActionDecl = group.getInstanceOf("action_decl");
     stActionDecl.add("id", id);
+    stActionDecl.add("is_public", isPublic);
     st.add("members", stActionDecl);
 
     final ST stActionDef = group.getInstanceOf("action_def");
@@ -396,7 +397,8 @@ final class ControlFlowBuilder {
     }
     stDef.add("stmts", stActionDef);
 
-    if (isPre) {
+    // Public action are registered during pregistration.
+    if (isPublic) {
       stReg.add("pres", id);
     } else {
       stReg.add("acts", id);
