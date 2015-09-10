@@ -43,7 +43,7 @@ private <name>(final String name) {
 >>
 
 function(name, members) ::= <<
-<function_new()><\n>
+<function_methods()><\n>
 <class(["public", "static", "final"],
        name,
        false,
@@ -60,12 +60,14 @@ private <name>(final String name) {
 }
 >>
 
-function_new() ::= <<
+function_methods() ::= <<
 private final List\<Function\> functions = new ArrayList\<Function\>();<\n>
 public final Function newCall() {
   final Function result = new Function(functions.size());
   functions.add(result);
   return result;
+}<\n>
+public final Function currentCall() {
+  return functions.get(functions.size() - 1);
 }
 >>
-
