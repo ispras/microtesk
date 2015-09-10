@@ -27,17 +27,27 @@ class MemorySimulationTemplate < MiniMipsBaseTemplate
     super
 
     # Memory-related settings
-    @base_virtual_address = 0x00000FFF
-    @base_physical_address = 0x00000FFF
+    @base_virtual_address = 0x00001000
+    @base_physical_address = 0x000FFFF
   end
 
   def pre
     super
-
-    # TODO
+  
+    data {
+      org 0x00010001
+      align 8
+      label :data
+      word rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9),
+           rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9), rand(0, 9)
+      label :end
+      space 1
+    }
   end
 
   def run
+    trace_data :data, :end
+
     lw s0, 0, t0
     lw s1, 0, t1
   end
