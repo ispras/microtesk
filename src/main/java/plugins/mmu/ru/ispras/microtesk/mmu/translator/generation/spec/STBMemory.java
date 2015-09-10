@@ -144,6 +144,10 @@ final class STBMemory implements STBuilder {
     final Attribute read = memory.getAttribute(AbstractStorage.READ_ATTR_NAME);
     final Attribute write = memory.getAttribute(AbstractStorage.WRITE_ATTR_NAME);
 
+    if (null != read && null != write) {
+      ControlFlowBuilder.buildImports(st, group);
+    }
+
     final ControlFlowBuilder builder = new ControlFlowBuilder(
         ir,
         memory.getId(),

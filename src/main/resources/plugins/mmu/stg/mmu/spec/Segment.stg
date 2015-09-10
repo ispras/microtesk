@@ -41,3 +41,20 @@ private <name>(final String name) {
   <stmts; separator="\n">
 }
 >>
+
+function(name, members) ::= <<
+<class(["public", "static", "final"],
+       name,
+       false,
+       false,
+       members)>
+>>
+
+function_constructor(name, stmts) ::= <<
+private <name>(final int instanceIndex) {
+  this(String.format("<name>_%d", instanceIndex));
+}<\n>
+private <name>(final String name) {
+  <if(stmts)><stmts; separator="\n"><endif>
+}
+>>

@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -60,6 +63,7 @@ final class STBSegment implements STBuilder {
     buildHeader(st);
     buildArguments(st, group);
     buildConstructor(st, group);
+    buildFunction(st, group);
 
     return st;
   }
@@ -137,6 +141,7 @@ final class STBSegment implements STBuilder {
 
     final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
     if (null != read) {
+      ControlFlowBuilder.buildImports(st, group);
       final ControlFlowBuilder builder = new ControlFlowBuilder(
           ir,
           segment.getId(),
@@ -158,5 +163,63 @@ final class STBSegment implements STBuilder {
 
   private String getVariableName(final String prefixedName) {
     return Utils.getVariableName(segment.getId(), prefixedName);
+  }
+
+  private void buildFunction(final ST st, final STGroup group) {
+    final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
+    if (read == null) {
+      return;
+    }
+
+    final ST stFunction = group.getInstanceOf("function");
+    stFunction.add("name", "Function");
+
+    buildArguments(stFunction, group);
+
+    final ST stConstructor = group.getInstanceOf("function_constructor");
+    stConstructor.add("name", "Function");
+
+    final ST stReg = group.getInstanceOf("register");
+    stReg.add("type", SPEC_CLASS.getSimpleName());
+
+    if (!segment.getVariables().isEmpty()) {
+      stFunction.add("members", "");
+    }
+
+    for (final Variable variable : segment.getVariables()) {
+      final String name = getVariableName(variable.getName());
+      final Type type = variable.getType();
+
+      STBStruct.buildFieldDecl(
+          name,
+          type,
+          false,
+          stFunction,
+          stConstructor,
+          group
+          );
+
+      stReg.add("vars", name);
+    }
+
+    final ControlFlowBuilder controlFlowBuilder = new ControlFlowBuilder(
+        ir,
+        segment.getId(),
+        stFunction,
+        group,
+        stConstructor,
+        stReg
+        );
+
+    controlFlowBuilder.build("START", "STOP", read.getStmts());
+
+    stFunction.add("members", "");
+    stFunction.add("members", stConstructor);
+
+    stFunction.add("members", "");
+    stFunction.add("members", stReg);
+
+    st.add("members", "");
+    st.add("members", stFunction);
   }
 }

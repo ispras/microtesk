@@ -104,6 +104,11 @@ final class ControlFlowBuilder {
     this.group = group;
     this.stDef = stDef;
     this.stReg = stReg;
+  }
+
+  protected static void buildImports(final ST st, final STGroup group) {
+    InvariantChecks.checkNotNull(st);
+    InvariantChecks.checkNotNull(group);
 
     st.add("imps", Arrays.class.getName());
     st.add("imps", BigInteger.class.getName());
