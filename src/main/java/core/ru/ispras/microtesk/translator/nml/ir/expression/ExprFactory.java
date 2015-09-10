@@ -119,15 +119,15 @@ public final class ExprFactory extends WalkerFactoryBase {
    * @param location Location object.
    * @return New expression.
    * 
-   * @throws NullPointerException if the parameter is null.
+   * @throws IllegalArgumentException if the parameter is null.
    */
 
-  public Expr location(Location source) {
+  public Expr location(final Location source) {
     checkNotNull(source);
 
     final NodeInfo nodeInfo = NodeInfo.newLocation(source);
 
-    final String name = "unnamed"; // TODO
+    final String name = source.toString();
     final Data data = Converter.toFortressData(nodeInfo.getValueInfo());
 
     final Variable variable = new Variable(name, data);

@@ -292,4 +292,25 @@ public final class LocationAtom implements Location {
 
     return true;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(name);
+
+    if (index != null) {
+      sb.append(String.format("[%s]", index.getNode()));
+    }
+
+    if (bitfield != null) {
+      sb.append(String.format("<%s..%s>", bitfield.getFrom().getNode(), bitfield.getTo().getNode()));
+    }
+
+    if (repeatCount != 1) {
+      sb.append('.');
+      sb.append(repeatCount);
+    }
+
+    return sb.toString();
+  }
 }
