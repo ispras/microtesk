@@ -469,8 +469,8 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);
 
-    final String segmentStart = String.format("%s.get().START", right.getTarget().getId());
-    final String segmentStop = String.format("%s.get().STOP", right.getTarget().getId());
+    final String segmentStart = String.format("%s.get().newCall(builder).START", right.getTarget().getId());
+    final String segmentStop = String.format("%s.get().currentCall().STOP", right.getTarget().getId());
     buildTransition(source, segmentStart);
 
     final Atom lhs = AtomExtractor.extract(left);

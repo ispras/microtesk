@@ -116,42 +116,6 @@ final class STBSegment implements STBuilder {
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());
 
-    if (!segment.getVariables().isEmpty()) {
-      st.add("members", "");
-    }
-
-    for (final Variable variable : segment.getVariables()) {
-      final String name = getVariableName(variable.getName());
-      final Type type = variable.getType();
-
-      STBStruct.buildFieldDecl(
-          name,
-          type,
-          false,
-          st,
-          stConstructor,
-          group
-          );
-
-      stReg.add("vars", name);
-    }
-
-    final Attribute read = segment.getAttribute(AbstractStorage.READ_ATTR_NAME);
-    if (null != read) {
-      ControlFlowBuilder.buildImports(st, group);
-      final ControlFlowBuilder builder = new ControlFlowBuilder(
-          ir,
-          segment.getId(),
-          st,
-          group,
-          stConstructor,
-          stReg
-          );
-
-      builder.build("START", "STOP", read.getStmts());
-      stReg.add("funcs", true);
-    }
-
     st.add("members", "");
     st.add("members", stConstructor);
  
@@ -169,6 +133,7 @@ final class STBSegment implements STBuilder {
       return;
     }
 
+    ControlFlowBuilder.buildImports(st, group);
     st.add("imps", java.util.ArrayList.class.getName());
     st.add("imps", java.util.List.class.getName());
 

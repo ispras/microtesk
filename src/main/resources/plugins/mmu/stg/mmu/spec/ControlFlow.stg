@@ -17,17 +17,11 @@ group ControlFlow;
 register(type, pres, vars, acts, trans, funcs) ::= <<
 public void preregisterControlFlow(final <type>.Builder builder) {
   <if(pres)><pres  : {p | builder.registerAction(<p>);}; separator="\n"><endif>
-  <if(funcs)>for (final Function function : functions) {
-  function.preregisterControlFlow(builder);
-}<\n><endif>
 }<\n>
 public void registerControlFlow(final <type>.Builder builder) {
   <if(vars)><vars  : {v | builder.registerVariable(<v>);}; separator="\n"><\n><endif>
   <if(acts)><acts  : {a | builder.registerAction(<a>);}; separator="\n"><\n><endif>
   <if(trans)><trans : {t | builder.registerTransition(<t>);}; separator="\n"><endif>
-  <if(funcs)>for (final Function function : functions) {
-  function.registerControlFlow(builder);
-}<\n><endif>
 }
 >>
 
