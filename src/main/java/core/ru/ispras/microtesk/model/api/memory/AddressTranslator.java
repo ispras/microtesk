@@ -16,8 +16,6 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -37,28 +35,16 @@ public final class AddressTranslator {
   private final BigInteger baseVirtualAddress;
   private final BigInteger basePhysicalAddress;
   private final boolean isTranslationNeeded;
-  private final BitVector baseVirtualAddressBv;
-  private final BitVector basePhysicalAddressBv;
 
   public AddressTranslator(
-      final int addressBitSize,
       final BigInteger baseVirtualAddress,
       final BigInteger basePhysicalAddress) {
-    InvariantChecks.checkGreaterThanZero(addressBitSize);
     InvariantChecks.checkNotNull(baseVirtualAddress);
     InvariantChecks.checkNotNull(basePhysicalAddress);
 
     this.baseVirtualAddress = baseVirtualAddress;
     this.basePhysicalAddress = basePhysicalAddress;
     this.isTranslationNeeded = !baseVirtualAddress.equals(basePhysicalAddress);
-
-    if (isTranslationNeeded) {
-      this.baseVirtualAddressBv = BitVector.valueOf(baseVirtualAddress, addressBitSize);
-      this.basePhysicalAddressBv = BitVector.valueOf(basePhysicalAddress, addressBitSize);
-    } else {
-      this.baseVirtualAddressBv = null;
-      this.basePhysicalAddressBv = null;
-    }
   }
 
   public BigInteger virtualToPhysical(final BigInteger va) {
@@ -71,6 +57,16 @@ public final class AddressTranslator {
     return basePhysicalAddress.add(va.subtract(baseVirtualAddress));
   }
 
+  public BigInteger virtualFromOrigin(final BigInteger origin) {
+    InvariantChecks.checkNotNull(origin);
+
+    if (!isTranslationNeeded) {
+      return origin;
+    }
+
+    return baseVirtualAddress.add(origin);
+  }
+
   public BigInteger physicalToVirtual(final BigInteger pa) {
     InvariantChecks.checkNotNull(pa);
 
@@ -81,30 +77,14 @@ public final class AddressTranslator {
     return baseVirtualAddress.add(pa.subtract(basePhysicalAddress));
   }
 
-  public BitVector virtualToPhysical(final BitVector va) {
-    InvariantChecks.checkNotNull(va);
+  public BigInteger physicalFromOrigin(final BigInteger origin) {
+    InvariantChecks.checkNotNull(origin);
 
     if (!isTranslationNeeded) {
-      return va;
+      return origin;
     }
 
-    return BitVectorMath.add(
-        basePhysicalAddressBv,
-        BitVectorMath.sub(va, baseVirtualAddressBv)
-        );
-  }
-
-  public BitVector physicalToVirtual(final BitVector pa) {
-    InvariantChecks.checkNotNull(pa);
-
-    if (!isTranslationNeeded) {
-      return pa;
-    }
-
-    return BitVectorMath.add(
-        baseVirtualAddressBv,
-        BitVectorMath.sub(pa, basePhysicalAddressBv)
-        );
+    return basePhysicalAddress.add(origin);
   }
 
   @Override
