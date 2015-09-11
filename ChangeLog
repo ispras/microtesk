@@ -3,8 +3,15 @@
 ================================================================================
 
 --------------------------------------------------------------------------------
- 2015/09/04 MicroTESK 2.3 alpha
+ 2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
+
+ 2015/09/11 MicroTESK 2.3.1 beta
+
+ The new build contains the following changes:
+
+ - Support for MMU-directed test program generation: improvements
+ - Some bug fixes and general improvements
 
  2015/09/04 MicroTESK 2.3.0 alpha
 
