@@ -160,7 +160,8 @@ final class STBSegment implements STBuilder {
           group
           );
 
-      stReg.add("vars", name);
+      stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
+      stConstructor.add("stmts", "");
     }
 
     final ControlFlowBuilder controlFlowBuilder = new ControlFlowBuilder(
