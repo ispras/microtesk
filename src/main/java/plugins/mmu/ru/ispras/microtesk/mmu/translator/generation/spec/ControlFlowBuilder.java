@@ -462,15 +462,8 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(right);
 
     final String callId = String.format("call_%d", callIndex);
-    final String callText = String.format(
-        "%s.Function %s = %s.get().newCall(builder, %s, %s);",
-        right.getTarget().getId(),
-        callId,
-        right.getTarget().getId(),
-        Utils.getVariableName(context, right.getAddressArgValue().toString()),
-        Utils.getVariableName(context, left.toString())
-        );
- 
+    final String callText = String.format("%s.Function %s = %s.get().newCall(builder);",
+        right.getTarget().getId(), callId, right.getTarget().getId());
     stDef.add("stmts", callText);
 
     final String segmentStart = String.format("%s.START", callId, right.getTarget().getId());
@@ -480,16 +473,14 @@ final class ControlFlowBuilder {
     final Atom lhs = AtomExtractor.extract(left);
     final Atom rhs = AtomExtractor.extract(right.getTarget().getDataArg().getNode());
  
-    /*
     final String assignResult = newAssign();
     final String assignResultBindings = buildBindings(lhs, rhs);
 
     buildAction(assignResult, assignResultBindings);
-    buildTransition(segmentStop, assignResult);*/
+    buildTransition(segmentStop, assignResult);
 
     callIndex++;
-    //return assignResult;
-    return segmentStop;
+    return assignResult;
   }
 
   private String buildBindings(final Atom lhs, final Atom rhs) {

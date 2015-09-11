@@ -42,8 +42,8 @@ private <name>(final MmuSubsystem.Builder builder, final String name) {
 }
 >>
 
-function(name, members, va, va_name, pa, pa_name) ::= <<
-<function_methods(va, va_name, pa, pa_name)><\n>
+function(name, members) ::= <<
+<function_methods()><\n>
 <class(["public", "static", "final"],
        name,
        false,
@@ -51,20 +51,23 @@ function(name, members, va, va_name, pa, pa_name) ::= <<
        members)>
 >>
 
-function_constructor(name, type, stmts, va, va_name, pa, pa_name) ::= <<
-private <type>(final MmuSubsystem.Builder builder, final int instanceIndex, final <va> <va_name>, final <pa> <pa_name>) {
-  this(builder, String.format("<name>_%d", instanceIndex), <va_name>, <pa_name>);
+function_constructor(name, type, stmts) ::= <<
+private <type>(final MmuSubsystem.Builder builder, final int instanceIndex) {
+  this(builder, String.format("<name>_%d", instanceIndex));
 }<\n>
-private <type>(final MmuSubsystem.Builder builder, final String name, final <va> <va_name>, final <pa> <pa_name>) {
-  this.<va_name> = <va_name>;
-  this.<pa_name> = <pa_name>;
-  <if(stmts)><\n><stmts; separator="\n"><endif>
+private <type>(final MmuSubsystem.Builder builder, final String name) {
+  <if(stmts)><stmts; separator="\n"><endif>
 }
 >>
 
-function_methods(va, va_name, pa, pa_name) ::= <<
-private int callIndex = 0;<\n>
-public final Function newCall(final MmuSubsystem.Builder builder, final <va> <va_name>, final <pa> <pa_name>) {
-  return new Function(builder, callIndex++, <va_name>, <pa_name>);
+function_methods() ::= <<
+private final List\<Function\> functions = new ArrayList\<Function\>();<\n>
+public final Function newCall(final MmuSubsystem.Builder builder) {
+  final Function result = new Function(builder, functions.size());
+  functions.add(result);
+  return result;
+}<\n>
+public final Function currentCall() {
+  return functions.get(functions.size() - 1);
 }
 >>
