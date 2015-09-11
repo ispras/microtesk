@@ -400,9 +400,10 @@ final class ControlFlowBuilder {
       }
       currentMarks = null;
     }
-    stDef.add("stmts", stActionDef);
 
-    stReg.add("acts", id);
+    stDef.add("stmts", stActionDef);
+    stDef.add("stmts", String.format("builder.registerAction(%s);", id));
+    stDef.add("stmts", "");
   }
 
   private void buildTransition(final String source, final String target) {

@@ -42,12 +42,8 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>.get());
 >>
 
-preregister_flow(name) ::= <<
-<name>.get().preregisterControlFlow(builder);
->>
-
 register_flow(name) ::= <<
-<name>.get().registerControlFlow(builder);
+<name>.registerControlFlow(builder);
 >>
 
 set_va(name) ::= <<
@@ -59,7 +55,7 @@ builder.setPhysicalAddress(<name>.get());
 >>
 
 set_start_action(name) ::= <<
-builder.setStartAction(<name>.get().START);
+builder.setStartAction(<name>.START);
 >>
 
 set_target_buffer(name) ::= <<

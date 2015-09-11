@@ -34,10 +34,10 @@ private <name>(final String name) {
 >>
 
 constructor_memory(name, stmts) ::= <<
-private <name>() {
-  this("<name>");
+protected <name>(final MmuSubsystem.Builder builder) {
+  this(builder, "<name>");
 }<\n>
-private <name>(final String name) {
+private <name>(final MmuSubsystem.Builder builder, final String name) {
   <stmts; separator="\n">
 }
 >>

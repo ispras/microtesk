@@ -67,7 +67,7 @@ final class STBMemory implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", memory.getId()); 
     st.add("pack", packageName);
-    st.add("instance", "INSTANCE");
+    st.add("instance", false);
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", OPERATION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
@@ -137,7 +137,8 @@ final class STBMemory implements STBuilder {
             group
             );
 
-        stReg.add("vars", name);
+        stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
+        stConstructor.add("stmts", "");
       }
     }
 
