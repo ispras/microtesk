@@ -230,10 +230,8 @@ final class LabelManager {
 
       for (final Target existingTarget : targets) {
         if (existingTarget.getLabel().equals(target.getLabel())) {
-          Logger.warning("Label '%s' is already defined in the given scope at 0x%x. " +
-                         "All subsequent redefinitions will be ignored.",
-                         target.getLabel().getName(), target.getAddress());
-          return;
+          throw new GenerationAbortedException(String.format(
+              "Incorrect template. Label '%s' is redefined in the same scope.", target.getLabel().getName()));
         }
       }
     } else {
