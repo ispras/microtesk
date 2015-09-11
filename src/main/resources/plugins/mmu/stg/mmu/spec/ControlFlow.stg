@@ -32,5 +32,5 @@ this.<id> = new MmuAction(name + ".<name>"<if(args)>, <args : {a | <a>}; separat
 >>
 
 transition( source, target, guard) ::= <<
-new MmuTransition(<source>, <target><if(guard)>, <guard><endif>)
+builder.registerTransition(new MmuTransition(<source>, <target><if(guard)>, <guard><endif>));
 >>

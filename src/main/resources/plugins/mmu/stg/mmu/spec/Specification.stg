@@ -42,10 +42,6 @@ segment_reg(name) ::= <<
 builder.registerSegment(<name>.get());
 >>
 
-register_flow(name) ::= <<
-<name>.registerControlFlow(builder);
->>
-
 set_va(name) ::= <<
 builder.setVirtualAddress(<name>.get());
 >>

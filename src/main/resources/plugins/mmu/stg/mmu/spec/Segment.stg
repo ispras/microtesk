@@ -64,8 +64,6 @@ function_methods() ::= <<
 private final List\<Function\> functions = new ArrayList\<Function\>();<\n>
 public final Function newCall(final MmuSubsystem.Builder builder) {
   final Function result = new Function(builder, functions.size());
-  result.registerControlFlow(builder);
-
   functions.add(result);
   return result;
 }<\n>

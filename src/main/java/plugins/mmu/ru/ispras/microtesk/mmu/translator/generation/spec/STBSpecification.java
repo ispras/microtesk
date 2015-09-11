@@ -117,10 +117,6 @@ final class STBSpecification implements STBuilder {
     for(final Memory memory : ir.getMemories().values()) {
       final String id = memory.getId();
       st.add("stmts", String.format("final %s %s = new %s(builder);", id, id, id));
-
-      final ST stReg = group.getInstanceOf("register_flow");
-      stReg.add("name", id);
-      st.add("stmts", stReg);
     }
   }
 

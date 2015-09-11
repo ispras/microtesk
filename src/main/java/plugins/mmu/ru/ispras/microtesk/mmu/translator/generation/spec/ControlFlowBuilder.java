@@ -403,7 +403,6 @@ final class ControlFlowBuilder {
 
     stDef.add("stmts", stActionDef);
     stDef.add("stmts", String.format("builder.registerAction(%s);", id));
-    stDef.add("stmts", "");
   }
 
   private void buildTransition(final String source, final String target) {
@@ -423,7 +422,7 @@ final class ControlFlowBuilder {
       stTrans.add("guard", guard);
     }
 
-    stReg.add("trans", stTrans);
+    stDef.add("stmts", stTrans);
   }
 
   private boolean isDataVariable(final Node expr) {
