@@ -26,14 +26,6 @@ require_relative 'minimips_base'
 
 class MinMaxTemplate < MiniMipsBaseTemplate
 
-  def initialize
-    super
-
-    # Memory-related settings
-    @base_virtual_address  = 0x00001000
-    @base_physical_address = 0x0000FFFF
-  end
-
   def pre
     super
 
@@ -62,13 +54,12 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     add s0, zero, t2 
     add s1, zero, t2
 
-    trace ""
+    trace ''
     label :cycle
     addi t0, t0, 4
     beq t0, t1, :done 
     lw t2, 0, t0
 
-    label :cycle
     slt t3, t2, s0
     beq t3, zero, :test_max
     nop
