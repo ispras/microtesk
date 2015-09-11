@@ -644,8 +644,8 @@ class Template
   # Code Allocation Facilities                                                 #
   # -------------------------------------------------------------------------- #
 
-  def org(address)
-    @template.setOrigin address
+  def org(origin)
+    @template.setOrigin origin
   end
 
   def align(value)
@@ -829,8 +829,8 @@ class DataManager
     @manager.align value, value_in_bytes
   end
 
-  def org(address)
-    @manager.setAddress address
+  def org(origin)
+    @manager.setOrigin origin
   end
 
   def type(*args)

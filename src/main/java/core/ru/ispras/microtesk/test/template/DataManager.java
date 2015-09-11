@@ -331,9 +331,9 @@ public final class DataManager {
   }
 
   /**
-   * Sets allocation address. Inserts the ".org" directive in the test program.
+   * Sets allocation origin. Inserts the ".org" directive in the test program.
    */
-  public void setAddress(final BigInteger value) {
+  public void setOrigin(final BigInteger value) {
     checkNotNull(value);
 
     final String text = String.format(TestSettings.getOriginFormat(), value);
