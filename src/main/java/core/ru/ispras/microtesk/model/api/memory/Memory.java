@@ -60,7 +60,7 @@ public abstract class Memory {
       case REG:
         result = new RegisterFile(name, type, length);
         break;
-        
+
       case VAR:
         result = new VariableArray(name, type, length);
         break;
