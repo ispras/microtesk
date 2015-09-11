@@ -137,7 +137,8 @@ final class STBSegment implements STBuilder {
     buildArguments(stFunction, group);
 
     final ST stConstructor = group.getInstanceOf("function_constructor");
-    stConstructor.add("name", "Function");
+    stConstructor.add("name", segment.getId());
+    stConstructor.add("type", "Function");
 
     final ST stReg = group.getInstanceOf("register");
     stReg.add("type", SPEC_CLASS.getSimpleName());

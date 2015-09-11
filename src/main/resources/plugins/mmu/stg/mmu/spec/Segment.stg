@@ -51,11 +51,11 @@ function(name, members) ::= <<
        members)>
 >>
 
-function_constructor(name, stmts) ::= <<
-private <name>(final int instanceIndex) {
+function_constructor(name, type, stmts) ::= <<
+private <type>(final int instanceIndex) {
   this(String.format("<name>_%d", instanceIndex));
 }<\n>
-private <name>(final String name) {
+private <type>(final String name) {
   <if(stmts)><stmts; separator="\n"><endif>
 }
 >>
