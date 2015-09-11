@@ -82,6 +82,7 @@ final class ControlFlowBuilder {
   private int branchIndex = 0;
   private int joinIndex = 0;
   private int assignIndex = 0;
+  private int callIndex = 0;
 
   protected ControlFlowBuilder(
       final Ir ir,
@@ -460,8 +461,13 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);
 
-    final String segmentStart = String.format("%s.get().newCall(builder).START", right.getTarget().getId());
-    final String segmentStop = String.format("%s.get().currentCall().STOP", right.getTarget().getId());
+    final String callId = String.format("call_%d", callIndex);
+    final String callText = String.format("%s.Function %s = %s.get().newCall(builder);",
+        right.getTarget().getId(), callId, right.getTarget().getId());
+    stDef.add("stmts", callText);
+
+    final String segmentStart = String.format("%s.START", callId, right.getTarget().getId());
+    final String segmentStop = String.format("%s.STOP", callId, right.getTarget().getId());
     buildTransition(source, segmentStart);
 
     final Atom lhs = AtomExtractor.extract(left);
@@ -473,6 +479,7 @@ final class ControlFlowBuilder {
     buildAction(assignResult, assignResultBindings);
     buildTransition(segmentStop, assignResult);
 
+    callIndex++;
     return assignResult;
   }
 
