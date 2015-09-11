@@ -58,7 +58,7 @@ final class STBSegment implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
 
     buildHeader(st);
-    buildArguments(st, group);
+    //buildArguments(st, group);
     buildConstructor(st, group);
     buildFunction(st, group);
 
@@ -78,6 +78,11 @@ final class STBSegment implements STBuilder {
   }
 
   private void buildArguments(final ST st, final STGroup group) {
+    st.add("members", String.format("public final %s %s;",
+        segment.getAddress().getId(), getVariableName(segment.getAddressArg().getName())));
+    st.add("members", String.format("public final %s %s;",
+        segment.getDataArgAddress().getId(), getVariableName(segment.getDataArg().getName())));
+    /*
     STBStruct.buildFieldAlias(
         segment.getId(),
         segment.getAddressArg(),
@@ -94,7 +99,7 @@ final class STBSegment implements STBuilder {
         true,
         st,
         group
-        );
+        );*/
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
@@ -133,12 +138,20 @@ final class STBSegment implements STBuilder {
 
     final ST stFunction = group.getInstanceOf("function");
     stFunction.add("name", "Function");
+    stFunction.add("va", segment.getAddress().getId());
+    stFunction.add("va_name", getVariableName(segment.getAddressArg().getName()));
+    stFunction.add("pa", segment.getDataArgAddress().getId());
+    stFunction.add("pa_name", getVariableName(segment.getDataArg().getName()));
 
     buildArguments(stFunction, group);
 
     final ST stConstructor = group.getInstanceOf("function_constructor");
     stConstructor.add("name", segment.getId());
     stConstructor.add("type", "Function");
+    stConstructor.add("va", segment.getAddress().getId());
+    stConstructor.add("va_name", getVariableName(segment.getAddressArg().getName()));
+    stConstructor.add("pa", segment.getDataArgAddress().getId());
+    stConstructor.add("pa_name", getVariableName(segment.getDataArg().getName()));
 
     if (!segment.getVariables().isEmpty()) {
       stFunction.add("members", "");
