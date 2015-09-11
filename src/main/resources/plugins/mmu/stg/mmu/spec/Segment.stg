@@ -52,10 +52,10 @@ function(name, members) ::= <<
 >>
 
 function_constructor(name, type, stmts) ::= <<
-private <type>(final int instanceIndex) {
-  this(String.format("<name>_%d", instanceIndex));
+private <type>(final MmuSubsystem.Builder builder, final int instanceIndex) {
+  this(builder, String.format("<name>_%d", instanceIndex));
 }<\n>
-private <type>(final String name) {
+private <type>(final MmuSubsystem.Builder builder, final String name) {
   <if(stmts)><stmts; separator="\n"><endif>
 }
 >>
@@ -63,7 +63,7 @@ private <type>(final String name) {
 function_methods() ::= <<
 private final List\<Function\> functions = new ArrayList\<Function\>();<\n>
 public final Function newCall(final MmuSubsystem.Builder builder) {
-  final Function result = new Function(functions.size());
+  final Function result = new Function(builder, functions.size());
   result.registerControlFlow(builder);
 
   functions.add(result);
