@@ -227,6 +227,15 @@ final class LabelManager {
     final List<Target> targets;
     if (table.containsKey(label.getName())) {
       targets = table.get(label.getName());
+
+      for (final Target existingTarget : targets) {
+        if (existingTarget.getLabel().equals(target.getLabel())) {
+          Logger.warning("Label '%s' is already defined in the given scope at 0x%x. " +
+                         "All subsequent redefinitions will be ignored.",
+                         target.getLabel().getName(), target.getAddress());
+          return;
+        }
+      }
     } else {
       targets = new ArrayList<>();
       table.put(label.getName(), targets);
