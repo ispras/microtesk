@@ -75,7 +75,6 @@ final class ControlFlowBuilder {
   private final ST st;
   private final STGroup group;
   private final ST stDef;
-  private final ST stReg;
 
   private final Set<String> exceptions = new HashSet<>();
   private List<String> currentMarks = null;
@@ -89,21 +88,18 @@ final class ControlFlowBuilder {
       final String context,
       final ST st,
       final STGroup group,
-      final ST stDef,
-      final ST stReg) {
+      final ST stDef) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(st);
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkNotNull(stDef);
-    InvariantChecks.checkNotNull(stReg);
 
     this.ir = ir;
     this.context = context;
     this.st = st;
     this.group = group;
     this.stDef = stDef;
-    this.stReg = stReg;
   }
 
   protected static void buildImports(final ST st, final STGroup group) {

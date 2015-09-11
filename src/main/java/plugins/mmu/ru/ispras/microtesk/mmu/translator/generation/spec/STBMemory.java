@@ -108,9 +108,6 @@ final class STBMemory implements STBuilder {
     final ST stConstructor = group.getInstanceOf("constructor_memory");
     stConstructor.add("name", memory.getId());
 
-    final ST stReg = group.getInstanceOf("register");
-    stReg.add("type", SPEC_CLASS.getSimpleName());
-
     STBStruct.buildFieldDecl(
         getVariableName(memory.getDataArg().getName()),
         memory.getDataArg().getType(),
@@ -154,8 +151,7 @@ final class STBMemory implements STBuilder {
         memory.getId(),
         st,
         group,
-        stConstructor,
-        stReg
+        stConstructor
         );
 
     builder.build(
@@ -169,9 +165,6 @@ final class STBMemory implements STBuilder {
 
     st.add("members", "");
     st.add("members", stConstructor);
-
-    st.add("members", "");
-    st.add("members", stReg);
   }
 
   private String getVariableName(final String prefixedName) {

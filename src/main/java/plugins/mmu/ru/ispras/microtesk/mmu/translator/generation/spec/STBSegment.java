@@ -140,9 +140,6 @@ final class STBSegment implements STBuilder {
     stConstructor.add("name", segment.getId());
     stConstructor.add("type", "Function");
 
-    final ST stReg = group.getInstanceOf("register");
-    stReg.add("type", SPEC_CLASS.getSimpleName());
-
     if (!segment.getVariables().isEmpty()) {
       stFunction.add("members", "");
     }
@@ -169,17 +166,13 @@ final class STBSegment implements STBuilder {
         segment.getId(),
         stFunction,
         group,
-        stConstructor,
-        stReg
+        stConstructor
         );
 
     controlFlowBuilder.build("START", "STOP", read.getStmts());
 
     stFunction.add("members", "");
     stFunction.add("members", stConstructor);
-
-    stFunction.add("members", "");
-    stFunction.add("members", stReg);
 
     st.add("members", "");
     st.add("members", stFunction);
