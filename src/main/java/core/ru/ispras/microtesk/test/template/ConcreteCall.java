@@ -22,6 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.IsaException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.test.TestSettings;
 
 public final class ConcreteCall {
   private final List<Label> labels;
@@ -182,7 +183,7 @@ public final class ConcreteCall {
     long thisAddress = value;
 
     if (origin != null) {
-      thisAddress = origin.longValue();
+      thisAddress = TestSettings.getBaseVirtualAddress().longValue() + origin.longValue();
     }
 
     if (alignmentInBytes != null) {

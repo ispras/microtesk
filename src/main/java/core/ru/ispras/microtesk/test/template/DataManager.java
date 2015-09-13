@@ -34,6 +34,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -155,6 +156,7 @@ public final class DataManager {
 
   private String sectionText;
   private MemoryAllocator allocator;
+  private AddressTranslator addressTranslator;
   private List<String> labels;
 
   private String spaceText;
@@ -187,6 +189,7 @@ public final class DataManager {
 
     this.sectionText = null;
     this.allocator = null;
+    this.addressTranslator = null;
     this.labels = null;
 
     this.spaceText = null;
@@ -206,9 +209,13 @@ public final class DataManager {
     }
 
     sectionText = text;
-
     final Memory memory = Memory.get(target);
-    allocator = memory.newAllocator(addressableSize, BigInteger.ZERO);
+
+    allocator = memory.newAllocator(
+        addressableSize, TestSettings.getBaseVirtualAddress());
+ 
+    addressTranslator = new AddressTranslator(
+        TestSettings.getBaseVirtualAddress(), TestSettings.getBasePhysicalAddress());
   }
 
   public boolean isInitialized() {
@@ -333,18 +340,22 @@ public final class DataManager {
   /**
    * Sets allocation origin. Inserts the ".org" directive in the test program.
    */
-  public void setOrigin(final BigInteger value) {
-    checkNotNull(value);
+  public void setOrigin(final BigInteger origin) {
+    checkNotNull(origin);
 
-    final String text = String.format(TestSettings.getOriginFormat(), value);
+    final String text = String.format(TestSettings.getOriginFormat(), origin);
     Logger.debug("Setting allocation address: %s", text);
 
     getDataDecls().add(new DataDeclText(text));
-    allocator.setCurrentAddress(value);
+
+    final BigInteger physicalAddress = addressTranslator.physicalFromOrigin(origin);
+    allocator.setCurrentAddress(physicalAddress);
   }
 
   public BigInteger getAddress() {
-    return allocator.getCurrentAddress();
+    final BigInteger physicalAddress = allocator.getCurrentAddress();
+    final BigInteger virtualAddress = addressTranslator.virtualToPhysical(physicalAddress);
+    return virtualAddress;
   }
 
   /**
@@ -386,12 +397,13 @@ public final class DataManager {
     getDataDecls().add(new DataDeclComment(text));
   }
 
-  private void setAllLabelsToAddress(final BigInteger address) {
+  private void setAllLabelsToAddress(final BigInteger physicalAddress) {
     checkInitialized();
 
     if (null != labels) {
       for (String label : labels) {
-        memoryMap.addLabel(label, address);
+        final BigInteger virtuaAddress = addressTranslator.physicalToVirtual(physicalAddress);
+        memoryMap.addLabel(label, virtuaAddress);
       }
       labels = null;
     }

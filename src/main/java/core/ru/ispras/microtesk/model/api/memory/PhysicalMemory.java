@@ -20,18 +20,26 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.test.TestSettings;
 
 final class PhysicalMemory extends Memory {
   private final MemoryDevice storage;
   private MemoryDevice handler;
+  private AddressTranslator addressTranslator;
+  private final BigInteger addressableUnitsInData;
 
   public PhysicalMemory(
       final String name,
       final Type type,
       final BigInteger length) {
     super(Kind.MEM, name, type, length, false);
+
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     this.handler = null;
+    this.addressTranslator = null;
+
+    InvariantChecks.checkTrue(storage.getDataBitSize() % 8 == 0);
+    this.addressableUnitsInData = BigInteger.valueOf(storage.getDataBitSize() / 8);
   }
 
   public MemoryDevice getStorage() {
@@ -93,30 +101,65 @@ final class PhysicalMemory extends Memory {
     return new Location(getType(), atom);
   }
 
+  private AddressTranslator getAddressTranslator() {
+    if (null == addressTranslator) {
+      addressTranslator = new AddressTranslator(
+          TestSettings.getBaseVirtualAddress(),
+          TestSettings.getBasePhysicalAddress()
+          );
+    }
+
+    return addressTranslator;
+  }
+
+  private BigInteger indexToAddress(final BigInteger index) {
+    if (addressableUnitsInData.equals(BigInteger.ONE)) {
+      return index;
+    }
+
+    return index.multiply(addressableUnitsInData);
+  }
+
+  private BigInteger addressToIndex(final BigInteger address) {
+    if (addressableUnitsInData.equals(BigInteger.ONE)) {
+      return address;
+    }
+
+    return address.divide(addressableUnitsInData);
+  }
+
+  private BitVector virtualIndexToPhysicalIndex(final BitVector index) {
+    final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
+    final BigInteger physicalAddress = getAddressTranslator().virtualToPhysical(virtualAddress);
+
+    final BigInteger physicalIndex = addressToIndex(physicalAddress);
+    return BitVector.valueOf(physicalIndex, storage.getAddressBitSize());
+  }
+
   private final class PhysicalMemoryAtom implements Location.Atom {
-    private final BitVector address;
+    private final BitVector index;
     private final int bitSize;
     private final int startBitPos;
 
     private PhysicalMemoryAtom(
-        final BitVector address,
+        final BitVector index,
         final int bitSize,
         final int startBitPos) {
-      this.address = address;
+      this.index = index;
       this.bitSize = bitSize;
       this.startBitPos = startBitPos;
     }
 
     @Override
     public boolean isInitialized() {
-      return storage.isInitialized(address);
+      return storage.isInitialized(virtualIndexToPhysicalIndex(index));
     }
 
     @Override
     public PhysicalMemoryAtom resize(
         final int newBitSize,
         final int newStartBitPos) {
-      return new PhysicalMemoryAtom(address, newBitSize, newStartBitPos);
+      return new PhysicalMemoryAtom(index, newBitSize, newStartBitPos);
     }
 
     @Override
@@ -131,7 +174,23 @@ final class PhysicalMemory extends Memory {
 
     @Override
     public BitVector load(final boolean callHandler) {
-      final BitVector region = storage.load(address);
+      final MemoryDevice targetDevice;
+      final BitVector targetAddress;
+
+      if (!callHandler || handler == null) {
+        targetDevice = storage;
+        targetAddress = virtualIndexToPhysicalIndex(index);
+      } else {
+        targetDevice = handler;
+
+        final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
+        targetAddress = BitVector.valueOf(virtualAddress, handler.getAddressBitSize());
+
+        // TODO: temporary. To make sure it is not called yet.
+        throw new UnsupportedOperationException("Functionality is untested and it not enabled yet.");
+      }
+
+      final BitVector region = targetDevice.load(targetAddress);
       return BitVector.newMapping(region, startBitPos, bitSize);
     }
 
@@ -139,25 +198,42 @@ final class PhysicalMemory extends Memory {
     public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
 
+      final MemoryDevice targetDevice;
+      final BitVector targetAddress;
+
+      if (!callHandler || handler == null) {
+        targetDevice = storage;
+        targetAddress = virtualIndexToPhysicalIndex(index);
+      } else {
+        targetDevice = handler;
+
+        final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
+        targetAddress = BitVector.valueOf(virtualAddress, handler.getAddressBitSize());
+
+        // TODO: temporary. To make sure it is not called yet.
+        throw new UnsupportedOperationException("Functionality is untested and it not enabled yet.");
+      }
+
       final BitVector region;
-      if (bitSize == storage.getDataBitSize()) {
+      if (bitSize == targetDevice.getDataBitSize()) {
         region = data;
       } else {
-        region = storage.load(address).copy();
+        region = targetDevice.load(targetAddress).copy();
         final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
         mapping.assign(data);
       }
 
-      storage.store(address, region);
+      targetDevice.store(targetAddress, region);
     }
 
     @Override
     public String toString() {
       return String.format("%s[%d]<%d..%d>",
           getName(),
-          address.bigIntegerValue(false),
+          index.bigIntegerValue(false),
           startBitPos,
-          startBitPos + bitSize - 1);
+          startBitPos + bitSize - 1
+          );
     }
   }
 }

@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.PreparatorStore;
@@ -81,7 +82,7 @@ public final class EngineContext {
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
-    this.address = 0;
+    this.address = TestSettings.getBaseVirtualAddress().longValue();
     this.generateData = true;
   }
 
