@@ -26,6 +26,13 @@ require_relative 'minimips_base'
 
 class MinMaxTemplate < MiniMipsBaseTemplate
 
+  def initialize
+    super
+
+    @base_virtual_address  = 0x00204000
+    @base_physical_address = 0x0010F000
+  end
+
   def pre
     super
 
