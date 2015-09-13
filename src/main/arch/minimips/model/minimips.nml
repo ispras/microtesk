@@ -63,12 +63,12 @@ mode COP0 (i: INDEX) = COP0_R[i]
 // by branch and jump instructions. It is saved across instruction calls as the
 // control transfer is performed during the execution of the next instruction
 // (delay slot)
-mem BRANCH[BIT]
+reg BRANCH[BIT]
 
 // Address to jump (future PC value) which is set by branch and jump
 // instructions. It is saved across instruction calls as the control transfer
 // is performed during the execution of the next instruction (delay slot).
-mem JMPADDR[WORD]
+reg JMPADDR[WORD]
 
 // Flag that says whether the current instruction is in the delay slot
 var is_delay_slot[BIT]
