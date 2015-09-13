@@ -729,9 +729,9 @@ public final class Template {
     }
   }
 
-  public void setOrigin(final BigInteger address) {
-    Logger.debug("Set Origin to 0x%x", address);
-    callBuilder.setOrigin(address);
+  public void setOrigin(final BigInteger origin) {
+    Logger.debug("Set Origin to 0x%x", origin);
+    callBuilder.setOrigin(origin);
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
