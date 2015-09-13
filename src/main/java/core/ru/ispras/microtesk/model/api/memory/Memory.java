@@ -219,7 +219,13 @@ public abstract class Memory {
 
   @Override
   public String toString() {
-    return String.format("%s %s[%d, %s], alias=%b",
-        kind.name().toLowerCase(), name, length, type, isAlias);
+    return String.format(
+        "%s %s[%d, %s], alias=%b",
+        kind.name().toLowerCase(),
+        name,
+        length,
+        type,
+        isAlias
+        );
   }
 }
