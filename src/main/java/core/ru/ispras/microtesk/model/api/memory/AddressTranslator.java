@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -30,7 +31,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class AddressTranslator {
   private final BigInteger baseVirtualAddress;
   private final BigInteger basePhysicalAddress;
@@ -55,6 +55,17 @@ public final class AddressTranslator {
     }
 
     return basePhysicalAddress.add(va.subtract(baseVirtualAddress));
+  }
+
+  public BitVector virtualToPhysical(final BitVector va, final int physicalBitSize) {
+    InvariantChecks.checkNotNull(va);
+
+    if (!isTranslationNeeded) {
+      return va;
+    }
+
+    final BigInteger physicalAddress = virtualToPhysical(va.bigIntegerValue(false));
+    return BitVector.valueOf(physicalAddress, physicalBitSize);
   }
 
   public BigInteger virtualFromOrigin(final BigInteger origin) {
@@ -89,7 +100,10 @@ public final class AddressTranslator {
 
   @Override
   public String toString() {
-    return String.format("AddressTranslator [baseVirtualAddress=%s, basePhysicalAddress=%s]",
-        baseVirtualAddress, basePhysicalAddress);
+    return String.format(
+        "AddressTranslator [baseVirtualAddress=%s, basePhysicalAddress=%s]",
+        baseVirtualAddress,
+        basePhysicalAddress
+        );
   }
 }
