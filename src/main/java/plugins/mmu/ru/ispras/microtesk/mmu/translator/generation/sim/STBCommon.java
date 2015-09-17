@@ -56,7 +56,7 @@ abstract class STBCommon {
       ru.ispras.microtesk.mmu.model.api.Segment.class;
 
   public static final Class<?> MEMORY_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Memory.class;
+      ru.ispras.microtesk.mmu.model.api.Mmu.class;
 
   public static final Class<?> INDEXER_CLASS =
       ru.ispras.microtesk.mmu.model.api.Indexer.class;

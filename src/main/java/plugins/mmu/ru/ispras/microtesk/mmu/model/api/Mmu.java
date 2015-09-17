@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.instruction.StandardFunctions;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
-public abstract class Memory <A extends Address>
+public abstract class Mmu <A extends Address>
     extends StandardFunctions implements Buffer<BitVector, A>, MemoryDevice {
 
   @Override
