@@ -159,22 +159,17 @@ public abstract class Memory {
     this.addressBitSize = MemoryStorage.calculateAddressSize(length);
   }
 
-  public final MemoryAllocator newAllocator(
-      final int addressableSize,
-      final BigInteger baseAddress) {
-    InvariantChecks.checkGreaterThanZero(addressableSize);
-    InvariantChecks.checkNotNull(baseAddress);
-
-    if (this instanceof PhysicalMemory) {
-      return new MemoryAllocator(
-          ((PhysicalMemory) this).getStorage(), addressableSize, baseAddress);
-    }
-
-    throw new IllegalArgumentException(
-        "Not a physical memory storage: " + toString());
+  public MemoryAllocator newAllocator(int addressableSize, BigInteger baseAddress) {
+    throw new UnsupportedOperationException(
+        "newAllocator is not supported for " + toString());
   }
 
-  public static void setUseTempCopies(boolean value) {
+  public MemoryDevice setHandler(MemoryDevice handler) {
+    throw new UnsupportedOperationException(
+        "setHandler is not supported for " + toString());
+  }
+
+  public static void setUseTempCopies(final boolean value) {
     for (final Memory memory : INSTANCES.values()) {
       memory.setUseTempCopy(value);
     }

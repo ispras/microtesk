@@ -58,18 +58,23 @@ final class PhysicalMemory extends Memory {
     }
   }
 
-  public MemoryDevice getStorage() {
-    return storage;
+  @Override
+  public final MemoryAllocator newAllocator(
+      final int addressableSize,
+      final BigInteger baseAddress) {
+    InvariantChecks.checkGreaterThanZero(addressableSize);
+    InvariantChecks.checkNotNull(baseAddress);
+
+    return new MemoryAllocator(storage, addressableSize, baseAddress);
   }
 
-  public MemoryDevice getHandler() {
-    return handler;
-  }
-
-  public void setHandler(final MemoryDevice handler) {
+  @Override
+  public MemoryDevice setHandler(final MemoryDevice handler) {
     InvariantChecks.checkNotNull(handler);
     InvariantChecks.checkFalse(isLogical);
+
     this.handler = handler;
+    return storage;
   }
 
   @Override
