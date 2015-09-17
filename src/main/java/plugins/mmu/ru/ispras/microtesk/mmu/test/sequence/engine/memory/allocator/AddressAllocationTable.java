@@ -133,37 +133,13 @@ public final class AddressAllocationTable {
     return values;
   }
 
-  /**
-   * Returns the mask whose zero bits indicates the fields' bits that can be modified.
-   * 
-   * @param width the width of the field.
-   * @param fields the set of field values.
-   * 
-   * @return the place mask.
-   */
-  private static long getPlaceMask(final int width, final Set<Long> fields) {
-    InvariantChecks.checkTrue(width > 0);
-    InvariantChecks.checkNotNull(fields);
-
-    int i = 0;
-    for (; i < width; i++) {
-      for (final long field : fields) {
-        if ((field & (1L << i)) != 0) {
-          break;
-        }
-      }
-    }
-
-    return ~BitUtils.getLongMask(i);
-  }
-
   private static long allocate(
       final AllocationTable<Long, ?> allocTable, final boolean peek, final Set<Long> exclude) {
     InvariantChecks.checkNotNull(allocTable);
 
-      return peek ?
-          (exclude != null ? allocTable.peek(exclude) : allocTable.peek()) :
-          (exclude != null ? allocTable.allocate(exclude) : allocTable.allocate());
+    return peek ?
+        (exclude != null ? allocTable.peek(exclude) : allocTable.peek()) :
+        (exclude != null ? allocTable.allocate(exclude) : allocTable.allocate());
   }
 
   /** Joint allocation table for all memory regions. */
@@ -174,22 +150,22 @@ public final class AddressAllocationTable {
   /**
    * Creates an allocation table for the given address field.
    * 
-   * @param lo the lower bit of the field.
-   * @param hi the upper bit of the field.
+   * @param lower the lower bit of the field.
+   * @param upper the upper bit of the field.
    * @param addressMask the mask indicating insignificant address bits.
    * @param regions the memory regions or {@code null}.
    */
   public AddressAllocationTable(
-      final int lo,
-      final int hi,
+      final int lower,
+      final int upper,
       final long addressMask,
       final Collection<? extends Range<Long>> regions) {
     final Set<Long> globalValues = new HashSet<>();
 
-    final int width = (hi - lo) + 1;
+    final int width = (upper - lower) + 1;
     final long mask = BitUtils.getLongMask(width);
 
-    final boolean isInsignificant = ((mask << lo) | addressMask) != addressMask;
+    final boolean isInsignificant = ((mask << lower) | addressMask) != addressMask;
 
     final AllocationStrategyId strategy =
         isInsignificant ? AllocationStrategyId.RANDOM : AllocationStrategyId.FREE;
@@ -199,30 +175,21 @@ public final class AddressAllocationTable {
     } else if (regions == null || regions.isEmpty()) {
       globalValues.addAll(getAddressFieldValues(width, 0, ~mask));
     } else {
-      final Set<Long> regionFields = new HashSet<>();
-
       for (final Range<Long> region : regions) {
-        final long regionField = (region.getMin() >> lo) & mask;
-        regionFields.add(regionField);
-      }
+        final long regionMinField = BitUtils.getField(region.getMin(), lower, upper);
+        final long regionMaxField = BitUtils.getField(region.getMax(), lower, upper);
+        InvariantChecks.checkTrue(regionMinField <= regionMaxField);
 
-      // Two cases: either all regions have the same field (region-insensitive field allocation)
-      // or each region has a unique field (region-sensitive field allocation).
-      InvariantChecks.checkTrue(regionFields.size() == 1
-          || regionFields.size() == regions.size());
-
-      for (final Range<Long> region : regions) {
-        final long regionField = (region.getMin() >> lo) & mask;
         final Set<Long> regionValues =
-            getAddressFieldValues(width, regionField, getPlaceMask(width, regionFields));
+            getAddressFieldValues(width, regionMinField, ~(regionMinField ^ regionMaxField));
         InvariantChecks.checkFalse(regionValues.isEmpty(), "Empty set of local values");
 
         globalValues.addAll(regionValues);
-        if (regionFields.size() == regions.size()) {
-          final AllocationTable<Long, ?> regionAllocTable =
-              new AllocationTable<>(strategy, regionValues);
-          regionAllocTables.put(region, regionAllocTable);
-        }
+
+        final AllocationTable<Long, ?> regionAllocTable =
+            new AllocationTable<>(strategy, regionValues);
+
+        regionAllocTables.put(region, regionAllocTable);
       }
     }
 

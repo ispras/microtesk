@@ -1196,7 +1196,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   /**
-   * Fills the given entry with appropriate data produced on the basis the memory access and
+   * Fills the given entry with appropriate data produced on the basis of the memory access and
    * the address object.
    * 
    * @param addrObject the address object.
