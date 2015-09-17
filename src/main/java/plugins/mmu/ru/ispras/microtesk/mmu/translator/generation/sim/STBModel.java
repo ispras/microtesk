@@ -81,6 +81,7 @@ final class STBModel implements STBuilder {
       stBody.add("buffers", segment.getId());
     }
 
+    InvariantChecks.checkTrue(ir.getMemories().size() == 1);
     for (final Memory memory : ir.getMemories().values()) {
       stBody.add("memories", memory.getId());
     }

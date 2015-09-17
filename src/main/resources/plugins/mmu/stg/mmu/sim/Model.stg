@@ -16,22 +16,16 @@ group Model;
 
 body(name, mem_type, buf_type, buffers, memories) ::= <<
 private final Map\<String, <buf_type>\> buffers;
-private final Map\<String, <mem_type>\> memories;
+private final <mem_type> device;
 
 public <name>() {
   this.buffers = newBuffers();
-  this.memories = newMemories();
+  this.device = new <memories>();
 }
 
 private static Map\<String, <buf_type>\> newBuffers() {
   final Map\<String, <buf_type>\> result = new HashMap\<\>();
   <buffers : {b | result.put("<b>", <b>.get());}; separator="\n">
-  return result;
-}
-
-private static Map\<String, <mem_type>\> newMemories() {
-  final Map\<String, <mem_type>\> result = new HashMap\<\>();
-  <memories : {m | result.put("<m>", new <m>());}; separator="\n">
   return result;
 }
 
@@ -41,7 +35,7 @@ public <buf_type> getBufferObserver(final String bufferId) {
 }
 
 @Override
-public <mem_type> getMemoryAccessor(final String deviceId) {
-  return memories.get(deviceId);
+public <mem_type> getDevice() {
+  return device;
 }
 >>
