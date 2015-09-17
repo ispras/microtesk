@@ -38,4 +38,9 @@ public <buf_type> getBufferObserver(final String bufferId) {
 public <mem_type> getMmuDevice() {
   return device;
 }
+
+@Override
+public void setStorageDevice(final MemoryDevice device) {
+  // TODO
+}
 >>

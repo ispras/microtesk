@@ -19,4 +19,5 @@ import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 public interface MmuModel {
   BufferObserver getBufferObserver(String bufferId);
   MemoryDevice getMmuDevice();
+  void setStorageDevice(MemoryDevice device);
 }
