@@ -65,7 +65,8 @@ public final class MicroTESK {
     }
 
     try {
-      registerPlugins(Config.loadPlugins());
+      final List<Plugin> plugins = Config.loadPlugins();
+      registerPlugins(plugins);
 
       if (params.hasOption(Parameters.GENERATE)) {
         generate(params);
