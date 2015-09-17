@@ -532,6 +532,7 @@ final class ControlFlowBuilder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private String toString(final Atom atom) {
     InvariantChecks.checkNotNull(atom);
 
@@ -552,18 +553,8 @@ final class ControlFlowBuilder {
       case GROUP:
         return Utils.getVariableName(context, ((Variable) object).getName());
 
-      case CONCAT: {
-        @SuppressWarnings("unchecked")
-        final List<IntegerField> fields = (List<IntegerField>) object;
-        final List<String> fieldTexts = new ArrayList<>();
-
-        for (final IntegerField field : fields) {
-          fieldTexts.add(Utils.toString(context, field));
-        }
-
-        return String.format(
-            "MmuExpression.rcat(%s)", Utils.toString(fieldTexts, ", "));
-      }
+      case CONCAT:
+        return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
