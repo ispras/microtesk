@@ -67,4 +67,9 @@ final class Core implements Plugin {
 
     return dataGenerators;
   }
+
+  @Override
+  public void initializeGenerationEnvironment() {
+    // Empty. No special action is required.
+  }
 }

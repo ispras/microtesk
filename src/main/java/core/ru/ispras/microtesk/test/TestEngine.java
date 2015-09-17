@@ -31,6 +31,7 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -115,7 +116,10 @@ public final class TestEngine {
     }
   }
 
-  public static TestStatistics generate(final String modelName, final String templateFile) throws Throwable {
+  public static TestStatistics generate(
+      final String modelName,
+      final String templateFile,
+      final List<Plugin> plugins) throws Throwable {
     Logger.debug("Home: " + SysUtils.getHomeDir());
     Logger.debug("Current directory: " + SysUtils.getCurrentDir());
     Logger.debug("Model name: " + modelName);
@@ -138,13 +142,17 @@ public final class TestEngine {
       final String scriptsPath = String.format(
           "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
 
-        try {
-          container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
-        } catch(org.jruby.embed.EvalFailedException e) {
-          // JRuby wraps exceptions that occur in Java libraries it calls into
-          // EvalFailedException. To handle them correctly, we need to unwrap them.
-          throw e.getCause();
-        }
+      for (final Plugin plugin : plugins) {
+        plugin.initializeGenerationEnvironment();
+      }
+
+      try {
+        container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+      } catch(org.jruby.embed.EvalFailedException e) {
+        // JRuby wraps exceptions that occur in Java libraries it calls into
+        // EvalFailedException. To handle them correctly, we need to unwrap them.
+        throw e.getCause();
+      }
     } catch (final GenerationAbortedException e) {
       Logger.message("Generation Aborted");
       Logger.error(e.getMessage());

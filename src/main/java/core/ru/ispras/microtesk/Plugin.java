@@ -54,4 +54,10 @@ public interface Plugin {
    * @return the data generators.
    */
   Map<String, DataGenerator> getDataGenerators();
+
+  /**
+   * Performs all required initialization before generation is started 
+   * (e.g. integrated different parts of the microprocessor model).
+   */
+  void initializeGenerationEnvironment();
 }

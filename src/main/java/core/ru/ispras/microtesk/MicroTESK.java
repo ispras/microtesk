@@ -69,7 +69,7 @@ public final class MicroTESK {
       registerPlugins(plugins);
 
       if (params.hasOption(Parameters.GENERATE)) {
-        generate(params);
+        generate(params, plugins);
       } else {
         translate(params);
       }
@@ -165,7 +165,9 @@ public final class MicroTESK {
     }
   }
 
-  private static void generate(final Parameters params) throws ParseException, Throwable {
+  private static void generate(
+      final Parameters params,
+      final List<Plugin> plugins) throws ParseException, Throwable {
     final String[] args = params.getArgs();
     if (args.length != 2) {
       Logger.error("Wrong number of generator arguments. Two arguments are required.");
@@ -276,7 +278,7 @@ public final class MicroTESK {
       }
     }
 
-    final TestStatistics statistics = TestEngine.generate(modelName, templateFile);
+    final TestStatistics statistics = TestEngine.generate(modelName, templateFile, plugins);
     if (null == statistics) {
       return;
     }

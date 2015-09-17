@@ -130,4 +130,9 @@ public final class MmuPlugin implements Plugin {
 
     return dataGenerators;
   }
+
+  @Override
+  public void initializeGenerationEnvironment() {
+    // TODO: Integrate the MMU model with the ISA model.
+  }
 }
