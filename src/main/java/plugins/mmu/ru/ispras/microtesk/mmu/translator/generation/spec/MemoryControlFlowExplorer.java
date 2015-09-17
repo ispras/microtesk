@@ -32,7 +32,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 
-final class MemoryControlFlowExplorer {
+public final class MemoryControlFlowExplorer {
   private final Buffer target;
 
   public MemoryControlFlowExplorer(final Memory memory) {
