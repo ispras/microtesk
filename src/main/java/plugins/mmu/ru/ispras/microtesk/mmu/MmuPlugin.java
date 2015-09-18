@@ -93,10 +93,6 @@ public final class MmuPlugin implements Plugin {
 
     final MmuModel mmuModel = (MmuModel) SysUtils.loadFromModel(modelClassName);
 
-    if (null == mmuModel) {
-      throw new IllegalStateException("Failed to load " + modelClassName);
-    }
-
     model = mmuModel;
     return model;
   }
@@ -135,10 +131,12 @@ public final class MmuPlugin implements Plugin {
 
   @Override
   public void initializeGenerationEnvironment() {
-    // TODO: Integrating the MMU model with the ISA model.
-
-    /*
     final MmuModel model = getModel();
+    if (null == model) {
+      // MMU model is not provided.
+      return;
+    }
+
     final MemoryDevice mmuDevice = model.getMmuDevice();
 
     final String memoryId = model.getStorageDeviceId(); 
@@ -146,6 +144,5 @@ public final class MmuPlugin implements Plugin {
 
     final MemoryDevice storageDevice = memory.setHandler(mmuDevice);
     model.setStorageDevice(storageDevice);
-    */
   }
 }
