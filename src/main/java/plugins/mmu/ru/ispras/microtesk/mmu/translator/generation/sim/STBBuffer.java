@@ -82,6 +82,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
     buildConstructor(st, group);
     buildNewAddress(st, group);
     buildNewData(st, group);
+    buildGetDataSize(st, group);
 
     ExprPrinter.get().popVariableScope();
     return st;
@@ -91,7 +92,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
     st.add("imps", java.math.BigInteger.class.getName());
 
     final String baseName = String.format("%s<%s, %s>",
-        CACHE_CLASS.getSimpleName(),
+        isTargetBuffer ? MEMORY_CLASS.getSimpleName() : CACHE_CLASS.getSimpleName(),
         String.format("%s.Entry", parentBuffer.getId()),
         buffer.getAddress().getId()
         );
@@ -113,6 +114,10 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
+    if (isTargetBuffer) {
+      return;
+    }
+
     final ST stIndexer = group.getInstanceOf("buffer_indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
@@ -123,6 +128,10 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildMatcher(final ST st, final STGroup group) {
+    if (isTargetBuffer) {
+      return;
+    }
+
     buildNewLine(st);
     final ST stMatcher = group.getInstanceOf("buffer_matcher");
 
@@ -136,15 +145,30 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
-    buildNewLine(st);
-    final ST stConstructor = group.getInstanceOf("buffer_constructor");
+    final ST stConstructor;
+    if (isTargetBuffer) {
+      stConstructor = group.getInstanceOf("memory_constructor");
 
-    stConstructor.add("name", buffer.getId());
-    stConstructor.add("ways", buffer.getWays());
-    stConstructor.add("sets", buffer.getSets());
+      final BigInteger ways = buffer.getWays();
+      final BigInteger sets = buffer.getSets();
+      final BigInteger entries = ways.multiply(sets);
 
-    stConstructor.add("policy", String.format("%s.%s",
-        POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+      InvariantChecks.checkTrue(buffer.getEntry().getBitSize() % 8 == 0);
+      final int entryByteSize = buffer.getEntry().getBitSize() / 8;
+
+      final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
+      stConstructor.add("size", byteSize.toString(16));
+    } else {
+      buildNewLine(st);
+      stConstructor = group.getInstanceOf("buffer_constructor");
+
+      stConstructor.add("name", buffer.getId());
+      stConstructor.add("ways", buffer.getWays());
+      stConstructor.add("sets", buffer.getSets());
+
+      stConstructor.add("policy", String.format("%s.%s",
+          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+    } 
 
     st.add("members", stConstructor);
   }
@@ -153,6 +177,17 @@ final class STBBuffer extends STBCommon implements STBuilder {
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("new_address");
     stMethod.add("type", buffer.getAddress().getId());
+    st.add("members", stMethod);
+  }
+
+  private void buildGetDataSize(ST st, STGroup group) {
+    if (!isTargetBuffer) {
+      return;
+    }
+
+    buildNewLine(st);
+    final ST stMethod = group.getInstanceOf("get_data_size");
+    stMethod.add("size", buffer.getDataArg().getBitSize());
     st.add("members", stMethod);
   }
 

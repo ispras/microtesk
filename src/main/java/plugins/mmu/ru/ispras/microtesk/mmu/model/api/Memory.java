@@ -20,7 +20,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
-public abstract class Memory<D extends Data, A extends Address> implements Buffer<D, A>{
+public abstract class Memory<D extends Data, A extends Address> 
+    implements Buffer<D, A>, BufferObserver {
   private final BigInteger byteSize;
   private MemoryDevice storage;
 
@@ -63,6 +64,13 @@ public abstract class Memory<D extends Data, A extends Address> implements Buffe
   }
 
   @Override
+  public final boolean isHit(final BitVector value) {
+    final A address = newAddress(); 
+    address.getValue().assign(value);
+    return isHit(address);
+  }
+
+  @Override
   public D getData(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
  
@@ -99,6 +107,7 @@ public abstract class Memory<D extends Data, A extends Address> implements Buffe
     return new Proxy(address);
   }
 
-  protected abstract int getDataBitSize();
+  protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
+  protected abstract int getDataBitSize();
 }

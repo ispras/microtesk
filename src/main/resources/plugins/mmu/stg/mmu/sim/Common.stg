@@ -118,6 +118,12 @@ private <name>() {
 }
 >>
 
+memory_constructor(size) ::= <<
+private <name>() {
+  super(new BigInteger("<size>", 16));
+}
+>>
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 get_size(addr_size, data_size) ::= <<
@@ -128,6 +134,12 @@ public int getAddressBitSize() {
 @Override
 public int getDataBitSize() {
   return <data_size>;
+}
+>>
+
+get_data_size(size) ::= <<
+protected int getDataBitSize() {
+  return <size>;
 }
 >>
 
