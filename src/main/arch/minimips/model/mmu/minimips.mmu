@@ -57,7 +57,8 @@ buffer L2 (pa: PA)
 // Main Memory
 //==================================================================================================
 
-buffer Memory (pa: PA)
+// Corresponds to the "mem M" definition in the ISA specification.
+buffer M (pa: PA)
   ways   = 1
   sets   = 1 << (32 - 5)
   entry  = (DATA: 256)
@@ -108,7 +109,7 @@ mmu pmem (va: VA) = (data: 32)
             L1(pa) = l1Entry;
           // The address does not hit the L2.
           else
-            cacheData = Memory(pa);
+            cacheData = M(pa);
             data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
 
             // Fill L2.
@@ -125,7 +126,7 @@ mmu pmem (va: VA) = (data: 32)
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
-          cacheData = Memory(pa);
+          cacheData = M(pa);
           data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
 
           l1Entry.V = 1;
@@ -136,7 +137,7 @@ mmu pmem (va: VA) = (data: 32)
       endif; // If the address hits the L1.
     // The address is uncacheable.
     else
-      cacheData = Memory(pa);
+      cacheData = M(pa);
       data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
     endif; // If the address is cacheable.
   }
@@ -158,7 +159,7 @@ mmu pmem (va: VA) = (data: 32)
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
-        Memory(pa) = l1Entry.DATA;
+        M(pa) = l1Entry.DATA;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -177,12 +178,12 @@ mmu pmem (va: VA) = (data: 32)
             L1(pa) = l1Entry;
 
             // Only the write-through policy is supported.
-            Memory(pa) = l1Entry.DATA;
+            M(pa) = l1Entry.DATA;
           // The address does not hit the L2.
           else
-            cacheData = Memory(pa);
+            cacheData = M(pa);
             cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
-            Memory(pa) = cacheData;
+            M(pa) = cacheData;
 
             // Fill the L2.
             l2Entry.V = 1;
@@ -198,9 +199,9 @@ mmu pmem (va: VA) = (data: 32)
           endif; // If the address hits the L2.
         // The L2 cache is bypassed.
         else
-          cacheData = Memory(pa);
+          cacheData = M(pa);
           cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
-          Memory(pa) = cacheData;
+          M(pa) = cacheData;
 
           // Fill the L2
           l1Entry.V = 1;
@@ -211,9 +212,9 @@ mmu pmem (va: VA) = (data: 32)
       endif; // If the address hits the L1.
     // The address is uncacheable.
     else
-      cacheData = Memory(pa);
+      cacheData = M(pa);
       cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
-      Memory(pa) = cacheData;
+      M(pa) = cacheData;
     endif; // If the address is cacheable.
   }
 
