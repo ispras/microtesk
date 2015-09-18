@@ -77,7 +77,9 @@ final class STBModel implements STBuilder {
     stBody.add("mem_type", MEM_CLASS.getSimpleName()); 
 
     for (final Buffer buffer : ir.getBuffers().values()) {
-      stBody.add("buffers", buffer.getId());
+      if (!buffer.equals(targetBuffer)) {
+        stBody.add("buffers", buffer.getId());
+      }
     }
 
     for (final Segment segment : ir.getSegments().values()) {
