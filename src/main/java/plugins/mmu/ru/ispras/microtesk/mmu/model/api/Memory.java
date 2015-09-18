@@ -73,15 +73,23 @@ public abstract class Memory<D extends Data, A extends Address>
   @Override
   public D getData(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
- 
-    BitVector addressValue = address.getValue();
-    
+    BigInteger index = addressToIndex(address.getValue());
+
     final int dataBitSize = getDataBitSize();
     final BitVector dataValue = BitVector.newEmpty(dataBitSize);
 
     int bitsRead = 0;
     while (bitsRead < dataBitSize) {
-      
+      final BitVector regionData =
+          storage.load(BitVector.valueOf(index, storage.getAddressBitSize()));
+
+      final BitVector mapping =
+          BitVector.newMapping(dataValue, bitsRead, regionData.getBitSize());
+
+      mapping.assign(regionData);
+
+      index = index.add(BigInteger.ONE);
+      bitsRead += storage.getDataBitSize(); 
     }
 
     return newData(dataValue);
@@ -90,14 +98,23 @@ public abstract class Memory<D extends Data, A extends Address>
   @Override
   public D setData(final A address, final D data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
+    BigInteger index = addressToIndex(address.getValue());
 
-    final BitVector addressValue = address.getValue();
     final BitVector dataValue = data.asBitVector();
     final int dataBitSize = dataValue.getBitSize();
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
-      
+      final BitVector mapping =
+          BitVector.newMapping(dataValue, bitsWritten, storage.getDataBitSize());
+
+      storage.store(
+          BitVector.valueOf(index, storage.getAddressBitSize()),
+          mapping
+          );
+
+      index = index.add(BigInteger.ONE);
+      bitsWritten += storage.getDataBitSize();
     }
 
     return null;
@@ -110,4 +127,16 @@ public abstract class Memory<D extends Data, A extends Address>
   protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
+
+  private BigInteger addressToIndex(final BitVector address) {
+    InvariantChecks.checkNotNull(address);
+
+    final BigInteger addressInBytes =
+        address.bigIntegerValue(false);
+
+    final BigInteger bytesInRegion =
+        BigInteger.valueOf(storage.getDataBitSize() / 8);
+
+    return addressInBytes.divide(bytesInRegion);
+  }
 }
