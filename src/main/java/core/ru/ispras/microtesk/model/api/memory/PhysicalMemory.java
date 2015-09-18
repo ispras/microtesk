@@ -180,9 +180,6 @@ final class PhysicalMemory extends Memory {
 
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
         targetAddress = BitVector.valueOf(virtualAddress, handler.getAddressBitSize());
-
-        // TODO: temporary. To make sure it is not called yet.
-        throw new UnsupportedOperationException("Functionality is untested and it not enabled yet.");
       }
 
       final BitVector region = targetDevice.load(targetAddress);
@@ -204,9 +201,6 @@ final class PhysicalMemory extends Memory {
 
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
         targetAddress = BitVector.valueOf(virtualAddress, handler.getAddressBitSize());
-
-        // TODO: temporary. To make sure it is not called yet.
-        throw new UnsupportedOperationException("Functionality is untested and it not enabled yet.");
       }
 
       final BitVector region;
