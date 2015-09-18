@@ -30,7 +30,7 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     super
 
     @base_virtual_address  = 0x00204000
-    @base_physical_address = 0x0010F000
+    @base_physical_address = 0x00204000
   end
 
   def pre
