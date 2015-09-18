@@ -51,5 +51,6 @@ public String getStorageDeviceId() {
 @Override
 public void setStorageDevice(final MemoryDevice device) {
   // TODO
+  // target.setStorage(device);
 }
 >>
