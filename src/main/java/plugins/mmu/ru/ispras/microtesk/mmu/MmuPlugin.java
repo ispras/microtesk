@@ -26,6 +26,8 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -133,6 +135,17 @@ public final class MmuPlugin implements Plugin {
 
   @Override
   public void initializeGenerationEnvironment() {
-    // TODO: Integrate the MMU model with the ISA model.
+    // TODO: Integrating the MMU model with the ISA model.
+
+    /*
+    final MmuModel model = getModel();
+    final MemoryDevice mmuDevice = model.getMmuDevice();
+
+    final String memoryId = model.getStorageDeviceId(); 
+    final Memory memory = Memory.get(memoryId);
+
+    final MemoryDevice storageDevice = memory.setHandler(mmuDevice);
+    model.setStorageDevice(storageDevice);
+    */
   }
 }
