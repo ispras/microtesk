@@ -44,7 +44,7 @@ public <mem_type> getMmuDevice() {
 }
 
 @Override
-public String getTargetBufferId() {
+public String getStorageDeviceId() {
   return targetId;
 }
 
