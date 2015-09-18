@@ -24,10 +24,9 @@ package ru.ispras.microtesk.mmu.model.api;
  */
 
 public final class Line<D, A extends Address> implements Buffer<D, A> {
-
   /** The stored data. */
   private D data;
-  
+
   /** The data-address matcher. */
   private Matcher<D, A> matcher;
 
@@ -43,6 +42,10 @@ public final class Line<D, A extends Address> implements Buffer<D, A> {
 
   @Override
   public boolean isHit(final A address) {
+    if (null == data) {
+      return false;
+    }
+
     return matcher.areMatching(data, address);
   }
 
