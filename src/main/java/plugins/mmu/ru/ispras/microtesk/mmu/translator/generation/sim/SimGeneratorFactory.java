@@ -101,11 +101,12 @@ final class SimGeneratorFactory {
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
-  public FileGenerator newModelGenerator(final Ir ir) {
+  public FileGenerator newModelGenerator(final Ir ir, final Buffer targetBuffer) {
     InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(targetBuffer);
 
     final String outputFileName = getOutputFileName(STBModel.CLASS_NAME);
-    final STBuilder builder = new STBModel(packageName, ir);
+    final STBuilder builder = new STBModel(packageName, ir, targetBuffer);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
   }

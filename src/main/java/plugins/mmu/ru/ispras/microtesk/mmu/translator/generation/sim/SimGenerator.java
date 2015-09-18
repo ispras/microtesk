@@ -15,8 +15,10 @@
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
 import java.io.IOException;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
@@ -47,12 +49,21 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
         new SimGeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
+      final Map<String, Memory> memories = ir.getMemories();
+      InvariantChecks.checkTrue(memories.size() == 1, "Only one mmu definition is allowed.");
+
+      final Memory memory = memories.values().iterator().next();
+      final MemoryControlFlowExplorer flowExplorer = new MemoryControlFlowExplorer(memory);
+
+      final Buffer targetBuffer = flowExplorer.getTargetBuffer();
+
       processStructs(ir, factory);
       processAddresses(ir, factory);
-      processBuffers(ir, factory);
+      processBuffers(ir, targetBuffer, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
-      processModel(ir, factory);
+      processModel(ir, targetBuffer, factory);
+
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
@@ -74,8 +85,15 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processBuffers(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processBuffers(
+      final Ir ir,
+      final Buffer targetBuffer,
+      final SimGeneratorFactory factory) throws IOException {
     for (final Buffer buffer : ir.getBuffers().values()) {
+      if (buffer.equals(targetBuffer)) {
+        // TODO
+      }
+
       final FileGenerator fileGenerator = factory.newBufferGenerator(buffer);
       fileGenerator.generate();
     }
@@ -95,8 +113,11 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processModel(final Ir ir, final SimGeneratorFactory factory) throws IOException {
-    final FileGenerator fileGenerator = factory.newModelGenerator(ir);
+  private void processModel(
+      final Ir ir,
+      final Buffer targetBuffer,
+      final SimGeneratorFactory factory) throws IOException {
+    final FileGenerator fileGenerator = factory.newModelGenerator(ir, targetBuffer);
     fileGenerator.generate();
   }
 }

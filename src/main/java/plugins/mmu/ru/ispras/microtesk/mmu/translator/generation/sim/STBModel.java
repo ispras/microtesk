@@ -18,7 +18,6 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -39,13 +38,16 @@ final class STBModel implements STBuilder {
 
   private final String packageName;
   private final Ir ir;
+  private final Buffer targetBuffer;
 
-  public STBModel(final String packageName, final Ir ir) {
+  public STBModel(final String packageName, final Ir ir, final Buffer targetBuffer) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(targetBuffer);
 
     this.packageName = packageName;
     this.ir = ir;
+    this.targetBuffer = targetBuffer;
   }
 
   @Override
@@ -85,12 +87,7 @@ final class STBModel implements STBuilder {
     InvariantChecks.checkTrue(ir.getMemories().size() == 1);
     for (final Memory memory : ir.getMemories().values()) {
       stBody.add("memories", memory.getId());
-
-      final MemoryControlFlowExplorer flowExplorer =
-          new MemoryControlFlowExplorer(memory);
-
-      final Buffer target = flowExplorer.getTargetBuffer();
-      stBody.add("target", target.getId());
+      stBody.add("target", targetBuffer.getId());
     }
 
     st.add("members", stBody);
