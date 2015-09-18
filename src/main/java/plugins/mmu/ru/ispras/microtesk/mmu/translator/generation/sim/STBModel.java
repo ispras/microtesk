@@ -18,6 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -84,6 +85,12 @@ final class STBModel implements STBuilder {
     InvariantChecks.checkTrue(ir.getMemories().size() == 1);
     for (final Memory memory : ir.getMemories().values()) {
       stBody.add("memories", memory.getId());
+
+      final MemoryControlFlowExplorer flowExplorer =
+          new MemoryControlFlowExplorer(memory);
+
+      final Buffer target = flowExplorer.getTargetBuffer();
+      stBody.add("target", target.getId());
     }
 
     st.add("members", stBody);

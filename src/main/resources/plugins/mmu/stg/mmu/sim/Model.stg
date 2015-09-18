@@ -14,13 +14,17 @@
 
 group Model;
 
-body(name, mem_type, buf_type, buffers, memories) ::= <<
+body(name, mem_type, buf_type, buffers, memories, target) ::= <<
 private final Map\<String, <buf_type>\> buffers;
 private final <mem_type> device;
+private final <target> target;
+private final String targetId;
 
 public <name>() {
   this.buffers = newBuffers();
   this.device = new <memories>();
+  this.target = <target>.get();
+  this.targetId = "<target>";
 }
 
 private static Map\<String, <buf_type>\> newBuffers() {
@@ -37,6 +41,11 @@ public <buf_type> getBufferObserver(final String bufferId) {
 @Override
 public <mem_type> getMmuDevice() {
   return device;
+}
+
+@Override
+public String getTargetBufferId() {
+  return targetId;
 }
 
 @Override
