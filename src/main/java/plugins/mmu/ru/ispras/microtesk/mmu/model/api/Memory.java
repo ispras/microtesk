@@ -21,13 +21,33 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public abstract class Memory<D extends Data, A extends Address> implements Buffer<D, A>{
-  private final BigInteger length;
+  private final BigInteger byteSize;
   private MemoryDevice storage;
 
-  public Memory(final BigInteger length) {
-    InvariantChecks.checkNotNull(length);
+  /**
+   * Proxy class is used to simply code of assignment expressions.
+   */
+  public final class Proxy {
+    private final A address;
 
-    this.length = length;
+    private Proxy(final A address) {
+      this.address = address;
+    }
+
+    public D assign(final D data) {
+      return setData(address, data);
+    }
+
+    public D assign(final BitVector value) {
+      final D data = newData(value);
+      return setData(address, data);
+    }
+  }
+
+  public Memory(final BigInteger byteSize) {
+    InvariantChecks.checkNotNull(byteSize);
+
+    this.byteSize = byteSize;
     this.storage = null;
   }
 
@@ -39,7 +59,7 @@ public abstract class Memory<D extends Data, A extends Address> implements Buffe
   @Override
   public boolean isHit(final A address) {
     final BigInteger addressValue = address.getValue().bigIntegerValue(false);
-    return addressValue.compareTo(length) < 0;
+    return addressValue.compareTo(byteSize) < 0;
   }
 
   @Override
@@ -75,6 +95,10 @@ public abstract class Memory<D extends Data, A extends Address> implements Buffe
     return null;
   }
 
+  public final Proxy setData(final A address) {
+    return new Proxy(address);
+  }
+
   protected abstract int getDataBitSize();
-  protected abstract D newData(final BitVector value); 
+  protected abstract D newData(final BitVector value);
 }
