@@ -36,7 +36,7 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
       lw t1, 0, t0
     }
 
-    buffer_preparator(:target => 'Memory') {
+    buffer_preparator(:target => 'M') {
       # Nothing
     }
   end
