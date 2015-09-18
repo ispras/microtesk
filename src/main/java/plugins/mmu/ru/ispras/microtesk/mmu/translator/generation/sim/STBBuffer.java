@@ -36,14 +36,16 @@ final class STBBuffer extends STBCommon implements STBuilder {
   private final Buffer buffer;
   private final Buffer parentBuffer;
   private final boolean isView;
+  private final boolean isTargetBuffer;
 
-  public STBBuffer(final String packageName, final Buffer buffer) {
+  public STBBuffer(final String packageName, final Buffer buffer, final boolean isTargetBuffer) {
     super(packageName);
-
     InvariantChecks.checkNotNull(buffer);
+
     this.buffer = buffer;
     this.parentBuffer = getParentBuffer(buffer);
     this.isView = buffer != parentBuffer;
+    this.isTargetBuffer = isTargetBuffer;
   }
 
   private static Buffer getParentBuffer(final Buffer buffer) {
