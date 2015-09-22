@@ -165,7 +165,16 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     IntegerVariable fieldVar = fieldCache.get(name);
     if (fieldVar == null) {
-      fieldCache.put(name, fieldVar = new IntegerVariable(name, width));
+      final BigInteger value;
+      if (!var.isDefined()) {
+        value = null;
+      } else {
+        value = BitUtils.getField(
+            var.getValue(),
+            range.getMin().intValue(),
+            range.getMax().intValue());
+      }
+      fieldCache.put(name, fieldVar = new IntegerVariable(name, width, value));
     }
 
     return fieldVar;

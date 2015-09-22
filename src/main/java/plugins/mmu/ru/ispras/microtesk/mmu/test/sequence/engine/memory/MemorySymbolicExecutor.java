@@ -318,7 +318,7 @@ public final class MemorySymbolicExecutor {
 
     IntegerVariable pathVar = varCache.get(pathVarName);
     if (pathVar == null) {
-      varCache.put(pathVarName, pathVar = new IntegerVariable(pathVarName, var.getWidth()));
+      varCache.put(pathVarName, pathVar = new IntegerVariable(pathVarName, var.getWidth(), var.getValue()));
     }
 
     return pathVar;
