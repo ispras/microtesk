@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
@@ -28,6 +30,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuEntry {
+  private final Set<IntegerVariable> validFields = new LinkedHashSet<>();
   private final Map<IntegerVariable, BigInteger> fields = new LinkedHashMap<>();
 
   private boolean valid = false;
@@ -44,28 +47,42 @@ public final class MmuEntry {
     return fields.keySet();
   }
 
+  public boolean isValid() {
+    return valid;
+  }
+
+  public boolean isValid(final IntegerVariable variable) {
+    return validFields.contains(variable);
+  }
+
   public BigInteger getValue(final IntegerVariable variable) {
     InvariantChecks.checkNotNull(variable);
     return fields.get(variable);
   }
 
-  public void setValue(final IntegerVariable variable, final BigInteger value) {
+  public void setValue(final IntegerVariable variable, final BigInteger value, final boolean valid) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
     fields.put(variable, value);
+
+    if (valid) {
+      validFields.add(variable);
+    } else {
+      validFields.remove(variable);
+    }
   }
 
-  public void setValue(final IntegerVariable variable, final long value) {
-    setValue(variable, BigInteger.valueOf(value));
-  }
-
-  public boolean isValid() {
-    return valid;
+  public void setValue(final IntegerVariable variable, final BigInteger value) {
+    setValue(variable, value, true);
   }
 
   public void setValid(final boolean valid) {
     this.valid = valid;
+
+    if (!valid) {
+      validFields.clear();
+    }
   }
 
   @Override
@@ -79,7 +96,8 @@ public final class MmuEntry {
       builder.append(comma ? ", " : "");
       builder.append(entry.getKey());
       builder.append("=");
-      builder.append(entry.getValue().toString(16));
+      builder.append(String.format("%s [%s]",
+          entry.getValue().toString(16), isValid(entry.getKey()) ? "Valid" : "Invalid"));
       comma = true;
     }
 

@@ -16,15 +16,23 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -40,6 +48,139 @@ public final class MemoryAccessPath {
    * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
    */
   public static final class Builder {
+    private static Collection<MmuAction> getActions(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final Collection<MmuAction> result = new LinkedHashSet<>();
+
+      for (final MmuTransition transition : transitions) {
+        final MmuAction sourceAction = transition.getSource();
+        final MmuAction targetAction = transition.getTarget();
+
+        result.add(sourceAction);
+        result.add(targetAction);
+      }
+
+      return result;
+    }
+
+    private static Collection<MmuAddressType> getAddresses(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final Collection<MmuAddressType> result = new LinkedHashSet<>();
+
+      for (final MmuTransition transition : transitions) {
+        final MmuAction action = transition.getSource();
+        final MmuBuffer buffer = action.getBuffer();
+
+        if (buffer != null) {
+          final MmuAddressType address = buffer.getAddress();
+          result.add(address);
+        }
+      }
+
+      return result;
+    }
+
+    private static Collection<MmuBuffer> getBuffers(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final Collection<MmuBuffer> result = new LinkedHashSet<>();
+
+      for (final MmuTransition transition : transitions) {
+        final MmuGuard guard = transition.getGuard();
+        final MmuBuffer guardBuffer = guard != null ? guard.getBuffer() : null;
+
+        if (guardBuffer != null) {
+          result.add(guardBuffer);
+        }
+
+        final MmuAction source = transition.getSource();
+        final MmuBuffer sourceBuffer = source.getBuffer();
+
+        if (sourceBuffer != null) {
+          result.add(sourceBuffer);
+        }
+
+        final MmuAction target = transition.getTarget();
+        final MmuBuffer targetBuffer = target.getBuffer();
+
+        if (targetBuffer != null) {
+          result.add(targetBuffer);
+        }
+      }
+
+      return result;
+    }
+
+    private static Map<MmuBuffer, BufferAccessEvent> getEvents(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
+
+      for (final MmuTransition transition : transitions) {
+        final MmuGuard guard = transition.getGuard();
+
+        if (guard != null) {
+          final MmuBuffer guardBuffer = guard.getBuffer();
+
+          if (guardBuffer != null) {
+            result.put(guardBuffer, guard.getEvent());
+          }
+        }
+      }
+
+      return result;
+    }
+
+    private static Collection<IntegerVariable> getVariables(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final Collection<IntegerVariable> result = new LinkedHashSet<>();
+
+      for (final MmuTransition transition : transitions) {
+        final MmuGuard guard = transition.getGuard();
+        final MmuCondition condition = guard != null ? guard.getCondition() : null;
+
+        // Variables used in the guards.
+        if (condition != null) {
+          for (final MmuConditionAtom atom : condition.getAtoms()) {
+            for (final IntegerField field : atom.getExpression().getTerms()) {
+              result.add(field.getVariable());
+            }
+          }
+        }
+
+        // Variables used/defined in the actions.
+        final MmuAction action = transition.getSource();
+        final Map<IntegerField, MmuBinding> bindings = action.getAction();
+
+        if (bindings != null) {
+          for (final Map.Entry<IntegerField, MmuBinding> entry : bindings.entrySet()) {
+            final IntegerField lhsField = entry.getKey();
+            final MmuBinding binding = entry.getValue();
+
+            // Variables defined in the actions.
+            if (binding.getRhs() != null) {
+              result.add(lhsField.getVariable());
+
+              // Variables used in the actions.
+              for (final IntegerField rhsField : binding.getRhs().getTerms()) {
+                result.add(rhsField.getVariable());
+              }
+            }
+          }
+        }
+      }
+
+      return result;
+    }
+
     private List<MmuTransition> transitions = new ArrayList<>();
 
     public void add(final MmuTransition transition) {
@@ -47,172 +188,122 @@ public final class MemoryAccessPath {
       this.transitions.add(transition);
     }
 
-    public void addAll(final List<MmuTransition> transitions) {
+    public void addAll(final Collection<MmuTransition> transitions) {
       InvariantChecks.checkNotNull(transitions);
       this.transitions.addAll(transitions);
     }
 
     public MemoryAccessPath build() {
-      return new MemoryAccessPath(transitions);
+      return new MemoryAccessPath(
+          transitions,
+          getActions(transitions),
+          getAddresses(transitions),
+          getBuffers(transitions),
+          getVariables(transitions),
+          getEvents(transitions));
     }
   }
 
-  private final List<MmuTransition> transitions;
+  private final Collection<MmuTransition> transitions;
+  private final Collection<MmuAction> actions;
+  private final Collection<MmuAddressType> addresses;
+  private final Collection<MmuBuffer> buffers;
+  private final Collection<IntegerVariable> variables;
+  private final Map<MmuBuffer, BufferAccessEvent> events;
+
+  private final MmuTransition firstTransition;
+  private final MmuTransition lastTransition;
 
   public MemoryAccessPath(
-      final List<MmuTransition> transitions) {
+      final Collection<MmuTransition> transitions,
+      final Collection<MmuAction> actions,
+      final Collection<MmuAddressType> addresses,
+      final Collection<MmuBuffer> buffers,
+      final Collection<IntegerVariable> variables,
+      final Map<MmuBuffer, BufferAccessEvent> events) {
     InvariantChecks.checkNotNull(transitions);
-    this.transitions = transitions;
-  }
+    InvariantChecks.checkNotEmpty(transitions);
+    InvariantChecks.checkNotNull(actions);
+    InvariantChecks.checkNotNull(addresses);
+    InvariantChecks.checkNotNull(buffers);
+    InvariantChecks.checkNotNull(variables);
+    InvariantChecks.checkNotNull(events);
 
-  public List<MmuTransition> getTransitions() {
-    return transitions;
+    this.transitions = Collections.unmodifiableCollection(transitions);
+    this.actions = Collections.unmodifiableCollection(actions);
+    this.addresses = Collections.unmodifiableCollection(addresses);
+    this.buffers = Collections.unmodifiableCollection(buffers);
+    this.variables = Collections.unmodifiableCollection(variables);
+    this.events = Collections.unmodifiableMap(events);
+
+    final Iterator<MmuTransition> iterator = transitions.iterator();
+
+    MmuTransition transition = iterator.next();
+    this.firstTransition = transition;
+
+    while(iterator.hasNext()) {
+      transition = iterator.next();
+    }
+
+    this.lastTransition = transition;
   }
 
   public MmuTransition getFirstTransition() {
-    return transitions.get(0);
+    return firstTransition;
   }
 
   public MmuTransition getLastTransition() {
-    return transitions.get(transitions.size() - 1);
+    return lastTransition;
   }
 
-  /**
-   * Returns the buffers used in the memory access path in order of their occurrence.
-   * 
-   * @return the list of the buffers with no duplicates.
-   */
-  public List<MmuBuffer> getBuffers() {
-    final List<MmuBuffer> result = new ArrayList<>();
-    final Set<MmuBuffer> handled = new HashSet<>();
-
-    for (final MmuTransition transition : transitions) {
-      final MmuGuard guard = transition.getGuard();
-      final MmuBuffer guardBuffer = guard != null ? guard.getBuffer() : null;
-
-      if (guardBuffer != null && !handled.contains(guardBuffer)) {
-        handled.add(guardBuffer);
-        result.add(guardBuffer);
-      }
-
-      final MmuAction source = transition.getSource();
-      final MmuBuffer sourceBuffer = source.getBuffer();
-
-      if (sourceBuffer != null && !handled.contains(sourceBuffer)) {
-        handled.add(sourceBuffer);
-        result.add(sourceBuffer);
-      }
-
-      final MmuAction target = transition.getTarget();
-      final MmuBuffer targetBuffer = target.getBuffer();
-
-      if (targetBuffer != null && !handled.contains(targetBuffer)) {
-        handled.add(targetBuffer);
-        result.add(targetBuffer);
-      }
-    }
-
-    return result;
+  public Collection<MmuTransition> getTransitions() {
+    return transitions;
   }
 
-  /**
-   * Returns the address types used in the memory accesses path in order of their occurrence.
-   * 
-   * @return the list of the address types with no duplicates.
-   */
-  public List<MmuAddressType> getAddresses() {
-    final List<MmuAddressType> result = new ArrayList<>();
-    final Set<MmuAddressType> handled = new HashSet<>();
-
-    for (final MmuTransition transition : transitions) {
-      final MmuAction action = transition.getSource();
-      final MmuBuffer buffer = action.getBuffer();
-
-      if (buffer != null) {
-        final MmuAddressType address = buffer.getAddress();
-
-        if (!handled.contains(address)) {
-          handled.add(address);
-          result.add(address);
-        }
-      }
-    }
-
-    return result;
+  public Collection<MmuAction> getActions() {
+    return actions;
   }
 
-  /**
-   * Returns the actions executed in the memory access in order of their occurrence in the
-   * execution path.
-   * 
-   * @return the list of the actions.
-   */
-  public List<MmuAction> getActions() {
-    final List<MmuAction> result = new ArrayList<>();
-
-    for (final MmuTransition transition : transitions) {
-      final MmuAction action = transition.getSource();
-      result.add(action);
-    }
-
-    if (!transitions.isEmpty()) {
-      final MmuTransition transition = transitions.get(transitions.size() - 1);
-      final MmuAction action = transition.getTarget();
-      result.add(action);
-    }
-
-    return result;
+  public Collection<MmuAddressType> getAddresses() {
+    return addresses;
   }
 
-  public BufferAccessEvent getEvent(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-
-    for (final MmuTransition transition : transitions) {
-      final MmuGuard guard = transition.getGuard();
-
-      if (guard != null) {
-        final MmuBuffer guardBuffer = guard.getBuffer();
-
-        if (buffer.equals(guardBuffer)) {
-          return guard.getEvent();
-        }
-      }
-    }
-
-    return null;
+  public Collection<MmuBuffer> getBuffers() {
+    return buffers;
   }
 
-  /**
-   * Checks whether the execution contains a transition.
-   * 
-   * @param transition the transition
-   * @return {@code true} if the execution contains the transition; {@code false} otherwie.
-   */
+  public Collection<IntegerVariable> getVariables() {
+    return variables;
+  }
+
   public boolean contains(final MmuTransition transition) {
     InvariantChecks.checkNotNull(transition);
-
     return transitions.contains(transition);
   }
 
   public boolean contains(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
-
-    final List<MmuAction> actions = getActions();
     return actions.contains(action);
   }
 
   public boolean contains(final MmuAddressType address) {
     InvariantChecks.checkNotNull(address);
-
-    final Collection<MmuAddressType> addresses = getAddresses();
     return addresses.contains(address);
   }
 
-  public boolean contains(final MmuBuffer device) {
-    InvariantChecks.checkNotNull(device);
+  public boolean contains(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    return buffers.contains(buffer);
+  }
 
-    final Collection<MmuBuffer> devices = getBuffers();
-    return devices.contains(device);
+  public boolean contains(final IntegerVariable variable) {
+    InvariantChecks.checkNotNull(variable);
+    return variables.contains(variable);
+  }
+
+  public BufferAccessEvent getEvent(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    return events.get(buffer);
   }
 
   @Override
@@ -229,9 +320,7 @@ public final class MemoryAccessPath {
       }
     }
 
-    final MmuTransition transition = transitions.get(transitions.size() - 1);
-    final MmuAction action = transition.getTarget();
-
+    final MmuAction action = lastTransition.getTarget();
     builder.append(action.getName());
 
     return builder.toString();

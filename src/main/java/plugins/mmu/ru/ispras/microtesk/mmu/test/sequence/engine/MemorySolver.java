@@ -58,6 +58,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.AccessSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
@@ -280,7 +281,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Loading data into the buffer may load them into the previous buffers.
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
-    final List<MmuBuffer> buffers = path.getBuffers();
+
+    // TODO:
+    final List<MmuBuffer> buffers = new ArrayList<>(path.getBuffers());
 
     // Scan the buffers of the same address type in reverse order.
     boolean found = false;
@@ -693,9 +696,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
-    final List<MmuBuffer> buffers = path.getBuffers();
-
-    for (final MmuBuffer buffer : buffers) {
+    for (final MmuBuffer buffer : path.getBuffers()) {
       final SolverResult<MemorySolution> result = solveDeviceConstraint(j, buffer);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -807,10 +808,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // TODO: This check can be optimized.
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
-    final List<MmuAddressType> addresses = path.getAddresses();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 
-    for (final MmuAddressType prevAddrType : addresses) {
+    for (final MmuAddressType prevAddrType : path.getAddresses()) {
       if (prevAddrType != addrType) {
         if (!solution.getLoader().prepareLoads(prevAddrType).isEmpty()) {
           // Possible HIT.
@@ -1208,11 +1208,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(addrObject);
     InvariantChecks.checkNotNull(entry);
 
+    final Map<MmuAddressType, Long> addresses = addrObject.getAddresses();
+    final MemoryAccessPath path = addrObject.getPath();
+
     // Fix the known values of the addresses.
     final Collection<IntegerConstraint<IntegerField>> constraints =
         new ArrayList<>(this.constraints);
 
-    for (final Map.Entry<MmuAddressType, Long> addrEntry : addrObject.getAddresses().entrySet()) {
+    for (final Map.Entry<MmuAddressType, Long> addrEntry : addresses.entrySet()) {
       final MmuAddressType addrType = addrEntry.getKey();
       final long address = addrEntry.getValue();
 
@@ -1222,15 +1225,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
-        addrObject.getPath(), constraints, IntegerVariableInitializer.RANDOM);
+        path, constraints, IntegerVariableInitializer.ZEROS /* IntegerVariableInitializer.RANDOM */);
     InvariantChecks.checkTrue(values != null && !values.isEmpty());
 
     // Set the entry fields.
     entry.setValid(true);
     for (final IntegerVariable field : entry.getVariables()) {
       // If an entry field is not used in the path it remains unchanged.
-      if (values.containsKey(field)) {
-        entry.setValue(field, values.get(field));
+      if (values.containsKey(field) && (!entry.isValid(field) || path.contains(field))) {
+        entry.setValue(field, values.get(field), path.contains(field));
       }
     }
   }
