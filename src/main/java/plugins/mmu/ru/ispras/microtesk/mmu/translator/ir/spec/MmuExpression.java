@@ -118,7 +118,7 @@ public final class MmuExpression {
   }
 
   public static MmuExpression val(final BigInteger value, int width) {
-    return var(new IntegerVariable(String.format("%s:%d", value, width), width, value));
+    return var(new IntegerVariable(String.format("literal_%s:%d", value, width), width, value));
   }
 
   //------------------------------------------------------------------------------------------------
