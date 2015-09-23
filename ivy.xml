@@ -30,14 +30,13 @@
           <artifact name="z3-unix" type="tar.gz" url="http://forge.ispras.ru/repo/z3/z3-x64-4.1.tar.gz"/>
           <artifact name="z3-mac" type="zip"     url="http://forge.ispras.ru/repo/z3/z3-4.3.2.7c12ab47165a-x64-osx-10.8.2.zip"/>
         </dependency>
-<!--        <dependency org="cvc4" 
+        <dependency org="cvc4" 
                     name="cvc4" 
                     rev="4.1" 
                     conf="build->default">
           <artifact name="cvc4-windows" type="exe" url="http://cvc4.cs.nyu.edu/builds/win32-opt/cvc4-1.4-win32-opt.exe"/>
           <artifact name="cvc4-unix" type="bin"    url="http://cvc4.cs.nyu.edu/builds/x86_64-linux-opt/unstable/cvc4-2015-07-11-x86_64-linux-opt"/>
         </dependency>
--->
     </dependencies>
     <conflicts>
         <manager name="all"/>
