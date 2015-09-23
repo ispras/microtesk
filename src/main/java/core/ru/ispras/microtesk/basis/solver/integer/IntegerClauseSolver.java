@@ -488,16 +488,19 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   private Map<IntegerVariable, BigInteger> getSolution() {
     final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
 
-    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
-      final IntegerVariable variable = entry.getKey();
-      final IntegerDomain domain = entry.getValue();
-
+    for (final IntegerVariable variable : equalTracker.keySet()) {
+      final IntegerDomain domain = domains.get(variable);
       final Iterator<BigInteger> iterator = domain.iterator();
 
       iterator.init();
       InvariantChecks.checkTrue(iterator.hasValue());
 
       domain.set(iterator.value());
+    }
+
+    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final IntegerDomain domain = entry.getValue();
 
       if (equalTracker.containsKey(variable)) {
         for (final IntegerVariable equalVariable : equalTracker.get(variable)) {
