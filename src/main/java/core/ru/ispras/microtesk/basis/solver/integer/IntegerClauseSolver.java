@@ -212,6 +212,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
   /**
    * Produces the transitive closure of the equal-to relation.
+   * 
+   * TODO: optimization is required.
    */
   private void encloseEqualityRelation() {
     for (final IntegerVariable var : variables) {
@@ -368,7 +370,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
     }
 
-    // Replace the variables with one.
+    // Replace the variables with the given one.
     for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : notEqualTo.entrySet()) {
       final IntegerVariable lhs = entry.getKey();
       final Set<IntegerVariable> rhsVars = entry.getValue();
@@ -387,6 +389,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
     for (final IntegerVariable rhs : equalVars) {
       equalTo.remove(rhs);
+      notEqualTo.remove(rhs);
     }
 
     equalTracker.put(var, equalVars);
@@ -444,6 +447,9 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param rhs the right-hand-side variable.
    */
   private void eliminateInequality(final IntegerVariable lhs, final IntegerVariable rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
     final Set<IntegerVariable> lhsNotEqualVars = notEqualTo.get(lhs);
     final Set<IntegerVariable> rhsNotEqualVars = notEqualTo.get(rhs);
 
@@ -488,7 +494,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   private Map<IntegerVariable, BigInteger> getSolution() {
     final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
 
-    for (final IntegerVariable variable : equalTracker.keySet()) {
+    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
       final IntegerDomain domain = domains.get(variable);
       final Iterator<BigInteger> iterator = domain.iterator();
 
@@ -496,11 +503,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       InvariantChecks.checkTrue(iterator.hasValue());
 
       domain.set(iterator.value());
-    }
-
-    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
-      final IntegerVariable variable = entry.getKey();
-      final IntegerDomain domain = entry.getValue();
+      solution.put(variable, iterator.value());
 
       if (equalTracker.containsKey(variable)) {
         for (final IntegerVariable equalVariable : equalTracker.get(variable)) {
@@ -515,18 +518,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
           notEqualDomain.exclude(domain);
         }
       }
-    }
-
-    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
-      final IntegerVariable variable = entry.getKey();
-      final IntegerDomain domain = entry.getValue();
-
-      final Iterator<BigInteger> iterator = domain.iterator();
-
-      iterator.init();
-      InvariantChecks.checkTrue(iterator.hasValue());
-
-      solution.put(variable, iterator.value());
     }
 
     InvariantChecks.checkTrue(solution.size() == domains.size());

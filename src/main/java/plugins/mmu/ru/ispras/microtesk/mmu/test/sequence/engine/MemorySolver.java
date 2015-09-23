@@ -1227,8 +1227,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
         path, constraints, IntegerVariableInitializer.ZEROS /* IntegerVariableInitializer.RANDOM */);
     InvariantChecks.checkTrue(values != null && !values.isEmpty());
 
-    System.out.println("VALUES: " + values);
-
     // Set the entry fields.
     entry.setValid(true);
     for (final IntegerVariable field : entry.getVariables()) {
