@@ -46,6 +46,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   /** Maps a variable {@code x} into a set of variables that are not equal to {@code x}. */
   private final Map<IntegerVariable, Set<IntegerVariable>> notEqualTo = new LinkedHashMap<>();
 
+  private final Map<IntegerVariable, Set<IntegerVariable>> equalTracker = new LinkedHashMap<>();
+
   /**
    * Constructs an equation clause solver.
    * 
@@ -58,7 +60,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(clause);
 
-    this.variables = variables;
+    this.variables = Collections.unmodifiableCollection(variables);
     this.clause = clause;
   }
 
@@ -126,6 +128,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       addEquation(equation);
     }
 
+    encloseEqualityRelation();
+
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
     if (!checkDomains()) {
       return new SolverResult<>("UNSAT");
@@ -136,23 +140,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     // Eliminate all equalities.
     for (final IntegerVariable lhs : variables) {
       final Set<IntegerVariable> equalVars = equalTo.get(lhs);
-      final Set<IntegerVariable> notEqualVars = notEqualTo.get(lhs);
 
-      if (equalVars != null) {
-        if (notEqualVars != null) {
-          // There is a conflict: x == y && x != y.
-          if (!Collections.disjoint(equalVars, notEqualVars)) {
-            return new SolverResult<>("UNSAT");
-          }
-        }
-
-        // Choose some variable that is equal to the current one.
-        if (!equalVars.isEmpty()) {
-          final IntegerVariable rhs = equalVars.iterator().next();
-
-          if (!handleEquality(lhs, rhs)) {
-            return new SolverResult<>("UNSAT");
-          }
+      if (equalVars != null && !equalVars.isEmpty()) {
+        if (!handleEqualities(lhs, equalVars)) {
+          return new SolverResult<>("UNSAT");
         }
       }
     }
@@ -215,6 +206,40 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         // The equal-to and not-equal-to maps are symmetrical.
         updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.lhs, equation.rhs);
         updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.rhs, equation.lhs);
+      }
+    }
+  }
+
+  /**
+   * Produces the transitive closure of the equal-to relation.
+   */
+  private void encloseEqualityRelation() {
+    for (final IntegerVariable var : variables) {
+      Set<IntegerVariable> equalVars = equalTo.get(var);
+
+      if (equalVars != null) {
+        final Set<IntegerVariable> allEqualVars = new LinkedHashSet<>(equalVars);
+
+        while (!equalVars.isEmpty()) {
+          final Set<IntegerVariable> newEqualVars = new LinkedHashSet<>();
+  
+          for (final IntegerVariable equalVar : equalVars) {
+            final Set<IntegerVariable> nextEqualVars = equalTo.get(equalVar);
+  
+            if (nextEqualVars != null) {
+              for (final IntegerVariable nextEqualVar : nextEqualVars) {
+                if (!allEqualVars.contains(nextEqualVar) && !var.equals(nextEqualVar)) {
+                  newEqualVars.add(nextEqualVar);
+                }
+              }
+            }
+          }
+  
+          allEqualVars.addAll(newEqualVars);
+          equalVars = newEqualVars;
+        } // while new equal variables are available.
+  
+        equalTo.put(var, allEqualVars);
       }
     }
   }
@@ -315,40 +340,56 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   }
 
   /**
-   * Handles the equality {@code lhs == rhs}.
+   * Handles the equalities {@code var == {var1, ..., varN}}.
    * 
-   * @param lhs the left-hand-side variable.
-   * @param rhs the right-hand-side variable.
-   * @return {@code false} if the equality is unsatisfiable; {@code true} otherwise.
+   * @param var the variable to be used instead of {@code var1, ..., varN}.
+   * @return {@code false} if the equalities are definitely unsatisfiable; {@code true} otherwise.
    */
-  private boolean handleEquality(final IntegerVariable lhs, final IntegerVariable rhs) {
-    final IntegerDomain lhsDomain = domains.get(lhs);
-    final IntegerDomain rhsDomain = domains.get(rhs);
+  private boolean handleEqualities(final IntegerVariable var, final Set<IntegerVariable> equalVars) {
+    InvariantChecks.checkNotNull(var);
+    InvariantChecks.checkNotNull(equalVars);
+    InvariantChecks.checkNotEmpty(equalVars);
 
     // The trivial equalities, like x == x, are unexpected.
-    InvariantChecks.checkFalse(lhs.equals(rhs),
-        String.format("Unexpected equality %s == %s", lhs, rhs));
+    InvariantChecks.checkFalse(equalVars.contains(var),
+        String.format("Unexpected equality %s == %s", var, var));
 
-    // Intersect domains of the variables from the equation.
-    lhsDomain.intersect(rhsDomain);
+    final IntegerDomain lhsDomain = domains.get(var);
 
-    // The domain intersection is empty, the equation is unsatisfiable.
-    if (lhsDomain.isEmpty()) {
-      return false;
+    for (final IntegerVariable rhs : equalVars) {
+      final IntegerDomain rhsDomain = domains.get(rhs);
+
+      // Intersect domains of the variables from the equation.
+      lhsDomain.intersect(rhsDomain);
+
+      // The domain intersection is empty, the equation is unsatisfiable.
+      if (lhsDomain.isEmpty()) {
+        return false;
+      }
     }
 
-    // Update the equal-to sets.
-    final Set<IntegerVariable> lhsEqualVars = equalTo.get(lhs);
+    // Replace the variables with one.
+    for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : notEqualTo.entrySet()) {
+      final IntegerVariable lhs = entry.getKey();
+      final Set<IntegerVariable> rhsVars = entry.getValue();
 
-    // Update the domains of the variables that are equal to the LHS variable.
-    // The domain of the LHS variable has been already updated.
-    for (final IntegerVariable var : lhsEqualVars) {
-      domains.get(var).intersect(lhsDomain);
+      if (!Collections.disjoint(rhsVars, equalVars)) {
+        if (equalVars.contains(lhs) || lhs.equals(var)) {
+          return false;
+        }
+
+        rhsVars.removeAll(equalVars);
+        rhsVars.add(var);
+      }
     }
 
-    // Replace the LHS variable with the RHS one.
-    eliminateEquality(lhs, rhs);
+    equalTo.remove(var);
 
+    for (final IntegerVariable rhs : equalVars) {
+      equalTo.remove(rhs);
+    }
+
+    equalTracker.put(var, equalVars);
     return true;
   }
 
@@ -360,6 +401,9 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @return {@code false} if the inequality is unsatisfiable; {@code true} otherwise.
    */
   private boolean handleInequality(final IntegerVariable lhs, final IntegerVariable rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
     final IntegerDomain lhsDomain = domains.get(lhs);
     final IntegerDomain rhsDomain = domains.get(rhs);
 
@@ -394,72 +438,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   }
 
   /**
-   * Replaces all occurrences of the variable {@code lhs} with the variable {@code rhs} and
-   * eliminates the variable {@code lhs} from the equations.
-   * 
-   * @param lhs the left-hand-side variable (the variable to be replaced).
-   * @param rhs the right-hand-side variable (the variable to replace with).
-   */
-  private void eliminateEquality(final IntegerVariable lhs, final IntegerVariable rhs) {
-    // Handle the equal-to map.
-    Set<IntegerVariable> lhsEqualVars = equalTo.get(lhs);
-    Set<IntegerVariable> rhsEqualVars = equalTo.get(rhs);
-
-    // This call should proceed the next one not to include the variable to its equal-to set.
-    lhsEqualVars.remove(rhs);
-
-    // If LHS = RHS and LHS is equal to {x1, ..., xN}, then RHS is equal to {x1, ..., xN}. 
-    rhsEqualVars.addAll(lhsEqualVars);
-    // Remove the LHS variable (the variable being excluded).
-    rhsEqualVars.remove(lhs);
-
-    // Replace all occurrences of the LHS variable in the equal-to map with the RHS variable.
-    for (final IntegerVariable var : lhsEqualVars) {
-      final Set<IntegerVariable> equalVars = equalTo.get(var);
-      equalVars.remove(lhs);
-      equalVars.add(rhs);
-    }
-
-    // Exclude the LHS variable from the equalities.
-    equalTo.remove(lhs);
-    // If the equal-to set of the RHS variable is empty, the RHS variable is excluded as well.
-    if (rhsEqualVars.isEmpty()) {
-      equalTo.remove(rhs);
-    }
-
-    // Handle the not-equal-to map.
-    Set<IntegerVariable> lhsNotEqualVars = notEqualTo.get(lhs);
-    Set<IntegerVariable> rhsNotEqualVars = notEqualTo.get(rhs);
-
-    // There are inequalities that contain the LHS variable.
-    if (lhsNotEqualVars != null) {
-      // It is not guaranteed that there are inequalities that contain the RHS variable.
-      if (rhsNotEqualVars == null) {
-        notEqualTo.put(rhs, rhsNotEqualVars = new LinkedHashSet<>());
-      }
-
-      // If LHS = RHS and LHS is not equal to {x1, ..., xN}, then RHS is not equal to {x1, ..., xN}.
-      rhsNotEqualVars.addAll(lhsNotEqualVars);
-      // Remove the LHS variable (the variable being excluded).
-      rhsNotEqualVars.remove(lhs);
-
-      // Replace all occurrences of the LHS variable in the not-equal-to map with the RHS variable.
-      for (final IntegerVariable var : lhsNotEqualVars) {
-        final Set<IntegerVariable> notEqualVars = notEqualTo.get(var);
-        notEqualVars.remove(lhs);
-        notEqualVars.add(rhs);
-      }
-
-      // Exclude the variable from the inequalities.
-      notEqualTo.remove(lhs);
-      // If the not-equal-to set of the RHS variable is empty, the RHS variable is excluded as well.
-      if (rhsNotEqualVars != null && rhsNotEqualVars.isEmpty()) {
-        notEqualTo.remove(rhs);
-      }
-    }
-  }
-
-  /**
    * Eliminates the inequality from the constraint.
    * 
    * @param lhs the left-hand-side variable.
@@ -487,7 +465,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param rhs the right-hand-side variable.
    */
   private static void updateVariableMap(final Map<IntegerVariable, Set<IntegerVariable>> map,
-      final IntegerVariable lhs, IntegerVariable rhs) {
+      final IntegerVariable lhs, final IntegerVariable rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
     Set<IntegerVariable> vars = map.get(lhs);
 
     if (vars == null) {
@@ -508,27 +489,27 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
 
     for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
-      final IntegerVariable lhsVar = entry.getKey();
-      final IntegerDomain lhsDomain = entry.getValue();
+      final IntegerVariable variable = entry.getKey();
+      final IntegerDomain domain = entry.getValue();
 
-      if (equalTo.containsKey(lhsVar)) {
-        for (final IntegerVariable rhsVar : equalTo.get(lhsVar)) {
-          final IntegerDomain rhsDomain = domains.get(rhsVar);
-          lhsDomain.intersect(rhsDomain);
+      final Iterator<BigInteger> iterator = domain.iterator();
+
+      iterator.init();
+      InvariantChecks.checkTrue(iterator.hasValue());
+
+      domain.set(iterator.value());
+
+      if (equalTracker.containsKey(variable)) {
+        for (final IntegerVariable equalVariable : equalTracker.get(variable)) {
+          final IntegerDomain equalDomain = domains.get(equalVariable);
+          equalDomain.intersect(domain);
         }
       }
 
-      final Iterator<BigInteger> lhsIterator = lhsDomain.iterator();
-
-      lhsIterator.init();
-      InvariantChecks.checkTrue(lhsIterator.hasValue());
-
-      lhsDomain.set(lhsIterator.value());
-
-      if (notEqualTo.containsKey(lhsVar)) {
-        for (final IntegerVariable rhsVar : notEqualTo.get(lhsVar)) {
-          final IntegerDomain rhsDomain = domains.get(rhsVar);
-          rhsDomain.exclude(lhsDomain);
+      if (notEqualTo.containsKey(variable)) {
+        for (final IntegerVariable notEqualVariable : notEqualTo.get(variable)) {
+          final IntegerDomain notEqualDomain = domains.get(notEqualVariable);
+          notEqualDomain.exclude(domain);
         }
       }
     }

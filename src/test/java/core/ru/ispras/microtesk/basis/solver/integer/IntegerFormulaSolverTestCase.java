@@ -59,7 +59,7 @@ public final class IntegerFormulaSolverTestCase {
     return getSolver(VARS, formula);
   }
 
-  private static void check(
+  private static Map<IntegerVariable, BigInteger> check(
       final String id, final IntegerFormula<IntegerVariable> formula, final boolean expected) {
     final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(formula).solve();
 
@@ -67,9 +67,10 @@ public final class IntegerFormulaSolverTestCase {
     System.out.println(result.getResult());
 
     Assert.assertTrue((result.getStatus() == SolverResult.Status.SAT) == expected);
+    return result.getResult();
   }
 
-  private static void check(
+  private static Map<IntegerVariable, BigInteger> check(
       final String id,
       final List<IntegerVariable> vars,
       final IntegerFormula<IntegerVariable> formula,
@@ -80,6 +81,7 @@ public final class IntegerFormulaSolverTestCase {
     System.out.println(result.getResult());
 
     Assert.assertTrue((result.getStatus() == SolverResult.Status.SAT) == expected);
+    return result.getResult();
   }
 
   /**
@@ -333,5 +335,30 @@ public final class IntegerFormulaSolverTestCase {
     }
 
     check("N: OutOfMemoryError", vars, formula, true);
+  }
+
+  /**
+   * a == b && b == c && c == d && d == 10 => a == 10.
+   */
+  @Test
+  public void runTestO() {
+    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+
+    formula.addEquation(a, b, true);
+    formula.addEquation(b, c, true);
+    formula.addEquation(c, d, true);
+    formula.addEquation(d, BigInteger.TEN, true);
+
+    final Map<IntegerVariable, BigInteger> solution =
+        check("O: a == b && b == c && c == d && d == 10", formula, true);
+
+    for (final Map.Entry<IntegerVariable, BigInteger> entry : solution.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final BigInteger value = entry.getValue();
+
+      if (variable == a || variable == b || variable == c || variable == d) {
+        Assert.assertTrue(value.equals(BigInteger.TEN));
+      }
+    }
   }
 }

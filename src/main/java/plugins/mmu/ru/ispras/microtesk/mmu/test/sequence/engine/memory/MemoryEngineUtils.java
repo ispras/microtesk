@@ -149,7 +149,7 @@ public final class MemoryEngineUtils {
       formula.addConstraint(constraint);
       collectFormulaVariables(constraint.getFormula(), variables);
     }
-
+System.out.println("FORMULA: " + formula);
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
