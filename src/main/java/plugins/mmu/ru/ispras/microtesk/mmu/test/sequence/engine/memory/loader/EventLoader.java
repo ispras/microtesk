@@ -72,11 +72,26 @@ public final class EventLoader implements Loader {
    * 
    * @param addresses the addresses to be accessed.
    */
-  public void addLoads(final List<Long> addresses) {
+  public void addAddresses(final List<Long> addresses) {
     InvariantChecks.checkNotNull(addresses);
 
     for (final long address : addresses) {
-      loads.add(new Load(buffer, targetEvent, targetAddress, address));
+      loads.add(new Load(buffer, targetEvent, targetAddress, address, /* Entry */ null));
+    }
+  }
+
+  /**
+   * Appends the addresses and entries to be accessed to reach the buffer access event specified in
+   * the constructor.
+   * 
+   * @param addresses the addresses to be accessed.
+   */
+  public void addAddressesAndEntries(final List<AddressAndEntry> addressesAndEntries) {
+    InvariantChecks.checkNotNull(addressesAndEntries);
+
+    for (final AddressAndEntry addressAndEntry : addressesAndEntries) {
+      loads.add(new Load(
+          buffer, targetEvent, targetAddress, addressAndEntry.address, addressAndEntry.entry));
     }
   }
 

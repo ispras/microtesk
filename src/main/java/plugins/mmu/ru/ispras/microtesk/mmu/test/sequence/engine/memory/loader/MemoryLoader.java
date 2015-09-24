@@ -59,7 +59,7 @@ public final class MemoryLoader implements Loader {
     return bufferLoader.contains(targetEvent, targetAddress);
   }
 
-  public void addLoads(
+  public void addAddresses(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
       final long targetAddress,
@@ -69,7 +69,27 @@ public final class MemoryLoader implements Loader {
     InvariantChecks.checkNotNull(addresses);
 
     final BufferLoader bufferLoader = getLoader(buffer);
-    bufferLoader.addLoads(targetEvent, targetAddress, addresses);
+    bufferLoader.addAddresses(targetEvent, targetAddress, addresses);
+  }
+
+  public void addAddressesAndEntries(
+      final MmuBuffer buffer,
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final List<AddressAndEntry> addressesAndEntries) {
+    InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(addressesAndEntries);
+
+    final BufferLoader bufferLoader = getLoader(buffer);
+    bufferLoader.addAddressesAndEntries(targetEvent, targetAddress, addressesAndEntries);
+  }
+
+  public List<Load> prepareLoads(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+
+    final BufferLoader bufferLoader = getLoader(buffer);
+    return bufferLoader.prepareLoads();
   }
 
   public List<Load> prepareLoads(final MmuAddressType addressType) {
@@ -83,8 +103,7 @@ public final class MemoryLoader implements Loader {
       final MmuBuffer buffer = buffers.get(i);
 
       if (buffer.getAddress() == addressType && buffer.isReplaceable()) {
-        final BufferLoader bufferLoader = getLoader(buffer);
-        sequence.addAll(bufferLoader.prepareLoads());
+        sequence.addAll(prepareLoads(buffer));
       }
     }
 

@@ -122,12 +122,12 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     final List<ConcreteCall> preparation = new ArrayList<>();
 
-    final Map<Long, MmuEntry> entries = solution.getEntries(buffer);
+    final Map<Long, EntryObject> entries = solution.getEntries(buffer);
     InvariantChecks.checkNotNull(entries);
 
-    for (final Map.Entry<Long, MmuEntry> entry : entries.entrySet()) {
+    for (final Map.Entry<Long, EntryObject> entry : entries.entrySet()) {
       final long index = entry.getKey();
-      final MmuEntry data = entry.getValue();
+      final MmuEntry data = entry.getValue().getEntry();
 
       final BitVector addressValue = BitVector.valueOf(index, Long.SIZE);
       final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();

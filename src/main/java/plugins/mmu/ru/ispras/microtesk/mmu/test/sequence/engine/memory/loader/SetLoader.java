@@ -68,8 +68,10 @@ public final class SetLoader implements Loader {
     return tagLoaders.containsKey(tag);
   }
 
-  public void addLoads(
-      final BufferAccessEvent targetEvent, final long targetAddress, final List<Long> addresses) {
+  public void addAddresses(
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final List<Long> addresses) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addresses);
 
@@ -85,7 +87,29 @@ public final class SetLoader implements Loader {
       tagLoaders.put(tag, eventLoader = new EventLoader(buffer, targetEvent, targetAddress));
     }
 
-    eventLoader.addLoads(addresses);
+    eventLoader.addAddresses(addresses);
+  }
+
+  public void addAddressesAndEntries(
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final List<AddressAndEntry> addressesAndEntries) {
+    InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(addressesAndEntries);
+
+    Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+    if (tagLoaders == null) {
+      eventLoaders.put(targetEvent, tagLoaders = new LinkedHashMap<>());
+    }
+
+    final long tag = buffer.getTag(targetAddress);
+
+    EventLoader eventLoader = tagLoaders.get(tag);
+    if (eventLoader == null) {
+      tagLoaders.put(tag, eventLoader = new EventLoader(buffer, targetEvent, targetAddress));
+    }
+
+    eventLoader.addAddressesAndEntries(addressesAndEntries);
   }
 
   private List<Load> prepareLoads(final Collection<EventLoader> eventLoaders) {

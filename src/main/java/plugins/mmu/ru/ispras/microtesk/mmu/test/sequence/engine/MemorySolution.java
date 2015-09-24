@@ -25,7 +25,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 
 /**
  * {@link MemorySolution} represents a solution (test data) for a number of dependent instruction
@@ -53,7 +52,7 @@ public final class MemorySolution {
    * <p>This map unites the analogous maps of the test data of the executions stored in
    * {@link MemorySolution#solution}.</p>
    */
-  private final Map<MmuBuffer, Map<Long, MmuEntry>> entries = new LinkedHashMap<>();
+  private final Map<MmuBuffer, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs an uninitialized solution for the given memory access structure.
@@ -73,7 +72,7 @@ public final class MemorySolution {
     }
 
     for (final MmuBuffer device : MmuPlugin.getSpecification().getBuffers()) {
-      this.entries.put(device, new LinkedHashMap<Long, MmuEntry>());
+      this.entries.put(device, new LinkedHashMap<Long, EntryObject>());
     }
 
     loader = new MemoryLoader();
@@ -144,7 +143,7 @@ public final class MemorySolution {
    * @return the index-to-entry map.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, MmuEntry> getEntries(final MmuBuffer device) {
+  public Map<Long, EntryObject> getEntries(final MmuBuffer device) {
     InvariantChecks.checkNotNull(device);
 
     return entries.get(device);
@@ -157,7 +156,7 @@ public final class MemorySolution {
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer device, final Map<Long, MmuEntry> entries) {
+  public void setEntries(final MmuBuffer device, final Map<Long, EntryObject> entries) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(entries);
 
@@ -172,11 +171,10 @@ public final class MemorySolution {
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer device, final long internalAddress, final MmuEntry entry) {
+  public void addEntry(final MmuBuffer device, final EntryObject entry) {
     InvariantChecks.checkNotNull(device);
-    InvariantChecks.checkNotNull(internalAddress);
     InvariantChecks.checkNotNull(entry);
 
-    entries.get(device).put(internalAddress, entry);
+    entries.get(device).put(entry.getId(), entry);
   }
 }

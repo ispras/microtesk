@@ -55,13 +55,24 @@ public final class BufferLoader implements Loader {
     return setLoader.contains(targetEvent, targetAddress);
   }
 
-  public void addLoads(
+  public void addAddresses(
       final BufferAccessEvent targetEvent, final long targetAddress, final List<Long> addresses) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addresses);
 
     final SetLoader setLoader = getSetLoader(targetAddress);
-    setLoader.addLoads(targetEvent, targetAddress, addresses);
+    setLoader.addAddresses(targetEvent, targetAddress, addresses);
+  }
+
+  public void addAddressesAndEntries(
+      final BufferAccessEvent targetEvent,
+      final long targetAddress,
+      final List<AddressAndEntry> addressesAndEntries) {
+    InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(addressesAndEntries);
+
+    final SetLoader setLoader = getSetLoader(targetAddress);
+    setLoader.addAddressesAndEntries(targetEvent, targetAddress, addressesAndEntries);
   }
 
   @Override

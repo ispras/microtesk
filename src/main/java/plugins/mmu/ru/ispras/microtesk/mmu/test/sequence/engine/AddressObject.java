@@ -25,7 +25,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -58,7 +57,7 @@ public final class AddressObject {
    * <p>Typically, one memory access affects one entry of one buffer. It is assumed that each map
    * contains exactly one entry.</p>
    */
-  private final Map<MmuBuffer, Map<Long, MmuEntry>> entries = new LinkedHashMap<>();
+  private final Map<MmuBuffer, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
   /** Refers to the memory access. */
   private MemoryAccess access;
@@ -171,7 +170,7 @@ public final class AddressObject {
     setAddress(memory.getPhysicalAddress(), value);
   }
 
-  public Map<MmuBuffer, Map<Long, MmuEntry>> getEntries() {
+  public Map<MmuBuffer, Map<Long, EntryObject>> getEntries() {
     return entries;
   }
 
@@ -182,7 +181,7 @@ public final class AddressObject {
    * @return the entries to written.
    * @throws IllegalArgumentException if {@code buffer} is null.
    */
-  public Map<Long, MmuEntry> getEntries(final MmuBuffer buffer) {
+  public Map<Long, EntryObject> getEntries(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
     return entries.get(buffer);
   }
@@ -194,10 +193,14 @@ public final class AddressObject {
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer buffer, final Map<Long, MmuEntry> entries) {
+  public void setEntries(final MmuBuffer buffer, final Map<Long, EntryObject> entries) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkTrue(entries.size() == 1);
+
+    for (final EntryObject entry : entries.values()) {
+      entry.addAddrObject(this);
+    }
 
     this.entries.put(buffer, entries);
   }
@@ -210,17 +213,18 @@ public final class AddressObject {
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer buffer, final long entryId, final MmuEntry entry) {
+  public void addEntry(final MmuBuffer buffer, final EntryObject entry) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entry);
 
-    Map<Long, MmuEntry> bufferEntries = entries.get(buffer);
+    Map<Long, EntryObject> bufferEntries = entries.get(buffer);
 
     if (bufferEntries == null) {
       entries.put(buffer, bufferEntries = new LinkedHashMap<>());
     }
 
-    bufferEntries.put(entryId, entry);
+    entry.addAddrObject(this);
+    bufferEntries.put(entry.getId(), entry);
   }
 
   @Override
