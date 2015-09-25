@@ -89,7 +89,6 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve();
 
     if (clauses.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
-      System.out.println(kernel);
       return kernelResult;
     }
 
