@@ -53,7 +53,6 @@ public final class IntegerClause<V> {
    */
   public IntegerClause(final Type type) {
     InvariantChecks.checkNotNull(type);
-
     this.type = type;
   }
 
@@ -148,7 +147,7 @@ public final class IntegerClause<V> {
    */
   public void addEquations(final Collection<IntegerEquation<V>> equations) {
     InvariantChecks.checkNotNull(equations);
-    equations.addAll(equations);
+    this.equations.addAll(equations);
   }
 
   /**
@@ -159,7 +158,7 @@ public final class IntegerClause<V> {
    */
   public void addClause(final IntegerClause<V> clause) {
     InvariantChecks.checkNotNull(clause);
-    equations.addAll(clause.getEquations());
+    this.equations.addAll(clause.getEquations());
   }
 
   /**

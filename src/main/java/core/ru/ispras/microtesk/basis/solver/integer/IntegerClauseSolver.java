@@ -17,6 +17,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -45,8 +46,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   private final Map<IntegerVariable, Set<IntegerVariable>> equalTo = new LinkedHashMap<>();
   /** Maps a variable {@code x} into the set of variables that are not equal to {@code x}. */
   private final Map<IntegerVariable, Set<IntegerVariable>> notEqualTo = new LinkedHashMap<>();
-
-  private final Map<IntegerVariable, Set<IntegerVariable>> equalities = new LinkedHashMap<>();
 
   /**
    * Constructs an equation clause solver.
@@ -140,8 +139,11 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     for (final IntegerVariable variable : variables) {
       addVariable(variable);
     }
+
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
-      addEquation(equation);
+      if (!addEquation(equation)) {
+        return new SolverResult<>("UNSAT");
+      }
     }
 
     // Returns false if there is a variable whose domain is empty (updates the set of variables).
@@ -151,22 +153,15 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
     encloseEqualityRelation();
 
-    final Set<IntegerVariable> variables = new LinkedHashSet<>(equalTo.keySet());
+    // Choose one representative from each equivalent classes and perform replacement.
+    for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : equalTo.entrySet()) {
+      final IntegerVariable var = entry.getKey();
+      final Set<IntegerVariable> equalVars = entry.getValue();
 
-    // Eliminate all equalities.
-    for (final IntegerVariable lhs : variables) {
-      final Set<IntegerVariable> equalVars = equalTo.get(lhs);
-
-      if (equalVars != null && !equalVars.isEmpty()) {
-        if (!handleEqualities(lhs, equalVars)) {
-          return new SolverResult<>("UNSAT");
-        }
+      if (!handleEqualities(var, equalVars)) {
+        return new SolverResult<>("UNSAT");
       }
     }
-
-    // Debug check.
-    InvariantChecks.checkTrue(equalTo.isEmpty(), 
-          String.format("The set of equalities has not been reduced: %s", this));
 
     return solveInequalities();
   }
@@ -190,13 +185,15 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * Adds the equation to the constraint.
    * 
    * @param equation the equation to be added.
+   * @return {@code false} if the constraint is definitely unsatisfiable; {@code true} otherwise.
    */
-  private void addEquation(final IntegerEquation<IntegerVariable> equation) {
+  private boolean addEquation(final IntegerEquation<IntegerVariable> equation) {
     InvariantChecks.checkNotNull(equation);
+
+    final IntegerDomain lhsDomain = domains.get(equation.lhs);
 
     if (equation.value) {
       // Constraint X == C or X != C.
-      final IntegerDomain lhsDomain = domains.get(equation.lhs);
       InvariantChecks.checkNotNull(lhsDomain, "The variable has not been declared");
 
       if (equation.equal) {
@@ -207,7 +204,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         lhsDomain.exclude(new IntegerRange(equation.val));
       }
     } else {
-      final IntegerDomain lhsDomain = domains.get(equation.lhs);
       final IntegerDomain rhsDomain = domains.get(equation.rhs);
 
       // Constraint X == Y or X != Y.
@@ -224,16 +220,24 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.rhs, equation.lhs);
       }
     }
+
+    return !lhsDomain.isEmpty();
   }
 
   /**
    * Produces the transitive closure of the equal-to relation.
    * 
-   * TODO: optimization is required.
+   * <p>Actually, it constructs a part of the closure: symmetrical cases are thrown away.</p>
    */
   private void encloseEqualityRelation() {
+    final Set<IntegerVariable> cloneVars = new HashSet<>(variables.size());
+
     for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : equalTo.entrySet()) {
       final IntegerVariable var = entry.getKey();
+
+      if (cloneVars.contains(var)) {
+        continue;
+      }
 
       final Set<IntegerVariable> allEqualVars = equalTo.get(var);
       InvariantChecks.checkNotNull(allEqualVars);
@@ -257,6 +261,12 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         allEqualVars.addAll(newEqualVars);
         equalVars = newEqualVars;
       }
+
+      cloneVars.addAll(allEqualVars);
+    }
+
+    for (final IntegerVariable cloneVar : cloneVars) {
+      equalTo.remove(cloneVar);
     }
   }
 
@@ -270,11 +280,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     // If the set of inequalities is empty, it is satisfiable.
     if (notEqualTo.isEmpty()) {
       return new SolverResult<>(getSolution());
-    }
-
-    // Returns false if there is a variable whose domain is empty (updates the set of variables).
-    if (!checkDomains()) {
-      return new SolverResult<>("Empty domain");
     }
 
     final Set<IntegerVariable> variables = new LinkedHashSet<>(notEqualTo.keySet());
@@ -328,6 +333,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       final IntegerClauseSolver problem = new IntegerClauseSolver(this);
 
       // Try some variant.
+      InvariantChecks.checkTrue(iterator.hasValue());
       problem.domains.put(minDomainVar, new IntegerDomain(iterator.value()));
 
       final SolverResult<Map<IntegerVariable, BigInteger>> result = problem.solveInequalities();
@@ -477,14 +483,6 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       notEqualTo.put(var, notEqualVars);
     }
 
-    // Eliminate the equalities.
-    equalTo.remove(var);
-    for (final IntegerVariable rhs : equalVars) {
-      equalTo.remove(rhs);
-    }
-
-    // Keep track the equalities to restore solution.
-    equalities.put(var, equalVars);
     return true;
   }
 
@@ -553,8 +551,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       domain.set(iterator.value());
       solution.put(variable, iterator.value());
 
-      if (equalities.containsKey(variable)) {
-        for (final IntegerVariable equalVariable : equalities.get(variable)) {
+      if (equalTo.containsKey(variable)) {
+        for (final IntegerVariable equalVariable : equalTo.get(variable)) {
           final IntegerDomain equalDomain = domains.get(equalVariable);
           equalDomain.intersect(domain);
         }

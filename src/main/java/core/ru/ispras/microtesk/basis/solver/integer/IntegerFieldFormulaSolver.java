@@ -27,6 +27,9 @@ import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
+import ru.ispras.testbase.knowledge.iterator.ProductIterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * {@link IntegerFieldFormulaSolver} implements an integer-field-constraints solver.
@@ -317,40 +320,60 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     return newFormula;
   }
 
+  
   private Collection<IntegerClause<IntegerVariable>> getClauses(
       final IntegerClause<IntegerField> oldClause) {
     InvariantChecks.checkNotNull(oldClause);
 
-    final List<IntegerEquation<IntegerVariable>> conjunctions = new ArrayList<>();
-    final List<IntegerEquation<IntegerVariable>> disjunctions = new ArrayList<>();
+    return oldClause.getType() == IntegerClause.Type.AND ?
+        getClausesAnd(oldClause) : getClausesOr(oldClause);
+  }
+
+  private Collection<IntegerClause<IntegerVariable>> getClausesAnd(
+      final IntegerClause<IntegerField> oldClause) {
+    InvariantChecks.checkNotNull(oldClause);
+    InvariantChecks.checkTrue(oldClause.getType() == IntegerClause.Type.AND);
+
+    final Collection<IntegerClause<IntegerVariable>> newClauses = new ArrayList<>();
+
+    for (final IntegerEquation<IntegerField> oldEquation : oldClause.getEquations()) {
+      final IntegerClause<IntegerVariable> clause = getClause(oldEquation);
+      newClauses.add(clause);
+    }
+
+    return newClauses;
+  }
+
+  private Collection<IntegerClause<IntegerVariable>> getClausesOr(
+      final IntegerClause<IntegerField> oldClause) {
+    InvariantChecks.checkNotNull(oldClause);
+    InvariantChecks.checkTrue(oldClause.getType() == IntegerClause.Type.OR);
+
+    // Compose DNF.
+    final ProductIterator<IntegerEquation<IntegerVariable>> iterator = new ProductIterator<>();
 
     for (final IntegerEquation<IntegerField> oldEquation : oldClause.getEquations()) {
       final IntegerClause<IntegerVariable> clause = getClause(oldEquation);
 
-      final List<IntegerEquation<IntegerVariable>> equations =
-          (clause.getType() == IntegerClause.Type.AND ? conjunctions : disjunctions);
-
-      equations.addAll(clause.getEquations());
+      if (clause.getType() == IntegerClause.Type.OR || clause.size() == 1) {
+        for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
+          iterator.registerIterator(
+              new SingleValueIterator<IntegerEquation<IntegerVariable>>(equation));
+        }
+      } else {
+        iterator.registerIterator(
+            new CollectionIterator<IntegerEquation<IntegerVariable>>(clause.getEquations()));
+      }
     }
 
+    // Transform DNF to CNF.
     final Collection<IntegerClause<IntegerVariable>> newClauses = new ArrayList<>();
 
-    if (oldClause.getType() == IntegerClause.Type.AND
-        || conjunctions.isEmpty() || disjunctions.isEmpty()) {
-      if (!conjunctions.isEmpty()) {
-        newClauses.add(new IntegerClause<>(IntegerClause.Type.AND, conjunctions));
-      }
-      if (!disjunctions.isEmpty()) {
-        newClauses.add(new IntegerClause<>(IntegerClause.Type.OR, disjunctions));
-      }
-    } else {
-      for (final IntegerEquation<IntegerVariable> conjunction : conjunctions) {
-        final IntegerClause<IntegerVariable> newClause =
-            new IntegerClause<>(IntegerClause.Type.OR, disjunctions);
+    for (iterator.init(); iterator.hasValue(); iterator.next()) {
+      final IntegerClause<IntegerVariable> clause = new IntegerClause<>(IntegerClause.Type.OR);
 
-        newClause.addEquation(conjunction);
-        newClauses.add(newClause);
-      }
+      clause.addEquations(iterator.value());
+      newClauses.add(clause);
     }
 
     return newClauses;
