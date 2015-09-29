@@ -285,11 +285,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(w, String.format("Duplicate member '%s'.", id));
       }
       final Type type = ir.getTypes().get(typeId.getText());
-      if (type == null) {
+      final Node size = ir.getConstants().get(typeId.getText());
+
+      if (type == null && size == null) {
         raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
       }
+      if (type != null && size != null) {
+        raiseError(w, "Ambigous type in variable declaration: " + typeId.getText());
+      }
 
-      fields.put(id, type);
+      if (type != null) {
+        fields.put(id, type);
+      } else {
+        addField(fieldId, size, null);
+      }
     }
 
     /**
