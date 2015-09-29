@@ -1134,8 +1134,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Correct the address values.
-    va |= values.get(vaVar).longValue();
-    pa |= values.get(paVar).longValue();
+    final BigInteger vaCorrection = values.get(vaVar);
+    final BigInteger paCorrection = values.get(paVar);
+
+    va |= vaCorrection != null ? vaCorrection.longValue() : 0;
+    pa |= paCorrection != null ? paCorrection.longValue() : 0;
 
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
