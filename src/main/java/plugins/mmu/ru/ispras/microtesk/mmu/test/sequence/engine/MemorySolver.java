@@ -1017,7 +1017,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath normalPath = Randomizer.get().choose(
         bestPaths.isEmpty() ? normalPaths : bestPaths);
 
-    final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath, settings);
+    final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath);
     InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.

@@ -100,8 +100,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Iterator of memory access classes. */
   private final Iterator<List<Integer>> accessPathIterator;
 
-  private final GeneratorSettings settings;
-
   /** Checks the consistency of execution path pairs. */
   private Predicate<MemoryAccessStructure> accessPairChecker;
   /** Checks the consistency of whole test templates. */
@@ -143,8 +141,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     }
 
     this.accessPathIterator = accessPathIterator;
-
-    this.settings = settings;
   }
 
   public List<MemoryAccessType> getAccessTypes() {
@@ -320,7 +316,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final Set<MemoryAccessPath> accessPathClass = classes.get(accessIndices.get(i));
       final MemoryAccessType accessType = accessTypes.get(i);
       final MemoryAccessPath accessPath = Randomizer.get().choose(accessPathClass);
-      final MemoryAccess access = MemoryAccess.create(accessType, accessPath, settings);
+      final MemoryAccess access = MemoryAccess.create(accessType, accessPath);
 
       if (access == null) {
         return false;

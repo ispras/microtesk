@@ -24,6 +24,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link MmuSubsystem} describes a memory management unit (MMU).
@@ -54,8 +56,8 @@ public final class MmuSubsystem {
   /** Refers to the physical address type of the MMU. */
   private final MmuAddressType physicalAddress;
 
-  /** Stores buffers of the MMU. */
   private final Map<String, MmuSegment> segments;
+  private final Map<String, RegionSettings> regions;
 
   /** Stores buffers of the MMU. */
   private final Map<String, MmuBuffer> buffers;
@@ -73,7 +75,7 @@ public final class MmuSubsystem {
   private final MmuAction startAction;
 
   /**
-   * Constructs in instance of {@code MmuSubsystem}.
+   * Constructs an instance of {@code MmuSubsystem}.
    */
 
   private MmuSubsystem(
@@ -83,6 +85,7 @@ public final class MmuSubsystem {
       final MmuAddressType virtualAddress,
       final MmuAddressType physicalAddress,
       final Map<String, MmuSegment> segments,
+      final Map<String, RegionSettings> regions,
       final Map<String, MmuBuffer> buffers,
       final List<MmuBuffer> sortedBuffers,
       final MmuBuffer targetBuffer,
@@ -95,6 +98,7 @@ public final class MmuSubsystem {
     // InvariantChecks.checkNotNull(physicalAddress);
 
     InvariantChecks.checkNotNull(segments);
+    InvariantChecks.checkNotNull(regions);
     InvariantChecks.checkNotNull(buffers);
     InvariantChecks.checkNotNull(sortedBuffers);
     // InvariantChecks.checkNotNull(targetBuffer);
@@ -109,6 +113,7 @@ public final class MmuSubsystem {
     this.physicalAddress = physicalAddress;
 
     this.segments = Collections.unmodifiableMap(segments);
+    this.regions = Collections.unmodifiableMap(regions);
     this.buffers = Collections.unmodifiableMap(buffers);
     this.sortedBuffers = Collections.unmodifiableList(sortedBuffers);
     this.targetBuffer = targetBuffer;
@@ -179,6 +184,14 @@ public final class MmuSubsystem {
    */
   public MmuSegment getSegment(final String name) {
     return segments.get(name);
+  }
+
+  public Collection<RegionSettings> getRegions() {
+    return regions.values();
+  }
+
+  public RegionSettings getRegion(final String name) {
+    return regions.get(name);
   }
 
   /**
@@ -314,6 +327,9 @@ public final class MmuSubsystem {
     private Map<String, MmuSegment> segments = new LinkedHashMap<>();
 
     /** Stores buffers of the MMU. */
+    private Map<String, RegionSettings> regions = new LinkedHashMap<>();
+
+    /** Stores buffers of the MMU. */
     private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
 
     // TODO:
@@ -336,12 +352,23 @@ public final class MmuSubsystem {
           virtualAddress,
           physicalAddress,
           segments,
+          regions,
           buffers,
           sortedBuffers,
           targetBuffer,
           actions,
           startAction
           );
+    }
+
+    public void setSettings(final GeneratorSettings settings) {
+      InvariantChecks.checkNotNull(settings);
+
+      for (final RegionSettings region : settings.getMemory().getRegions()) {
+        if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+          regions.put(region.getName(), region);
+        }
+      }
     }
 
     public void registerVariable(final IntegerVariable variable) {

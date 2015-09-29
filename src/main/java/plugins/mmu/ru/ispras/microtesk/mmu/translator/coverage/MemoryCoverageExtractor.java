@@ -17,12 +17,10 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
@@ -31,6 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -82,7 +81,9 @@ final class MemoryCoverageExtractor {
     // TODO: This code needs to be optimized?
     for (int i = paths.size() - 1; i >= 0; --i) {
       final MemoryAccessPath path = paths.get(i);
-      if (MemoryAccess.getPossibleSegments(path).isEmpty()) {
+      final Collection<MmuSegment> segments = path.getSegments();
+
+      if (segments.isEmpty()) {
         final int lastIndex = paths.size() - 1;
         paths.set(i, paths.get(lastIndex));
         paths.remove(lastIndex);

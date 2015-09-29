@@ -26,6 +26,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
@@ -34,7 +35,11 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.settings.AccessSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link MemoryAccessPath} represents the execution path of a memory access instruction.
@@ -181,6 +186,89 @@ public final class MemoryAccessPath {
       return result;
     }
 
+    private static Collection<MmuSegment> getSegments(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final MmuSubsystem memory = MmuPlugin.getSpecification();
+      final Collection<MmuSegment> segments = new LinkedHashSet<>(memory.getSegments());
+
+      for (final MmuTransition transition : transitions) {
+        final MmuGuard guard = transition.getGuard();
+
+        if (guard != null) {
+          final Collection<MmuSegment> guardSegments = guard.getSegments();
+
+          if (guardSegments != null) {
+            segments.retainAll(guardSegments);
+          }
+        }
+      }
+
+      return segments;
+    }
+
+    private static Map<RegionSettings, Collection<MmuSegment>> getRegions(
+        final Collection<MmuTransition> transitions) {
+      InvariantChecks.checkNotNull(transitions);
+
+      final MmuSubsystem memory = MmuPlugin.getSpecification();
+      final Map<RegionSettings, Collection<MmuSegment>> regions = new LinkedHashMap<>();
+
+      for (final RegionSettings region : memory.getRegions()) {
+        final Collection<MmuSegment> regionSegments = new LinkedHashSet<>();
+
+        for (final AccessSettings regionAccess: region.getAccesses()) {
+          regionSegments.add(memory.getSegment(regionAccess.getSegment()));
+        }
+
+        if (!regionSegments.isEmpty()) {
+          regions.put(region, regionSegments);
+        }
+      }
+
+      InvariantChecks.checkFalse(regions.isEmpty());
+
+      for (final MmuTransition transition : transitions) {
+        final MmuGuard guard = transition.getGuard();
+
+        if (guard != null) {
+          final Collection<String> guardRegionNames = guard.getRegions();
+
+          if (guardRegionNames != null) {
+            final Collection<RegionSettings> guardRegions = new ArrayList<RegionSettings>();
+
+            for (final String regionName : guardRegionNames) {
+              guardRegions.add(memory.getRegion(regionName));
+            }
+
+            regions.keySet().retainAll(guardRegions);
+          }
+
+          final Collection<MmuSegment> guardSegments = guard.getSegments();
+
+          if (guardSegments != null) {
+            final Collection<RegionSettings> remove = new ArrayList<>();
+
+            for (final Map.Entry<RegionSettings, Collection<MmuSegment>> entry : regions.entrySet()) {
+              final RegionSettings region = entry.getKey();
+              final Collection<MmuSegment> segments = entry.getValue();
+
+              segments.retainAll(guardSegments);
+
+              if (segments.isEmpty()) {
+                remove.add(region);
+              }
+            }
+
+            regions.keySet().removeAll(remove);
+          }
+        }
+      }
+
+      return regions;
+    }
+
     private List<MmuTransition> transitions = new ArrayList<>();
 
     public void add(final MmuTransition transition) {
@@ -199,8 +287,10 @@ public final class MemoryAccessPath {
           getActions(transitions),
           getAddresses(transitions),
           getBuffers(transitions),
+          getSegments(transitions),
           getVariables(transitions),
-          getEvents(transitions));
+          getEvents(transitions),
+          getRegions(transitions));
     }
   }
 
@@ -208,8 +298,10 @@ public final class MemoryAccessPath {
   private final Collection<MmuAction> actions;
   private final Collection<MmuAddressType> addresses;
   private final Collection<MmuBuffer> buffers;
+  private final Collection<MmuSegment> segments;
   private final Collection<IntegerVariable> variables;
   private final Map<MmuBuffer, BufferAccessEvent> events;
+  private final Map<RegionSettings, Collection<MmuSegment>> regions;
 
   private final MmuTransition firstTransition;
   private final MmuTransition lastTransition;
@@ -219,22 +311,28 @@ public final class MemoryAccessPath {
       final Collection<MmuAction> actions,
       final Collection<MmuAddressType> addresses,
       final Collection<MmuBuffer> buffers,
+      final Collection<MmuSegment> segments,
       final Collection<IntegerVariable> variables,
-      final Map<MmuBuffer, BufferAccessEvent> events) {
+      final Map<MmuBuffer, BufferAccessEvent> events,
+      final Map<RegionSettings, Collection<MmuSegment>> regions) {
     InvariantChecks.checkNotNull(transitions);
     InvariantChecks.checkNotEmpty(transitions);
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(addresses);
     InvariantChecks.checkNotNull(buffers);
+    InvariantChecks.checkNotNull(segments);
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(events);
+    InvariantChecks.checkNotNull(regions);
 
     this.transitions = Collections.unmodifiableCollection(transitions);
     this.actions = Collections.unmodifiableCollection(actions);
     this.addresses = Collections.unmodifiableCollection(addresses);
     this.buffers = Collections.unmodifiableCollection(buffers);
+    this.segments = Collections.unmodifiableCollection(segments);
     this.variables = Collections.unmodifiableCollection(variables);
     this.events = Collections.unmodifiableMap(events);
+    this.regions = Collections.unmodifiableMap(regions);
 
     final Iterator<MmuTransition> iterator = transitions.iterator();
 
@@ -270,6 +368,14 @@ public final class MemoryAccessPath {
 
   public Collection<MmuBuffer> getBuffers() {
     return buffers;
+  }
+
+  public Collection<MmuSegment> getSegments() {
+    return segments;
+  }
+
+  public Map<RegionSettings, Collection<MmuSegment>> getRegions() {
+    return regions;
   }
 
   public Collection<IntegerVariable> getVariables() {

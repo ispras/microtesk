@@ -15,13 +15,14 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -33,7 +34,9 @@ final class BufferCoverageExtractor {
       @Override
       public MemoryHazard getHazard(final MmuBuffer buffer) {
         // Index1 != Index2.
-        return new MemoryHazard(MemoryHazard.Type.INDEX_NOT_EQUAL, buffer,
+        return new MemoryHazard(
+            MemoryHazard.Type.INDEX_NOT_EQUAL,
+            buffer,
             MmuCondition.neq(buffer.getIndexExpression()));
       }
     },
@@ -46,10 +49,14 @@ final class BufferCoverageExtractor {
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
           atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
         }
+
         atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2.
-        return new MemoryHazard(MemoryHazard.Type.TAG_NOT_EQUAL, buffer, MmuCondition.and(atoms));
+        return new MemoryHazard(
+            MemoryHazard.Type.TAG_NOT_EQUAL,
+            buffer,
+            MmuCondition.and(atoms));
       }
     },
 
@@ -61,11 +68,15 @@ final class BufferCoverageExtractor {
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
           atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
         }
+
         atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
         atoms.add(MmuConditionAtom.neqReplaced(buffer.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2.
-        return new MemoryHazard(MemoryHazard.Type.TAG_NOT_REPLACED, buffer, MmuCondition.and(atoms));
+        return new MemoryHazard(
+            MemoryHazard.Type.TAG_NOT_REPLACED,
+            buffer,
+            MmuCondition.and(atoms));
       }
     },
 
@@ -77,11 +88,15 @@ final class BufferCoverageExtractor {
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
           atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
         }
+
         atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
         atoms.add(MmuConditionAtom.eqReplaced(buffer.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2.
-        return new MemoryHazard(MemoryHazard.Type.TAG_REPLACED, buffer, MmuCondition.and(atoms));
+        return new MemoryHazard(
+            MemoryHazard.Type.TAG_REPLACED,
+            buffer,
+            MmuCondition.and(atoms));
       }
     },
 
@@ -93,17 +108,21 @@ final class BufferCoverageExtractor {
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
           atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
         }
+
         atoms.add(MmuConditionAtom.eq(buffer.getTagExpression()));
 
         // Index1 == Index2 && Tag1 == Tag2.
-        return new MemoryHazard(MemoryHazard.Type.TAG_EQUAL, buffer, MmuCondition.and(atoms));
+        return new MemoryHazard(
+            MemoryHazard.Type.TAG_EQUAL,
+            buffer,
+            MmuCondition.and(atoms));
       }
     };
 
     public abstract MemoryHazard getHazard(MmuBuffer buffer);
   }
 
-  private final List<MemoryHazard> hazards = new ArrayList<>();
+  private final Collection<MemoryHazard> hazards = new ArrayList<>();
 
   public BufferCoverageExtractor(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
@@ -129,7 +148,7 @@ final class BufferCoverageExtractor {
     }
   }
 
-  public List<MemoryHazard> getHazards() {
+  public Collection<MemoryHazard> getHazards() {
     return hazards;
   }
 }
