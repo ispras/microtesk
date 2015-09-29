@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -931,10 +930,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final long significantBitsMask = addressAllocator.getSignificatBitsMask(addrType);
     Logger.debug("Significant bits: %x", significantBitsMask);
 
-    final long insignificantBits = Randomizer.get().nextLong()
-        & ~significantBitsMask
-        & BitUtils.getLongMask(addrType.getWidth());
-
+    // It is important to use zero insignificant bits (see {@code refineAddr}).
+    final long insignificantBits = 0;
     return allocateAddr(addrType, insignificantBits, region, peek);
   }
 
@@ -1096,7 +1093,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     long pa = addrObject.getAddress(paType);
     Logger.debug("Refine address: VA=%x, PA=%x", va, pa);
 
-    // Fix the address tags, indices and page offsets.
+    // Fix the address tags and indices.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
     for (final MmuBuffer buffer : path.getBuffers()) {
@@ -1117,12 +1114,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
       knownValues.putAll(
           IntegerField.split(indexExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(index)));
     }
-
-    final BigInteger pageMaskValue = BigIntegerUtils.valueOfUnsignedLong(pageMask);
-    knownValues.put(IntegerField.create(vaVar, pageMaskValue),
-        BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
-    knownValues.put(IntegerField.create(paVar, pageMaskValue),
-        BigIntegerUtils.valueOfUnsignedLong(pa & pageMask));
 
     final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
         new ArrayList<>(this.constraints) : new ArrayList<IntegerConstraint<IntegerField>>();
