@@ -227,8 +227,6 @@ public final class MemoryAccessPath {
         }
       }
 
-      InvariantChecks.checkFalse(regions.isEmpty());
-
       for (final MmuTransition transition : transitions) {
         final MmuGuard guard = transition.getGuard();
 
