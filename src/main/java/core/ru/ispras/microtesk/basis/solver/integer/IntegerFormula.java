@@ -65,7 +65,6 @@ public final class IntegerFormula<V> {
    */
   public void addConstraint(final IntegerConstraint<V> constraint) {
     InvariantChecks.checkNotNull(constraint);
-
     addFormula(constraint.getFormula());
   }
 
@@ -77,7 +76,6 @@ public final class IntegerFormula<V> {
    */
   public void addFormula(final IntegerFormula<V> formula) {
     InvariantChecks.checkNotNull(formula);
-
     addClauses(formula.getClauses());
   }
 

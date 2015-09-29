@@ -51,7 +51,12 @@ public final class MmuSettingsUtils extends GeneratorSettings {
 
     if (integerValuesSettings != null) {
       for (final AbstractSettings section : integerValuesSettings) {
-        constraints.add(getConstraint((IntegerValuesSettings) section));
+        final IntegerConstraint<IntegerField> constraint =
+            getConstraint((IntegerValuesSettings) section);
+
+        if (constraint != null) {
+          constraints.add(constraint);
+        }
       }
     }
 
