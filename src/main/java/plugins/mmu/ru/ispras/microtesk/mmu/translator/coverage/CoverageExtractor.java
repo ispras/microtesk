@@ -151,7 +151,8 @@ public final class CoverageExtractor {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(settings);
 
-    if (path.getRegions().isEmpty()) {
+    if (memory.getRegions().isEmpty() && path.getSegments().isEmpty()
+        || !memory.getRegions().isEmpty() && path.getRegions().isEmpty()) {
       return false;
     }
 
