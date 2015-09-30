@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -86,12 +87,13 @@ final class MemoryCoverageExtractor {
       final MemoryAccessPathEntry entry = queue.remove(queue.size() - 1);
 
       final Collection<MemoryAccessPathEntry> continuations = elongatePath(type, entry);
-      InvariantChecks.checkNotNull(continuations);
 
-      if (!continuations.isEmpty()) {
-        queue.addAll(continuations);
-      } else {
+      if (continuations == null) {
+        continue;
+      } else if (continuations.isEmpty()) {
         paths.add(entry.path);
+      } else {
+        queue.addAll(continuations);
       }
     }
 
@@ -132,6 +134,10 @@ final class MemoryCoverageExtractor {
     final Collection<MmuTransition> outTransitions = memory.getTransitions(targetAction);
     InvariantChecks.checkNotNull(outTransitions);
 
+    if (outTransitions.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     final Collection<MemoryAccessPathEntry> elongatedEntries = new ArrayList<>();
 
     for (final MmuTransition transition : outTransitions) {
@@ -153,6 +159,6 @@ final class MemoryCoverageExtractor {
       }
     }
 
-    return elongatedEntries;
+    return elongatedEntries.isEmpty() ? elongatedEntries : null;
   }
 }

@@ -97,4 +97,9 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
 
     return formula;
   }
+
+  @Override
+  public String toString() {
+    return getFormula().toString();
+  }
 }

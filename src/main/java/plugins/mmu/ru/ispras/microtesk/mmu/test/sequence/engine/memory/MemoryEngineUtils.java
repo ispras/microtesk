@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,10 +55,6 @@ public final class MemoryEngineUtils {
         solve(transition, partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
-  }
-
-  public static boolean isFeasiblePath(final MemoryAccessPath path) {
-    return isFeasiblePath(path, Collections.<IntegerConstraint<IntegerField>>emptyList());
   }
 
   public static boolean isFeasiblePath(
