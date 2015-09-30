@@ -186,9 +186,12 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor =
-        new MemorySymbolicExecutor(path, mode == Solver.Mode.MAP);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+    if (!path.hasSymbolicResult()) {
+      final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path, true);
+      path.setSymbolicResult(symbolicExecutor.execute());
+    }
+
+    final MemorySymbolicExecutor.Result symbolicResult = path.getSymbolicResult();
 
     final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();

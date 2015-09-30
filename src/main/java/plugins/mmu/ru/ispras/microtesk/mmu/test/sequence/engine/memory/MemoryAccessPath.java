@@ -304,6 +304,8 @@ public final class MemoryAccessPath {
   private final MmuTransition firstTransition;
   private final MmuTransition lastTransition;
 
+  private MemorySymbolicExecutor.Result symbolicResult; 
+
   public MemoryAccessPath(
       final Collection<MmuTransition> transitions,
       final Collection<MmuAction> actions,
@@ -408,6 +410,18 @@ public final class MemoryAccessPath {
   public BufferAccessEvent getEvent(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
     return events.get(buffer);
+  }
+
+  public boolean hasSymbolicResult() {
+    return symbolicResult != null;
+  }
+
+  public MemorySymbolicExecutor.Result getSymbolicResult() {
+    return symbolicResult;
+  }
+
+  public void setSymbolicResult(final MemorySymbolicExecutor.Result symbolicResult) {
+    this.symbolicResult = symbolicResult;
   }
 
   @Override
