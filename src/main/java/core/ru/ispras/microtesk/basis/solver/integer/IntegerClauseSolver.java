@@ -521,7 +521,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    */
   private Map<IntegerVariable, BigInteger> getSolution(final Mode mode) {
     if (mode == Mode.SAT) {
-      Collections.emptyMap();
+      return Collections.emptyMap();
     }
 
     final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
