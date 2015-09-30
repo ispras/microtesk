@@ -431,7 +431,7 @@ public final class TestEngine {
           Logger.debugHeader("Generating Data for %s", sequenceId);
 
           Logger.debugHeader("Executing %s", sequenceId);
-          executor.executeSequence(concreteSequence, testCaseIndex);
+          sandboxExecution(executor, concreteSequence, testCaseIndex);
 
           final TestSequence selfCheckSequence;
           if (TestSettings.isSelfChecks()) {
@@ -439,7 +439,7 @@ public final class TestEngine {
             selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
 
             Logger.debugHeader("Executing Self-Checks for %s", sequenceId);
-            executor.executeSequence(selfCheckSequence, testCaseIndex);
+            sandboxExecution(executor, selfCheckSequence, testCaseIndex);
           } else {
             selfCheckSequence = null;
           }
@@ -520,6 +520,16 @@ public final class TestEngine {
 
         sequenceIt.next();
       } // Abstract sequence iterator
+    }
+
+    private void sandboxExecution(final Executor exe, final TestSequence s, final int index) {
+      try {
+        exe.executeSequence(s, index);
+      } catch (final Throwable e) {
+        final java.io.StringWriter writer = new java.io.StringWriter();
+        e.printStackTrace(new java.io.PrintWriter(writer));
+        Logger.warning("Simulation failed: %s%n%s", e.getMessage(), writer);
+      }
     }
 
     private void processPreOrPostBlock(
