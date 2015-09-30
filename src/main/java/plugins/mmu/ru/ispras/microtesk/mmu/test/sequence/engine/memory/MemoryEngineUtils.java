@@ -36,6 +36,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -44,6 +45,18 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class MemoryEngineUtils {
   private MemoryEngineUtils() {}
+
+  public static boolean isFeasibleTransition(
+      final MmuTransition transition,
+      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(partialResult);
+
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        solve(transition, partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+
+    return result.getStatus() == SolverResult.Status.SAT;
+  }
 
   public static boolean isFeasiblePath(final MemoryAccessPath path) {
     return isFeasiblePath(path, Collections.<IntegerConstraint<IntegerField>>emptyList());
@@ -131,6 +144,43 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
+  private static Set<IntegerVariable> collectFormulaVariables(
+      final IntegerFormula<IntegerField> formula,
+      final Set<IntegerVariable> variables) {
+    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
+      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
+        variables.add(equation.lhs.getVariable());
+        if (!equation.value) {
+          variables.add(equation.rhs.getVariable());
+        }
+      }
+    }
+
+    return variables;
+  }
+
+  private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
+      final MmuTransition transition,
+      final MemorySymbolicExecutor.Result partialResult /* INOUT */,
+      final IntegerVariableInitializer initializer,
+      final Solver.Mode mode) {
+    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(initializer);
+    InvariantChecks.checkNotNull(mode);
+
+    final MemorySymbolicExecutor symbolicExecutor =
+        new MemorySymbolicExecutor(transition, partialResult, mode == Solver.Mode.MAP);
+    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+
+    final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
+    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
+
+    final IntegerFieldFormulaSolver solver =
+        new IntegerFieldFormulaSolver(variables, formula, initializer);
+
+    return solver.solve(mode);
+  }
+
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MemoryAccessPath path,
       final Collection<IntegerConstraint<IntegerField>> constraints,
@@ -158,21 +208,6 @@ public final class MemoryEngineUtils {
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
     return solver.solve(mode);
-  }
-
-  private static Set<IntegerVariable> collectFormulaVariables(
-      final IntegerFormula<IntegerField> formula,
-      final Set<IntegerVariable> variables) {
-    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
-      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
-        variables.add(equation.lhs.getVariable());
-        if (!equation.value) {
-          variables.add(equation.rhs.getVariable());
-        }
-      }
-    }
-
-    return variables;
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(

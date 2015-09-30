@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -24,6 +23,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
@@ -34,6 +34,19 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 final class MemoryCoverageExtractor {
+  private static final class MemoryAccessPathEntry {
+    final MemoryAccessPath path;
+    final MemorySymbolicExecutor.Result result;
+
+    MemoryAccessPathEntry(final MemoryAccessPath path, final MemorySymbolicExecutor.Result result) {
+      InvariantChecks.checkNotNull(path);
+      InvariantChecks.checkNotNull(result);
+
+      this.path = path;
+      this.result = result;
+    }
+  }
+
   private final MmuSubsystem memory;
 
   public MemoryCoverageExtractor(final MmuSubsystem memory) {
@@ -49,32 +62,36 @@ final class MemoryCoverageExtractor {
    */
   public List<MemoryAccessPath> getPaths(final MemoryAccessType type) {
     final ArrayList<MemoryAccessPath> paths = new ArrayList<>();
-    final List<MmuTransition> out = memory.getTransitions(memory.getStartAction());
+    final ArrayList<MemoryAccessPathEntry> queue = new ArrayList<>();
 
-    if (out != null && !out.isEmpty()) {
-      final List<MemoryAccessPath> queue = new ArrayList<>();
+    final Collection<MmuTransition> outTransitions = memory.getTransitions(memory.getStartAction());
+    InvariantChecks.checkNotNull(outTransitions);
 
-      for (final MmuTransition next : out) {
-        final MmuGuard guard = next.getGuard();
+    for (final MmuTransition transition : outTransitions) {
+      final MmuGuard guard = transition.getGuard();
 
-        if (type == null || guard.getOperation() == type.getOperation()) {
+      if (type == null /* Any operation */ || guard.getOperation() == type.getOperation()) {
+        final MemorySymbolicExecutor.Result result = new MemorySymbolicExecutor.Result();
+
+        if (MemoryEngineUtils.isFeasibleTransition(transition, result /* INOUT */)) {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
-          builder.add(next);
-          queue.add(builder.build());
+          builder.add(transition);
+          queue.add(new MemoryAccessPathEntry(builder.build(), result));
         }
       }
+    }
 
-      while (!queue.isEmpty()) {
-        final MemoryAccessPath path = queue.remove(queue.size() - 1);
-        final List<MemoryAccessPath> prefixes = elongatePath(type, path);
-        if (prefixes == null) {
-          continue;
-        } else if (!prefixes.isEmpty()) {
-          queue.addAll(prefixes);
-        } else {
-          paths.add(path);
-        }
+    while (!queue.isEmpty()) {
+      final MemoryAccessPathEntry entry = queue.remove(queue.size() - 1);
+
+      final Collection<MemoryAccessPathEntry> continuations = elongatePath(type, entry);
+      InvariantChecks.checkNotNull(continuations);
+
+      if (!continuations.isEmpty()) {
+        queue.addAll(continuations);
+      } else {
+        paths.add(entry.path);
       }
     }
 
@@ -98,41 +115,44 @@ final class MemoryCoverageExtractor {
    * Elongates the memory access path.
    * 
    * @param type the memory access type or {@code null}.
-   * @param path the memory access path to be elongated.
-   * @return the list of all possible elongations of the given memory access path,
-             empty list for terminal paths, null for infeasible paths
+   * @param entry the information about the memory access path to be elongated.
+   * @return the collection of all possible continuations of the given memory access path
+   *         (in particular, the empty collection if the path is completed).
    */
-  private List<MemoryAccessPath> elongatePath(
-      final MemoryAccessType type, final MemoryAccessPath path) {
-    InvariantChecks.checkNotNull(path);
+  private Collection<MemoryAccessPathEntry> elongatePath(
+      final MemoryAccessType type, final MemoryAccessPathEntry entry) {
+    InvariantChecks.checkNotNull(entry);
 
-    final MmuTransition last = path.getLastTransition();
-    final MmuAction target = last.getTarget();
-    final List<MmuTransition> out = memory.getTransitions(target);
+    final MemoryAccessPath path = entry.path;
+    final MemorySymbolicExecutor.Result result = entry.result;
 
-    if (!MemoryEngineUtils.isFeasiblePath(path)) {
-      return null;
-    }
+    final MmuTransition lastTransition = path.getLastTransition();
+    final MmuAction targetAction = lastTransition.getTarget();
 
-    if (out != null && !out.isEmpty()) {
-      final List<MemoryAccessPath> elongatedPaths = new ArrayList<>();
+    final Collection<MmuTransition> outTransitions = memory.getTransitions(targetAction);
+    InvariantChecks.checkNotNull(outTransitions);
 
-      for (final MmuTransition next : out) {
-        final MmuGuard guard = next.getGuard();
-        final MemoryOperation operation = guard != null ? guard.getOperation() : null;
+    final Collection<MemoryAccessPathEntry> elongatedEntries = new ArrayList<>();
 
-        if (operation == null || type == null || operation == type.getOperation()) {
+    for (final MmuTransition transition : outTransitions) {
+      final MmuGuard guard = transition.getGuard();
+      final MemoryOperation operation = guard != null ? guard.getOperation() : null;
+
+      if (type == null || operation == null || operation == type.getOperation()) {
+        final MemorySymbolicExecutor.Result resultClone =
+            outTransitions.size() == 1 ? result : new MemorySymbolicExecutor.Result(result);
+
+        if (MemoryEngineUtils.isFeasibleTransition(transition, resultClone)) {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
           builder.addAll(path.getTransitions());
-          builder.add(next);
-
-          elongatedPaths.add(builder.build());
+          builder.add(transition);
+  
+          elongatedEntries.add(new MemoryAccessPathEntry(builder.build(), resultClone));
         }
       }
-
-      return elongatedPaths;
     }
-    return Collections.emptyList();
+
+    return elongatedEntries;
   }
 }

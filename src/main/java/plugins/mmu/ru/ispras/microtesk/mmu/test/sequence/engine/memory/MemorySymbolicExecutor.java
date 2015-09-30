@@ -75,7 +75,7 @@ public final class MemorySymbolicExecutor {
       this.cache = cache;
     }
 
-    Result() {
+    public Result() {
       this(
           new LinkedHashSet<IntegerVariable>(),
           new IntegerFormula<IntegerField>(),
@@ -84,7 +84,7 @@ public final class MemorySymbolicExecutor {
           new HashMap<String, IntegerVariable>());
     }
 
-    Result(final Result r) {
+    public Result(final Result r) {
       this(
           new LinkedHashSet<>(r.variables),
           new IntegerFormula<IntegerField>(r.formula),
@@ -120,7 +120,7 @@ public final class MemorySymbolicExecutor {
     this.path = path;
     this.structure = structure;
 
-    this.result = result != null ? new Result(result) : new Result();
+    this.result = result != null ? result : new Result();
 
     this.includeOriginalVariables = includeOriginalVariables;
   }
