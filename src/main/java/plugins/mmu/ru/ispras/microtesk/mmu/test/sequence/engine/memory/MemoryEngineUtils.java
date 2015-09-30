@@ -194,7 +194,8 @@ public final class MemoryEngineUtils {
     final MemorySymbolicExecutor.Result symbolicResult = path.getSymbolicResult();
 
     final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
-    final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
+    final IntegerFormula<IntegerField> formula = constraints.isEmpty() ?
+        symbolicResult.getFormula() : new IntegerFormula<>(symbolicResult.getFormula());
 
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
