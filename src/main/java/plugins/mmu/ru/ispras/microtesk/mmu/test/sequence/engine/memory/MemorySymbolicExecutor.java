@@ -41,6 +41,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySymbolicExecutor {
+  /**
+   * Result of a symbolic execution.
+   */
   public static final class Result {
     private final Collection<IntegerVariable> variables;
     private final IntegerFormula<IntegerField> formula;
@@ -64,6 +67,7 @@ public final class MemorySymbolicExecutor {
     }
   }
 
+  private final MmuTransition transition;
   private final MemoryAccessPath path;
   private final MemoryAccessStructure structure;
 
@@ -74,12 +78,22 @@ public final class MemorySymbolicExecutor {
 
   /** Maps a variable name to the instance number (it is increased after each assignment). */
   private final Map<String, Integer> variableInstances = new HashMap<>(); 
+
   /** Maps a variable instance name to the corresponding variable. */
   private final Map<String, IntegerVariable> variableCache = new HashMap<>();
+
+  public MemorySymbolicExecutor(final MmuTransition transition) {
+    InvariantChecks.checkNotNull(transition);
+
+    this.transition = transition;
+    this.path = null;
+    this.structure = null;
+  }
 
   public MemorySymbolicExecutor(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
 
+    this.transition = null;
     this.path = path;
     this.structure = null;
   }
@@ -87,6 +101,7 @@ public final class MemorySymbolicExecutor {
   public MemorySymbolicExecutor(final MemoryAccessStructure structure) {
     InvariantChecks.checkNotNull(structure);
 
+    this.transition = null;
     this.path = null;
     this.structure = structure;
   }
@@ -96,7 +111,9 @@ public final class MemorySymbolicExecutor {
     InvariantChecks.checkTrue(variables.isEmpty());
     InvariantChecks.checkTrue(formula.size() == 0);
 
-    if (path != null) {
+    if (transition != null) {
+      execute(transition);
+    } else  if (path != null) {
       execute(path);
     } else {
       execute(structure);
@@ -137,6 +154,11 @@ public final class MemorySymbolicExecutor {
   private void execute(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
     execute(path, -1);
+  }
+
+  private void execute(final MmuTransition transition) {
+    InvariantChecks.checkNotNull(transition);
+    execute(transition, -1);
   }
 
   private void execute(final MemoryAccessPath path, final int pathIndex) {

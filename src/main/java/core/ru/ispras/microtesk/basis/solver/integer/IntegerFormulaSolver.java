@@ -59,15 +59,10 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     this.formula = formula;
   }
 
-  /**
-   * Checks whether the equation formula is satisfiable.
-   * 
-   * TODO: This is a naive preliminary implementation that needs to be improved.
-   * 
-   * @return {@code true} if the equation formula is satisfiable; {@code false} otherwise.
-   */
   @Override
-  public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
+  public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
+    InvariantChecks.checkNotNull(mode);
+
     final IntegerClause<IntegerVariable> kernel =
         new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
     final List<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
@@ -86,7 +81,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
     }
 
     final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
-    final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve(mode);
 
     if (clauses.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
@@ -164,7 +159,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
       }
 
       final IntegerClauseSolver variantSolver = new IntegerClauseSolver(variables, variant);
-      final SolverResult<Map<IntegerVariable, BigInteger>> variantResult = variantSolver.solve();
+      final SolverResult<Map<IntegerVariable, BigInteger>> variantResult = variantSolver.solve(mode);
 
       if (variantResult.getStatus() == SolverResult.Status.SAT) {
         return variantResult;

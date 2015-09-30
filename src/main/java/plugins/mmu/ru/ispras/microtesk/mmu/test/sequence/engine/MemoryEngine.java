@@ -26,6 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
+import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
@@ -252,7 +253,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               structure, customContext, addressAllocator, entryIdAllocator,
               pageMask, align, engineContext.getSettings());
 
-          final SolverResult<MemorySolution> result = solver.solve();
+          final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
           InvariantChecks.checkNotNull(result);
 
           if (result.getStatus() == SolverResult.Status.SAT) {

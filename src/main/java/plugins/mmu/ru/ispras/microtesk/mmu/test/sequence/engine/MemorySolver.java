@@ -132,7 +132,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   @Override
-  public SolverResult<MemorySolution> solve() {
+  public SolverResult<MemorySolution> solve(final Mode mode) {
     solution = new MemorySolution(structure);
 
     SolverResult<MemorySolution> result = null;

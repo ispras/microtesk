@@ -22,6 +22,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
 /**
@@ -61,7 +62,8 @@ public final class IntegerFormulaSolverTestCase {
 
   private static Map<IntegerVariable, BigInteger> check(
       final String id, final IntegerFormula<IntegerVariable> formula, final boolean expected) {
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(formula).solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        getSolver(formula).solve(Solver.Mode.MAP);
 
     System.out.println(id);
     System.out.println(result.getResult());
@@ -75,7 +77,8 @@ public final class IntegerFormulaSolverTestCase {
       final List<IntegerVariable> vars,
       final IntegerFormula<IntegerVariable> formula,
       final boolean expected) {
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = getSolver(vars, formula).solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        getSolver(vars, formula).solve(Solver.Mode.MAP);
 
     System.out.println(id);
     System.out.println(result.getResult());

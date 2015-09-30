@@ -20,5 +20,21 @@ package ru.ispras.microtesk.basis.solver;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Solver<T> {
-  SolverResult<T> solve();
+  /**
+   * {@link Mode} represents a solver mode. 
+   */
+  public static enum Mode {
+    /** SAT/UNSAT. */
+    SAT,
+    /** (SAT, MAP)/UNSAT. */ 
+    MAP
+  };
+
+  /**
+   * Checks whether the equation clause is satisfiable and returns a solution (if required).
+   * 
+   * @param the solver mode.
+   * @return {@code SAT} if the equation clause is satisfiable; {@code UNSAT} otherwise.
+   */
+  SolverResult<T> solve(Mode mode);
 }

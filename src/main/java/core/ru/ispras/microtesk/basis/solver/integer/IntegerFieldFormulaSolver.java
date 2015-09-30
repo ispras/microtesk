@@ -97,6 +97,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formula);
+    InvariantChecks.checkNotNull(initializer);
 
     this.variables = variables;
     this.formula = formula;
@@ -126,12 +127,24 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     }
   }
 
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the variables to be included into a solution.
+   * @param formula the constraint to be solved.
+   */
+  public IntegerFieldFormulaSolver(
+    final Collection<IntegerVariable> variables,
+    final IntegerFormula<IntegerField> formula) {
+    this(variables, formula, IntegerVariableInitializer.ZEROS);
+  }
+
   @Override
-  public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
+  public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
     final IntegerFormula<IntegerVariable> newFormula = getFormula(formula);
 
     final IntegerFormulaSolver solver = new IntegerFormulaSolver(fieldToRange.keySet(), newFormula);
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT) {
       return result;

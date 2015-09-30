@@ -23,6 +23,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
 /**
@@ -198,7 +199,7 @@ public final class IntegerFieldFormulaSolverTestCase {
       final IntegerFieldFormulaSolver solver =
           new IntegerFieldFormulaSolver(variables, formula, IntegerVariableInitializer.RANDOM);
 
-      final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
+      final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
       Assert.assertTrue(result.getErrors().toString(),
           result.getStatus() == SolverResult.Status.SAT);
 

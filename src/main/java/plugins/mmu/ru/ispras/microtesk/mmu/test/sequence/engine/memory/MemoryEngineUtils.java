@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
@@ -55,7 +56,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(constraints);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, constraints, IntegerVariableInitializer.ZEROS);
+        solve(path, constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -115,7 +116,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, constraints, initializer);
+        solve(path, constraints, initializer, Solver.Mode.MAP);
 
     // Solution contains only such variables that are used in the path.
     return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
@@ -125,7 +126,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(structure);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(structure, IntegerVariableInitializer.ZEROS);
+        solve(structure, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -133,10 +134,12 @@ public final class MemoryEngineUtils {
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MemoryAccessPath path,
       final Collection<IntegerConstraint<IntegerField>> constraints,
-      final IntegerVariableInitializer initializer) {
+      final IntegerVariableInitializer initializer,
+      final Solver.Mode mode) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
+    InvariantChecks.checkNotNull(mode);
 
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
@@ -153,7 +156,7 @@ public final class MemoryEngineUtils {
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
-    return solver.solve();
+    return solver.solve(mode);
   }
 
   private static Set<IntegerVariable> collectFormulaVariables(
@@ -172,8 +175,11 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MemoryAccessStructure structure,
-      final IntegerVariableInitializer initializer) {
+      final IntegerVariableInitializer initializer,
+      final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);
+    InvariantChecks.checkNotNull(initializer);
+    InvariantChecks.checkNotNull(mode);
 
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(structure);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
@@ -184,6 +190,6 @@ public final class MemoryEngineUtils {
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
-    return solver.solve();
+    return solver.solve(mode);
   }
 }

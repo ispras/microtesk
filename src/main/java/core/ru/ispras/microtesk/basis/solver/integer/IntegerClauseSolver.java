@@ -55,7 +55,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @throws IllegalArgumentException if some parameters are null.
    */
   public IntegerClauseSolver(
-      final Collection<IntegerVariable> variables, final IntegerClause<IntegerVariable> clause) {
+      final Collection<IntegerVariable> variables,
+      final IntegerClause<IntegerVariable> clause) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(clause);
 
@@ -89,22 +90,13 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     }
   }
 
-  /**
-   * Checks whether the equation clause is satisfiable.
-   * 
-   * @return {@code true} if the equation clause is satisfiable; {@code false} otherwise.
-   */
   @Override
-  public SolverResult<Map<IntegerVariable, BigInteger>> solve() {
-    return clause.getType() == IntegerClause.Type.OR ? solveOrClause() : solveAndClause();
+  public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
+    InvariantChecks.checkNotNull(mode);
+    return clause.getType() == IntegerClause.Type.OR ? solveOrClause(mode) : solveAndClause(mode);
   }
 
-  /**
-   * Checks whether the OR clause is satisfiable.
-   * 
-   * @return {@code true} if the OR clause is satisfiable; {@code false} otherwise.
-   */
-  private SolverResult<Map<IntegerVariable, BigInteger>> solveOrClause() {
+  private SolverResult<Map<IntegerVariable, BigInteger>> solveOrClause(final Mode mode) {
     InvariantChecks.checkTrue(clause.getType() == IntegerClause.Type.OR);
 
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
@@ -114,7 +106,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       variant.addEquation(equation);
 
       final IntegerClauseSolver solver =  new IntegerClauseSolver(variables, variant);
-      final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve();
+      final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
       if (result.getStatus() == SolverResult.Status.SAT) {
         return result;
@@ -124,12 +116,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     return new SolverResult<>("UNSAT");
   }
 
-  /**
-   * Checks whether the AND clause is satisfiable.
-   * 
-   * @return {@code true} if the AND clause is satisfiable; {@code false} otherwise.
-   */
-  private SolverResult<Map<IntegerVariable, BigInteger>> solveAndClause() {
+  private SolverResult<Map<IntegerVariable, BigInteger>> solveAndClause(final Mode mode) {
     InvariantChecks.checkTrue(clause.getType() == IntegerClause.Type.AND);
 
     domains.clear();
@@ -163,7 +150,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
     }
 
-    return solveInequalities();
+    return solveInequalities(mode);
   }
 
   /**
@@ -270,16 +257,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     }
   }
 
-  /**
-   * Checks whether the set of inequalities is satisfiable.
-   * 
-   * @param equations the set of inequalities.
-   * @return {@code true} if the constraint is satisfiable; {@code false} otherwise.
-   */
-  private SolverResult<Map<IntegerVariable, BigInteger>> solveInequalities() {
+  private SolverResult<Map<IntegerVariable, BigInteger>> solveInequalities(final Mode mode) {
     // If the set of inequalities is empty, it is satisfiable.
     if (notEqualTo.isEmpty()) {
-      return new SolverResult<>(getSolution());
+      return new SolverResult<>(getSolution(mode));
     }
 
     final Set<IntegerVariable> variables = new LinkedHashSet<>(notEqualTo.keySet());
@@ -323,7 +304,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     }
 
     if (simple) {
-      return new SolverResult<>(getSolution());
+      return new SolverResult<>(getSolution(mode));
     }
 
     // This code needs to be optimized.
@@ -336,7 +317,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       InvariantChecks.checkTrue(iterator.hasValue());
       problem.domains.put(minDomainVar, new IntegerDomain(iterator.value()));
 
-      final SolverResult<Map<IntegerVariable, BigInteger>> result = problem.solveInequalities();
+      final SolverResult<Map<IntegerVariable, BigInteger>> result = problem.solveInequalities(mode);
 
       if (result.getStatus() == SolverResult.Status.SAT) {
         return result;
@@ -535,9 +516,14 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * 
    * TODO: Randomization is required.
    * 
+   * @param mode the solver mode.
    * @return a possible variable-to-value mapping.
    */
-  private Map<IntegerVariable, BigInteger> getSolution() {
+  private Map<IntegerVariable, BigInteger> getSolution(final Mode mode) {
+    if (mode == Mode.SAT) {
+      Collections.emptyMap();
+    }
+
     final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
 
     for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
