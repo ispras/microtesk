@@ -138,16 +138,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       return new SolverResult<>("UNSAT");
     }
 
-    encloseEqualityRelation();
-
-    // Choose one representative from each equivalent classes and perform replacement.
-    for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : equalTo.entrySet()) {
-      final IntegerVariable var = entry.getKey();
-      final Set<IntegerVariable> equalVars = entry.getValue();
-
-      if (!handleEqualities(var, equalVars)) {
-        return new SolverResult<>("UNSAT");
-      }
+    if (!solveEqualities()) {
+      return new SolverResult<>("UNSAT");
     }
 
     return solveInequalities(mode);
@@ -211,14 +203,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     return !lhsDomain.isEmpty();
   }
 
-  /**
-   * Produces the transitive closure of the equal-to relation.
-   * 
-   * <p>Actually, it constructs a part of the closure: symmetrical cases are thrown away.</p>
-   */
-  private void encloseEqualityRelation() {
+  private boolean solveEqualities() {
     final Set<IntegerVariable> cloneVars = new HashSet<>(variables.size());
 
+    // Construct a part of the transitive closure (symmetrical cases are thrown away).
     for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : equalTo.entrySet()) {
       final IntegerVariable var = entry.getKey();
 
@@ -249,12 +237,19 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         equalVars = newEqualVars;
       }
 
+      // Choose one representative from each equivalent classes and perform replacement.
+      if (!handleEqualities(var, allEqualVars)) {
+        return false;
+      }
+
       cloneVars.addAll(allEqualVars);
     }
 
     for (final IntegerVariable cloneVar : cloneVars) {
       equalTo.remove(cloneVar);
     }
+
+    return true;
   }
 
   private SolverResult<Map<IntegerVariable, BigInteger>> solveInequalities(final Mode mode) {
