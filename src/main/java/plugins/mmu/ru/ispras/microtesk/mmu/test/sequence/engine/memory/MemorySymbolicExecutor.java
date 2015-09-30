@@ -45,17 +45,52 @@ public final class MemorySymbolicExecutor {
    * Result of a symbolic execution.
    */
   public static final class Result {
-    private final Collection<IntegerVariable> variables;
-    private final IntegerFormula<IntegerField> formula;
+    final Collection<IntegerVariable> variables;
+    final IntegerFormula<IntegerField> formula;
 
-    public Result(
+    /** Contains original variables. */
+    final Collection<IntegerVariable> originals;
+    /** Maps a variable name to the instance number (it is increased after each assignment). */
+    final Map<String, Integer> instances;
+    /** Maps a variable instance name to the corresponding variable. */
+    final Map<String, IntegerVariable> cache;
+
+    Result(
         final Collection<IntegerVariable> variables,
-        final IntegerFormula<IntegerField> formula) {
+        final IntegerFormula<IntegerField> formula,
+        final Collection<IntegerVariable> originals,
+        final Map<String, Integer> instances,
+        final Map<String, IntegerVariable> cache) {
       InvariantChecks.checkNotNull(variables);
       InvariantChecks.checkNotNull(formula);
+      InvariantChecks.checkNotNull(originals);
+      InvariantChecks.checkNotNull(instances);
+      InvariantChecks.checkNotNull(cache);
 
       this.variables = variables;
       this.formula = formula;
+
+      this.originals = originals;
+      this.instances = instances;
+      this.cache = cache;
+    }
+
+    Result() {
+      this(
+          new LinkedHashSet<IntegerVariable>(),
+          new IntegerFormula<IntegerField>(),
+          new LinkedHashSet<IntegerVariable>(),
+          new HashMap<String, Integer>(),
+          new HashMap<String, IntegerVariable>());
+    }
+
+    Result(final Result r) {
+      this(
+          new LinkedHashSet<>(r.variables),
+          new IntegerFormula<IntegerField>(r.formula),
+          new LinkedHashSet<>(r.originals),
+          new HashMap<>(r.instances),
+          new HashMap<>(r.cache));
     }
 
     public Collection<IntegerVariable> getVariables() {
@@ -71,65 +106,69 @@ public final class MemorySymbolicExecutor {
   private final MemoryAccessPath path;
   private final MemoryAccessStructure structure;
 
-  private final Collection<IntegerVariable> originals = new LinkedHashSet<>();
-  private final Collection<IntegerVariable> variables = new LinkedHashSet<>();
+  private final boolean includeOriginalVariables;
 
-  private final IntegerFormula<IntegerField> formula = new IntegerFormula<>();
+  private final Result result;
 
-  /** Maps a variable name to the instance number (it is increased after each assignment). */
-  private final Map<String, Integer> variableInstances = new HashMap<>(); 
-
-  /** Maps a variable instance name to the corresponding variable. */
-  private final Map<String, IntegerVariable> variableCache = new HashMap<>();
-
-  public MemorySymbolicExecutor(final MmuTransition transition) {
-    InvariantChecks.checkNotNull(transition);
-
+  private MemorySymbolicExecutor(
+      final MmuTransition transition,
+      final MemoryAccessPath path,
+      final MemoryAccessStructure structure,
+      final Result result,
+      final boolean includeOriginalVariables) {
     this.transition = transition;
-    this.path = null;
-    this.structure = null;
-  }
-
-  public MemorySymbolicExecutor(final MemoryAccessPath path) {
-    InvariantChecks.checkNotNull(path);
-
-    this.transition = null;
     this.path = path;
-    this.structure = null;
+    this.structure = structure;
+
+    this.result = result != null ? new Result(result) : new Result();
+
+    this.includeOriginalVariables = includeOriginalVariables;
   }
 
-  public MemorySymbolicExecutor(final MemoryAccessStructure structure) {
-    InvariantChecks.checkNotNull(structure);
+  public MemorySymbolicExecutor(
+      final MmuTransition transition,
+      final Result result,
+      final boolean includeOriginalVariables) {
+    this(transition, null, null, result, includeOriginalVariables);
+  }
 
-    this.transition = null;
-    this.path = null;
-    this.structure = structure;
+  public MemorySymbolicExecutor(
+      final MemoryAccessPath path, final boolean includeOriginalVariables) {
+    this(null, path, null, null, includeOriginalVariables);
+  }
+
+  public MemorySymbolicExecutor(
+      final MemoryAccessStructure structure, final boolean includeOriginalVariables) {
+    this(null, null, structure, null, includeOriginalVariables);
   }
 
   public Result execute() {
-    InvariantChecks.checkTrue((path == null) !=(structure == null));
-    InvariantChecks.checkTrue(variables.isEmpty());
-    InvariantChecks.checkTrue(formula.size() == 0);
-
     if (transition != null) {
+      InvariantChecks.checkTrue(path == null && structure == null);
       execute(transition);
-    } else  if (path != null) {
+    } else if (path != null) {
+      InvariantChecks.checkTrue(transition == null && structure == null);
       execute(path);
-    } else {
+    } else if (structure != null) {
+      InvariantChecks.checkTrue(transition == null && path == null);
       execute(structure);
+    } else {
+      InvariantChecks.checkTrue(false);
     }
 
-    // Add the constraints of the kind V = V(n), where n is the last instance number of V.
-    variables.addAll(originals);
+    if (includeOriginalVariables) {
+      // Add the constraints of the kind V = V(n), where n is the last instance number of V.
+      result.variables.addAll(result.originals);
 
-    for (final IntegerVariable original : originals) {
-      final IntegerField lhs = new IntegerField(original);
-      final IntegerField rhs = new IntegerField(getPathVarInstance(original.getName()));
+      for (final IntegerVariable original : result.originals) {
+        final IntegerField lhs = new IntegerField(original);
+        final IntegerField rhs = new IntegerField(getPathVarInstance(original.getName()));
 
-      formula.addEquation(lhs, rhs, true);
+        result.formula.addEquation(lhs, rhs, true);
+      }
     }
 
-    return new Result(variables, formula);
+    return result;
   }
 
   private void execute(final MemoryAccessStructure structure) {
@@ -212,14 +251,14 @@ public final class MemorySymbolicExecutor {
 
         clause.addEquation(field1, field2, !atom.isNegated());
 
-        variables.add(field1.getVariable());
-        originals.add(getPathVar(term.getVariable(), pathIndex1));
+        result.variables.add(field1.getVariable());
+        result.originals.add(getPathVar(term.getVariable(), pathIndex1));
 
-        variables.add(field2.getVariable());
-        originals.add(getPathVar(term.getVariable(), pathIndex2));
+        result.variables.add(field2.getVariable());
+        result.originals.add(getPathVar(term.getVariable(), pathIndex2));
       }
 
-      formula.addClause(clause);
+      result.formula.addClause(clause);
     }
   }
 
@@ -294,11 +333,11 @@ public final class MemorySymbolicExecutor {
         clause.addEquation(field, value, !atom.isNegated());
         offset += term.getWidth();
 
-        variables.add(field.getVariable());
-        originals.add(getPathVar(term.getVariable(), pathIndex));
+        result.variables.add(field.getVariable());
+        result.originals.add(getPathVar(term.getVariable(), pathIndex));
       }
 
-      formula.addClause(clause);
+      result.formula.addClause(clause);
     }
   }
 
@@ -313,12 +352,12 @@ public final class MemorySymbolicExecutor {
 
       final IntegerVariable prevLhsVar = getPathVarInstance(lhs.getVariable(), pathIndex);
 
-      variables.add(prevLhsVar);
-      originals.add(getPathVar(lhs.getVariable(), pathIndex));
+      result.variables.add(prevLhsVar);
+      result.originals.add(getPathVar(lhs.getVariable(), pathIndex));
 
       if (rhs != null) {
         final IntegerVariable nextLhsVar = getNextPathVarInstance(lhs.getVariable(), pathIndex);
-        variables.add(nextLhsVar);
+        result.variables.add(nextLhsVar);
 
         if (lhs.getLoIndex() > 0) {
           clause.addEquation(
@@ -343,8 +382,8 @@ public final class MemorySymbolicExecutor {
           clause.addEquation(new IntegerField(nextLhsVar, lo, hi), field, true);
           offset += field.getWidth();
 
-          variables.add(field.getVariable());
-          originals.add(getPathVar(term.getVariable(), pathIndex));
+          result.variables.add(field.getVariable());
+          result.originals.add(getPathVar(term.getVariable(), pathIndex));
         }
 
         if (offset <= lhs.getHiIndex()) {
@@ -359,7 +398,7 @@ public final class MemorySymbolicExecutor {
     } // for each binding.
 
     if (clause.size() != 0) {
-      formula.addClause(clause);
+      result.formula.addClause(clause);
     }
   }
 
@@ -374,7 +413,7 @@ public final class MemorySymbolicExecutor {
 
   private int getPathVarNumber(final String pathVarName) {
     InvariantChecks.checkNotNull(pathVarName);
-    return variableInstances.containsKey(pathVarName) ? variableInstances.get(pathVarName) : 0;
+    return result.instances.containsKey(pathVarName) ? result.instances.get(pathVarName) : 0;
   }
 
   private IntegerVariable getPathVarInstance(final String pathVarName) {
@@ -383,14 +422,14 @@ public final class MemorySymbolicExecutor {
     final int n = getPathVarNumber(pathVarName);
     final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
 
-    return variableCache.get(pathVarInstanceName);
+    return result.cache.get(pathVarInstanceName);
   }
 
   private void definePathVarInstance(final String pathVarName) {
     InvariantChecks.checkNotNull(pathVarName);
 
     final int n = getPathVarNumber(pathVarName);
-    variableInstances.put(pathVarName, n + 1);
+    result.instances.put(pathVarName, n + 1);
   }
 
   private IntegerVariable getPathVar(final IntegerVariable var, final int pathIndex) {
@@ -442,9 +481,9 @@ public final class MemorySymbolicExecutor {
       final String varInstanceName, final int width, final BigInteger value) {
     InvariantChecks.checkNotNull(varInstanceName);
 
-    IntegerVariable varInstance = variableCache.get(varInstanceName);
+    IntegerVariable varInstance = result.cache.get(varInstanceName);
     if (varInstance == null) {
-      variableCache.put(varInstanceName,
+      result.cache.put(varInstanceName,
           varInstance = new IntegerVariable(varInstanceName, width, value));
     }
 

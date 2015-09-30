@@ -141,7 +141,8 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path);
+    final MemorySymbolicExecutor symbolicExecutor =
+        new MemorySymbolicExecutor(path, mode == Solver.Mode.MAP);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
     final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
@@ -170,6 +171,7 @@ public final class MemoryEngineUtils {
         }
       }
     }
+
     return variables;
   }
 
@@ -181,7 +183,8 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(structure);
+    final MemorySymbolicExecutor symbolicExecutor =
+        new MemorySymbolicExecutor(structure, mode == Solver.Mode.MAP);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();

@@ -113,6 +113,7 @@ final class MemoryCoverageExtractor {
     if (!MemoryEngineUtils.isFeasiblePath(path)) {
       return null;
     }
+
     if (out != null && !out.isEmpty()) {
       final List<MemoryAccessPath> elongatedPaths = new ArrayList<>();
 
