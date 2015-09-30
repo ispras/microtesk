@@ -17,6 +17,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -151,7 +152,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     }
 
     final Map<IntegerVariable, BigInteger> newSolution = result.getResult();
-    final Map<IntegerVariable, BigInteger> oldSolution = getSolution(newSolution);
+    final Map<IntegerVariable, BigInteger> oldSolution = getSolution(mode, newSolution);
 
     return new SolverResult<Map<IntegerVariable, BigInteger>>(oldSolution);
   }
@@ -450,7 +451,6 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final int hi = newRange.getMax().intValue() - oldLhs.getLoIndex();;
 
       final BigInteger newRhs = BitUtils.getField(oldRhs, lo, hi);
-
       newClause.addEquation(newLhs, newRhs, oldEqual);
     }
 
@@ -458,8 +458,13 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   }
 
   private Map<IntegerVariable, BigInteger> getSolution(
-      final Map<IntegerVariable, BigInteger> newSolution) {
+      final Mode mode, final Map<IntegerVariable, BigInteger> newSolution) {
+    InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(newSolution);
+
+    if (mode == Mode.SAT) {
+      return Collections.emptyMap();
+    }
 
     final Map<IntegerVariable, BigInteger> oldSolution = new LinkedHashMap<>();
 
@@ -471,7 +476,9 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       if (fields != null) {
         for (final IntegerVariable field : fields) {
           final IntegerRange fieldRange = fieldToRange.get(field);
+
           final BigInteger fieldValue = newSolution.get(field);
+          InvariantChecks.checkNotNull(fieldValue);
 
           final int lo = fieldRange.getMin().intValue();
           final int hi = fieldRange.getMax().intValue();
