@@ -159,6 +159,6 @@ final class MemoryCoverageExtractor {
       }
     }
 
-    return elongatedEntries.isEmpty() ? elongatedEntries : null;
+    return elongatedEntries.isEmpty() ? null : elongatedEntries;
   }
 }
