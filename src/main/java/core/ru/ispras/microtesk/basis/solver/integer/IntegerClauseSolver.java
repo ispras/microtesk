@@ -174,8 +174,9 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     final IntegerDomain lhsDomain = domains.get(equation.lhs);
 
     if (equation.value) {
-      // Constraint X == C or X != C.
-      InvariantChecks.checkNotNull(lhsDomain, "The variable has not been declared");
+      // Constraint (X == C) or (X != C).
+      InvariantChecks.checkNotNull(lhsDomain, String.format(
+          "The variable has not been declared: %s", equation.lhs));
 
       if (equation.equal) {
         // Equality (X == C): restricts the domain to the single value.
@@ -185,20 +186,25 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         lhsDomain.exclude(new IntegerRange(equation.val));
       }
     } else {
-      final IntegerDomain rhsDomain = domains.get(equation.rhs);
-
-      // Constraint X == Y or X != Y.
+      // Constraint (X == Y) or (X != Y).
       if (equation.lhs.equals(equation.rhs)) {
         if (!equation.equal) {
           lhsDomain.set(IntegerDomain.EMPTY);
         }
       } else {
-        InvariantChecks.checkTrue(lhsDomain != null && rhsDomain != null,
-            "The variable has not been declared");
+        final IntegerDomain rhsDomain = domains.get(equation.rhs);
 
-        // The equal-to and not-equal-to maps are symmetrical.
-        updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.lhs, equation.rhs);
-        updateVariableMap((equation.equal ? equalTo : notEqualTo), equation.rhs, equation.lhs);
+        InvariantChecks.checkTrue(lhsDomain != null && rhsDomain != null, String.format(
+            "The variable has not been declared: %s or %s", equation.lhs, equation.rhs));
+
+        // The relations are symmetrical.
+        if (equation.equal) {
+          updateVariableMap(equalTo, equation.lhs, equation.rhs);
+          updateVariableMap(equalTo, equation.rhs, equation.lhs);
+        } else {
+          updateVariableMap(notEqualTo, equation.lhs, equation.rhs);
+          updateVariableMap(notEqualTo, equation.rhs, equation.lhs);
+        }
       }
     }
 
@@ -211,13 +217,11 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     // Construct a part of the transitive closure (symmetrical cases are thrown away).
     for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : equalTo.entrySet()) {
       final IntegerVariable var = entry.getKey();
+      final Set<IntegerVariable> allEqualVars = entry.getValue();
 
       if (cloneVars.contains(var)) {
         continue;
       }
-
-      final Set<IntegerVariable> allEqualVars = equalTo.get(var);
-      InvariantChecks.checkNotNull(allEqualVars);
 
       Set<IntegerVariable> equalVars = allEqualVars;
       while (!equalVars.isEmpty()) {

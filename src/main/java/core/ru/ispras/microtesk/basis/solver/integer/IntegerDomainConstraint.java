@@ -16,6 +16,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -38,36 +39,61 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
   private final V variable;
   private final Set<BigInteger> values;
 
+  private final IntegerFormula<V> formula;
+
   public IntegerDomainConstraint(
       final Type type,
       final V variable,
+      final Set<BigInteger> domain,
       final Set<BigInteger> values) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkNotEmpty(values);
+    // Parameter {@code domain} can be null.
 
     this.type = type;
     this.variable = variable;
     this.values = values;
+
+    final boolean inverse = (domain != null) && (domain.size() < 2 * values.size());
+
+    final Type effectiveType;
+    final Set<BigInteger> effectiveValues;
+
+    if (inverse) {
+      effectiveType = type == Type.RETAIN ? Type.EXCLUDE : Type.RETAIN;
+      effectiveValues = new LinkedHashSet<>(domain);
+      effectiveValues.removeAll(values);
+    } else {
+      effectiveType = type;
+      effectiveValues = values;
+    }
+
+    // Construct the constraint formula.
+    this.formula = new IntegerFormula<>();
+
+    final IntegerClause<V> clause = new IntegerClause<>(
+        effectiveType == Type.RETAIN ? IntegerClause.Type.OR : IntegerClause.Type.AND);
+
+    for (final BigInteger value : effectiveValues) {
+      clause.addEquation(variable, value, effectiveType == Type.RETAIN);
+    }
+
+    this.formula.addClause(clause);
   }
 
   public IntegerDomainConstraint(
       final V variable,
+      final Set<BigInteger> domain,
       final Set<BigInteger> values) {
-    this(Type.RETAIN, variable, values);
-  }
-
-  public IntegerDomainConstraint(
-      final Type type,
-      final V variable,
-      final BigInteger value) {
-    this(type, variable, Collections.singleton(value));
+    this(Type.RETAIN, variable, domain, values);
   }
 
   public IntegerDomainConstraint(
       final V variable,
       final BigInteger value) {
-    this(Type.RETAIN, variable, Collections.singleton(value));
+    this(variable, null, Collections.singleton(value));
   }
 
   public Type getType() {
@@ -84,22 +110,11 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
 
   @Override
   public IntegerFormula<V> getFormula() {
-    final IntegerFormula<V> formula = new IntegerFormula<>();
-
-    final IntegerClause<V> clause = new IntegerClause<>(
-        type == Type.RETAIN ? IntegerClause.Type.OR : IntegerClause.Type.AND);
-
-    for (final BigInteger value : values) {
-      clause.addEquation(variable, value, type == Type.RETAIN);
-    }
-
-    formula.addClause(clause);
-
     return formula;
   }
 
   @Override
   public String toString() {
-    return getFormula().toString();
+    return formula.toString();
   }
 }

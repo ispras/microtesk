@@ -40,11 +40,17 @@ public final class MmuSettingsUtils extends GeneratorSettings {
 
   private static final MmuSubsystem memory = MmuPlugin.getSpecification();
 
+  private static Collection<IntegerConstraint<IntegerField>> constraints = null;
+
   public static Collection<IntegerConstraint<IntegerField>> getConstraints(
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
-    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+    if (constraints != null) {
+      return constraints;
+    }
+
+    constraints = new ArrayList<>();
 
     final Collection<AbstractSettings> integerValuesSettings =
         settings.get(IntegerValuesSettings.TAG);
@@ -91,11 +97,14 @@ public final class MmuSettingsUtils extends GeneratorSettings {
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
-    final Set<BigInteger> include = settings.getIncludeValues();
-    InvariantChecks.checkNotNull(include);
+    final Set<BigInteger> domain = settings.getPossibleValues();
+    InvariantChecks.checkNotNull(domain);
 
     final Set<BigInteger> exclude = settings.getExcludeValues();
     InvariantChecks.checkNotNull(exclude);
+
+    final Set<BigInteger> include = settings.getIncludeValues();
+    InvariantChecks.checkNotNull(include);
 
     InvariantChecks.checkTrue(include.isEmpty() || exclude.isEmpty());
 
@@ -108,6 +117,7 @@ public final class MmuSettingsUtils extends GeneratorSettings {
             IntegerDomainConstraint.Type.EXCLUDE :
             IntegerDomainConstraint.Type.RETAIN,
         new IntegerField(variable),
+        domain,
         include.isEmpty() ?
             exclude :
             include); 
@@ -127,20 +137,23 @@ public final class MmuSettingsUtils extends GeneratorSettings {
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
-    final Set<Boolean> values = settings.getValues();
-    InvariantChecks.checkTrue(values != null && !values.isEmpty());
+    final Set<Boolean> booleanValues = settings.getValues();
+    InvariantChecks.checkTrue(booleanValues != null && !booleanValues.isEmpty());
 
-    if (values.size() == 2) {
+    if (booleanValues.size() == 2) {
       return null /* TRUE */;
     }
 
-    final Set<BigInteger> domain = new LinkedHashSet<>();
+    final Set<BigInteger> values = new LinkedHashSet<>();
 
-    for (final boolean value : values) {
-      domain.add(value ? BigInteger.ONE : BigInteger.ZERO);
+    for (final boolean value : booleanValues) {
+      values.add(value ? BigInteger.ONE : BigInteger.ZERO);
     }
 
     return new IntegerDomainConstraint<IntegerField>(
-        IntegerDomainConstraint.Type.RETAIN, new IntegerField(variable), domain); 
+        IntegerDomainConstraint.Type.RETAIN,
+        new IntegerField(variable),
+        null,
+        values); 
   }
 }

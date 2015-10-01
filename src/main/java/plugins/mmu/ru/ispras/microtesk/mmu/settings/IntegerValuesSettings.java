@@ -55,6 +55,24 @@ public final class IntegerValuesSettings extends AbstractSettings {
     return name;
   }
 
+  public BigInteger getMin() {
+    return min;
+  }
+
+  public BigInteger getMax() {
+    return max;
+  }
+
+  public Set<BigInteger> getPossibleValues() {
+    final Set<BigInteger> values = new LinkedHashSet<>();
+
+    for (BigInteger i = min; i.compareTo(max) <= 0; i = i.add(BigInteger.ONE)) {
+      values.add(i);
+    }
+
+    return values;
+  }
+
   public Set<BigInteger> getIncludeValues() {
     return include;
   }
@@ -64,14 +82,10 @@ public final class IntegerValuesSettings extends AbstractSettings {
   }
 
   public Set<BigInteger> getValues() {
-    final Set<BigInteger> values = new LinkedHashSet<>();
+    final Set<BigInteger> values = getPossibleValues();
 
-    for (BigInteger i = min; i.compareTo(max) <= 0; i = i.add(BigInteger.ONE)) {
-      values.add(i);
-    }
-
-    values.addAll(include);
-    values.removeAll(exclude);
+    values.addAll(getIncludeValues());
+    values.removeAll(getExcludeValues());
 
     return values;
   }
