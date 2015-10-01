@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -139,9 +139,10 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  private static Set<IntegerVariable> collectFormulaVariables(
-      final IntegerFormula<IntegerField> formula,
-      final Set<IntegerVariable> variables) {
+  private static Collection<IntegerVariable> collectFormulaVariables(
+      final IntegerFormula<IntegerField> formula) {
+    final Collection<IntegerVariable> variables = new LinkedHashSet<>();
+
     for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
       for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
         variables.add(equation.lhs.getVariable());
@@ -167,7 +168,7 @@ public final class MemoryEngineUtils {
         new MemorySymbolicExecutor(transition, partialResult, mode == Solver.Mode.MAP);
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
-    final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
+    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
     final IntegerFieldFormulaSolver solver =
@@ -193,18 +194,25 @@ public final class MemoryEngineUtils {
 
     final MemorySymbolicExecutor.Result symbolicResult = path.getSymbolicResult();
 
-    final Set<IntegerVariable> variables = new HashSet<>(symbolicResult.getVariables());
-    final IntegerFormula<IntegerField> formula = constraints.isEmpty() ?
-        symbolicResult.getFormula() : new IntegerFormula<>(symbolicResult.getFormula());
+    final int collectionSize = constraints.size() + 1;
+
+    final Collection<Collection<IntegerVariable>> variables = new ArrayList<>(collectionSize);
+    variables.add(symbolicResult.getVariables());
+
+    final Collection<IntegerFormula<IntegerField>> formulae = new ArrayList<>(collectionSize);
+    formulae.add(symbolicResult.getFormula());
 
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
-      formula.addConstraint(constraint);
-      collectFormulaVariables(constraint.getFormula(), variables);
+      final IntegerFormula<IntegerField> formula = constraint.getFormula();
+      final Collection<IntegerVariable> collection = collectFormulaVariables(formula);
+
+      variables.add(collection);
+      formulae.add(formula);
     }
 
     final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formula, initializer);
+        new IntegerFieldFormulaSolver(variables, formulae, initializer);
 
     return solver.solve(mode);
   }

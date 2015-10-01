@@ -34,10 +34,10 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, BigInteger>> {
+  /** Variables to be put into a solution (unmodifiable). */
+  private final Collection<Collection<IntegerVariable>> variables;
   /** Equation clause to be solved (unmodifiable). */
   private final IntegerClause<IntegerVariable> clause;
-  /** Variables to be put into a solution (unmodifiable). */
-  private final Collection<IntegerVariable> variables;
 
   /** Variables with their domains (modified by the solver). */
   private final Map<IntegerVariable, IntegerDomain> domains = new LinkedHashMap<>();
@@ -55,7 +55,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @throws IllegalArgumentException if some parameters are null.
    */
   public IntegerClauseSolver(
-      final Collection<IntegerVariable> variables,
+      final Collection<Collection<IntegerVariable>> variables,
       final IntegerClause<IntegerVariable> clause) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(clause);
@@ -123,8 +123,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     equalTo.clear();
     notEqualTo.clear();
 
-    for (final IntegerVariable variable : variables) {
-      addVariable(variable);
+    for (final Collection<IntegerVariable> collection : variables) {
+      for (final IntegerVariable variable : collection) {
+        addVariable(variable);
+      }
     }
 
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
@@ -343,7 +345,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param var the variable to be used instead of {@code var1, ..., varN}.
    * @return {@code false} if the equalities are definitely unsatisfiable; {@code true} otherwise.
    */
-  private boolean handleEqualities(final IntegerVariable var, final Set<IntegerVariable> equalVars) {
+  private boolean handleEqualities(
+      final IntegerVariable var, final Set<IntegerVariable> equalVars) {
     InvariantChecks.checkNotNull(var);
     InvariantChecks.checkNotNull(equalVars);
     InvariantChecks.checkNotEmpty(equalVars);

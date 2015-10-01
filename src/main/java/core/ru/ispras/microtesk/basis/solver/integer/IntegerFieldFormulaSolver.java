@@ -65,9 +65,10 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   }
 
   /** Variables used in the formula. */
-  private final Collection<IntegerVariable> variables;
+  private final Collection<Collection<IntegerVariable>> variables;
   /** Formula (constraint) to be solved. */
-  private final IntegerFormula<IntegerField> formula;
+  private final Collection<IntegerFormula<IntegerField>> formulae;
+
   /** Initializer used to fill the unused fields of the variables. */
   private final IntegerVariableInitializer initializer;
 
@@ -89,24 +90,25 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
    * Constructs a solver.
    * 
    * @param variables the variables to be included into a solution.
-   * @param formula the constraint to be solved.
+   * @param formulae the constraints to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
-    final Collection<IntegerVariable> variables,
-    final IntegerFormula<IntegerField> formula,
+    final Collection<Collection<IntegerVariable>> variables,
+    final Collection<IntegerFormula<IntegerField>> formulae,
     final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(variables);
-    InvariantChecks.checkNotNull(formula);
+    InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    this.variables = variables;
-    this.formula = formula;
+    this.variables = Collections.unmodifiableCollection(variables);
+    this.formulae = Collections.unmodifiableCollection(formulae);
+
     this.initializer = initializer;
 
     // Initialize auxiliary data structures.
     this.linkedWith = new LinkedHashMap<>();
-    this.dividedRanges = getDividedRanges(formula);
+    this.dividedRanges = getDividedRanges(formulae);
 
     this.varToFields = new LinkedHashMap<>();
     this.fieldToRange = new LinkedHashMap<>();
@@ -132,19 +134,48 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
    * Constructs a solver.
    * 
    * @param variables the variables to be included into a solution.
+   * @param formulae the constraints to be solved.
+   */
+  public IntegerFieldFormulaSolver(
+    final Collection<Collection<IntegerVariable>> variables,
+    final Collection<IntegerFormula<IntegerField>> formulae) {
+    this(variables, formulae, IntegerVariableInitializer.ZEROS);
+  }
+
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the variables to be included into a solution.
+   * @param formula the constraint to be solved.
+   * @param initializer the initializer to be used to fill the unused fields. 
+   */
+  public IntegerFieldFormulaSolver(
+    final Collection<IntegerVariable> variables,
+    final IntegerFormula<IntegerField> formula,
+    final IntegerVariableInitializer initializer) {
+    this(Collections.singleton(variables), Collections.singleton(formula), initializer);
+  }
+
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the variables to be included into a solution.
    * @param formula the constraint to be solved.
    */
   public IntegerFieldFormulaSolver(
     final Collection<IntegerVariable> variables,
     final IntegerFormula<IntegerField> formula) {
-    this(variables, formula, IntegerVariableInitializer.ZEROS);
+    this(Collections.singleton(variables), Collections.singleton(formula),
+        IntegerVariableInitializer.ZEROS);
   }
 
   @Override
   public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
-    final IntegerFormula<IntegerVariable> newFormula = getFormula(formula);
+    final Collection<IntegerFormula<IntegerVariable>> newFormulae = getFormulae(formulae);
 
-    final IntegerFormulaSolver solver = new IntegerFormulaSolver(fieldToRange.keySet(), newFormula);
+    final IntegerFormulaSolver solver = new IntegerFormulaSolver(
+        Collections.singleton((Collection<IntegerVariable>)fieldToRange.keySet()), newFormulae);
+
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT) {
@@ -198,14 +229,16 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   }
 
   private Map<IntegerVariable, List<IntegerRange>> getDividedRanges(
-      final IntegerFormula<IntegerField> formula) {
-    InvariantChecks.checkNotNull(formula);
+      final Collection<IntegerFormula<IntegerField>> formulae) {
+    InvariantChecks.checkNotNull(formulae);
 
     // Gather the variables' ranges used in the formula.
     final Map<IntegerVariable, Collection<IntegerRange>> ranges = new LinkedHashMap<>();
 
-    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
-      gatherRanges(ranges, clause);
+    for (final IntegerFormula<IntegerField> formula : formulae) {
+      for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
+        gatherRanges(ranges, clause);
+      }
     }
 
     // Construct the disjoint ranges not taking into account the links between the fields.
@@ -321,17 +354,24 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     }
   }
 
-  private IntegerFormula<IntegerVariable> getFormula(
-      final IntegerFormula<IntegerField> oldFormula) {
-    InvariantChecks.checkNotNull(oldFormula);
+  private Collection<IntegerFormula<IntegerVariable>> getFormulae(
+      final Collection<IntegerFormula<IntegerField>> oldFormulae) {
+    InvariantChecks.checkNotNull(oldFormulae);
 
-    final IntegerFormula<IntegerVariable> newFormula = new IntegerFormula<IntegerVariable>();
+    final Collection<IntegerFormula<IntegerVariable>> newFormulae =
+        new ArrayList<>(oldFormulae.size());
 
-    for (final IntegerClause<IntegerField> oldClause : oldFormula.getClauses()) {
-      newFormula.addClauses(getClauses(oldClause));
+    for (final IntegerFormula<IntegerField> oldFormula : oldFormulae) {
+      final IntegerFormula<IntegerVariable> newFormula = new IntegerFormula<IntegerVariable>();
+
+      for (final IntegerClause<IntegerField> oldClause : oldFormula.getClauses()) {
+        newFormula.addClauses(getClauses(oldClause));
+      }
+
+      newFormulae.add(newFormula);
     }
 
-    return newFormula;
+    return newFormulae;
   }
 
   
@@ -448,7 +488,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerRange newRange = fieldToRange.get(newLhs);
 
       final int lo = newRange.getMin().intValue() - oldLhs.getLoIndex();
-      final int hi = newRange.getMax().intValue() - oldLhs.getLoIndex();;
+      final int hi = newRange.getMax().intValue() - oldLhs.getLoIndex();
 
       final BigInteger newRhs = BitUtils.getField(oldRhs, lo, hi);
       newClause.addEquation(newLhs, newRhs, oldEqual);
@@ -468,26 +508,32 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     final Map<IntegerVariable, BigInteger> oldSolution = new LinkedHashMap<>();
 
-    for (final IntegerVariable variable : variables) {
-      final Collection<IntegerVariable> fields = varToFields.get(variable);
-
-      BigInteger value = initializer.getValue(variable);
-
-      if (fields != null) {
-        for (final IntegerVariable field : fields) {
-          final IntegerRange fieldRange = fieldToRange.get(field);
-
-          final BigInteger fieldValue = newSolution.get(field);
-          InvariantChecks.checkNotNull(fieldValue);
-
-          final int lo = fieldRange.getMin().intValue();
-          final int hi = fieldRange.getMax().intValue();
-
-          value = BitUtils.setField(value, lo, hi, fieldValue);
+    for (final Collection<IntegerVariable> collection : variables) {
+      for (final IntegerVariable variable : collection) {
+        if (oldSolution.containsKey(variable)) {
+          continue;
         }
-      }
 
-      oldSolution.put(variable, value);
+        final Collection<IntegerVariable> fields = varToFields.get(variable);
+
+        BigInteger value = initializer.getValue(variable);
+
+        if (fields != null) {
+          for (final IntegerVariable field : fields) {
+            final IntegerRange fieldRange = fieldToRange.get(field);
+
+            final BigInteger fieldValue = newSolution.get(field);
+            InvariantChecks.checkNotNull(fieldValue);
+
+            final int lo = fieldRange.getMin().intValue();
+            final int hi = fieldRange.getMax().intValue();
+
+            value = BitUtils.setField(value, lo, hi, fieldValue);
+          }
+        }
+
+        oldSolution.put(variable, value);
+      }
     }
 
     return oldSolution;

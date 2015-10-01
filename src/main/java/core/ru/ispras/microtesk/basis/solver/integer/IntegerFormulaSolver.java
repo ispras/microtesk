@@ -17,6 +17,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +39,27 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, BigInteger>> {
-  /** Formula (constraint) to be solved. */
-  private final IntegerFormula<IntegerVariable> formula;
   /** Variables used in the formula. */
-  private final Collection<IntegerVariable> variables;
+  private final Collection<Collection<IntegerVariable>> variables;
+  /** Formula (constraint) to be solved. */
+  private final Collection<IntegerFormula<IntegerVariable>> formulae;
+
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the collection of variables.
+   * @param formulae the constraints to be solved.
+   * @throws IllegalArgumentException if some parameters are null.
+   */
+  public IntegerFormulaSolver(
+      final Collection<Collection<IntegerVariable>> variables,
+      final Collection<IntegerFormula<IntegerVariable>> formulae) {
+    InvariantChecks.checkNotNull(variables);
+    InvariantChecks.checkNotNull(formulae);
+
+    this.variables = Collections.unmodifiableCollection(variables);
+    this.formulae = Collections.unmodifiableCollection(formulae);
+  }
 
   /**
    * Constructs a solver.
@@ -51,12 +69,9 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
    * @throws IllegalArgumentException if some parameters are null.
    */
   public IntegerFormulaSolver(
-      final Collection<IntegerVariable> variables, final IntegerFormula<IntegerVariable> formula) {
-    InvariantChecks.checkNotNull(variables);
-    InvariantChecks.checkNotNull(formula);
-
-    this.variables = variables;
-    this.formula = formula;
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerVariable> formula) {
+    this(Collections.singleton(variables), Collections.singleton(formula));
   }
 
   @Override
@@ -65,18 +80,20 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
 
     final IntegerClause<IntegerVariable> kernel =
         new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
-    final List<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
+    final Collection<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
 
-    // Construct the formula kernel (the common AND clause).
-    for (final IntegerClause<IntegerVariable> clause : formula.getClauses()) {
-      if (clause.size() == 0) {
-        if (clause.getType() == IntegerClause.Type.OR) {
-          return new SolverResult<>("Empty OR clause");
+    // Construct the formulae kernel (the common AND clause).
+    for (final IntegerFormula<IntegerVariable> formula : formulae) {
+      for (final IntegerClause<IntegerVariable> clause : formula.getClauses()) {
+        if (clause.size() == 0) {
+          if (clause.getType() == IntegerClause.Type.OR) {
+            return new SolverResult<>("Empty OR clause");
+          }
+        } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
+          kernel.addClause(clause);
+        } else {
+          clauses.add(clause);
         }
-      } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
-        kernel.addClause(clause);
-      } else {
-        clauses.add(clause);
       }
     }
 
