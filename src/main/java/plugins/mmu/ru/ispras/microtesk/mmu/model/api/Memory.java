@@ -73,10 +73,11 @@ public abstract class Memory<D extends Data, A extends Address>
   @Override
   public D getData(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
-    BigInteger index = addressToIndex(address.getValue());
 
     final int dataBitSize = getDataBitSize();
     final BitVector dataValue = BitVector.newEmpty(dataBitSize);
+
+    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsRead = 0;
     while (bitsRead < dataBitSize) {
@@ -98,10 +99,11 @@ public abstract class Memory<D extends Data, A extends Address>
   @Override
   public D setData(final A address, final D data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
-    BigInteger index = addressToIndex(address.getValue());
 
     final BitVector dataValue = data.asBitVector();
     final int dataBitSize = dataValue.getBitSize();
+
+    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
@@ -128,15 +130,19 @@ public abstract class Memory<D extends Data, A extends Address>
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
 
-  private BigInteger addressToIndex(final BitVector address) {
+  private BigInteger addressToIndex(final BitVector address, int blockSize) {
     InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkTrue(blockSize > 0);
+    InvariantChecks.checkTrue(((blockSize - 1) & blockSize) == 0);
 
-    final BigInteger addressInBytes =
-        address.bigIntegerValue(false);
+    final BigInteger addressInBytes = address.bigIntegerValue(false);
+    final BigInteger blockMask = BigInteger.valueOf(blockSize - 1);
+    final BigInteger blockAddress = addressInBytes.andNot(blockMask);
+
 
     final BigInteger bytesInRegion =
         BigInteger.valueOf(storage.getDataBitSize() / 8);
 
-    return addressInBytes.divide(bytesInRegion);
+    return blockAddress.divide(bytesInRegion);
   }
 }
