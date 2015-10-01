@@ -56,13 +56,9 @@ public final class Line<D, A extends Address> implements Buffer<D, A> {
 
   @Override
   public D setData(final A address, final D newData) {
-    if (isHit(address)) {
-      final D oldData = data;
+    final D oldData = data;
 
-      data = newData;
-      return oldData;
-    }
-
-    return null;
+    data = newData;
+    return oldData;
   }
 }
