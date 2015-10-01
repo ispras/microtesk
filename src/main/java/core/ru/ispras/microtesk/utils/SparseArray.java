@@ -53,6 +53,6 @@ public class SparseArray<T> {
     final BigInteger indexValue = index.bigIntegerValue(false);
     InvariantChecks.checkGreaterThan(arrayLength, indexValue);
 
-    return indexMap.get(indexValue);
+    return indexMap.put(indexValue, value);
   }
 }
