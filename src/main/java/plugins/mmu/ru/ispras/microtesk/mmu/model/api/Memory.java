@@ -130,13 +130,13 @@ public abstract class Memory<D extends Data, A extends Address>
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
 
-  private BigInteger addressToIndex(final BitVector address, int blockSize) {
+  private BigInteger addressToIndex(final BitVector address, int blockBitSize) {
     InvariantChecks.checkNotNull(address);
-    InvariantChecks.checkTrue(blockSize > 0);
-    InvariantChecks.checkTrue(((blockSize - 1) & blockSize) == 0);
+    InvariantChecks.checkTrue(blockBitSize >= 8);
+    InvariantChecks.checkTrue(((blockBitSize - 1) & blockBitSize) == 0);
 
     final BigInteger addressInBytes = address.bigIntegerValue(false);
-    final BigInteger blockMask = BigInteger.valueOf(blockSize - 1);
+    final BigInteger blockMask = BigInteger.valueOf(blockBitSize / 8 - 1);
     final BigInteger blockAddress = addressInBytes.andNot(blockMask);
 
 
