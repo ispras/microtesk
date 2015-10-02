@@ -71,16 +71,17 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
     }
 
     // Construct the constraint formula.
-    this.formula = new IntegerFormula<>();
-
-    final IntegerClause<V> clause = new IntegerClause<>(
+    final IntegerClause.Builder<V> clauseBuilder = new IntegerClause.Builder<>(
         effectiveType == Type.RETAIN ? IntegerClause.Type.OR : IntegerClause.Type.AND);
 
     for (final BigInteger value : effectiveValues) {
-      clause.addEquation(variable, value, effectiveType == Type.RETAIN);
+      clauseBuilder.addEquation(variable, value, effectiveType == Type.RETAIN);
     }
 
-    this.formula.addClause(clause);
+    final IntegerFormula.Builder<V> formulaBuilder = new IntegerFormula.Builder<>();
+    formulaBuilder.addClause(clauseBuilder.build());
+
+    this.formula = formulaBuilder.build();
   }
 
   public IntegerDomainConstraint(

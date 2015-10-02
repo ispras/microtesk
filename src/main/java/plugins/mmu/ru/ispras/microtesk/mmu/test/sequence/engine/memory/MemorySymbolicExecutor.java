@@ -46,7 +46,7 @@ public final class MemorySymbolicExecutor {
    */
   public static final class Result {
     final Collection<IntegerVariable> variables;
-    final IntegerFormula<IntegerField> formula;
+    final IntegerFormula.Builder<IntegerField> formula;
 
     /** Contains original variables. */
     final Collection<IntegerVariable> originals;
@@ -57,7 +57,7 @@ public final class MemorySymbolicExecutor {
 
     Result(
         final Collection<IntegerVariable> variables,
-        final IntegerFormula<IntegerField> formula,
+        final IntegerFormula.Builder<IntegerField> formula,
         final Collection<IntegerVariable> originals,
         final Map<String, Integer> instances,
         final Map<String, IntegerVariable> cache) {
@@ -78,7 +78,7 @@ public final class MemorySymbolicExecutor {
     public Result() {
       this(
           new LinkedHashSet<IntegerVariable>(),
-          new IntegerFormula<IntegerField>(),
+          new IntegerFormula.Builder<IntegerField>(),
           new LinkedHashSet<IntegerVariable>(),
           new HashMap<String, Integer>(),
           new HashMap<String, IntegerVariable>());
@@ -87,7 +87,7 @@ public final class MemorySymbolicExecutor {
     public Result(final Result r) {
       this(
           new LinkedHashSet<>(r.variables),
-          new IntegerFormula<IntegerField>(r.formula),
+          new IntegerFormula.Builder<IntegerField>(r.formula),
           new LinkedHashSet<>(r.originals),
           new HashMap<>(r.instances),
           new HashMap<>(r.cache));
@@ -98,7 +98,7 @@ public final class MemorySymbolicExecutor {
     }
 
     public IntegerFormula<IntegerField> getFormula() {
-      return formula;
+      return formula.build();
     }
   }
 
@@ -242,14 +242,14 @@ public final class MemorySymbolicExecutor {
 
       final MmuExpression expression = atom.getExpression();
 
-      final IntegerClause<IntegerField> clause = new IntegerClause<>(
+      final IntegerClause.Builder<IntegerField> clauseBuilder = new IntegerClause.Builder<>(
           !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
       for (final IntegerField term : expression.getTerms()) {
         final IntegerField field1 = getPathFieldInstance(term, pathIndex1);
         final IntegerField field2 = getPathFieldInstance(term, pathIndex2);
 
-        clause.addEquation(field1, field2, !atom.isNegated());
+        clauseBuilder.addEquation(field1, field2, !atom.isNegated());
 
         result.variables.add(field1.getVariable());
         result.originals.add(getPathVar(term.getVariable(), pathIndex1));
@@ -258,7 +258,7 @@ public final class MemorySymbolicExecutor {
         result.originals.add(getPathVar(term.getVariable(), pathIndex2));
       }
 
-      result.formula.addClause(clause);
+      result.formula.addClause(clauseBuilder.build());
     }
   }
 
@@ -315,8 +315,8 @@ public final class MemorySymbolicExecutor {
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
 
-      final IntegerClause<IntegerField> clause = new IntegerClause<>(
-          !atom.isNegated() ? definedType : negatedType);
+      final IntegerClause.Builder<IntegerField> clauseBuilder =
+          new IntegerClause.Builder<>(!atom.isNegated() ? definedType : negatedType);
 
       final MmuExpression expression = atom.getExpression();
       final BigInteger constant = atom.getConstant();
@@ -330,21 +330,22 @@ public final class MemorySymbolicExecutor {
         final IntegerField field = getPathFieldInstance(term, pathIndex);
         final BigInteger value = BitUtils.getField(constant, lo, hi);
 
-        clause.addEquation(field, value, !atom.isNegated());
+        clauseBuilder.addEquation(field, value, !atom.isNegated());
         offset += term.getWidth();
 
         result.variables.add(field.getVariable());
         result.originals.add(getPathVar(term.getVariable(), pathIndex));
       }
 
-      result.formula.addClause(clause);
+      result.formula.addClause(clauseBuilder.build());
     }
   }
 
   private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
     InvariantChecks.checkNotNull(bindings);
 
-    final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.AND);
+    final IntegerClause.Builder<IntegerField> clauseBuilder =
+        new IntegerClause.Builder<>(IntegerClause.Type.AND);
 
     for (final MmuBinding binding : bindings) {
       final IntegerField lhs = binding.getLhs();
@@ -360,13 +361,13 @@ public final class MemorySymbolicExecutor {
         result.variables.add(nextLhsVar);
 
         if (lhs.getLoIndex() > 0) {
-          clause.addEquation(
+          clauseBuilder.addEquation(
               new IntegerField(nextLhsVar, 0, lhs.getLoIndex() - 1),
               new IntegerField(prevLhsVar, 0, lhs.getLoIndex() - 1), true);
         }
 
         if (lhs.getHiIndex() < lhs.getWidth() - 1) {
-          clause.addEquation(
+          clauseBuilder.addEquation(
               new IntegerField(nextLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1),
               new IntegerField(prevLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1), true);
         }
@@ -379,7 +380,7 @@ public final class MemorySymbolicExecutor {
           final int lo = offset;
           final int hi = offset + (field.getWidth() - 1);
 
-          clause.addEquation(new IntegerField(nextLhsVar, lo, hi), field, true);
+          clauseBuilder.addEquation(new IntegerField(nextLhsVar, lo, hi), field, true);
           offset += field.getWidth();
 
           result.variables.add(field.getVariable());
@@ -390,15 +391,15 @@ public final class MemorySymbolicExecutor {
           final int lo = offset;
           final int hi = lhs.getHiIndex();
   
-          clause.addEquation(new IntegerField(nextLhsVar, lo, hi), BigInteger.ZERO, true);
+          clauseBuilder.addEquation(new IntegerField(nextLhsVar, lo, hi), BigInteger.ZERO, true);
         }
 
         definePathVarInstance(lhs.getVariable(), pathIndex);
       } // if right-hand side exists.
     } // for each binding.
 
-    if (clause.size() != 0) {
-      result.formula.addClause(clause);
+    if (clauseBuilder.size() != 0) {
+      result.formula.addClause(clauseBuilder.build());
     }
   }
 

@@ -298,8 +298,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     InvariantChecks.checkNotNull(ranges);
     InvariantChecks.checkNotNull(clause);
 
-    final List<IntegerEquation<IntegerField>> equations = clause.getEquations();
-    for (final IntegerEquation<IntegerField> equation : equations) {
+    for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
       gatherRanges(ranges, equation);
     }
   }
@@ -362,13 +361,13 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
         new ArrayList<>(oldFormulae.size());
 
     for (final IntegerFormula<IntegerField> oldFormula : oldFormulae) {
-      final IntegerFormula<IntegerVariable> newFormula = new IntegerFormula<IntegerVariable>();
+      final IntegerFormula.Builder<IntegerVariable> newBuilder = new IntegerFormula.Builder<>();
 
       for (final IntegerClause<IntegerField> oldClause : oldFormula.getClauses()) {
-        newFormula.addClauses(getClauses(oldClause));
+        newBuilder.addClauses(getClauses(oldClause));
       }
 
-      newFormulae.add(newFormula);
+      newFormulae.add(newBuilder.build());
     }
 
     return newFormulae;
@@ -424,9 +423,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final Collection<IntegerClause<IntegerVariable>> newClauses = new ArrayList<>();
 
     for (iterator.init(); iterator.hasValue(); iterator.next()) {
-      final IntegerClause<IntegerVariable> clause = new IntegerClause<>(IntegerClause.Type.OR);
-
-      clause.addEquations(iterator.value());
+      final IntegerClause<IntegerVariable> clause =
+          new IntegerClause<>(IntegerClause.Type.OR, iterator.value());
       newClauses.add(clause);
     }
 
@@ -449,9 +447,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     InvariantChecks.checkNotNull(oldLhs, "LHS is null");
     InvariantChecks.checkNotNull(oldRhs, "RHS is null");
 
-    final IntegerClause<IntegerVariable> newClause =
-        new IntegerClause<IntegerVariable>(
-            oldEqual ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+    final IntegerClause.Builder<IntegerVariable> newBuilder = new IntegerClause.Builder<>(
+        oldEqual ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
     final List<IntegerVariable> lhsFields = getFieldVars(oldLhs);
     final List<IntegerVariable> rhsFields = getFieldVars(oldRhs);
@@ -464,10 +461,10 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerVariable newLhs = lhsFields.get(i);
       final IntegerVariable newRhs = rhsFields.get(i);
 
-      newClause.addEquation(newLhs, newRhs, oldEqual);
+      newBuilder.addEquation(newLhs, newRhs, oldEqual);
     }
 
-    return newClause;
+    return newBuilder.build();
   }
 
   private IntegerClause<IntegerVariable> getClause(
@@ -477,9 +474,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     InvariantChecks.checkNotNull(oldLhs, "LHS is null");
     InvariantChecks.checkNotNull(oldRhs, "RHS is null");
 
-    final IntegerClause<IntegerVariable> newClause =
-        new IntegerClause<IntegerVariable>(
-            oldEqual ? IntegerClause.Type.AND : IntegerClause.Type.OR);
+    final IntegerClause.Builder<IntegerVariable> newBuilder = new IntegerClause.Builder<>(
+        oldEqual ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
     final List<IntegerVariable> lhsFields = getFieldVars(oldLhs);
 
@@ -487,14 +483,14 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
       final IntegerVariable newLhs = lhsFields.get(i);
       final IntegerRange newRange = fieldToRange.get(newLhs);
 
-      final int lo = newRange.getMin().intValue() - oldLhs.getLoIndex();
-      final int hi = newRange.getMax().intValue() - oldLhs.getLoIndex();
+      final int lo = (newRange.getMin().intValue() - oldLhs.getLoIndex());
+      final int hi = (newRange.getMax().intValue() - oldLhs.getLoIndex());
 
       final BigInteger newRhs = BitUtils.getField(oldRhs, lo, hi);
-      newClause.addEquation(newLhs, newRhs, oldEqual);
+      newBuilder.addEquation(newLhs, newRhs, oldEqual);
     }
 
-    return newClause;
+    return newBuilder.build();
   }
 
   private Map<IntegerVariable, BigInteger> getSolution(

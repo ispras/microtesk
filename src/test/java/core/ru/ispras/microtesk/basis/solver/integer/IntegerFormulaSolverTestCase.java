@@ -92,13 +92,13 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestA() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
-    formula.addEquation(a, c, true);
-    formula.addEquation(b, c, false);
+    formulaBuilder.addEquation(a, b, true);
+    formulaBuilder.addEquation(a, c, true);
+    formulaBuilder.addEquation(b, c, false);
 
-    check("A: a == b && a == c && b != c", formula, false);
+    check("A: a == b && a == c && b != c", formulaBuilder.build(), false);
   }
 
   /**
@@ -106,15 +106,15 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestB() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
-    formula.addEquation(b, c, true);
-    formula.addEquation(c, d, true);
-    formula.addEquation(d, e, true);
-    formula.addEquation(e, a, false);
+    formulaBuilder.addEquation(a, b, true);
+    formulaBuilder.addEquation(b, c, true);
+    formulaBuilder.addEquation(c, d, true);
+    formulaBuilder.addEquation(d, e, true);
+    formulaBuilder.addEquation(e, a, false);
 
-    check("B: a == b && b == c && c == d && d == e && e != a", formula, false);
+    check("B: a == b && b == c && c == d && d == e && e != a", formulaBuilder.build(), false);
   }
 
   /**
@@ -122,14 +122,14 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestC() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
-    formula.addEquation(a, BigInteger.ZERO, false);
-    formula.addEquation(a, BigInteger.ONE, false);
-    formula.addEquation(b, BigInteger.TEN, false);
+    formulaBuilder.addEquation(a, b, true);
+    formulaBuilder.addEquation(a, BigInteger.ZERO, false);
+    formulaBuilder.addEquation(a, BigInteger.ONE, false);
+    formulaBuilder.addEquation(b, BigInteger.TEN, false);
 
-    check("C: a == b && a != 0 && a != 1 && b != 10", formula, true);
+    check("C: a == b && a != 0 && a != 1 && b != 10", formulaBuilder.build(), true);
   }
 
   /**
@@ -137,13 +137,13 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestD() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 15; i++) {
-      formula.addEquation(a, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
     }
 
-    check("D: a != 0 && ... && a != 14", formula, true);
+    check("D: a != 0 && ... && a != 14", formulaBuilder.build(), true);
   }
 
   /**
@@ -151,13 +151,13 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestE() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 16; i++) {
-      formula.addEquation(a, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
     }
 
-    check("E: a != 0 && ... && a != 15", formula, false);
+    check("E: a != 0 && ... && a != 15", formulaBuilder.build(), false);
   }
 
   /**
@@ -165,19 +165,19 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestF() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 15; i >= 8; i--) {
-      formula.addEquation(a, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
     }
 
     for (int i = 0; i < 8; i++) {
-      formula.addEquation(b, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(b, BigInteger.valueOf(i), false);
     }
 
-    formula.addEquation(a, b, false);
+    formulaBuilder.addEquation(a, b, false);
 
-    check("F: a != b, where dom(a) and dom(b) have only one common value", formula, true);
+    check("F: a != b, where dom(a) and dom(b) have only one common value", formulaBuilder.build(), true);
   }
 
   /**
@@ -185,17 +185,17 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestG() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 16; i++) {
       if (i != 8) {
-        formula.addEquation(b, BigInteger.valueOf(i), false);
+        formulaBuilder.addEquation(b, BigInteger.valueOf(i), false);
       }
     }
 
-    formula.addEquation(a, b, false);
+    formulaBuilder.addEquation(a, b, false);
 
-    check("G: a != b, where |dom(b)| = 1 and dom(a) and dom(b) are overlapping", formula, false);
+    check("G: a != b, where |dom(b)| = 1 and dom(a) and dom(b) are overlapping", formulaBuilder.build(), false);
   }
 
   /**
@@ -206,23 +206,23 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestH() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(z, a, false);
-    formula.addEquation(z, b, false);
-    formula.addEquation(z, c, false);
-    formula.addEquation(z, d, false);
+    formulaBuilder.addEquation(z, a, false);
+    formulaBuilder.addEquation(z, b, false);
+    formulaBuilder.addEquation(z, c, false);
+    formulaBuilder.addEquation(z, d, false);
 
-    formula.addEquation(a, b, false);
-    formula.addEquation(a, c, false);
-    formula.addEquation(a, d, false);
+    formulaBuilder.addEquation(a, b, false);
+    formulaBuilder.addEquation(a, c, false);
+    formulaBuilder.addEquation(a, d, false);
 
-    formula.addEquation(b, c, false);
-    formula.addEquation(b, d, false);
+    formulaBuilder.addEquation(b, c, false);
+    formulaBuilder.addEquation(b, d, false);
 
-    formula.addEquation(c, d, false);
+    formulaBuilder.addEquation(c, d, false);
 
-    check("H: a, b, c, d and z are mutually different", formula, false);
+    check("H: a, b, c, d and z are mutually different", formulaBuilder.build(), false);
   }
 
   /**
@@ -230,21 +230,25 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestI() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
+    formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause<IntegerVariable> set1 = new IntegerClause<>(IntegerClause.Type.OR);
-    set1.addEquation(b, c, true);
-    set1.addEquation(b, d, true);
-    formula.addClause(set1);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
-    final IntegerClause<IntegerVariable> set2 = new IntegerClause<>(IntegerClause.Type.OR);
-    set2.addEquation(a, c, false);
-    set2.addEquation(a, d, false);
-    formula.addClause(set2);
+    clauseBuilder1.addEquation(b, c, true);
+    clauseBuilder1.addEquation(b, d, true);
+    formulaBuilder.addClause(clauseBuilder1.build());
 
-    check("I: a == b && (b == c || b == d) && (a != c || a != d)", formula, true);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    clauseBuilder2.addEquation(a, c, false);
+    clauseBuilder2.addEquation(a, d, false);
+    formulaBuilder.addClause(clauseBuilder2.build());
+
+    check("I: a == b && (b == c || b == d) && (a != c || a != d)", formulaBuilder.build(), true);
   }
 
   /**
@@ -252,21 +256,25 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestJ() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
+    formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause<IntegerVariable> set1 = new IntegerClause<>(IntegerClause.Type.OR);
-    set1.addEquation(b, c, true);
-    set1.addEquation(b, d, true);
-    formula.addClause(set1);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
-    final IntegerClause<IntegerVariable> set2 = new IntegerClause<>(IntegerClause.Type.AND);
-    set2.addEquation(a, c, false);
-    set2.addEquation(a, d, false);
-    formula.addClause(set2);
+    clauseBuilder1.addEquation(b, c, true);
+    clauseBuilder1.addEquation(b, d, true);
+    formulaBuilder.addClause(clauseBuilder1.build());
 
-    check("J: a == b && (b == c || b == d) && (a != c && a != d)", formula, false);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+        new IntegerClause.Builder<>(IntegerClause.Type.AND);
+
+    clauseBuilder2.addEquation(a, c, false);
+    clauseBuilder2.addEquation(a, d, false);
+    formulaBuilder.addClause(clauseBuilder2.build());
+
+    check("J: a == b && (b == c || b == d) && (a != c && a != d)", formulaBuilder.build(), false);
   }
 
   /**
@@ -274,36 +282,40 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestK() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
+    formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause<IntegerVariable> set1 =
-        new IntegerClause<>(IntegerClause.Type.OR);
-    set1.addEquation(b, c, true);
-    set1.addEquation(b, d, true);
-    formula.addClause(set1);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
-    final IntegerClause<IntegerVariable> set2 =
-        new IntegerClause<>(IntegerClause.Type.OR);
-    set2.addEquation(c, d, true);
-    set2.addEquation(c, e, true);
-    formula.addClause(set2);
+    clauseBuilder1.addEquation(b, c, true);
+    clauseBuilder1.addEquation(b, d, true);
+    formulaBuilder.addClause(clauseBuilder1.build());
 
-    final IntegerClause<IntegerVariable> set3 =
-        new IntegerClause<>(IntegerClause.Type.OR);
-    set3.addEquation(d, e, true);
-    set3.addEquation(d, f, true);
-    formula.addClause(set3);
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
-    final IntegerClause<IntegerVariable> set4 =
-        new IntegerClause<>(IntegerClause.Type.AND);
-    set4.addEquation(a, e, false);
-    set4.addEquation(a, f, false);
-    formula.addClause(set4);
+    clauseBuilder2.addEquation(c, d, true);
+    clauseBuilder2.addEquation(c, e, true);
+    formulaBuilder.addClause(clauseBuilder2.build());
+
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder3 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    clauseBuilder3.addEquation(d, e, true);
+    clauseBuilder3.addEquation(d, f, true);
+    formulaBuilder.addClause(clauseBuilder3.build());
+
+    final IntegerClause.Builder<IntegerVariable> clauseBuilder4 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    clauseBuilder4.addEquation(a, e, false);
+    clauseBuilder4.addEquation(a, f, false);
+    formulaBuilder.addClause(clauseBuilder4.build());
 
     check("K: a == b && (b == c || b == d) && (c == d || c == e) && (d == e || d == f) && (a != e && a != f)",
-        formula, false);
+        formulaBuilder.build(), false);
   }
 
   /**
@@ -312,7 +324,7 @@ public final class IntegerFormulaSolverTestCase {
   @Test
   public void runTestN() {
     final List<IntegerVariable> vars = new ArrayList<>();
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     final int numberOfDisjunctions = 10;
     final int numberOfEqualitiesInDisjuntion = 5; 
@@ -328,16 +340,17 @@ public final class IntegerFormulaSolverTestCase {
     }
 
     for (int i = 1; i < numberOfDisjunctions; i++) {
-      final IntegerClause<IntegerVariable> set = new IntegerClause<>(IntegerClause.Type.OR);
+      final IntegerClause.Builder<IntegerVariable> clauseBuilder =
+          new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
       for (int j = 0; j < numberOfEqualitiesInDisjuntion; j++) {
-        set.addEquation(arrayVariable[i][j], arrayVariable[i - 1][j], true);
+        clauseBuilder.addEquation(arrayVariable[i][j], arrayVariable[i - 1][j], true);
       }
 
-      formula.addClause(set);
+      formulaBuilder.addClause(clauseBuilder.build());
     }
 
-    check("N: OutOfMemoryError", vars, formula, true);
+    check("N: OutOfMemoryError", vars, formulaBuilder.build(), true);
   }
 
   /**
@@ -345,15 +358,15 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestO() {
-    final IntegerFormula<IntegerVariable> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
-    formula.addEquation(a, b, true);
-    formula.addEquation(b, c, true);
-    formula.addEquation(c, d, true);
-    formula.addEquation(d, BigInteger.TEN, true);
+    formulaBuilder.addEquation(a, b, true);
+    formulaBuilder.addEquation(b, c, true);
+    formulaBuilder.addEquation(c, d, true);
+    formulaBuilder.addEquation(d, BigInteger.TEN, true);
 
     final Map<IntegerVariable, BigInteger> solution =
-        check("O: a == b && b == c && c == d && d == 10", formula, true);
+        check("O: a == b && b == c && c == d && d == 10", formulaBuilder.build(), true);
 
     for (final Map.Entry<IntegerVariable, BigInteger> entry : solution.entrySet()) {
       final IntegerVariable variable = entry.getKey();

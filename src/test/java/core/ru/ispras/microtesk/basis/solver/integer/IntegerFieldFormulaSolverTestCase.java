@@ -69,7 +69,7 @@ public final class IntegerFieldFormulaSolverTestCase {
   public void runTest() {
     final Collection<IntegerVariable> variables = new ArrayList<>();
 
-    final IntegerFormula<IntegerField> formula = new IntegerFormula<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     final int K = 10;
 
@@ -146,49 +146,54 @@ public final class IntegerFieldFormulaSolverTestCase {
       variables.add(l2Data[i]);
       variables.add(data[i]);
 
-      formula.addEquation(new IntegerField(vpn2[i], 0, 26), new IntegerField(va[i], 13, 39), true);
-      formula.addEquation(new IntegerField(va[i], 12), BigInteger.ZERO, true);
-      formula.addEquation(new IntegerField(d[i]), new IntegerField(d0[i]), true);
-      formula.addEquation(new IntegerField(v[i]), new IntegerField(v0[i]), true);
-      formula.addEquation(new IntegerField(pfn[i], 0, 4), new IntegerField(pfn0[i], 0, 4), true);
-      formula.addEquation(new IntegerField(pfn[i], 5, 23), new IntegerField(pfn0[i], 5, 23), true);
-      formula.addEquation(new IntegerField(c[i], 0, 1), new IntegerField(c0[i], 0, 1), true);
-      formula.addEquation(new IntegerField(c[i], 2), new IntegerField(c0[i], 2), true);
-      formula.addEquation(new IntegerField(g[i], 0), BigInteger.ONE, true);
-      formula.addEquation(new IntegerField(v[i], 0), BigInteger.ONE, true);
-      formula.addEquation(new IntegerField(d[i], 0), BigInteger.ONE, true);
-      formula.addEquation(new IntegerField(pa[i], 0, 11), new IntegerField(va[i], 0, 11), true);
-      formula.addEquation(new IntegerField(pa[i], 12, 16), new IntegerField(pfn[i], 0, 4), true);
-      formula.addEquation(new IntegerField(pa[i], 17, 35), new IntegerField(pfn[i], 5, 23), true);
-      formula.addEquation(new IntegerField(c[i], 0, 1), BigInteger.valueOf(0x2), false);
-      formula.addEquation(new IntegerField(l1Tag[i], 0, 4), new IntegerField(pa[i], 12, 16), true);
-      formula.addEquation(new IntegerField(l1Tag[i], 5, 23), new IntegerField(pa[i], 17, 35), true);
-      formula.addEquation(new IntegerField(c[i], 0, 1), BigInteger.ZERO, false);
-      formula.addEquation(new IntegerField(c[i], 0, 1), BigInteger.ONE, false);
-      formula.addEquation(new IntegerField(l2Tag[i], 0, 18), new IntegerField(pa[i], 17, 35), true);
-      formula.addEquation(new IntegerField(pa[i], 0, 11), BigInteger.valueOf(0x148), true);
-      formula.addEquation(new IntegerField(pa[i], 12, 16), BigInteger.valueOf(0xe), true);
-      formula.addEquation(new IntegerField(pa[i], 17, 35), BigInteger.valueOf(0x16), true);
-      formula.addEquation(new IntegerField(va[i], 0, 11), BigInteger.valueOf(0x148), true);
-      formula.addEquation(new IntegerField(va[i], 12, 12), BigInteger.ZERO, true);
-      formula.addEquation(new IntegerField(va[i], 13, 39), BigInteger.valueOf(0x40032), true);
-      formula.addEquation(new IntegerField(va[i], 40, 63), BigInteger.ZERO, true);
+      formulaBuilder.addEquation(new IntegerField(vpn2[i], 0, 26), new IntegerField(va[i], 13, 39), true);
+      formulaBuilder.addEquation(new IntegerField(va[i], 12), BigInteger.ZERO, true);
+      formulaBuilder.addEquation(new IntegerField(d[i]), new IntegerField(d0[i]), true);
+      formulaBuilder.addEquation(new IntegerField(v[i]), new IntegerField(v0[i]), true);
+      formulaBuilder.addEquation(new IntegerField(pfn[i], 0, 4), new IntegerField(pfn0[i], 0, 4), true);
+      formulaBuilder.addEquation(new IntegerField(pfn[i], 5, 23), new IntegerField(pfn0[i], 5, 23), true);
+      formulaBuilder.addEquation(new IntegerField(c[i], 0, 1), new IntegerField(c0[i], 0, 1), true);
+      formulaBuilder.addEquation(new IntegerField(c[i], 2), new IntegerField(c0[i], 2), true);
+      formulaBuilder.addEquation(new IntegerField(g[i], 0), BigInteger.ONE, true);
+      formulaBuilder.addEquation(new IntegerField(v[i], 0), BigInteger.ONE, true);
+      formulaBuilder.addEquation(new IntegerField(d[i], 0), BigInteger.ONE, true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 0, 11), new IntegerField(va[i], 0, 11), true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 12, 16), new IntegerField(pfn[i], 0, 4), true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 17, 35), new IntegerField(pfn[i], 5, 23), true);
+      formulaBuilder.addEquation(new IntegerField(c[i], 0, 1), BigInteger.valueOf(0x2), false);
+      formulaBuilder.addEquation(new IntegerField(l1Tag[i], 0, 4), new IntegerField(pa[i], 12, 16), true);
+      formulaBuilder.addEquation(new IntegerField(l1Tag[i], 5, 23), new IntegerField(pa[i], 17, 35), true);
+      formulaBuilder.addEquation(new IntegerField(c[i], 0, 1), BigInteger.ZERO, false);
+      formulaBuilder.addEquation(new IntegerField(c[i], 0, 1), BigInteger.ONE, false);
+      formulaBuilder.addEquation(new IntegerField(l2Tag[i], 0, 18), new IntegerField(pa[i], 17, 35), true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 0, 11), BigInteger.valueOf(0x148), true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 12, 16), BigInteger.valueOf(0xe), true);
+      formulaBuilder.addEquation(new IntegerField(pa[i], 17, 35), BigInteger.valueOf(0x16), true);
+      formulaBuilder.addEquation(new IntegerField(va[i], 0, 11), BigInteger.valueOf(0x148), true);
+      formulaBuilder.addEquation(new IntegerField(va[i], 12, 12), BigInteger.ZERO, true);
+      formulaBuilder.addEquation(new IntegerField(va[i], 13, 39), BigInteger.valueOf(0x40032), true);
+      formulaBuilder.addEquation(new IntegerField(va[i], 40, 63), BigInteger.ZERO, true);
 
       // To increase complexity.
-      final IntegerClause<IntegerField> clause = new IntegerClause<>(IntegerClause.Type.OR);
+      final IntegerClause.Builder<IntegerField> clauseBuilder =
+          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
       for (int k = 0; k < 16; k++) {
-        clause.addEquation(new IntegerField(pa[i], 0, 3), BigInteger.valueOf(k), true);
+        clauseBuilder.addEquation(new IntegerField(pa[i], 0, 3), BigInteger.valueOf(k), true);
       }
-      formula.addClause(clause);
+
+      formulaBuilder.addClause(clauseBuilder.build());
 
       // Links between copies.
       if (i > 0) {
         final int j = i - 1;
 
-        formula.addEquation(new IntegerField(va[i]), new IntegerField(va[j]), true);
-        formula.addEquation(new IntegerField(pa[i]), new IntegerField(pa[j]), true);
+        formulaBuilder.addEquation(new IntegerField(va[i]), new IntegerField(va[j]), true);
+        formulaBuilder.addEquation(new IntegerField(pa[i]), new IntegerField(pa[j]), true);
       }
     }
+
+    final IntegerFormula<IntegerField> formula = formulaBuilder.build();
 
     System.out.println(formula);
 

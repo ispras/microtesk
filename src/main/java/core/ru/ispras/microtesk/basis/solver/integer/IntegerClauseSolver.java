@@ -100,10 +100,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     InvariantChecks.checkTrue(clause.getType() == IntegerClause.Type.OR);
 
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
-      final IntegerClause<IntegerVariable> variant =
-          new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
-
-      variant.addEquation(equation);
+      final IntegerClause<IntegerVariable> variant = new IntegerClause<IntegerVariable>(equation);
 
       final IntegerClauseSolver solver =  new IntegerClauseSolver(variables, variant);
       final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);

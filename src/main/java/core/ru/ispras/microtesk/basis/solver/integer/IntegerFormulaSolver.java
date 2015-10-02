@@ -78,8 +78,9 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
   public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
     InvariantChecks.checkNotNull(mode);
 
-    final IntegerClause<IntegerVariable> kernel =
-        new IntegerClause<IntegerVariable>(IntegerClause.Type.AND);
+    final IntegerClause.Builder<IntegerVariable> kernelBuilder =
+        new IntegerClause.Builder<>(IntegerClause.Type.AND);
+
     final Collection<IntegerClause<IntegerVariable>> clauses = new ArrayList<>();
 
     // Construct the formulae kernel (the common AND clause).
@@ -90,17 +91,19 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
             return new SolverResult<>("Empty OR clause");
           }
         } else if (clause.getType() == IntegerClause.Type.AND || clause.size() == 1) {
-          kernel.addClause(clause);
+          kernelBuilder.addClause(clause);
         } else {
           clauses.add(clause);
         }
       }
     }
 
+    final IntegerClause<IntegerVariable> kernel = kernelBuilder.build();
+
     final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
     final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve(mode);
 
-    if (clauses.size() == 0 || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
+    if (clauses.isEmpty() || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
       return kernelResult;
     }
 
@@ -163,17 +166,23 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
         new ProductIterator<>();
 
     for (int i = 0; i < simplifiedClauses.size(); i++) {
-      final List<IntegerEquation<IntegerVariable>> equations =
+      final Collection<IntegerEquation<IntegerVariable>> equations =
           simplifiedClauses.get(i).getEquations();
+
       variantIterator.registerIterator(new CollectionIterator<>(equations));
     }
 
     for (variantIterator.init(); variantIterator.hasValue(); variantIterator.next()) {
-      final IntegerClause<IntegerVariable> variant = new IntegerClause<IntegerVariable>(kernel);
+      final IntegerClause.Builder<IntegerVariable> variantBuilder =
+          new IntegerClause.Builder<>(IntegerClause.Type.AND);
+
+      variantBuilder.addClause(kernel);
 
       for (int i = 0; i < simplifiedClauses.size(); i++) {
-        variant.addEquation(variantIterator.value(i));
+        variantBuilder.addEquation(variantIterator.value(i));
       }
+
+      final IntegerClause<IntegerVariable> variant = variantBuilder.build();
 
       final IntegerClauseSolver variantSolver = new IntegerClauseSolver(variables, variant);
       final SolverResult<Map<IntegerVariable, BigInteger>> variantResult = variantSolver.solve(mode);
