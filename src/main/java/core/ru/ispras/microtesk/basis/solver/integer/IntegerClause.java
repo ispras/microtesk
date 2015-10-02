@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -167,6 +168,9 @@ public final class IntegerClause<V> {
   /** The equations. */
   private final Collection<IntegerEquation<V>> equations;
 
+  /** The variables. */
+  private Collection<V> variables;
+
   /**
    * Constructs an clause of the given type with the given set of equations.
    * 
@@ -221,12 +225,34 @@ public final class IntegerClause<V> {
   }
 
   /**
-   * Returns the equations of the set.
+   * Returns the equations of the clause.
    * 
    * @return the equations.
    */
   public Collection<IntegerEquation<V>> getEquations() {
     return equations;
+  }
+
+  /**
+   * Returns the variables used in the clause.
+   * 
+   * @return the variables.
+   */
+  public Collection<V> getVariables() {
+    if (variables != null) {
+      return variables;
+    }
+
+    variables = new LinkedHashSet<>();
+
+    for (final IntegerEquation<V> equation : equations) {
+      variables.add(equation.lhs);
+      if (!equation.value) {
+        variables.add(equation.rhs);
+      }
+    }
+
+    return variables;
   }
 
   /**

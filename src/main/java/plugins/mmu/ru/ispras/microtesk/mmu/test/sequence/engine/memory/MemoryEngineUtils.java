@@ -24,9 +24,7 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -92,7 +90,6 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(paths);
 
-    // TODO: This implementation needs to be optimized.
     final Map<MmuBuffer, BufferAccessEvent> pathSkeleton =
         ClassifierEventBased.getBuffersAndEvents(path);
     final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> pathClasses =
@@ -139,17 +136,12 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  private static Collection<IntegerVariable> collectFormulaVariables(
+  private static Collection<IntegerVariable> getFormulaVariables(
       final IntegerFormula<IntegerField> formula) {
     final Collection<IntegerVariable> variables = new LinkedHashSet<>();
 
-    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
-      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
-        variables.add(equation.lhs.getVariable());
-        if (!equation.value) {
-          variables.add(equation.rhs.getVariable());
-        }
-      }
+    for (final IntegerField field : formula.getVariables()) {
+      variables.add(field.getVariable());
     }
 
     return variables;
@@ -205,7 +197,7 @@ public final class MemoryEngineUtils {
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
       final IntegerFormula<IntegerField> formula = constraint.getFormula();
-      final Collection<IntegerVariable> collection = collectFormulaVariables(formula);
+      final Collection<IntegerVariable> collection = getFormulaVariables(formula);
 
       variables.add(collection);
       formulae.add(formula);

@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -160,6 +161,9 @@ public final class IntegerFormula<V> {
   /** AND-connected clauses of the OR type. */
   private final Collection<IntegerClause<V>> clauses;
 
+  /** The variables. */
+  private Collection<V> variables;
+
   /**
    * Constructs a formula.
    * 
@@ -197,6 +201,25 @@ public final class IntegerFormula<V> {
    */
   public Collection<IntegerClause<V>> getClauses() {
     return clauses;
+  }
+
+  /**
+   * Returns the variables used in the clause.
+   * 
+   * @return the variables.
+   */
+  public Collection<V> getVariables() {
+    if (variables != null) {
+      return variables;
+    }
+
+    variables = new LinkedHashSet<>();
+
+    for (final IntegerClause<V> clause : clauses) {
+      variables.addAll(clause.getVariables());
+    }
+
+    return variables;
   }
 
   @SuppressWarnings("unchecked")
