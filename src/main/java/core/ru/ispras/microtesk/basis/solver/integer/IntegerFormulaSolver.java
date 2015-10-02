@@ -176,19 +176,33 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
       final IntegerClause.Builder<IntegerVariable> variantBuilder =
           new IntegerClause.Builder<>(IntegerClause.Type.AND);
 
-      variantBuilder.addClause(kernel);
-
       for (int i = 0; i < simplifiedClauses.size(); i++) {
         variantBuilder.addEquation(variantIterator.value(i));
       }
 
-      final IntegerClause<IntegerVariable> variant = variantBuilder.build();
+      // If the variant is relatively small, check it locally.
+      if (variantBuilder.size() < kernel.size() / 3 /* Heuristic */) {
+        final IntegerClause<IntegerVariable> localClause = variantBuilder.build();
 
-      final IntegerClauseSolver variantSolver = new IntegerClauseSolver(variables, variant);
-      final SolverResult<Map<IntegerVariable, BigInteger>> variantResult = variantSolver.solve(mode);
+        final Collection<Collection<IntegerVariable>> localVariables =
+            Collections.singleton(localClause.getVariables());
 
-      if (variantResult.getStatus() == SolverResult.Status.SAT) {
-        return variantResult;
+        final IntegerClauseSolver checker = new IntegerClauseSolver(localVariables, localClause);
+
+        if (checker.solve(Mode.SAT).getStatus() != SolverResult.Status.SAT) {
+          continue;
+        }
+      }
+
+      variantBuilder.addClause(kernel);
+
+      final IntegerClause<IntegerVariable> globalVariant = variantBuilder.build();
+
+      final IntegerClauseSolver globalSolver = new IntegerClauseSolver(variables, globalVariant);
+      final SolverResult<Map<IntegerVariable, BigInteger>> globalResult = globalSolver.solve(mode);
+
+      if (globalResult.getStatus() == SolverResult.Status.SAT) {
+        return globalResult;
       }
     }
 

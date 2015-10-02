@@ -6,6 +6,13 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+ 2015/10/02 MicroTESK 2.3.4 beta
+
+ The new build contains the following changes:
+
+ - Some bug fixes in the MMU simulator were made
+ - Some optimizations of the MMU test engine were implemented
+
  2015/09/25 MicroTESK 2.3.3 beta
 
  The new build contains the following changes:
