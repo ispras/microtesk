@@ -25,6 +25,7 @@ import ru.ispras.microtesk.test.TestSettings;
 final class PhysicalMemory extends Memory {
   private final MemoryDevice storage;
   private MemoryDevice handler;
+  private boolean usingTempStorage;
 
   private final boolean isLogical;
   private AddressTranslator addressTranslator;
@@ -38,6 +39,7 @@ final class PhysicalMemory extends Memory {
 
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     this.handler = null;
+    this.usingTempStorage = false;
     this.addressTranslator = null;
 
     // A memory array that corresponds to a real physical memory must satisfy the following
@@ -74,6 +76,7 @@ final class PhysicalMemory extends Memory {
     InvariantChecks.checkFalse(isLogical);
 
     this.handler = handler;
+
     return storage;
   }
 
@@ -108,6 +111,7 @@ final class PhysicalMemory extends Memory {
   @Override
   public void setUseTempCopy(boolean value) {
     storage.useTemporaryContext(value);
+    usingTempStorage = value;
   }
 
   private Location newLocationForRegion(final BitVector index) {
@@ -172,7 +176,7 @@ final class PhysicalMemory extends Memory {
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
-      if (!callHandler || handler == null) {
+      if (!callHandler || handler == null || usingTempStorage) {
         targetDevice = storage;
         targetAddress = virtualIndexToPhysicalIndex(index);
       } else {
@@ -193,7 +197,7 @@ final class PhysicalMemory extends Memory {
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
-      if (!callHandler || handler == null) {
+      if (!callHandler || handler == null || usingTempStorage) {
         targetDevice = storage;
         targetAddress = virtualIndexToPhysicalIndex(index);
       } else {
