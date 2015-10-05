@@ -44,25 +44,25 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   public FloatX(final int fractionSize, final int exponentSize) {
     // 1 is added to make room for implicit sign bit
     this(
-      BitVector.newEmpty(fractionSize + exponentSize + 1),
-      fractionSize,
-      exponentSize
-      );
+        BitVector.newEmpty(fractionSize + exponentSize + 1),
+        fractionSize,
+        exponentSize
+    );
   }
 
   public FloatX(final float floatData) {
     this(
-      BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
-      FLOAT_FRACTION_SIZE,
-      Float.SIZE - FLOAT_FRACTION_SIZE - 1 // Minus sign bit
+        BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
+        FLOAT_FRACTION_SIZE,
+        Float.SIZE - FLOAT_FRACTION_SIZE - 1 // Minus sign bit
     );
   }
 
   public FloatX(final double doubleData) {
     this(
-      BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
-      DOUBLE_FRACTION_SIZE,
-      Double.SIZE - DOUBLE_FRACTION_SIZE - 1 // Minus sign bit 
+        BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
+        DOUBLE_FRACTION_SIZE,
+        Double.SIZE - DOUBLE_FRACTION_SIZE - 1 // Minus sign bit 
     );
   }
 
@@ -83,11 +83,11 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public boolean isSingle() {
-    return (getSize() == Float.SIZE) && (getFractionSize() == FLOAT_FRACTION_SIZE);
+    return getSize() == Float.SIZE && getFractionSize() == FLOAT_FRACTION_SIZE;
   }
 
   public boolean isDouble() {
-    return (getSize() == Double.SIZE) && (getFractionSize() == DOUBLE_FRACTION_SIZE);
+    return getSize() == Double.SIZE && getFractionSize() == DOUBLE_FRACTION_SIZE;
   }
 
   @Override
