@@ -220,7 +220,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     }
 
     throw new UnsupportedOperationException(String.format(
-      "Not supported for argument type: %s.", getTypeName()));
+        "Not supported for argument type: %s.", getTypeName()));
   }
 
   public FloatX add(final FloatX arg) {
