@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class FloatX extends Number implements Comparable<FloatX> {
   private static final long serialVersionUID = 2006185347947148830L;
@@ -26,31 +27,21 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   private final int fractionSize;
   private final int exponentSize;
 
-  public FloatX(BitVector data, int fractionSize, int exponentSize) {
-    if (null == data) {
-      throw new NullPointerException();
-    }
-
-    if (exponentSize <= 0) {
-      throw new IllegalArgumentException();
-    }
-
-    if (fractionSize <= 0) {
-      throw new IllegalArgumentException();
-    }
+  public FloatX(final BitVector data, final int fractionSize, final int exponentSize) {
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkGreaterThanZero(exponentSize);
+    InvariantChecks.checkGreaterThanZero(fractionSize);
 
     // 1 is added to make room for implicit sign bit
     final int expectedBitSize = fractionSize + exponentSize + 1;
-    if (data.getBitSize() != expectedBitSize) {
-      throw new IllegalArgumentException("Not IEEE 754 format!");
-    }
+    InvariantChecks.checkTrue(data.getBitSize() == expectedBitSize, "Not IEEE 754 format!");
 
     this.data = BitVector.unmodifiable(data);
     this.fractionSize = fractionSize;
     this.exponentSize = exponentSize;
   }
 
-  public FloatX(int fractionSize, int exponentSize) {
+  public FloatX(final int fractionSize, final int exponentSize) {
     // 1 is added to make room for implicit sign bit
     this(
       BitVector.newEmpty(fractionSize + exponentSize + 1),
@@ -59,7 +50,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
       );
   }
 
-  public FloatX(float floatData) {
+  public FloatX(final float floatData) {
     this(
       BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
       FLOAT_FRACTION_SIZE,
@@ -67,7 +58,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     );
   }
 
-  public FloatX(double doubleData) {
+  public FloatX(final double doubleData) {
     this(
       BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
       DOUBLE_FRACTION_SIZE,
@@ -100,24 +91,22 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   @Override
-  public int compareTo(FloatX o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
+  public int compareTo(final FloatX other) {
+    InvariantChecks.checkNotNull(other);
 
-    if (equals(o)){
+    if (this.equals(other)){
       return 0;
     }
 
-    if (isSingle() && o.isSingle()) {
-      return Float.compare(floatValue(), o.floatValue());
+    if (this.isSingle() && other.isSingle()) {
+      return Float.compare(floatValue(), other.floatValue());
     }
 
-    if (isDouble() && o.isDouble()) {
-      return Double.compare(doubleValue(), o.doubleValue());
+    if (this.isDouble() && other.isDouble()) {
+      return Double.compare(doubleValue(), other.doubleValue());
     }
 
-    return data.compareTo(o.data);
+    return this.data.compareTo(other.data);
   }
 
   @Override
@@ -133,7 +122,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -234,10 +223,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
       "Not supported for argument type: %s.", getTypeName()));
   }
 
-  public FloatX add(FloatX arg) {
-    if (null == arg) {
-      throw new NullPointerException();
-    }
+  public FloatX add(final FloatX arg) {
+    InvariantChecks.checkNotNull(arg);
 
     if (isSingle() && arg.isSingle()) {
       return new FloatX(floatValue() + arg.floatValue());
@@ -250,10 +237,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return raiseNotSupported(getTypeName(), arg.getTypeName());
   }
 
-  public FloatX sub(FloatX arg) {
-    if (null == arg) {
-      throw new NullPointerException();
-    }
+  public FloatX sub(final FloatX arg) {
+    InvariantChecks.checkNotNull(arg);
 
     if (isSingle() && arg.isSingle()) {
       return new FloatX(floatValue() - arg.floatValue());
@@ -266,10 +251,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return raiseNotSupported(getTypeName(), arg.getTypeName());
   }
 
-  public FloatX mul(FloatX arg) {
-    if (null == arg) {
-      throw new NullPointerException();
-    }
+  public FloatX mul(final FloatX arg) {
+    InvariantChecks.checkNotNull(arg);
 
     if (isSingle() && arg.isSingle()) {
       return new FloatX(floatValue() * arg.floatValue());
@@ -282,10 +265,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return raiseNotSupported(getTypeName(), arg.getTypeName());
   }
 
-  public FloatX div(FloatX arg) {
-    if (null == arg) {
-      throw new NullPointerException();
-    }
+  public FloatX div(final FloatX arg) {
+    InvariantChecks.checkNotNull(arg);
 
     if (isSingle() && arg.isSingle()) {
       return new FloatX(floatValue() / arg.floatValue());
@@ -298,8 +279,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return raiseNotSupported(getTypeName(), arg.getTypeName());
   }
 
-  private static FloatX raiseNotSupported(String argType1, String argType2) {
+  private static FloatX raiseNotSupported(final String argType1, final String argType2) {
     throw new UnsupportedOperationException(String.format(
-      "Not supported for argument types: %s and %s.", argType1, argType2));
+        "Not supported for argument types: %s and %s.", argType1, argType2));
   }
 }
