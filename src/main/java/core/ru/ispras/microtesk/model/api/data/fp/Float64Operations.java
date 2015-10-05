@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.model.api.data.fp;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.JSoftFloat;
+
 final class Float64Operations implements Operations {
   private static Operations instance = null;
 
@@ -27,38 +30,45 @@ final class Float64Operations implements Operations {
   private Float64Operations() {}
 
   @Override
-  public FloatX neg(final FloatX arg) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public FloatX add(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final double value = JSoftFloat.float64_add(lhs.doubleValue(), rhs.doubleValue());
+    return newFloat64(value);
   }
 
   @Override
   public FloatX sub(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final double value = JSoftFloat.float64_sub(lhs.doubleValue(), rhs.doubleValue());
+    return newFloat64(value);
   }
 
   @Override
   public FloatX mul(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final double value = JSoftFloat.float64_mul(lhs.doubleValue(), rhs.doubleValue());
+    return newFloat64(value);
   }
 
   @Override
   public FloatX div(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final double value = JSoftFloat.float64_div(lhs.doubleValue(), rhs.doubleValue());
+    return newFloat64(value);
+  }
+
+  @Override
+  public FloatX rem(FloatX lhs, FloatX rhs) {
+    final double value = JSoftFloat.float64_rem(lhs.doubleValue(), rhs.doubleValue());
+    return newFloat64(value);
   }
 
   @Override
   public FloatX sqrt(final FloatX arg) {
-    // TODO Auto-generated method stub
-    return null;
+    final double value = JSoftFloat.float64_sqrt(arg.doubleValue());
+    return newFloat64(value);
+  }
+
+  private static FloatX newFloat64(final double doubleData) {
+    return new FloatX(
+        BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
+        Precision.FLOAT64
+    );
   }
 }

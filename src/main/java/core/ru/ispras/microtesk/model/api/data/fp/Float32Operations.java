@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.model.api.data.fp;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.JSoftFloat;
+
 final class Float32Operations implements Operations {
   private static Operations instance = null;
 
@@ -27,38 +30,45 @@ final class Float32Operations implements Operations {
   private Float32Operations() {}
 
   @Override
-  public FloatX neg(final FloatX arg) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public FloatX add(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final float value = JSoftFloat.float32_add(lhs.floatValue(), rhs.floatValue());
+    return newFloat32(value);
   }
 
   @Override
   public FloatX sub(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final float value = JSoftFloat.float32_sub(lhs.floatValue(), rhs.floatValue());
+    return newFloat32(value);
   }
 
   @Override
   public FloatX mul(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final float value = JSoftFloat.float32_mul(lhs.floatValue(), rhs.floatValue());
+    return newFloat32(value);
   }
 
   @Override
   public FloatX div(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    return null;
+    final float value = JSoftFloat.float32_div(lhs.floatValue(), rhs.floatValue());
+    return newFloat32(value);
+  }
+
+  @Override
+  public FloatX rem(FloatX lhs, FloatX rhs) {
+    final float value = JSoftFloat.float32_rem(lhs.floatValue(), rhs.floatValue());
+    return newFloat32(value);
   }
 
   @Override
   public FloatX sqrt(final FloatX arg) {
-    // TODO Auto-generated method stub
-    return null;
+    final float value = JSoftFloat.float32_sqrt(arg.floatValue());
+    return newFloat32(value);
+  }
+
+  private static FloatX newFloat32(final float floatData) {
+    return new FloatX(
+        BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
+        Precision.FLOAT32
+    );
   }
 }

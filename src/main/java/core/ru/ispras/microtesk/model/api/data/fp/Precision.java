@@ -17,27 +17,15 @@ package ru.ispras.microtesk.model.api.data.fp;
 import ru.ispras.fortress.util.InvariantChecks;
 
 enum Precision {
-  FLOAT32 (24, 8) {
+  FLOAT32 (23, 8) {
     @Override public Operations getOperations() {
       return Float32Operations.get();
     }
   },
 
-  FLOAT64 (53, 11) {
+  FLOAT64 (52, 11) {
     @Override public Operations getOperations() {
       return Float64Operations.get();
-    }
-  },
-
-  FLOAT80 (64, 16) {
-    @Override public Operations getOperations() {
-      return Float80Operations.get();
-    }
-  },
-
-  FLOAT128 (113, 15) {
-    @Override public Operations getOperations() {
-      return Float128Operations.get();
     }
   };
 
@@ -60,23 +48,13 @@ enum Precision {
     return exponentSize;
   }
 
+  public final int getSize() {
+    return fractionSize + exponentSize + 1; // plus implicit sign bit
+  }
+
   public final String getText() {
-    return String.format("%s(%d, %d)", name(), fractionSize, exponentSize);
+    return String.format("float(%d, %d)", fractionSize, exponentSize);
   }
 
   public abstract Operations getOperations();
-
-  public static Precision get(final int fractionSize, final int exponentSize) {
-    for (final Precision precision : values()) {
-      if (precision.fractionSize == fractionSize &&
-          precision.exponentSize == exponentSize) {
-        return precision;
-      }
-    }
-
-    throw new IllegalStateException(String.format(
-        "Unsupported floating-point precision: %d bits (fraction=%d, exponent=%d)",
-        fractionSize + exponentSize, fractionSize, exponentSize)
-        );
-  }
 }

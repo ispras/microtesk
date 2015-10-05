@@ -177,6 +177,13 @@ public final class DataEngine {
       }
     });
 
+    FLOAT_BINARY_OPERATORS.put(EOperatorID.MOD, new FloatBinary() {
+      @Override
+      protected Data calculate(FloatX lhs, FloatX rhs) {
+        return floatXToData(lhs.mod(rhs));
+      }
+    });
+
     FLOAT_UNARY_OPERATORS.put(EOperatorID.UNARY_PLUS, new FloatUnary() {
       @Override
       protected Data calculate(FloatX arg) {

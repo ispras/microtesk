@@ -60,20 +60,21 @@
   <property name="main.package"  value="${root.package}/ispras/microtesk"/>
 
   <!-- External JARs -->
-  <property name="antlr.jar"     value="antlr-3.4-complete.jar"/>
-  <property name="antlr.ant.jar" value="ant-antlr3.jar"/>
-  <property name="cli.jar"       value="commons-cli-1.2.jar"/>
-  <property name="jruby.jar"     value="jruby.jar"/>
-  <property name="fortress.jar"  value="fortress.jar"/>
-  <property name="testbase.jar"  value="testbase.jar"/>
+  <property name="antlr.jar"      value="antlr-3.4-complete.jar"/>
+  <property name="antlr.ant.jar"  value="ant-antlr3.jar"/>
+  <property name="cli.jar"        value="commons-cli-1.2.jar"/>
+  <property name="jruby.jar"      value="jruby.jar"/>
+  <property name="fortress.jar"   value="fortress.jar"/>
+  <property name="testbase.jar"   value="testbase.jar"/>
+  <property name="jsoftfloat.jar" value="jsoftfloat.jar"/>
 
   <!-- Information for the JAR manifest -->
   <property name="jar.mainclass" value="ru.ispras.microtesk.MicroTESK"/>
-  <property name="jar.classpath" value="${antlr.jar} ${cli.jar} ${jruby.jar} ${fortress.jar} ${testbase.jar}"/>
+  <property name="jar.classpath" value="${antlr.jar} ${cli.jar} ${jruby.jar} ${fortress.jar} ${testbase.jar} ${jsoftfloat.jar}"/>
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}"/>
+  <property name="classpath" value="${jars.path}/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:${jars.path}/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}:${jars.path}/${jsoftfloat.jar}"/>
 
   <!-- Options -->
   <property name="debug" value="false"/>
@@ -327,6 +328,7 @@
     <copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
     <copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
     <copy file="${jars.path}/${testbase.jar}" todir="${dist.jars}"/>
+    <copy file="${jars.path}/${jsoftfloat.jar}" todir="${dist.jars}"/>
   </target>
 
   <!-- Copies MicroTESK documentation to the distributive folder -->

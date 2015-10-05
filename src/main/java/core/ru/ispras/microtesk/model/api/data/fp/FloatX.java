@@ -20,49 +20,47 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class FloatX extends Number implements Comparable<FloatX> {
   private static final long serialVersionUID = 2006185347947148830L;
 
-  private static final int FLOAT_FRACTION_SIZE = 23;
-  private static final int DOUBLE_FRACTION_SIZE = 52;
-
   private final BitVector data;
-  private final int fractionSize;
-  private final int exponentSize;
+  private final Precision precision;
 
-  public FloatX(final BitVector data, final int fractionSize, final int exponentSize) {
+  FloatX(final BitVector data, final Precision precision) {
     InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkGreaterThanZero(exponentSize);
-    InvariantChecks.checkGreaterThanZero(fractionSize);
-
-    // 1 is added to make room for implicit sign bit
-    final int expectedBitSize = fractionSize + exponentSize + 1;
-    InvariantChecks.checkTrue(data.getBitSize() == expectedBitSize, "Not IEEE 754 format!");
+    InvariantChecks.checkNotNull(precision);
+    InvariantChecks.checkTrue(data.getBitSize() == precision.getSize());
 
     this.data = BitVector.unmodifiable(data);
-    this.fractionSize = fractionSize;
-    this.exponentSize = exponentSize;
+    this.precision = precision;
+  }
+
+  public FloatX(final BitVector data, final int fractionSize, final int exponentSize) {
+    this(
+        data,
+        getPrecision(fractionSize, exponentSize)
+    );
   }
 
   public FloatX(final int fractionSize, final int exponentSize) {
-    // 1 is added to make room for implicit sign bit
     this(
-        BitVector.newEmpty(fractionSize + exponentSize + 1),
+        BitVector.newEmpty(fractionSize + exponentSize),
         fractionSize,
         exponentSize
     );
   }
 
-  public FloatX(final float floatData) {
-    this(
-        BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
-        FLOAT_FRACTION_SIZE,
-        Float.SIZE - FLOAT_FRACTION_SIZE - 1 // Minus sign bit
-    );
-  }
+  private static Precision getPrecision(final int fractionSize, final int exponentSize) {
+    for (final Precision precision : Precision.values()) {
+      if (precision.getFractionSize() == fractionSize &&
+          precision.getExponentSize() == exponentSize) {
+        return precision;
+      }
+    }
 
-  public FloatX(final double doubleData) {
-    this(
-        BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
-        DOUBLE_FRACTION_SIZE,
-        Double.SIZE - DOUBLE_FRACTION_SIZE - 1 // Minus sign bit 
+    throw new IllegalStateException(String.format(
+        "Unsupported floating-point format: %d bits (sign=1, fraction=%d, exponent=%d)",
+        fractionSize + exponentSize + 1, // plus implicit sign bit
+        fractionSize,
+        exponentSize
+        )
     );
   }
 
@@ -75,19 +73,19 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public int getExponentSize() {
-    return exponentSize;
+    return precision.getExponentSize();
   }
 
   public int getFractionSize() {
-    return fractionSize;
+    return precision.getFractionSize();
   }
 
   public boolean isSingle() {
-    return getSize() == Float.SIZE && getFractionSize() == FLOAT_FRACTION_SIZE;
+    return precision.equals(Precision.FLOAT32);
   }
 
   public boolean isDouble() {
-    return getSize() == Double.SIZE && getFractionSize() == DOUBLE_FRACTION_SIZE;
+    return precision.equals(Precision.FLOAT64);
   }
 
   @Override
@@ -115,8 +113,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     int result = 1;
 
     result = prime * result + data.hashCode();
-    result = prime * result + fractionSize;
-    result = prime * result + exponentSize;
+    result = prime * result + getFractionSize();
+    result = prime * result + getExponentSize();
 
     return result;
   }
@@ -136,15 +134,11 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     }
 
     final FloatX other = (FloatX) obj;
+    if (!precision.equals(other.precision)) {
+      return false;
+    }
+
     if (!data.equals(other.data)) {
-      return false;
-    }
-
-    if (exponentSize != other.exponentSize) {
-      return false;
-    }
-
-    if (fractionSize != other.fractionSize) {
       return false;
     }
 
@@ -158,7 +152,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     }
 
     throw new IllegalStateException(String.format(
-      "The %s type is not a IEEE 754 single.", getTypeName()));
+        "The %s type is not a IEEE 754 single.", precision.getText()));
   }
 
   @Override
@@ -167,8 +161,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
       return Double.longBitsToDouble(data.longValue());
     }
 
-    throw new IllegalStateException(
-      String.format("The %s type is not a IEEE 754 double.", getTypeName()));
+    throw new IllegalStateException(String.format(
+        "The %s type is not a IEEE 754 double.", precision.getText()));
   }
 
   @Override
@@ -179,10 +173,6 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   @Override
   public long longValue() {
     return data.longValue();
-  }
-
-  public String getTypeName() {
-    return String.format("float(%d, %d)", getFractionSize(), getExponentSize());
   }
 
   @Override
@@ -211,76 +201,57 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public FloatX neg() {
-    if (isSingle()) {
-      return new FloatX(-floatValue());
-    }
+    final int signBitIndex = getSize() - 1;
 
-    if (isDouble()) {
-      return new FloatX(-doubleValue());
-    }
+    final BitVector newData = data.copy();
+    newData.setBit(signBitIndex, !data.getBit(signBitIndex));
 
-    throw new UnsupportedOperationException(String.format(
-        "Not supported for argument type: %s.", getTypeName()));
+    return new FloatX(newData, precision);
   }
 
   public FloatX add(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
+    checkSamePrecision(precision, arg.precision);
 
-    if (isSingle() && arg.isSingle()) {
-      return new FloatX(floatValue() + arg.floatValue());
-    }
-
-    if (isDouble() && arg.isDouble()) {
-      return new FloatX(doubleValue() + arg.doubleValue());
-    }
-
-    return raiseNotSupported(getTypeName(), arg.getTypeName());
+    return precision.getOperations().add(this, arg);
   }
 
   public FloatX sub(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
+    checkSamePrecision(precision, arg.precision);
 
-    if (isSingle() && arg.isSingle()) {
-      return new FloatX(floatValue() - arg.floatValue());
-    }
-
-    if (isDouble() && arg.isDouble()) {
-      return new FloatX(doubleValue() - arg.doubleValue());
-    }
-
-    return raiseNotSupported(getTypeName(), arg.getTypeName());
+    return precision.getOperations().sub(this, arg);
   }
 
   public FloatX mul(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
+    checkSamePrecision(precision, arg.precision);
 
-    if (isSingle() && arg.isSingle()) {
-      return new FloatX(floatValue() * arg.floatValue());
-    }
-
-    if (isDouble() && arg.isDouble()) {
-      return new FloatX(doubleValue() * arg.doubleValue());
-    }
-
-    return raiseNotSupported(getTypeName(), arg.getTypeName());
+    return precision.getOperations().mul(this, arg);
   }
 
   public FloatX div(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
+    checkSamePrecision(precision, arg.precision);
 
-    if (isSingle() && arg.isSingle()) {
-      return new FloatX(floatValue() / arg.floatValue());
-    }
-
-    if (isDouble() && arg.isDouble()) {
-      return new FloatX(doubleValue() / arg.doubleValue());
-    }
-
-    return raiseNotSupported(getTypeName(), arg.getTypeName());
+    return precision.getOperations().div(this, arg);
   }
 
-  private static FloatX raiseNotSupported(final String argType1, final String argType2) {
-    throw new UnsupportedOperationException(String.format(
-        "Not supported for argument types: %s and %s.", argType1, argType2));
+  public FloatX mod(FloatX arg) {
+    InvariantChecks.checkNotNull(arg);
+    checkSamePrecision(precision, arg.precision);
+
+    return precision.getOperations().rem(this, arg);
+  }
+
+  private static void checkSamePrecision(
+      final Precision lhsPrecision,
+      final Precision rhsPrecision) {
+    if (!lhsPrecision.equals(rhsPrecision)) {
+      throw new IllegalArgumentException(String.format(
+          "Both arguments must have the same precision: %s and %s",
+          lhsPrecision.getText(),
+          rhsPrecision.getText()));
+    }
   }
 }
