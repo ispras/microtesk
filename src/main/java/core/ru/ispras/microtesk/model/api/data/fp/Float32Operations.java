@@ -67,7 +67,7 @@ final class Float32Operations implements Operations {
 
   private static FloatX newFloat32(final float floatData) {
     return new FloatX(
-        BitVector.valueOf(Float.floatToIntBits(floatData), Float.SIZE),
+        BitVector.valueOf(Float.floatToRawIntBits(floatData), Float.SIZE),
         Precision.FLOAT32
     );
   }

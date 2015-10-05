@@ -67,7 +67,7 @@ final class Float64Operations implements Operations {
 
   private static FloatX newFloat64(final double doubleData) {
     return new FloatX(
-        BitVector.valueOf(Double.doubleToLongBits(doubleData), Double.SIZE),
+        BitVector.valueOf(Double.doubleToRawLongBits(doubleData), Double.SIZE),
         Precision.FLOAT64
     );
   }
