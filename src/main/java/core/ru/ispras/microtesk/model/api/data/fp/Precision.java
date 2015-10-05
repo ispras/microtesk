@@ -60,8 +60,8 @@ enum Precision {
     return exponentSize;
   }
 
-  public final int getSize() {
-    return fractionSize + exponentSize;
+  public final String getText() {
+    return String.format("%s(%d, %d)", name(), fractionSize, exponentSize);
   }
 
   public abstract Operations getOperations();
