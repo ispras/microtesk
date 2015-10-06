@@ -21,11 +21,13 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
 public final class TypeFactory extends WalkerFactoryBase {
-  public TypeFactory(WalkerContext context) {
+  public TypeFactory(final WalkerContext context) {
     super(context);
   }
 
-  public Type newAlias(Where where, String name) throws SemanticException {
+  public Type newAlias(
+      final Where where,
+      final String name) throws SemanticException {
     final Type ref = getIR().getTypes().get(name);
     if (null == ref) {
       raiseError(where, String.format("Undefined type: %s.", name));
@@ -34,21 +36,29 @@ public final class TypeFactory extends WalkerFactoryBase {
     return ref.alias(name);
   }
 
-  public Type newInt(Where where, Expr bitSize) throws SemanticException {
+  public Type newInt(
+      final Where where,
+      final Expr bitSize) throws SemanticException {
     return Type.INT(bitSize);
   }
 
-  public Type newCard(Where where, Expr bitSize) throws SemanticException {
+  public Type newCard(
+      final Where where,
+      final Expr bitSize) throws SemanticException {
     return Type.CARD(bitSize);
   }
 
-  public Type newFloat(Where where, Expr fractionBitSize, Expr exponentBitSize)
-      throws SemanticException {
+  public Type newFloat(
+      final Where where,
+      final Expr fractionBitSize,
+      final Expr exponentBitSize) throws SemanticException {
     return Type.FLOAT(fractionBitSize, exponentBitSize);
   }
 
-  public Type newFix(Where where, Expr beforeBinaryPointSize, Expr afterBinaryPointSize)
-      throws SemanticException {
+  public Type newFix(
+      final Where where, 
+      final Expr beforeBinaryPointSize,
+      final Expr afterBinaryPointSize) throws SemanticException {
     return Type.FIX(beforeBinaryPointSize, afterBinaryPointSize);
   }
 }
