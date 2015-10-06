@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.mmu.translator;
 
 public enum MmuSymbolKind {
+  /** External value (read for a register or an addressing mode) */
+  EXTERN,
+
   /** Reserved keywords */
   KEYWORD,
 

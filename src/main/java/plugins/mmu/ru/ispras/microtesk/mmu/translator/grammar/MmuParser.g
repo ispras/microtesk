@@ -53,6 +53,7 @@ package ru.ispras.microtesk.mmu.translator.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
+import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 }
 
 @members {
@@ -75,6 +76,7 @@ startRule
 
 declaration
     : let
+    | extern
     | struct
     | address
     | segment
@@ -101,6 +103,18 @@ field
 typeRef
     : ID
     | expr (ASSIGN! expr)?
+    ;
+
+//==================================================================================================
+// Extern
+//==================================================================================================
+
+extern
+    : MMU_EXTERN^ id=ID ASSIGN! externExpr {declare($id, MmuSymbolKind.EXTERN, false);}
+    ;
+
+externExpr
+    : ID ((LEFT_HOOK! expr RIGHT_HOOK!) | (LEFT_PARENTH! (expr (COMMA! expr)*)? RIGHT_PARENTH!))?
     ;
 
 //==================================================================================================

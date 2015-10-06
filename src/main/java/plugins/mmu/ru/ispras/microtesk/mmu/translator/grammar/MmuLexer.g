@@ -67,6 +67,8 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 //==================================================================================================
 
 MMU_LET     : 'let';
+MMU_EXTERN  : 'extern';
+
 MMU_STRUCT  : 'struct';
 MMU_ADDRESS : 'address';
 
