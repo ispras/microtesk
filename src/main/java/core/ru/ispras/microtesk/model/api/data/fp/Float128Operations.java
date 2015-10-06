@@ -68,13 +68,14 @@ final class Float128Operations implements Operations {
 
   @Override
   public int compare(final FloatX first, final FloatX second) {
-    if (first.equals(second)){
+    final Float128 value1 = newFloat128(first);
+    final Float128 value2 = newFloat128(second);
+
+    if (JSoftFloat.float128_eq(value1, value2)){
       return 0;
     }
 
-    return JSoftFloat.float128_lt(
-        newFloat128(first),
-        newFloat128(second)) ? -1 : 1;
+    return JSoftFloat.float128_lt(value1, value2) ? -1 : 1;
   }
 
   @Override

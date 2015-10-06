@@ -67,13 +67,14 @@ final class Float32Operations implements Operations {
 
   @Override
   public int compare(final FloatX first, final FloatX second) {
-    if (first.equals(second)){
+    final float value1 = first.floatValue();
+    final float value2 = second.floatValue();
+
+    if (JSoftFloat.float32_eq(value1, value2)){
       return 0;
     }
 
-    return JSoftFloat.float32_lt(
-        first.floatValue(),
-        second.floatValue()) ? -1 : 1;
+    return JSoftFloat.float32_lt(value1, value2) ? -1 : 1;
   }
 
   @Override

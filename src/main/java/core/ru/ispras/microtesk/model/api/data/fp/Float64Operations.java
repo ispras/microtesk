@@ -77,13 +77,14 @@ final class Float64Operations implements Operations {
 
   @Override
   public int compare(final FloatX first, final FloatX second) {
-    if (first.equals(second)){
+    final double value1 = first.doubleValue();
+    final double value2 = second.doubleValue();
+
+    if (JSoftFloat.float64_eq(value1, value2)){
       return 0;
     }
 
-    return JSoftFloat.float64_lt(
-        first.doubleValue(),
-        second.doubleValue()) ? -1 : 1;
+    return JSoftFloat.float64_lt(value1, value2) ? -1 : 1;
   }
 
   private static FloatX newFloatX(final double value) {
