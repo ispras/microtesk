@@ -62,6 +62,10 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     );
   }
 
+  private Operations getOperations() {
+    return precision.getOperations();
+  }
+
   public BitVector getData() {
     return data;
   }
@@ -193,51 +197,46 @@ public final class FloatX extends Number implements Comparable<FloatX> {
 
   public FloatX add(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
-    checkSamePrecision(precision, arg.precision);
+    checkPrecision(precision, arg.precision);
 
     return getOperations().add(this, arg);
   }
 
   public FloatX sub(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
-    checkSamePrecision(precision, arg.precision);
+    checkPrecision(precision, arg.precision);
 
     return getOperations().sub(this, arg);
   }
 
   public FloatX mul(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
-    checkSamePrecision(precision, arg.precision);
+    checkPrecision(precision, arg.precision);
 
     return getOperations().mul(this, arg);
   }
 
   public FloatX div(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
-    checkSamePrecision(precision, arg.precision);
+    checkPrecision(precision, arg.precision);
 
     return getOperations().div(this, arg);
   }
 
   public FloatX mod(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
-    checkSamePrecision(precision, arg.precision);
+    checkPrecision(precision, arg.precision);
 
     return getOperations().rem(this, arg);
   }
 
-  private Operations getOperations() {
-    return precision.getOperations();
-  }
-
-  private static void checkSamePrecision(
-      final Precision lhsPrecision,
-      final Precision rhsPrecision) {
-    if (!lhsPrecision.equals(rhsPrecision)) {
+  private static void checkPrecision(final Precision lhs, final Precision rhs) {
+    if (!lhs.equals(rhs)) {
       throw new IllegalArgumentException(String.format(
           "Both arguments must have the same precision: %s and %s",
-          lhsPrecision.getText(),
-          rhsPrecision.getText()));
+          lhs.getText(),
+          rhs.getText())
+      );
     }
   }
 }
