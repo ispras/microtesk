@@ -126,12 +126,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return ir;
   }
 
-  private MmuTreeWalkerContext context = MmuTreeWalkerContext.GLOBAL;
-
-  protected void resetContext() {
-    this.context = MmuTreeWalkerContext.GLOBAL;
-  }
-
   /**
    * Adds a static constant (let expression) to the IR.
    * 
@@ -381,10 +375,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
                                         address.getContentType());
       storage.popScope();
 
-      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id.getText());
-      // context.defineVariable(addressArg);
-
-
       if (parentBufferId != null) {
         this.parent = getBuffer(parentBufferId);
 
@@ -595,8 +585,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       this.variables = new LinkedHashMap<>();
       this.attributes = new LinkedHashMap<>();
-
-      context = new MmuTreeWalkerContext(MmuTreeWalkerContext.Kind.BUFFER, id);
     }
 
     public void addVariable(final CommonTree varId, final Node sizeExpr) throws SemanticException {
@@ -632,7 +620,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       final Variable v = storage.declare(varId.getText(), type, source);
       variables.put(v.getName(), v);
-      // context.defineVariable(variable);
     }
 
     public void addAttribute(final CommonTree attrId, final List<Stmt> stmts) {
@@ -714,7 +701,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
-    // context.setAssignedValue(leftExpr, rightExpr);
     propagator.assign(leftExpr, rightExpr);
 
     return new StmtAssign(leftExpr, rightExpr);
@@ -1017,7 +1003,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   private NodeVariable getVariable(final CommonTree variableId) throws SemanticException {
-    final NodeVariable variable = getVariableObject(variableId).getNode(); // context.getVariable(variableId.getText());
+    final NodeVariable variable = getVariableObject(variableId).getNode();
     if (null == variable) {
       raiseError(where(variableId), String.format(
           "%s is undefined in the current scope or is not a variable.", variableId.getText()));

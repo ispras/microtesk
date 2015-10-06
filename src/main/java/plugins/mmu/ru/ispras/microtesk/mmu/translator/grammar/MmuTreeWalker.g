@@ -155,7 +155,7 @@ segment
          stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
         {builder.buildSegment($from.res, $to.res);}
       )
-    ; finally {popSymbolScope(); resetContext();}
+    ; finally {popSymbolScope();}
 //==================================================================================================
 // Buffer
 //==================================================================================================
@@ -177,7 +177,7 @@ buffer
         )*
         {builder.build();}
       )
-    ; finally {popSymbolScope(); resetContext();}
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Memory
@@ -196,7 +196,7 @@ mmu
          stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
         {builder.buildMemory();}
       )
-    ; finally {popSymbolScope(); resetContext();}
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Statements
