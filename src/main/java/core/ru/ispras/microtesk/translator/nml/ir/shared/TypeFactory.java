@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
+import ru.ispras.microtesk.model.api.data.fp.Precision;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
@@ -52,6 +53,19 @@ public final class TypeFactory extends WalkerFactoryBase {
       final Where where,
       final Expr fractionBitSize,
       final Expr exponentBitSize) throws SemanticException {
+
+    final int fractionSize = fractionBitSize.integerValue();
+    final int exponentSize = exponentBitSize.integerValue();
+
+    final Precision precision = Precision.find(fractionSize, exponentSize);
+    if (null == precision) {
+      raiseError(where, String.format(
+          "Unsupported floating-point format: float(%d, %d)",
+          fractionSize,
+          exponentSize
+          ));
+    }
+
     return Type.FLOAT(fractionBitSize, exponentBitSize);
   }
 
