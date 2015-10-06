@@ -67,6 +67,17 @@ final class Float128Operations implements Operations {
   }
 
   @Override
+  public int compare(final FloatX first, final FloatX second) {
+    if (first.equals(second)){
+      return 0;
+    }
+
+    return JSoftFloat.float128_lt(
+        newFloat128(first),
+        newFloat128(second)) ? -1 : 1;
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     final Float128 value = newFloat128(arg); 
     return value.toString();

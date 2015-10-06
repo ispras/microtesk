@@ -66,6 +66,17 @@ final class Float32Operations implements Operations {
   }
 
   @Override
+  public int compare(final FloatX first, final FloatX second) {
+    if (first.equals(second)){
+      return 0;
+    }
+
+    return JSoftFloat.float32_lt(
+        first.floatValue(),
+        second.floatValue()) ? -1 : 1;
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     return Float.toString(arg.floatValue());
   }

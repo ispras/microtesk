@@ -75,6 +75,17 @@ final class Float64Operations implements Operations {
     return newFloatX(result);
   }
 
+  @Override
+  public int compare(final FloatX first, final FloatX second) {
+    if (first.equals(second)){
+      return 0;
+    }
+
+    return JSoftFloat.float64_lt(
+        first.doubleValue(),
+        second.doubleValue()) ? -1 : 1;
+  }
+
   private static FloatX newFloatX(final double value) {
     return new FloatX(
         BitVector.valueOf(Double.doubleToRawLongBits(value), Double.SIZE),

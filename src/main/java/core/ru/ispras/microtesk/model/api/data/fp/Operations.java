@@ -23,6 +23,7 @@ interface Operations {
   FloatX rem(final FloatX lhs, final FloatX rhs);
 
   FloatX sqrt(final FloatX arg);
+  int compare(final FloatX first, final FloatX second);
 
   String toString(final FloatX arg);
   String toHexString(final FloatX arg);

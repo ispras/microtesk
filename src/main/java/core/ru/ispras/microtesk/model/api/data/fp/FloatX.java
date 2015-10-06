@@ -93,20 +93,9 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   @Override
   public int compareTo(final FloatX other) {
     InvariantChecks.checkNotNull(other);
+    checkPrecision(precision, other.precision);
 
-    if (this.equals(other)){
-      return 0;
-    }
-
-    if (this.isSingle() && other.isSingle()) {
-      return Float.compare(floatValue(), other.floatValue());
-    }
-
-    if (this.isDouble() && other.isDouble()) {
-      return Double.compare(doubleValue(), other.doubleValue());
-    }
-
-    return this.data.compareTo(other.data);
+    return getOperations().compare(this, other);
   }
 
   @Override
