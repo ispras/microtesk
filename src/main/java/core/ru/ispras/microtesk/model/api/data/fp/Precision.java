@@ -29,6 +29,12 @@ public enum Precision {
     }
   },
 
+  FLOAT80 (64, 15) {
+    @Override public Operations getOperations() {
+      return Float80Operations.get();
+    }
+  },
+
   FLOAT128 (112, 15) {
     @Override public Operations getOperations() {
       return Float128Operations.get();
