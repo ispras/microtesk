@@ -14,42 +14,41 @@
 
 package ru.ispras.microtesk.model.api.data.operations;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IUnaryOperator;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
+import ru.ispras.microtesk.model.api.data.fp.Precision;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
 public abstract class FloatUnary implements IUnaryOperator {
-  public static FloatX dataToFloatX(Data data) {
-    if (null == data) {
-      throw new NullPointerException();
-    }
+  public static FloatX dataToFloatX(final Data data) {
+    InvariantChecks.checkNotNull(data);
 
     final Type type = data.getType();
-    if (type.getTypeId() != TypeId.FLOAT) {
-      throw new IllegalArgumentException();
-    }
+    InvariantChecks.checkTrue(type.getTypeId() == TypeId.FLOAT);
 
     return new FloatX(
       data.getRawData(), type.getFieldSize(0), type.getFieldSize(1));
   }
 
-  public static Data floatXToData(FloatX floatX) {
-    return new Data(floatX.getData(),
-      Type.FLOAT(floatX.getFractionSize(), floatX.getExponentSize()));
+  public static Data floatXToData(final FloatX floatX) {
+    final Precision precision = floatX.getPrecision();
+    return new Data(floatX.getData(), Type.FLOAT(
+        precision.getFractionSize(), precision.getExponentSize()));
   }
 
   @Override
-  public final Data execute(Data data) {
+  public final Data execute(final Data data) {
     final FloatX arg = dataToFloatX(data);
     return calculate(arg);
   }
 
-  protected abstract Data calculate(FloatX arg);
+  protected abstract Data calculate(final FloatX arg);
 
   @Override
-  public final boolean supports(Type argType) {
+  public final boolean supports(final Type argType) {
     return argType.getTypeId() == TypeId.FLOAT;
   }
 }

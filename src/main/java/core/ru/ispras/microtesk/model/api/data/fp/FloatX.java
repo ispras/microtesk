@@ -74,12 +74,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return data.getBitSize();
   }
 
-  public int getExponentSize() {
-    return precision.getExponentSize();
-  }
-
-  public int getFractionSize() {
-    return precision.getFractionSize();
+  public Precision getPrecision() {
+    return precision;
   }
 
   @Override
@@ -96,8 +92,8 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     int result = 1;
 
     result = prime * result + data.hashCode();
-    result = prime * result + getFractionSize();
-    result = prime * result + getExponentSize();
+    result = prime * result + precision.getFractionSize();
+    result = prime * result + precision.getExponentSize();
 
     return result;
   }
