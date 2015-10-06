@@ -82,14 +82,6 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return precision.getFractionSize();
   }
 
-  public boolean isSingle() {
-    return precision.equals(Precision.FLOAT32);
-  }
-
-  public boolean isDouble() {
-    return precision.equals(Precision.FLOAT64);
-  }
-
   @Override
   public int compareTo(final FloatX other) {
     InvariantChecks.checkNotNull(other);
@@ -138,7 +130,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
 
   @Override
   public float floatValue() {
-    if (isSingle()) {
+    if (precision.equals(Precision.FLOAT32)) {
       return Float.intBitsToFloat(data.intValue());
     }
 
@@ -148,7 +140,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
 
   @Override
   public double doubleValue() {
-    if (isDouble()) {
+    if (precision.equals(Precision.FLOAT64)) {
       return Double.longBitsToDouble(data.longValue());
     }
 
