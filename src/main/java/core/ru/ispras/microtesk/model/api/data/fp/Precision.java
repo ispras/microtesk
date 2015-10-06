@@ -27,6 +27,12 @@ enum Precision {
     @Override public Operations getOperations() {
       return Float64Operations.get();
     }
+  },
+
+  FLOAT128 (112, 15) {
+    @Override public Operations getOperations() {
+      return Float128Operations.get();
+    }
   };
 
   private final int fractionSize;

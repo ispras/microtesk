@@ -15,60 +15,72 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.Float128;
 import ru.ispras.softfloat.JSoftFloat;
 
-final class Float32Operations implements Operations {
+final class Float128Operations implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {
     if (null == instance) {
-      instance = new Float32Operations();
+      instance = new Float128Operations();
     }
     return instance;
   }
 
-  private Float32Operations() {}
+  private Float128Operations() {}
 
   @Override
   public FloatX add(final FloatX lhs, final FloatX rhs) {
-    final float result = JSoftFloat.float32_add(lhs.floatValue(), rhs.floatValue());
+    final Float128 result = JSoftFloat.float128_add(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
 
   @Override
   public FloatX sub(final FloatX lhs, final FloatX rhs) {
-    final float result = JSoftFloat.float32_sub(lhs.floatValue(), rhs.floatValue());
+    final Float128 result = JSoftFloat.float128_sub(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
 
   @Override
   public FloatX mul(final FloatX lhs, final FloatX rhs) {
-    final float result = JSoftFloat.float32_mul(lhs.floatValue(), rhs.floatValue());
+    final Float128 result = JSoftFloat.float128_mul(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
 
   @Override
   public FloatX div(final FloatX lhs, final FloatX rhs) {
-    final float result = JSoftFloat.float32_div(lhs.floatValue(), rhs.floatValue());
+    final Float128 result = JSoftFloat.float128_div(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
 
   @Override
   public FloatX rem(FloatX lhs, FloatX rhs) {
-    final float result = JSoftFloat.float32_rem(lhs.floatValue(), rhs.floatValue());
+    final Float128 result = JSoftFloat.float128_rem(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
 
   @Override
   public FloatX sqrt(final FloatX arg) {
-    final float result = JSoftFloat.float32_sqrt(arg.floatValue());
+    final Float128 result = JSoftFloat.float128_sqrt(newFloat128(arg));
     return newFloatX(result);
   }
 
-  private static FloatX newFloatX(final float value) {
-    return new FloatX(
-        BitVector.valueOf(Float.floatToRawIntBits(value), Float.SIZE),
-        Precision.FLOAT32
-    );
+  private static Float128 newFloat128(final FloatX value) {
+    final BitVector data = value.getData();
+
+    final long low = data.field(0, 63).longValue();
+    final long high = data.field(64, 127).longValue();
+ 
+    return new Float128(high, low);
+  }
+
+  private static FloatX newFloatX(final Float128 value) {
+    final BitVector data = BitVector.newEmpty(128);
+
+    data.field(0,   63).assign(BitVector.valueOf(value.low,  64));
+    data.field(64, 127).assign(BitVector.valueOf(value.high, 64));
+
+    return new FloatX(data, Precision.FLOAT128);
   }
 }
