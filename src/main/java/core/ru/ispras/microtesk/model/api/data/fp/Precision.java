@@ -16,7 +16,7 @@ package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-enum Precision {
+public enum Precision {
   FLOAT32 (23, 8) {
     @Override public Operations getOperations() {
       return Float32Operations.get();
@@ -63,4 +63,15 @@ enum Precision {
   }
 
   public abstract Operations getOperations();
+
+  public static Precision find(final int fractionSize, final int exponentSize) {
+    for (final Precision precision : Precision.values()) {
+      if (precision.getFractionSize() == fractionSize &&
+          precision.getExponentSize() == exponentSize) {
+        return precision;
+      }
+    }
+
+    return null;
+  }
 }

@@ -48,11 +48,9 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   private static Precision getPrecision(final int fractionSize, final int exponentSize) {
-    for (final Precision precision : Precision.values()) {
-      if (precision.getFractionSize() == fractionSize &&
-          precision.getExponentSize() == exponentSize) {
-        return precision;
-      }
+    final Precision result = Precision.find(fractionSize, exponentSize);
+    if (result != null) {
+      return result;
     }
 
     throw new IllegalStateException(String.format(
