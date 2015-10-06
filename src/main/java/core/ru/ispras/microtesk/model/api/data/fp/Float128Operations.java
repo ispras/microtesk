@@ -55,7 +55,7 @@ final class Float128Operations implements Operations {
   }
 
   @Override
-  public FloatX rem(FloatX lhs, FloatX rhs) {
+  public FloatX rem(final FloatX lhs, final FloatX rhs) {
     final Float128 result = JSoftFloat.float128_rem(newFloat128(lhs), newFloat128(rhs));
     return newFloatX(result);
   }
@@ -64,6 +64,17 @@ final class Float128Operations implements Operations {
   public FloatX sqrt(final FloatX arg) {
     final Float128 result = JSoftFloat.float128_sqrt(newFloat128(arg));
     return newFloatX(result);
+  }
+
+  @Override
+  public String toString(final FloatX arg) {
+    final Float128 value = newFloat128(arg); 
+    return value.toString();
+  }
+
+  @Override
+  public String toHexString(final FloatX arg) {
+    return toString(arg);
   }
 
   private static Float128 newFloat128(final FloatX value) {

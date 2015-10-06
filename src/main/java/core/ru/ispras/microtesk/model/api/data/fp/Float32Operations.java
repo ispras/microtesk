@@ -54,7 +54,7 @@ final class Float32Operations implements Operations {
   }
 
   @Override
-  public FloatX rem(FloatX lhs, FloatX rhs) {
+  public FloatX rem(final FloatX lhs, final FloatX rhs) {
     final float result = JSoftFloat.float32_rem(lhs.floatValue(), rhs.floatValue());
     return newFloatX(result);
   }
@@ -63,6 +63,16 @@ final class Float32Operations implements Operations {
   public FloatX sqrt(final FloatX arg) {
     final float result = JSoftFloat.float32_sqrt(arg.floatValue());
     return newFloatX(result);
+  }
+
+  @Override
+  public String toString(final FloatX arg) {
+    return Float.toString(arg.floatValue());
+  }
+
+  @Override
+  public String toHexString(final FloatX arg) {
+    return Float.toHexString(arg.floatValue());
   }
 
   private static FloatX newFloatX(final float value) {

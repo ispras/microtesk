@@ -17,8 +17,13 @@ package ru.ispras.microtesk.model.api.data.fp;
 interface Operations {
   FloatX add(final FloatX lhs, final FloatX rhs);
   FloatX sub(final FloatX lhs, final FloatX rhs);
+
   FloatX mul(final FloatX lhs, final FloatX rhs);
   FloatX div(final FloatX lhs, final FloatX rhs);
   FloatX rem(final FloatX lhs, final FloatX rhs);
+
   FloatX sqrt(final FloatX arg);
+
+  String toString(final FloatX arg);
+  String toHexString(final FloatX arg);
 }

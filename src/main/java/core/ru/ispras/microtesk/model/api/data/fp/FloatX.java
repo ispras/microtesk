@@ -175,27 +175,11 @@ public final class FloatX extends Number implements Comparable<FloatX> {
 
   @Override
   public String toString() {
-    if (isSingle()) {
-      return Float.toString(floatValue());
-    }
-
-    if (isDouble()) {
-      return Double.toString(doubleValue());
-    }
-
-    return data.toString();
+    return getOperations().toString(this);
   }
 
   public String toHexString() {
-    if (isSingle()) {
-      return Float.toHexString(floatValue());
-    }
-
-    if (isDouble()) {
-      return Double.toHexString(doubleValue());
-    }
-
-    return data.toHexString();
+    return getOperations().toHexString(this);
   }
 
   public FloatX neg() {
@@ -211,35 +195,39 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     InvariantChecks.checkNotNull(arg);
     checkSamePrecision(precision, arg.precision);
 
-    return precision.getOperations().add(this, arg);
+    return getOperations().add(this, arg);
   }
 
   public FloatX sub(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
     checkSamePrecision(precision, arg.precision);
 
-    return precision.getOperations().sub(this, arg);
+    return getOperations().sub(this, arg);
   }
 
   public FloatX mul(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
     checkSamePrecision(precision, arg.precision);
 
-    return precision.getOperations().mul(this, arg);
+    return getOperations().mul(this, arg);
   }
 
   public FloatX div(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
     checkSamePrecision(precision, arg.precision);
 
-    return precision.getOperations().div(this, arg);
+    return getOperations().div(this, arg);
   }
 
-  public FloatX mod(FloatX arg) {
+  public FloatX mod(final FloatX arg) {
     InvariantChecks.checkNotNull(arg);
     checkSamePrecision(precision, arg.precision);
 
-    return precision.getOperations().rem(this, arg);
+    return getOperations().rem(this, arg);
+  }
+
+  private Operations getOperations() {
+    return precision.getOperations();
   }
 
   private static void checkSamePrecision(

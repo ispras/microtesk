@@ -54,9 +54,19 @@ final class Float64Operations implements Operations {
   }
 
   @Override
-  public FloatX rem(FloatX lhs, FloatX rhs) {
+  public FloatX rem(final FloatX lhs, final FloatX rhs) {
     final double result = JSoftFloat.float64_rem(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
+  }
+
+  @Override
+  public String toString(final FloatX arg) {
+    return Double.toString(arg.doubleValue());
+  }
+
+  @Override
+  public String toHexString(final FloatX arg) {
+    return Double.toHexString(arg.doubleValue());
   }
 
   @Override
