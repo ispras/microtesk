@@ -42,6 +42,7 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -701,6 +702,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
+    if (rightExpr.isType(DataTypeId.BIT_VECTOR)) {
+      final DataType ldt = leftExpr.getDataType();
+      final DataType rdt = rightExpr.getDataType();
+
+      final int cmp = ldt.getSize() - rdt.getSize();
+      if (cmp < 0) {
+        Logger.warning(String.format("%s: assigning expression of larger size.", where(where)));
+      } else if (cmp > 0) {
+        Logger.warning(String.format("%s: assigning expression of smaller size.", where(where)));
+      }
+    }
     propagator.assign(leftExpr, rightExpr);
 
     return new StmtAssign(leftExpr, rightExpr);
