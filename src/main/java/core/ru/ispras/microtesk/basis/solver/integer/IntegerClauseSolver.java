@@ -102,7 +102,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
       final IntegerClause<IntegerVariable> variant = new IntegerClause<IntegerVariable>(equation);
 
-      final IntegerClauseSolver solver =  new IntegerClauseSolver(variables, variant);
+      final IntegerClauseSolver solver = new IntegerClauseSolver(variables, variant);
       final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
       if (result.getStatus() == SolverResult.Status.SAT) {
@@ -110,7 +110,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
     }
 
-    return new SolverResult<>("UNSAT");
+    return new SolverResult<>(String.format("UNSAT: %s", clause));
   }
 
   private SolverResult<Map<IntegerVariable, BigInteger>> solveAndClause(final Mode mode) {
@@ -128,17 +128,20 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
       if (!addEquation(equation)) {
-        return new SolverResult<>("UNSAT");
+        return new SolverResult<>(String.format("UNSAT: %s", equation));
       }
     }
 
-    // Returns false if there is a variable whose domain is empty (updates the set of variables).
-    if (!checkDomains()) {
-      return new SolverResult<>("UNSAT");
+    SolverResult<Map<IntegerVariable, BigInteger>> result;
+
+    result = checkDomains();
+    if (result.getStatus() != SolverResult.Status.SAT) {
+      return result;
     }
 
-    if (!solveEqualities()) {
-      return new SolverResult<>("UNSAT");
+    result = solveEqualities();
+    if (result.getStatus() != SolverResult.Status.SAT) {
+      return result;
     }
 
     return solveInequalities(mode);
@@ -208,7 +211,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     return !lhsDomain.isEmpty();
   }
 
-  private boolean solveEqualities() {
+  private SolverResult<Map<IntegerVariable, BigInteger>> solveEqualities() {
     final Set<IntegerVariable> cloneVars = new HashSet<>(variables.size());
 
     // Construct a part of the transitive closure (symmetrical cases are thrown away).
@@ -241,8 +244,11 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
 
       // Choose one representative from each equivalent classes and perform replacement.
-      if (!handleEqualities(var, allEqualVars)) {
-        return false;
+      final SolverResult<Map<IntegerVariable, BigInteger>> result =
+          handleEqualities(var, allEqualVars);
+
+      if (result.getStatus() != SolverResult.Status.SAT) {
+        return result;
       }
 
       cloneVars.addAll(allEqualVars);
@@ -252,7 +258,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       equalTo.remove(cloneVar);
     }
 
-    return true;
+    return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
   }
 
   private SolverResult<Map<IntegerVariable, BigInteger>> solveInequalities(final Mode mode) {
@@ -272,8 +278,10 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
         final Set<IntegerVariable> rhsVars = new LinkedHashSet<>(notEqualVars);
 
         for (final IntegerVariable rhs : rhsVars) {
-          if (!handleInequality(lhs, rhs)) {
-            return new SolverResult<>("Contradiction found");
+          final SolverResult<Map<IntegerVariable, BigInteger>> result = handleInequality(lhs, rhs);
+
+          if (result.getStatus() != SolverResult.Status.SAT) {
+            return result;
           }
         }
       }
@@ -322,7 +330,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       }
     }
 
-    return new SolverResult<>("UNSAT");
+    return new SolverResult<>(String.format("UNSAT: %s", notEqualTo));
   }
 
   /**
@@ -330,14 +338,16 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * 
    * @return {@code false} if there is a variable whose domain is empty; {@code true} otherwise.
    */
-  private boolean checkDomains() {
-    for (final IntegerDomain domain : domains.values()) {
+  private SolverResult<Map<IntegerVariable, BigInteger>> checkDomains() {
+    for (final Map.Entry<IntegerVariable, IntegerDomain> entry : domains.entrySet()) {
+      final IntegerDomain domain = entry.getValue();
+
       if (domain.isEmpty()) {
-        return false;
+        return new SolverResult<>(String.format("UNSAT: Empty domain %s", entry.getKey()));
       }
     }
 
-    return true;
+    return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
   }
 
   /**
@@ -346,7 +356,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param var the variable to be used instead of {@code var1, ..., varN}.
    * @return {@code false} if the equalities are definitely unsatisfiable; {@code true} otherwise.
    */
-  private boolean handleEqualities(
+  private SolverResult<Map<IntegerVariable, BigInteger>> handleEqualities(
       final IntegerVariable var, final Set<IntegerVariable> equalVars) {
     InvariantChecks.checkNotNull(var);
     InvariantChecks.checkNotNull(equalVars);
@@ -366,7 +376,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
       // The domain intersection is empty, the equation is unsatisfiable.
       if (lhsDomain.isEmpty()) {
-        return false;
+        return new SolverResult<>(String.format("UNSAT: Equality %s == %s", var, rhs));
       }
     }
 
@@ -380,7 +390,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param rhs the right-hand-side variable.
    * @return {@code false} if the inequality is unsatisfiable; {@code true} otherwise.
    */
-  private boolean handleInequality(final IntegerVariable lhs, final IntegerVariable rhs) {
+  private SolverResult<Map<IntegerVariable, BigInteger>> handleInequality(
+      final IntegerVariable lhs, final IntegerVariable rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -394,7 +405,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     // If the variables' domains are disjoint, the inequality is redundant.
     if (!lhsDomain.overlaps(rhsDomain)) {
       eliminateInequality(lhs, rhs);
-      return true;
+      return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
     }
 
     // If the domains contains only one common value, that value is removed from the domains,
@@ -407,14 +418,14 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
       rhsDomain.exclude(common);
 
       if (lhsDomain.isEmpty() || rhsDomain.isEmpty()) {
-        return false;
+        return new SolverResult<>(String.format("UNSAT: Inequality %s != %s", lhs, rhs));
       }
 
       eliminateInequality(lhs, rhs);
-      return true;
+      return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
     }
 
-    return true;
+    return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
   }
 
   /**
@@ -423,7 +434,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
    * @param var the variable to replace with.
    * @param equalVars the variables to be replaced.
    */
-  private boolean eliminateEquality(final IntegerVariable var, final Set<IntegerVariable> equalVars) {
+  private SolverResult<Map<IntegerVariable, BigInteger>> eliminateEquality(
+      final IntegerVariable var, final Set<IntegerVariable> equalVars) {
     // Replace the variables with the given one.
     for (final Map.Entry<IntegerVariable, Set<IntegerVariable>> entry : notEqualTo.entrySet()) {
       final IntegerVariable lhs = entry.getKey();
@@ -431,7 +443,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
 
       if (!Collections.disjoint(rhsVars, equalVars)) {
         if (lhs.equals(var)) {
-          return false;
+          return new SolverResult<>(String.format("UNSAT: %s {!=|==} %s", lhs, var));
         }
 
         // Replacement in the RHS.
@@ -456,14 +468,14 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     }
 
     if (notEqualVars.contains(var)) {
-      return false;
+      return new SolverResult<>(String.format("UNSAT: %s != %s", var, var));
     }
 
     if (!notEqualVars.isEmpty()) {
       notEqualTo.put(var, notEqualVars);
     }
 
-    return true;
+    return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
   }
 
   /**
