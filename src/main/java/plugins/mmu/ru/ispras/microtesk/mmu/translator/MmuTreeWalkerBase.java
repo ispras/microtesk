@@ -702,6 +702,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, leftExpr, "The left hand side expression is not recognized.");
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
+    /*
+    // TODO: Temporary commented out. Node.isType throws exceptions
+    // when field indexes used by BVEXTRACT are non-constant expressions.
+    // Need to improve Node.isType.
     if (rightExpr.isType(DataTypeId.BIT_VECTOR)) {
       final DataType ldt = leftExpr.getDataType();
       final DataType rdt = rightExpr.getDataType();
@@ -713,8 +717,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         Logger.warning(String.format("%s: assigning expression of smaller size.", where(where)));
       }
     }
-    propagator.assign(leftExpr, rightExpr);
+    */
 
+    propagator.assign(leftExpr, rightExpr);
     return new StmtAssign(leftExpr, rightExpr);
   }
 
