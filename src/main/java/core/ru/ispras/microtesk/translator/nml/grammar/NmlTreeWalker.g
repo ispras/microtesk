@@ -456,7 +456,7 @@ sequence returns [List<Statement> res]
 @after {$res = stmts;}
     :  ^(sq=SEQUENCE (st=statement
 {
-checkNotNull($sq, $st.res, $st.text);
+checkNotNull($st.start, $st.res, $st.text);
 stmts.addAll($st.res);
 })*)
     ;
