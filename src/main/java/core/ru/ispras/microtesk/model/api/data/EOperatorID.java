@@ -25,5 +25,8 @@ public enum EOperatorID {
   BIT_AND, BIT_OR, BIT_XOR, BIT_NOT, L_SHIFT, R_SHIFT, L_ROTATE, R_ROTATE,
 
   // Logical operators
-  AND, OR, NOT
+  AND, OR, NOT,
+
+  // Floating-point operators
+  SQRT
 }
