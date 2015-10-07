@@ -27,6 +27,11 @@ import java.util.TreeMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.MemorySettings;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.TestEngine;
 
 /**
  * 
@@ -36,6 +41,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorAlgorithm;
 public final class MemoryStorage implements MemoryDevice {
   private String id;
   private boolean isReadOnly;
+  private boolean isAddressCheckNeeded;
 
   private final BigInteger regionCount;
   private final int regionBitSize;
@@ -149,6 +155,7 @@ public final class MemoryStorage implements MemoryDevice {
 
     this.id = "";
     this.isReadOnly = false;
+    this.isAddressCheckNeeded = false;
 
     this.regionCount = regionCount;
     this.regionBitSize = regionBitSize;
@@ -235,6 +242,15 @@ public final class MemoryStorage implements MemoryDevice {
     return this;
   }
 
+  public boolean isAddressCheckNeeded() {
+    return isAddressCheckNeeded;
+  }
+
+  MemoryStorage setAddressCheckNeeded(final boolean isAddressCheckNeeded) {
+    this.isAddressCheckNeeded = isAddressCheckNeeded;
+    return this;
+  }
+
   public BigInteger getRegionCount() {
     return regionCount;
   }
@@ -283,8 +299,9 @@ public final class MemoryStorage implements MemoryDevice {
 
   public BitVector read(final BitVector address) {
     checkNotNull(address);
-    final Index index = new Index(address, addressBitSize);
+    checkAddress(address, false);
 
+    final Index index = new Index(address, addressBitSize);
     final Map<Integer, Block> area = getAddressMap().get(index.area);
     if (null == area) {
       return defaultRegion;
@@ -313,6 +330,8 @@ public final class MemoryStorage implements MemoryDevice {
   public void write(final BitVector address, final BitVector data) {
     checkNotNull(address);
     checkNotNull(data);
+
+    checkAddress(address, true);
 
     if (isReadOnly()) {
       return;
@@ -351,5 +370,31 @@ public final class MemoryStorage implements MemoryDevice {
     return String.format(
         "MemoryStorage %s[regionBitSize=%s, regionCount=%s, addressBitSize=%s]",
         id, regionBitSize, regionCount, addressBitSize);
+  }
+
+  private void checkAddress(final BitVector address, final boolean isWrite) {
+    if (!isAddressCheckNeeded) {
+      return;
+    }
+
+    final GeneratorSettings settings = TestEngine.getGeneratorSettings();
+    if (null == settings) {
+      return;
+    }
+
+    final MemorySettings memorySettings = settings.getMemory();
+    if (null == memorySettings) {
+      return;
+    }
+
+    InvariantChecks.checkTrue(regionBitSize % 8 == 0);
+
+    final long addressValue = address.longValue() * (regionBitSize / 8);
+    System.out.println("Index: " + address.toHexString() + " Address: " + Long.toHexString(addressValue));
+
+    if (!memorySettings.checkDataAddress(addressValue)) {
+      throw new GenerationAbortedException(String.format(
+          "Address 0x%x does not match any memory region.", addressValue));
+    }
   }
 }

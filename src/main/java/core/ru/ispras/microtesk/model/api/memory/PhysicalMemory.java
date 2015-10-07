@@ -37,7 +37,9 @@ final class PhysicalMemory extends Memory {
       final BigInteger length) {
     super(Kind.MEM, name, type, length, false);
 
-    this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
+    final MemoryStorage storage = new MemoryStorage(length, type.getBitSize()).setId(name);
+
+    this.storage = storage;
     this.handler = null;
     this.usingTempStorage = false;
     this.addressTranslator = null;
@@ -58,6 +60,8 @@ final class PhysicalMemory extends Memory {
       this.addressableUnitsInData = null;
       this.isLogical = true;
     }
+
+    storage.setAddressCheckNeeded(!isLogical);
   }
 
   @Override
