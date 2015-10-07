@@ -89,19 +89,6 @@ FLOAT     : 'float'     { pp(); };
 INT       : 'int'       { pp(); };
 ENUM      : 'enum'      { pp(); };
 
-/* Special Functions */
-COERCE    : 'coerce'    { pp(); };
-FORMAT    : 'format'    { pp(); };
-EXCEPTION : 'exception' { pp(); };
-TRACE     : 'trace'     { pp(); };
-
-/* Control Statements */
-IF        : 'if'        { pp(); };
-THEN      : 'then'      { pp(); };
-ELSE      : 'else'      { pp(); };
-ELSEIF    : 'elif'      { pp(); };
-ENDIF     : 'endif'     { pp(); };
-
 //==================================================================================================
 // The End
 //==================================================================================================
