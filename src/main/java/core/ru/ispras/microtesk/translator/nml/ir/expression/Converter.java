@@ -24,6 +24,7 @@ import java.util.Set;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
@@ -135,7 +136,7 @@ public final class Converter {
    */
 
   static Enum<?> toFortressOperator(Operator operator, ValueInfo valueInfo) {
-    checkNotNull(operator);
+    InvariantChecks.checkNotNull(operator);
     checkValueInfo(valueInfo);
 
     final OperatorInfo oi = operators.get(operator);
@@ -154,14 +155,14 @@ public final class Converter {
   }
 
   private static Data dataFromModel(Type type) {
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(type);
 
     final DataType dataType = getDataTypeForModel(type);
     return dataType.valueUninitialized();
   }
 
   private static Data dataFromNative(Object value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
 
     // FIXME: TEMPORARY FIX. MAY CAUSE INCORRECT WORK
     // BECAUSE OF VALUE TRUNCATION. LONG IS NOT CURRENTY
@@ -211,14 +212,8 @@ public final class Converter {
     throw new IllegalArgumentException(String.format(ERR_UNSUPPORTED_TYPE, type.getSimpleName()));
   }
 
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
-  }
-
   private static void checkValueInfo(ValueInfo valueInfo) {
-    checkNotNull(valueInfo);
+    InvariantChecks.checkNotNull(valueInfo);
 
     if (valueInfo.isModel() || valueInfo.isNative()) {
       return;
