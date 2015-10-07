@@ -703,24 +703,34 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     checkNotNull(where, rightExpr, "The right hand side expression is not recognized.");
 
     /*
-    // TODO: Temporary commented out. Node.isType throws exceptions
+    // TODO: Workaround Node.isType throws exceptions
     // when field indexes used by BVEXTRACT are non-constant expressions.
     // Need to improve Node.isType.
-    if (rightExpr.isType(DataTypeId.BIT_VECTOR)) {
-      final DataType ldt = leftExpr.getDataType();
-      final DataType rdt = rightExpr.getDataType();
+    */
 
-      final int cmp = ldt.getSize() - rdt.getSize();
-      if (cmp < 0) {
-        Logger.warning(String.format("%s: assigning expression of larger size.", where(where)));
-      } else if (cmp > 0) {
-        Logger.warning(String.format("%s: assigning expression of smaller size.", where(where)));
+    try {
+      if (rightExpr.isType(DataTypeId.BIT_VECTOR)) {
+        final DataType ldt = leftExpr.getDataType();
+        final DataType rdt = rightExpr.getDataType();
+
+        final int cmp = ldt.getSize() - rdt.getSize();
+        if (cmp < 0) {
+          warning(where(where), "rhs expression is larger than lhs.");
+        } else if (cmp > 0) {
+          warning(where(where), "rhs expression is smaller than lhs.");
+        }
       }
     }
-    */
+    catch (final IllegalStateException e) {
+      warning(where(where), "unable to determine size of assignment operands.");
+    }
 
     propagator.assign(leftExpr, rightExpr);
     return new StmtAssign(leftExpr, rightExpr);
+  }
+
+  private static final void warning(final Where w, final String msg) {
+    Logger.warning(String.format("%s: %s", w, msg));
   }
 
   protected final Stmt newException(final CommonTree message) {
