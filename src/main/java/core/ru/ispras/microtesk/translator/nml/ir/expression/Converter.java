@@ -181,7 +181,7 @@ public final class Converter {
   }
 
   private static Data dataFromNativeType(Class<?> type) {
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(type);
 
     final DataType dataType = getDataTypeForNative(type);
     return dataType.valueUninitialized();
