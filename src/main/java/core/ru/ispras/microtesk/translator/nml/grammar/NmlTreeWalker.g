@@ -35,7 +35,7 @@ options {
 }
 
 @rulecatch {
-catch (RecognitionException re) { // Default behavior
+catch (final RecognitionException re) { // Default behavior
     reportError(re);
     recover(input,re);
 }
@@ -258,7 +258,7 @@ setThisArgs($andRes.res);
        (mr=modeReturn {checkNotNull(w, $mr.res, $mr.text);})?
        attrRes=attrDefList
 {
-checkNotNull(w, $attrRes.res, $attrRes.text);
+checkNotNull($attrRes.start, $attrRes.res, $attrRes.text);
 $res = getPrimitiveFactory().createMode($w, $name, $andRes.res, $attrRes.res, $mr.res);
 }
     |  orRes=orRule
@@ -277,11 +277,11 @@ modeReturn returns [Expr res]
 
 opDef
 @init {reserveThis();}
-    :  ^(OP id=ID {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text])
+    :  ^(OP id=ID {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text]
 {
 checkNotNull($id, $sp.res, $opDef.text);
 getIR().add($id.text, $sp.res);
-}
+})
     ;  finally
 {
 popSymbolScope();
@@ -346,16 +346,32 @@ attrDefList returns [Map<String, Attribute> res]
 @after {$res = attrs;}
     :  ^(ATTRS (attr=attrDef
 {
-checkNotNull($ATTRS, $attr.res, $attr.text);
+checkNotNull($attr.start, $attr.res, $attr.text);
 attrs.put($attr.res.getName(), $attr.res);
 })*)
     ;
 
 attrDef returns [Attribute res]
-    :  ^(SYNTAX {checkMemberDeclared($SYNTAX, NmlSymbolKind.ATTRIBUTE);} attr=syntaxDef) {$res = $attr.res;}
-    |  ^(IMAGE  {checkMemberDeclared($IMAGE,  NmlSymbolKind.ATTRIBUTE);} attr=imageDef)  {$res = $attr.res;}
-    |  ^(ACTION {checkMemberDeclared($ACTION, NmlSymbolKind.ATTRIBUTE);} attr=actionDef[$ACTION.text]) {$res = $attr.res;}
-    |  ^(id=ID  {checkMemberDeclared($ID,     NmlSymbolKind.ATTRIBUTE);} attr=actionDef[$id.text]) {$res = $attr.res;}
+    :  ^(id=SYNTAX {checkMemberDeclared($SYNTAX, NmlSymbolKind.ATTRIBUTE);} attr1=syntaxDef
+{
+checkNotNull($attr1.start, $attr1.res, $attr1.text);
+$res = $attr1.res;
+})
+    |  ^(id=IMAGE  {checkMemberDeclared($IMAGE,  NmlSymbolKind.ATTRIBUTE);} attr2=imageDef
+{
+checkNotNull($attr2.start, $attr2.res, $attr2.text);
+$res = $attr2.res;
+})
+    |  ^(id=ACTION {checkMemberDeclared($ACTION, NmlSymbolKind.ATTRIBUTE);} attr3=actionDef[$ACTION.text]
+{
+checkNotNull($attr3.start, $attr3.res, $attr3.text);
+$res = $attr3.res;
+})
+    |  ^(id=ID  {checkMemberDeclared($ID, NmlSymbolKind.ATTRIBUTE);} attr4=actionDef[$id.text]
+{
+checkNotNull($attr4.start, $attr4.res, $attr4.text);
+$res = $attr4.res;
+})
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
@@ -808,25 +824,25 @@ $res = getExprFactory().operator(where($op), target, $op.text, $e.res);
 
 atom returns [Expr res]
     :  ^(CONST token=ID)  {$res = getExprFactory().namedConstant(where($token), $token.text);}
-    |  ^(token=LOCATION le=locationExpr[0])
+    |  ^(token=LOCATION le=locationExpr[0]
 {
 checkNotNull($le.start, $le.res, $le.text);
 $res = getExprFactory().location($le.res);
-}
+})
     |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
     |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
     |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
-    |  ^(token=(COERCE | INT_TO_FLOAT | FLOAT_TO_INT) te=typeExpr e=dataExpr)
+    |  ^(token=(COERCE | INT_TO_FLOAT | FLOAT_TO_INT) te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
 $res = getExprFactory().coerce(where($token), $e.res, $te.res);
-}
-    |  ^(token=SQRT e=dataExpr)
+})
+    |  ^(token=SQRT e=dataExpr
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().sqrt(where($token), $e.res);
-}
+})
     ;
 
 /*======================================================================================*/
@@ -841,13 +857,13 @@ $res = $le.res;
     ;
 
 locationExpr [int depth] returns [Location res]
-    :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1])
+    :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1]
 {
 checkNotNull($left.start,  $left.res,  $left.text);
 checkNotNull($right.start, $right.res, $right.text);
 
 $res = getLocationFactory().concat(where($node), $left.res, $right.res);
-}
+})
     |  value=locationVal
 {
 $res = $value.res;
@@ -885,6 +901,8 @@ $res = getLocationFactory().location(where($id), $id.text, $e.res);
 {
 $res = getLocationFactory().location(where($id), $id.text);
 }
+    | ^(DOT id=ID ID+) {raiseError(where($id), "Unsupported construct.");}
+    | ^(INSTANCE_CALL w=.) {raiseError(where($w), "Unsupported construct.");}
     ;
 
 /*======================================================================================*/
