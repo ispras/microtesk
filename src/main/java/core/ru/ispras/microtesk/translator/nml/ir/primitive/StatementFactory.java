@@ -44,7 +44,7 @@ public final class StatementFactory extends WalkerFactoryBase {
     "does not match to the number of provided argumens (%d).";
 
   private static final String UNDEFINED_ATTR =
-    "The %s arrtibute is not defined for the %s primitive.";
+    "The %s attribute is not defined for the %s primitive.";
 
   public StatementFactory(WalkerContext context) {
     super(context);
