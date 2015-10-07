@@ -262,6 +262,7 @@ public final class PrinterExpr {
     result.put(Operator.UMINUS, EOperatorID.UNARY_MINUS);
     result.put(Operator.BIT_NOT, EOperatorID.BIT_NOT);
     result.put(Operator.NOT, EOperatorID.NOT);
+    result.put(Operator.SQRT, EOperatorID.SQRT);
 
     return Collections.unmodifiableMap(result);
   }
