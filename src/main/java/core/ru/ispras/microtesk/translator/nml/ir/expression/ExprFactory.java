@@ -213,6 +213,24 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(operand);
+
+    if (!operand.getValueInfo().isModelOf(TypeId.FLOAT)) {
+      raiseError(w, "The sqrt operation supports only the float type.");
+    }
+
+    final SourceOperator source = new SourceOperator(
+        Operator.SQRT, operand.getValueInfo(), operand.getValueInfo());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(source);
+    final Node node = new NodeOperation(Operator.SQRT, operand.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
   /**
    * Performs type coercion. Source expression is coerced to a Model API type.
    * 

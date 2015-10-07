@@ -816,11 +816,16 @@ $res = getExprFactory().location($le.res);
     |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
     |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
     |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
-    |  ^(token=COERCE te=typeExpr e=dataExpr)
+    |  ^(token=(COERCE | INT_TO_FLOAT | FLOAT_TO_INT) te=typeExpr e=dataExpr)
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
 $res = getExprFactory().coerce(where($token), $e.res, $te.res);
+}
+    |  ^(token=SQRT e=dataExpr)
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().sqrt(where($token), $e.res);
 }
     ;
 

@@ -267,7 +267,9 @@ enum OperatorLogic {
       }
     }),
 
-  ITE(Operator.ITE, Arrays.asList(TypeId.BOOL, TypeId.CARD, TypeId.INT));
+  ITE(Operator.ITE, Arrays.asList(TypeId.BOOL, TypeId.CARD, TypeId.INT)),
+
+  SQRT(Operator.SQRT, Arrays.asList(TypeId.FLOAT));
 
   private static final Map<Operator, OperatorLogic> operators;
   static {

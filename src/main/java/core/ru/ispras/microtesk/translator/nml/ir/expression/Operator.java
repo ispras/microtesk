@@ -61,8 +61,9 @@ public enum Operator {
   BIT_NOT("~", Operands.UNARY, Priority.CURRENT),
   NOT("!", Operands.UNARY, Priority.CURRENT),
 
-  // Synthetic operator
-  ITE("", Operands.TERNARY, Priority.HIGHER);
+  // Synthetic operators
+  ITE("",  Operands.TERNARY, Priority.HIGHER),
+  SQRT("", Operands.UNARY,  Priority.HIGHER);
 
   private static enum Priority {
     CURRENT {
