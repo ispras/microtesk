@@ -199,6 +199,9 @@ atom
     |  BINARY_CONST
     |  HEX_CONST
     |  COERCE^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  INT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  FLOAT_TO_INT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     ;
 
 letConst
