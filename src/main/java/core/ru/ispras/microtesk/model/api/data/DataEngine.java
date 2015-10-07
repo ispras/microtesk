@@ -197,6 +197,13 @@ public final class DataEngine {
         return floatXToData(arg.neg());
       }
     });
+
+    FLOAT_UNARY_OPERATORS.put(EOperatorID.SQRT, new FloatUnary() {
+      @Override
+      protected Data calculate(FloatX arg) {
+        return floatXToData(arg.sqrt());
+      }
+    });
   }
 
   public static Data valueOf(Type type, BigInteger value) {

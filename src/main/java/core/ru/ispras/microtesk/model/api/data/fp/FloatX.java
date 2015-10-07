@@ -207,6 +207,10 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return getOperations().rem(this, arg);
   }
 
+  public FloatX sqrt() {
+    return getOperations().sqrt(this);
+  }
+
   private static void checkPrecision(final Precision lhs, final Precision rhs) {
     if (!lhs.equals(rhs)) {
       throw new IllegalArgumentException(String.format(
