@@ -947,6 +947,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     final Node addressArg = args.get(0);
+    if (null == addressArg) {
+      raiseError(where(id), "Address argument is null.");
+    }
+
     final Variable addressVar = (Variable) addressArg.getUserData();
 
     final Type expectedType = object.getAddressArg().getType();
