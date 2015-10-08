@@ -39,14 +39,6 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     );
   }
 
-  public FloatX(final int fractionSize, final int exponentSize) {
-    this(
-        BitVector.newEmpty(fractionSize + exponentSize),
-        fractionSize,
-        exponentSize
-    );
-  }
-
   private static Precision getPrecision(final int fractionSize, final int exponentSize) {
     final Precision result = Precision.find(fractionSize, exponentSize);
     if (result != null) {
@@ -212,9 +204,12 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public FloatX toFloat(final Precision newPrecision) {
+    InvariantChecks.checkNotNull(newPrecision);
+
     if (precision.equals(newPrecision)) {
       return this;
     }
+
     return getOperations().toFloat(this, newPrecision);
   }
 
@@ -223,7 +218,20 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   }
 
   public BitVector toInteger(final int newSize) {
+    InvariantChecks.checkGreaterThanZero(newSize);
     return getOperations().toInteger(this, newSize);
+  }
+
+  public static FloatX fromInteger(final Precision precision, final BitVector value) {
+    InvariantChecks.checkNotNull(precision);
+    InvariantChecks.checkNotNull(value);
+    return precision.getOperations().fromInteger(value);
+  }
+
+  public static FloatX fromInteger(
+      final int fractionSize, final int exponentSize, final BitVector value) {
+    final Precision precision = getPrecision(fractionSize, exponentSize);
+    return fromInteger(precision, value);
   }
 
   private static void checkPrecision(final Precision lhs, final Precision rhs) {
