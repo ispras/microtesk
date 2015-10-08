@@ -109,6 +109,17 @@ public final class NodeInfo {
     }
   }
 
+  public static enum CoercionType {
+    IMPLICIT,
+    SIGN_EXTEND,
+    ZERO_EXTEND,
+    COERCE,
+    CAST,
+    INT_TO_FLOAT,
+    FLOAT_TO_INT,
+    FLOAT_TO_FLOAT
+  }
+
   /**
    * Creates a node information object basing on a Location object.
    * 
@@ -170,6 +181,7 @@ public final class NodeInfo {
   private final Object source;
   private final ValueInfo currentVI;
   private final List<ValueInfo> previousVI;
+  private final List<CoercionType> coercionTypes;
 
   /**
    * Constructs a node information object from the specified attributes.
@@ -183,7 +195,12 @@ public final class NodeInfo {
    * @throws IllegalArgumentException if the source is not compatible with the element kind.
    */
 
-  private NodeInfo(Kind kind, Object source, ValueInfo current, List<ValueInfo> previous) {
+  private NodeInfo(
+      final Kind kind,
+      final Object source,
+      final ValueInfo current,
+      final List<ValueInfo> previous,
+      final List<CoercionType> coercionTypes) {
     if (!kind.isCompatibleSource(source)) {
       throw new IllegalArgumentException(String.format(
         "%s is not proper source for %s.", source.getClass().getSimpleName(), kind));
@@ -193,6 +210,7 @@ public final class NodeInfo {
     this.source = source;
     this.currentVI = current;
     this.previousVI = Collections.unmodifiableList(previous);
+    this.coercionTypes = Collections.unmodifiableList(coercionTypes);
   }
 
   /**
@@ -206,8 +224,14 @@ public final class NodeInfo {
    * @throws IllegalArgumentException if the source is not compatible with the element kind.
    */
 
-  private NodeInfo(Kind kind, Object source, ValueInfo current) {
-    this(kind, source, current, Collections.<ValueInfo>emptyList());
+  private NodeInfo(final Kind kind, final Object source, final ValueInfo current) {
+    this(
+        kind,
+        source,
+        current,
+        Collections.<ValueInfo>emptyList(),
+        Collections.<CoercionType>emptyList()
+    );
   }
 
   public NodeInfo coerceTo(ValueInfo newValueInfo) {
@@ -218,11 +242,13 @@ public final class NodeInfo {
 
     final List<ValueInfo> previous = new ArrayList<>(this.previousVI.size() + 1);
     previous.add(getValueInfo());
-    for (ValueInfo vi : this.previousVI) {
-      previous.add(vi);
-    }
+    previous.addAll(this.previousVI);
 
-    return new NodeInfo(getKind(), getSource(), newValueInfo, previous);
+    final List<CoercionType> coercions = new ArrayList<>(this.coercionTypes.size() + 1);
+    coercions.add(CoercionType.IMPLICIT);
+    coercions.addAll(this.coercionTypes);
+
+    return new NodeInfo(getKind(), getSource(), newValueInfo, previous, coercions);
   }
 
   public Kind getKind() {
@@ -273,5 +299,9 @@ public final class NodeInfo {
     }
 
     return Collections.unmodifiableList(result);
+  }
+
+  public List<CoercionType> getCoercionTypes() {
+    return coercionTypes;
   }
 }
