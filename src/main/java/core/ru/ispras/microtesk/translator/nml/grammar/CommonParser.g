@@ -199,6 +199,7 @@ atom
     |  BINARY_CONST
     |  HEX_CONST
     |  typeCast
+    |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 letConst
