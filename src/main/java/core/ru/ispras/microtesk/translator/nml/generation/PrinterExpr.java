@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
@@ -352,13 +353,8 @@ final class CoercionFormatter {
   private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
 
   static String getFormat(ValueInfo target, ValueInfo source) {
-    if (null == target) {
-      throw new NullPointerException();
-    }
-
-    if (null == source) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(source);
 
     // This invariant is protected by NodeInfo and ExprPrinter.
     if (target.hasEqualType(source)) {
