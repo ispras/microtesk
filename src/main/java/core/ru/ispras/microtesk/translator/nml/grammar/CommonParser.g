@@ -198,14 +198,21 @@ atom
     |  CARD_CONST
     |  BINARY_CONST
     |  HEX_CONST
-    |  COERCE^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
-    |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  INT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
-    |  FLOAT_TO_INT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  typeCast
     ;
 
 letConst
-    : {isDeclaredAs(input.LT(1), NmlSymbolKind.LET_CONST)}? ID -> ^(CONST ID)
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.LET_CONST)}? ID -> ^(CONST ID)
+    ;
+
+typeCast
+    :  SIGN_EXTEND^    LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  ZERO_EXTEND^    LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  COERCE^         LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  CAST^           LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  INT_TO_FLOAT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  FLOAT_TO_INT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  FLOAT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
