@@ -179,6 +179,8 @@ VERT_BAR      : '|'           { pp(); };
 DOUBLE_DOT    : '..'          { pp(); };
 DOUBLE_COLON  : '::'          { pp(); };
 
+SQRT          : 'sqrt'        { pp(); };
+
 //==================================================================================================
 // Control Statements
 //==================================================================================================
@@ -190,20 +192,27 @@ ELSEIF        : 'elif'        { pp(); };
 ENDIF         : 'endif'       { pp(); };
 
 //==================================================================================================
+// Type Conversion Directive Names
+//==================================================================================================
+
+SIGN_EXTEND    : 'sign_extend'    { pp(); };
+ZERO_EXTEND    : 'zero_extend'    { pp(); };
+COERCE         : 'coerce'         { pp(); };
+CAST           : 'cast'           { pp(); };
+INT_TO_FLOAT   : 'int_to_float'   { pp(); };
+FLOAT_TO_INT   : 'float_to_int'   { pp(); };
+FLOAT_TO_FLOAT : 'float_to_float' { pp(); };
+
+//==================================================================================================
 // Special Function Names
 //==================================================================================================
 
-COERCE        : 'coerce'      { pp(); };
 FORMAT        : 'format'      { pp(); };
 TRACE         : 'trace'       { pp(); };
 EXCEPTION     : 'exception'   { pp(); };
 MARK          : 'mark'        { pp(); };
 UNPREDICTED   : 'unpredicted' { pp(); };
 UNDEFINED     : 'undefined'   { pp(); };
-
-SQRT          : 'sqrt'        { pp(); };
-INT_TO_FLOAT  : 'int_to_float'{ pp(); };
-FLOAT_TO_INT  : 'float_to_int'{ pp(); };
 
 //==================================================================================================
 // Identifier
