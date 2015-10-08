@@ -952,7 +952,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     if (addressArg.getKind() != Node.Kind.VARIABLE) {
-      raiseError(where(id), "Address argument is not a variable.");
+      // A structure is a variable, an expression is a bit vector (which is invalid in this case).
+      raiseError(where(id), "Address argument is not an address structure.");
     }
 
     final Variable addressVar = (Variable) addressArg.getUserData();
