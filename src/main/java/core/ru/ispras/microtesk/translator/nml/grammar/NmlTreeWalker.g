@@ -832,16 +832,64 @@ $res = getExprFactory().location($le.res);
     |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
     |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
     |  token=HEX_CONST    {$res = getExprFactory().constant(where($token), $token.text,16);}
-    |  ^(token=(COERCE | INT_TO_FLOAT | FLOAT_TO_INT) te=typeExpr e=dataExpr
+    |  tc=typeCast
+{
+checkNotNull($tc.start, $tc.res, $tc.text);
+$res = $tc.res;
+}
+    |  ^(token=SQRT e=dataExpr
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().sqrt(where($token), $e.res);
+})
+    ;
+
+/*======================================================================================*/
+/* Type conversion resules                                                              */
+/*======================================================================================*/
+
+typeCast returns [Expr res]
+    :  ^(token=SIGN_EXTEND te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
 $res = getExprFactory().coerce(where($token), $e.res, $te.res);
 })
-    |  ^(token=SQRT e=dataExpr
+    |  ^(token=ZERO_EXTEND te=typeExpr e=dataExpr
 {
-checkNotNull($e.start, $e.res, $e.text);
-$res = getExprFactory().sqrt(where($token), $e.res);
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+})
+    |  ^(token=COERCE te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+})
+    |  ^(token=CAST te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+})
+    |  ^(token=INT_TO_FLOAT te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+})
+    |  ^(token=FLOAT_TO_INT te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+})
+    |  ^(token=FLOAT_TO_FLOAT te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().coerce(where($token), $e.res, $te.res);
 })
     ;
 
