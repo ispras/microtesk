@@ -110,11 +110,14 @@ public final class NodeInfo {
   }
 
   public static enum CoercionType {
-    IMPLICIT,
+    NATIVE, // from/to native Java types: int, boolean, etc
+
     SIGN_EXTEND,
     ZERO_EXTEND,
+
     COERCE,
     CAST,
+
     INT_TO_FLOAT,
     FLOAT_TO_INT,
     FLOAT_TO_FLOAT
@@ -234,8 +237,10 @@ public final class NodeInfo {
     );
   }
 
-  public NodeInfo coerceTo(ValueInfo newValueInfo) {
+  public NodeInfo coerceTo(final ValueInfo newValueInfo, final CoercionType coercionType) {
     checkNotNull(newValueInfo);
+    checkNotNull(coercionType);
+
     if (getValueInfo().equals(newValueInfo)) {
       return this;
     }
@@ -245,7 +250,7 @@ public final class NodeInfo {
     previous.addAll(this.previousVI);
 
     final List<CoercionType> coercions = new ArrayList<>(this.coercionTypes.size() + 1);
-    coercions.add(CoercionType.IMPLICIT);
+    coercions.add(coercionType);
     coercions.addAll(this.coercionTypes);
 
     return new NodeInfo(getKind(), getSource(), newValueInfo, previous, coercions);

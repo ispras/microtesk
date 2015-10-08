@@ -153,7 +153,11 @@ public final class ExprFactory extends WalkerFactoryBase {
    */
 
   public Expr operator(
-      Where w, ValueInfo.Kind target, String id, Expr... operands) throws SemanticException {
+      final Where w,
+      final ValueInfo.Kind target,
+      final String id,
+      final Expr... operands) throws SemanticException {
+
     checkNotNull(w);
     checkNotNull(target);
     checkNotNull(id);
@@ -180,7 +184,8 @@ public final class ExprFactory extends WalkerFactoryBase {
 
       if (operand.getValueInfo().isModelOf(TypeId.BOOL)) {
         final ValueInfo newValueInfo = operand.getValueInfo().toNativeType(Boolean.class);
-        final NodeInfo newNodeInfo = operand.getNodeInfo().coerceTo(newValueInfo);
+        final NodeInfo newNodeInfo = operand.getNodeInfo().coerceTo(
+            newValueInfo, NodeInfo.CoercionType.NATIVE);
 
         operand.setNodeInfo(newNodeInfo);
       }
@@ -241,7 +246,7 @@ public final class ExprFactory extends WalkerFactoryBase {
    * @throws NullPointerException if any of the parameters is null.
    */
 
-  public Expr coerce(Where w, Expr src, Type type) {
+  public Expr coerce(final Where w, final Expr src, final Type type) {
     checkNotNull(w);
     checkNotNull(src);
     checkNotNull(type);
@@ -252,7 +257,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.COERCE);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -268,7 +274,7 @@ public final class ExprFactory extends WalkerFactoryBase {
    * @throws NullPointerException if any of the parameters is null.
    */
 
-  public Expr coerce(Where w, Expr src, Class<?> type) {
+  public Expr coerce(final Where w, final Expr src, final Class<?> type) {
     checkNotNull(w);
     checkNotNull(src);
     checkNotNull(type);
@@ -279,7 +285,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final ValueInfo newValueInfo = srcValueInfo.toNativeType(type);
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.COERCE);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -462,7 +469,7 @@ public final class ExprFactory extends WalkerFactoryBase {
    *         expression.
    */
 
-  public Expr evaluateLogic(Where w, Expr src) throws SemanticException {
+  public Expr evaluateLogic(final Where w, final Expr src) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
 
@@ -473,7 +480,8 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     if (srcValueInfo.isModel()) {
       final ValueInfo newValueInfo = srcValueInfo.toNativeType(Boolean.class);
-      final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
+      final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+          newValueInfo, NodeInfo.CoercionType.NATIVE);
 
       src.setNodeInfo(newNodeInfo);
       return src;
@@ -497,7 +505,7 @@ public final class ExprFactory extends WalkerFactoryBase {
    *         (e.g. incompatible data types).
    */
 
-  public Expr evaluateData(Where w, Expr src) throws SemanticException {
+  public Expr evaluateData(final Where w, final Expr src) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
 
@@ -527,7 +535,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     final Type type = Type.INT(size);
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.NATIVE);
 
     src.setNodeInfo(newNodeInfo);
     return src;
