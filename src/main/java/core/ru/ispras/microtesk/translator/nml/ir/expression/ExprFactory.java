@@ -236,17 +236,10 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
-  /**
-   * Performs type coercion. Source expression is coerced to a Model API type.
-   * 
-   * @param src Source expression (its attributes will be modified).
-   * @param type Target type.
-   * @return Coerced expression.
-   * 
-   * @throws NullPointerException if any of the parameters is null.
-   */
-
-  public Expr coerce(final Where w, final Expr src, final Type type) {
+  public Expr signExtend(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
     checkNotNull(type);
@@ -254,6 +247,93 @@ public final class ExprFactory extends WalkerFactoryBase {
     final ValueInfo srcValueInfo = src.getValueInfo();
     if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
       return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (type.getBitSize() < srcValueInfo.getModelType().getBitSize()) {
+      raiseError(w, "Size of result type must be >= size of original type.");
+    }
+
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        ValueInfo.createModel(type), NodeInfo.CoercionType.SIGN_EXTEND);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  public Expr zeroExtend(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (type.getBitSize() < srcValueInfo.getModelType().getBitSize()) {
+      raiseError(w, "Size of result type must be >= size of original type.");
+    }
+
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        ValueInfo.createModel(type), NodeInfo.CoercionType.ZERO_EXTEND);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  /**
+   * Performs type coercion. Source expression is coerced to a Model API type.
+   * 
+   * @param src Source expression (its attributes will be modified).
+   * @param type Target type.
+   * @return Coerced expression.
+   * @throws SemanticException 
+   * 
+   * @throws NullPointerException if any of the parameters is null.
+   */
+
+  public Expr coerce(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (type.getTypeId() != TypeId.CARD &&
+        type.getTypeId() != TypeId.INT && 
+        type.getTypeId() != TypeId.BOOL) {
+      raiseError(w, String.format(
+          "Cannot cast to %s. Only integer types are supported.",
+          type.getTypeName()));
+    }
+
+    if (!srcValueInfo.isModelOf(TypeId.CARD) &&
+        !srcValueInfo.isModelOf(TypeId.INT) && 
+        !srcValueInfo.isModelOf(TypeId.BOOL)) {
+      raiseError(w, String.format(
+          "Cannot cast from %s. Only integer types are supported.",
+          srcValueInfo.getModelType().getTypeName()));
     }
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
@@ -287,6 +367,159 @@ public final class ExprFactory extends WalkerFactoryBase {
     final ValueInfo newValueInfo = srcValueInfo.toNativeType(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
         newValueInfo, NodeInfo.CoercionType.COERCE);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  public Expr cast(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (srcValueInfo.getModelType().getBitSize() != type.getBitSize()) {
+      raiseError(w, "cast does not allow changing data size.");
+    }
+
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        ValueInfo.createModel(type), NodeInfo.CoercionType.CAST);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  public Expr int_to_float(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (!srcValueInfo.isModelOf(TypeId.CARD) &&
+        !srcValueInfo.isModelOf(TypeId.INT) && 
+        !srcValueInfo.isModelOf(TypeId.BOOL)) {
+      raiseError(w, String.format(
+          "Cannot cast from %s. Only integer types are supported.",
+          srcValueInfo.getModelType().getTypeName()));
+    }
+
+    if (srcValueInfo.getModelType().getBitSize() != 32 &&
+        srcValueInfo.getModelType().getBitSize() != 64) {
+      raiseError(w, "Only 32 and 64-bit integers are supported.");
+    }
+
+    if (type.getTypeId() != TypeId.FLOAT) {
+      raiseError(w, String.format(
+          "Cannot cast to %s. Only float is supported.",
+          type.getTypeName()));
+    }
+
+    final ValueInfo newValueInfo = ValueInfo.createModel(type);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.INT_TO_FLOAT);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  public Expr float_to_int(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (!srcValueInfo.isModelOf(TypeId.FLOAT)) {
+      raiseError(w, String.format(
+          "Cannot cast from %s. Only float is supported.",
+          srcValueInfo.getModelType().getTypeName()));
+    }
+
+    if (type.getTypeId() != TypeId.CARD &&
+        type.getTypeId() != TypeId.INT && 
+        type.getTypeId() != TypeId.BOOL) {
+      raiseError(w, String.format(
+          "Cannot cast to %s. Only integer types are supported.",
+          type.getTypeName()));
+    }
+
+    if (type.getBitSize() != 32 &&
+        type.getBitSize() != 64) {
+      raiseError(w, "Only 32 and 64-bit integers are supported.");
+    }
+
+    final ValueInfo newValueInfo = ValueInfo.createModel(type);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.FLOAT_TO_INT);
+
+    src.setNodeInfo(newNodeInfo);
+    return src;
+  }
+
+  public Expr float_to_float(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(src);
+    checkNotNull(type);
+
+    final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModel() && type.equals(srcValueInfo.getModelType())) {
+      return src;
+    }
+
+    if (srcValueInfo.isNative()) {
+      raiseError(w, "Not supported for constants.");
+    }
+
+    if (!srcValueInfo.isModelOf(TypeId.FLOAT)) {
+      raiseError(w, String.format(
+          "Cannot cast from %s. Only float is supported.",
+          srcValueInfo.getModelType().getTypeName()));
+    }
+
+    if (type.getTypeId() != TypeId.FLOAT) {
+      raiseError(w, String.format(
+          "Cannot cast to %s. Only float is supported.",
+          type.getTypeName()));
+    }
+
+    final ValueInfo newValueInfo = ValueInfo.createModel(type);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+        newValueInfo, NodeInfo.CoercionType.FLOAT_TO_FLOAT);
 
     src.setNodeInfo(newNodeInfo);
     return src;

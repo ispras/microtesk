@@ -853,13 +853,13 @@ typeCast returns [Expr res]
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().signExtend(where($token), $e.res, $te.res);
 })
     |  ^(token=ZERO_EXTEND te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().zeroExtend(where($token), $e.res, $te.res);
 })
     |  ^(token=COERCE te=typeExpr e=dataExpr
 {
@@ -871,25 +871,25 @@ $res = getExprFactory().coerce(where($token), $e.res, $te.res);
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().cast(where($token), $e.res, $te.res);
 })
     |  ^(token=INT_TO_FLOAT te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().int_to_float(where($token), $e.res, $te.res);
 })
     |  ^(token=FLOAT_TO_INT te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().float_to_int(where($token), $e.res, $te.res);
 })
     |  ^(token=FLOAT_TO_FLOAT te=typeExpr e=dataExpr
 {
 checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
-$res = getExprFactory().coerce(where($token), $e.res, $te.res);
+$res = getExprFactory().float_to_float(where($token), $e.res, $te.res);
 })
     ;
 
