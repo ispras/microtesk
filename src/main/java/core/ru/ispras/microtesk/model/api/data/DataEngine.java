@@ -333,7 +333,7 @@ public final class DataEngine {
 
     // Currently, sign extension applies only to INT.
     final boolean signExt =
-        type.getTypeId() == TypeId.INT;
+        value.getType().getTypeId() == TypeId.INT;
 
     final BitVector newRawData =
         value.getRawData().resize(type.getBitSize(), signExt);
