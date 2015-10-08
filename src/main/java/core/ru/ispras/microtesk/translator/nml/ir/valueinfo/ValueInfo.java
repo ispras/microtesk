@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -84,9 +85,7 @@ public abstract class ValueInfo {
    */
 
   protected ValueInfo(Kind valueKind) {
-    if (null == valueKind) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(valueKind);
 
     if (Kind.NATIVE != valueKind && Kind.MODEL != valueKind) {
       throw new IllegalArgumentException();
@@ -148,9 +147,7 @@ public abstract class ValueInfo {
     }
 
     final Object newValue = NativeTypeCastRules.castTo(type, getNativeValue());
-    if (null == newValue) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(newValue);
 
     return ValueInfo.createNative(newValue);
   }
@@ -163,9 +160,7 @@ public abstract class ValueInfo {
    */
 
   public final boolean hasEqualType(ValueInfo value) {
-    if (null == value) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(value);
 
     if (getValueKind() != value.getValueKind()) {
       return false;
@@ -303,10 +298,7 @@ final class ValueInfoModel extends ValueInfo {
   ValueInfoModel(Type type) {
     super(Kind.MODEL);
 
-    if (null == type) {
-      throw new NullPointerException();
-    }
-
+    InvariantChecks.checkNotNull(type);
     this.type = type;
   }
 
@@ -369,10 +361,7 @@ final class ValueInfoNative extends ValueInfo {
 
   ValueInfoNative(Object value) {
     super(Kind.NATIVE);
-
-    if (null == value) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(value);
 
     if (!isSupportedType(value.getClass())) {
       throw new IllegalArgumentException(); 
@@ -384,10 +373,7 @@ final class ValueInfoNative extends ValueInfo {
 
   ValueInfoNative(Class<?> type) {
     super(Kind.NATIVE);
-    
-    if (null == type) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(type);
 
     this.type = type;
     this.value = null;
