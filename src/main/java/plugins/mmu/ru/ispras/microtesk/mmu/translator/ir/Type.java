@@ -58,7 +58,7 @@ public final class Type extends Nested<Type> {
     checkTrue(totalBitSize > 0);
     this.bitSize = totalBitSize;
     this.fields = Collections.unmodifiableMap(fields);
-    this.dataType = DataType.UNKNOWN;
+    this.dataType = DataType.BIT_VECTOR(totalBitSize);
     this.defaultValue = null;
   }
 
