@@ -265,7 +265,7 @@ public final class NodeInfo {
       return Collections.<ValueInfo>emptyList();
     }
 
-    final List<ValueInfo> result = new ArrayList<ValueInfo>(previousVI.size());
+    final List<ValueInfo> result = new ArrayList<>(previousVI.size());
     result.add(getValueInfo().typeInfoOnly());
 
     for (int index = 0; index < previousVI.size() - 1; ++index) {
