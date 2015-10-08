@@ -29,6 +29,7 @@ interface Operations {
 
   FloatX toFloat(final FloatX value, final Precision precision);
   BitVector toInteger(final FloatX value, final int size);
+  FloatX fromInteger(final BitVector value);
 
   String toString(final FloatX arg);
   String toHexString(final FloatX arg);

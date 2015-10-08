@@ -124,6 +124,24 @@ final class Float64Operations implements Operations {
   }
 
   @Override
+  public FloatX fromInteger(final BitVector value) {
+    final double result;
+    final int size = value.getBitSize();
+
+    if (size == 32) {
+      result = JSoftFloat.int32_to_float64(value.intValue());
+    } else if (size == 64) {
+      result = JSoftFloat.int64_to_float64(value.longValue());
+    } else {
+      throw new UnsupportedOperationException(String.format(
+          "Conversion from a %d-bit integer to %s is not supported.",
+          size, Precision.FLOAT64.getText()));
+    }
+
+    return newFloatX(result);
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     return Double.toString(arg.doubleValue());
   }
