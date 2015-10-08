@@ -216,7 +216,7 @@ public final class NodeInfo {
       return this;
     }
 
-    final List<ValueInfo> previous = new ArrayList<ValueInfo>(this.previousVI.size() + 1);
+    final List<ValueInfo> previous = new ArrayList<>(this.previousVI.size() + 1);
     previous.add(getValueInfo());
     for (ValueInfo vi : this.previousVI) {
       previous.add(vi);
