@@ -315,6 +315,16 @@ public final class DataEngine {
     return op.supports(left, right);
   }
 
+  public static Data sign_extend(final Type type, final Data value) {
+    // TODO
+    return null;
+  }
+
+  public static Data zero_extend(final Type type, final Data value) {
+    // TODO
+    return null;
+  }
+
   public static Data coerce(final Type type, final Data value) {
     if (type.equals(value.getType())) {
       return value;
@@ -339,6 +349,30 @@ public final class DataEngine {
         value.getRawData().resize(type.getBitSize(), signExt);
 
     return new Data(newRawData, type);
+  }
+
+  public static Data cast(final Type type, final Data value) {
+    if (type.equals(value.getType())) {
+      return value;
+    }
+
+    InvariantChecks.checkTrue(type.getBitSize() == value.getType().getBitSize());
+    return new Data(value.getRawData(), type);
+  }
+
+  public static Data int_to_float(final Type type, final Data value) {
+    // TODO
+    return null;
+  }
+
+  public static Data float_to_int(final Type type, final Data value) {
+    // TODO
+    return null;
+  }
+
+  public static Data float_to_float(final Type type, final Data value) {
+    // TODO
+    return null;
   }
 
   private static IUnaryOperator getUnaryOperator(EOperatorID oid, Type type) {
