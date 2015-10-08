@@ -211,6 +211,21 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return getOperations().sqrt(this);
   }
 
+  public FloatX toFloat(final Precision newPrecision) {
+    if (precision.equals(newPrecision)) {
+      return this;
+    }
+    return getOperations().toFloat(this, newPrecision);
+  }
+
+  public BitVector toInteger() {
+    return toInteger(getSize());
+  }
+
+  public BitVector toInteger(final int newSize) {
+    return getOperations().toInteger(this, newSize);
+  }
+
   private static void checkPrecision(final Precision lhs, final Precision rhs) {
     if (!lhs.equals(rhs)) {
       throw new IllegalArgumentException(String.format(

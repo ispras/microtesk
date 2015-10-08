@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.Float128;
+import ru.ispras.softfloat.FloatX80;
 import ru.ispras.softfloat.JSoftFloat;
 
 final class Float32Operations implements Operations {
@@ -78,6 +80,50 @@ final class Float32Operations implements Operations {
   }
 
   @Override
+  public FloatX toFloat(final FloatX value, final Precision precision) {
+    switch (precision) {
+      case FLOAT64: {
+        final double float64Value = JSoftFloat.float32_to_float64(value.floatValue());
+        return Float64Operations.newFloatX(float64Value);
+      }
+
+      case FLOAT80: {
+        final FloatX80 float80Value = JSoftFloat.float32_to_floatx80(value.floatValue());
+        return Float80Operations.newFloatX(float80Value);
+      }
+
+      case FLOAT128: {
+        final Float128 float128Value = JSoftFloat.float32_to_float128(value.floatValue());
+        return Float128Operations.newFloatX(float128Value);
+      }
+
+      default:
+        throw new UnsupportedOperationException(String.format(
+            "Conversion from %s to %s is not supported.",
+            value.getPrecision().getText(), precision.getText())
+        );
+    }
+  }
+
+  @Override
+  public BitVector toInteger(final FloatX value, final int size) {
+    if (size == 32) {
+      final int intValue = JSoftFloat.float32_to_int32(value.floatValue());
+      return BitVector.valueOf(intValue, size); 
+    }
+
+    if (size == 64) {
+      final long longValue = JSoftFloat.float32_to_int64(value.floatValue());
+      return BitVector.valueOf(longValue, size); 
+    }
+
+    throw new UnsupportedOperationException(String.format(
+        "Conversion from %s to a %d-bit integer is not supported.",
+        value.getPrecision().getText(), size)
+    );
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     return Float.toString(arg.floatValue());
   }
@@ -87,7 +133,7 @@ final class Float32Operations implements Operations {
     return Float.toHexString(arg.floatValue());
   }
 
-  private static FloatX newFloatX(final float value) {
+  static FloatX newFloatX(final float value) {
     return new FloatX(
         BitVector.valueOf(Float.floatToRawIntBits(value), Float.SIZE),
         Precision.FLOAT32

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.softfloat.Float128;
+import ru.ispras.softfloat.FloatX80;
 import ru.ispras.softfloat.JSoftFloat;
 
 final class Float128Operations implements Operations {
@@ -79,6 +80,50 @@ final class Float128Operations implements Operations {
   }
 
   @Override
+  public FloatX toFloat(final FloatX value, final Precision precision) {
+    switch (precision) {
+      case FLOAT32: {
+        final float float32Value = JSoftFloat.float128_to_float32(newFloat128(value));
+        return Float32Operations.newFloatX(float32Value);
+      }
+
+      case FLOAT64: {
+        final double float64Value = JSoftFloat.float128_to_float64(newFloat128(value));
+        return Float64Operations.newFloatX(float64Value);
+      }
+
+      case FLOAT80: {
+        final FloatX80 float80Value = JSoftFloat.float128_to_floatx80(newFloat128(value));
+        return Float80Operations.newFloatX(float80Value);
+      }
+
+      default:
+        throw new UnsupportedOperationException(String.format(
+            "Conversion from %s to %s is not supported.",
+            value.getPrecision().getText(), precision.getText())
+        );
+    }
+  }
+
+  @Override
+  public BitVector toInteger(final FloatX value, final int size) {
+    if (size == 32) {
+      final int intValue = JSoftFloat.float128_to_int32(newFloat128(value));
+      return BitVector.valueOf(intValue, size); 
+    }
+
+    if (size == 64) {
+      final long longValue = JSoftFloat.float128_to_int64(newFloat128(value));
+      return BitVector.valueOf(longValue, size); 
+    }
+
+    throw new UnsupportedOperationException(String.format(
+        "Conversion from %s to a %d-bit integer is not supported.",
+        value.getPrecision().getText(), size)
+    );
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     final Float128 value = newFloat128(arg); 
     return value.toString();
@@ -98,7 +143,7 @@ final class Float128Operations implements Operations {
     return new Float128(high, low);
   }
 
-  private static FloatX newFloatX(final Float128 value) {
+  static FloatX newFloatX(final Float128 value) {
     final BitVector data = BitVector.newEmpty(128);
 
     data.field(0,   63).assign(BitVector.valueOf(value.low,  64));

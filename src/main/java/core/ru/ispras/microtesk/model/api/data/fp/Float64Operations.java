@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.Float128;
+import ru.ispras.softfloat.FloatX80;
 import ru.ispras.softfloat.JSoftFloat;
 
 final class Float64Operations implements Operations {
@@ -60,16 +62,6 @@ final class Float64Operations implements Operations {
   }
 
   @Override
-  public String toString(final FloatX arg) {
-    return Double.toString(arg.doubleValue());
-  }
-
-  @Override
-  public String toHexString(final FloatX arg) {
-    return Double.toHexString(arg.doubleValue());
-  }
-
-  @Override
   public FloatX sqrt(final FloatX arg) {
     final double result = JSoftFloat.float64_sqrt(arg.doubleValue());
     return newFloatX(result);
@@ -87,7 +79,61 @@ final class Float64Operations implements Operations {
     return JSoftFloat.float64_lt(value1, value2) ? -1 : 1;
   }
 
-  private static FloatX newFloatX(final double value) {
+  @Override
+  public FloatX toFloat(final FloatX value, final Precision precision) {
+    switch (precision) {
+      case FLOAT32: {
+        final float float32Value = JSoftFloat.float64_to_float32(value.doubleValue());
+        return Float32Operations.newFloatX(float32Value);
+      }
+
+      case FLOAT80: {
+        final FloatX80 float80Value = JSoftFloat.float64_to_floatx80(value.doubleValue());
+        return Float80Operations.newFloatX(float80Value);
+      }
+
+      case FLOAT128: {
+        final Float128 float128Value = JSoftFloat.float64_to_float128(value.doubleValue());
+        return Float128Operations.newFloatX(float128Value);
+      }
+
+      default:
+        throw new UnsupportedOperationException(String.format(
+            "Conversion from %s to %s is not supported.",
+            value.getPrecision().getText(), precision.getText())
+        );
+    }
+  }
+
+  @Override
+  public BitVector toInteger(final FloatX value, final int size) {
+    if (size == 32) {
+      final int intValue = JSoftFloat.float64_to_int32(value.doubleValue());
+      return BitVector.valueOf(intValue, size); 
+    }
+
+    if (size == 64) {
+      final long longValue = JSoftFloat.float64_to_int64(value.doubleValue());
+      return BitVector.valueOf(longValue, size); 
+    }
+
+    throw new UnsupportedOperationException(String.format(
+        "Conversion from %s to a %d-bit integer is not supported.",
+        value.getPrecision().getText(), size)
+    );
+  }
+
+  @Override
+  public String toString(final FloatX arg) {
+    return Double.toString(arg.doubleValue());
+  }
+
+  @Override
+  public String toHexString(final FloatX arg) {
+    return Double.toHexString(arg.doubleValue());
+  }
+
+  static FloatX newFloatX(final double value) {
     return new FloatX(
         BitVector.valueOf(Double.doubleToRawLongBits(value), Double.SIZE),
         Precision.FLOAT64

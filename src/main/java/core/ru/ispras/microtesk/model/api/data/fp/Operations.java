@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.data.fp;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+
 interface Operations {
   FloatX add(final FloatX lhs, final FloatX rhs);
   FloatX sub(final FloatX lhs, final FloatX rhs);
@@ -24,6 +26,9 @@ interface Operations {
 
   FloatX sqrt(final FloatX arg);
   int compare(final FloatX first, final FloatX second);
+
+  FloatX toFloat(final FloatX value, final Precision precision);
+  BitVector toInteger(final FloatX value, final int size);
 
   String toString(final FloatX arg);
   String toHexString(final FloatX arg);

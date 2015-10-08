@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.data.fp;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.Float128;
 import ru.ispras.softfloat.FloatX80;
 import ru.ispras.softfloat.JSoftFloat;
 
@@ -79,6 +80,50 @@ final class Float80Operations implements Operations {
   }
 
   @Override
+  public FloatX toFloat(final FloatX value, final Precision precision) {
+    switch (precision) {
+      case FLOAT32: {
+        final float float32Value = JSoftFloat.floatx80_to_float32(newFloatX80(value));
+        return Float32Operations.newFloatX(float32Value);
+      }
+
+      case FLOAT64: {
+        final double float64Value = JSoftFloat.floatx80_to_float64(newFloatX80(value));
+        return Float64Operations.newFloatX(float64Value);
+      }
+
+      case FLOAT128: {
+        final Float128 float128Value = JSoftFloat.floatx80_to_float128(newFloatX80(value));
+        return Float128Operations.newFloatX(float128Value);
+      }
+
+      default:
+        throw new UnsupportedOperationException(String.format(
+            "Conversion from %s to %s is not supported.",
+            value.getPrecision().getText(), precision.getText())
+        );
+    }
+  }
+
+  @Override
+  public BitVector toInteger(final FloatX value, final int size) {
+    if (size == 32) {
+      final int intValue = JSoftFloat.floatx80_to_int32(newFloatX80(value));
+      return BitVector.valueOf(intValue, size); 
+    }
+
+    if (size == 64) {
+      final long longValue = JSoftFloat.floatx80_to_int64(newFloatX80(value));
+      return BitVector.valueOf(longValue, size); 
+    }
+
+    throw new UnsupportedOperationException(String.format(
+        "Conversion from %s to a %d-bit integer is not supported.",
+        value.getPrecision().getText(), size)
+    );
+  }
+
+  @Override
   public String toString(final FloatX arg) {
     final FloatX80 value = newFloatX80(arg);
     return value.toString();
@@ -98,7 +143,7 @@ final class Float80Operations implements Operations {
     return new FloatX80(high, low);
   }
 
-  private static FloatX newFloatX(final FloatX80 value) {
+  static FloatX newFloatX(final FloatX80 value) {
     final BitVector data = BitVector.newEmpty(80);
 
     data.field(0,  63).assign(BitVector.valueOf(value.low,  64));
