@@ -110,7 +110,7 @@ public final class NodeInfo {
   }
 
   public static enum CoercionType {
-    IMPLICIT(""),
+    IMPLICIT("coerce"),
 
     SIGN_EXTEND("sign_extend"),
     ZERO_EXTEND("zero_extend"),
