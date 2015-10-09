@@ -316,13 +316,29 @@ public final class DataEngine {
   }
 
   public static Data sign_extend(final Type type, final Data value) {
-    // TODO
-    return null;
+    if (type.equals(value.getType())) {
+      return value;
+    }
+
+    InvariantChecks.checkTrue(type.getBitSize() >= value.getType().getBitSize());
+
+    final BitVector newRawData =
+        value.getRawData().resize(type.getBitSize(), true);
+
+    return new Data(newRawData, type);
   }
 
   public static Data zero_extend(final Type type, final Data value) {
-    // TODO
-    return null;
+    if (type.equals(value.getType())) {
+      return value;
+    }
+
+    InvariantChecks.checkTrue(type.getBitSize() >= value.getType().getBitSize());
+
+    final BitVector newRawData =
+        value.getRawData().resize(type.getBitSize(), false);
+
+    return new Data(newRawData, type);
   }
 
   public static Data coerce(final Type type, final Data value) {
