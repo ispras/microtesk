@@ -173,12 +173,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @param aliasId Name of the source entity.
    * @param args Arguments used to access the source entity (e.g. register index,
    *        or addressing mode arguments).
+   * @throws SemanticException 
    */
 
   public void newExtern(
       final CommonTree id,
       final CommonTree aliasId,
-      final List<Node> args) {
+      final List<Node> args) throws SemanticException {
+    checkNotNull(id, args);
     // TODO
   }
 
