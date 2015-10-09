@@ -1126,7 +1126,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // It is important to fill unused fields with zeros.
-    Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
+    final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         path, constraints, IntegerVariableInitializer.ZEROS);
 
     if (values == null) {
@@ -1272,7 +1272,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         path, constraints, IntegerVariableInitializer.ZEROS /* IntegerVariableInitializer.RANDOM */);
-    InvariantChecks.checkTrue(values != null && !values.isEmpty());
+    InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkFalse(values.isEmpty());
 
     // Set the entry fields.
     entry.setValid(true);
