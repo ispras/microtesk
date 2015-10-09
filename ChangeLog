@@ -6,6 +6,15 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+ 2015/10/09 MicroTESK 2.3.5 beta
+
+ The new build contains the following changes:
+
+ - Support for floating-point calculations was improved
+   (integration with JSoftFloat, additional nML functions for type conversion)
+ - Support for checking addresses using memory region settings was implemented
+ - Some bug fixes and general improvements were made
+
  2015/10/02 MicroTESK 2.3.4 beta
 
  The new build contains the following changes:
