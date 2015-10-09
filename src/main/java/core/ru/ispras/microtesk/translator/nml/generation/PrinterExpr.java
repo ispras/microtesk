@@ -78,8 +78,11 @@ public final class PrinterExpr {
     final ValueInfo target = coercionChain.get(coercionIndex);
     final ValueInfo source = previousVI.get(coercionIndex);
 
-    return String.format(CoercionFormatter.getFormat(target, source),
-      printCoersion(++coercionIndex));
+    return String.format(
+        CoercionFormatter.getFormat(
+            nodeInfo.getCoercionTypes().get(coercionIndex), target, source),
+        printCoersion(++coercionIndex)
+        );
   }
 
   private String printExpression() {
@@ -210,8 +213,10 @@ public final class PrinterExpr {
       );
   }
 
-  private static String operandToString(SourceOperator operatorInfo, Node operandNode,
-      boolean needsBrackets) {
+  private static String operandToString(
+      final SourceOperator operatorInfo,
+      final Node operandNode,
+      final boolean needsBrackets) {
     final Expr operand = new Expr(operandNode);
     final PrinterExpr printer = new PrinterExpr(operand);
 
@@ -225,8 +230,11 @@ public final class PrinterExpr {
     if (operatorInfo.getCastValueInfo().hasEqualType(operand.getValueInfo())) {
       text = printer.toString();
     } else {
-      final String format =
-          CoercionFormatter.getFormat(operatorInfo.getCastValueInfo(), operand.getValueInfo());
+      final String format = CoercionFormatter.getFormat(
+          NodeInfo.CoercionType.IMPLICIT,
+          operatorInfo.getCastValueInfo(),
+          operand.getValueInfo()
+          );
       text = String.format(format, printer);
     }
 
@@ -343,7 +351,7 @@ final class CoercionFormatter {
 
   private static final String ENGINE_CLASS = DataEngine.class.getSimpleName();
 
-  private static final String COERCE_METHOD = "coerce";
+  //private static final String COERCE_METHOD = "coerce";
   private static final String VALUE_OF_METHOD = "valueOf";
 
   private static final String TO_MODEL_FORMAT = "%s.%s(%s, %%s)";
@@ -352,14 +360,18 @@ final class CoercionFormatter {
   private static final String ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
   private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
 
-  static String getFormat(ValueInfo target, ValueInfo source) {
+  static String getFormat(
+      final NodeInfo.CoercionType coercionType,
+      final ValueInfo target,
+      final ValueInfo source) {
+    InvariantChecks.checkNotNull(coercionType);
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(source);
 
     // This invariant is protected by NodeInfo and ExprPrinter.
     if (target.hasEqualType(source)) {
       throw new IllegalArgumentException(
-        String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
+          String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
     }
 
     assert target.isModel() || target.isNative();
@@ -367,10 +379,10 @@ final class CoercionFormatter {
 
     if (target.isModel()) {
       final String methodName = source.isModel() ?
-        COERCE_METHOD : VALUE_OF_METHOD;
+          coercionType.getMethodName() : VALUE_OF_METHOD;
 
       return String.format(TO_MODEL_FORMAT,
-        ENGINE_CLASS, methodName, target.getModelType().getJavaText());
+          ENGINE_CLASS, methodName, target.getModelType().getJavaText());
     }
 
     if (source.isModel()) {
