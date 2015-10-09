@@ -346,9 +346,7 @@ public final class DataEngine {
       return value;
     }
 
-    // NOTE: Restriction. Currently, coercion supported only for INT, CARD, BOOL.
-    // For other types, the result is undefined.
-
+    // Restriction: only integer types (INT, CARD, BOOL) are supported.
     InvariantChecks.checkTrue(
         type.getTypeId().isInteger(),
         String.format("Coercion to %s is not supported.", type));
@@ -357,7 +355,7 @@ public final class DataEngine {
         value.getType().getTypeId().isInteger(),
         String.format("Coercion from %s is not supported.", value.getType()));
 
-    // Currently, sign extension applies only to INT.
+    // Sign extension applies only to INT.
     final boolean signExt =
         value.getType().getTypeId() == TypeId.INT;
 
