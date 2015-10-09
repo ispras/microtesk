@@ -1,0 +1,117 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+/*
+ * Test example to demonstrate how to use type casts and to test them.
+ * Functions to be tested:
+ * 
+ * 1. sign_extend(type, value)
+ * 2. zero_extend(type, value)
+ * 3. coerce(type, value)
+ * 4. cast(type, value)
+ * 5. int_to_float(type, value)
+ * 6. float_to_int(type, value)
+ * 7. float_to_float(type, value)
+ */
+
+type HWORD     = int(16)
+type WORD      = int(32)
+type DWORD     = int(64)
+type DWORDX    = int(80)
+type QWORD     = int(128)
+
+type UHWORD    = card(16)
+type UWORD     = card(32)
+type UDWORD    = card(64)
+type UDWORDX   = card(80)
+type UQWORD    = card(128)
+
+type SINGLE    = float(23, 8)
+type DOUBLE    = float(52, 11)
+type DOUBLE80  = float(64, 15)
+type DOUBLE128 = float(112, 15)
+
+reg  R32[32, WORD]
+reg  R64[32, DWORD]
+reg  R80[32, DWORDX]
+reg R128[32, QWORD]
+
+reg  F32[32, SINGLE]
+reg  F64[32, DOUBLE]
+reg  F80[32, DOUBLE80]
+reg F128[32, DOUBLE128]
+
+op sign_extend_test()
+  syntax = "sign_extend_test"
+  image  = "000"
+  action =  {
+    R32[0] = coerce(WORD, -1);
+    R64[0] = sign_extend(DWORD, R32[0]);
+  }
+
+op zero_extend_test()
+  syntax = "zero_extend_test"
+  image  = "001"
+  action =  {
+    R32[1] = coerce(WORD, -1);
+    R64[1] = zero_extend(DWORD, R32[1]);
+  }
+
+op coerce_test()
+  syntax = "coerce_test"
+  image  = "010"
+  action =  {
+    R32[2] = coerce(WORD, -1);
+    R64[2] = coerce(DWORD, R32[2]);
+  }
+
+op cast_test()
+  syntax = "cast_test"
+  image  = "011"
+  action =  {
+  }
+
+op int_to_float_test()
+  syntax = "int_to_float_test"
+  image  = "100"
+  action =  {
+  }
+
+op float_to_int_test()
+  syntax = "float_to_int_test"
+  image  = "101"
+  action =  {
+  }
+
+op float_to_float_test()
+  syntax = "float_to_float_test"
+  image  = "110"
+  action =  {
+  }
+
+op test =
+  sign_extend_test    |
+  zero_extend_test    |
+  coerce_test         |
+  cast_test           |
+  int_to_float_test   |
+  float_to_int_test   |
+  float_to_float_test
+
+op instruction (x : test)
+  syntax = x.syntax
+  image = x.image
+  action = {
+    x.action;
+  }
