@@ -110,17 +110,26 @@ public final class NodeInfo {
   }
 
   public static enum CoercionType {
-    NATIVE, // from/to native Java types: int, boolean, etc
+    IMPLICIT(""),
 
-    SIGN_EXTEND,
-    ZERO_EXTEND,
+    SIGN_EXTEND("sign_extend"),
+    ZERO_EXTEND("zero_extend"),
 
-    COERCE,
-    CAST,
+    COERCE("coerce"),
+    CAST("cast"),
 
-    INT_TO_FLOAT,
-    FLOAT_TO_INT,
-    FLOAT_TO_FLOAT
+    INT_TO_FLOAT("int_to_float"),
+    FLOAT_TO_INT("float_to_int"),
+    FLOAT_TO_FLOAT("float_to_float");
+
+    private final String methodName;
+    private CoercionType(String methodName) {
+      this.methodName = methodName;
+    }
+
+    public String getMethodName() {
+      return methodName;
+    }
   }
 
   /**
