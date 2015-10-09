@@ -185,7 +185,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       if (operand.getValueInfo().isModelOf(TypeId.BOOL)) {
         final ValueInfo newValueInfo = operand.getValueInfo().toNativeType(Boolean.class);
         final NodeInfo newNodeInfo = operand.getNodeInfo().coerceTo(
-            newValueInfo, NodeInfo.CoercionType.NATIVE);
+            newValueInfo, NodeInfo.CoercionType.IMPLICIT);
 
         operand.setNodeInfo(newNodeInfo);
       }
@@ -706,7 +706,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     if (srcValueInfo.isModel()) {
       final ValueInfo newValueInfo = srcValueInfo.toNativeType(Boolean.class);
       final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-          newValueInfo, NodeInfo.CoercionType.NATIVE);
+          newValueInfo, NodeInfo.CoercionType.IMPLICIT);
 
       src.setNodeInfo(newNodeInfo);
       return src;
@@ -761,7 +761,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.NATIVE);
+        newValueInfo, NodeInfo.CoercionType.IMPLICIT);
 
     src.setNodeInfo(newNodeInfo);
     return src;
