@@ -172,6 +172,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
       variantIterator.registerIterator(new CollectionIterator<>(equations));
     }
 
+    final List<String> errors = new ArrayList<>();
     for (variantIterator.init(); variantIterator.hasValue(); variantIterator.next()) {
       final IntegerClause.Builder<IntegerVariable> variantBuilder =
           new IntegerClause.Builder<>(IntegerClause.Type.AND);
@@ -188,8 +189,9 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
             Collections.singleton(localClause.getVariables());
 
         final IntegerClauseSolver checker = new IntegerClauseSolver(localVariables, localClause);
-
-        if (checker.solve(Mode.SAT).getStatus() != SolverResult.Status.SAT) {
+        final SolverResult<Map<IntegerVariable, BigInteger>> result = checker.solve(Mode.SAT);
+        if (result.getStatus() != SolverResult.Status.SAT) {
+          errors.addAll(result.getErrors());
           continue;
         }
       }
@@ -203,9 +205,15 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
 
       if (globalResult.getStatus() == SolverResult.Status.SAT) {
         return globalResult;
+      } else {
+        errors.addAll(globalResult.getErrors());
       }
     }
+    errors.subList(0, 0).add("SAT variant not found");
 
-    return new SolverResult<>("SAT variant not found");
+    return new SolverResult<>(
+        SolverResult.Status.UNSAT,
+        Collections.<IntegerVariable, BigInteger>emptyMap(),
+        errors);
   }
 }
