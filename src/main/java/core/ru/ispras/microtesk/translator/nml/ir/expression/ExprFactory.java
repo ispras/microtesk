@@ -320,17 +320,13 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "Not supported for constants.");
     }
 
-    if (type.getTypeId() != TypeId.CARD &&
-        type.getTypeId() != TypeId.INT && 
-        type.getTypeId() != TypeId.BOOL) {
+    if (!type.getTypeId().isInteger()) {
       raiseError(w, String.format(
           "Cannot cast to %s. Only integer types are supported.",
           type.getTypeName()));
     }
 
-    if (!srcValueInfo.isModelOf(TypeId.CARD) &&
-        !srcValueInfo.isModelOf(TypeId.INT) && 
-        !srcValueInfo.isModelOf(TypeId.BOOL)) {
+    if (!srcValueInfo.getModelType().getTypeId().isInteger()) {
       raiseError(w, String.format(
           "Cannot cast from %s. Only integer types are supported.",
           srcValueInfo.getModelType().getTypeName()));
@@ -417,9 +413,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "Not supported for constants.");
     }
 
-    if (!srcValueInfo.isModelOf(TypeId.CARD) &&
-        !srcValueInfo.isModelOf(TypeId.INT) && 
-        !srcValueInfo.isModelOf(TypeId.BOOL)) {
+    if (!srcValueInfo.getModelType().getTypeId().isInteger()) {
       raiseError(w, String.format(
           "Cannot cast from %s. Only integer types are supported.",
           srcValueInfo.getModelType().getTypeName()));
@@ -467,9 +461,7 @@ public final class ExprFactory extends WalkerFactoryBase {
           srcValueInfo.getModelType().getTypeName()));
     }
 
-    if (type.getTypeId() != TypeId.CARD &&
-        type.getTypeId() != TypeId.INT && 
-        type.getTypeId() != TypeId.BOOL) {
+    if (!type.getTypeId().isInteger()) {
       raiseError(w, String.format(
           "Cannot cast to %s. Only integer types are supported.",
           type.getTypeName()));
