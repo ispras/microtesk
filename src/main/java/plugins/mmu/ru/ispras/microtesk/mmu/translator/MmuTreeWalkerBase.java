@@ -166,6 +166,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
+   * Adds an external variable linked to the specified source entity defined
+   * in the ISA specification to the IR.
+   * 
+   * @param id Variable name.
+   * @param aliasId Name of the source entity.
+   * @param args Arguments used to access the source entity (e.g. register index,
+   *        or addressing mode arguments).
+   */
+
+  public void newExtern(
+      final CommonTree id,
+      final CommonTree aliasId,
+      final List<Node> args) {
+    // TODO
+  }
+
+  /**
    * Creates an Address IR object and adds it to the MMU IR.
    * 
    * @param addressId Address identifier.

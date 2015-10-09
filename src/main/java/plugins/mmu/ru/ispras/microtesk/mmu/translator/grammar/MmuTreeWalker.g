@@ -97,8 +97,9 @@ let
 //==================================================================================================
 
 extern
-    : ^(MMU_EXTERN id=ID aliasId=ID (expr[0])*)
-      { /* TODO */}
+@init  {final List<Node> args = new ArrayList<>();}
+    : ^(MMU_EXTERN id=ID aliasId=ID (e=expr[0] {args.add($e.res);})*)
+      {newExtern($id, $aliasId, args);}
     ;
 
 //==================================================================================================
