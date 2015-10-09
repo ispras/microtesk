@@ -98,6 +98,7 @@ op float_to_float_test()
   syntax = "float_to_float_test"
   image  = "110"
   action =  {
+    F32[0] = float_to_float(SINGLE, F64[0]);
   }
 
 op test =
