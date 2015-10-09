@@ -375,18 +375,35 @@ public final class DataEngine {
   }
 
   public static Data int_to_float(final Type type, final Data value) {
-    // TODO
-    return null;
+    InvariantChecks.checkTrue(type.getTypeId() == TypeId.FLOAT);
+    InvariantChecks.checkTrue(value.getType().getTypeId().isInteger());
+
+    final BitVector source = value.getRawData();
+    final FloatX target = FloatX.fromInteger(
+        type.getFieldSize(0), type.getFieldSize(1), source);
+
+    return new Data(target.getData(), type);
   }
 
   public static Data float_to_int(final Type type, final Data value) {
-    // TODO
-    return null;
+    InvariantChecks.checkTrue(type.getTypeId().isInteger());
+    InvariantChecks.checkTrue(value.getType().getTypeId() == TypeId.FLOAT);
+
+    final FloatX source = FloatBinary.dataToFloatX(value);
+    final BitVector target = source.toInteger(type.getBitSize());
+
+    return new Data(target, type);
   }
 
   public static Data float_to_float(final Type type, final Data value) {
-    // TODO
-    return null;
+    InvariantChecks.checkTrue(type.getTypeId() == TypeId.FLOAT);
+    InvariantChecks.checkTrue(value.getType().getTypeId() == TypeId.FLOAT);
+
+    final FloatX source = FloatBinary.dataToFloatX(value);
+    final FloatX target = source.toFloat(
+        type.getFieldSize(0), type.getFieldSize(1));
+
+    return new Data(target.getData(), type);
   }
 
   private static IUnaryOperator getUnaryOperator(EOperatorID oid, Type type) {
