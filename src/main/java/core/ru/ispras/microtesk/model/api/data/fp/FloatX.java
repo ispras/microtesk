@@ -213,6 +213,11 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return getOperations().toFloat(this, newPrecision);
   }
 
+  public FloatX toFloat(final int fractionSize, final int exponentSize) {
+    final Precision newPrecision = getPrecision(fractionSize, exponentSize);
+    return toFloat(newPrecision);
+  }
+
   public BitVector toInteger() {
     return toInteger(getSize());
   }
