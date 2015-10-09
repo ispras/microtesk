@@ -176,7 +176,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @throws SemanticException 
    */
 
-  public void newExtern(
+  protected void newExtern(
       final CommonTree id,
       final CommonTree aliasId,
       final List<Node> args) throws SemanticException {
