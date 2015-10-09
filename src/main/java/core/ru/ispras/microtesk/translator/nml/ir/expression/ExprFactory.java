@@ -743,6 +743,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, String.format(ERR_NOT_LOCATION_COMPATIBLE, srcValueInfo.getTypeName()));
     }
 
+    final Type type;
     final int size;
     if (srcValueInfo.isConstant()) {
       final BigInteger value = (BigInteger) srcValueInfo.getNativeValue();
@@ -753,11 +754,11 @@ public final class ExprFactory extends WalkerFactoryBase {
         adjustedSize *= 2;
       }
       size = adjustedSize;
+      type = value.compareTo(BigInteger.ZERO) < 0 ? Type.INT(size) : Type.CARD(size);
     } else {
       size = Integer.SIZE;
+      type = Type.INT(size);
     }
-
-    final Type type = Type.INT(size);
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
