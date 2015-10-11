@@ -34,6 +34,7 @@ public final class Buffer extends AbstractStorage {
   private final Node guard;
   private final PolicyId policy;
   private final Buffer parent;
+  private final boolean mapped;
 
   public Buffer(
       final String id,
@@ -46,7 +47,8 @@ public final class Buffer extends AbstractStorage {
       final Node match,
       final Node guard,
       final PolicyId policy,
-      final Buffer parent) {
+      final Buffer parent,
+      final boolean mapped) {
 
     super(id,
           address,
@@ -70,6 +72,7 @@ public final class Buffer extends AbstractStorage {
     this.guard = guard;
     this.policy = policy;
     this.parent = parent;
+    this.mapped = mapped;
   }
 
   private static Map<String, Attribute> createAttributes(
@@ -125,10 +128,15 @@ public final class Buffer extends AbstractStorage {
     return parent;
   }
 
+  public boolean isMapped() {
+    return this.mapped;
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "buffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}",
+        "%sbuffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}",
+        (isMapped()) ? "mapped " : "",
         getId(),
         getAddressArg(),
         ways,

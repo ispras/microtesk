@@ -198,7 +198,8 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           guardCondition,
           null, // TODO: Guard
           isReplaceable,
-          parentDevice
+          parentDevice,
+          buffer.isMapped()
           );
 
       final Type entryType = buffer.getEntry();

@@ -162,11 +162,19 @@ segment
 //==================================================================================================
 
 buffer
-    : ^(MMU_BUFFER bufferId=ID {declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER);}
-        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
-        (parentBufferId=ID)?
-        {final BufferBuilder builder = new BufferBuilder(
-             $bufferId, $addressArgId, $addressArgType, $parentBufferId);}
+@init { final List<String> qualifiers; }
+    : ^(MMU_BUFFER bufferId=ID { declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER); }
+                   addressArgId=ID { declare($addressArgId, MmuSymbolKind.ARGUMENT, false); }
+                   addressArgType=ID
+                   keywords=contextKeywords {
+                     qualifiers = checkContextKeywords(MmuSymbolKind.BUFFER, $keywords.res);
+                   }
+                   parentBufferId=ID?
+      {
+        final BufferBuilder builder =
+            new BufferBuilder($bufferId, $addressArgId, $addressArgType, $parentBufferId);
+        builder.setMapped(qualifiers.contains("mapped"));
+      }
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
           | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
@@ -179,6 +187,12 @@ buffer
         {builder.build();}
       )
     ; finally {popSymbolScope();}
+
+contextKeywords returns [List<CommonTree> res]
+@init { final List<CommonTree> keywords = new ArrayList<>(); }
+@after { $res = keywords; }
+    : ^(MMU_CONTEXT (kw=ID { keywords.add($kw); } )*)
+    ;
 
 //==================================================================================================
 // Memory

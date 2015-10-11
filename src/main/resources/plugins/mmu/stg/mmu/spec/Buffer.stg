@@ -15,7 +15,7 @@
 group Buffer;
 
 buffer_constructor(name, ways, sets, addr, tag, index, offset, match,
-           guard_cond, guard, replaceable, parent, stmts) ::= <<
+           guard_cond, guard, replaceable, parent, mapped, stmts) ::= <<
 <\n>private <name>() {
   this("<name>");
 }<\n>
@@ -32,7 +32,8 @@ private <name>(final String name) {
       <guard_cond>,
       <guard>,
       <replaceable>,
-      <if(parent)><parent>.get()<else>null<endif>
+      <if(parent)><parent>.get()<else>null<endif>,
+      <mapped>
   );<\n>
   <stmts; separator="\n">
 }

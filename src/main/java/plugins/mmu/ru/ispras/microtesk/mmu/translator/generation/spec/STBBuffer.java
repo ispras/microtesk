@@ -141,6 +141,7 @@ final class STBBuffer implements STBuilder {
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
     }
+    stConstructor.add("mapped", Boolean.toString(buffer.isMapped()));
 
     if (!analyzer.getMatchBindings().isEmpty()) {
       final ST stDecl = group.getInstanceOf("match_field_decl");

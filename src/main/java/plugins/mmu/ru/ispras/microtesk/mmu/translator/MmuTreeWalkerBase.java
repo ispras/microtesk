@@ -18,6 +18,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,6 +75,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
   private VariableStorage storage = new VariableStorage();
   private Map<String, AbstractStorage> globals = new HashMap<>();
+  private Map<MmuSymbolKind, Collection<String>> contextKeywords = 
+      new EnumMap<>(MmuSymbolKind.class);
+
   protected ConstantPropagator propagator = new ConstantPropagator();
 
   private final NodeTransformer equalityExpander;
@@ -117,6 +122,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     this.equalityExpander = new NodeTransformer();
     this.equalityExpander.addRule(StandardOperation.EQ, new ExpandEqualityRule());
+
+    this.contextKeywords.put(MmuSymbolKind.BUFFER, Arrays.asList("mapped"));
   }
 
   public final void assignIR(final Ir ir) {
@@ -370,6 +377,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private Node match = null;
     private Node guard = null;
     private PolicyId policy = null;
+    private boolean mapped = false;
 
     /**
      * Constructs a builder for a Buffer object.
@@ -483,6 +491,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
     }
 
+    public void setMapped(final boolean value) {
+      this.mapped = value;
+    }
+
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways.equals(BigInteger.ZERO));
       checkUndefined("sets", sets.equals(BigInteger.ZERO));
@@ -495,7 +507,18 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Buffer buffer = new Buffer(
-          id.getText(), address, addressArg, dataArg, ways, sets, index, match, guard, policy, parent);
+          id.getText(),
+          address,
+          addressArg,
+          dataArg,
+          ways,
+          sets,
+          index,
+          match,
+          guard,
+          policy,
+          parent,
+          mapped);
 
       ir.addBuffer(buffer);
       globals.put(id.getText(), buffer);
@@ -503,6 +526,32 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       return buffer;
     }
+  }
+
+  protected final List<String> checkContextKeywords(
+      final MmuSymbolKind sym,
+      final Collection<CommonTree> nodes) throws SemanticException {
+    InvariantChecks.checkNotNull(sym);
+    InvariantChecks.checkNotNull(nodes);
+
+    final Collection<String> expected;
+    if (contextKeywords.containsKey(sym)) {
+      expected = contextKeywords.get(sym);
+    } else {
+      expected = Collections.emptyList();
+    }
+    final List<String> observed = new ArrayList<>(nodes.size());
+    for (final CommonTree node : nodes) {
+      final String keyword = node.getText();
+      if (!expected.contains(keyword)) {
+        raiseError(where(node), "Unexpected qualifier: " + keyword);
+      }
+      if (observed.contains(keyword)) {
+        raiseError(where(node), "Duplicate qualifier: " + keyword);
+      }
+      observed.add(keyword);
+    }
+    return observed;
   }
 
   protected final CommonBuilder newMemoryBuilder(

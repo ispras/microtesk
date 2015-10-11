@@ -28,6 +28,10 @@ options {
 
 import commonParser=CommonParser;
 
+tokens {
+  MMU_CONTEXT;
+}
+
 //==================================================================================================
 // Header for the Generated Java File
 //==================================================================================================
@@ -168,8 +172,12 @@ range
 //==================================================================================================
 
 buffer
-    : MMU_BUFFER^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! (MMU_VIEWOF! ID)?
-        (bufferParameter)*
+    : kw=ID? bufferId (MMU_VIEWOF view=ID)? bufferParameter* ->
+          ^(MMU_BUFFER bufferId ^(MMU_CONTEXT $kw?) $view? bufferParameter*)
+    ;
+
+bufferId
+    : MMU_BUFFER! ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
     ;
 
 bufferParameter

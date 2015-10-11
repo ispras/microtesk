@@ -55,6 +55,8 @@ public class MmuBuffer extends MmuStruct {
   /** The flag indicating whether the device supports data replacement. */
   private final boolean replaceable;
 
+  private final boolean mapped;
+
   // TODO: E.g., JTLB for DTLB.
   private final MmuBuffer parent;
   // TODO: E.g., DTLB for JTLB.
@@ -75,7 +77,8 @@ public class MmuBuffer extends MmuStruct {
       final MmuCondition guardCondition,
       final Predicate<MemoryAccess> guard,
       final boolean replaceable,
-      final MmuBuffer parent) {
+      final MmuBuffer parent,
+      final boolean mapped) {
     super(name);
     setDevice(this);
 
@@ -99,6 +102,7 @@ public class MmuBuffer extends MmuStruct {
     this.guard = guard;
 
     this.replaceable = replaceable;
+    this.mapped = mapped;
 
     // TODO:
     this.parent = parent;
@@ -251,6 +255,10 @@ public class MmuBuffer extends MmuStruct {
    */
   public final boolean isReplaceable() {
     return replaceable;
+  }
+
+  public final boolean isMapped() {
+    return this.mapped;
   }
 
   // TODO:
