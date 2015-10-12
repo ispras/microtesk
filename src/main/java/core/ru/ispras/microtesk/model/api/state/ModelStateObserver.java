@@ -40,7 +40,11 @@ public final class ModelStateObserver implements IModelStateObserver {
 
   private final Status controlTransfer;
 
-  public ModelStateObserver(Memory[] registers, Memory[] memory, Label[] labels, Status[] statuses) {
+  public ModelStateObserver(
+      final Memory[] registers,
+      final Memory[] memory,
+      final Label[] labels,
+      final Status[] statuses) {
     checkNotNull(registers);
     checkNotNull(memory);
     checkNotNull(labels);
@@ -56,8 +60,8 @@ public final class ModelStateObserver implements IModelStateObserver {
     controlTransfer = findStatus(Status.CTRL_TRANSFER.getName(), statuses);
   }
 
-  private static void addToMemoryMap(Map<String, Memory> map, Memory[] items) {
-    for (Memory m : items) {
+  private static void addToMemoryMap(final Map<String, Memory> map, final Memory[] items) {
+    for (final Memory m : items) {
       final Memory prev = map.put(m.getName(), m);
       if (null != prev) {
         throw new IllegalStateException(String.format(
@@ -66,8 +70,8 @@ public final class ModelStateObserver implements IModelStateObserver {
     }
   }
 
-  private static void addToLabelMap(Map<String, Label> map, Label[] items) {
-    for (Label l : items) {
+  private static void addToLabelMap(final Map<String, Label> map, final Label[] items) {
+    for (final Label l : items) {
       final Label prev = map.put(l.getName(), l);
       if (null != prev) {
         throw new IllegalStateException(String.format(
@@ -76,8 +80,8 @@ public final class ModelStateObserver implements IModelStateObserver {
     }
   }
 
-  private static Status findStatus(String name, Status[] statuses) {
-    for (Status status : statuses) {
+  private static Status findStatus(final String name, final Status[] statuses) {
+    for (final Status status : statuses) {
       if (name.equals(status.getName())) {
         return status;
       }
@@ -88,12 +92,13 @@ public final class ModelStateObserver implements IModelStateObserver {
   }
 
   @Override
-  public LocationAccessor accessLocation(String name) throws ConfigurationException {
+  public LocationAccessor accessLocation(final String name) throws ConfigurationException {
     return accessLocation(name, BigInteger.ZERO);
   }
 
   @Override
-  public LocationAccessor accessLocation(String name, BigInteger index) throws ConfigurationException {
+  public LocationAccessor accessLocation(
+      final String name, final BigInteger index) throws ConfigurationException {
     if (labelMap.containsKey(name)) {
       if (null != index && !index.equals(BigInteger.ZERO)) {
         throw new UndeclaredException(String.format(BOUNDS_ERR_FRMT, index, name));
