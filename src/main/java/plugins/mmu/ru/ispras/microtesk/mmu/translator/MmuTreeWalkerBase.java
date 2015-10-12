@@ -73,12 +73,12 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
-  private VariableStorage storage = new VariableStorage();
-  private Map<String, AbstractStorage> globals = new HashMap<>();
-  private Map<MmuSymbolKind, Collection<String>> contextKeywords = 
+  private final VariableStorage storage = new VariableStorage();
+  private final Map<String, AbstractStorage> globals = new HashMap<>();
+  private final Map<MmuSymbolKind, Collection<String>> contextKeywords = 
       new EnumMap<>(MmuSymbolKind.class);
 
-  protected ConstantPropagator propagator = new ConstantPropagator();
+  protected final ConstantPropagator propagator = new ConstantPropagator();
 
   private final NodeTransformer equalityExpander;
   private static final class ExpandEqualityRule implements TransformerRule {
