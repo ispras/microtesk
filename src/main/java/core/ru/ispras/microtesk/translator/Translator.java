@@ -29,20 +29,9 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public abstract class Translator<Ir> {
-
-  public static Translator<?> load(String className) {
-    InvariantChecks.checkNotNull(className);
-    final ClassLoader loader = Translator.class.getClassLoader();
-    try {
-      final Class<?> translatorClass = loader.loadClass(className);
-      return (Translator<?>) translatorClass.newInstance();
-    } catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-      return null;
-    }
-  }
-
   private final Set<String> fileExtFilter;
   private String outDir;
+  private TranslatorContext context;
 
   private LogStore log;
   private final List<TranslatorHandler<Ir>> handlers;
@@ -52,6 +41,7 @@ public abstract class Translator<Ir> {
 
     this.fileExtFilter = fileExtFilter;
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
+    this.context = null;
     this.log = LogStoreConsole.INSTANCE;
     this.handlers = new ArrayList<>();
   }
@@ -63,6 +53,15 @@ public abstract class Translator<Ir> {
   public final void setOutDir(final String outDir) {
     checkNotNull(outDir);
     this.outDir = outDir;
+  }
+
+  public final TranslatorContext getContext() {
+    return context;
+  }
+
+  public final void setContext(final TranslatorContext context) {
+    checkNotNull(context);
+    this.context = context;
   }
 
   public abstract void addPath(String path);
@@ -104,6 +103,10 @@ public abstract class Translator<Ir> {
     checkNotNull(ir);
     for (final TranslatorHandler<Ir> handler : handlers) {
       handler.processIr(ir);
+    }
+
+    if (null != context) {
+      context.addIr(ir);
     }
   }
 }
