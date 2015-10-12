@@ -189,7 +189,7 @@ public final class MmuUnderTest {
       MmuExpression.var(va, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       null, null,                    // Guard
-      false, null);
+      false, null, false);
 
   {
     jtlb.addField(vpn2);
@@ -226,7 +226,7 @@ public final class MmuUnderTest {
       MmuExpression.var(va, 0, 12),                  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       MmuCondition.eq(v, BigInteger.ONE), dtlbGuard, // Guard
-      true, jtlb);
+      true, jtlb, false);
 
   {
     dtlb.addField(new IntegerVariable("VPN2", 27));
@@ -253,7 +253,7 @@ public final class MmuUnderTest {
           new MmuBinding(new IntegerField(l1Tag),
               MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
-      true, null);
+      true, null, false);
 
   {
     l1.addField(l1Tag);
@@ -269,7 +269,7 @@ public final class MmuUnderTest {
           new MmuBinding(new IntegerField(l2Tag),
               MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
-      true, null);
+      true, null, false);
 
   {
     l2.addField(l2Tag);
@@ -283,7 +283,7 @@ public final class MmuUnderTest {
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
       Collections.<MmuBinding>emptySet(),
       null, null,                                   // Guard
-      false, null);
+      false, null, false);
 
   {
     mem.addField(data);

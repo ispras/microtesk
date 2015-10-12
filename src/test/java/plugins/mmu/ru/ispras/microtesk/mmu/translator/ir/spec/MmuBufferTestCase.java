@@ -76,7 +76,7 @@ public class MmuBufferTestCase {
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, false, null);
+      null, null, false, null, false);
 
   static {
     JTLB.addField(VPN2);
@@ -99,7 +99,7 @@ public class MmuBufferTestCase {
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, true, JTLB);
+      null, null, true, JTLB, false);
 
   static {
     DTLB.addField(VPN2);
@@ -146,7 +146,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L1_TAG), MmuExpression.var(PA, 12, 35))),
-      null, null, true, null);
+      null, null, true, null, false);
 
   static {
     L1.addField(L1_TAG);
@@ -181,7 +181,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L2_TAG), MmuExpression.var(PA, 17, 35))),
-      null, null, true, null);
+      null, null, true, null, false);
 
   static {
     L2.addField(L2_TAG);
@@ -214,7 +214,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
       Collections.<MmuBinding>emptySet(),
-      null, null, false, null);
+      null, null, false, null, false);
 
   static {
     MEM.addField(DATA);
