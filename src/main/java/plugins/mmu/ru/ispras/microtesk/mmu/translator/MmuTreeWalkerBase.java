@@ -63,6 +63,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.VariableStorage;
+import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -73,6 +74,8 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
+  private TranslatorContext context;
+
   private final VariableStorage storage = new VariableStorage();
   private final Map<String, AbstractStorage> globals = new HashMap<>();
   private final Map<MmuSymbolKind, Collection<String>> contextKeywords = 
@@ -119,6 +122,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
     this.ir = null;
+    this.context = null;
 
     this.equalityExpander = new NodeTransformer();
     this.equalityExpander.addRule(StandardOperation.EQ, new ExpandEqualityRule());
@@ -127,11 +131,21 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   public final void assignIR(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }
 
   public final Ir getIR() {
     return ir;
+  }
+
+  public final void assignContext(final TranslatorContext context) {
+    InvariantChecks.checkNotNull(context);
+    this.context = context;
+  }
+
+  public final TranslatorContext getContext() {
+    return context;
   }
 
   /**

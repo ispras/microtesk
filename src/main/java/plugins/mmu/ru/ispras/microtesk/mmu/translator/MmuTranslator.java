@@ -134,6 +134,7 @@ public final class MmuTranslator extends Translator<Ir> {
       walker.assignLog(LOG);
       walker.assignSymbols(symbols);
       walker.assignIR(ir);
+      walker.assignContext(getContext());
 
       walker.startRule();
 
