@@ -35,6 +35,7 @@ import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.testbase.TestBaseRegistry;
@@ -122,6 +123,7 @@ public final class MicroTESK {
   }
 
   private static void translate(final Parameters params) throws RecognitionException {
+    final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
       if (params.hasOption(Parameters.INCLUDE)) {
         translator.addPath(params.getOptionValue(Parameters.INCLUDE));
@@ -131,6 +133,7 @@ public final class MicroTESK {
         translator.setOutDir(params.getOptionValue(Parameters.OUTDIR));
       }
 
+      translator.setContext(context);
       for (final String fileName : params.getArgs()) {
         final String fileDir = FileUtils.getFileDir(fileName);
         if (null != fileDir) {
