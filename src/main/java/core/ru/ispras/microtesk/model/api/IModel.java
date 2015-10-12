@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.api.state.IModelStateObserver;
  * The IModel interface is main interface that should be implemented by a model. It provides method
  * for accessing the model from the outside.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public interface IModel {
@@ -31,7 +31,7 @@ public interface IModel {
    * @return name Microprocessor design name.
    */
 
-  public String getName();
+  String getName();
 
   /**
    * Returns a meta description of the model.
@@ -39,14 +39,14 @@ public interface IModel {
    * @return An meta data object (provides access to model's meta data).
    */
 
-  public MetaModel getMetaData();
+  MetaModel getMetaData();
 
   /**
    * Returns a model state monitor object that allows getting information on the current state of
    * the microprocessor mode (current register values, value in memory locations, etc)
    */
 
-  public IModelStateObserver getStateObserver();
+  IModelStateObserver getStateObserver();
 
   /**
    * Returns a factory for creating instances of operations, addressing modes and instruction calls
@@ -55,5 +55,5 @@ public interface IModel {
    * @return Call factory.
    */
 
-  public ICallFactory getCallFactory();
+  ICallFactory getCallFactory();
 }
