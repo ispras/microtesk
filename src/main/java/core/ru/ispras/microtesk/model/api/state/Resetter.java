@@ -20,17 +20,17 @@ public final class Resetter implements IStateResetter {
   private final Memory[] variables;
   private final Status[] statuses;
 
-  public Resetter(Memory[] variables, Status[] statuses) {
+  public Resetter(final Memory[] variables, final Status[] statuses) {
     this.variables = variables;
     this.statuses = statuses;
   }
 
   public void reset() {
-    for (Memory variable : variables) {
+    for (final Memory variable : variables) {
       variable.reset();
     }
 
-    for (Status status : statuses) {
+    for (final Status status : statuses) {
       status.reset();
     }
   }
