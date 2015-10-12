@@ -202,7 +202,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final CommonTree aliasId,
       final List<Node> args) throws SemanticException {
     checkNotNull(id, args);
-    // TODO
+
+    final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
+        context.getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
+
+    final String targetId = id.getText();
+    final String sourceId = aliasId.getText();
+
+    if (!isaIr.getMemory().containsKey(sourceId) &&
+        !isaIr.getModes().containsKey(sourceId)) {
+      raiseError(where(id), String.format(
+          "%s is not defined in the ISA specification or cannot be used as an extern variable. " +
+          "It must be a reg, mem or mode element.", targetId
+      ));
+    }
   }
 
   /**
