@@ -51,6 +51,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -70,6 +71,8 @@ import ru.ispras.microtesk.translator.antlrex.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.nml.coverage.IntegerCast;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
@@ -206,16 +209,57 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
         context.getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
 
-    final String targetId = id.getText();
-    final String sourceId = aliasId.getText();
+    final String name = id.getText();
+    final String sourceName = aliasId.getText();
 
-    if (!isaIr.getMemory().containsKey(sourceId) &&
-        !isaIr.getModes().containsKey(sourceId)) {
+    if (!isaIr.getMemory().containsKey(sourceName) &&
+        !isaIr.getModes().containsKey(sourceName)) {
       raiseError(where(id), String.format(
           "%s is not defined in the ISA specification or cannot be used as an extern variable. " +
-          "It must be a reg, mem or mode element.", targetId
+          "It must be a reg, mem or mode element.", sourceName
       ));
     }
+
+    final Type type;
+    final ExternalSource.Kind sourceKind;
+    if (isaIr.getMemory().containsKey(sourceName)) {
+      final MemoryExpr memory = isaIr.getMemory().get(sourceName);
+      if (memory.getKind() == ru.ispras.microtesk.model.api.memory.Memory.Kind.VAR) {
+        raiseError(where(id), String.format(
+            "External variable cannot be defined as var: %s", sourceName));
+      }
+
+      final int bitSize = memory.getType().getBitSize();
+      type = new Type(bitSize);
+      sourceKind = ExternalSource.Kind.MEMORY;
+    } else {
+      final Primitive mode = isaIr.getModes().get(sourceName);
+      if (null == mode.getReturnType()) {
+        raiseError(where(id), String.format(
+            "Addressing mode %s does not have a return type and cannot be used " +
+            "as an external variable.", sourceName));
+      }
+
+      final int bitSize = mode.getReturnType().getBitSize();
+      type = new Type(bitSize);
+      sourceKind = ExternalSource.Kind.MODE;
+    }
+
+    final List<BigInteger> argValues = new ArrayList<>(args.size());
+    for (final Node arg : args) {
+      if (arg.getKind() != Node.Kind.VALUE) {
+        raiseError(where(id), 
+            "References to extenal elements can be parameterized only with constant values.");
+      }
+
+      final BigInteger value = ((NodeValue) arg).getInteger();
+      argValues.add(value);
+    }
+
+    final ExternalSource source = new ExternalSource(sourceKind, sourceName, argValues);
+    final Variable variable = storage.declare(name, type, source);
+
+    ir.addExternal(variable);
   }
 
   /**

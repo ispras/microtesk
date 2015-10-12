@@ -25,6 +25,7 @@ import ru.ispras.fortress.expression.NodeValue;
 public final class Ir {
   private final String modelName;
   private final Map<String, NodeValue> constants;
+  private final Map<String, Variable> externals;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
@@ -36,6 +37,7 @@ public final class Ir {
     this.modelName = modelName;
 
     this.constants = new LinkedHashMap<>();
+    this.externals = new LinkedHashMap<>();
     this.addresses = new LinkedHashMap<>();
     this.segments = new LinkedHashMap<>();
     this.buffers = new LinkedHashMap<>();
@@ -49,6 +51,10 @@ public final class Ir {
 
   public Map<String, NodeValue> getConstants() {
     return Collections.unmodifiableMap(constants);
+  }
+
+  public Map<String, Variable> getExtenals() {
+    return Collections.unmodifiableMap(externals);
   }
 
   public Map<String, Address> getAddresses() {
@@ -75,6 +81,11 @@ public final class Ir {
     checkNotNull(id);
     checkNotNull(value);
     constants.put(id, value);
+  }
+
+  public void addExternal(final Variable variable) {
+    checkNotNull(variable);
+    externals.put(variable.getName(), variable);
   }
 
   public void addAddress(final Address address) {
@@ -111,7 +122,11 @@ public final class Ir {
   @Override
   public String toString() {
     return String.format(
-        "Mmu Ir:%n addresses=%s%n segments=%s%n buffers=%s%n memories=%s%n types=%s", 
+        "Mmu Ir(%s):%n constants=%s%n externals=%s%n addresses=%s%n segments=%s" +
+        "%n buffers=%s%n memories=%s%n types=%s",
+        modelName,
+        mapToString(constants),
+        mapToString(externals),
         mapToString(addresses),
         mapToString(segments),
         mapToString(buffers),
