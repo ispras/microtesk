@@ -37,6 +37,7 @@ import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.Reader;
 import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -168,7 +169,9 @@ public final class TestEngine {
 
   private TestEngine(final IModel model) {
     InvariantChecks.checkNotNull(model);
+
     this.model = model;
+    Reader.setModel(model);
 
     final String home = SysUtils.getHomeDir();
 
