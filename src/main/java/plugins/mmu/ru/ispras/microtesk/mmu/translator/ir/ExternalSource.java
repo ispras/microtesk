@@ -20,54 +20,44 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class ExternalVariable {
-  public enum SourceKind {
+public final class ExternalSource {
+  public enum Kind {
     MEMORY, // reg or mem
     MODE    // addressing mode
   }
 
+  private final Kind kind;
   private final String name;
-  private final Type type;
-  private final SourceKind sourceKind;
-  private final String sourceName;
-  private final List<BigInteger> sourceArgs;
+  private final List<BigInteger> args;
 
-  public ExternalVariable(
+  public ExternalSource(
+      final Kind kind,
       final String name,
-      final Type type,
-      final SourceKind sourceKind,
-      final String sourceName,
-      final List<BigInteger> sourceArgs) {
+      final List<BigInteger> args) {
+    InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(sourceKind);
-    InvariantChecks.checkNotNull(sourceName);
-    InvariantChecks.checkNotNull(sourceArgs);
+    InvariantChecks.checkNotNull(args);
 
+    this.kind = kind;
     this.name = name;
-    this.type = type;
-    this.sourceKind = sourceKind;
-    this.sourceName = sourceName;
-    this.sourceArgs = Collections.unmodifiableList(sourceArgs);
+    this.args = Collections.unmodifiableList(args);
+  }
+
+  public Kind getKind() {
+    return kind;
   }
 
   public String getName() {
     return name;
   }
 
-  public Type getType() {
-    return type;
+  public List<BigInteger> getArgs() {
+    return args;
   }
 
-  public SourceKind getSourceKind() {
-    return sourceKind;
-  }
-
-  public String getSourceName() {
-    return sourceName;
-  }
-
-  public List<BigInteger> getSourceArgs() {
-    return sourceArgs;
+  @Override
+  public String toString() {
+    return String.format(
+        "ExternalSource [kind=%s, name=%s, args=%s]", kind, name, args);
   }
 }
