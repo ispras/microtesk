@@ -97,7 +97,8 @@ public abstract class Reader {
 
     @Override
     public BitVector read() {
-      return BitVector.valueOf(location.getValue(), location.getBitSize());
+      return BitVector.unmodifiable(
+          BitVector.valueOf(location.getValue(), location.getBitSize()));
     }
   }
 
