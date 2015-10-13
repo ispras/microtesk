@@ -24,7 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerVariable {
+public class IntegerVariable {
   /** The variable name. */
   private final String name;
   /** The variable width. */
@@ -70,7 +70,7 @@ public final class IntegerVariable {
    * 
    * @return the variable name.
    */
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
@@ -79,7 +79,7 @@ public final class IntegerVariable {
    * 
    * @return the variable width.
    */
-  public int getWidth() {
+  public final int getWidth() {
     return width;
   }
 
@@ -88,8 +88,8 @@ public final class IntegerVariable {
    * 
    * @return {@code true} if the variable is defined; {@code false} otherwise.
    */
-  public boolean isDefined() {
-    return value != null;
+  public final boolean isDefined() {
+    return getValue() != null;
   }
 
   /**
@@ -108,12 +108,12 @@ public final class IntegerVariable {
    * @param hi the upper bit index.
    * @return An integer field.
    */
-  public IntegerField field(final int lo, final int hi) {
+  public final IntegerField field(final int lo, final int hi) {
     return new IntegerField(this, lo, hi);
   }
 
   @Override
-  public boolean equals(final Object o) {
+  public final boolean equals(final Object o) {
     if (o == null || !(o instanceof IntegerVariable)) {
       return false;
     }
@@ -124,16 +124,16 @@ public final class IntegerVariable {
       return false;
     }
 
-    return value != null ? value.compareTo(r.value) == 0 : true;
+    return isDefined() ? getValue().compareTo(r.getValue()) == 0 : true;
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return name.hashCode();
   }
 
   @Override
-  public String toString() {
-    return value != null ? String.format("%s=%s", name, value) : name;
+  public final String toString() {
+    return isDefined() ? String.format("%s=%s", name, getValue()) : name;
   }
 }
