@@ -126,18 +126,6 @@ final class STBSegment implements STBuilder {
     stConstructor.add("va_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getPaExpr()));
     stConstructor.add("pa_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getRestExpr()));
 
-    if (!ir.getExterns().isEmpty()) {
-      st.add("members", "");
-      for (final Variable extern : ir.getExterns().values()) {
-        st.add("members", String.format(
-            "private final MmuExternVariable %s;", extern.getName()));
-
-        stConstructor.add("stmts", String.format(
-            "this.%s = new MmuExternVariable(\"%s\", %s, Extern.get().%s);",
-            extern.getName(), extern.getName(), extern.getBitSize(), extern.getName()));
-      }
-    }
-
     st.add("members", "");
     st.add("members", stConstructor);
   }
@@ -192,6 +180,18 @@ final class STBSegment implements STBuilder {
 
       stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
       stConstructor.add("stmts", "");
+    }
+
+    if (!ir.getExterns().isEmpty()) {
+      stFunction.add("members", "");
+      for (final Variable extern : ir.getExterns().values()) {
+        stFunction.add("members", String.format(
+            "private final MmuExternVariable %s;", extern.getName()));
+
+        stConstructor.add("stmts", String.format(
+            "this.%s = new MmuExternVariable(\"%s\", %s, Extern.get().%s);",
+            extern.getName(), extern.getName(), extern.getBitSize(), extern.getName()));
+      }
     }
 
     final ControlFlowBuilder controlFlowBuilder = new ControlFlowBuilder(
