@@ -18,16 +18,16 @@ group MmuCommon;
 // Extern-related templates
 
 extern_body(fnames, fvalues) ::= <<
-<fnames:{n | private final Reader readerFor<n>;}; separator="\n"><\n>
+<fnames:{n | public final Reader <n>;}; separator="\n"><\n>
 private Extern() {
-<fnames, fvalues:{n, v |   this.readerFor<n> = <v>;}; separator="\n">
+<fnames, fvalues:{n, v |   this.<n> = <v>;}; separator="\n">
 }<\n>
 <fnames:{n | <extern_accessor(n)>}; separator="\n\n">
 >>
 
 extern_accessor(fname) ::= <<
 public BitVector <n>() {
-  return readerFor<n>.read();
+  return <n>.read();
 }
 >>
 
