@@ -21,31 +21,40 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.model.api.state.Reader;
 
 public final class MmuExternVariable {
-  private final String name;
-  private final int width;
-  private final Reader reader;
+  private final IntegerVariable variable;
 
   public MmuExternVariable(
       final String name,
       final int width,
       final Reader reader) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkGreaterOrEqZero(width);
-    InvariantChecks.checkNotNull(reader);
-
-    this.name = name;
-    this.width = width;
-    this.reader = reader;
+    this.variable = new RedefinableIntegerVariable(name, width, reader);
   }
 
   public IntegerVariable get() {
-    final BigInteger value = reader.read().bigIntegerValue(false);
-    return new IntegerVariable(name, width, value);
+    return variable;
   }
 
   @Override
   public String toString() {
-    return String.format("MmuExternVariable [name=%s, width=%s, value=%s]",
-        name, width, reader.read().toHexString());
+    return String.format("MmuExternVariable [variable=%s]", variable);
+  }
+
+  private static class RedefinableIntegerVariable extends IntegerVariable {
+    private final Reader reader;
+
+    public RedefinableIntegerVariable(
+        final String name,
+        final int width,
+        final Reader reader) {
+      super(name, width);
+
+      InvariantChecks.checkNotNull(reader);
+      this.reader = reader;
+    }
+
+    @Override
+    public BigInteger getValue() {
+      return reader.read().bigIntegerValue(false);
+    }
   }
 }
