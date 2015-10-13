@@ -259,7 +259,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final ExternalSource source = new ExternalSource(sourceKind, sourceName, argValues);
     final Variable variable = storage.declare(name, type, source);
 
-    ir.addExternal(variable);
+    ir.addExtern(variable);
   }
 
   /**
@@ -1117,7 +1117,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final Node newVariable(
       final boolean isLhs, final CommonTree id) throws SemanticException {
-    if (isLhs && ir.getExtenals().containsKey(id.getText())) {
+    if (isLhs && ir.getExterns().containsKey(id.getText())) {
       raiseError(where(id), "Assigning extern variables is not allowed: " + id.getText());
     }
 

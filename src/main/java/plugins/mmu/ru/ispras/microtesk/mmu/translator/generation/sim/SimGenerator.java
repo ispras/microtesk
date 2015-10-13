@@ -72,7 +72,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
   }
 
   private void processExternals(final Ir ir, final SimGeneratorFactory factory) throws IOException {
-    final Map<String, Variable> externs = ir.getExtenals();
+    final Map<String, Variable> externs = ir.getExterns();
     if (!externs.isEmpty()) {
       final FileGenerator fileGenerator = factory.newExternGenerator(externs);
       fileGenerator.generate();

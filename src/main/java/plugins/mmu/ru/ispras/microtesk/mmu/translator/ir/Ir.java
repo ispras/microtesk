@@ -25,7 +25,7 @@ import ru.ispras.fortress.expression.NodeValue;
 public final class Ir {
   private final String modelName;
   private final Map<String, NodeValue> constants;
-  private final Map<String, Variable> externals;
+  private final Map<String, Variable> externs;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
@@ -37,7 +37,7 @@ public final class Ir {
     this.modelName = modelName;
 
     this.constants = new LinkedHashMap<>();
-    this.externals = new LinkedHashMap<>();
+    this.externs = new LinkedHashMap<>();
     this.addresses = new LinkedHashMap<>();
     this.segments = new LinkedHashMap<>();
     this.buffers = new LinkedHashMap<>();
@@ -53,8 +53,8 @@ public final class Ir {
     return Collections.unmodifiableMap(constants);
   }
 
-  public Map<String, Variable> getExtenals() {
-    return Collections.unmodifiableMap(externals);
+  public Map<String, Variable> getExterns() {
+    return Collections.unmodifiableMap(externs);
   }
 
   public Map<String, Address> getAddresses() {
@@ -83,9 +83,9 @@ public final class Ir {
     constants.put(id, value);
   }
 
-  public void addExternal(final Variable variable) {
+  public void addExtern(final Variable variable) {
     checkNotNull(variable);
-    externals.put(variable.getName(), variable);
+    externs.put(variable.getName(), variable);
   }
 
   public void addAddress(final Address address) {
@@ -126,7 +126,7 @@ public final class Ir {
         "%n buffers=%s%n memories=%s%n types=%s",
         modelName,
         mapToString(constants),
-        mapToString(externals),
+        mapToString(externs),
         mapToString(addresses),
         mapToString(segments),
         mapToString(buffers),
