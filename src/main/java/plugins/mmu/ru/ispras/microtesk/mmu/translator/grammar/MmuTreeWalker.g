@@ -380,7 +380,7 @@ variableBitfield [boolean isLhs] returns [Node res]
     ;
 
 variableAtom [boolean isLhs] returns [Node res]
-    : varId=ID {$res = newVariable($varId);}
+    : varId=ID {$res = newVariable(isLhs, $varId);}
     | ^(DOT objId=ID chain=memberChain) {$res=newAttributeCall($objId, $chain.res);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
     | atr=attributeRef[isLhs] {$res = $atr.res;}

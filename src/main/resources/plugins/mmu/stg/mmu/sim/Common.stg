@@ -15,6 +15,23 @@
 group MmuCommon;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Extern-related templates
+
+extern_body(fnames, fvalues) ::= <<
+<fnames:{n | private final Reader readerFor<n>;}; separator="\n"><\n>
+private Extern() {
+<fnames, fvalues:{n, v |   this.readerFor<n> = <v>;}; separator="\n">
+}<\n>
+<fnames:{n | <extern_accessor(n)>}; separator="\n\n">
+>>
+
+extern_accessor(fname) ::= <<
+public BitVector <n>() {
+  return readerFor<n>.read();
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Structure-related templates
 
 struct_constructor(name, fields) ::= <<

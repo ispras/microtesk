@@ -762,7 +762,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       variables.put(v.getName(), v);
     }
 
-    public void addAttribute(final CommonTree attrId, final List<Stmt> stmts) {
+    public void addAttribute(
+        final CommonTree attrId, final List<Stmt> stmts) throws SemanticException {
+      checkNotNull(attrId, stmts);
+
       final Attribute attr = new Attribute(attrId.getText(), outputVar.getDataType(), stmts);
       attributes.put(attr.getId(), attr);
     }
@@ -1112,7 +1115,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return variable;
   }
 
-  protected final Node newVariable(final CommonTree id) throws SemanticException {
+  protected final Node newVariable(
+      final boolean isLhs, final CommonTree id) throws SemanticException {
+    if (isLhs && ir.getExtenals().containsKey(id.getText())) {
+      raiseError(where(id), "Assigning extern variables is not allowed: " + id.getText());
+    }
+
     return getVariable(id);
   }
 
