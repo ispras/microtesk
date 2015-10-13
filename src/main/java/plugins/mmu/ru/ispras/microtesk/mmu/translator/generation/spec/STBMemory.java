@@ -34,6 +34,9 @@ final class STBMemory implements STBuilder {
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
 
+  public static final Class<?> EXTERN_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExternVariable.class;
+
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
@@ -71,6 +74,11 @@ final class STBMemory implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", OPERATION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
+
+    if (!ir.getExterns().isEmpty()) {
+      st.add("imps", EXTERN_CLASS.getName());
+      st.add("imps", packageName.substring(0,  packageName.lastIndexOf('.')) + ".sim.Extern");
+    }
   }
 
   private void buildAddress(final ST st, final STGroup group) {
@@ -136,6 +144,18 @@ final class STBMemory implements STBuilder {
 
         stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
         stConstructor.add("stmts", "");
+      }
+    }
+
+    if (!ir.getExterns().isEmpty()) {
+      st.add("members", "");
+      for (final Variable extern : ir.getExterns().values()) {
+        st.add("members", String.format(
+            "private final MmuExternVariable %s;", extern.getName()));
+
+        stConstructor.add("stmts", String.format(
+            "this.%s = new MmuExternVariable(\"%s\", %s, Extern.get().%s);",
+            extern.getName(), extern.getName(), extern.getBitSize(), extern.getName()));
       }
     }
 

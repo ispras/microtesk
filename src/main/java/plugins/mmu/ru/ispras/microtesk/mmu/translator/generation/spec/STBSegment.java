@@ -30,6 +30,9 @@ final class STBSegment implements STBuilder {
   public static final Class<?> EXPRESSION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
 
+  public static final Class<?> EXTERN_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExternVariable.class;
+
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
@@ -75,6 +78,11 @@ final class STBSegment implements STBuilder {
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
+
+    if (!ir.getExterns().isEmpty()) {
+      st.add("imps", EXTERN_CLASS.getName());
+      st.add("imps", packageName.substring(0,  packageName.lastIndexOf('.')) + ".sim.Extern");
+    }
   }
 
   private void buildArguments(final ST st, final STGroup group) {
@@ -117,6 +125,18 @@ final class STBSegment implements STBuilder {
     stConstructor.add("mapped", Boolean.toString(explorer.isMapped()));
     stConstructor.add("va_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getPaExpr()));
     stConstructor.add("pa_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getRestExpr()));
+
+    if (!ir.getExterns().isEmpty()) {
+      st.add("members", "");
+      for (final Variable extern : ir.getExterns().values()) {
+        st.add("members", String.format(
+            "private final MmuExternVariable %s;", extern.getName()));
+
+        stConstructor.add("stmts", String.format(
+            "this.%s = new MmuExternVariable(\"%s\", %s, Extern.get().%s);",
+            extern.getName(), extern.getName(), extern.getBitSize(), extern.getName()));
+      }
+    }
 
     st.add("members", "");
     st.add("members", stConstructor);
