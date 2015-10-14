@@ -25,8 +25,10 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 public final class Buffer extends AbstractStorage {
+  private final MmuBuffer.Kind kind;
   private final BigInteger ways;
   private final BigInteger sets;
   private final Node index;
@@ -34,10 +36,10 @@ public final class Buffer extends AbstractStorage {
   private final Node guard;
   private final PolicyId policy;
   private final Buffer parent;
-  private final boolean mapped;
 
   public Buffer(
       final String id,
+      final MmuBuffer.Kind kind,
       final Address address,
       final Variable addressArg,
       final Variable dataArg,
@@ -47,16 +49,18 @@ public final class Buffer extends AbstractStorage {
       final Node match,
       final Node guard,
       final PolicyId policy,
-      final Buffer parent,
-      final boolean mapped) {
+      final Buffer parent) {
 
-    super(id,
-          address,
-          addressArg,
-          dataArg,
-          Collections.<String, Variable>emptyMap(),
-          createAttributes(addressArg, dataArg));
+    super(
+        id,
+        address,
+        addressArg,
+        dataArg,
+        Collections.<String, Variable>emptyMap(),
+        createAttributes(addressArg, dataArg)
+    );
 
+    checkNotNull(kind);
     checkTrue(ways.compareTo(BigInteger.ZERO) > 0);
     checkTrue(sets.compareTo(BigInteger.ZERO) > 0);
     checkNotNull(index);
@@ -65,6 +69,7 @@ public final class Buffer extends AbstractStorage {
 
     checkTrue((guard == null) == (parent == null));
 
+    this.kind = kind;
     this.ways = ways;
     this.sets = sets;
     this.index = index;
@@ -72,7 +77,6 @@ public final class Buffer extends AbstractStorage {
     this.guard = guard;
     this.policy = policy;
     this.parent = parent;
-    this.mapped = mapped;
   }
 
   private static Map<String, Attribute> createAttributes(
@@ -94,6 +98,10 @@ public final class Buffer extends AbstractStorage {
     }
 
     return Collections.unmodifiableMap(result);
+  }
+
+  public MmuBuffer.Kind getKind() {
+    return kind;
   }
 
   public BigInteger getWays() {
@@ -128,15 +136,11 @@ public final class Buffer extends AbstractStorage {
     return parent;
   }
 
-  public boolean isMapped() {
-    return this.mapped;
-  }
-
   @Override
   public String toString() {
     return String.format(
         "%sbuffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}",
-        (isMapped()) ? "mapped " : "",
+        kind.getText(),
         getId(),
         getAddressArg(),
         ways,

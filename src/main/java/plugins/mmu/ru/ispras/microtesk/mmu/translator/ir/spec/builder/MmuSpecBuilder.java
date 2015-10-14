@@ -188,6 +188,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
 
       final MmuBuffer device = new MmuBuffer(
           buffer.getId(),
+          buffer.getKind(),
           buffer.getWays().longValue(),
           buffer.getSets().longValue(),
           address,
@@ -198,8 +199,7 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           guardCondition,
           null, // TODO: Guard
           isReplaceable,
-          parentDevice,
-          buffer.isMapped()
+          parentDevice
           );
 
       final Type entryType = buffer.getEntry();

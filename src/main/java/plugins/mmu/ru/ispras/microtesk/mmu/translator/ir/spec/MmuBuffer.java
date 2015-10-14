@@ -30,6 +30,27 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class MmuBuffer extends MmuStruct {
+  /**
+   * Describes buffer type.
+   */
+  public enum Kind {
+    /** Stand-alone buffer, not mapped to any external resource */
+    UNMAPPED (""),
+
+    /** Mapped to memory */
+    MEMORY ("memory"),
+
+    /** Mapped to a register array */
+    REGISTER ("register");
+
+    private final String text;
+    private Kind(final String text) { this.text = text; }
+    public String getText() { return text; }
+  }
+
+  /** Buffer kind (stand-alone, mapped to memory/register */
+  private final Kind kind;
+
   /** The number of ways (associativity). */
   private final long ways;
   /** The number of sets. */
@@ -55,8 +76,6 @@ public class MmuBuffer extends MmuStruct {
   /** The flag indicating whether the device supports data replacement. */
   private final boolean replaceable;
 
-  private final boolean mapped;
-
   // TODO: E.g., JTLB for DTLB.
   private final MmuBuffer parent;
   // TODO: E.g., DTLB for JTLB.
@@ -67,6 +86,7 @@ public class MmuBuffer extends MmuStruct {
 
   public MmuBuffer(
       final String name,
+      final Kind kind,
       final long ways,
       final long sets,
       final MmuAddressType address,
@@ -77,16 +97,18 @@ public class MmuBuffer extends MmuStruct {
       final MmuCondition guardCondition,
       final Predicate<MemoryAccess> guard,
       final boolean replaceable,
-      final MmuBuffer parent,
-      final boolean mapped) {
+      final MmuBuffer parent) {
     super(name);
     setDevice(this);
 
+    InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(tagExpression);
     InvariantChecks.checkNotNull(indexExpression);
     InvariantChecks.checkNotNull(offsetExpression);
     InvariantChecks.checkNotNull(matchBindings);
+
+    this.kind = kind;
 
     this.ways = ways;
     this.sets = sets;
@@ -102,7 +124,6 @@ public class MmuBuffer extends MmuStruct {
     this.guard = guard;
 
     this.replaceable = replaceable;
-    this.mapped = mapped;
 
     // TODO:
     this.parent = parent;
@@ -112,6 +133,15 @@ public class MmuBuffer extends MmuStruct {
 
     this.addressView = new MmuAddressViewBuilder(address,
         tagExpression, indexExpression, offsetExpression).build();
+  }
+
+  /**
+   * Returns buffer kind (whether it is stand-alone, mapped to memory/register).
+   * 
+   * @return buffer kind.
+   */
+  public final Kind getKind() {
+    return kind;
   }
 
   /**
@@ -255,10 +285,6 @@ public class MmuBuffer extends MmuStruct {
    */
   public final boolean isReplaceable() {
     return replaceable;
-  }
-
-  public final boolean isMapped() {
-    return this.mapped;
   }
 
   // TODO:

@@ -183,13 +183,14 @@ public final class MmuUnderTest {
   // Buffers
   // ===============================================================================================
 
-  public final MmuBuffer jtlb = new MmuBuffer("JTLB", JTLB_SIZE, 1, vaAddr,
+  public final MmuBuffer jtlb = new MmuBuffer(
+      "JTLB", MmuBuffer.Kind.UNMAPPED, JTLB_SIZE, 1, vaAddr,
       MmuExpression.var(va, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(va, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       null, null,                    // Guard
-      false, null, false);
+      false, null);
 
   {
     jtlb.addField(vpn2);
@@ -220,14 +221,15 @@ public final class MmuUnderTest {
     }
   };
 
-  public final MmuBuffer dtlb = new MmuBuffer("DTLB", MTLB_SIZE, 1, vaAddr,
+  public final MmuBuffer dtlb = new MmuBuffer(
+      "DTLB", MmuBuffer.Kind.UNMAPPED, MTLB_SIZE, 1, vaAddr,
       MmuExpression.var(va, 13, 39),                 // Tag
       MmuExpression.empty(),                         // Index
       MmuExpression.var(va, 0, 12),                  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
       MmuCondition.eq(v, BigInteger.ONE), dtlbGuard, // Guard
-      true, jtlb, false);
-
+      true, jtlb
+      );
   {
     dtlb.addField(new IntegerVariable("VPN2", 27));
 
@@ -245,7 +247,8 @@ public final class MmuUnderTest {
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuBuffer l1 = new MmuBuffer("L1", L1_WAYS, L1_SETS, paAddr,
+  public final MmuBuffer l1 = new MmuBuffer(
+      "L1", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
       MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
@@ -253,15 +256,16 @@ public final class MmuUnderTest {
           new MmuBinding(new IntegerField(l1Tag),
               MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
-      true, null, false);
-
+      true, null
+      );
   {
     l1.addField(l1Tag);
     l1.addField(l1Data);
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuBuffer l2 = new MmuBuffer("L2", L1_WAYS, L1_SETS, paAddr,
+  public final MmuBuffer l2 = new MmuBuffer(
+      "L2", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
       MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1),  // Tag
       MmuExpression.var(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),                      // Offset
@@ -269,22 +273,23 @@ public final class MmuUnderTest {
           new MmuBinding(new IntegerField(l2Tag),
               MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
       null, null,                                                  // Guard
-      true, null, false);
-
+      true, null
+      );
   {
     l2.addField(l2Tag);
     l2.addField(l2Data);
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final MmuBuffer mem = new MmuBuffer("MEM", 1, (1L << PA_BITS) / 32, paAddr,
+  public final MmuBuffer mem = new MmuBuffer(
+      "MEM", MmuBuffer.Kind.UNMAPPED, 1, (1L << PA_BITS) / 32, paAddr,
       MmuExpression.empty(),                        // Tag
       MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
       Collections.<MmuBinding>emptySet(),
       null, null,                                   // Guard
-      false, null, false);
-
+      false, null
+      );
   {
     mem.addField(data);
   }

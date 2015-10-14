@@ -172,9 +172,8 @@ buffer
                    }
                    parentBufferId=ID?
       {
-        final BufferBuilder builder =
-            new BufferBuilder($bufferId, $addressArgId, $addressArgType, $parentBufferId);
-        builder.setMapped(qualifiers.contains("mapped"));
+        final BufferBuilder builder = new BufferBuilder(
+            $bufferId, $addressArgId, $addressArgType, $parentBufferId, qualifiers);
       }
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}

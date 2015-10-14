@@ -128,6 +128,7 @@ final class STBBuffer implements STBuilder {
         buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
  
     stConstructor.add("name", buffer.getId());
+    stConstructor.add("kind", buffer.getKind().name());
     stConstructor.add("ways", String.format("%dL", buffer.getWays().longValue()));
     stConstructor.add("sets", String.format("%dL", buffer.getSets().longValue()));
     stConstructor.add("addr", buffer.getAddress().getId());
@@ -141,7 +142,6 @@ final class STBBuffer implements STBuilder {
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
     }
-    stConstructor.add("mapped", Boolean.toString(buffer.isMapped()));
 
     if (!analyzer.getMatchBindings().isEmpty()) {
       final ST stDecl = group.getInstanceOf("match_field_decl");

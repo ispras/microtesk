@@ -71,12 +71,14 @@ public class MmuBufferTestCase {
   public static final IntegerVariable L2_DATA = new IntegerVariable("DATA2", 8 * 32);
   public static final IntegerVariable DATA = new IntegerVariable("DATA", 8 * 32);
 
-  public static final MmuBuffer JTLB = new MmuBuffer("JTLB", 64, 1, VA_ADDR,
+  public static final MmuBuffer JTLB = new MmuBuffer(
+      "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, false, null, false);
+      null, null, false, null
+      );
 
   static {
     JTLB.addField(VPN2);
@@ -94,12 +96,14 @@ public class MmuBufferTestCase {
     JTLB.addField(PFN1);
   }
 
-  public static final MmuBuffer DTLB = new MmuBuffer("DTLB", 4, 1, VA_ADDR,
+  public static final MmuBuffer DTLB = new MmuBuffer(
+      "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
       MmuExpression.var(VA, 13, 39), // Tag
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, true, JTLB, false);
+      null, null, true, JTLB
+      );
 
   static {
     DTLB.addField(VPN2);
@@ -140,13 +144,15 @@ public class MmuBufferTestCase {
         }
       });
 
-  public static final MmuBuffer L1 = new MmuBuffer("L1", 4, 128, PA_ADDR,
+  public static final MmuBuffer L1 = new MmuBuffer(
+      "L1", MmuBuffer.Kind.UNMAPPED, 4, 128, PA_ADDR,
       MmuExpression.var(PA, 12, 35), // Tag
       MmuExpression.var(PA, 5, 11), // Index
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L1_TAG), MmuExpression.var(PA, 12, 35))),
-      null, null, true, null, false);
+      null, null, true, null
+      );
 
   static {
     L1.addField(L1_TAG);
@@ -175,13 +181,15 @@ public class MmuBufferTestCase {
       });
 
   // -----------------------------------------------------------------------------------------------
-  public static final MmuBuffer L2 = new MmuBuffer("L2", 4, 4096, PA_ADDR,
+  public static final MmuBuffer L2 = new MmuBuffer(
+      "L2", MmuBuffer.Kind.UNMAPPED, 4, 4096, PA_ADDR,
       MmuExpression.var(PA, 17, 35), // Tag
       MmuExpression.var(PA, 5, 16), // Index
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L2_TAG), MmuExpression.var(PA, 17, 35))),
-      null, null, true, null, false);
+      null, null, true, null
+      );
 
   static {
     L2.addField(L2_TAG);
@@ -209,12 +217,14 @@ public class MmuBufferTestCase {
         }
       });
 
-  public static final MmuBuffer MEM = new MmuBuffer("MMU", 1, (1L << 36) / 32, PA_ADDR,
+  public static final MmuBuffer MEM = new MmuBuffer(
+      "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
       MmuExpression.empty(),        // Tag
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
       Collections.<MmuBinding>emptySet(),
-      null, null, false, null, false);
+      null, null, false, null
+      );
 
   static {
     MEM.addField(DATA);

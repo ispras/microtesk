@@ -14,14 +14,16 @@
 
 group Buffer;
 
-buffer_constructor(name, ways, sets, addr, tag, index, offset, match,
-           guard_cond, guard, replaceable, parent, mapped, stmts) ::= <<
+buffer_constructor(
+    name, kind, ways, sets, addr, tag, index, offset, match,
+    guard_cond, guard, replaceable, parent, mapped, stmts) ::= <<
 <\n>private <name>() {
   this("<name>");
 }<\n>
 private <name>(final String name) {
   super(
       name,
+      Kind.<kind>,
       <ways>,
       <sets>,
       <addr>.get(),
@@ -32,8 +34,7 @@ private <name>(final String name) {
       <guard_cond>,
       <guard>,
       <replaceable>,
-      <if(parent)><parent>.get()<else>null<endif>,
-      <mapped>
+      <if(parent)><parent>.get()<else>null<endif>
   );<\n>
   <stmts; separator="\n">
 }

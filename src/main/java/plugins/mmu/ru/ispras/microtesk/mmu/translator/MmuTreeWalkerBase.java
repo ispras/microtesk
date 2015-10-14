@@ -62,6 +62,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.VariableStorage;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -429,6 +430,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    */
 
   protected final class BufferBuilder {
+    private final MmuBuffer.Kind kind;
     private final CommonTree id;
     private final Address address;
     private final String addressArgId;
@@ -442,7 +444,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private Node match = null;
     private Node guard = null;
     private PolicyId policy = null;
-    private boolean mapped = false;
 
     /**
      * Constructs a builder for a Buffer object.
@@ -457,7 +458,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final CommonTree id,
         final CommonTree addressArgId,
         final CommonTree addressArgType,
-        final CommonTree parentBufferId) throws SemanticException {
+        final CommonTree parentBufferId,
+        final List<String> qualifiers) throws SemanticException {
 
       this.id = id;
       this.address = getAddress(addressArgType);
@@ -476,6 +478,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         setDataArg(id.getText(), this.parent.getEntry());
       } else {
         this.parent = null;
+      }
+
+      if (qualifiers.contains(MmuBuffer.Kind.MEMORY.getText())) {
+        kind = MmuBuffer.Kind.MEMORY;
+      } else if(qualifiers.contains(MmuBuffer.Kind.REGISTER.getText())) {
+        kind = MmuBuffer.Kind.REGISTER;
+      } else {
+        kind = MmuBuffer.Kind.UNMAPPED;
       }
     }
 
@@ -556,10 +566,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
     }
 
-    public void setMapped(final boolean value) {
-      this.mapped = value;
-    }
-
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways.equals(BigInteger.ZERO));
       checkUndefined("sets", sets.equals(BigInteger.ZERO));
@@ -573,6 +579,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       final Buffer buffer = new Buffer(
           id.getText(),
+          kind,
           address,
           addressArg,
           dataArg,
@@ -582,8 +589,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           match,
           guard,
           policy,
-          parent,
-          mapped);
+          parent
+          );
 
       ir.addBuffer(buffer);
       globals.put(id.getText(), buffer);
