@@ -611,6 +611,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     } else {
       expected = Collections.emptyList();
     }
+
     final List<String> observed = new ArrayList<>(nodes.size());
     for (final CommonTree node : nodes) {
       final String keyword = node.getText();
@@ -622,6 +623,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
       observed.add(keyword);
     }
+
     return observed;
   }
 
