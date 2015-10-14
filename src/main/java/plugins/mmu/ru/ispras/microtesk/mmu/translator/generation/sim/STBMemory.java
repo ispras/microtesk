@@ -50,6 +50,8 @@ final class STBMemory extends STBCommon implements STBuilder {
     ExprPrinter.get().addVariableMappings(memory.getDataArg(), dataName);
 
     final ST st = group.getInstanceOf("source_file");
+    st.add("instance", "instance");
+    st.add("members", String.format("private %s() {}", memory.getId()));
 
     buildHeader(st);
     buildGetSize(st, group);
