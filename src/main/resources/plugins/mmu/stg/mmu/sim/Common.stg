@@ -155,6 +155,7 @@ public int getDataBitSize() {
 >>
 
 get_data_size(size) ::= <<
+@Override
 protected int getDataBitSize() {
   return <size>;
 }
