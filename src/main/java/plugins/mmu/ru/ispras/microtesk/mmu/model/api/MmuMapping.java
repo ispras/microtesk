@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link MmuMapping} class describes a buffer mapped to memory.
@@ -43,15 +44,19 @@ public abstract class MmuMapping <D extends Data, A extends Address>
   @Override
   public D getData(final A address) {
     final BitVector value = getMmu().getData(address);
+    InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
     return newData(value); 
   }
 
   @Override
   public D setData(final A address, final D data) {
-    getMmu().setData(address, data.asBitVector());
+    final BitVector value = data.asBitVector();
+    InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
+    getMmu().setData(address, value);
     return null;
   }
 
   protected abstract Mmu<A> getMmu();
   protected abstract D newData(final BitVector value);
+  protected abstract int getDataBitSize();
 }
