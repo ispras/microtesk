@@ -329,7 +329,22 @@ final class STBBuffer extends STBCommon implements STBuilder {
   private final class RegisterStrategy implements BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
-      throw new UnsupportedOperationException();
+      buildHeader(st);
+      buildEntry(st, group);
+      st.add("members", String.format("private %s() { super(\"%s\"); }", getId(), getId()));
+      buildNewAddress(st, group);
+      buildNewData(st, group);
+      buildGetDataSize(st, group);
+    }
+
+    private void buildHeader(final ST st) {
+      final String baseName = String.format("%s<%s, %s>",
+          REG_MAPPING_CLASS.getSimpleName(),
+          String.format("%s.Entry", parentBuffer.getId()),
+          buffer.getAddress().getId()
+          );
+
+      STBBuffer.this.buildHeader(st, baseName);
     }
   }
 }
