@@ -52,7 +52,7 @@ public abstract class Memory<D extends Data, A extends Address>
     this.storage = null;
   }
 
-  public void setStorage(final MemoryDevice storage) {
+  public final void setStorage(final MemoryDevice storage) {
     InvariantChecks.checkNotNull(storage);
     this.storage = storage;
   }
@@ -64,14 +64,14 @@ public abstract class Memory<D extends Data, A extends Address>
   }
 
   @Override
-  public final boolean isHit(final BitVector value) {
+  public boolean isHit(final BitVector value) {
     final A address = newAddress(); 
     address.getValue().assign(value);
     return isHit(address);
   }
 
   @Override
-  public D getData(final A address) {
+  public final D getData(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
     final int dataBitSize = getDataBitSize();
@@ -97,7 +97,7 @@ public abstract class Memory<D extends Data, A extends Address>
   }
 
   @Override
-  public D setData(final A address, final D data) {
+  public final D setData(final A address, final D data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
     final BitVector dataValue = data.asBitVector();

@@ -33,7 +33,8 @@ public abstract class MmuMapping<D extends Data, A extends Address>
 
   @Override
   public boolean isHit(final A address) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(
+        "isHit is unsupported for mapped buffers.");
   }
 
   @Override
