@@ -81,9 +81,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   private final VariableStorage storage = new VariableStorage();
   private final Map<String, AbstractStorage> globals = new HashMap<>();
-  private final Map<MmuSymbolKind, Collection<String>> contextKeywords = 
-      new EnumMap<>(MmuSymbolKind.class);
-
   protected final ConstantPropagator propagator = new ConstantPropagator();
 
   private final NodeTransformer equalityExpander;
@@ -129,8 +126,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     this.equalityExpander = new NodeTransformer();
     this.equalityExpander.addRule(StandardOperation.EQ, new ExpandEqualityRule());
-
-    this.contextKeywords.put(MmuSymbolKind.BUFFER, Arrays.asList("mapped"));
   }
 
   public final void assignIR(final Ir ir) {
@@ -600,31 +595,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   protected final List<String> checkContextKeywords(
-      final MmuSymbolKind sym,
+      final MmuLanguageContext langCtx,
       final Collection<CommonTree> nodes) throws SemanticException {
-    InvariantChecks.checkNotNull(sym);
+    InvariantChecks.checkNotNull(langCtx);
     InvariantChecks.checkNotNull(nodes);
 
-    final Collection<String> expected;
-    if (contextKeywords.containsKey(sym)) {
-      expected = contextKeywords.get(sym);
-    } else {
-      expected = Collections.emptyList();
+    final MmuLanguageContext.CheckResult result = langCtx.checkKeywords(nodes);
+    if (!result.isSuccess()) {
+      raiseError(where(result.getSource()), result.getMessage());
     }
-
-    final List<String> observed = new ArrayList<>(nodes.size());
-    for (final CommonTree node : nodes) {
-      final String keyword = node.getText();
-      if (!expected.contains(keyword)) {
-        raiseError(where(node), "Unexpected qualifier: " + keyword);
-      }
-      if (observed.contains(keyword)) {
-        raiseError(where(node), "Duplicate qualifier: " + keyword);
-      }
-      observed.add(keyword);
-    }
-
-    return observed;
+    return result.getResult();
   }
 
   protected final CommonBuilder newMemoryBuilder(

@@ -60,6 +60,7 @@ import ru.ispras.fortress.expression.NodeValue;
 
 import ru.ispras.microtesk.translator.antlrex.Where;
 
+import ru.ispras.microtesk.mmu.translator.MmuLanguageContext;
 import ru.ispras.microtesk.mmu.translator.MmuTreeWalkerBase;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
@@ -167,7 +168,7 @@ buffer
                    addressArgId=ID { declare($addressArgId, MmuSymbolKind.ARGUMENT, false); }
                    addressArgType=ID
                    keywords=contextKeywords {
-                     qualifiers = checkContextKeywords(MmuSymbolKind.BUFFER, $keywords.res);
+                     qualifiers = checkContextKeywords(MmuLanguageContext.BUFFER_TYPE, $keywords.res);
                    }
                    parentBufferId=ID?
       {
