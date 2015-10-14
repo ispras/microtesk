@@ -27,22 +27,32 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer extends STBCommon implements STBuilder {
   private static final String DATA_NAME = "data";
 
+  private final Ir ir;
   private final Buffer buffer;
   private final Buffer parentBuffer;
   private final boolean isView;
 
   private final BuildStrategy strategy;
 
-  public STBBuffer(final String packageName, final Buffer buffer, final boolean isTargetBuffer) {
+  public STBBuffer(
+      final String packageName,
+      final Ir ir,
+      final Buffer buffer,
+      final boolean isTargetBuffer) {
+
     super(packageName);
+    InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(buffer);
 
+    this.ir = ir;
     this.buffer = buffer;
     this.parentBuffer = getParentBuffer(buffer);
     this.isView = buffer != parentBuffer;
@@ -253,7 +263,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       buildNewAddress(st, group);
       buildNewData(st, group);
     }
-    
+
     private void buildHeader(final ST st) {
       st.add("imps", java.math.BigInteger.class.getName());
 
@@ -284,7 +294,34 @@ final class STBBuffer extends STBCommon implements STBuilder {
   private final class MemoryStrategy implements BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
-      throw new UnsupportedOperationException();
+      buildHeader(st);
+      buildEntry(st, group);
+      st.add("members", String.format("private %s() {}", getId()));
+      buildGetMmu(st, group);
+      buildNewData(st, group);
+    }
+
+    private void buildHeader(final ST st) {
+      final String baseName = String.format("%s<%s, %s>",
+          MMU_MAPPING_CLASS.getSimpleName(),
+          String.format("%s.Entry", parentBuffer.getId()),
+          buffer.getAddress().getId()
+          );
+
+      STBBuffer.this.buildHeader(st, baseName);
+    }
+
+    private void buildGetMmu(final ST st, final STGroup group) {
+      buildNewLine(st);
+      final ST stMethod = group.getInstanceOf("get_mmu");
+
+      InvariantChecks.checkTrue(ir.getMemories().size() == 1);
+      final Memory memory = ir.getMemories().values().iterator().next();
+
+      stMethod.add("addr_type", buffer.getAddress().getId());
+      stMethod.add("mmu_name", memory.getId());
+
+      st.add("members", stMethod);
     }
   }
 

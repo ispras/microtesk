@@ -58,6 +58,9 @@ abstract class STBCommon {
   public static final Class<?> MMU_CLASS =
       ru.ispras.microtesk.mmu.model.api.Mmu.class;
 
+  public static final Class<?> MMU_MAPPING_CLASS =
+      ru.ispras.microtesk.mmu.model.api.MmuMapping.class;
+
   public static final Class<?> MEMORY_CLASS =
       ru.ispras.microtesk.mmu.model.api.Memory.class;
 

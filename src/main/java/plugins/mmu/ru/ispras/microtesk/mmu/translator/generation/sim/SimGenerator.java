@@ -101,7 +101,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final SimGeneratorFactory factory) throws IOException {
     for (final Buffer buffer : ir.getBuffers().values()) {
       final boolean isTargetBuffer = buffer.equals(targetBuffer);
-      final FileGenerator fileGenerator = factory.newBufferGenerator(buffer, isTargetBuffer);
+      final FileGenerator fileGenerator = factory.newBufferGenerator(ir, buffer, isTargetBuffer);
       fileGenerator.generate();
     }
   }

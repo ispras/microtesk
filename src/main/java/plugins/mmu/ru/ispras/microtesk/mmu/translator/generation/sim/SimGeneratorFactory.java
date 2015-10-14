@@ -86,11 +86,15 @@ final class SimGeneratorFactory {
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
-  public FileGenerator newBufferGenerator(final Buffer buffer, final boolean isTargetBuffer) {
+  public FileGenerator newBufferGenerator(
+      final Ir ir,
+      final Buffer buffer,
+      final boolean isTargetBuffer) {
+    InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(buffer);
 
     final String outputFileName = getOutputFileName(buffer.getId());
-    final STBuilder builder = new STBBuffer(packageName, buffer, isTargetBuffer);
+    final STBuilder builder = new STBBuffer(packageName, ir, buffer, isTargetBuffer);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }

@@ -188,6 +188,13 @@ public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <dat
 }
 >>
 
+get_mmu(addr_type, mmu_name) ::= <<
+@Override
+protected Mmu\<<addr_type>\> getMmu() {
+  return <mmu_name>.get();
+}
+>>
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Statement templates
 
