@@ -22,6 +22,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBModel implements STBuilder {
@@ -77,7 +78,9 @@ final class STBModel implements STBuilder {
     stBody.add("mem_type", MEM_CLASS.getSimpleName()); 
 
     for (final Buffer buffer : ir.getBuffers().values()) {
-      stBody.add("buffers", buffer.getId());
+      if (buffer.getKind() == MmuBuffer.Kind.UNMAPPED) {
+        stBody.add("buffers", buffer.getId());
+      }
     }
 
     for (final Segment segment : ir.getSegments().values()) {

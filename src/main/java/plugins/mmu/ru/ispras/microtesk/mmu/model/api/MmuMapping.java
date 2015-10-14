@@ -29,12 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 
 public abstract class MmuMapping<D extends Data, A extends Address>
-    implements Buffer<D, A>, BufferObserver {
-
-  @Override
-  public boolean isHit(final BitVector address) {
-    throw new UnsupportedOperationException();
-  }
+    implements Buffer<D, A> {
 
   @Override
   public boolean isHit(final A address) {
