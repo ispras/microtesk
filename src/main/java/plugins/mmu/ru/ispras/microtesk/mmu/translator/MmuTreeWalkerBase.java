@@ -483,6 +483,18 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (qualifiers.contains(MmuBuffer.Kind.MEMORY.getText())) {
         kind = MmuBuffer.Kind.MEMORY;
       } else if(qualifiers.contains(MmuBuffer.Kind.REGISTER.getText())) {
+        final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
+            context.getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
+
+        if (!isaIr.getMemory().containsKey(id.getText())) {
+          raiseError(where(id), String.format("Register %s is not defined.", id.getText()));
+        }
+
+        if (isaIr.getMemory().get(id.getText()).getKind() != 
+            ru.ispras.microtesk.model.api.memory.Memory.Kind.REG) {
+          raiseError(where(id), String.format("%s is not a register.", id.getText()));
+        }
+
         kind = MmuBuffer.Kind.REGISTER;
       } else {
         kind = MmuBuffer.Kind.UNMAPPED;
