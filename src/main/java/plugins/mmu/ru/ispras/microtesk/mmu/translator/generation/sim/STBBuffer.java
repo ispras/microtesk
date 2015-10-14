@@ -36,7 +36,8 @@ final class STBBuffer extends STBCommon implements STBuilder {
   private final Buffer buffer;
   private final Buffer parentBuffer;
   private final boolean isView;
-  private final boolean isTargetBuffer;
+
+  private final BuildStrategy strategy;
 
   public STBBuffer(final String packageName, final Buffer buffer, final boolean isTargetBuffer) {
     super(packageName);
@@ -45,7 +46,27 @@ final class STBBuffer extends STBCommon implements STBuilder {
     this.buffer = buffer;
     this.parentBuffer = getParentBuffer(buffer);
     this.isView = buffer != parentBuffer;
-    this.isTargetBuffer = isTargetBuffer;
+
+    switch (buffer.getKind()) {
+      case MEMORY:
+        InvariantChecks.checkFalse(isTargetBuffer);
+        this.strategy = new MemoryStrategy();
+        break;
+
+      case REGISTER:
+        InvariantChecks.checkFalse(isTargetBuffer);
+        this.strategy = new RegisterStrategy();
+        break;
+
+      case UNMAPPED:
+        this.strategy = isTargetBuffer ? new TargetStrategy() : new UnmappedStrategy();
+        break;
+
+      default:
+        InvariantChecks.checkTrue(false);
+        this.strategy = null;
+        break;
+    }
   }
 
   private static Buffer getParentBuffer(final Buffer buffer) {
@@ -75,29 +96,10 @@ final class STBBuffer extends STBCommon implements STBuilder {
     final ST st = group.getInstanceOf("source_file");
     st.add("instance", "instance");
 
-    buildHeader(st);
-    buildEntry(st, group);
-    buildIndexer(st, group);
-    buildMatcher(st, group);
-    buildConstructor(st, group);
-    buildNewAddress(st, group);
-    buildNewData(st, group);
-    buildGetDataSize(st, group);
+    strategy.build(st, group);
 
     ExprPrinter.get().popVariableScope();
     return st;
-  }
-
-  private void buildHeader(final ST st) {
-    st.add("imps", java.math.BigInteger.class.getName());
-
-    final String baseName = String.format("%s<%s, %s>",
-        isTargetBuffer ? MEMORY_CLASS.getSimpleName() : CACHE_CLASS.getSimpleName(),
-        String.format("%s.Entry", parentBuffer.getId()),
-        buffer.getAddress().getId()
-        );
-
-    buildHeader(st, baseName);
   }
 
   private void buildEntry(final ST st, final STGroup group) {
@@ -114,10 +116,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
-    if (isTargetBuffer) {
-      return;
-    }
-
     final ST stIndexer = group.getInstanceOf("buffer_indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
@@ -128,10 +126,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildMatcher(final ST st, final STGroup group) {
-    if (isTargetBuffer) {
-      return;
-    }
-
     buildNewLine(st);
     final ST stMatcher = group.getInstanceOf("buffer_matcher");
 
@@ -144,35 +138,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
     st.add("members", stMatcher);
   }
 
-  private void buildConstructor(final ST st, final STGroup group) {
-    final ST stConstructor;
-    if (isTargetBuffer) {
-      stConstructor = group.getInstanceOf("memory_constructor");
-
-      final BigInteger ways = buffer.getWays();
-      final BigInteger sets = buffer.getSets();
-      final BigInteger entries = ways.multiply(sets);
-
-      InvariantChecks.checkTrue(buffer.getEntry().getBitSize() % 8 == 0);
-      final int entryByteSize = buffer.getEntry().getBitSize() / 8;
-
-      final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
-      stConstructor.add("size", byteSize.toString(16));
-    } else {
-      buildNewLine(st);
-      stConstructor = group.getInstanceOf("buffer_constructor");
-
-      stConstructor.add("name", buffer.getId());
-      stConstructor.add("ways", buffer.getWays());
-      stConstructor.add("sets", buffer.getSets());
-
-      stConstructor.add("policy", String.format("%s.%s",
-          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
-    } 
-
-    st.add("members", stConstructor);
-  }
-
   private void buildNewAddress(final ST st, final STGroup group) {
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("new_address");
@@ -181,10 +146,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
   }
 
   private void buildGetDataSize(ST st, STGroup group) {
-    if (!isTargetBuffer) {
-      return;
-    }
-
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("get_data_size");
     stMethod.add("size", buffer.getDataArg().getBitSize());
@@ -235,5 +196,102 @@ final class STBBuffer extends STBCommon implements STBuilder {
     }
 
     return ExprPrinter.get().toString(expr);
+  }
+
+  private interface BuildStrategy {
+    abstract void build(final ST st, final STGroup group);
+  }
+
+  private final class TargetStrategy implements BuildStrategy {
+    @Override
+    public void build(final ST st, final STGroup group) {
+      buildHeader(st);
+      buildEntry(st, group);
+      buildConstructor(st, group);
+      buildNewAddress(st, group);
+      buildNewData(st, group);
+      buildGetDataSize(st, group);
+    }
+
+    private void buildHeader(final ST st) {
+      st.add("imps", java.math.BigInteger.class.getName());
+
+      final String baseName = String.format("%s<%s, %s>",
+          MEMORY_CLASS.getSimpleName(),
+          String.format("%s.Entry", parentBuffer.getId()),
+          buffer.getAddress().getId()
+          );
+
+      STBBuffer.this.buildHeader(st, baseName);
+    }
+
+    private void buildConstructor(final ST st, final STGroup group) {
+      final ST stConstructor = group.getInstanceOf("memory_constructor");
+
+      final BigInteger ways = buffer.getWays();
+      final BigInteger sets = buffer.getSets();
+      final BigInteger entries = ways.multiply(sets);
+
+      InvariantChecks.checkTrue(buffer.getEntry().getBitSize() % 8 == 0);
+      final int entryByteSize = buffer.getEntry().getBitSize() / 8;
+
+      final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
+      stConstructor.add("size", byteSize.toString(16));
+
+      st.add("members", stConstructor);
+    }
+  }
+
+  private final class UnmappedStrategy implements BuildStrategy {
+    @Override
+    public void build(final ST st, final STGroup group) {
+      buildHeader(st);
+      buildEntry(st, group);
+      buildIndexer(st, group);
+      buildMatcher(st, group);
+      buildConstructor(st, group);
+      buildNewAddress(st, group);
+      buildNewData(st, group);
+    }
+    
+    private void buildHeader(final ST st) {
+      st.add("imps", java.math.BigInteger.class.getName());
+
+      final String baseName = String.format("%s<%s, %s>",
+          CACHE_CLASS.getSimpleName(),
+          String.format("%s.Entry", parentBuffer.getId()),
+          buffer.getAddress().getId()
+          );
+
+      STBBuffer.this.buildHeader(st, baseName);
+    }
+
+    private void buildConstructor(final ST st, final STGroup group) {
+      buildNewLine(st);
+      final ST stConstructor = group.getInstanceOf("buffer_constructor");
+
+      stConstructor.add("name", buffer.getId());
+      stConstructor.add("ways", buffer.getWays());
+      stConstructor.add("sets", buffer.getSets());
+
+      stConstructor.add("policy", String.format("%s.%s",
+            POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+
+      st.add("members", stConstructor);
+    }
+  }
+
+  private final class MemoryStrategy implements BuildStrategy {
+    @Override
+    public void build(final ST st, final STGroup group) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private final class RegisterStrategy implements BuildStrategy {
+    @Override
+    public void build(final ST st, final STGroup group) {
+      throw new UnsupportedOperationException();
+    }
   }
 }
