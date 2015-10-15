@@ -56,7 +56,7 @@ abstract class STBPrimitiveBase implements STBuilder {
 
 
 final class StatementBuilder {
-  private static final String SINDENT = "    ";
+  private static final String SINDENT = "  ";
 
   private final ST sequenceST;
   private final boolean isReturn;
@@ -149,15 +149,21 @@ final class StatementBuilder {
       final StatementCondition.Block block = stmt.getBlock(index);
 
       if (FIRST == index) {
-        addStatement(String.format("if (%s)", new PrinterExpr(block.getCondition())));
+        addStatement(String.format("if (%s) {", new PrinterExpr(block.getCondition())));
       } else if (LAST == index && block.isElseBlock()) {
-        addStatement("else");
+        addStatement("} else {");
       } else {
-        addStatement(String.format("else if (%s)", new PrinterExpr(block.getCondition())));
+        addStatement(String.format("} else if (%s) {", new PrinterExpr(block.getCondition())));
       }
 
-      addStatementBlock(block.getStatements());
+      increaseIndent();
+      for (final Statement blockStmt : block.getStatements()) {
+        addStatement(blockStmt);
+      }
+      decreaseIndent();
     }
+
+    addStatement("}");
   }
 
   private void addStatement(StatementAttributeCall stmt) {
@@ -221,16 +227,5 @@ final class StatementBuilder {
 
   private void addStatement(StatementStatus stmt) {
     addStatement(String.format("%s.set(%d);", stmt.getStatus().getName(), stmt.getNewValue()));
-  }
-
-  private void addStatementBlock(List<Statement> stmts) {
-    addStatement("{");
-    increaseIndent();
-
-    for (Statement stmt : stmts)
-      addStatement(stmt);
-
-    decreaseIndent();
-    addStatement("}");
   }
 }
