@@ -141,7 +141,10 @@ public final class MicroTESK {
         }
       }
 
-      translator.start(params.getArgs());
+      if (!translator.start(params.getArgs())) {
+        Logger.error("TRANSLATION WAS ABORTED");
+        return;
+      }
     }
 
     // Copy user-defined Java code is copied to the output folder.

@@ -37,7 +37,7 @@ public final class TranslatorContext {
   @SuppressWarnings("unchecked")
   public <Ir> Ir getIr(final Class<Ir> irClass) {
     InvariantChecks.checkNotNull(irClass);
-    InvariantChecks.checkTrue(irs.containsKey(irClass), "Ir redefined.");
+    InvariantChecks.checkTrue(irs.containsKey(irClass), "Ir undefined.");
     return (Ir) irs.get(irClass);
   }
 }

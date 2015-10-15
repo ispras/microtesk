@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.Set;
 import org.antlr.runtime.CharStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -82,12 +84,17 @@ public abstract class Translator<Ir> {
     handlers.add(handler);
   }
 
-  public final void start(final String... fileNames) {
+  public final boolean start(final String... fileNames) {
     final List<String> filteredFileNames = new ArrayList<>();
 
     for (final String fileName : fileNames) {
       final String fileExt = FileUtils.getFileExtension(fileName).toLowerCase();
       if (fileExtFilter.contains(fileExt)) {
+        if (!new File(fileName).exists()) {
+          Logger.error("FILE DOES NOT EXISTS: " + fileName);
+          return false;
+        }
+
         filteredFileNames.add(fileName);
       }
     }
@@ -95,6 +102,8 @@ public abstract class Translator<Ir> {
     if (!filteredFileNames.isEmpty()) {
       start(filteredFileNames);
     }
+
+    return true;
   }
 
   protected abstract void start(final List<String> fileNames);
