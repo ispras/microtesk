@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.Where;
@@ -46,7 +47,7 @@ public final class StatementFactory extends WalkerFactoryBase {
   private static final String UNDEFINED_ATTR =
     "The %s attribute is not defined for the %s primitive.";
 
-  public StatementFactory(WalkerContext context) {
+  public StatementFactory(final WalkerContext context) {
     super(context);
   }
 
@@ -77,10 +78,10 @@ public final class StatementFactory extends WalkerFactoryBase {
     return new StatementCondition(blocks);
   }
 
-  public Statement createAttributeCall(Where where, String attributeName) throws SemanticException {
-    if (null == attributeName) {
-      throw new NullPointerException();
-    }
+  public Statement createAttributeCall(
+      final Where where,
+      final String attributeName) throws SemanticException {
+    InvariantChecks.checkNotNull(attributeName);
 
     final ISymbol symbol = getSymbols().resolveMember(attributeName);
     if ((null == symbol) || (symbol.getKind() != NmlSymbolKind.ATTRIBUTE)) {
@@ -90,15 +91,12 @@ public final class StatementFactory extends WalkerFactoryBase {
     return StatementAttributeCall.newThisCall(attributeName);
   }
 
-  public Statement createAttributeCall(Where where, String calleeName, String attributeName)
-      throws SemanticException {
-    if (null == attributeName) {
-      throw new NullPointerException();
-    }
-
-    if (null == calleeName) {
-      throw new NullPointerException();
-    }
+  public Statement createAttributeCall(
+      final Where where,
+      final String calleeName,
+      final String attributeName) throws SemanticException {
+    InvariantChecks.checkNotNull(attributeName);
+    InvariantChecks.checkNotNull(calleeName);
 
     if (!getThisArgs().containsKey(calleeName)) {
       raiseError(where, String.format(UNDEFINED_ARG, calleeName));
@@ -121,7 +119,9 @@ public final class StatementFactory extends WalkerFactoryBase {
   }
   
   public Statement createAttributeCall(
-      Where where, Instance calleeInstance, String attributeName) throws SemanticException {
+      final Where where,
+      final Instance calleeInstance,
+      final String attributeName) throws SemanticException {
 
     final Primitive callee = calleeInstance.getPrimitive();
     if (!callee.getAttrNames().contains(attributeName)) {
@@ -135,8 +135,10 @@ public final class StatementFactory extends WalkerFactoryBase {
     return new StatementStatus(Status.CTRL_TRANSFER, index);
   }
 
-  public Statement createFormat(Where where, String format, List<Format.Argument> args)
-      throws SemanticException {
+  public Statement createFormat(
+      final Where where,
+      String format,
+      final List<Format.Argument> args) throws SemanticException {
 
     if (null == args) {
       return new StatementFormat(format, null, null);
@@ -152,9 +154,11 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     return new StatementFormat(format, markers, args);
   }
-  
-  public Statement createTrace(Where where, String format, List<Format.Argument> args)
-      throws SemanticException {
+
+  public Statement createTrace(
+      final Where where,
+      final String format,
+      final List<Format.Argument> args) throws SemanticException {
 
     final String FUNCTION_NAME = "trace"; 
     if (null == args) {
@@ -169,11 +173,11 @@ public final class StatementFactory extends WalkerFactoryBase {
     return new StatementFormat(FUNCTION_NAME, format, markers, args);
   }
 
-  public Statement createExceptionCall(Where where, String text){
+  public Statement createExceptionCall(final Where where, final String text) {
     return new StatementFunctionCall("exception", String.format("%s", text));
   }
 
-  public Statement createMark(Where where, String text){
+  public Statement createMark(final Where where, final String text) {
     return new StatementFunctionCall("mark", String.format("%s", text));
   }
 
