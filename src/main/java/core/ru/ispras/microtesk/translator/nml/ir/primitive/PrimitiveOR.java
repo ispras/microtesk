@@ -16,12 +16,13 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveOR extends Primitive {
   private final List<Primitive> ors;
 
-  PrimitiveOR(String name, Kind kind, List<Primitive> ors) {
+  PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
     super(
       name,
       kind,
@@ -33,10 +34,10 @@ public final class PrimitiveOR extends Primitive {
     this.ors = ors;
   }
 
-  protected void addParentReference(PrimitiveAND parent, String referenceName) {
+  protected void addParentReference(final PrimitiveAND parent, final String referenceName) {
     super.addParentReference(parent, referenceName);
 
-    for (Primitive target : ors) {
+    for (final Primitive target : ors) {
       target.addParentReference(parent, referenceName);
     }
   }
@@ -45,11 +46,8 @@ public final class PrimitiveOR extends Primitive {
     return ors;
   }
 
-  private static Type getReturnType(List<Primitive> ors) {
-    if (null == ors) {
-      throw new NullPointerException();
-    }
-
+  private static Type getReturnType(final List<Primitive> ors) {
+    InvariantChecks.checkNotNull(ors);
     return ors.get(0).getReturnType();
   }
 }
