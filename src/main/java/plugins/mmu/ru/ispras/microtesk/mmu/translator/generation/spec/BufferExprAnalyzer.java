@@ -123,10 +123,12 @@ public final class BufferExprAnalyzer {
 
     private final Deque<Enum<?>> opStack = new ArrayDeque<Enum<?>>();
     private final List<IntegerField> fields = new ArrayList<>();
+
+    /** Match bindings, format: (<entry expression> == (<address expression> | constant)) */
     private final List<Pair<IntegerField, IntegerField>> bindings = new ArrayList<>();
 
-    private IntegerField left = null;
-    private IntegerField right = null;
+    private IntegerField entrySide = null;
+    private IntegerField addressSide = null;
 
     public List<IntegerField> getTagFields() {
       return fields;
@@ -153,8 +155,8 @@ public final class BufferExprAnalyzer {
         final IntegerField addressField = newAddressField(node);
         fields.add(addressField);
 
-        InvariantChecks.checkTrue(right == null);
-        right = addressField;
+        InvariantChecks.checkTrue(addressSide == null);
+        addressSide = addressField;
 
         setStatus(Status.SKIP);
       } else if (op == StandardOperation.EQ) {
@@ -168,8 +170,8 @@ public final class BufferExprAnalyzer {
           throw new IllegalStateException("Wrong operand count (2 is expected): " + node);
         }
 
-        left = null;
-        right = null;
+        entrySide = null;
+        addressSide = null;
       }
 
       opStack.push(op);
@@ -178,19 +180,19 @@ public final class BufferExprAnalyzer {
     public void onOperationEnd(final NodeOperation node) {
       final Enum<?> op = node.getOperationId();
       if (op == StandardOperation.EQ) {
-        InvariantChecks.checkNotNull(right);
-        InvariantChecks.checkNotNull(left);
+        InvariantChecks.checkNotNull(addressSide);
+        InvariantChecks.checkNotNull(entrySide);
 
-        if (right.getVariable().getValue() != null && 
-            right.getWidth() != left.getWidth()) {
-          right = new IntegerField(new IntegerVariable(
-              right.getVariable().getName(),
-              left.getWidth(),
-              right.getVariable().getValue())
+        if (addressSide.getVariable().isDefined() && 
+            addressSide.getWidth() != entrySide.getWidth()) {
+          addressSide = new IntegerField(new IntegerVariable(
+              addressSide.getVariable().getName(),
+              entrySide.getWidth(),
+              addressSide.getVariable().getValue())
               );
         }
 
-        bindings.add(new Pair<>(left, right));
+        bindings.add(new Pair<>(entrySide, addressSide));
       }
 
       opStack.pop();
@@ -202,18 +204,18 @@ public final class BufferExprAnalyzer {
         final IntegerField addressField = newAddressField(node);
         fields.add(addressField);
 
-        InvariantChecks.checkTrue(right == null);
-        right = addressField; 
+        InvariantChecks.checkTrue(addressSide == null);
+        addressSide = addressField; 
       } else {
-        InvariantChecks.checkTrue(left == null);
-        left = new IntegerField(
+        InvariantChecks.checkTrue(entrySide == null);
+        entrySide = new IntegerField(
             new IntegerVariable(node.getName(), node.getDataType().getSize()));
       }
     }
 
     @Override
     public void onValue(final NodeValue node) {
-      InvariantChecks.checkTrue(right == null);
+      InvariantChecks.checkTrue(addressSide == null);
 
       final BigInteger value;
       final int width;
@@ -228,7 +230,7 @@ public final class BufferExprAnalyzer {
         throw new IllegalStateException("Unsupported value type: " + node.getDataType());
       }
 
-      right = new IntegerField(new IntegerVariable("#fake", width, value));
+      addressSide = new IntegerField(new IntegerVariable("#fake", width, value));
     }
   }
 
