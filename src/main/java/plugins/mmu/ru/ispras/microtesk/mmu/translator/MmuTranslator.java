@@ -35,7 +35,9 @@ import ru.ispras.microtesk.mmu.translator.generation.spec.SpecGenerator;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuParser;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
+import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
@@ -143,9 +145,52 @@ public final class MmuTranslator extends Translator<Ir> {
         return;
       }
 
+      if (!checkIr(ir)) {
+        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
+        return;
+      }
+
       processIr(ir);
     } catch (final Exception e) {
       e.printStackTrace();
     }
+  }
+
+  // Performs size checks for mapped buffers.
+  private boolean checkIr(final Ir ir) {
+    final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
+        getContext().getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
+
+    for (final Buffer buffer: ir.getBuffers().values()) {
+      switch (buffer.getKind()) {
+        case MEMORY: {
+          InvariantChecks.checkTrue(ir.getMemories().size() == 1);
+          final Memory mmu = ir.getMemories().values().iterator().next();
+
+          if (buffer.getEntry().getBitSize() != mmu.getDataArg().getBitSize()) {
+            Logger.error("Size of %s.Entry must match size of %s data argument: %d.",
+                buffer.getId(), mmu.getId(), mmu.getDataArg().getBitSize());
+            return false;
+          }
+
+          break;
+        }
+
+        case REGISTER: {
+          final ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr register =
+              isaIr.getMemory().get(buffer.getId());
+
+          if (buffer.getEntry().getBitSize() != register.getType().getBitSize()) {
+            Logger.error("Size of %s.Entry must match size of %s registers: %d.",
+                buffer.getId(), buffer.getId(), register.getType().getBitSize());
+            return false;
+          }
+
+          break;
+        }
+      }
+    }
+
+    return true;
   }
 }
