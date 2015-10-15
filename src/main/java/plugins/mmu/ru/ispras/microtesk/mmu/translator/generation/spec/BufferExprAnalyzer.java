@@ -184,7 +184,10 @@ public final class BufferExprAnalyzer {
         if (right.getVariable().getValue() != null && 
             right.getWidth() != left.getWidth()) {
           right = new IntegerField(new IntegerVariable(
-              right.getVariable().getName(), left.getWidth(), right.getVariable().getValue()));
+              right.getVariable().getName(),
+              left.getWidth(),
+              right.getVariable().getValue())
+              );
         }
 
         bindings.add(new Pair<>(left, right));
