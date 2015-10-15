@@ -49,7 +49,7 @@ public final class BufferExprAnalyzer {
   private final List<IntegerField> indexFields;
   private final List<IntegerField> tagFields;
   private final List<IntegerField> offsetFields;
-  private final List<Pair<IntegerVariable, IntegerField>> matchBindings;
+  private final List<Pair<IntegerField, IntegerField>> matchBindings;
 
   private IntegerField newAddressField(final NodeOperation node) {
     InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
@@ -123,16 +123,16 @@ public final class BufferExprAnalyzer {
 
     private final Deque<Enum<?>> opStack = new ArrayDeque<Enum<?>>();
     private final List<IntegerField> fields = new ArrayList<>();
-    private final List<Pair<IntegerVariable, IntegerField>> bindings = new ArrayList<>();
+    private final List<Pair<IntegerField, IntegerField>> bindings = new ArrayList<>();
 
-    private IntegerVariable left = null;
+    private IntegerField left = null;
     private IntegerField right = null;
 
     public List<IntegerField> getTagFields() {
       return fields;
     }
 
-    public List<Pair<IntegerVariable, IntegerField>> getMatchBindings() {
+    public List<Pair<IntegerField, IntegerField>> getMatchBindings() {
       return bindings;
     }
 
@@ -181,7 +181,8 @@ public final class BufferExprAnalyzer {
         InvariantChecks.checkNotNull(right);
         InvariantChecks.checkNotNull(left);
 
-        if (right.getVariable().getValue() != null && right.getWidth() != left.getWidth()) {
+        if (right.getVariable().getValue() != null && 
+            right.getWidth() != left.getWidth()) {
           right = new IntegerField(new IntegerVariable(
               right.getVariable().getName(), left.getWidth(), right.getVariable().getValue()));
         }
@@ -202,7 +203,8 @@ public final class BufferExprAnalyzer {
         right = addressField; 
       } else {
         InvariantChecks.checkTrue(left == null);
-        left = new IntegerVariable(node.getName(), node.getDataType().getSize());
+        left = new IntegerField(
+            new IntegerVariable(node.getName(), node.getDataType().getSize()));
       }
     }
 
@@ -271,7 +273,7 @@ public final class BufferExprAnalyzer {
     return offsetFields;
   }
 
-  public List<Pair<IntegerVariable, IntegerField>> getMatchBindings() {
+  public List<Pair<IntegerField, IntegerField>> getMatchBindings() {
     return matchBindings;
   }
 }

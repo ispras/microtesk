@@ -26,7 +26,6 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
@@ -171,12 +170,12 @@ final class STBBuffer implements STBuilder {
     return Utils.getVariableName(buffer.getId(), prefixedName);
   }
 
-  private String toMmuBindingsText(final List<Pair<IntegerVariable, IntegerField>> bindings) {
+  private String toMmuBindingsText(final List<Pair<IntegerField, IntegerField>> bindings) {
     final StringBuilder sb = new StringBuilder();
     sb.append(String.format("Arrays.<MmuBinding>asList(", Arrays.class.getSimpleName()));
 
     boolean isFirst = true;
-    for (final Pair<IntegerVariable, IntegerField> binding : bindings) {
+    for (final Pair<IntegerField, IntegerField> binding : bindings) {
       if (isFirst) {
         isFirst = false;
       } else {
@@ -186,7 +185,7 @@ final class STBBuffer implements STBuilder {
       sb.append(System.lineSeparator());
       sb.append("    ");
 
-      final String leftText = getVariableName(binding.first.getName());
+      final String leftText = Utils.toString(buffer.getId(), binding.first);
       final String rightText = Utils.toString(buffer.getId(), binding.second);
 
       sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
