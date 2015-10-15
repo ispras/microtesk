@@ -138,7 +138,12 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         raiseError(where, new UndefinedProductionRuleItem(orName, name, true, NmlSymbolKind.OP));
       }
 
-      orOps.add(getIR().getOps().get(orName));
+      final Primitive op = getIR().getOps().get(orName);
+      if (!orOps.isEmpty()) {
+        new CompatibilityChecker(this, where, name, op, orOps.get(0)).check();
+      }
+
+      orOps.add(op);
     }
 
     return new PrimitiveOR(name, Primitive.Kind.OP, orOps);
