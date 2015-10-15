@@ -248,7 +248,7 @@ mmuVariable
     ;
 
 mmuVariableType
-    : ID (DOT MMU_ENTRY)? -> ID
+    : {!isDeclaredAs(input.LT(1), NmlSymbolKind.LET_CONST)}? ID (DOT MMU_ENTRY)? -> ID
     | expr
     ;
 
