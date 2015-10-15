@@ -14,29 +14,64 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
 
 public abstract class RegisterMapping<D extends Data, A extends Address>
-    extends Memory<D, A> {
+    implements Buffer<D, A> {
+
+  private final MemoryDevice storage;
+
+  /**
+   * Proxy class is used to simplify code of assignment expressions.
+   */
+  public final class Proxy {
+    private final A address;
+
+    private Proxy(final A address) {
+      this.address = address;
+    }
+
+    public D assign(final D data) {
+      return setData(address, data);
+    }
+
+    public D assign(final BitVector value) {
+      final D data = newData(value);
+      return setData(address, data);
+    }
+  }
 
   public RegisterMapping(final String name) {
-    super(BigInteger.ZERO); // Ignored parameter.
-
-    final MemoryDeviceWrapper storage = MemoryDeviceWrapper.newWrapperFor(name);
-    setStorage(storage);
+    this.storage = MemoryDeviceWrapper.newWrapperFor(name);
+    InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
   }
 
   @Override
   public final boolean isHit(final A address) {
-    return isHit(address.getValue());
-  }
-
-  @Override
-  public final boolean isHit(final BitVector address) {
     throw new UnsupportedOperationException(
         "isHit is unsupported for mapped buffers.");
   }
+
+  @Override
+  public final D getData(final A address) {
+    final BitVector value = storage.load(address.getValue());
+    return newData(value);
+  }
+
+  @Override
+  public final D setData(final A address, final D data) {
+    storage.store(address.getValue(), data.asBitVector());
+    return null;
+  }
+
+  public final Proxy setData(final A address) {
+    return new Proxy(address);
+  }
+
+  protected abstract A newAddress();
+  protected abstract D newData(final BitVector value);
+  protected abstract int getDataBitSize();
 }

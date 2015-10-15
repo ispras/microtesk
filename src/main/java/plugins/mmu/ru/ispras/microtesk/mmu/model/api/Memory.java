@@ -26,7 +26,7 @@ public abstract class Memory<D extends Data, A extends Address>
   private MemoryDevice storage;
 
   /**
-   * Proxy class is used to simply code of assignment expressions.
+   * Proxy class is used to simplify code of assignment expressions.
    */
   public final class Proxy {
     private final A address;
