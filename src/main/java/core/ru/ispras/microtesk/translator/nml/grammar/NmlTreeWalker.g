@@ -236,11 +236,11 @@ $res = factory.createAlias(where($id), $id.text, $min.res, $max.res);
 
 modeDef 
 @init {reserveThis();}
-    :  ^(MODE id=ID {pushSymbolScope(id);} sp=modeSpecPart[where($id), $id.text])
+    :  ^(MODE id=ID {pushSymbolScope(id);} sp=modeSpecPart[where($id), $id.text]
 {
 checkNotNull($id, $sp.res, $modeDef.text);
 getIR().add($id.text, $sp.res);
-}
+})
     ;  finally
 {
 popSymbolScope();
