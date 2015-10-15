@@ -332,7 +332,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
       buildHeader(st);
       buildEntry(st, group);
       st.add("members", String.format("private %s() { super(\"%s\"); }", getId(), getId()));
-      buildNewAddress(st, group);
       buildNewData(st, group);
       buildGetDataSize(st, group);
     }

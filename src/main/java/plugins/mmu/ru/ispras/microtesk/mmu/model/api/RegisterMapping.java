@@ -71,7 +71,6 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     return new Proxy(address);
   }
 
-  protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
 }
