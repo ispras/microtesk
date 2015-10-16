@@ -20,6 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 public final class Utils {
   private Utils() {}
@@ -116,11 +117,21 @@ public final class Utils {
         sb.append(", ");
       }
 
-      final String name = 
-          getVariableName(context, field.getVariable().getName());
+      final IntegerVariable variable = field.getVariable();
+      final String variableText;
 
-      sb.append(String.format(
-          "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex()));
+      if (variable.isDefined()) {
+        variableText = String.format("new IntegerVariable(%d, %s)",
+            variable.getWidth(), toString(variable.getValue()));
+      } else {
+        variableText =
+            getVariableName(context, variable.getName());
+      }
+
+      final String text = String.format(
+          "%s.field(%d, %d)", variableText, field.getLoIndex(), field.getHiIndex());
+
+      sb.append(text);
     }
 
     sb.append(')');

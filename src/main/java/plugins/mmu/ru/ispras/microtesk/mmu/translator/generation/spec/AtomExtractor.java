@@ -31,12 +31,16 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 public final class AtomExtractor {
   private AtomExtractor() {}
 
-  public static Atom extract(final Node expr) {
-    checkNotNull(expr);
+  public static Atom extract(final Node node) {
+    checkNotNull(node);
+
+    final ExprTransformer transformer = new ExprTransformer();
+    final Node expr = transformer.transform(node);
 
     switch(expr.getKind()) {
       case VALUE:
@@ -139,7 +143,19 @@ public final class AtomExtractor {
   private static Atom extractFromBitConcat(final NodeOperation expr) {
     final List<IntegerField> concat = new ArrayList<>();
 
-    for (Node operand : expr.getOperands()) {
+    for (final Node operand : expr.getOperands()) {
+      if (operand.getKind() == Node.Kind.VALUE &&
+          operand.isType(DataTypeId.BIT_VECTOR)) {
+
+        final MmuExpression val = MmuExpression.val(
+            ((NodeValue) operand).getBitVector().bigIntegerValue(false),
+            operand.getDataType().getSize()
+            );
+
+        concat.add(val.getTerms().get(0));
+        continue;
+      }
+
       final Atom atom = extract(operand);
       switch (atom.getKind()) {
         case VARIABLE: {

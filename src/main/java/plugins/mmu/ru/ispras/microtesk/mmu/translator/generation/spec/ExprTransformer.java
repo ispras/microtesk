@@ -1,0 +1,222 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package ru.ispras.microtesk.mmu.translator.generation.spec;
+
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
+
+/**
+ * Class {@link ExprTransformer} transforms operations that involve shifts and 
+ * bit masks into concatenation-based expressions. Supported operations include:
+ * <ol>
+ * <li>{@link StandardOperation.BVZEROEXT}
+ * <li>{@link StandardOperation.BVLSHL}
+ * <li>{@link StandardOperation.BVASHL}
+ * <li>{@link StandardOperation.BVLSHR}
+ * </ol>
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
+public final class ExprTransformer {
+  private final NodeTransformer transformer;
+
+  public ExprTransformer() {
+    this.transformer = new NodeTransformer();
+    this.transformer.addRule(StandardOperation.BVZEROEXT, new ZeroExtendRule());
+
+    final LeftShiftRule leftShiftRule = new LeftShiftRule();
+    this.transformer.addRule(StandardOperation.BVLSHL, leftShiftRule);
+    this.transformer.addRule(StandardOperation.BVASHL, leftShiftRule);
+
+    this.transformer.addRule(StandardOperation.BVLSHR, new RightShiftRule());
+    this.transformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
+  }
+
+  public Node transform(final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+
+    transformer.walk(expr);
+    final Node result = transformer.getResult().iterator().next();
+
+    transformer.reset();
+    return result;
+  }
+
+  private static final class ZeroExtendRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      return isOperation(expr, StandardOperation.BVZEROEXT);
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+
+      final Node sizeExpr = op.getOperand(0);
+      final Node argExpr = op.getOperand(1);
+
+      final int newSize = FortressUtils.extractInt(sizeExpr);
+      final int oldSize = argExpr.getDataType().getSize();
+
+      final int deltaSize = newSize - oldSize;
+      InvariantChecks.checkGreaterThanZero(deltaSize);
+
+      return new NodeOperation(
+          StandardOperation.BVCONCAT,
+          NodeValue.newBitVector(BitVector.newEmpty(deltaSize)),
+          argExpr
+          );
+    }
+  }
+
+  private static final class LeftShiftRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      if (!isOperation(expr, StandardOperation.BVLSHL) &&
+          !isOperation(expr, StandardOperation.BVASHL)) {
+        return false;
+      }
+
+      final Node shiftAmount = ((NodeOperation) expr).getOperand(1);
+      return shiftAmount.getKind() == Node.Kind.VALUE;
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+
+      final Node argExpr = op.getOperand(0);
+      final Node shiftAmountExpr = op.getOperand(1);
+
+      final int argSize = argExpr.getDataType().getSize();
+      final int shiftAmount = FortressUtils.extractInt(shiftAmountExpr) % argSize;
+
+      final Node fieldExpr = new NodeOperation(
+          StandardOperation.BVEXTRACT,
+          NodeValue.newInteger(argSize - 1 - shiftAmount),
+          NodeValue.newInteger(0),
+          argExpr
+          );
+
+      return new NodeOperation(
+          StandardOperation.BVCONCAT,
+          fieldExpr,
+          NodeValue.newBitVector(BitVector.newEmpty(shiftAmount))
+          );
+    }
+  }
+
+  private static final class RightShiftRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      if (!isOperation(expr, StandardOperation.BVLSHR)) {
+        return false;
+      }
+
+      final Node shiftAmount = ((NodeOperation) expr).getOperand(1);
+      return shiftAmount.getKind() == Node.Kind.VALUE;
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+
+      final Node argExpr = op.getOperand(0);
+      final Node shiftAmountExpr = op.getOperand(1);
+
+      final int argSize = argExpr.getDataType().getSize();
+      final int shiftAmount = FortressUtils.extractInt(shiftAmountExpr) % argSize;
+
+      final Node fieldExpr = new NodeOperation(
+          StandardOperation.BVEXTRACT,
+          NodeValue.newInteger(argSize - 1),
+          NodeValue.newInteger(shiftAmount),
+          argExpr
+          );
+
+      return new NodeOperation(
+          StandardOperation.BVCONCAT,
+          NodeValue.newBitVector(BitVector.newEmpty(shiftAmount)),
+          fieldExpr
+          );
+    }
+  }
+
+  private static final class NestedFieldRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      if (!isOperation(expr, StandardOperation.BVEXTRACT)) {
+        return false;
+      }
+
+      final NodeOperation op = (NodeOperation) expr;
+      if (op.getOperandCount() < 3) {
+        return false;
+      }
+
+      return isOperation(
+          op.getOperand(2), StandardOperation.BVEXTRACT);
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+      final NodeOperation nestedOp = (NodeOperation) op.getOperand(2);
+      final Node target = nestedOp.getOperand(2);
+
+      final int from = FortressUtils.extractInt(op.getOperand(0));
+      final int to = FortressUtils.extractInt(op.getOperand(1));
+
+      final int innerFrom = FortressUtils.extractInt(nestedOp.getOperand(0));
+      final int innerTo = FortressUtils.extractInt(nestedOp.getOperand(1));
+
+      final int realFrom = Math.min(from, to);
+      final int realTo = Math.max(from, to);
+
+      final int realInnerFrom = Math.min(innerFrom, innerTo);
+      final int realInnerTo = Math.max(innerFrom, innerTo);
+
+      final int newFrom = realInnerFrom + realFrom;
+      final int newTo = newFrom + realTo;
+
+      InvariantChecks.checkTrue(realInnerFrom <= newFrom && newFrom <= realInnerTo);
+      InvariantChecks.checkTrue(realInnerFrom <= newTo && newTo <= realInnerTo);
+
+      return new NodeOperation(
+          StandardOperation.BVEXTRACT,
+          NodeValue.newInteger(newTo),
+          NodeValue.newInteger(newFrom),
+          target
+          );
+    }
+  }
+
+  private static boolean isOperation(final Node node, final Enum<?> opId) {
+    if (Node.Kind.OPERATION != node.getKind()) {
+      return false;
+    }
+
+    final NodeOperation op = (NodeOperation) node;
+    return op.getOperationId() == opId;
+  }
+}
