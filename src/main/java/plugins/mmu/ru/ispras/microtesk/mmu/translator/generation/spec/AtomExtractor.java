@@ -74,7 +74,7 @@ public final class AtomExtractor {
     }
   }
 
-  private static Atom extract(NodeOperation expr) {
+  private static Atom extract(final NodeOperation expr) {
     final Enum<?> op = expr.getOperationId();
     if (StandardOperation.BVEXTRACT == op) {
       return extractFromBitField(expr);
@@ -136,7 +136,7 @@ public final class AtomExtractor {
     return Atom.newField(field);
   }
 
-  private static Atom extractFromBitConcat(NodeOperation expr) {
+  private static Atom extractFromBitConcat(final NodeOperation expr) {
     final List<IntegerField> concat = new ArrayList<>();
 
     for (Node operand : expr.getOperands()) {
