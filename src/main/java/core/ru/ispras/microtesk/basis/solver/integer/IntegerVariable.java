@@ -33,6 +33,21 @@ public class IntegerVariable {
   private final BigInteger value;
 
   /**
+   * Constructs a fake variable to store a constant value.
+   * 
+   * @param width variable width in bits.
+   * @param value value to be stored.
+   * @throws IllegalArgumentException if {@code width <= 0} or if {@code value is null}.
+   */
+   public IntegerVariable(final int width, final BigInteger value) {
+     this(
+        String.format("const:%d=%x", width, value),
+        width,
+        value
+        );
+  }
+
+  /**
    * Constructs a variable.
    * 
    * @param name the variable name.
