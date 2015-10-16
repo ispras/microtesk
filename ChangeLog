@@ -6,6 +6,19 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+ 2015/10/16 MicroTESK 2.3.6 beta
+
+ The new build contains the following changes:
+
+ - Possibility to use values of registers defined in ISA specifications
+   as parameters while generating tests for MMU (the "extern" construct)
+ - Possibility to map MMU buffers to virtual memory was implemented
+   (the "memory buffer" construct)
+ - Possibility to map MMU buffers to registers defined in ISA specifications
+   was implemented (the "register buffer" construct)
+ - Support for shift operations in MMU specifications was implemented
+ - Several bug fixes and general improvements were made
+
  2015/10/09 MicroTESK 2.3.5 beta
 
  The new build contains the following changes:
