@@ -51,6 +51,29 @@ public final class BufferExprAnalyzer {
   private final List<IntegerField> offsetFields;
   private final List<Pair<IntegerField, IntegerField>> matchBindings;
 
+  private static IntegerField newField(final NodeOperation node) {
+    InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
+
+    if (node.getOperandCount() != 3) {
+      throw new IllegalStateException("Wrong operand count (3 is expected): " + node);
+    }
+
+    final Node variable = node.getOperand(2);
+    if (variable.getKind() != Node.Kind.VARIABLE) {
+      throw new IllegalStateException(variable + " is not a variable.");
+    }
+
+    final int lo = FortressUtils.extractInt(node.getOperand(1));
+    final int hi = FortressUtils.extractInt(node.getOperand(0));
+
+    return new IntegerField(
+        new IntegerVariable(
+            ((NodeVariable) variable).getName(), variable.getDataType().getSize()),
+         lo,
+         hi
+         );
+  }
+
   private IntegerField newAddressField(final NodeOperation node) {
     InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
 
@@ -152,11 +175,19 @@ public final class BufferExprAnalyzer {
               "Illegal match expression. BVEXTRACT must be used only as part of EQ expression.");
         }
 
-        final IntegerField addressField = newAddressField(node);
-        fields.add(addressField);
+        final Node variable = node.getOperand(2);
+        if (variable.equals(addressVariable.getNode())) {
+          final IntegerField addressField = newAddressField(node);
+          fields.add(addressField);
 
-        InvariantChecks.checkTrue(addressSide == null);
-        addressSide = addressField;
+          InvariantChecks.checkTrue(addressSide == null);
+          addressSide = addressField;
+        } else {
+          final IntegerField entryField = newField(node);
+
+          InvariantChecks.checkTrue(entrySide == null);
+          entrySide = entryField;
+        }
 
         setStatus(Status.SKIP);
       } else if (op == StandardOperation.EQ) {
@@ -193,6 +224,8 @@ public final class BufferExprAnalyzer {
         }
 
         bindings.add(new Pair<>(entrySide, addressSide));
+      } else if (op == StandardOperation.BVEXTRACT) {
+        setStatus(Status.OK);
       }
 
       opStack.pop();
