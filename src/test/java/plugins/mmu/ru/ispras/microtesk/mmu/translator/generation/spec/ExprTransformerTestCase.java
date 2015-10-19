@@ -46,6 +46,15 @@ public class ExprTransformerTestCase {
     testLeftShift(StandardOperation.BVLSHL, 32, 32);
   }
 
+  @Test
+  public void testRightShift() {
+    testRightShift(StandardOperation.BVLSHR, 32, 0);
+    testRightShift(StandardOperation.BVLSHR, 32, 1);
+    testRightShift(StandardOperation.BVLSHR, 32, 16);
+    testRightShift(StandardOperation.BVLSHR, 64, 16);
+    testRightShift(StandardOperation.BVLSHR, 32, 32);
+  }
+
   private static void testLeftShift(
       final StandardOperation operator,
       final int bitSize,
@@ -71,9 +80,42 @@ public class ExprTransformerTestCase {
     final Node result = transform(initial);
 
     /*
-    System.out.println(initial);
-    System.out.println(result);
-    System.out.println(expected);
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+    */
+
+    assertEquals(expected, result);
+  }
+
+  private static void testRightShift(
+      final StandardOperation operator,
+      final int bitSize,
+      final int shiftAmount) {
+
+    final Node x =
+        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    final Node initial = new NodeOperation(
+        operator,
+        x,
+        NodeValue.newInteger(shiftAmount)
+        );
+
+    final Node expected = shiftAmount % bitSize == 0 ?
+        x :
+        new NodeOperation(
+        StandardOperation.BVCONCAT,
+        NodeValue.newBitVector(BitVector.newEmpty(shiftAmount)),
+        newField(x, shiftAmount, bitSize - 1)
+        );
+
+    final Node result = transform(initial);
+
+    /*
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
     */
 
     assertEquals(expected, result);
