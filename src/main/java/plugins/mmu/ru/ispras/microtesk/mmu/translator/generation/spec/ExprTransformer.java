@@ -14,10 +14,15 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -50,6 +55,10 @@ public final class ExprTransformer {
 
     this.transformer.addRule(StandardOperation.BVLSHR, new RightShiftRule());
     this.transformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
+
+    final BitMaskRule bitMaskRule = new BitMaskRule();
+    this.transformer.addRule(StandardOperation.BVAND, bitMaskRule);
+    //this.transformer.addRule(StandardOperation.BVOR, bitMaskRule);
   }
 
   public Node transform(final Node expr) {
@@ -111,12 +120,12 @@ public final class ExprTransformer {
       final int argSize = argExpr.getDataType().getSize();
       final int shiftAmount = FortressUtils.extractInt(shiftAmountExpr) % argSize;
 
-      final Node fieldExpr = new NodeOperation(
-          StandardOperation.BVEXTRACT,
-          NodeValue.newInteger(argSize - 1 - shiftAmount),
-          NodeValue.newInteger(0),
-          argExpr
-          );
+      if (shiftAmount == 0) {
+        return argExpr;
+      }
+
+      final Node fieldExpr =
+          newField(argExpr, 0, argSize - 1 - shiftAmount);
 
       return new NodeOperation(
           StandardOperation.BVCONCAT,
@@ -147,12 +156,12 @@ public final class ExprTransformer {
       final int argSize = argExpr.getDataType().getSize();
       final int shiftAmount = FortressUtils.extractInt(shiftAmountExpr) % argSize;
 
-      final Node fieldExpr = new NodeOperation(
-          StandardOperation.BVEXTRACT,
-          NodeValue.newInteger(argSize - 1),
-          NodeValue.newInteger(shiftAmount),
-          argExpr
-          );
+      if (shiftAmount == 0) {
+        return argExpr;
+      }
+
+      final Node fieldExpr =
+          newField(argExpr, shiftAmount, argSize - 1);
 
       return new NodeOperation(
           StandardOperation.BVCONCAT,
@@ -202,12 +211,105 @@ public final class ExprTransformer {
       InvariantChecks.checkTrue(realInnerFrom <= newFrom && newFrom <= realInnerTo);
       InvariantChecks.checkTrue(realInnerFrom <= newTo && newTo <= realInnerTo);
 
-      return new NodeOperation(
-          StandardOperation.BVEXTRACT,
-          NodeValue.newInteger(newTo),
-          NodeValue.newInteger(newFrom),
-          target
-          );
+      return newField(target, newFrom, newTo);
+    }
+  }
+
+  private static final class BitMaskRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node expr) {
+      if (!isOperation(expr, StandardOperation.BVOR) && 
+          !isOperation(expr, StandardOperation.BVAND)) {
+        return false;
+      }
+
+      final NodeOperation op = (NodeOperation) expr;
+      if (op.getOperandCount() < 2) {
+        return false;
+      }
+
+      final Node operand1 = op.getOperand(0);
+      final Node operand2 = op.getOperand(1);
+
+      return ((isValue(operand1) && isVariable(operand2)) ||
+              (isValue(operand2) && isVariable(operand1)));
+    }
+
+    @Override
+    public Node apply(final Node expr) {
+      final NodeOperation op = (NodeOperation) expr;
+      final Node operand1 = op.getOperand(0);
+      final Node operand2 = op.getOperand(1);
+
+      final NodeValue mask;
+      final NodeVariable variable;
+
+      if (isValue(operand1) && isVariable(operand2)) {
+        mask = (NodeValue) operand1;
+        variable = (NodeVariable) operand2;
+      } else if (isValue(operand2) && isVariable(operand1)) {
+        mask = (NodeValue) operand2;
+        variable = (NodeVariable) operand1;
+      } else {
+        throw new IllegalArgumentException();
+      }
+
+      InvariantChecks.checkTrue(mask.isType(DataTypeId.BIT_VECTOR));
+      InvariantChecks.checkTrue(variable.isType(DataTypeId.BIT_VECTOR));
+
+      InvariantChecks.checkTrue(
+          mask.getDataType().getSize() ==
+          variable.getDataType().getSize());
+
+      final BitVector maskValue = mask.getData().getBitVector();
+      if (op.getOperationId() == StandardOperation.BVAND) {
+        return applyAndMask(variable, maskValue);
+      } else if (op.getOperationId() == StandardOperation.BVOR) {
+        return applyOrMask(variable, maskValue);
+      } else {
+        throw new IllegalArgumentException();
+      }
+    }
+
+    private Node applyAndMask(final NodeVariable variable, final BitVector mask) {
+      int fieldEnds = mask.getBitSize() - 1;
+      boolean isFieldBitSet = mask.getBit(fieldEnds);
+
+      final List<Node> fields = new ArrayList<>();
+      for (int bitIndex = mask.getBitSize() - 2; bitIndex >= 0; bitIndex--) {
+        final boolean isBitSet = mask.getBit(bitIndex);
+
+        if (isBitSet == isFieldBitSet) {
+          continue;
+        }
+
+        if (isBitSet) {
+          fields.add(NodeValue.newBitVector(BitVector.newEmpty(fieldEnds - bitIndex)));
+        } else {
+          fields.add(newField(variable, bitIndex + 1, fieldEnds));
+        }
+
+        fieldEnds = bitIndex;
+        isFieldBitSet = isBitSet;
+      }
+
+      if (isFieldBitSet) {
+        fields.add(newField(variable, 0, fieldEnds));
+      } else {
+        fields.add(NodeValue.newBitVector(BitVector.newEmpty(fieldEnds + 1)));
+      }
+
+      return newConcat(fields);
+    }
+
+    private Node applyOrMask(final NodeVariable variable, final BitVector mask) {
+
+      for (int bitIndex = 0; bitIndex < mask.getBitSize(); bitIndex++) {
+        final boolean isBitSet = mask.getBit(bitIndex);
+      }
+
+      // TODO Auto-generated method stub
+      return null;
     }
   }
 
@@ -218,5 +320,34 @@ public final class ExprTransformer {
 
     final NodeOperation op = (NodeOperation) node;
     return op.getOperationId() == opId;
+  }
+
+  private static boolean isValue(final Node node) {
+    return Node.Kind.VALUE == node.getKind();
+  }
+
+  private static boolean isVariable(final Node node) {
+    return Node.Kind.VARIABLE == node.getKind();
+  }
+
+  private static Node newField(final Node expr, final int from, final int to) {
+    if (expr.getDataType().getSize() == to - from + 1) {
+      return expr;
+    }
+
+    return new NodeOperation(
+        StandardOperation.BVEXTRACT,
+        NodeValue.newInteger(to),
+        NodeValue.newInteger(from),
+        expr
+        );
+  }
+
+  private static Node newConcat(final List<? extends Node> fields) {
+    if (fields.size() == 1) {
+      return fields.get(0);
+    }
+
+    return new NodeOperation(StandardOperation.BVCONCAT, fields);
   }
 }

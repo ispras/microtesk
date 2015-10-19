@@ -123,11 +123,22 @@ public class ExprTransformerTestCase {
 
   @Test
   public void testAndMask() {
-    /*
     final int bitSize = 32;
 
     final Node x =
         new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0xFFFFFFFF, 32),
+        x
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.newEmpty(32),
+        NodeValue.newBitVector(BitVector.newEmpty(32))
+        );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -138,7 +149,71 @@ public class ExprTransformerTestCase {
             newField(x, 0, 15)
             )
         );
-    */
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0xFFFF0000, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 16, 31),
+            NodeValue.newBitVector(BitVector.newEmpty(16))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0xFF00FF00, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 24, 31),
+            NodeValue.newBitVector(BitVector.newEmpty(8)),
+            newField(x, 8, 15),
+            NodeValue.newBitVector(BitVector.newEmpty(8))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0x00FF00FF, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.newEmpty(8)),
+            newField(x, 16, 23),
+            NodeValue.newBitVector(BitVector.newEmpty(8)),
+            newField(x, 0, 7)
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0x00000001, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.newEmpty(31)),
+            newField(x, 0, 0)
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0x80000000, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 31, 31),
+            NodeValue.newBitVector(BitVector.newEmpty(31))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0x80000001, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 31, 31),
+            NodeValue.newBitVector(BitVector.newEmpty(30)),
+            newField(x, 0, 0)
+            )
+        );
   }
 
   private static void testBitMask(
@@ -170,6 +245,10 @@ public class ExprTransformerTestCase {
   }
 
   private static Node newField(final Node expr, final int from, final int to) {
+    if (expr.getDataType().getSize() == to - from + 1) {
+      return expr;
+    }
+
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
         NodeValue.newInteger(to),
