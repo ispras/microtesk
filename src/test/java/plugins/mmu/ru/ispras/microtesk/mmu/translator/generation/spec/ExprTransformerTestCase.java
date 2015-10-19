@@ -121,6 +121,47 @@ public class ExprTransformerTestCase {
     assertEquals(expected, result);
   }
 
+  @Test
+  public void testAndMask() {
+    final int bitSize = 32;
+
+    final Node x =
+        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    testBitMask(
+        StandardOperation.BVAND,
+        BitVector.valueOf(0x0000FFFF, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.newEmpty(16)),
+            newField(x, 0, 15)
+            )
+        );
+  }
+
+  private static void testBitMask(
+      final StandardOperation operator,
+      final BitVector mask,
+      final Node expected) {
+
+    final Node x =
+        new NodeVariable("x", DataType.BIT_VECTOR(mask.getBitSize()));
+
+    final Node initial = new NodeOperation(
+        operator,
+        x,
+        NodeValue.newBitVector(mask)
+        );
+
+    final Node result = transform(initial);
+
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+
+    assertEquals(expected, result);
+  }
+
   private static Node transform(final Node expr) {
     final ExprTransformer transformer = new ExprTransformer();
     return transformer.transform(expr);
