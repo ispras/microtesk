@@ -216,6 +216,101 @@ public class ExprTransformerTestCase {
         );
   }
 
+  @Test
+  public void testOrMask() {
+    final int bitSize = 32;
+
+    final Node x =
+        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0xFFFFFFFF, 32),
+        NodeValue.newBitVector(BitVector.valueOf(-1, 32))
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.newEmpty(32),
+        x
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0x0000FFFF, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 16, 31),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 16))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0xFFFF0000, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.valueOf(-1, 16)),
+            newField(x, 0, 15)
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0xFF00FF00, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.valueOf(-1, 8)),
+            newField(x, 16, 23),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 8)),
+            newField(x, 0, 7)
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0x00FF00FF, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 24, 31),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 8)),
+            newField(x, 8, 15),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 8))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0x00000001, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 1, 31),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 1))
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0x80000000, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.valueOf(-1, 1)),
+            newField(x, 0, 30)
+            )
+        );
+
+    testBitMask(
+        StandardOperation.BVOR,
+        BitVector.valueOf(0x80000001, 32),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.valueOf(-1, 1)),
+            newField(x, 1, 30),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 1))
+            )
+        );
+  }
+
   private static void testBitMask(
       final StandardOperation operator,
       final BitVector mask,

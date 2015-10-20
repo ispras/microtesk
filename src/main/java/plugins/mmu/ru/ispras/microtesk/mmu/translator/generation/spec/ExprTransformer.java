@@ -58,7 +58,7 @@ public final class ExprTransformer {
 
     final BitMaskRule bitMaskRule = new BitMaskRule();
     this.transformer.addRule(StandardOperation.BVAND, bitMaskRule);
-    //this.transformer.addRule(StandardOperation.BVOR, bitMaskRule);
+    this.transformer.addRule(StandardOperation.BVOR, bitMaskRule);
   }
 
   public Node transform(final Node expr) {
@@ -303,13 +303,38 @@ public final class ExprTransformer {
     }
 
     private Node applyOrMask(final NodeVariable variable, final BitVector mask) {
+      int fieldEnds = mask.getBitSize() - 1;
+      boolean isFieldBitSet = mask.getBit(fieldEnds);
 
-      for (int bitIndex = 0; bitIndex < mask.getBitSize(); bitIndex++) {
+      final List<Node> fields = new ArrayList<>();
+      for (int bitIndex = mask.getBitSize() - 2; bitIndex >= 0; bitIndex--) {
         final boolean isBitSet = mask.getBit(bitIndex);
+
+        if (isBitSet == isFieldBitSet) {
+          continue;
+        }
+
+        if (isBitSet) {
+          fields.add(newField(variable, bitIndex + 1, fieldEnds));
+        } else {
+          final BitVector value = BitVector.newEmpty(fieldEnds - bitIndex);
+          value.setAll();
+          fields.add(NodeValue.newBitVector(value));
+        }
+
+        fieldEnds = bitIndex;
+        isFieldBitSet = isBitSet;
       }
 
-      // TODO Auto-generated method stub
-      return null;
+      if (isFieldBitSet) {
+        final BitVector value = BitVector.newEmpty(fieldEnds + 1);
+        value.setAll();
+        fields.add(NodeValue.newBitVector(value));
+      } else {
+        fields.add(newField(variable, 0, fieldEnds));
+      }
+
+      return newConcat(fields);
     }
   }
 
