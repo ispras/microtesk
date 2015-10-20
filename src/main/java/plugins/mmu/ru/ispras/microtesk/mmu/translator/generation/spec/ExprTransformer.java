@@ -204,27 +204,14 @@ public final class ExprTransformer {
     public Node apply(final Node expr) {
       final NodeOperation op = (NodeOperation) expr;
       final NodeOperation nestedOp = (NodeOperation) op.getOperand(2);
-      final Node target = nestedOp.getOperand(2);
 
-      final int outerFrom = FortressUtils.extractInt(op.getOperand(0));
-      final int outerTo = FortressUtils.extractInt(op.getOperand(1));
+      final int from = FortressUtils.extractInt(op.getOperand(0));
+      final int to = FortressUtils.extractInt(op.getOperand(1));
 
-      final int innerFrom = FortressUtils.extractInt(nestedOp.getOperand(0));
-      final int innerTo = FortressUtils.extractInt(nestedOp.getOperand(1));
+      final int realFrom = Math.min(from, to);
+      final int realTo = Math.max(from, to);
 
-      final int realOuterFrom = Math.min(outerFrom, outerTo);
-      final int realOuterTo = Math.max(outerFrom, outerTo);
-
-      final int realInnerFrom = Math.min(innerFrom, innerTo);
-      final int realInnerTo = Math.max(innerFrom, innerTo);
-
-      final int newFrom = realInnerFrom + realOuterFrom;
-      final int newTo = realInnerFrom + realOuterTo;
-
-      InvariantChecks.checkTrue(realInnerFrom <= newFrom && newFrom <= realInnerTo);
-      InvariantChecks.checkTrue(realInnerFrom <= newTo && newTo <= realInnerTo);
-
-      return newField(target, newFrom, newTo);
+      return newNestedField(nestedOp, realFrom, realTo); 
     }
   }
 
@@ -382,12 +369,48 @@ public final class ExprTransformer {
       return NodeValue.newBitVector(value.field(from, to));
     }
 
+    if (isOperation(expr, StandardOperation.BVEXTRACT)) {
+      return newNestedField((NodeOperation) expr, from, to);
+    }
+
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
         NodeValue.newInteger(to),
         NodeValue.newInteger(from),
         expr
         );
+  }
+
+  private static Node newNestedField(final NodeOperation op, final int from, final int to) {
+    InvariantChecks.checkNotNull(op);
+    InvariantChecks.checkTrue(op.isType(DataTypeId.BIT_VECTOR));
+
+    InvariantChecks.checkTrue(isOperation(op, StandardOperation.BVEXTRACT));
+    InvariantChecks.checkTrue(op.getOperandCount() == 3);
+
+    final int bitSize = op.getDataType().getSize();
+    InvariantChecks.checkBounds(from, bitSize);
+    InvariantChecks.checkBounds(to, bitSize);
+    InvariantChecks.checkTrue(from <= to);
+
+    if (from == 0 && to == bitSize - 1) {
+      return op;
+    }
+
+    final int innerFrom = FortressUtils.extractInt(op.getOperand(0));
+    final int innerTo = FortressUtils.extractInt(op.getOperand(1));
+    final Node operand = op.getOperand(2);
+
+    final int realInnerFrom = Math.min(innerFrom, innerTo);
+    final int realInnerTo = Math.max(innerFrom, innerTo);
+
+    final int newFrom = realInnerFrom + from;
+    final int newTo = realInnerFrom + to;
+
+    InvariantChecks.checkTrue(realInnerFrom <= newFrom && newFrom <= realInnerTo);
+    InvariantChecks.checkTrue(realInnerFrom <= newTo && newTo <= realInnerTo);
+
+    return newField(operand, newFrom, newTo);
   }
 
   private static Node newConcat(final List<? extends Node> fields) {
