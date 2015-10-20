@@ -49,11 +49,11 @@ import ru.ispras.microtesk.utils.FortressUtils;
 
 public final class ExprTransformer {
   private final NodeTransformer transformer;
-  private final NodeTransformer additionalTransformer;
 
   public ExprTransformer() {
     this.transformer = new NodeTransformer();
     this.transformer.addRule(StandardOperation.BVZEROEXT, new ZeroExtendRule());
+    this.transformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
 
     final LeftShiftRule leftShiftRule = new LeftShiftRule();
     this.transformer.addRule(StandardOperation.BVLSHL, leftShiftRule);
@@ -64,9 +64,6 @@ public final class ExprTransformer {
     final BitMaskRule bitMaskRule = new BitMaskRule();
     this.transformer.addRule(StandardOperation.BVAND, bitMaskRule);
     this.transformer.addRule(StandardOperation.BVOR, bitMaskRule);
-
-    this.additionalTransformer = new NodeTransformer();
-    this.additionalTransformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
   }
 
   public Node transform(final Node expr) {
@@ -74,15 +71,10 @@ public final class ExprTransformer {
 
     // Replaces shifts and bitmasks with concatenation
     transformer.walk(expr);
-    final Node transformed = transformer.getResult().iterator().next();
+    final Node result = transformer.getResult().iterator().next();
     transformer.reset();
 
-    // Gets rid of nested fields.
-    additionalTransformer.walk(transformed);
-    final Node reduced = additionalTransformer.getResult().iterator().next();
-    additionalTransformer.reset();
-
-    return reduced;
+    return result;
   }
 
   private static final class ZeroExtendRule implements TransformerRule {
@@ -194,8 +186,9 @@ public final class ExprTransformer {
         return false;
       }
 
-      return isOperation(
-          op.getOperand(2), StandardOperation.BVEXTRACT);
+      final Node nested = op.getOperand(2);
+      return isOperation(nested, StandardOperation.BVEXTRACT) ||
+             isOperation(nested, StandardOperation.BVCONCAT);
     }
 
     @Override
@@ -209,7 +202,7 @@ public final class ExprTransformer {
       final int realFrom = Math.min(from, to);
       final int realTo = Math.max(from, to);
 
-      return newNestedField(nestedOp, realFrom, realTo); 
+      return newField(nestedOp, realFrom, realTo); 
     }
   }
 
