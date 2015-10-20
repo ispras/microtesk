@@ -365,8 +365,21 @@ public final class ExprTransformer {
   }
 
   private static Node newField(final Node expr, final int from, final int to) {
-    if (expr.getDataType().getSize() == to - from + 1) {
+    InvariantChecks.checkNotNull(expr);
+    InvariantChecks.checkTrue(expr.isType(DataTypeId.BIT_VECTOR));
+
+    final int bitSize = expr.getDataType().getSize();
+    InvariantChecks.checkBounds(from, bitSize);
+    InvariantChecks.checkBounds(to, bitSize);
+    InvariantChecks.checkTrue(from <= to);
+
+    if (from == 0 && to == bitSize - 1) {
       return expr;
+    }
+
+    if (isValue(expr)) {
+      final BitVector value = ((NodeValue) expr).getBitVector();
+      return NodeValue.newBitVector(value.field(from, to));
     }
 
     return new NodeOperation(
@@ -378,6 +391,8 @@ public final class ExprTransformer {
   }
 
   private static Node newConcat(final List<? extends Node> fields) {
+    InvariantChecks.checkNotEmpty(fields);
+
     if (fields.size() == 1) {
       return fields.get(0);
     }
