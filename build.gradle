@@ -1,0 +1,235 @@
+import java.text.SimpleDateFormat
+import java.util.regex.Matcher
+import org.gradle.api.Project
+
+buildscript {
+  repositories {
+    ivy {
+      url = 'http://forge.ispras.ru/repo'
+      layout 'pattern', {
+        artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
+      }
+    }
+    mavenCentral();
+  }
+  dependencies {
+    classpath 'gradle:gradle-os-plugin:1.0'
+    classpath 'de.aaschmid.gradle.plugins:gradle-cpd-plugin:0.3'
+  }
+}
+
+plugins {
+  id 'net.researchgate.release' version '2.0.2'
+}
+
+apply plugin: 'os'
+apply plugin: 'java'
+apply plugin: 'antlr'
+apply plugin: 'application'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+apply plugin: 'cpd'
+apply plugin: 'jacoco'
+apply plugin: 'sonar-runner'
+
+repositories {
+  ivy {
+    url = 'http://forge.ispras.ru/repo'
+    layout 'pattern', {
+      artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
+      // z3
+      artifact '[organization]/[artifact]-[revision](.[ext])'
+    }
+  }
+  mavenCentral();
+}
+
+String z3
+String z3path
+
+String cvc4
+String cvc4path
+
+windows {
+  z3 = 'z3:z3:4.3.0-x64:@zip'
+  z3path = 'tools/z3/bin/z3.exe'
+
+  cvc4 = 'cvc4:cvc4:1.4-win32-opt:@exe'
+  cvc4path = 'tools/cvc4-windows.exe'
+}
+
+unix {
+  z3 = 'z3:z3:x64-4.1:@tar.gz'
+  z3path = 'tools/z3/bin/z3'
+
+  cvc4 = 'cvc4:cvc4:2015-05-12-x86_64-linux-opt:@bin'
+  cvc4path = 'tools/cvc4-unix.bin'
+}
+
+macOs {
+  z3 = 'z3:z3:4.3.2.7c12ab47165a-x64-osx-10.8.2:@zip'
+  z3path = 'tools/z3/bin/z3'
+}
+
+dependencies {
+  testCompile 'junit:junit:4.11'
+  testCompile 'hamcrest:hamcrest-core:1.3'
+  testRuntime z3
+  testRuntime cvc4
+
+  antlr 'org.antlr:antlr:3.4'
+
+  compile 'commons-cli:commons-cli:1.2'
+  compile 'jruby:jruby:1.7.3'
+  compile 'fortress:fortress:0.4.10-beta-150904'
+  compile 'testbase:testbase:0.0.8-alpha-150710'
+  compile 'jsoftfloat:jsoftfloat:1.0.1-beta-151002'
+}
+
+task getZ3(type: Copy) {
+  windows {
+    from zipTree( configurations.testRuntime.fileCollection { dep -> dep.name == 'z3' }.singleFile )
+  }
+  unix  {
+    from tarTree( configurations.testRuntime.fileCollection { dep -> dep.name == 'z3' }.singleFile )
+  }
+  macOs {
+    from zipTree( configurations.testRuntime.fileCollection { dep -> dep.name == 'z3' }.singleFile )
+  }
+  into 'tools/z3'
+  eachFile { 
+    it.relativePath = RelativePath.parse( true, it.relativePath.segments[1..-1].join('/') )
+  }
+}
+
+test.dependsOn getZ3
+
+task getCVC4(type: Copy) {
+  windows {
+    from configurations.testRuntime.fileCollection { dep -> dep.name == 'cvc4' }.singleFile
+    rename '.*', 'cvc4-windows.exe'
+  }
+  unix  {
+    from configurations.testRuntime.fileCollection { dep -> dep.name == 'cvc4' }.singleFile
+    rename '.*', 'cvc4-unix.bin'
+  }
+  into 'tools'
+}
+
+test.dependsOn getCVC4
+
+test {
+  environment 'Z3_PATH', z3path
+  environment 'CVC4_PATH', cvc4path
+  testLogging.showStandardStreams = true
+  ignoreFailures = true
+}
+
+//copying all dependencies attached to 'compile' into a specific folder
+task getDependencies(type: Copy) {
+  //referring to the 'compile' configuration
+  from configurations.compile, configurations.testCompile
+  into 'libs'
+}
+
+release {
+  failOnCommitNeeded = false
+
+  versionPatterns = [
+            // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
+            /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
+  ]
+  
+}
+
+task setReleaseData << {
+  project.version=project.version+'-'+new SimpleDateFormat("yyMMdd").format(new Date())
+}
+
+confirmReleaseVersion.dependsOn setReleaseData
+
+compileJava {
+  options.encoding = "UTF-8"
+}
+
+generateGrammarSource {
+    arguments += ["-lib", "src/main/antlrlib/ru/ispras/microtesk/translator/nml/grammar"]
+}
+
+checkstyle {
+  toolVersion = 6.5
+  ignoreFailures = true
+  showViolations = false
+  configFile=file("${project.projectDir}/config/checkstyle/google_checks.xml")
+}
+
+findbugs {
+  toolVersion = '3.0.1'
+  ignoreFailures = true
+}
+
+findbugsMain {
+  reports {
+    xml.enabled = true
+    html.enabled = false
+  }
+}
+
+pmd {
+  toolVersion = '5.1.3'
+  ignoreFailures = true
+    ruleSets = [
+            // The first two better work since it's right in the Javadoc...
+            "rulesets/java/basic.xml",
+            "rulesets/java/braces.xml",
+            "rulesets/java/naming.xml",
+            "rulesets/java/android.xml",
+            "rulesets/java/clone.xml",
+            "rulesets/java/codesize.xml",
+            "rulesets/java/controversial.xml",
+            "rulesets/java/design.xml", 
+            "rulesets/java/finalizers.xml",
+            "rulesets/java/imports.xml",
+            "rulesets/java/j2ee.xml",
+            "rulesets/java/javabeans.xml",
+            "rulesets/java/junit.xml",
+            "rulesets/java/logging-jakarta-commons.xml",
+            "rulesets/java/logging-java.xml",
+            "rulesets/java/migrating.xml",
+            "rulesets/java/optimizations.xml",
+            "rulesets/java/strictexception.xml",
+            "rulesets/java/strings.xml",
+            "rulesets/java/sunsecure.xml",
+            "rulesets/java/typeresolution.xml",
+            "rulesets/java/unusedcode.xml"
+            ]
+  sourceSets = [sourceSets.main]
+}
+
+jacoco {
+    toolVersion = "0.7.4.201502262128"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+    }
+}
+
+sonarRunner {
+    toolVersion = '2.4'
+     sonarProperties {
+        property "sonar.host.url", "http://forge.ispras.ru:9000"
+        property "sonar.jdbc.url", "jdbc:mysql://localhost:3306/sonar"
+        property "sonar.jdbc.driverClassName", "com.mysql.jdbc.Driver"
+        property "sonar.jdbc.username", "sonar"
+        property "sonar.jdbc.password", "sonar"
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+mainClassName = "ru.ispras.microtesk.MicroTESK"
