@@ -432,6 +432,72 @@ public final class ExprTransformerTestCase {
         );
   }
 
+  @Test
+  public void testLeftRightShift() {
+    final int bitSize = 32;
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    final Node inner = new NodeOperation(
+        StandardOperation.BVLSHL,
+        x,
+        NodeValue.newInteger(7)
+        );
+
+    final Node initial = new NodeOperation(
+        StandardOperation.BVLSHR,
+        inner,
+        NodeValue.newInteger(5)
+        );
+
+    final Node expected = new NodeOperation(
+        StandardOperation.BVCONCAT,
+        NodeValue.newBitVector(BitVector.newEmpty(5)),
+        newField(x, 0, 24),
+        NodeValue.newBitVector(BitVector.newEmpty(2))
+        );
+
+    final Node result = transform(initial);
+
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+
+    assertEquals(expected, result);
+  }
+
+  @Test
+  public void testRightLeftShift() {
+    final int bitSize = 32;
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+
+    final Node inner = new NodeOperation(
+        StandardOperation.BVLSHR,
+        x,
+        NodeValue.newInteger(7)
+        );
+
+    final Node initial = new NodeOperation(
+        StandardOperation.BVLSHL,
+        inner,
+        NodeValue.newInteger(5)
+        );
+
+    final Node expected = new NodeOperation(
+        StandardOperation.BVCONCAT,
+        NodeValue.newBitVector(BitVector.newEmpty(2)),
+        newField(x, 7, 31),
+        NodeValue.newBitVector(BitVector.newEmpty(5))
+        );
+
+    final Node result = transform(initial);
+
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+
+    assertEquals(expected, result);
+  }
+
   private static void testBitMask(
       final StandardOperation operator,
       final Node x,
