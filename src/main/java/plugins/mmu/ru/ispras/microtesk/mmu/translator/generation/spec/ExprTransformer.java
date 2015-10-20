@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -31,12 +30,17 @@ import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * Class {@link ExprTransformer} transforms operations that involve shifts and 
- * bit masks into concatenation-based expressions. Supported operations include:
+ * bit masks into concatenation-based expressions. The shift amount and the bitmask
+ * value must be constants. In addition, the transformer helps get rid of nested 
+ * bit field extraction operations ({@link StandardOperation.BVEXTRACT}) by replacing
+ * them with a single bit field extraction. Supported operations include:
  * <ol>
  * <li>{@link StandardOperation.BVZEROEXT}
  * <li>{@link StandardOperation.BVLSHL}
  * <li>{@link StandardOperation.BVASHL}
  * <li>{@link StandardOperation.BVLSHR}
+ * <li>{@link StandardOperation.BVAND}
+ * <li>{@link StandardOperation.BVOR}
  * </ol>
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
@@ -44,6 +48,7 @@ import ru.ispras.microtesk.utils.FortressUtils;
 
 public final class ExprTransformer {
   private final NodeTransformer transformer;
+  private final NodeTransformer additionalTransformer;
 
   public ExprTransformer() {
     this.transformer = new NodeTransformer();
@@ -54,21 +59,29 @@ public final class ExprTransformer {
     this.transformer.addRule(StandardOperation.BVASHL, leftShiftRule);
 
     this.transformer.addRule(StandardOperation.BVLSHR, new RightShiftRule());
-    this.transformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
 
     final BitMaskRule bitMaskRule = new BitMaskRule();
     this.transformer.addRule(StandardOperation.BVAND, bitMaskRule);
     this.transformer.addRule(StandardOperation.BVOR, bitMaskRule);
+
+    this.additionalTransformer = new NodeTransformer();
+    this.additionalTransformer.addRule(StandardOperation.BVEXTRACT, new NestedFieldRule());
   }
 
   public Node transform(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
+    // Replaces shifts and bitmasks with concatenation
     transformer.walk(expr);
-    final Node result = transformer.getResult().iterator().next();
-
+    final Node transformed = transformer.getResult().iterator().next();
     transformer.reset();
-    return result;
+
+    // Gets rid of nested fields.
+    additionalTransformer.walk(transformed);
+    final Node reduced = additionalTransformer.getResult().iterator().next();
+    additionalTransformer.reset();
+
+    return reduced;
   }
 
   private static final class ZeroExtendRule implements TransformerRule {
@@ -193,20 +206,20 @@ public final class ExprTransformer {
       final NodeOperation nestedOp = (NodeOperation) op.getOperand(2);
       final Node target = nestedOp.getOperand(2);
 
-      final int from = FortressUtils.extractInt(op.getOperand(0));
-      final int to = FortressUtils.extractInt(op.getOperand(1));
+      final int outerFrom = FortressUtils.extractInt(op.getOperand(0));
+      final int outerTo = FortressUtils.extractInt(op.getOperand(1));
 
       final int innerFrom = FortressUtils.extractInt(nestedOp.getOperand(0));
       final int innerTo = FortressUtils.extractInt(nestedOp.getOperand(1));
 
-      final int realFrom = Math.min(from, to);
-      final int realTo = Math.max(from, to);
+      final int realOuterFrom = Math.min(outerFrom, outerTo);
+      final int realOuterTo = Math.max(outerFrom, outerTo);
 
       final int realInnerFrom = Math.min(innerFrom, innerTo);
       final int realInnerTo = Math.max(innerFrom, innerTo);
 
-      final int newFrom = realInnerFrom + realFrom;
-      final int newTo = newFrom + realTo;
+      final int newFrom = realInnerFrom + realOuterFrom;
+      final int newTo = realInnerFrom + realOuterTo;
 
       InvariantChecks.checkTrue(realInnerFrom <= newFrom && newFrom <= realInnerTo);
       InvariantChecks.checkTrue(realInnerFrom <= newTo && newTo <= realInnerTo);
@@ -231,8 +244,8 @@ public final class ExprTransformer {
       final Node operand1 = op.getOperand(0);
       final Node operand2 = op.getOperand(1);
 
-      return ((isValue(operand1) && isVariable(operand2)) ||
-              (isValue(operand2) && isVariable(operand1)));
+      return ((isValue(operand1) && !isValue(operand2)) ||
+              (isValue(operand2) && !isValue(operand1)));
     }
 
     @Override
@@ -242,36 +255,36 @@ public final class ExprTransformer {
       final Node operand2 = op.getOperand(1);
 
       final NodeValue mask;
-      final NodeVariable variable;
+      final Node operand;
 
-      if (isValue(operand1) && isVariable(operand2)) {
+      if (isValue(operand1) && !isValue(operand2)) {
         mask = (NodeValue) operand1;
-        variable = (NodeVariable) operand2;
-      } else if (isValue(operand2) && isVariable(operand1)) {
+        operand = operand2;
+      } else if (isValue(operand2) && !isValue(operand1)) {
         mask = (NodeValue) operand2;
-        variable = (NodeVariable) operand1;
+        operand = operand1;
       } else {
         throw new IllegalArgumentException();
       }
 
       InvariantChecks.checkTrue(mask.isType(DataTypeId.BIT_VECTOR));
-      InvariantChecks.checkTrue(variable.isType(DataTypeId.BIT_VECTOR));
+      InvariantChecks.checkTrue(operand.isType(DataTypeId.BIT_VECTOR));
 
       InvariantChecks.checkTrue(
           mask.getDataType().getSize() ==
-          variable.getDataType().getSize());
+          operand.getDataType().getSize());
 
       final BitVector maskValue = mask.getData().getBitVector();
       if (op.getOperationId() == StandardOperation.BVAND) {
-        return applyAndMask(variable, maskValue);
+        return applyAndMask(operand, maskValue);
       } else if (op.getOperationId() == StandardOperation.BVOR) {
-        return applyOrMask(variable, maskValue);
+        return applyOrMask(operand, maskValue);
       } else {
         throw new IllegalArgumentException();
       }
     }
 
-    private Node applyAndMask(final NodeVariable variable, final BitVector mask) {
+    private static Node applyAndMask(final Node expr, final BitVector mask) {
       int fieldEnds = mask.getBitSize() - 1;
       boolean isFieldBitSet = mask.getBit(fieldEnds);
 
@@ -286,7 +299,7 @@ public final class ExprTransformer {
         if (isBitSet) {
           fields.add(NodeValue.newBitVector(BitVector.newEmpty(fieldEnds - bitIndex)));
         } else {
-          fields.add(newField(variable, bitIndex + 1, fieldEnds));
+          fields.add(newField(expr, bitIndex + 1, fieldEnds));
         }
 
         fieldEnds = bitIndex;
@@ -294,7 +307,7 @@ public final class ExprTransformer {
       }
 
       if (isFieldBitSet) {
-        fields.add(newField(variable, 0, fieldEnds));
+        fields.add(newField(expr, 0, fieldEnds));
       } else {
         fields.add(NodeValue.newBitVector(BitVector.newEmpty(fieldEnds + 1)));
       }
@@ -302,7 +315,7 @@ public final class ExprTransformer {
       return newConcat(fields);
     }
 
-    private Node applyOrMask(final NodeVariable variable, final BitVector mask) {
+    private static Node applyOrMask(final Node expr, final BitVector mask) {
       int fieldEnds = mask.getBitSize() - 1;
       boolean isFieldBitSet = mask.getBit(fieldEnds);
 
@@ -315,7 +328,7 @@ public final class ExprTransformer {
         }
 
         if (isBitSet) {
-          fields.add(newField(variable, bitIndex + 1, fieldEnds));
+          fields.add(newField(expr, bitIndex + 1, fieldEnds));
         } else {
           final BitVector value = BitVector.newEmpty(fieldEnds - bitIndex);
           value.setAll();
@@ -331,7 +344,7 @@ public final class ExprTransformer {
         value.setAll();
         fields.add(NodeValue.newBitVector(value));
       } else {
-        fields.add(newField(variable, 0, fieldEnds));
+        fields.add(newField(expr, 0, fieldEnds));
       }
 
       return newConcat(fields);
@@ -349,10 +362,6 @@ public final class ExprTransformer {
 
   private static boolean isValue(final Node node) {
     return Node.Kind.VALUE == node.getKind();
-  }
-
-  private static boolean isVariable(final Node node) {
-    return Node.Kind.VARIABLE == node.getKind();
   }
 
   private static Node newField(final Node expr, final int from, final int to) {

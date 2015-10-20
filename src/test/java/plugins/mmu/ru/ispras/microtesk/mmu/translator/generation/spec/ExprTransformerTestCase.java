@@ -26,8 +26,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 
-public class ExprTransformerTestCase {
-
+public final class ExprTransformerTestCase {
   @Test
   public void testLeftShift() {
     testLeftShift(StandardOperation.BVASHL, 32, 0);
@@ -47,12 +46,74 @@ public class ExprTransformerTestCase {
   }
 
   @Test
+  public void testLeftShiftNestedFields() {
+    final int bitSize = 32;
+    final int shiftAmount = 8;
+
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node field = newField(x, 8, 23);
+
+    final Node initial = new NodeOperation(
+        StandardOperation.BVLSHL,
+        field,
+        NodeValue.newInteger(shiftAmount)
+        );
+
+    final Node expected = new NodeOperation(
+        StandardOperation.BVCONCAT,
+        newField(x, 8, 15),
+        NodeValue.newBitVector(BitVector.newEmpty(8))
+        );
+
+    final Node result = transform(initial);
+
+    /*
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+    */
+
+    assertEquals(expected, result);
+  }
+
+  @Test
   public void testRightShift() {
     testRightShift(StandardOperation.BVLSHR, 32, 0);
     testRightShift(StandardOperation.BVLSHR, 32, 1);
     testRightShift(StandardOperation.BVLSHR, 32, 16);
     testRightShift(StandardOperation.BVLSHR, 64, 16);
     testRightShift(StandardOperation.BVLSHR, 32, 32);
+  }
+
+  @Test
+  public void testRightShiftNestedFields() {
+    final int bitSize = 32;
+    final int shiftAmount = 8;
+
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node field = newField(x, 8, 23);
+
+    final Node initial = new NodeOperation(
+        StandardOperation.BVLSHR,
+        field,
+        NodeValue.newInteger(shiftAmount)
+        );
+
+    final Node expected = new NodeOperation(
+        StandardOperation.BVCONCAT,
+        NodeValue.newBitVector(BitVector.newEmpty(8)),
+        newField(x, 16, 23)
+        );
+
+    final Node result = transform(initial);
+
+    /*
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+    */
+
+    assertEquals(expected, result);
   }
 
   private static void testLeftShift(
@@ -130,18 +191,21 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0xFFFFFFFF, 32),
         x
         );
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.newEmpty(32),
         NodeValue.newBitVector(BitVector.newEmpty(32))
         );
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0x0000FFFF, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -152,6 +216,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0xFFFF0000, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -162,6 +227,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0xFF00FF00, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -174,6 +240,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0x00FF00FF, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -186,6 +253,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0x00000001, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -196,6 +264,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0x80000000, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -206,12 +275,34 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVAND,
+        x,
         BitVector.valueOf(0x80000001, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
             newField(x, 31, 31),
             NodeValue.newBitVector(BitVector.newEmpty(30)),
             newField(x, 0, 0)
+            )
+        );
+  }
+
+  @Test
+  public void testAndMaskNestedFields() {
+    final int bitSize = 32;
+
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node field = newField(x, 8, 23);
+
+    testBitMask(
+        StandardOperation.BVAND,
+        field,
+        BitVector.valueOf(0xF0F0, 16),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            newField(x, 20, 23),
+            NodeValue.newBitVector(BitVector.newEmpty(4)),
+            newField(x, 12, 15),
+            NodeValue.newBitVector(BitVector.newEmpty(4))
             )
         );
   }
@@ -225,18 +316,21 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0xFFFFFFFF, 32),
         NodeValue.newBitVector(BitVector.valueOf(-1, 32))
         );
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.newEmpty(32),
         x
         );
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0x0000FFFF, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -247,6 +341,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0xFFFF0000, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -257,6 +352,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0xFF00FF00, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -269,6 +365,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0x00FF00FF, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -281,6 +378,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0x00000001, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -291,6 +389,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0x80000000, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -301,6 +400,7 @@ public class ExprTransformerTestCase {
 
     testBitMask(
         StandardOperation.BVOR,
+        x,
         BitVector.valueOf(0x80000001, 32),
         new NodeOperation(
             StandardOperation.BVCONCAT,
@@ -311,13 +411,33 @@ public class ExprTransformerTestCase {
         );
   }
 
+  @Test
+  public void testOrMaskNestedFields() {
+    final int bitSize = 32;
+
+    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node field = newField(x, 8, 23);
+
+    testBitMask(
+        StandardOperation.BVOR,
+        field,
+        BitVector.valueOf(0xF0F0, 16),
+        new NodeOperation(
+            StandardOperation.BVCONCAT,
+            NodeValue.newBitVector(BitVector.valueOf(-1, 4)),
+            newField(x, 16, 19),
+            NodeValue.newBitVector(BitVector.valueOf(-1, 4)),
+            newField(x, 8, 11)
+            )
+        );
+  }
+
   private static void testBitMask(
       final StandardOperation operator,
+      final Node x,
       final BitVector mask,
       final Node expected) {
-
-    final Node x =
-        new NodeVariable("x", DataType.BIT_VECTOR(mask.getBitSize()));
+    assertTrue(x.getDataType().getSize() == mask.getBitSize());
 
     final Node initial = new NodeOperation(
         operator,
@@ -327,9 +447,11 @@ public class ExprTransformerTestCase {
 
     final Node result = transform(initial);
 
+    /*
     System.out.println("Initial:  " + initial);
     System.out.println("Result:   " + result);
     System.out.println("Expected: " + expected);
+    */
 
     assertEquals(expected, result);
   }
