@@ -458,9 +458,11 @@ public final class ExprTransformerTestCase {
 
     final Node result = transform(initial);
 
+    /*
     System.out.println("Initial:  " + initial);
     System.out.println("Result:   " + result);
     System.out.println("Expected: " + expected);
+    */
 
     assertEquals(expected, result);
   }
@@ -491,9 +493,11 @@ public final class ExprTransformerTestCase {
 
     final Node result = transform(initial);
 
+    /*
     System.out.println("Initial:  " + initial);
     System.out.println("Result:   " + result);
     System.out.println("Expected: " + expected);
+    */
 
     assertEquals(expected, result);
   }

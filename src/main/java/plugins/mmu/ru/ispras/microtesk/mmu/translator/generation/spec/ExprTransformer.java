@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataTypeId;
@@ -103,8 +104,7 @@ public final class ExprTransformer {
       final int deltaSize = newSize - oldSize;
       InvariantChecks.checkGreaterThanZero(deltaSize);
 
-      return new NodeOperation(
-          StandardOperation.BVCONCAT,
+      return newConcat(
           NodeValue.newBitVector(BitVector.newEmpty(deltaSize)),
           argExpr
           );
@@ -140,8 +140,7 @@ public final class ExprTransformer {
       final Node fieldExpr =
           newField(argExpr, 0, argSize - 1 - shiftAmount);
 
-      return new NodeOperation(
-          StandardOperation.BVCONCAT,
+      return newConcat(
           fieldExpr,
           NodeValue.newBitVector(BitVector.newEmpty(shiftAmount))
           );
@@ -176,8 +175,7 @@ public final class ExprTransformer {
       final Node fieldExpr =
           newField(argExpr, shiftAmount, argSize - 1);
 
-      return new NodeOperation(
-          StandardOperation.BVCONCAT,
+      return newConcat(
           NodeValue.newBitVector(BitVector.newEmpty(shiftAmount)),
           fieldExpr
           );
@@ -373,6 +371,10 @@ public final class ExprTransformer {
       return newNestedField((NodeOperation) expr, from, to);
     }
 
+    if (isOperation(expr, StandardOperation.BVCONCAT)) {
+      return newFieldForConcat((NodeOperation) expr, from, to);
+    }
+
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
         NodeValue.newInteger(to),
@@ -413,6 +415,46 @@ public final class ExprTransformer {
     return newField(operand, newFrom, newTo);
   }
 
+  private static Node newFieldForConcat(final NodeOperation op, final int from, final int to) {
+    InvariantChecks.checkNotNull(op);
+    InvariantChecks.checkTrue(op.isType(DataTypeId.BIT_VECTOR));
+    InvariantChecks.checkTrue(isOperation(op, StandardOperation.BVCONCAT));
+
+    final int bitSize = op.getDataType().getSize();
+    InvariantChecks.checkBounds(from, bitSize);
+    InvariantChecks.checkBounds(to, bitSize);
+    InvariantChecks.checkTrue(from <= to);
+
+    if (from == 0 && to == bitSize - 1) {
+      return op;
+    }
+
+    final List<Node> fields = new ArrayList<>();
+    int operandTo = bitSize - 1;
+
+    for (final Node operand : op.getOperands()) {
+      InvariantChecks.checkTrue(operand.isType(DataTypeId.BIT_VECTOR));
+
+      final int operandBitSize = operand.getDataType().getSize();
+      final int operandFrom = operandTo - operandBitSize + 1;
+
+      final int fieldFrom = from >= operandFrom ? from - operandFrom : 0;
+      final int fieldTo = to <= operandTo ? to - operandFrom : operandBitSize - 1;
+
+      if (0 <= fieldFrom && fieldTo < operandBitSize) {
+        fields.add(newField(operand, fieldFrom, fieldTo));
+      } 
+
+      operandTo = operandFrom - 1; 
+    }
+
+    return newConcat(fields);
+  }
+
+  private static Node newConcat(final Node... fields) {
+    return newConcat(Arrays.asList(fields));
+  }
+
   private static Node newConcat(final List<? extends Node> fields) {
     InvariantChecks.checkNotEmpty(fields);
 
@@ -420,6 +462,15 @@ public final class ExprTransformer {
       return fields.get(0);
     }
 
-    return new NodeOperation(StandardOperation.BVCONCAT, fields);
+    final List<Node> newFields = new ArrayList<>(fields.size());
+    for (final Node field : fields) {
+      if (isOperation(field, StandardOperation.BVCONCAT)) {
+        newFields.addAll(((NodeOperation) field).getOperands());
+      } else {
+        newFields.add(field);
+      }
+    }
+
+    return new NodeOperation(StandardOperation.BVCONCAT, newFields);
   }
 }
