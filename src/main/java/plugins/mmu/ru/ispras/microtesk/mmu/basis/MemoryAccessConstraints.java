@@ -24,7 +24,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 /**
  * The {@link MemoryAccessConstraints} class holds constraints related to memory
  * accesses. There are two categories of constraints: (1) constraints on variable
- * values and (2) constraints of memory access events. Each is stored in a separate
+ * values and (2) constraints on memory access events. Each is stored in a separate
  * collection.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
