@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.basis;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,32 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  */
 
 public final class MemoryAccessConstraints {
+
+  public static final class Builder {
+    private final List<IntegerConstraint<IntegerVariable>> integerConstraints;
+    private final List<BufferEventConstraint> bufferEventConstraints;
+
+    public Builder() {
+      this.integerConstraints = new ArrayList<>();
+      this.bufferEventConstraints = new ArrayList<>(); 
+    }
+
+    public void addConstraint(final IntegerConstraint<IntegerVariable> constrant) {
+      InvariantChecks.checkNotNull(constrant);
+      integerConstraints.add(constrant);
+    }
+
+    public void addConstraint(final BufferEventConstraint constrant) {
+      InvariantChecks.checkNotNull(constrant);
+      bufferEventConstraints.add(constrant);
+    }
+
+    public MemoryAccessConstraints build() {
+      return new MemoryAccessConstraints(
+          integerConstraints, bufferEventConstraints);
+    }
+  }
+
   private final List<IntegerConstraint<IntegerVariable>> integerConstraints;
   private final List<BufferEventConstraint> bufferEventConstraints;
 
