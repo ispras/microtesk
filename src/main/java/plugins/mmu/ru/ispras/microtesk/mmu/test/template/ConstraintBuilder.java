@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
@@ -101,6 +102,21 @@ public final class ConstraintBuilder {
     builder.addConstraint(constraint);
   }
 
+  public void addDistribution(
+      final String variableName,
+      final Variate<?> distribution) {
+    InvariantChecks.checkNotNull(variableName);
+    InvariantChecks.checkNotNull(distribution);
+
+    final IntegerVariable variable = getVariable(variableName);
+    final Set<BigInteger> values = extractValues(distribution);
+
+    final IntegerConstraint<IntegerVariable> constraint =
+        new IntegerDomainConstraint<>(variable, null, values);
+
+    builder.addConstraint(constraint);
+  }
+
   public void addHit(final String bufferName) {
     InvariantChecks.checkNotNull(bufferName);
 
@@ -161,5 +177,11 @@ public final class ConstraintBuilder {
     }
 
     return buffer;
+  }
+
+  private Set<BigInteger> extractValues(final Variate<?> variate) {
+    final ValueExtractor extractor = new ValueExtractor();
+    extractor.visit(variate);
+    return extractor.getValues();
   }
 }
