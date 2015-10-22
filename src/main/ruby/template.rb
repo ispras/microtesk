@@ -16,6 +16,7 @@
 
 require_relative 'template_builder'
 require_relative 'utils'
+require_relative 'mmu_plugin'
 
 include TemplateBuilder
 
@@ -61,6 +62,8 @@ module Settings
   # Assigns default values to the attributes.
   #
   def initialize
+    super
+
     @sl_comment_starts_with = "//"
     @ml_comment_starts_with = "/*"
     @ml_comment_ends_with   = "*/"
@@ -79,6 +82,7 @@ end # Settings
 
 class Template
   include Settings
+  include MmuPlugin
 
   @@template_classes = Hash.new
 

@@ -60,14 +60,22 @@ final class ValueExtractor {
   private void visit(final VariateBiased<?> variate) {
     final List<?> values = (List<?>) getField(variate, "values");
     for (final Object value : values) {
-      addValue(value);
+      if (value instanceof Variate<?>) {
+        visit((Variate<?>) value);
+      } else {
+        addValue(value);
+      }
     }
   }
 
   private void visit(final VariateCollection<?> variate) {
     final List<?> values = (List<?>) getField(variate, "values");
     for (final Object value : values) {
-      addValue(value);
+      if (value instanceof Variate<?>) {
+        visit((Variate<?>) value);
+      } else {
+        addValue(value);
+      }
     }
   }
 
@@ -123,8 +131,16 @@ final class ValueExtractor {
       return (BigInteger) value;
     }
 
+    if (value instanceof Integer) {
+      return BigInteger.valueOf((Integer) value);
+    }
+
+    if (value instanceof Long) {
+      return BigInteger.valueOf((Long) value);
+    }
+
     throw new ClassCastException(String.format(
-        "%s (%s) is not BigInteger)",
+        "%s (%s) cannot be cast to BigInteger)",
         value,
         value != null ? value.getClass().getName() : "null"
         ));

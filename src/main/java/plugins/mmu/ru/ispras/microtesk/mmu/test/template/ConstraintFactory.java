@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.template;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,7 +53,7 @@ public final class ConstraintFactory {
     return instance;
   }
 
-  public IntegerConstraint<IntegerVariable> newEq(
+  public IntegerConstraint<IntegerVariable> newEqValue(
       final String variableName,
       final BigInteger value) {
     InvariantChecks.checkNotNull(variableName);
@@ -66,7 +66,7 @@ public final class ConstraintFactory {
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> newDomRange(
+  public IntegerConstraint<IntegerVariable> newEqRange(
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
@@ -89,20 +89,20 @@ public final class ConstraintFactory {
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> newDomCollection(
+  public IntegerConstraint<IntegerVariable> newEqArray(
       final String variableName,
-      final Collection<BigInteger> values) {
+      final BigInteger[] values) {
     InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(values);
 
     final IntegerVariable variable = getVariable(variableName);
     final IntegerConstraint<IntegerVariable> constraint =
-        new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(values));
+        new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
 
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> addDistribution(
+  public IntegerConstraint<IntegerVariable> newEqDist(
       final String variableName,
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(variableName);
