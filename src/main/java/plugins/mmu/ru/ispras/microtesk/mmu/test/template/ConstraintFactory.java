@@ -30,32 +30,32 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
- * The {@link ConstraintBuilder} class is used by test templates to
- * build memory-related constraints from Ruby code.
+ * The {@link ConstraintFactory} class is used by test templates to
+ * create memory-related constraints from Ruby code.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class ConstraintBuilder {
-  private final MmuSubsystem spec;
-  private final MemoryAccessConstraints.Builder builder;
+public final class ConstraintFactory {
+  private static ConstraintFactory instance = null;
 
-  private ConstraintBuilder() {
-    this.spec = MmuPlugin.getSpecification();
-    this.builder = new MemoryAccessConstraints.Builder();
+  private ConstraintFactory() {}
+
+  public static ConstraintFactory get() {
+    if (null == instance) {
+      instance = new ConstraintFactory();
+    }
+    return instance;
   }
 
-  public MemoryAccessConstraints build() {
-    return builder.build();
-  }
-
-  public void addEq(final String variableName, final BigInteger value) {
+  public IntegerConstraint<IntegerVariable> newEq(
+      final String variableName,
+      final BigInteger value) {
     InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(value);
 
@@ -63,10 +63,10 @@ public final class ConstraintBuilder {
     final IntegerConstraint<IntegerVariable> constraint =
         new IntegerDomainConstraint<>(variable, value);
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addDomRange(
+  public IntegerConstraint<IntegerVariable> newDomRange(
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
@@ -86,10 +86,10 @@ public final class ConstraintBuilder {
     final IntegerConstraint<IntegerVariable> constraint =
         new IntegerDomainConstraint<>(variable, null, values);
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addDomCollection(
+  public IntegerConstraint<IntegerVariable> newDomCollection(
       final String variableName,
       final Collection<BigInteger> values) {
     InvariantChecks.checkNotNull(variableName);
@@ -99,10 +99,10 @@ public final class ConstraintBuilder {
     final IntegerConstraint<IntegerVariable> constraint =
         new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(values));
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addDistribution(
+  public IntegerConstraint<IntegerVariable> addDistribution(
       final String variableName,
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(variableName);
@@ -114,30 +114,33 @@ public final class ConstraintBuilder {
     final IntegerConstraint<IntegerVariable> constraint =
         new IntegerDomainConstraint<>(variable, null, values);
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addHit(final String bufferName) {
+  public BufferEventConstraint newHit(final String bufferName) {
     InvariantChecks.checkNotNull(bufferName);
 
     final MmuBuffer buffer = getBuffer(bufferName);
     final BufferEventConstraint constraint =
         new BufferEventConstraint(buffer, BufferAccessEvent.HIT);
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addMiss(final String bufferName) {
+  public BufferEventConstraint newMiss(final String bufferName) {
     InvariantChecks.checkNotNull(bufferName);
 
     final MmuBuffer buffer = getBuffer(bufferName);
     final BufferEventConstraint constraint =
         new BufferEventConstraint(buffer, BufferAccessEvent.MISS);
 
-    builder.addConstraint(constraint);
+    return constraint;
   }
 
-  public void addEvent(final String bufferName, final int hitBias, final int missBias) {
+  public BufferEventConstraint newEvent(
+      final String bufferName,
+      final int hitBias,
+      final int missBias) {
     InvariantChecks.checkNotNull(bufferName);
 
     final List<BufferAccessEvent> events = new ArrayList<>(2);
@@ -156,10 +159,15 @@ public final class ConstraintBuilder {
     final BufferEventConstraint constraint =
         new BufferEventConstraint(buffer, eventSet);
 
-    builder.addConstraint(constraint);
+    return constraint;
+  }
+
+  private MmuSubsystem getSpecification() {
+    return MmuPlugin.getSpecification();
   }
 
   private IntegerVariable getVariable(final String name) {
+    final MmuSubsystem spec = getSpecification();
     final IntegerVariable variable = spec.getVariable(name);
     if (null == variable) {
       throw new GenerationAbortedException(String.format(
@@ -170,6 +178,7 @@ public final class ConstraintBuilder {
   }
 
   private MmuBuffer getBuffer(final String name) {
+    final MmuSubsystem spec = getSpecification();
     final MmuBuffer buffer = spec.getBuffer(name);
     if (null == buffer) {
       throw new GenerationAbortedException(String.format(
