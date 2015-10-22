@@ -59,4 +59,8 @@ module MmuPlugin
     @constraint_factory.newEvent buffer_name, hit_bias, miss_bias
   end
 
+  def constraints(*primitives)
+    @constraint_factory.newConstraints primitives
+  end
+
 end

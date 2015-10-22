@@ -47,9 +47,9 @@ public final class MemoryAccessConstraints {
       integerConstraints.add(constrant);
     }
 
-    public void addConstraint(final BufferEventConstraint constrant) {
-      InvariantChecks.checkNotNull(constrant);
-      bufferEventConstraints.add(constrant);
+    public void addConstraint(final BufferEventConstraint constraint) {
+      InvariantChecks.checkNotNull(constraint);
+      bufferEventConstraints.add(constraint);
     }
 
     public MemoryAccessConstraints build() {
