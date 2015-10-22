@@ -370,8 +370,8 @@ public final class Template {
     return new OutputBuilder(isRuntime, isComment, format);
   }
 
-  public SituationBuilder newSituation(String name) {
-    return new SituationBuilder(name);
+  public Situation.Builder newSituation(String name) {
+    return new Situation.Builder(name);
   }
 
   public PreparatorBuilder beginPreparator(

@@ -15,11 +15,36 @@
 package ru.ispras.microtesk.test.template;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Situation {
+
+  public static final class Builder {
+    private final String name;
+    private Map<String, Object> attributes;
+
+    Builder(final String name) {
+      this.name = name;
+      this.attributes = null;
+    }
+
+    public Builder setAttribute(final String attrName, final Object value) {
+      if (null == attributes) {
+        attributes = new LinkedHashMap<String, Object>();
+      }
+
+      attributes.put(attrName, value);
+      return this;
+    }
+
+    public Situation build() {
+      return new Situation(name, attributes);
+    }
+  }
+
   private final String name;
   private final Map<String, Object> attributes;
 
