@@ -332,6 +332,10 @@ abstract class STBCommon {
       sbArgs.append(suffix);
     }
 
+    if (formatIndex < format.length()) {
+      sbFormat.append(format.substring(formatIndex));
+    }
+
     st.add("stmts", String.format("trace(\"%s\"%s);", sbFormat, sbArgs));
   }
 }
