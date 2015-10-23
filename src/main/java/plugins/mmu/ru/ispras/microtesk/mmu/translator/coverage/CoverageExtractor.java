@@ -22,6 +22,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.settings.BufferEventsSettings;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
@@ -94,10 +96,20 @@ public final class CoverageExtractor {
   }
 
   public Collection<MemoryAccessPath> getEnabledPaths(
-      final MmuSubsystem memory, final MemoryAccessType type, final GeneratorSettings settings) {
+      final MmuSubsystem memory,
+      final MemoryAccessType type,
+      final GeneratorSettings settings) {
+    final MemoryAccessConstraints constraints = getConstraints(memory, settings);
+    return getEnabledPaths(memory, type, constraints);
+  }
+
+  public Collection<MemoryAccessPath> getEnabledPaths(
+      final MmuSubsystem memory,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(type);
-    // Parameter {@code settings} can be null.
+    // Parameter {@code constraints} can be null.
 
     Map<MemoryAccessType, Collection<MemoryAccessPath>> typeToPaths = enabledPaths.get(memory);
     if (typeToPaths == null) {
@@ -111,14 +123,24 @@ public final class CoverageExtractor {
       typeToPaths.put(type, paths = extractor.getPaths(type));
     }
 
-    return getEnabledPaths(memory, paths, settings);
+    return getEnabledPaths(memory, paths, constraints);
   }
 
   public Collection<MemoryAccessPath> getNormalPaths(
-      final MmuSubsystem memory, final MmuBuffer buffer, final GeneratorSettings settings) {
+      final MmuSubsystem memory,
+      final MmuBuffer buffer,
+      final GeneratorSettings settings) {
+    final MemoryAccessConstraints constraints = getConstraints(memory, settings);
+    return getNormalPaths(memory, buffer, constraints);
+  }
+
+  public Collection<MemoryAccessPath> getNormalPaths(
+      final MmuSubsystem memory,
+      final MmuBuffer buffer,
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(buffer);
-    // Parameter {@code settings} can be null.
+    // Parameter {@code constraints} can be null.
 
     Map<MmuBuffer, Collection<MemoryAccessPath>> bufferToPaths = normalPaths.get(memory);
     if (bufferToPaths == null) {
@@ -130,7 +152,8 @@ public final class CoverageExtractor {
     if (paths == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
       final Collection<MemoryAccessPath> allPaths = extractor.getPaths(null);
-      final Collection<MemoryAccessPath> enabledPaths = getEnabledPaths(memory, allPaths, settings);
+      final Collection<MemoryAccessPath> enabledPaths =
+          getEnabledPaths(memory, allPaths, constraints);
 
       paths = new ArrayList<>();
       for (final MemoryAccessPath path : enabledPaths) {
@@ -146,27 +169,27 @@ public final class CoverageExtractor {
   }
 
   private static boolean isEnabledPath(
-      final MmuSubsystem memory, final MemoryAccessPath path, final GeneratorSettings settings) {
+      final MmuSubsystem memory,
+      final MemoryAccessPath path,
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(settings);
+    InvariantChecks.checkNotNull(constraints);
 
     if (memory.getRegions().isEmpty() && path.getSegments().isEmpty()
         || !memory.getRegions().isEmpty() && path.getRegions().isEmpty()) {
       return false;
     }
 
-    final Collection<AbstractSettings> bufferEventsSettings =
-        settings.get(BufferEventsSettings.TAG);
+    final Collection<BufferEventConstraint> bufferEventsConstraints =
+        constraints.getBufferEvents();
 
-    if (bufferEventsSettings != null) {
-      for (final AbstractSettings section : bufferEventsSettings) {
-        final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
-
-        final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
+    if (bufferEventsConstraints != null) {
+      for (final BufferEventConstraint constraint : bufferEventsConstraints) {
+        final MmuBuffer buffer = constraint.getBuffer();
         InvariantChecks.checkNotNull(buffer);
 
-        final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
+        final Set<BufferAccessEvent> events = constraint.getEvents();
         InvariantChecks.checkNotNull(events);
 
         if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
@@ -181,23 +204,58 @@ public final class CoverageExtractor {
   private static Collection<MemoryAccessPath> getEnabledPaths(
       final MmuSubsystem memory,
       final Collection<MemoryAccessPath> paths,
-      final GeneratorSettings settings) {
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(paths);
     // Parameter {@code settings} can be null.
 
-    if (settings == null) {
+    if (constraints == null) {
       return paths;
     }
 
     final Collection<MemoryAccessPath> enabledPaths = new ArrayList<>(paths.size());
 
     for (final MemoryAccessPath path : paths) {
-      if (isEnabledPath(memory, path, settings)) {
+      if (isEnabledPath(memory, path, constraints)) {
         enabledPaths.add(path);
       }
     }
 
     return enabledPaths;
+  }
+
+  private static MemoryAccessConstraints getConstraints(
+      final MmuSubsystem memory,
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(memory);
+
+    if (null == settings) {
+      return null;
+    }
+
+    final Collection<AbstractSettings> bufferEventsSettings =
+        settings.get(BufferEventsSettings.TAG);
+
+    final MemoryAccessConstraints.Builder builder =
+        new MemoryAccessConstraints.Builder();
+
+    if (bufferEventsSettings != null) {
+      for (final AbstractSettings section : bufferEventsSettings) {
+        final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
+
+        final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
+        InvariantChecks.checkNotNull(buffer);
+
+        final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
+        InvariantChecks.checkNotNull(events);
+
+        final BufferEventConstraint constraint =
+            new BufferEventConstraint(buffer, events);
+
+        builder.addConstraint(constraint);
+      }
+    }
+
+    return builder.build();
   }
 }
