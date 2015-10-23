@@ -69,6 +69,26 @@ public final class FormatMarker {
   }
 
   /**
+   * Returns the token identifier for the given marker type.
+   * 
+   * @return Token identifier.
+   */
+
+  public String getTokenId() {
+    return tokenId;
+  }
+
+  /**
+   * Gets the regular expression describing the given marker type.
+   * 
+   * @return Regular expression.
+   */
+
+  public String getRegExpr() {
+    return regExpr;
+  }
+
+  /**
    * Gets the list of format tokens for the specified format string.
    * 
    * @param format Format string to be parsed.
