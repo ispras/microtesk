@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,11 +19,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
- * The FormatMarker class provides facilities to identify markers within a format string. Currently,
- * the following markers are supported: %b, %d, %x and %s.
+ * The {@link FormatMarker} class provides facilities to identify markers within a format string.
+ * Currently, the following markers are supported: %b, %d, %x and %s.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class FormatMarker {
@@ -46,18 +48,18 @@ public final class FormatMarker {
   private final String tokenId;
   private final String regExpr;
 
-  private FormatMarker(String tokenId) {
+  private FormatMarker(final String tokenId) {
     this.tokenId = tokenId;
     this.regExpr = String.format(FORMAT, tokenId);
   }
 
-  private FormatMarker(FormatMarker[] markers) {
+  private FormatMarker(final FormatMarker[] markers) {
     this(buildTokenId(markers));
   }
 
-  private static String buildTokenId(FormatMarker[] markers) {
+  private static String buildTokenId(final FormatMarker[] markers) {
     final StringBuilder sb = new StringBuilder();
-    for (FormatMarker m : markers) {
+    for (final FormatMarker m : markers) {
       if (0 != sb.length()) {
         sb.append('|');
       }
@@ -72,15 +74,13 @@ public final class FormatMarker {
    * @param format Format string to be parsed.
    * @return List of extracted tokens.
    * 
-   * @throws NullPointerException if the parameter equals null.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public static List<FormatMarker> extractMarkers(String format) {
-    if (null == format) {
-      throw new NullPointerException();
-    }
+  public static List<FormatMarker> extractMarkers(final String format) {
+    InvariantChecks.checkNotNull(format);
 
-    final List<FormatMarker> result = new ArrayList<FormatMarker>();
+    final List<FormatMarker> result = new ArrayList<>();
 
     final Matcher matcher = Pattern.compile(ALL.regExpr).matcher(format);
     while (matcher.find()) {
@@ -91,8 +91,8 @@ public final class FormatMarker {
     return result;
   }
 
-  private static FormatMarker getFormatMarker(String token) {
-    for (FormatMarker m : ALL_ARR) {
+  private static FormatMarker getFormatMarker(final String token) {
+    for (final FormatMarker m : ALL_ARR) {
       final Matcher matcher = Pattern.compile(m.regExpr).matcher(token);
       if (matcher.matches()) {
         return m;
