@@ -84,6 +84,7 @@ mmu pmem (va: VA) = (data: 32)
 
     // Physical address is equal to virtual address.
     pa.value = va.value;
+    trace("Load: va=%x, pa=%x", va.value, pa.value);
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -148,6 +149,7 @@ mmu pmem (va: VA) = (data: 32)
 
     // Physical address is equal to virtual address.
     pa.value = va.value;
+    trace("Store: va=%x, pa=%x", va.value, pa.value);
 
     // The address is cacheable.
     if c<1..0> != 2 then

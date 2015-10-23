@@ -16,6 +16,8 @@ package ru.ispras.microtesk.mmu.translator.generation.sim;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -270,8 +272,11 @@ abstract class STBCommon {
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(String.format("trace(\"%s\"", stmt.getFormat()));
+    final StringBuilder sbFormat = new StringBuilder();
+    final StringBuilder sbArgs = new StringBuilder();
+
+    final String format = stmt.getFormat();
+    int formatIndex = 0;
 
     for (int index = 0; index < stmt.getArguments().size(); ++index) {
       final FormatMarker marker = stmt.getMarkers().get(index);
@@ -292,6 +297,23 @@ abstract class STBCommon {
         throw new IllegalStateException("Unexpected node type: " + argument);
       }
 
+      final String searchFormat = format.substring(formatIndex);
+      final Matcher matcher = Pattern.compile(marker.getRegExpr()).matcher(searchFormat);
+      final boolean isFound = matcher.find();
+
+      // If a marker was extracted from a format string, it always can be found there again.
+      InvariantChecks.checkTrue(isFound);
+      final int markerEnd = matcher.end();
+
+      if (isBitVector && marker != FormatMarker.DEC) {
+        sbFormat.append(searchFormat.substring(0, markerEnd - 1));
+        sbFormat.append(FormatMarker.STR.getTokenId());
+      } else {
+        sbFormat.append(searchFormat.substring(0, markerEnd));
+      }
+
+      formatIndex = formatIndex + markerEnd;
+
       final String suffix;
       if (marker == FormatMarker.BIN) {
         suffix = isBitVector ? ".toBinString()" : "";
@@ -305,12 +327,11 @@ abstract class STBCommon {
         throw new IllegalStateException("Unknown format marker: " + marker);
       }
 
-      sb.append(", ");
-      sb.append(argumentText);
-      sb.append(suffix);
+      sbArgs.append(", ");
+      sbArgs.append(argumentText);
+      sbArgs.append(suffix);
     }
 
-    sb.append(");");
-    st.add("stmts", sb.toString());
+    st.add("stmts", String.format("trace(\"%s\"%s);", sbFormat, sbArgs));
   }
 }

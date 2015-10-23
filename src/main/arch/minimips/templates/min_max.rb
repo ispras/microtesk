@@ -63,9 +63,11 @@ class MinMaxTemplate < MiniMipsBaseTemplate
 
     trace ''
     label :cycle
+    trace "\nt0=%x, t2=%d, s0(min)=%d, s1(max)=%d", gpr_observer(8), gpr_observer(10), gpr_observer(16), gpr_observer(17)
     addi t0, t0, 4
     beq t0, t1, :done 
     lw t2, 0, t0
+    trace "\nt0=%x, t2=%d", gpr_observer(8), gpr_observer(10)
 
     slt t3, t2, s0
     beq t3, zero, :test_max
