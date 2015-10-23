@@ -390,7 +390,7 @@ public final class MemoryStorage implements MemoryDevice {
     InvariantChecks.checkTrue(regionBitSize % 8 == 0);
 
     final long addressValue = address.longValue() * (regionBitSize / 8);
-    System.out.println("Index: " + address.toHexString() + " Address: " + Long.toHexString(addressValue));
+    // System.out.println("Index: " + address.toHexString() + " Address: " + Long.toHexString(addressValue));
 
     if (!memorySettings.checkDataAddress(addressValue)) {
       throw new GenerationAbortedException(String.format(
