@@ -23,7 +23,6 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MemoryEngine;
-import ru.ispras.microtesk.mmu.test.testbase.MmuDataGenerator;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -123,9 +122,6 @@ public final class MmuPlugin implements Plugin {
   @Override
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
-
-    dataGenerators.put("access", new MmuDataGenerator());
-
     return dataGenerators;
   }
 
