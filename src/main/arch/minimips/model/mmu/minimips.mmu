@@ -77,6 +77,7 @@ mmu pmem (va: VA) = (data: 32)
 
   var pa: PA;
   var cacheData: 256;
+  var offset: 8;
 
   read = {
     // The default cache policy.
@@ -84,7 +85,9 @@ mmu pmem (va: VA) = (data: 32)
 
     // Physical address is equal to virtual address.
     pa.value = va.value;
-    trace("Load: va=%x, pa=%x", va.value, pa.value);
+
+    offset<7..5> = 0;
+    offset<4..0> = pa.value<4..0>;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -92,7 +95,7 @@ mmu pmem (va: VA) = (data: 32)
       if L1(pa).hit then
         l1Entry = L1(pa);
         cacheData = l1Entry.DATA;
-        data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
+        data = cacheData<(8 * offset + 31)..(8 * offset)>;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -101,7 +104,7 @@ mmu pmem (va: VA) = (data: 32)
           if L2(pa).hit then
             l2Entry = L2(pa);
             cacheData = l2Entry.DATA;
-            data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
+            data = cacheData<(8 * offset + 31)..(8 * offset)>;
 
             // Fill the L1.
             l1Entry.V = 1;
@@ -111,7 +114,7 @@ mmu pmem (va: VA) = (data: 32)
           // The address does not hit the L2.
           else
             cacheData = M(pa);
-            data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
+            data = cacheData<(8 * offset + 31)..(8 * offset)>;
 
             // Fill L2.
             l2Entry.V = 1;
@@ -128,7 +131,7 @@ mmu pmem (va: VA) = (data: 32)
         // The L2 cache is bypassed.
         else
           cacheData = M(pa);
-          data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
+          data = cacheData<(8 * offset + 31)..(8 * offset)>;
 
           l1Entry.V = 1;
           l1Entry.TAG = pa.value<31..12>;
@@ -139,7 +142,7 @@ mmu pmem (va: VA) = (data: 32)
     // The address is uncacheable.
     else
       cacheData = M(pa);
-      data = cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)>;
+      data = cacheData<(8 * offset + 31)..(8 * offset)>;
     endif; // If the address is cacheable.
   }
 
@@ -149,7 +152,9 @@ mmu pmem (va: VA) = (data: 32)
 
     // Physical address is equal to virtual address.
     pa.value = va.value;
-    trace("Store: va=%x, pa=%x", va.value, pa.value);
+
+    offset<7..5> = 0;
+    offset<4..0> = pa.value<4..0>;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -157,7 +162,7 @@ mmu pmem (va: VA) = (data: 32)
       if L1(pa).hit then
         // Update the L1.
         l1Entry = L1(pa);
-        l1Entry.DATA<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
+        l1Entry.DATA<(8 * offset + 31)..(8 * offset)> = data;
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
@@ -170,7 +175,7 @@ mmu pmem (va: VA) = (data: 32)
           if L2(pa).hit then
             // Update the L2.
             l2Entry = L2(pa);
-            l2Entry.DATA<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
+            l2Entry.DATA<(8 * offset + 31)..(8 * offset)> = data;
             L2(pa) = l2Entry;
 
             // Fill the L1.
@@ -184,7 +189,7 @@ mmu pmem (va: VA) = (data: 32)
           // The address does not hit the L2.
           else
             cacheData = M(pa);
-            cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
+            cacheData<(8 * offset + 31)..(8 * offset)> = data;
             M(pa) = cacheData;
 
             // Fill the L2.
@@ -202,7 +207,7 @@ mmu pmem (va: VA) = (data: 32)
         // The L2 cache is bypassed.
         else
           cacheData = M(pa);
-          cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
+          cacheData<(8 * offset + 31)..(8 * offset)> = data;
           M(pa) = cacheData;
 
           // Fill the L2
@@ -215,7 +220,7 @@ mmu pmem (va: VA) = (data: 32)
     // The address is uncacheable.
     else
       cacheData = M(pa);
-      cacheData<(8 * pa.value<4..0> + 31)..(8 * pa.value<4..0>)> = data;
+      cacheData<(8 * offset + 31)..(8 * offset)> = data;
       M(pa) = cacheData;
     endif; // If the address is cacheable.
   }
