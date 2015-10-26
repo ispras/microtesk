@@ -78,6 +78,7 @@ mmu pmem (va: VA) = (data: 32)
   var pa: PA;
   var cacheData: 256;
   var offset: 8;
+  var bitOffset: 8;
 
   read = {
     // The default cache policy.
@@ -88,6 +89,7 @@ mmu pmem (va: VA) = (data: 32)
 
     offset<7..5> = 0;
     offset<4..0> = pa.value<4..0>;
+    bitOffset = offset << 3;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -95,7 +97,7 @@ mmu pmem (va: VA) = (data: 32)
       if L1(pa).hit then
         l1Entry = L1(pa);
         cacheData = l1Entry.DATA;
-        data = cacheData<(8 * offset + 31)..(8 * offset)>;
+        data = cacheData<(bitOffset + 31)..bitOffset>;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -104,7 +106,7 @@ mmu pmem (va: VA) = (data: 32)
           if L2(pa).hit then
             l2Entry = L2(pa);
             cacheData = l2Entry.DATA;
-            data = cacheData<(8 * offset + 31)..(8 * offset)>;
+            data = cacheData<(bitOffset + 31)..bitOffset>;
 
             // Fill the L1.
             l1Entry.V = 1;
@@ -114,7 +116,7 @@ mmu pmem (va: VA) = (data: 32)
           // The address does not hit the L2.
           else
             cacheData = M(pa);
-            data = cacheData<(8 * offset + 31)..(8 * offset)>;
+            data = cacheData<(bitOffset + 31)..bitOffset>;
 
             // Fill L2.
             l2Entry.V = 1;
@@ -131,7 +133,7 @@ mmu pmem (va: VA) = (data: 32)
         // The L2 cache is bypassed.
         else
           cacheData = M(pa);
-          data = cacheData<(8 * offset + 31)..(8 * offset)>;
+          data = cacheData<(bitOffset + 31)..bitOffset>;
 
           l1Entry.V = 1;
           l1Entry.TAG = pa.value<31..12>;
@@ -142,7 +144,7 @@ mmu pmem (va: VA) = (data: 32)
     // The address is uncacheable.
     else
       cacheData = M(pa);
-      data = cacheData<(8 * offset + 31)..(8 * offset)>;
+      data = cacheData<(bitOffset + 31)..bitOffset>;
     endif; // If the address is cacheable.
   }
 
@@ -155,6 +157,7 @@ mmu pmem (va: VA) = (data: 32)
 
     offset<7..5> = 0;
     offset<4..0> = pa.value<4..0>;
+    bitOffset = offset << 3;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -162,7 +165,7 @@ mmu pmem (va: VA) = (data: 32)
       if L1(pa).hit then
         // Update the L1.
         l1Entry = L1(pa);
-        l1Entry.DATA<(8 * offset + 31)..(8 * offset)> = data;
+        l1Entry.DATA<(bitOffset + 31)..bitOffset> = data;
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
@@ -175,7 +178,7 @@ mmu pmem (va: VA) = (data: 32)
           if L2(pa).hit then
             // Update the L2.
             l2Entry = L2(pa);
-            l2Entry.DATA<(8 * offset + 31)..(8 * offset)> = data;
+            l2Entry.DATA<(bitOffset + 31)..bitOffset> = data;
             L2(pa) = l2Entry;
 
             // Fill the L1.
@@ -189,7 +192,7 @@ mmu pmem (va: VA) = (data: 32)
           // The address does not hit the L2.
           else
             cacheData = M(pa);
-            cacheData<(8 * offset + 31)..(8 * offset)> = data;
+            cacheData<(bitOffset + 31)..bitOffset> = data;
             M(pa) = cacheData;
 
             // Fill the L2.
@@ -207,7 +210,7 @@ mmu pmem (va: VA) = (data: 32)
         // The L2 cache is bypassed.
         else
           cacheData = M(pa);
-          cacheData<(8 * offset + 31)..(8 * offset)> = data;
+          cacheData<(bitOffset + 31)..bitOffset> = data;
           M(pa) = cacheData;
 
           // Fill the L2
@@ -220,7 +223,7 @@ mmu pmem (va: VA) = (data: 32)
     // The address is uncacheable.
     else
       cacheData = M(pa);
-      cacheData<(8 * offset + 31)..(8 * offset)> = data;
+      cacheData<(bitOffset + 31)..bitOffset> = data;
       M(pa) = cacheData;
     endif; // If the address is cacheable.
   }
