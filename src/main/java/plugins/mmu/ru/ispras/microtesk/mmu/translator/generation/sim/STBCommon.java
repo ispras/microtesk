@@ -318,7 +318,7 @@ abstract class STBCommon {
       if (marker == FormatMarker.BIN) {
         suffix = isBitVector ? ".toBinString()" : "";
       } else if (marker == FormatMarker.DEC) { 
-        suffix = isBitVector ? ".bigIntegerValue()" : "";
+        suffix = isBitVector ? ".bigIntegerValue(false)" : "";
       } else if (marker == FormatMarker.HEX) {
         suffix = isBitVector ? ".toHexString()" : "";
       } else if (marker == FormatMarker.STR) {
