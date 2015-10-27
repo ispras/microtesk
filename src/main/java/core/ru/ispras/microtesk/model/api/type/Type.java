@@ -60,7 +60,6 @@ public final class Type {
   private static final Map<String, TypeCreator> typeCreators = new HashMap<>();
   static {
     for (final TypeId typeId : TypeId.values()) {
-      typeCreators.put(typeId.name(), typeId);
       typeCreators.put(typeId.name().toLowerCase(), typeId);
     }
   }
