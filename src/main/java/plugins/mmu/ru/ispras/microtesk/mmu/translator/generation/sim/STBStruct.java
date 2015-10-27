@@ -18,11 +18,14 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 
 final class STBStruct implements STBuilder {
@@ -100,6 +103,10 @@ final class STBStruct implements STBuilder {
     final ST stStruct = group.getInstanceOf("struct_body");
     stStruct.add("type", typeName);
 
+    // {Name, isStruct} - required to generate asBitVector (fields must be listed from low to hi).
+    final Deque<Pair<String, Boolean>> fields =
+        new ArrayDeque<>(type.getFields().size());
+
     for (final Map.Entry<String, Type> field : type.getFields().entrySet()) {
       final String fieldName = field.getKey();
       final Type fieldType = field.getValue();
@@ -121,6 +128,13 @@ final class STBStruct implements STBuilder {
       stStruct.add("ftypes",  fieldTypeName);
       stStruct.add("fvalues", fieldValue);
       stStruct.add("fis_struct", fieldType.isStruct());
+
+      fields.addFirst(new Pair<>(fieldName, fieldType.isStruct()));
+    }
+
+    for (final Pair<String, Boolean> fieldInfo : fields) {
+      stStruct.add("fnames_rev",  fieldInfo.first);
+      stStruct.add("fis_struct_rev", fieldInfo.second);
     }
 
     st.add("members", "");

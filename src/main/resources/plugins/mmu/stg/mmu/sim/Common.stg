@@ -48,7 +48,7 @@ struct_field_init(name, value) ::= <<
 this.<name> = <value>;
 >>
 
-struct_body(type, fnames, ftypes, fvalues, fis_struct) ::= <<
+struct_body(type, fnames, ftypes, fvalues, fis_struct, fnames_rev, fis_struct_rev) ::= <<
 <fnames, ftypes:{n, t | public final <t> <n>;}; separator="\n"><\n>
 public <type>() {
   <fnames, fvalues:{n, v | this.<n> = <v>;}; separator="\n">
@@ -62,9 +62,9 @@ public void assign(final <type> other) {
 }<\n>
 @Override
 public BitVector asBitVector() {
-  <if(fnames)>
+  <if(fnames_rev)>
   return BitVector.newMapping(
-      <fnames, fis_struct:{n, fis | <n><if(fis)>.asBitVector()<endif>}; separator=",\n">
+      <fnames_rev, fis_struct_rev:{n, fis | <n><if(fis)>.asBitVector()<endif>}; separator=",\n">
       );
   <else>
   return null;
