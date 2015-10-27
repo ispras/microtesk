@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.debug;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
@@ -26,11 +28,8 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 public final class MetaModelPrinter {
   private final MetaModel metaModel;
 
-  public MetaModelPrinter(MetaModel metaModel) {
-    if (null == metaModel) {
-      throw new NullPointerException();
-    }
-
+  public MetaModelPrinter(final MetaModel metaModel) {
+    InvariantChecks.checkNotNull(metaModel);
     this.metaModel = metaModel;
   }
 
@@ -46,45 +45,43 @@ public final class MetaModelPrinter {
 
     printSepator();
     printOperationMetaData();
-
   }
 
   public void printSepator() {
-    System.out.println("************************************************");
+    Logger.message(Logger.BAR);
   }
 
   public void printRegisterMetaData() {
-    System.out.println("REGISTERS:");
-    for (MetaLocationStore r : metaModel.getRegisters()) {
-      System.out.printf("Name: %s, Size: %d%n", r.getName(), r.getCount());
+    Logger.message("REGISTERS:");
+    for (final MetaLocationStore r : metaModel.getRegisters()) {
+      Logger.message("Name: %s, Size: %d", r.getName(), r.getCount());
     }
   }
 
   public void printMemoryMetaData() {
-    System.out.println("MEMORY STORES:");
-    for (MetaLocationStore m : metaModel.getMemoryStores()) {
-      System.out.printf("Name: %s, Size: %d%n", m.getName(), m.getCount());
+    Logger.message("MEMORY STORES:");
+    for (final MetaLocationStore m : metaModel.getMemoryStores()) {
+      Logger.message("Name: %s, Size: %d", m.getName(), m.getCount());
     }
   }
 
   private void printAddressingModeMetaData() {
-    System.out.println("ADDRESSING MODE GROUPS:");
+    Logger.message("ADDRESSING MODE GROUPS:");
     boolean isEmpty = true;
-    for (MetaGroup g : metaModel.getAddressingModeGroups()) {
+    for (final MetaGroup g : metaModel.getAddressingModeGroups()) {
       isEmpty = false;
-      System.out.println("   " + g.getName());
-      for (MetaData md : g.getItems()) {
-        System.out.println("      " + md.getName());
+      Logger.message("   " + g.getName());
+      for (final MetaData md : g.getItems()) {
+        Logger.message("      " + md.getName());
       }
     }
     if (isEmpty) {
-      System.out.println("   <NO>");
+      Logger.message("   <NO>");
     }
-    System.out.println();
+    Logger.message("");
 
-    System.out.println("ADDRESSING MODES:");
-
-    for (MetaAddressingMode am : metaModel.getAddressingModes()) {
+    Logger.message("ADDRESSING MODES:");
+    for (final MetaAddressingMode am : metaModel.getAddressingModes()) {
       final StringBuilder sb = new StringBuilder();
 
       sb.append(String.format("Name: %s", am.getName()));
@@ -95,7 +92,7 @@ public final class MetaModelPrinter {
       sb.append(", Parameters: ");
 
       boolean isFirstArg = true;
-      for (String an : am.getArgumentNames()) {
+      for (final String an : am.getArgumentNames()) {
         if (isFirstArg) {
           isFirstArg = false;
         } else {
@@ -104,66 +101,67 @@ public final class MetaModelPrinter {
         sb.append(an);
       }
 
-      System.out.println(sb);
+      Logger.message(sb.toString());
     }
   }
 
   private void printOperationMetaData() {
-    System.out.println("OPERATION GROUPS:");
+    Logger.message("OPERATION GROUPS:");
     boolean isEmpty = true;
-    for (MetaGroup g : metaModel.getOperationGroups()) {
+    for (final MetaGroup g : metaModel.getOperationGroups()) {
       isEmpty = false;
-      System.out.println("   " + g.getName());
-      for (MetaData md : g.getItems()) {
-        System.out.println("      " + md.getName());
+      Logger.message("   " + g.getName());
+      for (final MetaData md : g.getItems()) {
+        Logger.message("      " + md.getName());
       }
     }
     if (isEmpty) {
-      System.out.println("   <NO>");
+      Logger.message("   <NO>");
     }
-    System.out.println();
+    Logger.message("");
 
-    System.out.println("OPERATIONS:");
-    for (MetaOperation o : metaModel.getOperations()) {
-      System.out.println(String.format(
+    Logger.message("OPERATIONS:");
+    for (final MetaOperation o : metaModel.getOperations()) {
+      Logger.message(String.format(
           "Name: %s%s", o.getName(), o.canThrowException() ? " throws" : ""));
-      System.out.println("Parameters:");
+      Logger.message("Parameters:");
 
       int count = 0;
       for (final MetaArgument a : o.getArguments()) {
-        printArgument(a);
+        printArgument(a, "");
         count++;
       }
 
       if (0 == count) {
-        System.out.println("   <none>");
+        Logger.message("   <none>");
       }
 
-      System.out.println("Shortcuts:");
+      Logger.message("Shortcuts:");
 
       count = 0;
-      for (MetaShortcut s : o.getShortcuts()) {
+      for (final MetaShortcut s : o.getShortcuts()) {
         printShortcut(s);
         count++;
       }
 
       if (0 == count) {
-        System.out.println("   <none>");
+        Logger.message("   <none>");
       }
 
-      System.out.println();
+      Logger.message("");
     }
   }
 
-  private void printArgument(MetaArgument a) {
+  private void printArgument(final MetaArgument a, final String indent) {
     final StringBuilder asb = new StringBuilder();
 
+    asb.append(indent);
     asb.append("   ");
     asb.append(a.getName());
     asb.append(" [");
 
     boolean isFirstMode = true;
-    for (String tn : a.getTypeNames()) {
+    for (final String tn : a.getTypeNames()) {
       if (isFirstMode) {
         isFirstMode = false;
       } else {
@@ -173,24 +171,23 @@ public final class MetaModelPrinter {
     }
 
     asb.append("]");
-    System.out.println(asb);
+    Logger.message(asb.toString());
   }
 
-  private void printShortcut(MetaShortcut s) {
-    System.out.printf("   Name: %s%s%n",
+  private void printShortcut(final MetaShortcut s) {
+    Logger.message("   Name: %s%s",
         s.getOperation().getName(), s.getOperation().canThrowException() ? " throws" : "");
 
-    System.out.printf("   Context: %s%n", s.getContextName());
-    System.out.println("   Parameters:");
+    Logger.message("   Context: %s", s.getContextName());
+    Logger.message("   Parameters:");
 
     int count = 0;
     for (final MetaArgument a : s.getOperation().getArguments()) {
-      System.out.print("   ");
-      printArgument(a);
+      printArgument(a, "   ");
       count++;
     }
     if (0 == count) {
-      System.out.println("   <none>");
+      Logger.message("   <none>");
     }
   }
 }
