@@ -16,6 +16,8 @@ package ru.ispras.microtesk.model.api.debug;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
@@ -25,17 +27,15 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
 public final class ModelStatePrinter {
   private final IModel model;
 
-  public ModelStatePrinter(IModel model) {
-    if (null == model) {
-      throw new NullPointerException();
-    }
-
+  public ModelStatePrinter(final IModel model) {
+    InvariantChecks.checkNotNull(model);
     this.model = model;
   }
 
   public void printAll() {
     printSepator();
-    System.out.println("MODEL STATE:");
+    Logger.message("MODEL STATE:");
+    Logger.message("");
 
     printRegisters();
     printMemory();
@@ -44,14 +44,13 @@ public final class ModelStatePrinter {
   }
 
   public void printSepator() {
-    System.out.println("************************************************");
+    Logger.message(Logger.BAR);
   }
 
   public void printRegisters() {
     printSepator();
-
-    System.out.println("REGISTER STATE:");
-    System.out.println();
+    Logger.message("REGISTER STATE:");
+    Logger.message("");
 
     final IModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getRegisters()) {
@@ -60,35 +59,35 @@ public final class ModelStatePrinter {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
 
           if (1 == r.getCount().intValue()) {
-            System.out.printf("%s = %s %n", r.getName(), location.toBinString());
+            Logger.message("%s = %s", r.getName(), location.toBinString());
           } else {
-            System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
+            Logger.message("%s[%d] = %s", r.getName(), index, location.toBinString());
           }
         } catch (ConfigurationException e) {
           e.printStackTrace();
         }
       }
-      System.out.println();
+      Logger.message("");
     }
   }
 
   public void printMemory() {
     printSepator();
 
-    System.out.println("MEMORY STATE:");
-    System.out.println();
+    Logger.message("MEMORY STATE:");
+    Logger.message("");
 
     final IModelStateObserver observer = model.getStateObserver();
-    for (MetaLocationStore r : model.getMetaData().getMemoryStores()) {
+    for (final MetaLocationStore r : model.getMetaData().getMemoryStores()) {
       for (BigInteger index = BigInteger.ZERO; index.compareTo(r.getCount()) < 0; index = index.add(BigInteger.ONE)) {
         try {
           final LocationAccessor location = observer.accessLocation(r.getName(), index);
-          System.out.printf("%s[%d] = %s %n", r.getName(), index, location.toBinString());
-        } catch (ConfigurationException e) {
+          Logger.message("%s[%d] = %s", r.getName(), index, location.toBinString());
+        } catch (final ConfigurationException e) {
           e.printStackTrace();
         }
       }
-      System.out.println();
+      Logger.message("");
     }
   }
 }
