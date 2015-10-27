@@ -244,7 +244,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     for (final Node arg : args) {
       if (arg.getKind() != Node.Kind.VALUE) {
         raiseError(where(id), 
-            "References to extenal elements can be parameterized only with constant values.");
+            "References to external elements can be parameterized only with constant values.");
       }
 
       final BigInteger value = ((NodeValue) arg).getInteger();
