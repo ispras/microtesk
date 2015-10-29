@@ -292,9 +292,13 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
   @Override
   public String syntax() {
-    // This code should never be called!
-    assert false : "AddressingMode.syntax - default implementation. Should never be called!";
-    return null;
+    Logger.error(
+        "The 'syntax' attribute is not defined for the '%s' primitive. " + 
+        "An empty string is returned.",
+        getClass().getSimpleName()
+        );
+
+    return "";
   }
 
   /**
@@ -305,9 +309,13 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
 
   @Override
   public String image() {
-    // This code should never be called!
-    assert false : "AddressingMode.image - default implementation. Should never be called!";
-    return null;
+    Logger.error(
+        "The 'image' attribute is not defined for the '%s' primitive. " + 
+        "An empty string is returned. Primitive size will be calculated incorrectly.",
+        getClass().getSimpleName()
+        );
+
+    return "";
   }
 
   /**
@@ -317,8 +325,11 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    */
 
   public void action() {
-    // This code should never be called!
-    assert false : "AddressingMode.action - default implementation. Should never be called!";
+    Logger.error(
+        "The 'action' attribute is not defined for the '%s' primitive. " + 
+        "No action will be performed.",
+        getClass().getSimpleName()
+        );
   }
 
   /**

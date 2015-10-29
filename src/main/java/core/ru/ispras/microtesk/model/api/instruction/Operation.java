@@ -537,7 +537,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
   public String image() {
     Logger.error(
         "The 'image' attribute is not defined for the '%s' primitive. " + 
-        "An empty string is returned.",
+        "An empty string is returned. Primitive size will be calculated incorrectly.",
         getClass().getSimpleName()
         );
 
