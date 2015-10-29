@@ -538,8 +538,13 @@ public final class TestEngine {
     private void processPreOrPostBlock(
         final Block block,
         final String headerText) throws ConfigurationException {
-      final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
-      executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
+      final boolean tempIsGenerateData = engineContext.isGenerateData();
+      try {
+        final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
+        executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
+      } finally {
+        engineContext.setGenerateData(tempIsGenerateData);
+      }
     }
 
     /**
@@ -551,7 +556,7 @@ public final class TestEngine {
      * constructs like 'block' that produce multiple sequence is forbidden in
      * 'pre' and 'post'.
      * 
-     * @param block PRE or POST block to be processed. 
+     * @param block PRE or POST block to be processed.
      * @return List of test sequences.
      */
 
