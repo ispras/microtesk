@@ -52,6 +52,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final Expr retExpr) throws SemanticException {
+    checkAttributeDefined(where, name, Attribute.SYNTAX_NAME, attrs);
+    checkAttributeDefined(where, name, Attribute.IMAGE_NAME, attrs);
 
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
@@ -82,6 +84,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final String name,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
+    checkAttributeDefined(where, name, Attribute.SYNTAX_NAME, attrs);
+    checkAttributeDefined(where, name, Attribute.IMAGE_NAME, attrs);
 
     final MemoryAccessStatus memoryAccessStatus = 
         new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
@@ -102,6 +106,20 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         memoryAccessStatus.isStore(),
         memoryAccessStatus.getBlockSize()
         );
+  }
+
+  private void checkAttributeDefined(
+      final Where where,
+      final String primitiveName,
+      final String attributeName,
+      final Map<String, Attribute> attrs) throws SemanticException {
+    if (!attrs.containsKey(attributeName)) {
+      raiseError(where, String.format(
+          "The '%s' attribute is not defined for the '%s' primitive.",
+          attributeName,
+          primitiveName
+          ));
+    }
   }
 
   public Primitive createModeOR(
