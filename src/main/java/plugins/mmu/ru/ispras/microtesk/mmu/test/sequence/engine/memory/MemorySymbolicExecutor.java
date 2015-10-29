@@ -183,7 +183,9 @@ public final class MemorySymbolicExecutor {
         final MemoryDependency dependency = structure.getDependency(i, j);
 
         // It does not execute the paths (only the dependency).
-        execute(path1, i, path2, j, dependency);
+        if (dependency != null) {
+          execute(path1, i, path2, j, dependency);
+        }
       }
 
       execute(path2, j);

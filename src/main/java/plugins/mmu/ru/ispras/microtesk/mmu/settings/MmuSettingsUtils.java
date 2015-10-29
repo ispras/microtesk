@@ -38,8 +38,6 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 public final class MmuSettingsUtils extends GeneratorSettings {
   private MmuSettingsUtils() {}
 
-  private static final MmuSubsystem memory = MmuPlugin.getSpecification();
-
   private static Collection<IntegerConstraint<IntegerField>> constraints = null;
 
   public static Collection<IntegerConstraint<IntegerField>> getConstraints(
@@ -94,6 +92,8 @@ public final class MmuSettingsUtils extends GeneratorSettings {
       final IntegerValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
+
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
@@ -133,6 +133,8 @@ public final class MmuSettingsUtils extends GeneratorSettings {
   public static IntegerConstraint<IntegerField> getConstraint(
       final BooleanValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
+
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
