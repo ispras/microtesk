@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -76,7 +77,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public boolean isSupported(IPrimitive o) {
+    public boolean isSupported(final IPrimitive o) {
       return false;
     }
 
@@ -482,7 +483,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     @Override
     public Map<String, IOperationBuilder> createBuilders() {
       final Map<String, IOperationBuilder> result = new HashMap<>();
-      for (IInfo i : childs) {
+      for (final IInfo i : childs) {
         result.putAll(i.createBuilders());
       }
 
@@ -490,7 +491,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Map<String, IOperationBuilder> createBuildersForShortcut(String contextName) {
+    public Map<String, IOperationBuilder> createBuildersForShortcut(final String contextName) {
       return null;
     }
 
@@ -517,9 +518,13 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
   @Override
   public String syntax() {
-    // This code should never be called!
-    assert false : "Operation.syntax - default implementation. Should never be called!";
-    return null;
+    Logger.error(
+        "The 'syntax' attribute is not defined for the '%s' primitive. " + 
+        "An empty string is returned.",
+        getClass().getSimpleName()
+        );
+
+    return "";
   }
 
   /**
@@ -530,9 +535,13 @@ public abstract class Operation extends StandardFunctions implements IOperation 
 
   @Override
   public String image() {
-    // This code should never be called!
-    assert false : "Operation.image - default implementation. Should never be called!";
-    return null;
+    Logger.error(
+        "The 'image' attribute is not defined for the '%s' primitive. " + 
+        "An empty string is returned.",
+        getClass().getSimpleName()
+        );
+
+    return "";
   }
 
   /**
@@ -542,7 +551,10 @@ public abstract class Operation extends StandardFunctions implements IOperation 
    */
 
   public void action() {
-    // This code should never be called!
-    assert false : "Operation.action - default implementation. Should never be called!";
+    Logger.error(
+        "The 'action' attribute is not defined for the '%s' primitive. " + 
+        "No action will be performed.",
+        getClass().getSimpleName()
+        );
   }
 }
