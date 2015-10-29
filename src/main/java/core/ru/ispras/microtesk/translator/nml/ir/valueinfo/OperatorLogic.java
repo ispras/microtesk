@@ -93,18 +93,18 @@ enum OperatorLogic {
     Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return left.equals(right);
       }
     },
     new BinaryAction(Boolean.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return (Boolean) left == (Boolean) right;
       }
     }),
 
-  NOT_EQ(Operator.NOT_EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.BOOL),
+  NOT_EQ(Operator.NOT_EQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT, TypeId.BOOL),
     Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
@@ -123,15 +123,16 @@ enum OperatorLogic {
     Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return ((BigInteger) left).compareTo((BigInteger) right) <= 0;
       }
     }),
 
-  GEQ(Operator.GEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
+  GEQ(Operator.GEQ, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
+    Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return ((BigInteger) left).compareTo((BigInteger) right) >= 0;
       }
     }),
@@ -140,15 +141,16 @@ enum OperatorLogic {
     Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return ((BigInteger) left).compareTo((BigInteger) right) < 0;
       }
     }),
 
-  GREATER(Operator.GREATER, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT), Boolean.class,
+  GREATER(Operator.GREATER, Type.BOOLEAN, Arrays.asList(TypeId.CARD, TypeId.INT, TypeId.FLOAT),
+    Boolean.class,
     new BinaryAction(BigInteger.class) {
       @Override
-      public Object calculate(Object left, Object right) {
+      public Object calculate(final Object left, final Object right) {
         return ((BigInteger) left).compareTo((BigInteger) right) > 0;
       }
     }),
