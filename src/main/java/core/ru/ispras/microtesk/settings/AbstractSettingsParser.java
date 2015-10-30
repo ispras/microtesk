@@ -47,7 +47,7 @@ public abstract class AbstractSettingsParser<T extends AbstractSettings> {
   }
 
   public static long getHexLong(final String value) {
-    return Long.parseLong(clearString(value), 16);
+    return getHexBigInteger(value).longValue();
   }
 
   public static long getDecLong(final String value) {
