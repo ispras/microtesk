@@ -14,14 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class Callable {
   private final String name;
