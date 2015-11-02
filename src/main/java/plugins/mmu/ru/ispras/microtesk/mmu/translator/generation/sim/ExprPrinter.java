@@ -22,14 +22,18 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
+import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
@@ -50,7 +54,6 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
     addMapping(StandardOperation.AND, "", " && ", "");
     addMapping(StandardOperation.OR, "", " || ", "");
-    addMapping(StandardOperation.NOT, "!", "" , "");
 
     addBitVectorMathMapping(StandardOperation.BVADD,  "add");
     addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
@@ -105,6 +108,20 @@ final class ExprPrinter extends MapBasedPrinter {
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
+  }
+
+  @Override
+  protected OperationDescription getOperationDescription(final NodeOperation expr) {
+    if (expr.getOperationId() != MmuSymbolKind.FUNCTION) {
+      return super.getOperationDescription(expr);
+    }
+
+    final Callable function = (Callable) expr.getUserData();
+    return new OperationDescription(
+        String.format("%s.call(", function.getName()),
+        ", ",
+        ")"
+        );
   }
 
   private void addBitVectorMathMapping(final StandardOperation op, final String opMapping) {
