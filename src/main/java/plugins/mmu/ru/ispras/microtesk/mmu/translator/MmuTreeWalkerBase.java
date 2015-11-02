@@ -778,7 +778,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (output == null && retType != null) {
         output = storage.declare(name, retType);
       }
-      setExit(location, body, output);
+      final int nexits = setExit(location, body, output);
+      if (output != null && nexits == 0) {
+        raiseError(location, "missing 'return' statement in function returning non-void");
+      }
 
       final List<Variable> params = new ArrayList<>(parameters.values());
       final Callable c = new Callable(name, params, locals, body, output);
@@ -786,10 +789,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return c;
     }
 
-    private void setExit(
+    private int setExit(
         final Where w,
         final List<Stmt> body,
         final Variable output) throws SemanticException {
+      int nexits = 0;
       for (final Stmt s : body) {
         switch (s.getKind()) {
         case RETURN:
@@ -805,18 +809,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           }
           if (!retVoid) {
             ret.setStorage(output);
+            nexits += 1;
           }
           break;
 
         case IF:
           final StmtIf cond = (StmtIf) s;
           for (final Pair<Node, List<Stmt>> branch : cond.getIfBlocks()) {
-            setExit(w, branch.second, output);
+            nexits += setExit(w, branch.second, output);
           }
-          setExit(w, cond.getElseBlock(), output);
+          nexits += setExit(w, cond.getElseBlock(), output);
           break;
         }
       }
+      return nexits;
     }
   }
 
