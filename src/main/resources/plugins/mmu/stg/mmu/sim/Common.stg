@@ -32,6 +32,16 @@ public BitVector <n>() {
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Function-related templates
+
+function_body(type, anames, atypes, stmts) ::= <<
+public static <if(type)><type><else>void<endif> call(<if(anames)>
+  <anames, atypes:{n, t | final <t> <n>}; separator=",\n"><endif>) {
+  <stmts; separator="\n">
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Structure-related templates
 
 struct_constructor(name, fields) ::= <<
