@@ -33,9 +33,11 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -160,6 +162,14 @@ abstract class STBCommon {
 
       case TRACE:
         buildStmtTrace(st, (StmtTrace) stmt);
+        break;
+
+      case CALL:
+        buildStmtCall(st, (StmtCall) stmt);
+        break;
+
+      case RETURN:
+        buildStmtReturn(st, (StmtReturn) stmt);
         break;
 
       default:
@@ -337,5 +347,36 @@ abstract class STBCommon {
     }
 
     st.add("stmts", String.format("trace(\"%s\"%s);", sbFormat, sbArgs));
+  }
+
+  private void buildStmtCall(final ST st, final StmtCall stmt) {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(stmt.getCallee().getName());
+    sb.append(".call(");
+
+    boolean isFirst = true;
+    for (final Node arg : stmt.getArguments()) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append(", ");
+      }
+
+      final String argText = ExprPrinter.get().toString(arg);
+      sb.append(argText);
+    }
+
+    sb.append(");");
+    st.add("stmts", sb.toString());
+  }
+
+  private void buildStmtReturn(final ST st, final StmtReturn stmt) {
+    if (null != stmt.getExpr()) {
+      final String exprText = ExprPrinter.get().toString(stmt.getExpr());
+      st.add("stmts", String.format("return %s;", exprText));
+    } else {
+      st.add("stmts", "return;");
+    }
   }
 }

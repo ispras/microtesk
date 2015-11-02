@@ -72,7 +72,6 @@ import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.Where;
-import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.nml.coverage.IntegerCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -86,8 +85,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private final VariableStorage storage = new VariableStorage();
   private final Map<String, AbstractStorage> globals = new HashMap<>();
   protected final ConstantPropagator propagator = new ConstantPropagator();
-
-  private int nameId;
 
   private final NodeTransformer equalityExpander;
   private static final class ExpandEqualityRule implements TransformerRule {
@@ -840,6 +837,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     if (callee == null) {
       raiseError(where(node), String.format("Call to undefined symbol '%s'", node.getText()));
     }
+
     final int ndiff = callee.getParameters().size() - args.size();
     if (ndiff != 0) {
       raiseError(where(node), String.format(
@@ -847,7 +845,21 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           (ndiff < 0) ? "many" : "few",
           node.getText()));
     }
-    final NodeOperation call = new NodeOperation(MmuSymbolKind.FUNCTION, args);
+
+    final List<Node> castArgs = new ArrayList<>(args.size());
+    for (int index = 0; index < callee.getParameters().size(); ++index) {
+      final Node arg = args.get(index);
+      final Variable param = callee.getParameter(index);
+
+      if (arg.getKind() == Node.Kind.VALUE) {
+        final Node castArg = IntegerCast.cast(arg, param.getDataType());
+        castArgs.add(castArg);
+      } else {
+        castArgs.add(arg);
+      }
+    }
+
+    final NodeOperation call = new NodeOperation(MmuSymbolKind.FUNCTION, castArgs);
     call.setUserData(callee);
 
     return call;

@@ -54,6 +54,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
     addMapping(StandardOperation.AND, "", " && ", "");
     addMapping(StandardOperation.OR, "", " || ", "");
+    addMapping(StandardOperation.NOT, "!(", "", ")");
 
     addBitVectorMathMapping(StandardOperation.BVADD,  "add");
     addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
