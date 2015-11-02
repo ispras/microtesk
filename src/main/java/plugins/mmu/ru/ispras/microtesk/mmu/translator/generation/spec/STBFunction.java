@@ -26,7 +26,6 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 final class STBFunction implements STBuilder {
   public static final Class<?> EXPRESSION_CLASS =
