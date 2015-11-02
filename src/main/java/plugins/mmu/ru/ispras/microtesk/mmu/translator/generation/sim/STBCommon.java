@@ -78,7 +78,7 @@ abstract class STBCommon {
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
 
-  private final String packageName;
+  protected final String packageName;
 
   protected STBCommon(final String packageName) {
     InvariantChecks.checkNotNull(packageName);
