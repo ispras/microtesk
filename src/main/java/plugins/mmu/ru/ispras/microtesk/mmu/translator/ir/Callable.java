@@ -70,4 +70,16 @@ public final class Callable {
   public List<Stmt> getBody() {
     return body;
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "Callable [name=%s, output=%s, params=%s, locals=%s, body=%s]",
+        name,
+        output,
+        params,
+        locals,
+        body
+        );
+  }
 }
