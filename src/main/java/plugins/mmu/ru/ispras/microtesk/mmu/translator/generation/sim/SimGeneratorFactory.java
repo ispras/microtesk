@@ -19,6 +19,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -125,5 +126,15 @@ final class SimGeneratorFactory {
     final STBuilder builder = new STBModel(packageName, ir, targetBuffer);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
+  }
+
+  public FileGenerator newFunctionGenerator(final Ir ir, final Callable function) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(function);
+
+    final String outputFileName = getOutputFileName(function.getName());
+    final STBuilder builder = new STBFunction(packageName, function);
+
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 }
