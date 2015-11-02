@@ -21,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -55,12 +56,12 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
 
       final Memory memory = memories.values().iterator().next();
       final MemoryControlFlowExplorer flowExplorer = new MemoryControlFlowExplorer(memory);
-
       final Buffer targetBuffer = flowExplorer.getTargetBuffer();
 
       processExternals(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
+      processFunctions(ir, factory);
       processBuffers(ir, targetBuffer, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
@@ -71,7 +72,9 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processExternals(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processExternals(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
     final Map<String, Variable> externs = ir.getExterns();
     if (!externs.isEmpty()) {
       final FileGenerator fileGenerator = factory.newExternGenerator(externs);
@@ -79,7 +82,9 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processStructs(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processStructs(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
     for (final Type type : ir.getTypes().values()) {
       if (!ir.getAddresses().containsKey(type.getId())) {
         final FileGenerator fileGenerator = factory.newStructGenerator(type);
@@ -88,7 +93,9 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processAddresses(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processAddresses(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
     for (final Address address : ir.getAddresses().values()) {
       final FileGenerator fileGenerator = factory.newAddressGenerator(address);
       fileGenerator.generate();
@@ -106,14 +113,18 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processSegments(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processSegments(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
     for (final Segment segment : ir.getSegments().values()) {
       final FileGenerator fileGenerator = factory.newSegmentGenerator(segment);
       fileGenerator.generate();
     }
   }
 
-  private void processMemories(final Ir ir, final SimGeneratorFactory factory) throws IOException {
+  private void processMemories(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
       final FileGenerator fileGenerator = factory.newMemoryGenerator(memory);
       fileGenerator.generate();
@@ -126,5 +137,14 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final SimGeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newModelGenerator(ir, targetBuffer);
     fileGenerator.generate();
+  }
+
+  private void processFunctions(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
+    for (final Callable func : ir.getFunctions().values()) {
+      final FileGenerator fileGenerator = factory.newFunctionGenerator(ir, func);
+      fileGenerator.generate();
+    }
   }
 }
