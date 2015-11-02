@@ -30,6 +30,8 @@ import commonParser=CommonParser;
 
 tokens {
   MMU_CONTEXT;
+  MMU_FUNC;
+  MMU_FUNC_DEF;
 }
 
 //==================================================================================================
@@ -86,6 +88,7 @@ declaration
     | segment
     | buffer
     | mmu
+    | function
     ;
 
 //==================================================================================================
@@ -146,6 +149,23 @@ addressValue
     : ID (DOT! ID)*
     ;
 
+function
+    : funcHeader funcBody -> ^(MMU_FUNC_DEF ^(MMU_FUNC funcHeader) funcBody)
+    ;
+
+funcHeader
+    : functionDecl LEFT_PARENTH! funcParams? RIGHT_PARENTH! (COLON! mmuVariableType)?
+    ;
+
+funcParams
+    : ID COLON mmuVariableType (COMMA ID COLON mmuVariableType)* ->
+        ^(MMU_VAR ID mmuVariableType)+
+    ;
+
+funcBody
+    : localVars LEFT_BRACE! sequence RIGHT_BRACE!
+    ;
+
 //==================================================================================================
 // Segment
 //==================================================================================================
@@ -153,7 +173,7 @@ addressValue
 segment
     : MMU_SEGMENT^ ID nameType ASSIGN! nameType
         range
-        (mmuVariable)*
+        localVars
         (mmuFunction)?
     ;
 
@@ -239,12 +259,16 @@ guard
 mmu
     : MMU^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! ASSIGN!
               LEFT_PARENTH! ID COLON! expr RIGHT_PARENTH!
-        (mmuVariable)*
+        localVars
         (mmuFunction)*
     ;
 
+localVars
+    : (mmuVariable SEMI!)*
+    ;
+
 mmuVariable
-    : MMU_VAR^ ID COLON! mmuVariableType SEMI!
+    : MMU_VAR^ ID COLON! mmuVariableType
     ;
 
 mmuVariableType

@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -46,6 +47,10 @@ final class SpecGeneratorFactory {
   private static final String SEGMENT_STG = MMU_STG_DIR + "Segment.stg";
   private static final String[] SEGMENT_STGS =
       new String[] {JAVA_COMMON_STG, SEGMENT_STG, CF_STG, STRUCT_STG};
+
+  private static final String FUNCTION_STG = MMU_STG_DIR + "Function.stg";
+  private static final String[] FUNCTION_STGS =
+      new String[] {JAVA_COMMON_STG, FUNCTION_STG, CF_STG, STRUCT_STG};
 
   private final String outDir;
   private final String packageName;
@@ -114,5 +119,14 @@ final class SpecGeneratorFactory {
     final STBuilder builder = new STBSpecification(packageName, ir);
 
     return new STFileGenerator(outputFileName, SPEC_STGS, builder);
+  }
+
+  public FileGenerator newFunctionGenerator(final Ir ir, final Callable func) {
+    InvariantChecks.checkNotNull(func);
+
+    final String outputFileName = getOutputFileName(func.getName());
+    final STBuilder builder = new STBFunction(packageName, ir, func);
+
+    return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
   }
 }

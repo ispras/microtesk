@@ -31,6 +31,7 @@ public final class Ir {
   private final Map<String, Buffer> buffers;
   private final Map<String, Memory> memories;
   private final Map<String, Type> types;
+  private final Map<String, Callable> functions;
 
   public Ir(final String modelName) {
     checkNotNull(modelName);
@@ -43,6 +44,7 @@ public final class Ir {
     this.buffers = new LinkedHashMap<>();
     this.memories = new LinkedHashMap<>();
     this.types = new LinkedHashMap<>();
+    this.functions = new LinkedHashMap<>();
   }
 
   public String getModelName() {
@@ -75,6 +77,10 @@ public final class Ir {
 
   public Map<String, Type> getTypes() {
     return Collections.unmodifiableMap(types);
+  }
+
+  public Map<String, Callable> getFunctions() {
+    return Collections.unmodifiableMap(functions);
   }
 
   public void addConstant(final String id, final NodeValue value) {
@@ -119,6 +125,11 @@ public final class Ir {
     addType(type, type.getId());
   }
 
+  public void addFunction(final Callable f) {
+    checkNotNull(f);
+    functions.put(f.getName(), f);
+  }
+
   @Override
   public String toString() {
     return String.format(
@@ -131,7 +142,8 @@ public final class Ir {
         mapToString(segments),
         mapToString(buffers),
         mapToString(memories),
-        mapToString(types)
+        mapToString(types),
+        mapToString(functions)
         );
   }
 

@@ -34,3 +34,9 @@ this.<id> = new MmuAction(name + ".<name>"<if(args)>, <args : {a | <a>}; separat
 transition( source, target, guard) ::= <<
 builder.registerTransition(new MmuTransition(<source>, <target><if(guard)>, <guard><endif>));
 >>
+
+temporary(name, type, size, value) ::= <<
+final <type> <name> = new <type>(name + ".<name>"<size:optarg()><value:optarg()>);
+>>
+
+optarg(name) ::= "<if(name)>, <name><endif>"

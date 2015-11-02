@@ -19,6 +19,7 @@ import java.io.IOException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -49,6 +50,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     try {
       processStructs(ir, factory);
       processAddresses(ir, factory);
+      processFunctions(ir, factory);
       processBuffers(ir, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
@@ -98,5 +100,12 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
   private void processSpecification(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
     fileGenerator.generate();
+  }
+
+  private void processFunctions(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+    for (final Callable func : ir.getFunctions().values()) {
+      final FileGenerator fileGenerator = factory.newFunctionGenerator(ir, func);
+      fileGenerator.generate();
+    }
   }
 }

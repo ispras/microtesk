@@ -15,27 +15,33 @@
 package ru.ispras.microtesk.mmu.translator.ir;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.expression.Node;
 
-public abstract class Stmt {
+public final class StmtReturn extends Stmt {
+  private final Node expr;
+  private Variable storage;
+  
+ 
+  public StmtReturn(final Node expr) {
+    super(Kind.RETURN);
 
-  public static enum Kind {
-    ASSIGN,
-    EXCEPT,
-    IF,
-    MARK,
-    TRACE,
-    RETURN,
-    CALL
+    this.expr = expr;
+    this.storage = null;
   }
 
-  private final Kind kind;
-
-  Stmt(final Kind kind) {
-    checkNotNull(kind);
-    this.kind = kind;
+  public Node getExpr() {
+    return expr;
   }
 
-  public final Kind getKind() {
-    return kind;
+  public void setStorage(final Variable storage) {
+    this.storage = storage;
+  }
+  
+  public Variable getStorage() {
+    return storage;
+  }
+   @Override
+  public String toString() {
+    return String.format("stmt return [%s]", expr);
   }
 }

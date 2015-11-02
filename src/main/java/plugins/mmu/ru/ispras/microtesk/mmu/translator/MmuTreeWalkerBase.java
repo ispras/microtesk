@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +51,18 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -82,6 +86,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private final VariableStorage storage = new VariableStorage();
   private final Map<String, AbstractStorage> globals = new HashMap<>();
   protected final ConstantPropagator propagator = new ConstantPropagator();
+
+  private int nameId;
 
   private final NodeTransformer equalityExpander;
   private static final class ExpandEqualityRule implements TransformerRule {
@@ -371,21 +377,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (fields.containsKey(id)) {
         raiseError(w, String.format("Duplicate member '%s'.", id));
       }
-      final Type type = ir.getTypes().get(typeId.getText());
-      final Node size = ir.getConstants().get(typeId.getText());
-
-      if (type == null && size == null) {
-        raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
-      }
-      if (type != null && size != null) {
-        raiseError(w, "Ambigous type in variable declaration: " + typeId.getText());
-      }
-
-      if (type != null) {
-        fields.put(id, type);
-      } else {
-        addField(fieldId, size, null);
-      }
+      fields.put(id, resolveTypeName(typeId));
     }
 
     /**
@@ -420,6 +412,27 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
                  String.format("'%s' is not defined or is not a type.", typeId.getText()));
     }
     return type;
+  }
+
+  protected final Type resolveTypeName(final CommonTree typeId) throws SemanticException {
+    checkNotNull(typeId, typeId);
+
+    final Where w = where(typeId);
+
+    final Type type = ir.getTypes().get(typeId.getText());
+    final Node size = ir.getConstants().get(typeId.getText());
+
+    if (type == null && size == null) {
+      raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
+    }
+    if (type != null && size != null) {
+      raiseError(w, "Ambigous type in variable declaration: " + typeId.getText());
+    }
+    if (type != null) {
+      return type;
+    }
+    final int bitSize = extractPositiveInt(w, size, "Type size");
+    return new Type(bitSize);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -616,10 +629,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final List<String> checkContextKeywords(
       final MmuLanguageContext langCtx,
-      final Collection<CommonTree> nodes) throws SemanticException {
+      Collection<CommonTree> nodes) throws SemanticException {
     InvariantChecks.checkNotNull(langCtx);
-    InvariantChecks.checkNotNull(nodes);
 
+    if (nodes == null) {
+      nodes = Collections.emptyList();
+    }
     final MmuLanguageContext.CheckResult result = langCtx.checkKeywords(nodes);
     if (!result.isSuccess()) {
       raiseError(where(result.getSource()), result.getMessage());
@@ -666,6 +681,189 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
                              addressArgId.getText(),
                              outputAddr,
                              outputVarId.getText());
+  }
+
+  protected final class CallableBuilder {
+    private final Where location;
+    private final String name;
+    private final Map<String, Variable> parameters = new LinkedHashMap<>();
+    private final Map<String, Local> locals = new HashMap<>();
+    private List<Stmt> body = null;
+    private Type retType = null;
+    private Variable output = null;
+
+    private final class Local {
+      public final Variable var;
+      public final Where loc;
+
+      public Local(final Variable var, final Where loc) {
+        this.var = var;
+        this.loc = loc;
+      }
+    }
+    
+    public CallableBuilder(final CommonTree node) {
+      this.location = where(node);
+      this.name = node.getText();
+
+      storage.newScope(name);
+    }
+
+    public void setRetType(final Type retType) {
+      this.retType = retType;
+    }
+
+    public void setOutput(final Variable var) {
+      this.output = var;
+      this.retType = var.getType();
+    }
+
+    public void setBody(final List<Stmt> body) {
+      this.body = body;
+    }
+
+    public Map<String, Variable> addParameters(
+        final Collection<CommonTree> nodes, 
+        final Collection<Type> types) throws SemanticException {
+      final Map<String, Variable> variables = addLocalVariables(nodes, types);
+      parameters.putAll(variables);
+      return variables;
+    }
+
+    public Map<String, Variable> addLocalVariables(
+        final Collection<CommonTree> nodes, 
+        final Collection<Type> types) throws SemanticException {
+      InvariantChecks.checkNotNull(nodes);
+      InvariantChecks.checkNotNull(types);
+      InvariantChecks.checkTrue(nodes.size() == types.size());
+
+      final Iterator<CommonTree> nodeIt = nodes.iterator();
+      final Iterator<Type> typeIt = types.iterator();
+
+      final Map<String, Variable> variables = new LinkedHashMap<>(nodes.size());
+      while (nodeIt.hasNext() && typeIt.hasNext()) {
+        final CommonTree node = nodeIt.next();
+        final Variable var = addVariable(node, typeIt.next());
+        variables.put(node.getText(), var);
+      }
+      return variables;
+    }
+
+    private Variable addVariable(final CommonTree node,
+                                 final Type type) throws SemanticException {
+      final String name = node.getText();
+      final Local local = locals.get(name);
+      if (name.equals(this.name) || local != null) {
+        final Where loc = (local != null) ? local.loc : this.location;
+        final String msg = String.format(
+            "Redeclaration of '%s', previous declaration was here:%n%s",
+            name,
+            loc);
+        raiseError(where(node), msg);
+      }
+
+      final Variable var = storage.declare(name, type);
+      locals.put(name, new Local(var, where(node)));
+
+      return var;
+    }
+
+    public Callable build() throws SemanticException {
+      final Map<String, Variable> locals = new HashMap<>(this.locals.size());
+      for (final Map.Entry<String, Local> entry : this.locals.entrySet()) {
+        locals.put(entry.getKey(), entry.getValue().var);
+      }
+      locals.keySet().removeAll(parameters.keySet());
+
+      if (output == null && retType != null) {
+        output = storage.declare(name, retType);
+      }
+      setExit(location, body, output);
+
+      final List<Variable> params = new ArrayList<>(parameters.values());
+      final Callable c = new Callable(name, params, locals, body, output);
+      storage.popScope();
+      return c;
+    }
+
+    private void setExit(
+        final Where w,
+        final List<Stmt> body,
+        final Variable output) throws SemanticException {
+      for (final Stmt s : body) {
+        switch (s.getKind()) {
+        case RETURN:
+          final StmtReturn ret = (StmtReturn) s;
+          final boolean retVoid = output == null;
+          final boolean valVoid = ret.getExpr() == null;
+
+          if (retVoid != valVoid) {
+            raiseError(w, String.format(
+                "'return' with %s value, in function returning %svoid",
+                (valVoid) ? "no" : "a",
+                (retVoid) ? "" : "non-"));
+          }
+          if (!retVoid) {
+            ret.setStorage(output);
+          }
+          break;
+
+        case IF:
+          final StmtIf cond = (StmtIf) s;
+          for (final Pair<Node, List<Stmt>> branch : cond.getIfBlocks()) {
+            setExit(w, branch.second, output);
+          }
+          setExit(w, cond.getElseBlock(), output);
+          break;
+        }
+      }
+    }
+  }
+
+  protected final void registerFunction(final Callable func) {
+    ir.addFunction(func);
+  }
+
+  protected final NodeOperation newCall(
+      final CommonTree node,
+      final List<Node> args) throws SemanticException {
+    checkNotNull(node, node);
+    checkNotNull(node, args);
+
+    final Callable callee = ir.getFunctions().get(node.getText());
+    if (callee == null) {
+      raiseError(where(node), String.format("Call to undefined symbol '%s'", node.getText()));
+    }
+    final int ndiff = callee.getParameters().size() - args.size();
+    if (ndiff != 0) {
+      raiseError(where(node), String.format(
+          "Too %s arguments to function '%s'",
+          (ndiff < 0) ? "many" : "few",
+          node.getText()));
+    }
+    final NodeOperation call = new NodeOperation(MmuSymbolKind.FUNCTION, args);
+    call.setUserData(callee);
+
+    return call;
+  }
+
+  protected final Node newCallExpr(final Where w, final NodeOperation call) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(call);
+    InvariantChecks.checkTrue(call.getUserData() instanceof Callable);
+
+    final Callable callee = (Callable) call.getUserData();
+    if (callee.getOutput() == null) {
+      raiseError(w, "void value not ignored as it ought to be");
+    }
+    return call;
+  }
+
+  protected final Stmt newCallStmt(final NodeOperation call) {
+    InvariantChecks.checkNotNull(call);
+    InvariantChecks.checkTrue(call.getUserData() instanceof Callable);
+
+    return new StmtCall((Callable) call.getUserData(), call.getOperands());
   }
 
   protected final class CommonBuilder {
@@ -754,12 +952,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         type = address.getContentType();
         source = address;
       } else {
-        type = null;
+        type = resolveTypeName(typeId);
         source = null;
+        /*
         raiseError(where(typeId), new SymbolTypeMismatch(symbol.getName(), symbol.getKind(),
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
+        */
       }
-
       final Variable v = storage.declare(varId.getText(), type, source);
       variables.put(v.getName(), v);
     }
@@ -1225,7 +1424,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return buffer;
   }
 
-  private BigInteger extractBigInteger(
+  protected BigInteger extractBigInteger(
       final Where w, final Node expr, final String exprDesc) throws SemanticException {
 
     if (expr.getKind() != Node.Kind.VALUE || !expr.isType(DataTypeId.LOGIC_INTEGER)) {
@@ -1236,7 +1435,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return nodeValue.getInteger();
   }
 
-  private int extractInt(
+  protected int extractInt(
       final Where w, final Node expr, final String exprDesc) throws SemanticException {
 
     final BigInteger value = extractBigInteger(w, expr, exprDesc);
@@ -1249,7 +1448,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return value.intValue();
   }
 
-  private int extractPositiveInt(
+  protected int extractPositiveInt(
       final Where w, final Node expr, final String nodeName) throws SemanticException {
 
     final int value = extractInt(w, expr, nodeName);
@@ -1260,7 +1459,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return value;
   }
 
-  private BigInteger extractPositiveBigInteger(
+  protected BigInteger extractPositiveBigInteger(
       final Where w, final Node expr, final String nodeName) throws SemanticException {
 
     final BigInteger value = extractBigInteger(w, expr, nodeName);

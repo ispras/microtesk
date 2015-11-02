@@ -190,6 +190,7 @@ THEN          : 'then'        { pp(); };
 ELSE          : 'else'        { pp(); };
 ELSEIF        : 'elif'        { pp(); };
 ENDIF         : 'endif'       { pp(); };
+RETURN        : 'return'      { pp(); };
 
 //==================================================================================================
 // Type Conversion Directive Names
@@ -213,6 +214,8 @@ EXCEPTION     : 'exception'   { pp(); };
 MARK          : 'mark'        { pp(); };
 UNPREDICTED   : 'unpredicted' { pp(); };
 UNDEFINED     : 'undefined'   { pp(); };
+
+FUNCTION      : 'function'    { pp(); };
 
 //==================================================================================================
 // Identifier

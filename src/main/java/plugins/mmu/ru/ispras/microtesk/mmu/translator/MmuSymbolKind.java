@@ -48,5 +48,6 @@ public enum MmuSymbolKind {
   /** Attribute (used in memory entities to describe actions) */
   ATTRIBUTE,
 
-  TYPE
+  TYPE,
+  FUNCTION
 }

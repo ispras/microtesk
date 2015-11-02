@@ -52,6 +52,8 @@ tokens {
 
   // Ternary 'if' expression for string format expressions
   SIF;
+
+  FUNCTION_CALL;
 }
 
 //==================================================================================================
@@ -115,7 +117,17 @@ expr
 //==================================================================================================
 
 nonNumExpr
-    :  ifExpr
+    : ifExpr
+    | functionCall
+    ;
+
+functionDecl
+    : FUNCTION^ ID { declare($ID, NmlSymbolKind.FUNCTION, true); }
+    ;
+
+functionCall
+    : {isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}?
+      ID LEFT_PARENTH (expr (COMMA expr)*)? RIGHT_PARENTH -> ^(FUNCTION_CALL ID expr*)
     ;
 
 ifExpr
@@ -288,9 +300,11 @@ sequence
 
 statement
     :  attributeCallStatement
+    |  functionCall
     |  location ASSIGN^ expr
     |  conditionalStatement
     |  functionCallStatement
+    |  RETURN^ expr
     ;
 
 attributeCallStatement
@@ -304,11 +318,11 @@ attributeCall
     ;
 
 instance
-    :  /*{isDeclaredAs(input.LT(1), NmlSymbolKind.MODE) || isDeclaredAs(input.LT(1), NmlSymbolKind.OP)}?*/ ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
+    :  {!isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}? ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
     ;
 
 instance_arg
-    : instance 
+    : instance
     | argument
     | expr
     ;

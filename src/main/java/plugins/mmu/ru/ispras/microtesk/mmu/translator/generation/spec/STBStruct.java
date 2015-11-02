@@ -94,26 +94,39 @@ final class STBStruct implements STBuilder {
       final ST st,
       final ST stConstructor,
       final STGroup group) {
+    st.add("members", getFieldDecl(name, type, isPublic, group));
+    stConstructor.add("stmts", getFieldDef(name, type, group));
+  }
+
+  protected static ST getFieldDecl(
+      final String name,
+      final Type type,
+      final boolean isPublic,
+      final STGroup group) {
     final ST fieldDecl = group.getInstanceOf("field_decl");
-    final ST fieldDef;
+
+    fieldDecl.add("name", name);
+    fieldDecl.add("is_public", isPublic);
     if (type.isStruct()) {
       fieldDecl.add("type", type.getId());
+    } else {
+      fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
+    }
+    return fieldDecl;
+  }
 
+  protected static ST getFieldDef(final String name, final Type type, final STGroup group) {
+    final ST fieldDef;
+    if (type.isStruct()) {
       fieldDef = group.getInstanceOf("field_def_struct");
       fieldDef.add("type", type.getId());
     } else {
-      fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
-
       fieldDef = group.getInstanceOf("field_def_var");
       fieldDef.add("size", type.getBitSize());
     }
-
-    fieldDecl.add("is_public", isPublic);
-    fieldDecl.add("name", name);
     fieldDef.add("name", name);
 
-    st.add("members", fieldDecl);
-    stConstructor.add("stmts", fieldDef);
+    return fieldDef;
   }
 
   protected static void buildAddField(

@@ -57,7 +57,7 @@ public final class AtomExtractor {
     }
   }
 
-  private static Atom extract(final NodeValue node) {
+  static Atom extract(final NodeValue node) {
     final BigInteger value;
     if (node.isType(DataTypeId.LOGIC_INTEGER)) {
       value = node.getInteger();
@@ -67,7 +67,7 @@ public final class AtomExtractor {
     return Atom.newValue(value);
   }
 
-  private static Atom extract(final NodeVariable expr) {
+  static Atom extract(final NodeVariable expr) {
     final Object userData = expr.getUserData();
     if (userData instanceof Variable) {
       return extractFromVariable((Variable) userData);
@@ -78,7 +78,7 @@ public final class AtomExtractor {
     }
   }
 
-  private static Atom extract(final NodeOperation expr) {
+  static Atom extract(final NodeOperation expr) {
     final Enum<?> op = expr.getOperationId();
     if (StandardOperation.BVEXTRACT == op) {
       return extractFromBitField(expr);
@@ -89,7 +89,7 @@ public final class AtomExtractor {
     }
   }
 
-  private static Atom extractFromVariable(final Variable var) {
+  static Atom extractFromVariable(final Variable var) {
     if (var.isStruct()) {
       return Atom.newGroup(var);
     } else {
@@ -97,7 +97,7 @@ public final class AtomExtractor {
     }
   }
 
-  private static Atom extractFromAttributeRef(final AttributeRef attrRef) {
+  static Atom extractFromAttributeRef(final AttributeRef attrRef) {
     final String attrName = attrRef.getAttribute().getId();
 
     if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
@@ -110,7 +110,7 @@ public final class AtomExtractor {
     throw new UnsupportedOperationException("Cannot parse: " + attrRef);
   }
 
-  private static Atom extractFromBitField(final NodeOperation expr) {
+  static Atom extractFromBitField(final NodeOperation expr) {
     if (expr.getOperandCount() != 3) {
       throw new IllegalStateException("Wrong operand count for " + expr);
     }
@@ -140,7 +140,7 @@ public final class AtomExtractor {
     return Atom.newField(field);
   }
 
-  private static Atom extractFromBitConcat(final NodeOperation expr) {
+  static Atom extractFromBitConcat(final NodeOperation expr) {
     final List<IntegerField> concat = new ArrayList<>();
 
     for (final Node operand : expr.getOperands()) {

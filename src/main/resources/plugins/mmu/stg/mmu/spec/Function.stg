@@ -1,0 +1,46 @@
+/*
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group Function;
+
+function(name, params, names, locals, members, stmts) ::= <<
+<instance_factory(params, names)>
+<class(["public", "static", "final"],
+       "Function",
+       false,
+       false,
+       [params: {x | public final <x>;}, "",
+        locals: {x | private final <x>;}, "",
+        members,
+        name:instance_ctor("Function", params, names, stmts)]
+)>
+>>
+
+instance_ctor(name, type, params, names, stmts) ::= <<
+private <type>(
+    final MmuSubsystem.Builder builder,
+    final int instanceIndex<params: {p |,<\n>    final <p>}>) {
+  final String name = String.format("<name>_%d", instanceIndex);
+  <names: { member | this.<member> = <member>; }; separator="\n">
+  <if(stmts)><\n><stmts; separator="\n"><endif>
+}
+>>
+
+instance_factory(params, names) ::= <<
+private int callIndex = 0;<\n>
+public final Function newCall(
+    final MmuSubsystem.Builder builder<params: {p |, <p>}; separator="\n">) {
+  return new Function(builder, callIndex++<names: {n |, <n>}>);
+}
+>>

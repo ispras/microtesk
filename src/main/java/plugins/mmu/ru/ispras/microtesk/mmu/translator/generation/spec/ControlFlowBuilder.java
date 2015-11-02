@@ -25,21 +25,32 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
+import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 final class ControlFlowBuilder {
   public static final Class<?> BUFFER_EVENT_CLASS =
@@ -83,6 +94,7 @@ final class ControlFlowBuilder {
   private int joinIndex = 0;
   private int assignIndex = 0;
   private int callIndex = 0;
+  private int temporaryIndex = 0;
 
   protected ControlFlowBuilder(
       final Ir ir,
@@ -157,7 +169,7 @@ final class ControlFlowBuilder {
 
     buildAction(startRead);
     buildTransition(start, startRead, "new MmuGuard(MemoryOperation.LOAD)");
-    final String stopRead = buildStmts(startRead, stmtsRead);
+    final String stopRead = buildStmts(startRead, stop, stmtsRead);
     if (null != stopRead) {
       buildTransition(stopRead, stop);
     }
@@ -167,7 +179,7 @@ final class ControlFlowBuilder {
 
     buildAction(startWrite);
     buildTransition(start, startWrite, "new MmuGuard(MemoryOperation.STORE)");
-    final String stopWrite = buildStmts(startWrite, stmtsWrite);
+    final String stopWrite = buildStmts(startWrite, stop, stmtsWrite);
     if (null != stopWrite) {
       buildTransition(stopWrite, stop);
     }
@@ -190,13 +202,37 @@ final class ControlFlowBuilder {
     st.add("members", "");
     stDef.add("stmts", "");
 
-    final String current = buildStmts(start, stmts);
+    final String current = buildStmts(start, stop, stmts);
     if (null != current) {
       buildTransition(current, stop);
     }
   }
 
-  private String buildStmts(final String start, final List<Stmt> stmts) {
+  public void build(
+      final String start,
+      final String stop,
+      final Variable retval,
+      final List<Stmt> stmts) {
+    InvariantChecks.checkNotNull(start);
+    InvariantChecks.checkNotNull(stop);
+    InvariantChecks.checkNotNull(stmts);
+
+    st.add("members", "");
+    stDef.add("stmts", "");
+
+    buildAction(start, true);
+    buildAction(stop, true);
+
+    st.add("members", "");
+    stDef.add("stmts", "");
+
+    final String current = buildStmts(start, stop, stmts);
+    if (null != current) {
+      buildTransition(current, stop);
+    }
+  }
+
+  private String buildStmts(final String start, final String stop, final List<Stmt> stmts) {
     InvariantChecks.checkNotNull(start);
     String current = start;
 
@@ -207,13 +243,14 @@ final class ControlFlowBuilder {
           break;
 
         case IF:
-          current = buildStmtIf(current, (StmtIf) stmt);
+          current = buildStmtIf(current, stop, (StmtIf) stmt);
           break;
 
         case EXCEPT:
           buildStmtException(current, (StmtException) stmt);
-          current = null;
-          break;
+          // If current became null as a result of exception,
+          // other statements will not be traversed.
+          return null;
 
         case MARK:
           buildStmtMark((StmtMark) stmt);
@@ -222,14 +259,16 @@ final class ControlFlowBuilder {
         case TRACE: // Ignored
           break;
 
+        case RETURN:
+          buildStmtReturn(current, stop, (StmtReturn) stmt);
+          return null;
+
+        case CALL:
+          current = buildStmtCall(start, (StmtCall) stmt);
+          break;
+
         default:
           throw new IllegalStateException("Unknown statement: " + stmt.getKind());
-      }
-
-      // If current became null as a result of exception,
-      // other statements will not be traversed.
-      if (null == current) {
-        break;
       }
     }
 
@@ -253,9 +292,11 @@ final class ControlFlowBuilder {
     if (isSegmentAccess(right)) {
       return buildSegmentAccess(source, left, (AttributeRef) right.getUserData());
     }
+    final CallBuilder rule = new CallBuilder(source);
+    final Node value = Transformer.transform(right, MmuSymbolKind.FUNCTION, rule);
 
     final Atom lhs = AtomExtractor.extract(left);
-    final Atom rhs = AtomExtractor.extract(right);
+    final Atom rhs = AtomExtractor.extract(value);
 
     if (Atom.Kind.VARIABLE != lhs.getKind() && 
         Atom.Kind.GROUP != lhs.getKind() &&
@@ -267,12 +308,12 @@ final class ControlFlowBuilder {
     final String targetBindings = buildBindings(lhs, rhs);
 
     buildAction(target, targetBindings);
-    buildTransition(source, target);
+    buildTransition(rule.getState(), target);
 
     return target;
   }
 
-  private String buildStmtIf(final String source, final StmtIf stmt) {
+  private String buildStmtIf(final String source, final String stop, final StmtIf stmt) {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(stmt);
 
@@ -289,7 +330,7 @@ final class ControlFlowBuilder {
         if (isCondition) {
           // If condition is true, the current block is visited unconditionally
           // and all other subsequent blocks are ignored (as never reached).
-          current = buildStmts(current, stmts);
+          current = buildStmts(current, stop, stmts);
 
           if (null != current) {
             // If all other condition branches ended with null (exception)
@@ -317,7 +358,7 @@ final class ControlFlowBuilder {
 
       buildTransition(current, ifTrueStart, guardPrinter.getGuard());
 
-      final String ifTrueStop = buildStmts(ifTrueStart, stmts);
+      final String ifTrueStop = buildStmts(ifTrueStart, stop, stmts);
       if (null != ifTrueStop) {
         if (null == join) {
           join = newJoin();
@@ -334,7 +375,7 @@ final class ControlFlowBuilder {
       current = ifFalseStart;
     }
 
-    current = buildStmts(current, stmt.getElseBlock());
+    current = buildStmts(current, stop, stmt.getElseBlock());
     if (null != current) {
       // If all other condition branches ended with null (exception)
       // and action 'join' for merging branches was not created,
@@ -369,6 +410,31 @@ final class ControlFlowBuilder {
       currentMarks = new ArrayList<>();
     }
     currentMarks.add(stmt.getName());
+  }
+
+  private void buildStmtReturn(final String start, final String stop, final StmtReturn s) {
+    final String medium;
+    if (s.getStorage() != null) {
+      medium = buildStmtAssign(start, new StmtAssign(s.getStorage().getNode(), s.getExpr()));
+    } else {
+      medium = start;
+    }
+    buildTransition(medium, stop);
+  }
+
+  private String buildStmtCall(final String start, final StmtCall s) {
+    final CallBuilder rule = new CallBuilder(start);
+    final List<Node> args =
+        Transformer.transformAll(s.getArguments(), MmuSymbolKind.FUNCTION, rule);
+
+    final Node lhs;
+    final Callable callee = s.getCallee();
+    if (callee.getOutput() != null) {
+      lhs = newTemporary(callee.getOutput().getType()).getNode();
+    } else {
+      lhs = null;
+    }
+    return buildCall(rule.getState(), lhs, callee, args);
   }
 
   private void buildAction(final String id, final String... args) {
@@ -437,9 +503,7 @@ final class ControlFlowBuilder {
     if (!(expr.getUserData() instanceof Variable)) {
       return false;
     }
-
-    final Variable variable = (Variable) expr.getUserData();
-    return variable.equals(memory.getDataArg());
+    return memory.getDataArg().equals(expr.getUserData());
   }
 
   private boolean isBufferAccess(final String variableName) {
@@ -477,10 +541,10 @@ final class ControlFlowBuilder {
     final String segmentStop = String.format("%s.STOP", callId, right.getTarget().getId());
     buildTransition(source, segmentStart);
 
+    /*
     final Atom lhs = AtomExtractor.extract(left);
     final Atom rhs = AtomExtractor.extract(right.getTarget().getDataArg().getNode());
  
-    /*
     final String assignResult = newAssign();
     final String assignResultBindings = buildBindings(lhs, rhs);
 
@@ -490,6 +554,121 @@ final class ControlFlowBuilder {
     callIndex++;
     //return assignResult;
     return segmentStop;
+  }
+
+  private Variable newTemporary(final Type type) {
+    final String name = String.format("TMP_%d", temporaryIndex++);
+
+    final ST temporary = group.getInstanceOf("temporary");
+    temporary.add("name", name);
+    if (type.isStruct()) {
+      temporary.add("type", type.getId());
+    } else {
+      temporary.add("type", "IntegerVariable");
+      temporary.add("size", String.valueOf(type.getBitSize()));
+    }
+    stDef.add("stmts", temporary);
+
+    return new Variable(context + "." + name, type);
+  }
+
+  private String buildCall(
+      final String source,
+      final Node lhs,
+      final Callable callee,
+      final List<Node> args) {
+    checkNotNull(source);
+    checkNotNull(callee);
+    checkNotNull(args);
+    checkTrue((lhs == null) == (callee.getOutput() == null));
+    checkTrue(callee.getParameters().size() == args.size());
+
+    final StringBuilder builder = new StringBuilder();
+
+    final String callId = String.format("call_%d", callIndex++);
+    builder.append(String.format(
+        "%s.Function %s = %s.get().newCall(builder",
+        callee.getName(),
+        callId,
+        callee.getName()));
+    if (lhs != null) {
+      builder.append(", ");
+      builder.append(Utils.getVariableName(context, lhs.toString()));
+    }
+    for (int i = 0; i < args.size(); ++i) {
+      final Node arg = args.get(i);
+
+      builder.append(", ");
+      switch (arg.getKind()) {
+      case VARIABLE:
+        builder.append(Utils.getVariableName(context, arg.toString()));
+        break;
+
+      case VALUE:
+        builder.append(integerLiteral(callee.getParameter(i).getType(), (NodeValue) arg));
+        break;
+
+      default:
+        checkTrue(false);
+      };
+    }
+    builder.append(");");
+ 
+    stDef.add("stmts", builder.toString());
+
+    final String funcStart = callId + ".START";
+    final String funcStop = callId + ".STOP";
+    buildTransition(source, funcStart);
+
+    return funcStop;
+  }
+
+  private static String integerLiteral(final Type type, final NodeValue node) {
+    final Atom value = AtomExtractor.extract(node);
+    return String.format(
+        "new IntegerVariable(%d, %s)",
+        type.getBitSize(),
+        Utils.toString((BigInteger) value.getObject()));
+  }
+
+  private final class CallBuilder implements TransformerRule {
+    private String state;
+    
+    public CallBuilder(final String state) {
+      this.state = state;
+    }
+
+    @Override
+    public boolean isApplicable(final Node node) {
+      final boolean process = nodeIsOperation(node, MmuSymbolKind.FUNCTION) &&
+             node.getUserData() instanceof Callable;
+      System.out.printf("CallBuilder(%s) [%s]%n", node, process);
+      return process;
+    }
+
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation call = (NodeOperation) node;
+      final Callable callee = (Callable) node.getUserData();
+
+      final Variable tmp = newTemporary(callee.getOutput().getType());
+      state = buildCall(state, tmp.getNode(), callee, call.getOperands());
+
+      System.out.printf("CallBuilder(%s) -> %s%n", node, tmp.getNode());
+      return tmp.getNode();
+    }
+   
+    public String getState() {
+      return state;
+    }
+  }
+
+  private static boolean nodeIsOperation(final Node node, final Enum<?> op) {
+    checkNotNull(node);
+    checkNotNull(op);
+
+    return node.getKind() == Node.Kind.OPERATION &&
+           ((NodeOperation) node).getOperationId().equals(op);
   }
 
   private String buildBindings(final Atom lhs, final Atom rhs) {
