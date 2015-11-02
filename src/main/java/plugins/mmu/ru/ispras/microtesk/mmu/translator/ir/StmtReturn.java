@@ -19,8 +19,7 @@ import ru.ispras.fortress.expression.Node;
 public final class StmtReturn extends Stmt {
   private final Node expr;
   private Variable storage;
-  
- 
+
   public StmtReturn(final Node expr) {
     super(Kind.RETURN);
 
@@ -35,11 +34,12 @@ public final class StmtReturn extends Stmt {
   public void setStorage(final Variable storage) {
     this.storage = storage;
   }
-  
+
   public Variable getStorage() {
     return storage;
   }
-   @Override
+
+  @Override
   public String toString() {
     return String.format("stmt return [%s]", expr);
   }
