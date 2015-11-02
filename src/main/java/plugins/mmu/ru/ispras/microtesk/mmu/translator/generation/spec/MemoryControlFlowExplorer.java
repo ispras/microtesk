@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.util.List;
+import java.util.ListIterator;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -26,11 +27,14 @@ import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 
 public final class MemoryControlFlowExplorer {
   private final Buffer target;
@@ -92,6 +96,18 @@ public final class MemoryControlFlowExplorer {
           break;
 
         case TRACE: // Ignored
+          break;
+
+        case CALL:
+          final StmtCall call = (StmtCall) stmt;
+          latestAccess = extractBufferAccess(call.getCallee(), call.getArguments(), attrId);
+          break;
+
+        case RETURN:
+          final StmtReturn ret = (StmtReturn) stmt;
+          if (ret.getExpr() != null) {
+            latestAccess = extractBufferAccess(ret.getExpr(), attrId);
+          }
           break;
 
         default:
@@ -222,7 +238,36 @@ public final class MemoryControlFlowExplorer {
         return visitStmts(attribute.getStmts(), attrId);
       }
     }
+    if (expr.getUserData() instanceof Callable) {
+      return extractBufferAccess(
+          (Callable) expr.getUserData(),
+          ((NodeOperation) expr).getOperands(),
+          attrId);
+    }
 
+    return null;
+  }
+
+  /** Extract latest buffer access from function call. Evaluation order is
+   *  considered eager: first evaluate arguments in left-to-right order,
+   *  then function body.
+   */
+
+  private static Buffer extractBufferAccess(
+      final Callable callee,
+      final List<Node> args,
+      final String attrId) {
+    final Buffer funcAccess = visitStmts(callee.getBody(), attrId);
+    if (funcAccess != null) {
+      return funcAccess;
+    }
+    final ListIterator<Node> it = args.listIterator(args.size());
+    while (it.hasPrevious()) {
+      final Buffer argAccess = extractBufferAccess(it.previous(), attrId);
+      if (argAccess != null) {
+        return argAccess;
+      }
+    }
     return null;
   }
 }
