@@ -80,6 +80,9 @@ abstract class STBCommon {
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
 
+  public static final Class<?> VALUE_CLASS =
+      ru.ispras.fortress.util.Value.class;
+
   protected final String packageName;
 
   protected STBCommon(final String packageName) {

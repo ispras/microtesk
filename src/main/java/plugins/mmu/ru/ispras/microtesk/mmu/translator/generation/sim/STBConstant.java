@@ -35,12 +35,13 @@ final class STBConstant implements STBuilder {
     this.constant = constant;
 
     ExprPrinter.get().addVariableMapping(
-        constant.getId(), String.format("%s.get()", constant.getId()));
+        constant.getId(), String.format("%s.get().value()", constant.getId()));
   }
 
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
+    st.add("instance", "instance");
 
     buildHeader(st);
     buildBody(st, group);
@@ -49,8 +50,15 @@ final class STBConstant implements STBuilder {
   }
 
   protected final void buildHeader(final ST st) {
+    final String implText = String.format(
+        "%s<%s>",
+        STBCommon.VALUE_CLASS.getName(),
+        STBCommon.BIT_VECTOR_CLASS.getSimpleName()
+        );
+
     st.add("name", constant.getId()); 
     st.add("pack", packageName);
+    st.add("impls", implText);
     st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
