@@ -14,6 +14,11 @@
  * the License.
  */
 
+extern E1 = GPR[1]
+extern E2 = REG(2)
+let C1 = E1 + E2
+let C2 = E1 + 1
+
 //==================================================================================================
 // Virtual Address (VA)
 //==================================================================================================
@@ -79,8 +84,13 @@ mmu pmem (va: VA) = (data: 32)
   var cacheData: 256;
   var offset: 8;
   var bitOffset: 8;
+  var x : 32;
 
   read = {
+    trace ("E1=0x%x, E2=0x%x", E1, E2);
+    //trace ("C1=0x%x", C1);
+    //x = C1;
+
     // The default cache policy.
     c = 3;
 

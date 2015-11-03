@@ -32,6 +32,9 @@ final class STBExtern implements STBuilder {
   public static final Class<?> READER_CLASS =
       ru.ispras.microtesk.model.api.state.Reader.class;
 
+  public static final Class<?> VALUE_CLASS =
+      ru.ispras.fortress.util.Value.class;
+
   private final String packageName;
   private final Map<String, Variable> externs;
 
@@ -67,6 +70,7 @@ final class STBExtern implements STBuilder {
 
     st.add("imps", BigInteger.class.getName());
     st.add("imps", STBCommon.BIT_VECTOR_CLASS.getName());
+    st.add("imps", VALUE_CLASS.getName());
     st.add("imps", READER_CLASS.getName());
   }
 
@@ -81,10 +85,10 @@ final class STBExtern implements STBuilder {
       final StringBuilder args = new StringBuilder();
 
       if (source.getKind() == ExternalSource.Kind.MEMORY) {
-        method = "forMemory";
+        method = "fromMemory";
         InvariantChecks.checkTrue(source.getArgs().size() <= 1);
       } else if (source.getKind() == ExternalSource.Kind.MODE) {
-        method = "forAddressingMode";
+        method = "fromAddressingMode";
       } else {
         InvariantChecks.checkTrue(false);
         method = "null";

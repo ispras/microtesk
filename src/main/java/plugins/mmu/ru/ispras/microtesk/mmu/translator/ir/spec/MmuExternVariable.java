@@ -16,9 +16,10 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.model.api.state.Reader;
 
 public final class MmuExternVariable {
   private final IntegerVariable variable;
@@ -26,8 +27,8 @@ public final class MmuExternVariable {
   public MmuExternVariable(
       final String name,
       final int width,
-      final Reader reader) {
-    this.variable = new RedefinableIntegerVariable(name, width, reader);
+      final Value<BitVector> value) {
+    this.variable = new RedefinableIntegerVariable(name, width, value);
   }
 
   public IntegerVariable get() {
@@ -40,21 +41,21 @@ public final class MmuExternVariable {
   }
 
   private static class RedefinableIntegerVariable extends IntegerVariable {
-    private final Reader reader;
+    private final Value<BitVector> value;
 
     public RedefinableIntegerVariable(
         final String name,
         final int width,
-        final Reader reader) {
+        final Value<BitVector> value) {
       super(name, width);
 
-      InvariantChecks.checkNotNull(reader);
-      this.reader = reader;
+      InvariantChecks.checkNotNull(value);
+      this.value = value;
     }
 
     @Override
     public BigInteger getValue() {
-      return reader.read().bigIntegerValue(false);
+      return value.value().bigIntegerValue(false);
     }
   }
 }

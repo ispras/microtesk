@@ -18,6 +18,7 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -36,9 +37,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Reader {
-  public abstract BitVector read();
-
+public final class Reader {
   private static IModel model = null;
 
   public static void setModel(final IModel model) {
@@ -46,7 +45,9 @@ public abstract class Reader {
     Reader.model = model;
   }
 
-  public static Reader forMemory(final String name, final BigInteger index) {
+  public static Value<BitVector> fromMemory(
+      final String name,
+      final BigInteger index) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(index);
 
@@ -54,14 +55,16 @@ public abstract class Reader {
     InvariantChecks.checkFalse(memory.getKind() == Memory.Kind.VAR);
 
     final Location location = memory.access(index);
-    return new LocationReader(location);
+    return new LocationValue(location);
   }
 
-  public static Reader forMemory(final String name) {
-    return forMemory(name, BigInteger.ZERO);
+  public static Value<BitVector> fromMemory(final String name) {
+    return fromMemory(name, BigInteger.ZERO);
   }
 
-  public static Reader forAddressingMode(final String name, final BigInteger... args) {
+  public static Value<BitVector> fromAddressingMode(
+      final String name,
+      final BigInteger... args) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(model);
 
@@ -84,36 +87,36 @@ public abstract class Reader {
       throw new IllegalArgumentException(e);
     }
 
-    return new ModeReader(mode);
+    return new ModeValue(mode);
   }
 
-  private static final class LocationReader extends Reader {
+  private static final class LocationValue implements Value<BitVector> {
     private final Location location;
 
-    private LocationReader(final Location location) {
+    private LocationValue(final Location location) {
       InvariantChecks.checkNotNull(location);
       this.location = location;
     }
 
     @Override
-    public BitVector read() {
+    public BitVector value() {
       return BitVector.unmodifiable(
           BitVector.valueOf(location.getValue(), location.getBitSize()));
     }
   }
 
-  private static final class ModeReader extends Reader {
+  private static final class ModeValue implements Value<BitVector> {
     private final IAddressingMode mode;
 
-    private ModeReader(final IAddressingMode mode) {
+    private ModeValue(final IAddressingMode mode) {
       InvariantChecks.checkNotNull(mode);
       this.mode = mode;
     }
 
     @Override
-    public BitVector read() {
+    public BitVector value() {
       final Location location = mode.access();
-      return new LocationReader(location).read();
+      return new LocationValue(location).value();
     }
   }
 }
