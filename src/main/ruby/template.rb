@@ -894,6 +894,10 @@ class DataManager
     define_method_for DataManager, id, 'string', p
   end
 
+  def text(value)
+    @manager.addText value
+  end
+
 end # DataManager
 
 # Methods init, read, write are defined in a separate class to
@@ -923,7 +927,6 @@ class StreamPreparator
     @context.instance_eval &contents
     @template.endStreamMethod
   end
-
 end # StreamPreparator
 
 class ExceptionHandler
@@ -968,6 +971,10 @@ class PageTable
   def initialize(template, data_manager)
     @template = template
     @data_manager = data_manager
+  end
+
+  def text(value)
+    @data_manager.text value
   end
 
   def page_table_preparator(&contents)
