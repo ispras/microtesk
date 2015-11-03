@@ -52,6 +52,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -160,13 +161,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final void newConstant(final CommonTree id, final Node value) throws SemanticException {
     checkNotNull(id, value);
+    final Constant constant = new Constant(id.getText(), value);
 
-    if (value.getKind() != Node.Kind.VALUE) {
+    if (!constant.isValue()) {
       raiseError(where(id), String.format(
           "Illegal let definition. A constant expression is required: %s", value));
     }
 
-    ir.addConstant(id.getText(), (NodeValue) value);
+    ir.addConstant(constant);
   }
 
   /**
@@ -177,14 +179,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @throws SemanticException if the constant is not defined.
    */
 
-  protected final NodeValue getConstant(final CommonTree id) throws SemanticException {
-    final NodeValue value = ir.getConstants().get(id.getText());
+  protected final Node getConstant(final CommonTree id) throws SemanticException {
+    final Constant constant = ir.getConstants().get(id.getText());
 
-    if (null == value) {
+    if (null == constant) {
       raiseError(where(id), "Constant is undefined: " + id.getText());
     }
 
-    return value;
+    return constant.isValue() ?
+        constant.getExpression() : constant.getVariable();
   }
 
   /**
@@ -417,17 +420,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Where w = where(typeId);
 
     final Type type = ir.getTypes().get(typeId.getText());
-    final Node size = ir.getConstants().get(typeId.getText());
+    final Constant constant = ir.getConstants().get(typeId.getText());
+
+    final Node size = null != constant && constant.isValue() ?
+        constant.getExpression() : null;
 
     if (type == null && size == null) {
       raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
     }
+
     if (type != null && size != null) {
       raiseError(w, "Ambigous type in variable declaration: " + typeId.getText());
     }
+
     if (type != null) {
       return type;
     }
+
     final int bitSize = extractPositiveInt(w, size, "Type size");
     return new Type(bitSize);
   }

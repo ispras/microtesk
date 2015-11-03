@@ -20,11 +20,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.expression.NodeValue;
-
 public final class Ir {
   private final String modelName;
-  private final Map<String, NodeValue> constants;
+  private final Map<String, Constant> constants;
   private final Map<String, Variable> externs;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
@@ -51,7 +49,7 @@ public final class Ir {
     return modelName;
   }
 
-  public Map<String, NodeValue> getConstants() {
+  public Map<String, Constant> getConstants() {
     return Collections.unmodifiableMap(constants);
   }
 
@@ -83,10 +81,9 @@ public final class Ir {
     return Collections.unmodifiableMap(functions);
   }
 
-  public void addConstant(final String id, final NodeValue value) {
-    checkNotNull(id);
-    checkNotNull(value);
-    constants.put(id, value);
+  public void addConstant(final Constant constant) {
+    checkNotNull(constant);
+    constants.put(constant.getId(), constant);
   }
 
   public void addExtern(final Variable variable) {
