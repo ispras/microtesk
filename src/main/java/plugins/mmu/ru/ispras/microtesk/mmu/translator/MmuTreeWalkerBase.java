@@ -155,19 +155,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * 
    * @param id Constant identifier.
    * @param value Constant value.
-   * @throws SemanticException (1) if the value expression is {@code null};
-   *                           (2) if value expression is not a constant value.
+   * @throws SemanticException if the value expression is {@code null}.
    */
 
   protected final void newConstant(final CommonTree id, final Node value) throws SemanticException {
     checkNotNull(id, value);
     final Constant constant = new Constant(id.getText(), value);
-
-    if (!constant.isValue()) {
-      raiseError(where(id), String.format(
-          "Illegal let definition. A constant expression is required: %s", value));
-    }
-
     ir.addConstant(constant);
   }
 

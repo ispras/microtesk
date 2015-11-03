@@ -160,7 +160,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addVariableFieldMappings(variable.getType(), variable.getName(), mapping);
   }
 
-  private void addVariableMapping(final String key, final String mapping) {
+  public void addVariableMapping(final String key, final String mapping) {
     InvariantChecks.checkNotNull(key);
     InvariantChecks.checkNotNull(mapping);
     variableMappings.peek().put(key, mapping);

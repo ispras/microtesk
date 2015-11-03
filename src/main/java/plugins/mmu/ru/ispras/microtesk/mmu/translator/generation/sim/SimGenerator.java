@@ -22,6 +22,7 @@ import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplo
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -59,6 +60,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final Buffer targetBuffer = flowExplorer.getTargetBuffer();
 
       processExternals(ir, factory);
+      processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
       processFunctions(ir, factory);
@@ -79,6 +81,17 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     if (!externs.isEmpty()) {
       final FileGenerator fileGenerator = factory.newExternGenerator(externs);
       fileGenerator.generate();
+    }
+  }
+
+  private void processConstants(
+      final Ir ir,
+      final SimGeneratorFactory factory) throws IOException {
+    for (final Constant constant : ir.getConstants().values()) {
+      if (!constant.isValue()) {
+        final FileGenerator fileGenerator = factory.newConstantGenerator(constant);
+        fileGenerator.generate();
+      }
     }
   }
 

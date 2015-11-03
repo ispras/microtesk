@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Constant {
@@ -29,7 +29,14 @@ public final class Constant {
 
     this.id = id; 
     this.expression = expression;
-    this.variable = new NodeVariable(id, expression.getDataType());
+
+    if (!isValue()) {
+      final DataType dataType = expression.getDataType();
+      final Variable variable = new Variable(id, new Type(dataType.getSize()));
+      this.variable = variable.getNode();
+    } else {
+      this.variable = null;
+    }
   }
 
   public String getId() {

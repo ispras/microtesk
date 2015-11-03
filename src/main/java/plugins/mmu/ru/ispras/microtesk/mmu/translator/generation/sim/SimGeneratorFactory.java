@@ -20,6 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -65,6 +66,15 @@ final class SimGeneratorFactory {
 
     final String outputFileName = getOutputFileName(STBExtern.CLASS_NAME);
     final STBuilder builder = new STBExtern(packageName, externs);
+
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+  }
+
+  public FileGenerator newConstantGenerator(final Constant constant) {
+    InvariantChecks.checkNotNull(constant);
+
+    final String outputFileName = getOutputFileName(constant.getId());
+    final STBuilder builder = new STBConstant(packageName, constant);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
