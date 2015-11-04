@@ -31,9 +31,6 @@ final class STBFunction implements STBuilder {
   public static final Class<?> EXPRESSION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
 
-  public static final Class<?> EXTERN_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExternVariable.class;
-
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
 
@@ -74,11 +71,6 @@ final class STBFunction implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
-
-    if (!ir.getExterns().isEmpty()) {
-      st.add("imps", EXTERN_CLASS.getName());
-      st.add("imps", packageName.substring(0,  packageName.lastIndexOf('.')) + ".sim.Extern");
-    }
   }
 
   private static List<String> getParameterList(final Callable func) {
@@ -118,20 +110,6 @@ final class STBFunction implements STBuilder {
     for (final String decl : getParameterList(this.func)) {
       stFunction.add("params", decl);
       stFunction.add("names", decl.split(" ")[1]);
-    }
-
-    if (!ir.getExterns().isEmpty()) {
-      for (final Variable extern : ir.getExterns().values()) {
-        stFunction.add("members", String.format(
-            "private final MmuExternVariable %s;",
-            extern.getName()));
-
-        stFunction.add("stmts", String.format(
-            "this.%s = new MmuExternVariable(\"%s\", %s, Extern.get().%s);",
-            extern.getName(), extern.getName(), extern.getBitSize(), extern.getName()));
-      }
-      stFunction.add("members", "");
-      stFunction.add("stmts", "");
     }
 
     for (final Variable variable : func.getLocals().values()) {
