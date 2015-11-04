@@ -23,6 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -69,6 +70,15 @@ final class SpecGeneratorFactory {
 
   private String getOutputFileName(final String name) {
     return String.format("%s/%s%s", outDir, name, PackageInfo.JAVA_EXT);
+  }
+
+  public FileGenerator newExternGenerator(final Variable extern) {
+    InvariantChecks.checkNotNull(extern);
+
+    final String outputFileName = getOutputFileName(extern.getName());
+    final STBuilder builder = new STBExtern(packageName, extern);
+
+    return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
   }
 
   public FileGenerator newConstantGenerator(final Constant constant) {

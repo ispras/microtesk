@@ -25,6 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
@@ -49,6 +50,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
         new SpecGeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
+      processExterns(ir, factory);
       processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
@@ -59,6 +61,15 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       processSpecification(ir, factory);
     } catch (final IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void processExterns(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
+    for (final Variable extern : ir.getExterns().values()) {
+      final FileGenerator fileGenerator = factory.newExternGenerator(extern);
+      fileGenerator.generate();
     }
   }
 
