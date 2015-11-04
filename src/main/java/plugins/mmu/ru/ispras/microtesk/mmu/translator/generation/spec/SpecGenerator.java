@@ -20,6 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -48,6 +49,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
         new SpecGeneratorFactory(getOutDir(), ir.getModelName());
 
     try {
+      processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
       processFunctions(ir, factory);
@@ -60,7 +62,20 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processStructs(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processConstants(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
+    for (final Constant constant : ir.getConstants().values()) {
+      if (!constant.isValue()) {
+        final FileGenerator fileGenerator = factory.newConstantGenerator(constant);
+        fileGenerator.generate();
+      }
+    }
+  }
+
+  private void processStructs(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Type type : ir.getTypes().values()) {
       if (!ir.getAddresses().containsKey(type.getId())) {
         final FileGenerator fileGenerator = factory.newStructGenerator(type);
@@ -69,40 +84,52 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processAddresses(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processAddresses(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Address address : ir.getAddresses().values()) {
       final FileGenerator fileGenerator = factory.newAddressGenerator(address);
       fileGenerator.generate();
     }
   }
 
-  private void processBuffers(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processBuffers(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Buffer buffer : ir.getBuffers().values()) {
       final FileGenerator fileGenerator = factory.newBufferGenerator(buffer);
       fileGenerator.generate();
     }
   }
 
-  private void processSegments(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processSegments(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Segment segment : ir.getSegments().values()) {
       final FileGenerator fileGenerator = factory.newSegmentGenerator(ir, segment);
       fileGenerator.generate();
     }
   }
 
-  private void processMemories(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processMemories(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Memory memory : ir.getMemories().values()) {
       final FileGenerator fileGenerator = factory.newMemoryGenerator(ir, memory);
       fileGenerator.generate();
     }
   }
 
-  private void processSpecification(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processSpecification(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
     fileGenerator.generate();
   }
 
-  private void processFunctions(final Ir ir, final SpecGeneratorFactory factory) throws IOException {
+  private void processFunctions(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
     for (final Callable func : ir.getFunctions().values()) {
       final FileGenerator fileGenerator = factory.newFunctionGenerator(ir, func);
       fileGenerator.generate();

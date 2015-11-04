@@ -89,7 +89,7 @@ mmu pmem (va: VA) = (data: 32)
   read = {
     trace ("E1=0x%x, E2=0x%x", E1, E2);
     trace ("C1=0x%x", C1);
-    //x = C1;
+    x = C1;
 
     // The default cache policy.
     c = 3;

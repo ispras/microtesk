@@ -18,6 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -52,6 +53,9 @@ final class SpecGeneratorFactory {
   private static final String[] FUNCTION_STGS =
       new String[] {JAVA_COMMON_STG, FUNCTION_STG, CF_STG, STRUCT_STG};
 
+  private static final String CONSTANT_STG = MMU_STG_DIR + "Constant.stg";
+  private static final String[] CONSTANT_STGS = new String[] {JAVA_COMMON_STG, CONSTANT_STG};
+
   private final String outDir;
   private final String packageName;
 
@@ -65,6 +69,15 @@ final class SpecGeneratorFactory {
 
   private String getOutputFileName(final String name) {
     return String.format("%s/%s%s", outDir, name, PackageInfo.JAVA_EXT);
+  }
+
+  public FileGenerator newConstantGenerator(final Constant constant) {
+    InvariantChecks.checkNotNull(constant);
+
+    final String outputFileName = getOutputFileName(constant.getId());
+    final STBuilder builder = new STBConstant(packageName, constant);
+
+    return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
   }
 
   public FileGenerator newStructGenerator(final Type structType) {
