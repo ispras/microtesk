@@ -59,7 +59,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final MemoryControlFlowExplorer flowExplorer = new MemoryControlFlowExplorer(memory);
       final Buffer targetBuffer = flowExplorer.getTargetBuffer();
 
-      processExternals(ir, factory);
+      processExterns(ir, factory);
       processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
@@ -74,7 +74,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processExternals(
+  private void processExterns(
       final Ir ir,
       final SimGeneratorFactory factory) throws IOException {
     final Map<String, Variable> externs = ir.getExterns();
