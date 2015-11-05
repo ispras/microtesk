@@ -60,6 +60,7 @@ public abstract class Record {
 
     private Instruction(final ConcreteCall call) {
       super(RecordKind.INSTRUCT, ++instructionId);
+      InvariantChecks.checkNotNull(call);
 
       this.addr = call.getAddress();
       this.disasm = call.getText();
@@ -68,16 +69,27 @@ public abstract class Record {
         final BigInteger image = new BigInteger(call.getImage(), 2);
         this.instrId = image.longValue();
       } catch (final NumberFormatException e) {
-        Logger.error("Failed to parse image for instruction call %s: '%s'. Reason: %s.",
-            disasm, call.getImage(), e.getMessage());
+        Logger.error(
+            "Failed to parse image for instruction call %s: '%s'. Reason: %s.",
+            disasm,
+            call.getImage(),
+            e.getMessage()
+            );
+
         this.addr = 0;
       }
     }
 
     @Override
     public String toString() {
-      return String.format("%s IT (%d) %08x %08x A svc_ns : %s",
-          super.toString(), getTime(), addr, instrId, disasm);
+      return String.format(
+          "%s IT (%d) %08x %08x A svc_ns : %s",
+          super.toString(),
+          getTime(),
+          addr,
+          instrId,
+          disasm
+          );
     }
   }
 }
