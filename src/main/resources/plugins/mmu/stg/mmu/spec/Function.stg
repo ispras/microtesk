@@ -40,7 +40,7 @@ private <type>(
 instance_factory(params, names) ::= <<
 private int callIndex = 0;<\n>
 public final Function newCall(
-    final MmuSubsystem.Builder builder<params: {p |, <p>}; separator="\n">) {
+    final MmuSubsystem.Builder builder<params: {p |,<\n>    final <p>}>) {
   return new Function(builder, callIndex++<names: {n |, <n>}>);
 }
 >>
