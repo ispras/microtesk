@@ -1238,8 +1238,48 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       folded[i] = castNode;
     }
 
-    return Transformer.reduce(ReduceOptions.NEW_INSTANCE,
-                              new NodeOperation(fortressOp, folded));
+    return Transformer.reduce(
+        ReduceOptions.NEW_INSTANCE,
+        new NodeOperation(fortressOp, folded)
+        );
+  }
+
+  /**
+   * Creates a conditional expression of the followwing kind:<p>
+   * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}. 
+   * 
+   * @param id Token that marks location of the construction in code, 
+   * @param blocks Pairs <condition expression>/<value expression>
+   * @return New expression.
+   * @throws RecognitionException
+   */
+
+  protected final Node newCondExpression(
+      final CommonTree id,
+      final List<Pair<Node, Node>> blocks) throws RecognitionException {
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(blocks);
+    InvariantChecks.checkTrue(blocks.size() >= 2);
+
+    final Pair<Node, Node> elseBlock = blocks.get(blocks.size() - 1);
+    InvariantChecks.checkTrue(elseBlock.first.equals(NodeValue.newBoolean(true)));
+
+    Node result = elseBlock.second;
+    for (int index = blocks.size() - 2; index >= 0; index--) {
+      final Pair<Node, Node> currentBlock = blocks.get(index);
+
+      final Node condition = currentBlock.first;
+      final Node value = currentBlock.second;
+
+      result = new NodeOperation(
+          StandardOperation.ITE,
+          condition,
+          value,
+          result
+          );
+    }
+
+    return result;
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
