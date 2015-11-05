@@ -27,7 +27,7 @@ public enum RecordKind {
    * {@code <time> <scale> <cpu> [IT|IS] (<inst_id>) <addr> <opcode> [A|T|X] <mode>_<security> :
    * <disasm>}
    */
-  INSTRUCT, 
+  INSTRUCT,
 
   /**
    * Program flow trace:<p>
@@ -53,9 +53,9 @@ public enum RecordKind {
    */
   MEMORY,
 
- /**
- * Memory bus trace:<p>
- * {@code <time> <scale> B<rw><sz><fd><lk><p><s> l<wrcbs> O<wrcbs> <master_id> <addr> <data>}
- */
+  /**
+  * Memory bus trace:<p>
+  * {@code <time> <scale> B<rw><sz><fd><lk><p><s> l<wrcbs> O<wrcbs> <master_id> <addr> <data>}
+  */
   BUS
 }
