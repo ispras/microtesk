@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -117,21 +117,21 @@ expr
 //==================================================================================================
 
 nonNumExpr
-    : ifExpr
-    | functionCall
+    :  ifExpr
+    |  functionCall
     ;
 
 functionDecl
-    : FUNCTION^ ID { declare($ID, NmlSymbolKind.FUNCTION, true); }
+    :  FUNCTION^ ID { declare($ID, NmlSymbolKind.FUNCTION, true); }
     ;
 
 functionCall
-    : {isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}?
-      ID LEFT_PARENTH (expr (COMMA expr)*)? RIGHT_PARENTH -> ^(FUNCTION_CALL ID expr*)
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}?
+       ID LEFT_PARENTH (expr (COMMA expr)*)? RIGHT_PARENTH -> ^(FUNCTION_CALL ID expr*)
     ;
 
 ifExpr
-    :  IF^ expr THEN! expr elseIfExpr* elseExpr? ENDIF!
+    :  IF^ expr THEN! expr elseIfExpr* elseExpr ENDIF!
     ;
 
 elseIfExpr
@@ -255,7 +255,7 @@ locationAtom
     ;
 
 bitFieldExpr
-@init   { setInBitField(true); }
+@init  { setInBitField(true); }
     :  LEFT_BROCKET! expr (DOUBLE_DOT! expr)? RIGHT_BROCKET!
     ;
 finally { setInBitField(false); }
@@ -295,7 +295,7 @@ attributeFormatCall
 /*======================================================================================*/
 
 sequence
-    : (statement SEMI)* -> ^(SEQUENCE statement*) 
+    :  (statement SEMI)* -> ^(SEQUENCE statement*) 
     ;
 
 statement
@@ -322,13 +322,13 @@ instance
     ;
 
 instance_arg
-    : instance
-    | argument
-    | expr
+    :  instance
+    |  argument
+    |  expr
     ;
 
 argument
-    : {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
     ;
 
 conditionalStatement
