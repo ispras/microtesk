@@ -323,7 +323,7 @@ $res = n;
     ;
 
 ifExpr [int depth] returns [Node res]
-    : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth]?)
+    : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth])
     ;
 
 elseIfExpr [int depth] returns [Node res]
