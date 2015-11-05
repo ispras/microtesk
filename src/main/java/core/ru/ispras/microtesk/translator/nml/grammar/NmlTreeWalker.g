@@ -755,7 +755,7 @@ conds.add($eifc.res);
 {
 checkNotNull($elsc.start, $elsc.res, $elsc.text);
 conds.add($elsc.res);
-})?)
+}))
 {
 $res = getExprFactory().condition(where($op), conds);
 }
