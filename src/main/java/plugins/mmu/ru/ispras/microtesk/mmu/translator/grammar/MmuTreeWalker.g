@@ -323,15 +323,25 @@ $res = n;
     ;
 
 ifExpr [int depth] returns [Node res]
+@init {final List<Pair<Node, Node>> exprs = new ArrayList<>();}
     : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth])
     ;
 
-elseIfExpr [int depth] returns [Node res]
-    : ^(ELSEIF expr[depth] expr[depth])
+elseIfExpr [int depth] returns [Pair<Node, Node> res]
+    : ^(ELSEIF ce=expr[depth] ve=expr[depth])
+{
+checkNotNull($ce.start, $ce.res);
+checkNotNull($ve.start, $ve.res);
+$res = new Pair<>($ce.res, $ve.res);
+}
     ;
 
-elseExpr [int depth] returns [Node res]
-    : ^(ELSE expr[depth])
+elseExpr [int depth] returns [Pair<Node, Node> res]
+    : ^(ELSE ve=expr[depth])
+{
+checkNotNull($ve.start, $ve.res);
+$res = new Pair<>((Node) NodeValue.newBoolean(true), $ve.res);
+}
     ;
 
 binaryExpr [int depth] returns [Node res]
