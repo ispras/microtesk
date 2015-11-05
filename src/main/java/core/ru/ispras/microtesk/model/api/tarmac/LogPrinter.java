@@ -42,7 +42,11 @@ public final class LogPrinter {
     Record.resetInstructionCount();
 
     final String fileName = String.format(
-        "%s_%04d.%s", filePrefix, fileCount++, fileExtension);
+        "%s_%04d.%s",
+        filePrefix,
+        fileCount++,
+        fileExtension
+        );
 
     fileWritter = new PrintWriter(new FileWriter(fileName));
     return fileName;
