@@ -324,7 +324,22 @@ $res = n;
 
 ifExpr [int depth] returns [Node res]
 @init {final List<Pair<Node, Node>> exprs = new ArrayList<>();}
-    : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth])
+    : ^(id=IF ce=expr[depth] ve=expr[depth]
+{
+checkNotNull($ce.start, $ce.res);
+checkNotNull($ve.start, $ve.res);
+exprs.add(new Pair<>($ce.res, $ve.res));
+}
+    (eife = elseIfExpr[depth]
+{
+checkNotNull($eife.start, $eife.res);
+exprs.add($eife.res);
+})*
+    ele=elseExpr[depth]
+{
+checkNotNull($ele.start, $ele.res);
+exprs.add($ele.res);
+})
     ;
 
 elseIfExpr [int depth] returns [Pair<Node, Node> res]
