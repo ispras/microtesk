@@ -15,7 +15,7 @@
 group Function;
 
 function(name, params, names, locals, members, stmts) ::= <<
-<instance_factory(params, names)>
+<instance_factory(params, names)><\n>
 <class(["public", "static", "final"],
        "Function",
        false,
@@ -28,11 +28,11 @@ function(name, params, names, locals, members, stmts) ::= <<
 >>
 
 instance_ctor(name, type, params, names, stmts) ::= <<
-private <type>(
+<\n>private <type>(
     final MmuSubsystem.Builder builder,
     final int instanceIndex<params: {p |,<\n>    final <p>}>) {
   final String name = String.format("<name>_%d", instanceIndex);
-  <names: { member | this.<member> = <member>; }; separator="\n">
+  <if(names)><names: { member | this.<member> = <member>; }; separator="\n"><endif>
   <if(stmts)><\n><stmts; separator="\n"><endif>
 }
 >>
