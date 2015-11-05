@@ -318,7 +318,7 @@ $res = n;
     : n=atom
     | n=binaryExpr[depth+1]
     | n=unaryExpr[depth+1]
-//  | ifExpr[depth+1]
+    | n=ifExpr[depth+1]
     | functionCall[depth+1] { n = newCallExpr(where($functionCall.start), $functionCall.res); }
     ;
 
