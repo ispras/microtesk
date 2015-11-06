@@ -237,15 +237,20 @@ public final class MemorySymbolicExecutor {
   private void execute(final MmuCondition condition, final int pathIndex1, final int pathIndex2) {
     InvariantChecks.checkNotNull(condition);
 
+    final IntegerClause.Type clauseType =
+        (condition.getType() == MmuCondition.Type.AND)
+        ? IntegerClause.Type.AND
+        : IntegerClause.Type.OR;
+
+    final IntegerClause.Builder<IntegerField> clauseBuilder =
+        new IntegerClause.Builder<>(clauseType);
+
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       if (atom.getType() != MmuConditionAtom.Type.EQUAL) {
         continue;
       }
 
       final MmuExpression expression = atom.getExpression();
-
-      final IntegerClause.Builder<IntegerField> clauseBuilder = new IntegerClause.Builder<>(
-          !atom.isNegated() ? IntegerClause.Type.AND : IntegerClause.Type.OR);
 
       for (final IntegerField term : expression.getTerms()) {
         final IntegerField field1 = getPathFieldInstance(term, pathIndex1);
@@ -259,9 +264,8 @@ public final class MemorySymbolicExecutor {
         result.variables.add(field2.getVariable());
         result.originals.add(getPathVar(term.getVariable(), pathIndex2));
       }
-
-      result.formula.addClause(clauseBuilder.build());
     }
+    result.formula.addClause(clauseBuilder.build());
   }
 
   private void execute(final MmuTransition transition, final int pathIndex) {
@@ -311,14 +315,12 @@ public final class MemorySymbolicExecutor {
 
     final IntegerClause.Type definedType = condition.getType() == MmuCondition.Type.AND ?
         IntegerClause.Type.AND : IntegerClause.Type.OR;
-    final IntegerClause.Type negatedType = condition.getType() == MmuCondition.Type.AND ?
-        IntegerClause.Type.OR : IntegerClause.Type.AND;
+
+    final IntegerClause.Builder<IntegerField> clauseBuilder =
+        new IntegerClause.Builder<>(definedType);
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
-
-      final IntegerClause.Builder<IntegerField> clauseBuilder =
-          new IntegerClause.Builder<>(!atom.isNegated() ? definedType : negatedType);
 
       final MmuExpression expression = atom.getExpression();
       final BigInteger constant = atom.getConstant();
@@ -338,9 +340,8 @@ public final class MemorySymbolicExecutor {
         result.variables.add(field.getVariable());
         result.originals.add(getPathVar(term.getVariable(), pathIndex));
       }
-
-      result.formula.addClause(clauseBuilder.build());
     }
+    result.formula.addClause(clauseBuilder.build());
   }
 
   private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
