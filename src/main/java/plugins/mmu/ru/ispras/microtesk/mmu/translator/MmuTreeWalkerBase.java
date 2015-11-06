@@ -123,6 +123,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
   }
 
+  private Node standardize(final Node cond) {
+    final Node stdCond = Transformer.standardize(cond);
+
+    equalityExpander.walk(stdCond);
+    final Node result = equalityExpander.getResult().iterator().next();
+
+    equalityExpander.reset();
+    return result;
+  }
+
   public MmuTreeWalkerBase(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
     this.ir = null;
@@ -158,24 +168,29 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @throws SemanticException if the value expression is {@code null}.
    */
 
-  protected final void newConstant(final CommonTree id, final Node value) throws SemanticException {
+  protected final void newConstant(
+      final CommonTree id,
+      final Node value,
+      final Node size) throws SemanticException {
     checkNotNull(id, value);
 
-    if (value.getKind() == Node.Kind.VALUE) {
-      ir.addConstant(new Constant(id.getText(), value));
-      return;
+    if (size != null && size.getKind() != Node.Kind.VALUE) {
+      raiseError(where(id), String.format(
+          "Size expression is not a constant value: %s", size));
     }
 
-    if (value.isType(DataTypeId.BIT_VECTOR)) {
-      ir.addConstant(new Constant(id.getText(), value));
+    final Node constantValue;
+    if (value.getKind() == Node.Kind.VALUE) {
+      constantValue = value;
+    } else if (value.isType(DataTypeId.BIT_VECTOR)) {
+      constantValue = value;
     } else if (value.isType(DataTypeId.LOGIC_BOOLEAN)) {
-      final Node cast = new NodeOperation(
+      constantValue = new NodeOperation(
           StandardOperation.ITE,
           value,
           NodeValue.newBitVector(BitVector.TRUE),
           NodeValue.newBitVector(BitVector.FALSE)
           );
-      ir.addConstant(new Constant(id.getText(), cast));
     } else {
       raiseError(where(id), String.format(
           "Dynamic let-constant cannot be cast to a bitvector: %s: %s = %s",
@@ -183,7 +198,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           value.getDataType(),
           value
           ));
+      constantValue = null;
     }
+
+    final Constant constant = new Constant(id.getText(), constantValue);
+    ir.addConstant(constant);
   }
 
   /**
@@ -1174,16 +1193,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       ifBlocks.add(new Pair<>(standardize(cond), stmts));
     }
 
-    private Node standardize(final Node cond) {
-      final Node stdCond = Transformer.standardize(cond);
-
-      equalityExpander.walk(stdCond);
-      final Node result = equalityExpander.getResult().iterator().next();
-
-      equalityExpander.reset();
-      return result;
-    }
-
     public void setElse(final CommonTree where, final List<Stmt> stmts) throws SemanticException {
       checkNotNull(where, stmts);
       if (!stmts.isEmpty()) {
@@ -1284,7 +1293,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     for (int index = blocks.size() - 2; index >= 0; index--) {
       final Pair<Node, Node> currentBlock = blocks.get(index);
 
-      final Node condition = currentBlock.first;
+      final Node condition = standardize(currentBlock.first);
       final Node value = currentBlock.second;
 
       if (condition.equals(NodeValue.newBoolean(true))) {
