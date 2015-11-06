@@ -197,11 +197,20 @@ abstract class STBCommon {
 
   private static Node correctRightType(final Node right, final Node left) {
     if (right.getKind() == Node.Kind.VALUE &&
-        right.isType(DataTypeId.LOGIC_INTEGER) && 
+        right.isType(DataTypeId.LOGIC_INTEGER) &&
         left.isType(DataTypeId.BIT_VECTOR)) {
       return NodeValue.newBitVector(BitVector.valueOf(
           ((NodeValue) right).getInteger(), left.getDataType().getSize()));
     }
+
+    if (right.getKind() == Node.Kind.VALUE &&
+        right.isType(DataTypeId.LOGIC_BOOLEAN) &&
+        left.isType(DataTypeId.BIT_VECTOR)) {
+      final BitVector value = BitVector.valueOf(((NodeValue) right).getBoolean());
+      return NodeValue.newBitVector(
+          value.resize(left.getDataType().getSize(), false));
+    }
+
     return right;
   }
 
