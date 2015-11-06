@@ -178,9 +178,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       ir.addConstant(new Constant(id.getText(), cast));
     } else {
       raiseError(where(id), String.format(
-          "The %s (%s) constant cannot be cast to a bitvector.",
+          "Dynamic let-constant cannot be cast to a bitvector: %s: %s = %s",
           id.getText(),
-          value.getDataType()
+          value.getDataType(),
+          value
           ));
     }
   }
