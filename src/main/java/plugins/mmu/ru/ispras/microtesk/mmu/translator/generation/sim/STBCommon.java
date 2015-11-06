@@ -184,7 +184,7 @@ abstract class STBCommon {
 
   private void buildStmtAssign(final ST st, final STGroup group, final StmtAssign stmt) {
     final Node left = stmt.getLeft();
-    final Node right = correctRightType(stmt.getRight(), left);
+    final Node right = castTo(stmt.getRight(), left);
 
     final String leftText = ExprPrinter.get().toString(left);
     final String rightText = ExprPrinter.get().toString(right);
@@ -196,23 +196,23 @@ abstract class STBCommon {
     st.add("stmts", stmtText);
   }
 
-  private static Node correctRightType(final Node right, final Node left) {
-    if (right.getKind() == Node.Kind.VALUE &&
-        right.isType(DataTypeId.LOGIC_INTEGER) &&
-        left.isType(DataTypeId.BIT_VECTOR)) {
+  private static Node castTo(final Node source, final Node target) {
+    if (source.getKind() == Node.Kind.VALUE &&
+        source.isType(DataTypeId.LOGIC_INTEGER) &&
+        target.isType(DataTypeId.BIT_VECTOR)) {
       return NodeValue.newBitVector(BitVector.valueOf(
-          ((NodeValue) right).getInteger(), left.getDataType().getSize()));
+          ((NodeValue) source).getInteger(), target.getDataType().getSize()));
     }
 
-    if (right.getKind() == Node.Kind.VALUE &&
-        right.isType(DataTypeId.LOGIC_BOOLEAN) &&
-        left.isType(DataTypeId.BIT_VECTOR)) {
-      final BitVector value = BitVector.valueOf(((NodeValue) right).getBoolean());
+    if (source.getKind() == Node.Kind.VALUE &&
+        source.isType(DataTypeId.LOGIC_BOOLEAN) &&
+        target.isType(DataTypeId.BIT_VECTOR)) {
+      final BitVector value = BitVector.valueOf(((NodeValue) source).getBoolean());
       return NodeValue.newBitVector(
-          value.resize(left.getDataType().getSize(), false));
+          value.resize(target.getDataType().getSize(), false));
     }
 
-    return right;
+    return source;
   }
 
   // Handles a situation when a bit vector is assigned a structure.
@@ -389,7 +389,9 @@ abstract class STBCommon {
 
   private void buildStmtReturn(final ST st, final StmtReturn stmt) {
     if (null != stmt.getExpr()) {
-      final String exprText = ExprPrinter.get().toString(stmt.getExpr());
+      final Node expr = stmt.getExpr();
+      final Node castExpr = castTo(expr, stmt.getStorage().getNode());
+      final String exprText = ExprPrinter.get().toString(castExpr);
       st.add("stmts", String.format("return %s;", exprText));
     } else {
       st.add("stmts", "return;");
