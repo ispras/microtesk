@@ -34,10 +34,13 @@ import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
+import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -120,6 +123,17 @@ final class SegmentControlFlowExplorer {
         case TRACE: // Ignored
           break;
 
+        case RETURN: // Skip statements after 'return'
+          final StmtReturn ret = (StmtReturn) stmt;
+          return isExternalAccess(ret.getExpr());
+
+        case CALL:
+          final StmtCall call = (StmtCall) stmt;
+          if (isExternalAccess(call.getCallee(), call.getArguments())) {
+            return true;
+          }
+          break;
+
         default:
           throw new IllegalStateException("Unknown statement: " + stmt.getKind());
       }
@@ -160,6 +174,15 @@ final class SegmentControlFlowExplorer {
 
     walker.visit(node);
     return visitor.isExternalAccess();
+  }
+
+  private static boolean isExternalAccess(final Callable callee, final List<Node> args) {
+    for (final Node arg : args) {
+      if (isExternalAccess(arg)) {
+        return true;
+      }
+    }
+    return isExternalAccess(callee.getBody());
   }
 
   private static final class ExternalAccessDetector extends ExprTreeVisitorDefault {
@@ -221,19 +244,21 @@ final class SegmentControlFlowExplorer {
       for (final Stmt stmt : stmts) {
         switch(stmt.getKind()) {
           case IF: // Conditions are ignored
+          case MARK:
+          case TRACE:
             break;
 
           case ASSIGN:
             visitStmtAssign((StmtAssign) stmt);
             break;
 
+          case RETURN:
           case EXCEPT: // Other statements cannot be visited after exception
             return;
 
-          case MARK: // Ignored
-            break;
-
-          case TRACE: // Ignored
+          case CALL: // FIXME
+            final StmtCall call = (StmtCall) stmt;
+            visitStmts(call.getCallee().getBody());
             break;
 
           default:
