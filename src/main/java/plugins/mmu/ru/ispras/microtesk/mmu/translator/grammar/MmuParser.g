@@ -96,20 +96,10 @@ declaration
 //==================================================================================================
 
 let
-    : MMU_LET^ id=ID ASSIGN! expr {declare($id, NmlSymbolKind.LET_CONST, false);}
-    ;
-
-fields
-    : field (COMMA! field)*
-    ;
-
-field
-    : ID COLON! typeRef
-    ;
-
-typeRef
-    : ID
-    | expr (ASSIGN! expr)?
+    : MMU_LET^ id=ID (COLON expr)? ASSIGN! expr
+{
+declare($id, NmlSymbolKind.LET_CONST, false);
+}
     ;
 
 //==================================================================================================
@@ -130,6 +120,20 @@ externExpr
 
 struct
     : MMU_STRUCT^ ID LEFT_PARENTH! fields RIGHT_PARENTH!
+    ;
+
+
+fields
+    : field (COMMA! field)*
+    ;
+
+field
+    : ID COLON! typeRef
+    ;
+
+typeRef
+    : ID
+    | expr (ASSIGN! expr)?
     ;
 
 //==================================================================================================
