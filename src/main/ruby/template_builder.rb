@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-require 'set'
-
 require_relative 'template'
 
 # TODO:
