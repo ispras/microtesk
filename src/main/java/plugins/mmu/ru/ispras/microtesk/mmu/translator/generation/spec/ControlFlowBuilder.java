@@ -279,8 +279,12 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(stmt);
 
-    final Node left = stmt.getLeft();
-    final Node right = stmt.getRight();
+    return buildStmtAssign(source, stmt.getLeft(), stmt.getRight());
+  }
+
+  private String buildStmtAssign(final String source, final Node left, final Node right) {
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
 
     // Assignments that use the "data" MMU variable are ignored.
     if (isDataVariable(left) || isDataVariable(right)) {
@@ -415,7 +419,7 @@ final class ControlFlowBuilder {
   private void buildStmtReturn(final String start, final String stop, final StmtReturn s) {
     final String medium;
     if (s.getStorage() != null) {
-      medium = buildStmtAssign(start, new StmtAssign(s.getStorage().getNode(), s.getExpr()));
+      medium = buildStmtAssign(start, s.getStorage().getNode(), s.getExpr());
     } else {
       medium = start;
     }
@@ -642,7 +646,6 @@ final class ControlFlowBuilder {
     public boolean isApplicable(final Node node) {
       final boolean process = nodeIsOperation(node, MmuSymbolKind.FUNCTION) &&
              node.getUserData() instanceof Callable;
-      System.out.printf("CallBuilder(%s) [%s]%n", node, process);
       return process;
     }
 
@@ -651,10 +654,23 @@ final class ControlFlowBuilder {
       final NodeOperation call = (NodeOperation) node;
       final Callable callee = (Callable) node.getUserData();
 
+      int i = 0;
+      final List<Node> args = new ArrayList<>(call.getOperandCount());
+      for (final Node arg : call.getOperands()) {
+        // In bottom-up transformer every function call has been replaced earlier
+        if (arg.getKind() == Node.Kind.OPERATION) {
+          final NodeOperation e = (NodeOperation) arg;
+          final Variable tmp = newTemporary(callee.getParameter(i).getType());
+          state = buildStmtAssign(state, tmp.getNode(), e);
+          args.add(tmp.getNode());
+        } else {
+          args.add(arg);
+        }
+        ++i;
+      }
       final Variable tmp = newTemporary(callee.getOutput().getType());
-      state = buildCall(state, tmp.getNode(), callee, call.getOperands());
+      state = buildCall(state, tmp.getNode(), callee, args);
 
-      System.out.printf("CallBuilder(%s) -> %s%n", node, tmp.getNode());
       return tmp.getNode();
     }
    
