@@ -161,13 +161,28 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final void newConstant(final CommonTree id, final Node value) throws SemanticException {
     checkNotNull(id, value);
 
-    if (value.getKind() != Node.Kind.VALUE && !value.isType(DataTypeId.BIT_VECTOR)) {
-      raiseError(where(id),
-          "Dynamically-calculated let-expressions must have the bitvector type.");
+    if (value.getKind() == Node.Kind.VALUE) {
+      ir.addConstant(new Constant(id.getText(), value));
+      return;
     }
 
-    final Constant constant = new Constant(id.getText(), value);
-    ir.addConstant(constant);
+    if (value.isType(DataTypeId.BIT_VECTOR)) {
+      ir.addConstant(new Constant(id.getText(), value));
+    } else if (value.isType(DataTypeId.LOGIC_BOOLEAN)) {
+      final Node cast = new NodeOperation(
+          StandardOperation.ITE,
+          value,
+          NodeValue.newBitVector(BitVector.TRUE),
+          NodeValue.newBitVector(BitVector.FALSE)
+          );
+      ir.addConstant(new Constant(id.getText(), cast));
+    } else {
+      raiseError(where(id), String.format(
+          "The %s (%s) constant cannot be cast to a bitvector.",
+          id.getText(),
+          value.getDataType()
+          ));
+    }
   }
 
   /**

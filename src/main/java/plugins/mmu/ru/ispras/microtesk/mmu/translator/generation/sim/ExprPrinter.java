@@ -55,6 +55,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.AND, "", " && ", "");
     addMapping(StandardOperation.OR, "", " || ", "");
     addMapping(StandardOperation.NOT, "!(", "", ")");
+    addMapping(StandardOperation.ITE, "(", new String[] {" ? ", " : "}, ")");
 
     addBitVectorMathMapping(StandardOperation.BVADD,  "add");
     addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
