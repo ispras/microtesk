@@ -6,6 +6,15 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+ 2015/11/06 MicroTESK 2.3.9 beta
+
+ The new build contains the following changes:
+
+ - Support for functions in MMU specifications
+ - Support for expressions based on extern variables in let-constructs (MMU)
+ - Support for 'if-then-else' expressions in let-constructs (MMU)
+ - Several bug fixes and general improvements
+
  2015/10/30 MicroTESK 2.3.8 beta
 
  The new build contains the following changes:
