@@ -1287,12 +1287,18 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Node condition = currentBlock.first;
       final Node value = currentBlock.second;
 
-      result = new NodeOperation(
-          StandardOperation.ITE,
-          condition,
-          value,
-          result
-          );
+      if (condition.equals(NodeValue.newBoolean(true))) {
+        result = value;
+      } else if (condition.equals(NodeValue.newBoolean(false))) {
+        // result stays the same
+      } else {
+        result = new NodeOperation(
+            StandardOperation.ITE,
+            condition,
+            value,
+            result
+            );
+      }
     }
 
     return result;
