@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -59,11 +60,15 @@ public final class AtomExtractor {
 
   static Atom extract(final NodeValue node) {
     final BigInteger value;
+
     if (node.isType(DataTypeId.LOGIC_INTEGER)) {
       value = node.getInteger();
+    } else if (node.isType(DataTypeId.LOGIC_BOOLEAN)) {
+      value = BitVector.valueOf(node.getBoolean()).bigIntegerValue(false);
     } else {
       value = node.getBitVector().bigIntegerValue(false);
     }
+
     return Atom.newValue(value);
   }
 
