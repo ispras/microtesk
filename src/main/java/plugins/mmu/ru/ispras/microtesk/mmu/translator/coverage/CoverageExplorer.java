@@ -90,9 +90,9 @@ public final class CoverageExplorer {
         int count = 1;
         while (i < len && samples[i] == sample) {
           ++count;
+          ++i;
         }
         value += sample * count / (double) len;
-        i += count - 1;
       }
       return value;
     }
