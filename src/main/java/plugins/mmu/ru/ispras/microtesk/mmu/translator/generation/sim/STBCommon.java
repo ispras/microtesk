@@ -31,6 +31,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
@@ -239,6 +240,9 @@ abstract class STBCommon {
     } else if (userData instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) userData;
       return attrRef.getTarget().getDataArg().getType();
+    } else if (userData instanceof Callable) {
+      final Callable callable = (Callable) userData;
+      return callable.getOutput().getType();
     } else if (userData == null) {
       return null;
     } else {
