@@ -31,6 +31,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
@@ -78,8 +79,12 @@ public final class AtomExtractor {
       return extractFromVariable((Variable) userData);
     } else if (userData instanceof AttributeRef) {
       return extractFromAttributeRef((AttributeRef) userData);
-    } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
-      return Atom.newVariable(new IntegerVariable(expr.getName(), expr.getDataType().getSize()));
+    } else if (userData instanceof Constant) {
+      if (expr.isType(DataTypeId.BIT_VECTOR)) {
+        return Atom.newVariable(new IntegerVariable(expr.getName(), expr.getDataType().getSize()));
+      } else {
+        throw new IllegalArgumentException("Illegal variable type: " + expr.getDataType());
+      }
     } else {
       throw new IllegalArgumentException("Illegal user data attribute: " + userData);
     }

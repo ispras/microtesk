@@ -1103,8 +1103,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       warning(where(where), "unable to determine size of assignment operands.");
     }
 
-    propagator.assign(leftExpr, rightExpr);
-    return new StmtAssign(leftExpr, rightExpr);
+    final Node right;
+    if (rightExpr.getUserData() instanceof Constant &&
+        !((Constant) rightExpr.getUserData()).isValue() &&
+        !((Constant) rightExpr.getUserData()).getVariable().isType(DataTypeId.BIT_VECTOR)) {
+      right = new NodeVariable(((NodeVariable) rightExpr).getName(), leftExpr.getDataType());
+      right.setUserData(rightExpr.getUserData());
+    } else {
+      right = rightExpr;
+    }
+
+    final Node left = leftExpr;
+    propagator.assign(left, right);
+
+    return new StmtAssign(left, right);
   }
 
   private static final void warning(final Where w, final String msg) {

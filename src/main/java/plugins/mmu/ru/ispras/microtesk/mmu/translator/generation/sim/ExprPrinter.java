@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -35,6 +36,7 @@ import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
@@ -266,6 +268,34 @@ final class ExprPrinter extends MapBasedPrinter {
         walker.visit(attrRef.getAddressArgValue());
 
         appendText(")");
+      } else if (variable.getUserData() instanceof Constant) {
+        final Constant constant = (Constant) variable.getUserData();
+        final DataType type = constant.getVariable().getDataType();
+
+        final String variableText = getVariableMapping(variable.getName());
+        final String text;
+
+        switch (type.getTypeId()) {
+          case BIT_VECTOR:
+            text = variableText;
+            break;
+
+          case LOGIC_INTEGER:
+            text = String.format("BitVector.valueOf(%s, %d)",
+                variableText, variable.getDataType().getSize());
+            break;
+
+          case LOGIC_BOOLEAN:
+            text = String.format("BitVector.valueOf(%s).resize(%d, false)",
+                variableText, variable.getDataType().getSize());
+            break;
+
+          default:
+            text = variableText;
+            break;
+        }
+
+        appendText(text);
       } else {
         final String text = getVariableMapping(variable.getName());
         appendText(text);
