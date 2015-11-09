@@ -78,6 +78,8 @@ public final class AtomExtractor {
       return extractFromVariable((Variable) userData);
     } else if (userData instanceof AttributeRef) {
       return extractFromAttributeRef((AttributeRef) userData);
+    } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
+      return Atom.newVariable(new IntegerVariable(expr.getName(), expr.getDataType().getSize()));
     } else {
       throw new IllegalArgumentException("Illegal user data attribute: " + userData);
     }
