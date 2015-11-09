@@ -95,7 +95,7 @@ declaration
 //==================================================================================================
 
 let
-    : ^(MMU_LET id=ID (COLON size=expr[0])? e=expr[0])
+    : ^(MMU_LET id=ID e=expr[0])
 {
 newConstant($id, $e.res, $size.res);
 }

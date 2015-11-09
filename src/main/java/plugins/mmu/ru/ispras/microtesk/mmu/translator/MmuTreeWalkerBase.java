@@ -174,34 +174,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Node size) throws SemanticException {
     checkNotNull(id, value);
 
-    if (size != null && size.getKind() != Node.Kind.VALUE) {
-      raiseError(where(id), String.format(
-          "Size expression is not a constant value: %s", size));
-    }
-
-    final Node constantValue;
-    if (value.getKind() == Node.Kind.VALUE) {
-      constantValue = value;
-    } else if (value.isType(DataTypeId.BIT_VECTOR)) {
-      constantValue = value;
-    } else if (value.isType(DataTypeId.LOGIC_BOOLEAN)) {
-      constantValue = new NodeOperation(
-          StandardOperation.ITE,
-          value,
-          NodeValue.newBitVector(BitVector.TRUE),
-          NodeValue.newBitVector(BitVector.FALSE)
-          );
-    } else {
-      raiseError(where(id), String.format(
-          "Dynamic let-constant cannot be cast to a bitvector: %s: %s = %s",
-          id.getText(),
-          value.getDataType(),
-          value
-          ));
-      constantValue = null;
-    }
-
-    final Constant constant = new Constant(id.getText(), constantValue);
+    final Constant constant = new Constant(id.getText(), value);
     ir.addConstant(constant);
   }
 
@@ -1270,7 +1243,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Creates a conditional expression of the followwing kind:<p>
+   * Creates a conditional expression of the following kind:<p>
    * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}. 
    * 
    * @param id Token that marks location of the construction in code, 

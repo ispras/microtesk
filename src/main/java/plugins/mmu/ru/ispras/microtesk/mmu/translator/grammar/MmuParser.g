@@ -96,7 +96,7 @@ declaration
 //==================================================================================================
 
 let
-    : MMU_LET^ id=ID (COLON expr)? ASSIGN! expr
+    : MMU_LET^ id=ID ASSIGN! expr
 {
 declare($id, NmlSymbolKind.LET_CONST, false);
 }
