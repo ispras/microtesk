@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   private final Deque<Map<String, String>> variableMappings = new ArrayDeque<>();
+  private boolean printAsBigInteger = false;
 
   private ExprPrinter() {
     addMapping(StandardOperation.EQ, "", ".equals(", ")");
@@ -110,6 +112,14 @@ final class ExprPrinter extends MapBasedPrinter {
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
+  }
+
+  public boolean getPrintAsBigInteger() {
+    return printAsBigInteger;
+  }
+
+  public void setPrintAsBigInteger(final boolean value) {
+    this.printAsBigInteger = value;
   }
 
   @Override
@@ -213,6 +223,11 @@ final class ExprPrinter extends MapBasedPrinter {
     return text;
   }
 
+  public static String bigIntegerToString(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    return String.format("new BigInteger(\"%d\", 10)", value);
+  }
+
   private final class Visitor extends ExprTreeVisitor {
     private final Map<String, String> attrMap;
 
@@ -227,6 +242,9 @@ final class ExprPrinter extends MapBasedPrinter {
     public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.BIT_VECTOR)) {
         final String text = bitVectorToString(value.getBitVector());
+        appendText(text);
+      } else if (printAsBigInteger && value.isType(DataTypeId.LOGIC_INTEGER)) {
+        final String text = bigIntegerToString(value.getInteger());
         appendText(text);
       } else {
         appendText(value.toString());

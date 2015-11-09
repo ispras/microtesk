@@ -34,9 +34,9 @@ public BitVector <n>() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Constant-related templates
 
-constant_body(expr) ::= <<
+constant_body(type, expr) ::= <<
 @Override
-public BitVector value() {
+public <type> value() {
   return <expr>;
 }
 >>

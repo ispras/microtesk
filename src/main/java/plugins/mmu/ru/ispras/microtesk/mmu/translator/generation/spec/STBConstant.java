@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -35,7 +34,6 @@ public class STBConstant implements STBuilder{
       final Constant constant) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(constant);
-    InvariantChecks.checkTrue(constant.getVariable().isType(DataTypeId.BIT_VECTOR));
 
     this.packageName = packageName;
     this.constant = constant;

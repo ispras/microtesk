@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
+import java.math.BigInteger;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,6 +25,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 final class STBConstant implements STBuilder {
   private final String packageName;
   private final Constant constant;
+  private final Class<?> type;
 
   public STBConstant(
       final String packageName,
@@ -33,6 +35,24 @@ final class STBConstant implements STBuilder {
 
     this.packageName = packageName;
     this.constant = constant;
+
+    switch(constant.getExpression().getDataTypeId()) {
+      case BIT_VECTOR:
+        type = STBCommon.BIT_VECTOR_CLASS;
+        break;
+
+      case LOGIC_INTEGER:
+        type = BigInteger.class;
+        break;
+
+      case LOGIC_BOOLEAN:
+        type = Boolean.class;
+        break;
+
+      default:
+        throw new IllegalArgumentException(
+            "Unsupported type: " + constant.getExpression().getDataType());
+    }
 
     ExprPrinter.get().addVariableMapping(
         constant.getId(), String.format("%s.get().value()", constant.getId()));
@@ -53,20 +73,32 @@ final class STBConstant implements STBuilder {
     final String implText = String.format(
         "%s<%s>",
         STBCommon.VALUE_CLASS.getName(),
-        STBCommon.BIT_VECTOR_CLASS.getSimpleName()
+        type.getSimpleName()
         );
 
     st.add("name", constant.getId()); 
     st.add("pack", packageName);
     st.add("impls", implText);
+
+    if (type == BigInteger.class) {
+      st.add("imps", type.getName());
+    }
+
     st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
-    final String exprText = ExprPrinter.get().toString(constant.getExpression());
-    stBody.add("expr", exprText);
+    try {
+      ExprPrinter.get().setPrintAsBigInteger(true);
+      final String exprText = ExprPrinter.get().toString(constant.getExpression());
+
+      stBody.add("type", type.getSimpleName());
+      stBody.add("expr", exprText);
+    } finally {
+      ExprPrinter.get().setPrintAsBigInteger(false);
+    }
 
     st.add("members", stBody);
   }
