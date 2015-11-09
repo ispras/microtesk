@@ -170,8 +170,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final void newConstant(
       final CommonTree id,
-      final Node value,
-      final Node size) throws SemanticException {
+      final Node value) throws SemanticException {
     checkNotNull(id, value);
 
     final Constant constant = new Constant(id.getText(), value);
