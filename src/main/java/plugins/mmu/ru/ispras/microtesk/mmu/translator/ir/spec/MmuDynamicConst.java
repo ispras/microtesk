@@ -22,12 +22,12 @@ import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 public final class MmuDynamicConst extends IntegerVariable {
-  private final Value<BitVector> value;
+  private final Value<?> value;
 
   public MmuDynamicConst(
       final String name,
       final int width,
-      final Value<BitVector> value) {
+      final Value<?> value) {
     super(name, width);
 
     InvariantChecks.checkNotNull(value);
@@ -36,6 +36,20 @@ public final class MmuDynamicConst extends IntegerVariable {
 
   @Override
   public BigInteger getValue() {
-    return value.value().bigIntegerValue(false);
+    final Object object = value.value();
+    final BigInteger result;
+
+    if (object instanceof BigInteger) {
+      result = (BigInteger) object;
+    } else if (object instanceof BitVector) {
+      result = ((BitVector) object).bigIntegerValue(false);
+    } else if (object instanceof Boolean) {
+      result = ((Boolean) object) ? BigInteger.ONE : BigInteger.ZERO;
+    } else {
+      throw new ClassCastException(
+          "Type " + object.getClass().getName() + " in not supported for constants.");
+    }
+
+    return result;
   }
 }
