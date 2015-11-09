@@ -34,6 +34,7 @@ public final class Constant {
     if (!isValue()) {
       final DataType dataType = expression.getDataType();
       this.variable = new NodeVariable(id, dataType);
+      this.variable.setUserData(this);
     } else {
       this.variable = null;
     }
