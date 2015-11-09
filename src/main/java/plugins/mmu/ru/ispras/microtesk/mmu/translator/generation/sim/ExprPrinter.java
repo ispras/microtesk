@@ -192,7 +192,9 @@ final class ExprPrinter extends MapBasedPrinter {
     }
   }
 
-  private String getVariableMapping(final String variableName) {
+  public String getVariableMapping(final String variableName) {
+    InvariantChecks.checkNotNull(variableName);
+
     for (final Map<String, String> scope : variableMappings) {
       final String mapping = scope.get(variableName);
       if (mapping != null) {
