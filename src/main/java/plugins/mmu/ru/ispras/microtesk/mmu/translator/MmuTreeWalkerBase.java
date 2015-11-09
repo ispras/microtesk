@@ -1270,6 +1270,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     InvariantChecks.checkNotNull(blocks);
     InvariantChecks.checkTrue(blocks.size() >= 2);
 
+    final List<Node> values = new ArrayList<>(blocks.size());
+    for (final Pair<Node, Node> block : blocks) {
+      values.add(block.second);
+    }
+
+    final DataType type = IntegerCast.findCommonType(values);
+    InvariantChecks.checkNotNull(type);
+
     final Pair<Node, Node> elseBlock = blocks.get(blocks.size() - 1);
     InvariantChecks.checkTrue(elseBlock.first.equals(NodeValue.newBoolean(true)));
 
@@ -1278,7 +1286,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Pair<Node, Node> currentBlock = blocks.get(index);
 
       final Node condition = standardize(currentBlock.first);
-      final Node value = currentBlock.second;
+      final Node value = IntegerCast.cast(currentBlock.second, type);
 
       if (condition.equals(NodeValue.newBoolean(true))) {
         result = value;
