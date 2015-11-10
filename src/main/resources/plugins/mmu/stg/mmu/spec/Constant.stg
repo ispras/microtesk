@@ -18,13 +18,15 @@ constant_body(name, width, value) ::= <<
 private static MmuDynamicConst constant = null;<\n>
 public static MmuDynamicConst get() {
   if (null == constant) {
-    constant = new MmuDynamicConst(
-        "<name>",
-        <width>,
-        <value>
-        );
-  }
-
+    constant = get(<width>);
+  }<\n>
   return constant;
+}<\n>
+public static MmuDynamicConst get(final int width) {
+  return new MmuDynamicConst(
+      "<name>",
+      width,
+      <value>
+      );
 }
 >>
