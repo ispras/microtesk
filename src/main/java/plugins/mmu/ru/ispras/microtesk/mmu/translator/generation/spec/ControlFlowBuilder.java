@@ -296,6 +296,7 @@ final class ControlFlowBuilder {
     if (isSegmentAccess(right)) {
       return buildSegmentAccess(source, left, (AttributeRef) right.getUserData());
     }
+
     final CallBuilder rule = new CallBuilder(source);
     final Node value = Transformer.transform(right, MmuSymbolKind.FUNCTION, rule);
 
@@ -742,23 +743,32 @@ final class ControlFlowBuilder {
 
     final Object object = atom.getObject();
     switch (atom.getKind()) {
-      case VALUE:
+      case VALUE: {
         return Utils.toString((BigInteger) object);
+      }
 
-      case VARIABLE:
-        return Utils.getVariableName(context, ((IntegerVariable) object).getName());
+      case VARIABLE: {
+        final IntegerVariable variable = (IntegerVariable) object;
+        return Utils.getVariableName(context, variable.getName());
+      }
 
-      case FIELD:
-        return String.format("%s.field(%d, %d)", 
-            Utils.getVariableName(context, ((IntegerField) object).getVariable().getName()),
-            ((IntegerField) object).getLoIndex(),
-            ((IntegerField) object).getHiIndex());
+      case FIELD: {
+        final IntegerField field = (IntegerField) object;
+        final IntegerVariable variable = field.getVariable();
+        return String.format("%s.field(%d, %d)",
+            Utils.getVariableName(context, variable.getName()),
+            field.getLoIndex(),
+            field.getHiIndex()
+            );
+      }
 
-      case GROUP:
+      case GROUP: {
         return Utils.getVariableName(context, ((Variable) object).getName());
+      }
 
-      case CONCAT:
+      case CONCAT: {
         return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
+      }
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
