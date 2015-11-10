@@ -536,8 +536,8 @@ final class ControlFlowBuilder {
         right.getTarget().getId(),
         callId,
         right.getTarget().getId(),
-        Utils.getVariableName(context, right.getAddressArgValue().toString()),
-        Utils.getVariableName(context, left.toString())
+        getVariableName(right.getAddressArgValue().toString()),
+        getVariableName(left.toString())
         );
  
     stDef.add("stmts", callText);
@@ -598,7 +598,7 @@ final class ControlFlowBuilder {
         callee.getName()));
     if (lhs != null) {
       builder.append(", ");
-      builder.append(Utils.getVariableName(context, lhs.toString()));
+      builder.append(getVariableName(lhs.toString()));
     }
     for (int i = 0; i < args.size(); ++i) {
       final Node arg = args.get(i);
@@ -606,7 +606,7 @@ final class ControlFlowBuilder {
       builder.append(", ");
       switch (arg.getKind()) {
       case VARIABLE:
-        builder.append(Utils.getVariableName(context, arg.toString()));
+        builder.append(getVariableName(arg.toString()));
         break;
 
       case VALUE:
@@ -749,21 +749,21 @@ final class ControlFlowBuilder {
 
       case VARIABLE: {
         final IntegerVariable variable = (IntegerVariable) object;
-        return Utils.getVariableName(context, variable.getName());
+        return getVariableName(variable.getName());
       }
 
       case FIELD: {
         final IntegerField field = (IntegerField) object;
         final IntegerVariable variable = field.getVariable();
         return String.format("%s.field(%d, %d)",
-            Utils.getVariableName(context, variable.getName()),
+            getVariableName(variable.getName()),
             field.getLoIndex(),
             field.getHiIndex()
             );
       }
 
       case GROUP: {
-        return Utils.getVariableName(context, ((Variable) object).getName());
+        return getVariableName( ((Variable) object).getName());
       }
 
       case CONCAT: {
@@ -773,5 +773,9 @@ final class ControlFlowBuilder {
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
     }
+  }
+
+  private String getVariableName(final String name) {
+    return Utils.getVariableName(context, name);
   }
 }
