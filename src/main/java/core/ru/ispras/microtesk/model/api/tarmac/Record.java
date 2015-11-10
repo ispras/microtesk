@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.tarmac;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -49,8 +50,14 @@ public abstract class Record {
   }
 
   public static Record newInstruction(final ConcreteCall call) {
-    InvariantChecks.checkNotNull(call);
     return new Instruction(call);
+  }
+
+  public static Record newMemoryAccess(
+      final BitVector address,
+      final BitVector data,
+      final boolean isWrite) {
+    return new MemoryAccess(address, data, isWrite);
   }
 
   private static class Instruction extends Record {
@@ -89,6 +96,38 @@ public abstract class Record {
           addr,
           instrId,
           disasm
+          );
+    }
+  }
+
+  private static class MemoryAccess extends Record {
+    private final BitVector address;
+    private final BitVector data;
+    private final boolean isWrite;
+
+    private MemoryAccess(
+        final BitVector address,
+        final BitVector data,
+        final boolean isWrite) {
+      super(RecordKind.MEMORY, instructionId);
+
+      InvariantChecks.checkNotNull(address);
+      InvariantChecks.checkNotNull(data);
+
+      this.address = address;
+      this.data = data;
+      this.isWrite = isWrite;
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "%s M%s%d 0x%s 0x%s",
+          super.toString(),
+          isWrite ? "W" : "R",
+          data.getByteSize(),
+          address.toHexString(),
+          data.toHexString()
           );
     }
   }
