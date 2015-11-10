@@ -370,10 +370,6 @@ final class GuardPrinter {
     return result;
   }
 
-  private String getVariableName(final String name) {
-    return Utils.getVariableName(context, name);
-  }
-
   private String getVariableName(final IntegerVariable variable) {
     final String name = variable.getName();
     final Constant constant = ir.getConstants().get(name);
