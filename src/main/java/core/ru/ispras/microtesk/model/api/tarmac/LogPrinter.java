@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class LogPrinter {
+  private static final String FILE_PREFIX = "tarmac";
   private static final String FILE_EXTENSION = "log";
 
   private final String filePrefix;
@@ -28,7 +29,42 @@ public final class LogPrinter {
   private int fileCount;
   private PrintWriter fileWritter;
 
-  public LogPrinter(final String filePrefix) {
+  private static LogPrinter instance = null;
+
+  public static void initialize(final String filePrefix) {
+    if (null != instance) {
+      instance = new LogPrinter(null != filePrefix ? filePrefix : FILE_PREFIX);
+    }
+  }
+
+  public static void shutdown() {
+    instance = null;
+  }
+
+  public static boolean isEnabled() {
+    return null != instance;
+  }
+
+  public static String createFile() throws IOException {
+    if (null != instance) {
+      return instance.create();
+    }
+    return null;
+  }
+
+  public static void closeFile() {
+    if (null != instance) {
+      instance.close();
+    }
+  }
+
+  public static void addRecord(final Record record) {
+    if (null != instance) {
+      instance.print(record);
+    }
+  }
+
+  private LogPrinter(final String filePrefix) {
     InvariantChecks.checkNotNull(filePrefix);
 
     this.filePrefix = filePrefix;
@@ -37,7 +73,7 @@ public final class LogPrinter {
     this.fileWritter = null;
   }
 
-  public String createNewFile() throws IOException {
+  private String create() throws IOException {
     close();
     Record.resetInstructionCount();
 
@@ -52,13 +88,13 @@ public final class LogPrinter {
     return fileName;
   }
 
-  public void close() {
+  private void close() {
     if (null != fileWritter) {
       fileWritter.close();
     }
   }
 
-  public void addRecord(final Record record) {
+  private void print(final Record record) {
     fileWritter.println(record.toString());
   }
 }

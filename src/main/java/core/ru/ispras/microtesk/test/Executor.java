@@ -48,7 +48,6 @@ import ru.ispras.microtesk.test.template.Output;
 final class Executor {
   private final EngineContext context;
   private final IModelStateObserver observer;
-  private final LogPrinter logPrinter;
 
   private Map<String, List<ConcreteCall>> exceptionHandlers;
   private List<LabelReference> labelRefs;
@@ -64,14 +63,12 @@ final class Executor {
 
   public Executor(
       final EngineContext context,
-      final IModelStateObserver observer,
-      final LogPrinter logPrinter) {
+      final IModelStateObserver observer) {
     checkNotNull(context);
     checkNotNull(observer);
 
     this.context = context;
     this.observer = observer;
-    this.logPrinter = logPrinter;
 
     this.exceptionHandlers = null;
     this.labelRefs = null;
@@ -251,8 +248,8 @@ final class Executor {
     }
 
     TestEngine.STATISTICS.instructionExecutedCount++;
-    if (logPrinter != null) {
-      logPrinter.addRecord(Record.newInstruction(call));
+    if (LogPrinter.isEnabled()) {
+      LogPrinter.addRecord(Record.newInstruction(call));
     }
   }
 
@@ -505,8 +502,8 @@ final class Executor {
     // Logger.debug("# Current address: %d, position: %d", address, addressMap.get(address.longValue()));
 
     TestEngine.STATISTICS.instructionExecutedCount++;
-    if (logPrinter != null) {
-      logPrinter.addRecord(Record.newInstruction(call));
+    if (LogPrinter.isEnabled()) {
+      LogPrinter.addRecord(Record.newInstruction(call));
     }
 
     if (null != exception) {

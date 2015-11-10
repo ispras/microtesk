@@ -229,16 +229,16 @@ public final class TestEngine {
         settings
         );
 
-    final LogPrinter logPrinter = TestSettings.isTarmacLog() ?
-        new LogPrinter(TestSettings.getCodeFilePrefix()) : null;
+    if (TestSettings.isTarmacLog()) {
+      LogPrinter.initialize(TestSettings.getCodeFilePrefix());
+    }
 
-    final Executor executor = new Executor(context, observer, logPrinter);
+    final Executor executor = new Executor(context, observer);
 
     final TemplateProcessor processor = new TemplateProcessor(
         context,
         executor,
-        printer, 
-        logPrinter,
+        printer,
         dataManager
         );
 
@@ -263,7 +263,6 @@ public final class TestEngine {
     private final EngineContext engineContext;
     private final Executor executor;
     private final Printer printer;
-    private final LogPrinter logPrinter;
     private final DataManager dataManager;
     private final GeneratorConfig<Call> config;
 
@@ -275,13 +274,11 @@ public final class TestEngine {
         final EngineContext engineContext,
         final Executor executor,
         final Printer printer,
-        final LogPrinter logPrinter,
         final DataManager dataManager) {
 
       this.engineContext = engineContext;
       this.executor = executor;
       this.printer = printer;
-      this.logPrinter = logPrinter;
       this.dataManager = dataManager;
       this.config = GeneratorConfig.<Call>get();
 
@@ -337,10 +334,7 @@ public final class TestEngine {
         }
 
         printer.close();
-
-        if (null != logPrinter) {
-          logPrinter.close();
-        }
+        LogPrinter.closeFile();
 
         // No instruction was added to the newly created file, it must be deleted
         if (STATISTICS.instructionCount == before.instructionCount) {
@@ -373,9 +367,7 @@ public final class TestEngine {
               fileName = printer.createNewFile();
               STATISTICS.testProgramNumber++;
 
-              if (logPrinter != null) {
-                logPrinter.createNewFile();
-              }
+              LogPrinter.createFile();
             } catch (IOException e) {
               Logger.error(e.getMessage());
             }
