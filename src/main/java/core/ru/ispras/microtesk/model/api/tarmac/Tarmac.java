@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class LogPrinter {
+public final class Tarmac {
   private static final String FILE_PREFIX = "tarmac";
   private static final String FILE_EXTENSION = "log";
 
@@ -29,11 +29,11 @@ public final class LogPrinter {
   private int fileCount;
   private PrintWriter fileWritter;
 
-  private static LogPrinter instance = null;
+  private static Tarmac instance = null;
 
   public static void initialize(final String filePrefix) {
     if (null != instance) {
-      instance = new LogPrinter(null != filePrefix ? filePrefix : FILE_PREFIX);
+      instance = new Tarmac(null != filePrefix ? filePrefix : FILE_PREFIX);
     }
   }
 
@@ -64,7 +64,7 @@ public final class LogPrinter {
     }
   }
 
-  private LogPrinter(final String filePrefix) {
+  private Tarmac(final String filePrefix) {
     InvariantChecks.checkNotNull(filePrefix);
 
     this.filePrefix = filePrefix;

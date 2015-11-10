@@ -29,7 +29,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
+import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -248,8 +248,8 @@ final class Executor {
     }
 
     TestEngine.STATISTICS.instructionExecutedCount++;
-    if (LogPrinter.isEnabled()) {
-      LogPrinter.addRecord(Record.newInstruction(call));
+    if (Tarmac.isEnabled()) {
+      Tarmac.addRecord(Record.newInstruction(call));
     }
   }
 
@@ -502,8 +502,8 @@ final class Executor {
     // Logger.debug("# Current address: %d, position: %d", address, addressMap.get(address.longValue()));
 
     TestEngine.STATISTICS.instructionExecutedCount++;
-    if (LogPrinter.isEnabled()) {
-      LogPrinter.addRecord(Record.newInstruction(call));
+    if (Tarmac.isEnabled()) {
+      Tarmac.addRecord(Record.newInstruction(call));
     }
 
     if (null != exception) {

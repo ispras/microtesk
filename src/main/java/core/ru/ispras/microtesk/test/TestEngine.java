@@ -38,7 +38,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Reader;
-import ru.ispras.microtesk.model.api.tarmac.LogPrinter;
+import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -230,7 +230,7 @@ public final class TestEngine {
         );
 
     if (TestSettings.isTarmacLog()) {
-      LogPrinter.initialize(TestSettings.getCodeFilePrefix());
+      Tarmac.initialize(TestSettings.getCodeFilePrefix());
     }
 
     final Executor executor = new Executor(context, observer);
@@ -334,7 +334,7 @@ public final class TestEngine {
         }
 
         printer.close();
-        LogPrinter.closeFile();
+        Tarmac.closeFile();
 
         // No instruction was added to the newly created file, it must be deleted
         if (STATISTICS.instructionCount == before.instructionCount) {
@@ -367,7 +367,7 @@ public final class TestEngine {
               fileName = printer.createNewFile();
               STATISTICS.testProgramNumber++;
 
-              LogPrinter.createFile();
+              Tarmac.createFile();
             } catch (IOException e) {
               Logger.error(e.getMessage());
             }
