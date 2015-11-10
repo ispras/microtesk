@@ -82,6 +82,9 @@ public final class AtomExtractor {
     } else if (userData instanceof Constant) {
       if (expr.isType(DataTypeId.BIT_VECTOR)) {
         return Atom.newVariable(new IntegerVariable(expr.getName(), expr.getDataType().getSize()));
+      } else if (expr.isType(DataTypeId.LOGIC_INTEGER)) {
+        return Atom.newVariable(
+            new IntegerVariable(expr.getName(), /* arbitrary positive value */ 64));
       } else {
         throw new IllegalArgumentException("Illegal variable type: " + expr.getDataType());
       }
