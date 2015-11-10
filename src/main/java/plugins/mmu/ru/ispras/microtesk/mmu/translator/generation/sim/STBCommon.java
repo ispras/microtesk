@@ -270,14 +270,7 @@ abstract class STBCommon {
         final ST stIf = group.getInstanceOf(isFirst ? "if_block" : "elseif_block");
         isFirst = false;
 
-        final String exprText;
-        if (condition.getUserData() instanceof Constant) {
-          final Constant constant = (Constant) condition.getUserData();
-          exprText = ExprPrinter.get().getVariableMapping(constant.getId()); 
-        } else {
-          exprText = ExprPrinter.get().toString(condition);
-        }
-
+        final String exprText = ExprPrinter.get().toString(condition);
         stIf.add("expr", exprText);
 
         buildStmts(stIf, group, stmts);

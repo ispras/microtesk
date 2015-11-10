@@ -288,8 +288,10 @@ final class ExprPrinter extends MapBasedPrinter {
             break;
 
           case LOGIC_BOOLEAN:
-            text = String.format("BitVector.valueOf(%s).resize(%d, false)",
-                variableText, variable.getDataType().getSize());
+            text = variable.isType(DataTypeId.LOGIC_BOOLEAN) ?
+                variableText :
+                String.format("BitVector.valueOf(%s).resize(%d, false)",
+                    variableText, variable.getDataType().getSize());
             break;
 
           default:
