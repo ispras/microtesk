@@ -24,6 +24,7 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -36,6 +37,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
@@ -749,14 +751,14 @@ final class ControlFlowBuilder {
 
       case VARIABLE: {
         final IntegerVariable variable = (IntegerVariable) object;
-        return getVariableName(variable.getName());
+        return getVariableName(variable);
       }
 
       case FIELD: {
         final IntegerField field = (IntegerField) object;
         final IntegerVariable variable = field.getVariable();
         return String.format("%s.field(%d, %d)",
-            getVariableName(variable.getName()),
+            getVariableName(variable),
             field.getLoIndex(),
             field.getHiIndex()
             );
@@ -776,6 +778,22 @@ final class ControlFlowBuilder {
   }
 
   private String getVariableName(final String name) {
+    return Utils.getVariableName(context, name);
+  }
+
+  private String getVariableName(final IntegerVariable variable) {
+    final String name = variable.getName();
+    final Constant constant = ir.getConstants().get(name);
+
+    if (null != constant) {
+      final DataType type = constant.getVariable().getDataType();
+      if (variable.getWidth() == type.getSize()) {
+        return name + ".get()";
+      } else {
+        return String.format("%s.get(%d)", name, variable.getWidth());
+      }
+    }
+
     return Utils.getVariableName(context, name);
   }
 }

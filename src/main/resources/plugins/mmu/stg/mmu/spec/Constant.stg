@@ -14,15 +14,15 @@
 
 group Constant;
 
-constant_body(name, width, value) ::= <<
-private static MmuDynamicConst constant = null;<\n>
+constant_body(name, width, value, fixed_width) ::= <<
+<if(fixed_width)>private static MmuDynamicConst constant = null;<\n>
 public static MmuDynamicConst get() {
   if (null == constant) {
     constant = get(<width>);
   }<\n>
   return constant;
-}<\n>
-public static MmuDynamicConst get(final int width) {
+}<\n><\n><endif>
+<if(fixed_width)>private<else>public<endif> static MmuDynamicConst get(final int width) {
   return new MmuDynamicConst(
       "<name>",
       width,

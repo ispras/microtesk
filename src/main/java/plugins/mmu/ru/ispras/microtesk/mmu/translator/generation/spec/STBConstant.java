@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -64,6 +65,7 @@ public class STBConstant implements STBuilder{
     stBody.add("name", constant.getId());
     stBody.add("width", constant.getVariable().getDataType().getSize());
     stBody.add("value", String.format("%s.%s.get()", simulatorPackageName, constant.getId()));
+    stBody.add("fixed_width", constant.getVariable().isType(DataTypeId.BIT_VECTOR));
 
     st.add("members", stBody);
   }
