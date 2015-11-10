@@ -23,8 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -32,6 +37,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
@@ -80,6 +86,33 @@ final class GuardPrinter {
         segments.add(atom);
       } else if (isBufferEvent(atom)) {
         buffers.add(atom);
+      } else if (isBooleanVariable(atom)) {
+        final String variableName = ((NodeVariable) atom).getName();
+
+        final Node variable = new NodeVariable(variableName, DataType.BIT_VECTOR(1));
+        variable.setUserData(atom.getUserData());
+
+        final Node equality = new NodeOperation(
+            StandardOperation.NOTEQ,
+            variable,
+            NodeValue.newBitVector(BitVector.FALSE)
+            );
+
+        equalities.add(equality);
+      } else if (isNegatedBooleanVariable(atom)) {
+        final NodeOperation op = (NodeOperation) atom;
+        final NodeVariable var = (NodeVariable) op.getOperand(0);
+
+        final Node variable = new NodeVariable(var.getName(), DataType.BIT_VECTOR(1));
+        variable.setUserData(var.getUserData());
+
+        final Node equality = new NodeOperation(
+            StandardOperation.EQ,
+            variable,
+            NodeValue.newBitVector(BitVector.FALSE)
+            );
+
+        equalities.add(equality);
       } else {
         throw new IllegalStateException("Illegal atomic condition: " + atom);
       }
@@ -196,6 +229,22 @@ final class GuardPrinter {
     return false;
   }
 
+  private static boolean isBooleanVariable(final Node node) {
+    InvariantChecks.checkNotNull(node);
+    return node.getKind() == Node.Kind.VARIABLE &&
+           node.isType(DataTypeId.LOGIC_BOOLEAN);
+  }
+  
+  private static boolean isNegatedBooleanVariable(final Node node) {
+    if (node.getKind() != Node.Kind.OPERATION) {
+      return false;
+    }
+
+    final NodeOperation op = (NodeOperation) node;
+    return op.getOperationId() == StandardOperation.NOT && 
+           isBooleanVariable(op.getOperand(0));
+  }
+
   private List<String> extractSegmentIds(final Node node) {
     InvariantChecks.checkNotNull(node);
 
@@ -280,7 +329,7 @@ final class GuardPrinter {
       switch (variableAtom.getKind()) {
         case VARIABLE: {
           final IntegerVariable intVar = (IntegerVariable) variableAtom.getObject();
-          variableText = Utils.getVariableName(context, intVar.getName());
+          variableText = getVariableName(intVar);
           break;
         }
 
@@ -319,5 +368,25 @@ final class GuardPrinter {
     }
 
     return result;
+  }
+
+  private String getVariableName(final String name) {
+    return Utils.getVariableName(context, name);
+  }
+
+  private String getVariableName(final IntegerVariable variable) {
+    final String name = variable.getName();
+    final Constant constant = ir.getConstants().get(name);
+
+    if (null != constant) {
+      final DataType type = constant.getVariable().getDataType();
+      if (variable.getWidth() == type.getSize()) {
+        return name + ".get()";
+      } else {
+        return String.format("%s.get(%d)", name, variable.getWidth());
+      }
+    }
+
+    return Utils.getVariableName(context, name);
   }
 }
