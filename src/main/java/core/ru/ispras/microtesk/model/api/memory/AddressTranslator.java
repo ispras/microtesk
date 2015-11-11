@@ -70,11 +70,6 @@ public final class AddressTranslator {
 
   public BigInteger virtualFromOrigin(final BigInteger origin) {
     InvariantChecks.checkNotNull(origin);
-
-    if (!isTranslationNeeded) {
-      return origin;
-    }
-
     return baseVirtualAddress.add(origin);
   }
 
@@ -90,11 +85,6 @@ public final class AddressTranslator {
 
   public BigInteger physicalFromOrigin(final BigInteger origin) {
     InvariantChecks.checkNotNull(origin);
-
-    if (!isTranslationNeeded) {
-      return origin;
-    }
-
     return basePhysicalAddress.add(origin);
   }
 
