@@ -56,6 +56,9 @@ public class STBConstant implements STBuilder{
   private void buildHeader(final ST st) {
     st.add("name", constant.getId()); 
     st.add("pack", packageName);
+    st.add("imps", java.util.Map.class.getName());
+    st.add("imps", java.util.HashMap.class.getName());
+    st.add("imps", InvariantChecks.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());
   }
 

@@ -48,13 +48,16 @@ public class STBExtern implements STBuilder{
 
     buildHeader(st);
     buildBody(st, group);
-    
+
     return st;
   }
 
   private void buildHeader(final ST st) {
     st.add("name", extern.getName()); 
     st.add("pack", packageName);
+    st.add("imps", java.util.Map.class.getName());
+    st.add("imps", java.util.HashMap.class.getName());
+    st.add("imps", InvariantChecks.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());
   }
 

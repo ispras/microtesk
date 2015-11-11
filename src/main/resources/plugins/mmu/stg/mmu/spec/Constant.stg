@@ -22,11 +22,20 @@ public static MmuDynamicConst get() {
   }<\n>
   return constant;
 }<\n><\n><endif>
+private static final Map\<Integer, MmuDynamicConst\> constants = new HashMap\<\>();<\n>
 <if(fixed_width)>private<else>public<endif> static MmuDynamicConst get(final int width) {
-  return new MmuDynamicConst(
-      "<name>",
-      width,
-      <value>
-      );
+  InvariantChecks.checkGreaterThanZero(width);
+  MmuDynamicConst result = constants.get(width);
+
+  if (null == result) {
+    result = new MmuDynamicConst(
+        "<name>",
+        width,
+        <value>
+        );
+    constants.put(width, result);
+  }
+
+  return result;
 }
 >>
