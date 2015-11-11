@@ -80,10 +80,6 @@ final class STBConstant implements STBuilder {
     st.add("pack", packageName);
     st.add("impls", implText);
 
-    if (type == BigInteger.class) {
-      st.add("imps", type.getName());
-    }
-
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));
   }
