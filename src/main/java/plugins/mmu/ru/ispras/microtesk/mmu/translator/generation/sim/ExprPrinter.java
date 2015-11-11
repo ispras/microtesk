@@ -283,8 +283,10 @@ final class ExprPrinter extends MapBasedPrinter {
             break;
 
           case LOGIC_INTEGER:
-            text = String.format("BitVector.valueOf(%s, %d)",
-                variableText, variable.getDataType().getSize());
+            text = variable.isType(DataTypeId.LOGIC_INTEGER) ?
+                variableText :
+                String.format("BitVector.valueOf(%s, %d)",
+                    variableText, variable.getDataType().getSize());
             break;
 
           case LOGIC_BOOLEAN:
