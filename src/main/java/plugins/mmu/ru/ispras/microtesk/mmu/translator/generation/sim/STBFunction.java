@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
+import java.math.BigInteger;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -57,6 +59,7 @@ final class STBFunction extends STBCommon implements STBuilder {
     st.add("name", getId()); 
     st.add("pack", packageName);
     st.add("ext",  STD_FUNC_CLASS.getName());
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", BIT_VECTOR_CLASS.getName());
   }
 
