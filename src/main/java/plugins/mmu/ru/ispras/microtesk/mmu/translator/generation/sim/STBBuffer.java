@@ -224,8 +224,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
     }
 
     private void buildHeader(final ST st) {
-      st.add("imps", java.math.BigInteger.class.getName());
-
       final String baseName = String.format("%s<%s, %s>",
           MEMORY_CLASS.getSimpleName(),
           String.format("%s.Entry", parentBuffer.getId()),
@@ -265,8 +263,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
     }
 
     private void buildHeader(final ST st) {
-      st.add("imps", java.math.BigInteger.class.getName());
-
       final String baseName = String.format("%s<%s, %s>",
           CACHE_CLASS.getSimpleName(),
           String.format("%s.Entry", parentBuffer.getId()),

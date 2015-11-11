@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -106,6 +107,7 @@ abstract class STBCommon {
     st.add("ext", base);
     st.add("pack", packageName);
 
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", BUFFER_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
   }

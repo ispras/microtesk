@@ -24,6 +24,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -51,7 +52,6 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   private final Deque<Map<String, String>> variableMappings = new ArrayDeque<>();
-  private boolean printAsBigInteger = false;
 
   private ExprPrinter() {
     addMapping(StandardOperation.EQ, "", ".equals(", ")");
@@ -114,14 +114,6 @@ final class ExprPrinter extends MapBasedPrinter {
 
     setVisitor(new Visitor());
     pushVariableScope(); // Global scope
-  }
-
-  public boolean getPrintAsBigInteger() {
-    return printAsBigInteger;
-  }
-
-  public void setPrintAsBigInteger(final boolean value) {
-    this.printAsBigInteger = value;
   }
 
   @Override
@@ -248,7 +240,7 @@ final class ExprPrinter extends MapBasedPrinter {
 
       if (value.isType(DataTypeId.BIT_VECTOR)) {
         text = bitVectorToString(value.getBitVector());
-      } else if (value.isType(DataTypeId.LOGIC_INTEGER) && printAsBigInteger) {
+      } else if (value.isType(DataTypeId.LOGIC_INTEGER)) {
         text = bigIntegerToString(value.getInteger());
       } else {
         text = value.toString();
@@ -307,6 +299,31 @@ final class ExprPrinter extends MapBasedPrinter {
       } else {
         final String text = getVariableMapping(variable.getName());
         appendText(text);
+      }
+    }
+
+    @Override
+    public void onOperandBegin(
+        final NodeOperation operation,
+        final Node operand,
+        final int index) {
+      super.onOperandBegin(operation, operand, index);
+
+      if (operation.getOperationId() == StandardOperation.BVEXTRACT &&
+          operand.getKind() == Node.Kind.VALUE) {
+        appendText(operand.toString());
+        setStatus(Status.SKIP);
+      }
+    }
+
+    @Override
+    public void onOperandEnd(
+        final NodeOperation operation,
+        final Node operand,
+        final int index) {
+      if (operation.getOperationId() == StandardOperation.BVEXTRACT &&
+          operand.getKind() == Node.Kind.VALUE) {
+        setStatus(Status.OK);
       }
     }
   }

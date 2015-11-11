@@ -89,16 +89,10 @@ final class STBConstant implements STBuilder {
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
+    final String exprText = ExprPrinter.get().toString(constant.getExpression());
 
-    try {
-      ExprPrinter.get().setPrintAsBigInteger(true);
-      final String exprText = ExprPrinter.get().toString(constant.getExpression());
-
-      stBody.add("type", type.getSimpleName());
-      stBody.add("expr", exprText);
-    } finally {
-      ExprPrinter.get().setPrintAsBigInteger(false);
-    }
+    stBody.add("type", type.getSimpleName());
+    stBody.add("expr", exprText);
 
     st.add("members", stBody);
   }
