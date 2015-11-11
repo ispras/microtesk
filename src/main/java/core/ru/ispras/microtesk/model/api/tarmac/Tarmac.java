@@ -32,9 +32,8 @@ public final class Tarmac {
   private static Tarmac instance = null;
 
   public static void initialize(final String filePrefix) {
-    if (null != instance) {
-      instance = new Tarmac(null != filePrefix ? filePrefix : FILE_PREFIX);
-    }
+    InvariantChecks.checkTrue(null == instance);
+    instance = new Tarmac(null != filePrefix ? filePrefix : FILE_PREFIX);
   }
 
   public static void shutdown() {
@@ -95,6 +94,7 @@ public final class Tarmac {
   }
 
   private void print(final Record record) {
+    InvariantChecks.checkNotNull(fileWritter, "Tarmac file is not open.");
     fileWritter.println(record.toString());
   }
 }
