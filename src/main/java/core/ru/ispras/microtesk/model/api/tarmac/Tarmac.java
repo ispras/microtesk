@@ -30,6 +30,7 @@ public final class Tarmac {
   private PrintWriter fileWritter;
 
   private static Tarmac instance = null;
+  private static boolean enabled = false;
 
   public static void initialize(final String filePrefix) {
     InvariantChecks.checkTrue(null == instance);
@@ -41,7 +42,11 @@ public final class Tarmac {
   }
 
   public static boolean isEnabled() {
-    return null != instance;
+    return null != instance && enabled;
+  }
+
+  public static void setEnabled(final boolean value) {
+    enabled = value;
   }
 
   public static String createFile() throws IOException {

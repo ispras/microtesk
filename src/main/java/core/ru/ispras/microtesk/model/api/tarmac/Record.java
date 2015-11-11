@@ -54,7 +54,7 @@ public abstract class Record {
   }
 
   public static Record newMemoryAccess(
-      final BitVector address,
+      final long address,
       final BitVector data,
       final boolean isWrite) {
     return new MemoryAccess(address, data, isWrite);
@@ -101,12 +101,12 @@ public abstract class Record {
   }
 
   private static class MemoryAccess extends Record {
-    private final BitVector address;
+    private final long address;
     private final BitVector data;
     private final boolean isWrite;
 
     private MemoryAccess(
-        final BitVector address,
+        final long address,
         final BitVector data,
         final boolean isWrite) {
       super(RecordKind.MEMORY, instructionId);
@@ -122,11 +122,11 @@ public abstract class Record {
     @Override
     public String toString() {
       return String.format(
-          "%s M%s%d 0x%s 0x%s",
+          "%s M%s%d %08x %s",
           super.toString(),
           isWrite ? "W" : "R",
           data.getByteSize(),
-          address.toHexString(),
+          address,
           data.toHexString()
           );
     }

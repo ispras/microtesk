@@ -162,9 +162,11 @@ final class Executor {
         labelRefsIndex = index;
       }
 
-      final String exception = call.execute();
-
+      Tarmac.setEnabled(true);
       logCall(call);
+
+      final String exception = call.execute();
+      Tarmac.setEnabled(false);
 
       if (null == exception) {
         // NORMAL EXECUTION

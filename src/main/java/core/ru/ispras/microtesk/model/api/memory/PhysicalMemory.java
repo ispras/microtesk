@@ -19,6 +19,8 @@ import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.test.TestSettings;
 
@@ -191,7 +193,19 @@ final class PhysicalMemory extends Memory {
       }
 
       final BitVector region = targetDevice.load(targetAddress);
-      return BitVector.newMapping(region, startBitPos, bitSize);
+      final BitVector data = BitVector.newMapping(region, startBitPos, bitSize);
+
+      if (Tarmac.isEnabled()) {
+        final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
+        final Record record = Record.newMemoryAccess(
+            virtualAddress.longValue(),
+            data,
+            false
+            );
+        Tarmac.addRecord(record);
+      }
+
+      return data;
     }
 
     @Override
@@ -221,6 +235,16 @@ final class PhysicalMemory extends Memory {
       }
 
       targetDevice.store(targetAddress, region);
+
+      if (Tarmac.isEnabled()) {
+        final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
+        final Record record = Record.newMemoryAccess(
+            virtualAddress.longValue(),
+            data,
+            true
+            );
+        Tarmac.addRecord(record);
+      }
     }
 
     @Override
