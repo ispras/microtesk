@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.model.api.tarmac;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -61,7 +59,7 @@ public abstract class Record {
   }
 
   private static class Instruction extends Record {
-    private long instrId;
+    private BitVector instrId;
     private long addr;
     private String disasm;
 
@@ -73,8 +71,8 @@ public abstract class Record {
       this.disasm = call.getText();
 
       try {
-        final BigInteger image = new BigInteger(call.getImage(), 2);
-        this.instrId = image.longValue();
+        final String image = call.getImage();
+        this.instrId = BitVector.valueOf(image, 2, image.length());
       } catch (final NumberFormatException e) {
         Logger.error(
             "Failed to parse image for instruction call %s: '%s'. Reason: %s.",
@@ -90,11 +88,11 @@ public abstract class Record {
     @Override
     public String toString() {
       return String.format(
-          "%s IT (%d) %08x %08x A svc_ns : %s",
+          "%s IT (%d) %016x %s A svc_ns : %s",
           super.toString(),
           getTime(),
           addr,
-          instrId,
+          instrId.toHexString().toLowerCase(),
           disasm
           );
     }
@@ -122,7 +120,7 @@ public abstract class Record {
     @Override
     public String toString() {
       return String.format(
-          "%s M%s%d %08x %s",
+          "%s M%s%d %016x %s",
           super.toString(),
           isWrite ? "W" : "R",
           data.getByteSize(),
