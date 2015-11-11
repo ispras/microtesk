@@ -50,7 +50,6 @@ final class Executor {
   private final IModelStateObserver observer;
 
   private Map<String, List<ConcreteCall>> exceptionHandlers;
-  private List<LabelReference> labelRefs;
 
   /**
    * Constructs an Executor object.
@@ -71,7 +70,6 @@ final class Executor {
     this.observer = observer;
 
     this.exceptionHandlers = null;
-    this.labelRefs = null;
   }
 
   public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
@@ -390,174 +388,6 @@ final class Executor {
     }
   }
 
-  private void executeSequence(
-      final List<ConcreteCall> sequence, final int sequenceIndex) throws ConfigurationException {
-    checkNotNull(sequence);
-
-    // Remembers all labels defined by the sequence and their positions.
-    final LabelManager labelManager = new LabelManager();
-    // Call address is mapped to its index in the sequence.
-    final Map<Long, Integer> addressMap = new HashMap<>(sequence.size());
-
-    for (int index = 0; index < sequence.size(); ++index) {
-      final ConcreteCall call = sequence.get(index);
-      labelManager.addAllLabels(call.getLabels(), index, sequenceIndex);
-      addressMap.put(call.getAddress(), index);
-    }
-
-    // Resolves all label references and patches the instruction call text accordingly.
-    for (int index = 0; index < sequence.size(); ++index) {
-      final ConcreteCall call = sequence.get(index);
-
-      for (final LabelReference labelRef : call.getLabelReferences()) {
-        labelRef.resetTarget();
-
-        final Label source = labelRef.getReference();
-        final LabelManager.Target target = labelManager.resolve(source);
-
-        final String uniqueName;
-        final String searchPattern;
-
-        if (null != target) {
-          // For code labels
-          uniqueName = target.getLabel().getUniqueName();
-
-          // Temporary implementation. Currently, address means position. but it will be changed soon.
-          final int position = (int) target.getAddress();
-          labelRef.setTarget(target.getLabel(), position);
-
-          final long addr = sequence.get(position).getAddress();
-          labelRef.getPatcher().setValue(BigInteger.valueOf(addr));
-
-          searchPattern = String.format("<label>%d", addr);
-        } else {
-          // For data labels 
-          uniqueName = source.getName();
-          searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
-        }
-
-        final String patchedText =  call.getText().replace(searchPattern, uniqueName);
-        call.setText(patchedText);
-      }
-
-      // Kill all unused "<label>" markers.
-      if (null != call.getText()) {
-        call.setText(call.getText().replace("<label>", ""));
-      }
-    }
-
-    int currentPos = 0;
-    final int endPos = sequence.size();
-
-    final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
-    while (currentPos < endPos) {
-      final ConcreteCall call = sequence.get(currentPos);
-
-      if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
-        throw new GenerationAbortedException(String.format(
-            "Instruction %s reached its limit on execution count (%d). " +
-            "Probably, the program entered an endless loop. Generation was aborted.",
-            call.getText(), branchExecutionLimit));
-      }
-
-      currentPos = executeCall(call, currentPos, addressMap);
-    }
-  }
-
-  /**
-   * Executes the specified instruction call (concrete call) and returns the position of the next
-   * instruction call to be executed. Also, it prints the textual representation of the call and
-   * debugging outputs linked to the call to the simulator log (if logging is enabled). If the
-   * method fails to deal with a control transfer in a proper way it prints a warning message and
-   * returns the position of the instruction call that immediately follows the current one.
-   * 
-   * @param call Instruction call to be executed.
-   * @param currentPos Position of the current call.
-   * @param addressMap Map of addresses that stores correspondences
-   *        between addresses and instruction indexes in the sequence.
-   * @return Position of the next instruction call to be executed.
-   * 
-   * @throws ConfigurationException if failed to evaluate an Output object associated with the
-   *         instruction call.
-   */
-
-  private int executeCall(
-      final ConcreteCall call,
-      final int currentPos,
-      final Map<Long, Integer> addressMap) throws ConfigurationException {
-
-    logOutputs(call.getOutputs());
-    logLabels(call.getLabels());
-    logText(call.getText());
-
-    // If the call is not executable (contains only attributes like
-    // labels or outputs, but no "body"), continue to the next instruction.
-    if (!call.isExecutable()) {
-      return currentPos + 1;
-    }
-
-    final String exception = call.execute();
-
-    // final BigInteger address = observer.accessLocation("PC").getValue();
-    // Logger.debug("# Current address: %d, position: %d", address, addressMap.get(address.longValue()));
-
-    TestEngine.STATISTICS.instructionExecutedCount++;
-    if (Tarmac.isEnabled()) {
-      Tarmac.addRecord(Record.newInstruction(call));
-    }
-
-    if (null != exception) {
-      if (exceptionHandlers == null) {
-        Logger.error("No exception handlers are defined. " + MSG_HAVE_TO_CONTINUE);
-        return currentPos + 1;
-      }
-
-      final List<ConcreteCall> handlerSequence = exceptionHandlers.get(exception);
-      if (handlerSequence == null) {
-        Logger.error("Exception handler for %s is not found. " + 
-            MSG_HAVE_TO_CONTINUE, exception);
-        return currentPos + 1;
-      }
-
-      executeSequence(handlerSequence, Label.NO_SEQUENCE_INDEX);
-      return currentPos + 1;
-    }
-
-    // TODO: Use the address map to determine the jump target.
-
-    // Saves labels to jump in case there is a branch delay slot.
-    if (!call.getLabelReferences().isEmpty()) {
-      labelRefs = call.getLabelReferences();
-    }
-
-    // TODO: Support instructions with 2+ labels (needs API)
-    final int transferStatus = observer.getControlTransferStatus();
-
-    // If there are no transfers, continue to the next instruction.
-    if (0 == transferStatus) {
-      return currentPos + 1;
-    }
-
-    if ((null == labelRefs) || labelRefs.isEmpty()) {
-      logText(MSG_NO_LABEL_LINKED);
-      return currentPos + 1;
-    }
-
-    final LabelReference reference = labelRefs.get(0);
-    final LabelReference.Target target = reference.getTarget();
-
-    // Resets labels to jump (they are no longer needed after being used).
-    labelRefs = null;
-
-    if (null == target) {
-      logText(String.format(MSG_NO_LABEL_DEFINED, reference.getReference().getName()));
-      return currentPos + 1;
-    }
-
-    logText("Jump to label: " + target.getLabel().getUniqueName());
-    return target.getPosition();
-  }
-
   /**
    * Evaluates and prints the collection of {@link Output} objects.
    * 
@@ -600,10 +430,4 @@ final class Executor {
 
   private static final String MSG_HAVE_TO_CONTINUE =
       "Have to continue to the next instruction.";
-
-  private static final String MSG_NO_LABEL_LINKED =
-      "Warning: No label to jump is linked to the current instruction. " + MSG_HAVE_TO_CONTINUE;
-
-  private static final String MSG_NO_LABEL_DEFINED =
-      "Warning: No label called %s is defined in the current sequence. " + MSG_HAVE_TO_CONTINUE;
 }
