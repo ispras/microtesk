@@ -244,15 +244,17 @@ final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onValue(final NodeValue value) {
+      final String text;
+
       if (value.isType(DataTypeId.BIT_VECTOR)) {
-        final String text = bitVectorToString(value.getBitVector());
-        appendText(text);
-      } else if (printAsBigInteger && value.isType(DataTypeId.LOGIC_INTEGER)) {
-        final String text = bigIntegerToString(value.getInteger());
-        appendText(text);
+        text = bitVectorToString(value.getBitVector());
+      } else if (value.isType(DataTypeId.LOGIC_INTEGER) && printAsBigInteger) {
+        text = bigIntegerToString(value.getInteger());
       } else {
-        appendText(value.toString());
+        text = value.toString();
       }
+
+      appendText(text);
     }
 
     @Override
