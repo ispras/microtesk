@@ -56,7 +56,7 @@ public final class Location implements LocationAccessor {
     this(type, atom != null ? Collections.singletonList(atom) : null);
   }
 
-  public Location (final Data data) {
+  public Location(final Data data) {
     this(
         data != null ? data.getType() : null,
         data != null ? new VariableAtom(data.getRawData()) : null
