@@ -148,7 +148,7 @@ final class MemoryCoverageExtractor {
         final MemorySymbolicExecutor.Result resultClone =
             outTransitions.size() == 1 ? result : new MemorySymbolicExecutor.Result(result);
 
-        if (guard == null || MemoryEngineUtils.isFeasibleTransition(transition, resultClone)) {
+        if (MemoryEngineUtils.isFeasibleTransition(transition, resultClone)) {
           final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
           builder.addAll(path.getTransitions());

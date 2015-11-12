@@ -49,8 +49,16 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(partialResult);
 
+    final MemorySymbolicExecutor symbolicExecutor =
+        new MemorySymbolicExecutor(transition, partialResult, false);
+    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+
+    if (transition.getGuard() == null) {
+      return true;
+    }
+
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(transition, partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(transition, symbolicResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -149,16 +157,12 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MmuTransition transition,
-      final MemorySymbolicExecutor.Result partialResult /* INOUT */,
+      final MemorySymbolicExecutor.Result symbolicResult/* INOUT */,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
-
-    final MemorySymbolicExecutor symbolicExecutor =
-        new MemorySymbolicExecutor(transition, partialResult, mode == Solver.Mode.MAP);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
