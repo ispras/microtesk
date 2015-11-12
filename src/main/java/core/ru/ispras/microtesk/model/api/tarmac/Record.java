@@ -58,7 +58,13 @@ public abstract class Record {
     return new MemoryAccess(address, data, isWrite);
   }
 
-  private static class Instruction extends Record {
+  public static Record newRegisterWrite(
+      final String register,
+      final BitVector value) {
+    return new RegisterWrite(register, value);
+  }
+
+  private static final class Instruction extends Record {
     private BitVector instrId;
     private long addr;
     private String disasm;
@@ -98,7 +104,7 @@ public abstract class Record {
     }
   }
 
-  private static class MemoryAccess extends Record {
+  private static final class MemoryAccess extends Record {
     private final long address;
     private final BitVector data;
     private final boolean isWrite;
@@ -126,6 +132,33 @@ public abstract class Record {
           data.getByteSize(),
           address,
           data.toHexString()
+          );
+    }
+  }
+
+  private static final class RegisterWrite extends Record {
+    private final String register;
+    private final BitVector value;
+
+    private RegisterWrite(
+        final String register,
+        final BitVector value) {
+      super(RecordKind.REGISTER, instructionId);
+
+      InvariantChecks.checkNotNull(register);
+      InvariantChecks.checkNotNull(value);
+
+      this.register = register;
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "%s R %s %s",
+          super.toString(),
+          register,
+          value.toHexString().toLowerCase()
           );
     }
   }
