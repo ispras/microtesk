@@ -127,7 +127,7 @@ final class PhysicalMemory extends Memory {
         new LogicalMemoryAtom(index, getType().getBitSize(), 0) :
         new PhysicalMemoryAtom(index, getType().getBitSize(), 0);
 
-    return new Location(getType(), atom);
+    return Location.newLocationForAtom(getType(), atom);
   }
 
   private AddressTranslator getAddressTranslator() {

@@ -45,7 +45,8 @@ final class VariableArray extends Memory {
       final BitVector value = BitVector.newEmpty(type.getBitSize());
       this.values.add(value);
 
-      final Location location = new Location(type, new VariableAtom(value));
+      final Location.Atom atom = new VariableAtom(value);
+      final Location location = Location.newLocationForAtom(type, atom);
       this.locations.add(location);
     }
   }

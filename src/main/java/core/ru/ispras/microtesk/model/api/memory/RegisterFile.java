@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.memory.Location.Atom;
 import ru.ispras.microtesk.model.api.type.Type;
 
 final class RegisterFile extends Memory {
@@ -45,10 +44,12 @@ final class RegisterFile extends Memory {
   }
 
   private static List<Location> newLocations(final Type type, final int count) {
-    final List<Location> locations = new ArrayList<Location>(count);
+    final List<Location> locations = new ArrayList<>(count);
     final int bitSize = type.getBitSize();
+
     for(int index = 0; index < count; ++index) {
-      final Location location = new Location(type, new RegisterAtom(bitSize));
+      final Location.Atom atom = new RegisterAtom(bitSize);
+      final Location location = Location.newLocationForAtom(type, atom);
       locations.add(location);
     }
 
@@ -158,7 +159,7 @@ final class RegisterFile extends Memory {
     }
 
     @Override
-    public Atom resize(final int newBitSize, final int newStartBitPos) {
+    public Location.Atom resize(final int newBitSize, final int newStartBitPos) {
       return new RegisterAtom(value, flags, newBitSize, newStartBitPos);
     }
 
