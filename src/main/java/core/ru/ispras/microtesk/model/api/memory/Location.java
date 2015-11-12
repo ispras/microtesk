@@ -91,7 +91,7 @@ public final class Location implements LocationAccessor {
   }
 
   public Data load() {
-    final BitVector rawData = readData(atoms, true);
+    final BitVector rawData = readData(true);
     return new Data(rawData, getType());
   }
 
@@ -109,7 +109,7 @@ public final class Location implements LocationAccessor {
     final BitVector rawData = data.getRawData();
     InvariantChecks.checkNotNull(rawData);
 
-    writeData(atoms, rawData, true);
+    writeData(rawData, true);
   }
 
   public Location assign(final Location source) {
@@ -133,7 +133,7 @@ public final class Location implements LocationAccessor {
     final int newBitSize = end - start + 1;
     final Type newType = getType().resize(newBitSize);
 
-    final List<Atom> newAtoms = new ArrayList<Atom>();
+    final List<Atom> newAtoms = new ArrayList<>();
 
     int position = 0;
     for (final Atom atom : atoms) {
@@ -194,7 +194,7 @@ public final class Location implements LocationAccessor {
     }
 
     int newBitSize = 0;
-    final List<Atom> newAtoms = new ArrayList<Atom>();
+    final List<Atom> newAtoms = new ArrayList<>();
 
     for (final Location location : locations) {
       InvariantChecks.checkNotNull(location);
@@ -226,13 +226,13 @@ public final class Location implements LocationAccessor {
 
   @Override
   public String toBinString() {
-    final BitVector rawData = readData(atoms, false); 
+    final BitVector rawData = readData(false); 
     return rawData.toBinString();
   }
 
   @Override
   public BigInteger getValue() {
-    final BitVector rawData = readData(atoms, false);
+    final BitVector rawData = readData(false);
     return rawData.bigIntegerValue(false);
   }
 
@@ -241,11 +241,10 @@ public final class Location implements LocationAccessor {
     InvariantChecks.checkNotNull(value);
 
     final BitVector rawData = BitVector.valueOf(value, getBitSize());
-    writeData(atoms, rawData, false);
+    writeData(rawData, false);
   }
 
-  private static BitVector readData(
-      final List<Atom> atoms,
+  private BitVector readData(
       final boolean callHandlers) {
     final BitVector[] dataItems = new BitVector[atoms.size()];
     for (int index = 0; index < atoms.size(); ++index) {
@@ -256,8 +255,7 @@ public final class Location implements LocationAccessor {
     return BitVector.newMapping(dataItems).copy();
   }
 
-  private static void writeData(
-      final List<Atom> atoms,
+  private void writeData(
       final BitVector data,
       final boolean callHandlers) {
     int position = 0;
