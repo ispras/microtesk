@@ -44,7 +44,7 @@ final class RegisterFile extends Memory {
     this.tempLocations = null;
   }
 
-  private final List<Location> newLocations(final Type type, final int count) {
+  private static List<Location> newLocations(final Type type, final int count) {
     final List<Location> locations = new ArrayList<Location>(count);
     final int bitSize = type.getBitSize();
     for(int index = 0; index < count; ++index) {
@@ -98,7 +98,7 @@ final class RegisterFile extends Memory {
     }
   }
 
-  private final class RegisterAtom implements Location.Atom {
+  private static final class RegisterAtom implements Location.Atom {
     private final BitVector value;
     private final BitVector flags;
 
