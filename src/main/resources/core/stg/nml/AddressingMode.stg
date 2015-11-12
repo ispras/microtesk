@@ -56,7 +56,7 @@ body(name, type, param_names, param_types, attrs, ret,
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
-<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>;}, true)><endif>
+<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>.setName(syntax());}, true)><endif>
 >>
 
 info_body(name, type, param_names, param_types,

@@ -99,7 +99,7 @@ final class RegisterFile extends Memory {
     }
   }
 
-  private static final class RegisterAtom implements Location.Atom {
+  protected static final class RegisterAtom implements Location.Atom {
     private final BitVector value;
     private final BitVector flags;
 

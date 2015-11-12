@@ -25,6 +25,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.type.Type;
 import ru.ispras.microtesk.model.api.type.TypeId;
 
@@ -39,6 +41,59 @@ public final class Location implements LocationAccessor {
 
     BitVector load(boolean useHandler);
     void store(BitVector data, boolean callHandler);
+  }
+
+  private static final class AtomLogger implements Atom {
+    private final Atom atom;
+    private final String name;
+
+    private AtomLogger(final Atom atom, final String name) {
+      InvariantChecks.checkNotNull(atom);
+      InvariantChecks.checkNotNull(name);
+
+      if (atom instanceof AtomLogger) {
+        this.atom = ((AtomLogger) atom).atom;
+        this.name = name;
+      } else {
+        this.atom = atom;
+        this.name = name;
+      }
+    }
+
+    @Override
+    public boolean isInitialized() {
+      return atom.isInitialized();
+    }
+
+    @Override
+    public int getBitSize() {
+      return atom.getBitSize();
+    }
+
+    @Override
+    public int getStartBitPos() {
+      return atom.getStartBitPos();
+    }
+
+    @Override
+    public Atom resize(final int newBitSize, final int newStartBitPos) {
+      final Atom resized = atom.resize(newBitSize, newStartBitPos);
+      return new AtomLogger(resized, name);
+    }
+
+    @Override
+    public BitVector load(final boolean useHandler) {
+      return atom.load(useHandler);
+    }
+
+    @Override
+    public void store(final BitVector data, final boolean callHandler) {
+      atom.store(data, callHandler);
+
+      if (Tarmac.isEnabled()) {
+        Tarmac.addRecord(Record.newRegisterWrite(name, data));
+      }
+    }
   }
 
   private final Type type;
@@ -60,7 +115,7 @@ public final class Location implements LocationAccessor {
     this(
         data != null ? data.getType() : null,
         data != null ? new VariableAtom(data.getRawData()) : null
-    );
+        );
   }
 
   public static Location newLocationForConst(final Data data) {
@@ -73,6 +128,25 @@ public final class Location implements LocationAccessor {
     InvariantChecks.checkNotNull(atom);
     InvariantChecks.checkTrue(type.getBitSize() == atom.getBitSize());
     return new Location(type, atom);
+  }
+
+  public Location setName(final String name) {
+    if (null == name || name.isEmpty()) {
+      return this;
+    }
+
+    boolean isLoggerAdded = false;
+    final List<Atom> newAtoms = new ArrayList<>(atoms.size());
+    for (final Atom atom : atoms) {
+      if (atom instanceof RegisterFile.RegisterAtom) {
+        newAtoms.add(new AtomLogger(atom, name));
+        isLoggerAdded = true;
+      } else {
+        newAtoms.add(atom);
+      }
+    }
+
+    return isLoggerAdded ? new Location(type, newAtoms) : this;
   }
 
   public Type getType() {
