@@ -27,6 +27,7 @@ import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
+import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -54,6 +55,7 @@ public final class MmuPlugin implements Plugin {
       throw new IllegalStateException("TestEngine is not initialized.");
     }
 
+    final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
     final String modelName = testEngine.getModelName();
 
     final String specClassName = String.format(
@@ -67,6 +69,8 @@ public final class MmuPlugin implements Plugin {
     }
 
     spec = specHolder.getSpecification();
+    spec.setSettings(generatorSettings);
+
     return spec;
   }
 
