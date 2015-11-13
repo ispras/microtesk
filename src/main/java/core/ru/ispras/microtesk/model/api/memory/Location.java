@@ -48,18 +48,42 @@ public final class Location implements LocationAccessor {
   private static final class AtomLogger implements Atom {
     private final Atom atom;
     private final String name;
+    private final int originalBitSize;
+    private final int originalStartBitPos;
 
     private AtomLogger(final Atom atom, final String name) {
       InvariantChecks.checkNotNull(atom);
       InvariantChecks.checkNotNull(name);
 
-      if (atom instanceof AtomLogger) {
-        this.atom = ((AtomLogger) atom).atom;
-      } else {
-        this.atom = atom;
+      this.atom = (atom instanceof AtomLogger) ? ((AtomLogger) atom).atom : atom;
+      this.name = name;
+      this.originalBitSize = atom.getBitSize();
+      this.originalStartBitPos = atom.getStartBitPos();
+    }
+
+    private AtomLogger(
+        final Atom atom,
+        final String name,
+        final int originalBitSize,
+        final int originalStartBitPos) {
+      InvariantChecks.checkNotNull(atom);
+      InvariantChecks.checkNotNull(name);
+
+      this.atom = (atom instanceof AtomLogger) ? ((AtomLogger) atom).atom : atom;
+      this.name = name;
+      this.originalBitSize = originalBitSize;
+      this.originalStartBitPos = originalStartBitPos;
+    }
+
+    private String getName() {
+      if (originalBitSize == getBitSize() && originalStartBitPos == getStartBitPos()) {
+        return name;
       }
 
-      this.name = name;
+      final int start = getStartBitPos() - originalStartBitPos;
+      final int end = start + getBitSize() - 1;
+
+      return String.format("%s<%d..%d>", name, end, start);
     }
 
     @Override
@@ -79,8 +103,17 @@ public final class Location implements LocationAccessor {
 
     @Override
     public Atom resize(final int newBitSize, final int newStartBitPos) {
+      // Field extending is not currently supported.
+      InvariantChecks.checkTrue(newBitSize <= getBitSize());
+      InvariantChecks.checkTrue(newStartBitPos >= getStartBitPos());
+
       final Atom resized = atom.resize(newBitSize, newStartBitPos);
-      return new AtomLogger(resized, name);
+      return new AtomLogger(
+          resized,
+          name,
+          originalBitSize,
+          originalStartBitPos
+          );
     }
 
     @Override
@@ -93,7 +126,7 @@ public final class Location implements LocationAccessor {
       atom.store(data, callHandler);
 
       if (Tarmac.isEnabled()) {
-        Tarmac.addRecord(Record.newRegisterWrite(name, data));
+        Tarmac.addRecord(Record.newRegisterWrite(getName(), data));
       }
     }
   }
