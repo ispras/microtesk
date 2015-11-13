@@ -135,16 +135,25 @@ final class ExprPrinter extends MapBasedPrinter {
 
   @Override
   protected OperationDescription getOperationDescription(final NodeOperation expr) {
-    if (expr.getOperationId() != MmuSymbolKind.FUNCTION) {
-      return super.getOperationDescription(expr);
+    if (expr.getOperationId() == MmuSymbolKind.FUNCTION) {
+      final Callable function = (Callable) expr.getUserData();
+      return new OperationDescription(
+          String.format("%s.call(", function.getName()),
+          ", ",
+          ")"
+          );
     }
 
-    final Callable function = (Callable) expr.getUserData();
-    return new OperationDescription(
-        String.format("%s.call(", function.getName()),
-        ", ",
-        ")"
-        );
+    if (expr.getOperationId() == StandardOperation.BVZEROEXT &&
+        expr.getOperand(1).isType(DataTypeId.LOGIC_INTEGER)) {
+      return new OperationDescription(
+          String.format("%s.valueOf(", BitVector.class.getSimpleName()),
+          ", ",
+          ")"
+          );
+    }
+
+    return super.getOperationDescription(expr);
   }
 
   private void addBitVectorMathMapping(final StandardOperation op, final String opMapping) {
