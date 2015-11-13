@@ -172,13 +172,25 @@ public final class Location implements LocationAccessor {
 
     boolean isLoggerAdded = false;
     final List<Atom> newAtoms = new ArrayList<>(atoms.size());
+
+    int bitPos = 0;
+    final boolean needSuffix = atoms.size() > 1;
+
     for (final Atom atom : atoms) {
+      final int bitSize = atom.getBitSize();
       if (atom instanceof LoggableAtom) {
-        newAtoms.add(new AtomLogger(atom, name));
+        final String atomName = needSuffix ?
+            String.format("%s<%d..%d>", name, bitPos + bitSize - 1, bitPos) :
+            name
+            ;
+
+        newAtoms.add(new AtomLogger(atom, atomName));
         isLoggerAdded = true;
       } else {
         newAtoms.add(atom);
       }
+
+      bitPos += bitSize;
     }
 
     return isLoggerAdded ? new Location(type, newAtoms) : this;
