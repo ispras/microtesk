@@ -64,7 +64,8 @@ public enum Operator {
   //------------------------------------------------------------------------------------------------
   MUL("*",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVMUL),
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MUL)),
-  DIV("/",     rule(DataTypeId.LOGIC_INTEGER, StandardOperation.DIV)),
+  DIV("/",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUDIV),
+               rule(DataTypeId.LOGIC_INTEGER, StandardOperation.DIV)),
   MOD("%",     rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVSMOD),
                rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MOD)),
 
