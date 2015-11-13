@@ -6,6 +6,16 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+ 2015/11/13 MicroTESK 2.3.10 beta
+
+ The new build contains the following changes:
+
+ - Improvements in Tarmac logging: support for memory accesses
+   and register writes were implemented
+ - Handling of let-expressions (MMU) was improved
+ - Several bug fixes and general improvements were made
+ - Ruby engine was switched to JRuby 1.7.22
+
  2015/11/06 MicroTESK 2.3.9 beta
 
  The new build contains the following changes:
