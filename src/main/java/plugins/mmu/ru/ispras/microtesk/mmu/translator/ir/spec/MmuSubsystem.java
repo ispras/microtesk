@@ -123,7 +123,7 @@ public final class MmuSubsystem {
     this.startAction = startAction;
   }
 
-  public MmuSubsystem setSettings(final GeneratorSettings settings) {
+  public void setSettings(final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
     regions = new LinkedHashMap<>();
@@ -132,8 +132,6 @@ public final class MmuSubsystem {
         regions.put(region.getName(), region);
       }
     }
-
-    return this;
   }
 
   public IntegerVariable getVariable(final String name) {
