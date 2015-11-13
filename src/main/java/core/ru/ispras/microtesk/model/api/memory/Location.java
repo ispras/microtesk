@@ -55,11 +55,11 @@ public final class Location implements LocationAccessor {
 
       if (atom instanceof AtomLogger) {
         this.atom = ((AtomLogger) atom).atom;
-        this.name = name;
       } else {
         this.atom = atom;
-        this.name = name;
       }
+
+      this.name = name;
     }
 
     @Override
