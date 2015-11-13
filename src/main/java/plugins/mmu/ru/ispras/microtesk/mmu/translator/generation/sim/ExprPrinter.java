@@ -61,10 +61,10 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.NOT, "!(", "", ")");
     addMapping(StandardOperation.ITE, "(", new String[] {" ? ", " : "}, ")");
 
-    addMapping(StandardOperation.LESS,      "(", ".compare(", ") < 0)");
-    addMapping(StandardOperation.LESSEQ,    "(", ".compare(", ") <= 0)");
-    addMapping(StandardOperation.GREATER,   "(", ".compare(", ") > 0)");
-    addMapping(StandardOperation.GREATEREQ, "(", ".compare(", ") >= 0)");
+    addMapping(StandardOperation.LESS,      "(", ".compareTo(", ") < 0)");
+    addMapping(StandardOperation.LESSEQ,    "(", ".compareTo(", ") <= 0)");
+    addMapping(StandardOperation.GREATER,   "(", ".compareTo(", ") > 0)");
+    addMapping(StandardOperation.GREATEREQ, "(", ".compareTo(", ") >= 0)");
 
     addBitVectorMathMapping(StandardOperation.BVADD,  "add");
     addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
