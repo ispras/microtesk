@@ -17,8 +17,10 @@ package ru.ispras.microtesk.mmu.translator.generation.sim;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -50,6 +52,12 @@ final class ExprPrinter extends MapBasedPrinter {
     }
     return instance;
   }
+
+  private static final Set<StandardOperation> INT_REQUIRING_OPERATIONS = EnumSet.of(
+      StandardOperation.BVZEROEXT,
+      StandardOperation.BVSIGNEXT,
+      StandardOperation.BVEXTRACT
+      );
 
   private final Deque<Map<String, String>> variableMappings = new ArrayDeque<>();
 
@@ -318,7 +326,7 @@ final class ExprPrinter extends MapBasedPrinter {
         final int index) {
       super.onOperandBegin(operation, operand, index);
 
-      if (operation.getOperationId() == StandardOperation.BVEXTRACT &&
+      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId()) &&
           operand.getKind() == Node.Kind.VALUE) {
         appendText(operand.toString());
         setStatus(Status.SKIP);
@@ -330,7 +338,7 @@ final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
-      if (operation.getOperationId() == StandardOperation.BVEXTRACT &&
+      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId()) &&
           operand.getKind() == Node.Kind.VALUE) {
         setStatus(Status.OK);
       }
