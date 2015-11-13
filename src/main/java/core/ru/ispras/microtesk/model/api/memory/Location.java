@@ -43,6 +43,8 @@ public final class Location implements LocationAccessor {
     void store(BitVector data, boolean callHandler);
   }
 
+  protected interface LoggableAtom {}
+
   private static final class AtomLogger implements Atom {
     private final Atom atom;
     private final String name;
@@ -138,7 +140,7 @@ public final class Location implements LocationAccessor {
     boolean isLoggerAdded = false;
     final List<Atom> newAtoms = new ArrayList<>(atoms.size());
     for (final Atom atom : atoms) {
-      if (atom instanceof RegisterFile.RegisterAtom) {
+      if (atom instanceof LoggableAtom) {
         newAtoms.add(new AtomLogger(atom, name));
         isLoggerAdded = true;
       } else {
