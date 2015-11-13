@@ -371,10 +371,10 @@ public final class Printer {
 
   public void printToFile(final PrintWriter writer, final String text) {
     if (null != writer) {
-      if (null != text & !text.isEmpty()) {
+      if (null != text && !text.isEmpty()) {
         writer.println(String.format("%s%s", TestSettings.getIndentToken(), text));
       } else {
-        writer.println(text);
+        writer.println("");
       }
     }
   }
