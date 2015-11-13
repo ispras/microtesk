@@ -365,19 +365,21 @@ public final class Printer {
     Logger.debug(text);
   }
 
-  public void printToFile(String text) {
-    if (null != fileWritter) {
-      fileWritter.println(String.format("%s%s", TestSettings.getIndentToken(), text));
-    }
+  public void printToFile(final String text) {
+    printToFile(fileWritter, text);
   }
 
-  public void printToFile(PrintWriter writer, String text) {
+  public void printToFile(final PrintWriter writer, final String text) {
     if (null != writer) {
-      writer.println(String.format("%s%s", TestSettings.getIndentToken(), text));
+      if (null != text & !text.isEmpty()) {
+        writer.println(String.format("%s%s", TestSettings.getIndentToken(), text));
+      } else {
+        writer.println(text);
+      }
     }
   }
 
-  public void printToFileNoIndent(String text) {
+  public void printToFileNoIndent(final String text) {
     if (null != fileWritter) {
       fileWritter.println(text);
     }
