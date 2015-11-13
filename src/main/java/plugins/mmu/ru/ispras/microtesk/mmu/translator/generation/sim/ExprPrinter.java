@@ -148,8 +148,9 @@ final class ExprPrinter extends MapBasedPrinter {
         expr.getOperand(1).isType(DataTypeId.LOGIC_INTEGER)) {
       return new OperationDescription(
           String.format("%s.valueOf(", BitVector.class.getSimpleName()),
-          ", ",
-          ")"
+          new String[] {", "},
+          ")",
+          new int[] {1, 0}
           );
     }
 
