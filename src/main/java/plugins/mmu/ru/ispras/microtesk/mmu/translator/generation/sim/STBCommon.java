@@ -323,7 +323,7 @@ abstract class STBCommon {
                       argument.isType(DataTypeId.UNKNOWN);
       } else if (argument instanceof NodeVariable) {
         final Type type = getType(argument);
-        isBitVector = !type.isStruct();
+        isBitVector = null != type && !type.isStruct();
       } else {
         throw new IllegalStateException("Unexpected node type: " + argument);
       }
