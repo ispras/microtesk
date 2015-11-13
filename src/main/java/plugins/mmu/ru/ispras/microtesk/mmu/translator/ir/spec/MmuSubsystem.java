@@ -56,8 +56,11 @@ public final class MmuSubsystem {
   /** Refers to the physical address type of the MMU. */
   private final MmuAddressType physicalAddress;
 
+  /** Stores segments of the MMU. */
   private final Map<String, MmuSegment> segments;
-  private final Map<String, RegionSettings> regions;
+
+  /** Stores regions of the MMU. */
+  private Map<String, RegionSettings> regions;
 
   /** Stores buffers of the MMU. */
   private final Map<String, MmuBuffer> buffers;
@@ -85,7 +88,6 @@ public final class MmuSubsystem {
       final MmuAddressType virtualAddress,
       final MmuAddressType physicalAddress,
       final Map<String, MmuSegment> segments,
-      final Map<String, RegionSettings> regions,
       final Map<String, MmuBuffer> buffers,
       final List<MmuBuffer> sortedBuffers,
       final MmuBuffer targetBuffer,
@@ -98,7 +100,6 @@ public final class MmuSubsystem {
     // InvariantChecks.checkNotNull(physicalAddress);
 
     InvariantChecks.checkNotNull(segments);
-    InvariantChecks.checkNotNull(regions);
     InvariantChecks.checkNotNull(buffers);
     InvariantChecks.checkNotNull(sortedBuffers);
     // InvariantChecks.checkNotNull(targetBuffer);
@@ -113,13 +114,26 @@ public final class MmuSubsystem {
     this.physicalAddress = physicalAddress;
 
     this.segments = Collections.unmodifiableMap(segments);
-    this.regions = Collections.unmodifiableMap(regions);
+    this.regions = Collections.emptyMap();
     this.buffers = Collections.unmodifiableMap(buffers);
     this.sortedBuffers = Collections.unmodifiableList(sortedBuffers);
     this.targetBuffer = targetBuffer;
 
     this.actions = Collections.unmodifiableMap(actions);
     this.startAction = startAction;
+  }
+
+  public MmuSubsystem setSettings(final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(settings);
+
+    regions = new LinkedHashMap<>();
+    for (final RegionSettings region : settings.getMemory().getRegions()) {
+      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
+        regions.put(region.getName(), region);
+      }
+    }
+
+    return this;
   }
 
   public IntegerVariable getVariable(final String name) {
@@ -323,11 +337,8 @@ public final class MmuSubsystem {
     /** Refers to the physical address type of the MMU. */
     private MmuAddressType physicalAddress;
 
-    /** Stores buffers of the MMU. */
+    /** Stores segments of the MMU. */
     private Map<String, MmuSegment> segments = new LinkedHashMap<>();
-
-    /** Stores buffers of the MMU. */
-    private Map<String, RegionSettings> regions = new LinkedHashMap<>();
 
     /** Stores buffers of the MMU. */
     private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
@@ -352,23 +363,12 @@ public final class MmuSubsystem {
           virtualAddress,
           physicalAddress,
           segments,
-          regions,
           buffers,
           sortedBuffers,
           targetBuffer,
           actions,
           startAction
           );
-    }
-
-    public void setSettings(final GeneratorSettings settings) {
-      InvariantChecks.checkNotNull(settings);
-
-      for (final RegionSettings region : settings.getMemory().getRegions()) {
-        if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
-          regions.put(region.getName(), region);
-        }
-      }
     }
 
     public void registerVariable(final IntegerVariable variable) {
