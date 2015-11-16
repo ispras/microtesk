@@ -51,7 +51,7 @@ final class STBConstant implements STBuilder {
 
       default:
         throw new IllegalArgumentException(
-            "Unsupported type: " + constant.getExpression().getDataType());
+            "Unsupported type in %s." + constant);
     }
 
     ExprPrinter.get().addVariableMapping(
