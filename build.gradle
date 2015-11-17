@@ -252,6 +252,23 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 mainClassName = "ru.ispras.microtesk.MicroTESK"
 
+jar {
+  archiveName = 'microtesk.jar'
+
+  from('LICENSE') {
+    into('META-INF/')
+  }
+
+  manifest {
+    attributes 'Title'  : 'MicroTESK'
+    attributes 'Version': getVersionWithUpdatedDate()
+    attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
+    attributes 'Built-By': System.getProperty('user.name')
+    attributes 'Built-JDK': System.getProperty('java.version')
+    attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
+  }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
   archiveName = 'microtesk-src.jar'
   from(projectDir) {
@@ -319,4 +336,3 @@ distributions {
     }
   }
 }
-
