@@ -151,8 +151,8 @@ release {
   failOnCommitNeeded = false
 
   versionPatterns = [
-            // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
-            /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
+    // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
+    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
   ]
   
 }
@@ -168,7 +168,7 @@ compileJava {
 }
 
 generateGrammarSource {
-    arguments += ["-lib", "src/main/antlrlib/ru/ispras/microtesk/translator/nml/grammar"]
+  arguments += ["-lib", "src/main/antlrlib/ru/ispras/microtesk/translator/nml/grammar"]
 }
 
 checkstyle {
@@ -194,53 +194,53 @@ pmd {
   toolVersion = '5.1.3'
   ignoreFailures = true
     ruleSets = [
-            // The first two better work since it's right in the Javadoc...
-            "rulesets/java/basic.xml",
-            "rulesets/java/braces.xml",
-            "rulesets/java/naming.xml",
-            "rulesets/java/android.xml",
-            "rulesets/java/clone.xml",
-            "rulesets/java/codesize.xml",
-            "rulesets/java/controversial.xml",
-            "rulesets/java/design.xml", 
-            "rulesets/java/finalizers.xml",
-            "rulesets/java/imports.xml",
-            "rulesets/java/j2ee.xml",
-            "rulesets/java/javabeans.xml",
-            "rulesets/java/junit.xml",
-            "rulesets/java/logging-jakarta-commons.xml",
-            "rulesets/java/logging-java.xml",
-            "rulesets/java/migrating.xml",
-            "rulesets/java/optimizations.xml",
-            "rulesets/java/strictexception.xml",
-            "rulesets/java/strings.xml",
-            "rulesets/java/sunsecure.xml",
-            "rulesets/java/typeresolution.xml",
-            "rulesets/java/unusedcode.xml"
-            ]
+      // The first two better work since it's right in the Javadoc...
+      "rulesets/java/basic.xml",
+      "rulesets/java/braces.xml",
+      "rulesets/java/naming.xml",
+      "rulesets/java/android.xml",
+      "rulesets/java/clone.xml",
+      "rulesets/java/codesize.xml",
+      "rulesets/java/controversial.xml",
+      "rulesets/java/design.xml", 
+      "rulesets/java/finalizers.xml",
+      "rulesets/java/imports.xml",
+      "rulesets/java/j2ee.xml",
+      "rulesets/java/javabeans.xml",
+      "rulesets/java/junit.xml",
+      "rulesets/java/logging-jakarta-commons.xml",
+      "rulesets/java/logging-java.xml",
+      "rulesets/java/migrating.xml",
+      "rulesets/java/optimizations.xml",
+      "rulesets/java/strictexception.xml",
+      "rulesets/java/strings.xml",
+      "rulesets/java/sunsecure.xml",
+      "rulesets/java/typeresolution.xml",
+      "rulesets/java/unusedcode.xml"
+      ]
   sourceSets = [sourceSets.main]
 }
 
 jacoco {
-    toolVersion = "0.7.4.201502262128"
+  toolVersion = "0.7.4.201502262128"
 }
 
 jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-    }
+  reports {
+    xml.enabled true
+    csv.enabled false
+  }
 }
 
 sonarRunner {
-    toolVersion = '2.4'
-     sonarProperties {
-        property "sonar.host.url", "http://forge.ispras.ru:9000"
-        property "sonar.jdbc.url", "jdbc:mysql://localhost:3306/sonar"
-        property "sonar.jdbc.driverClassName", "com.mysql.jdbc.Driver"
-        property "sonar.jdbc.username", "sonar"
-        property "sonar.jdbc.password", "sonar"
-    }
+  toolVersion = '2.4'
+  sonarProperties {
+    property "sonar.host.url", "http://forge.ispras.ru:9000"
+    property "sonar.jdbc.url", "jdbc:mysql://localhost:3306/sonar"
+    property "sonar.jdbc.driverClassName", "com.mysql.jdbc.Driver"
+    property "sonar.jdbc.username", "sonar"
+    property "sonar.jdbc.password", "sonar"
+  }
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
