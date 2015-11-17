@@ -306,7 +306,7 @@
 
     <!-- Copies batch files -->
     <copy todir="${dist}/bin">
-      <fileset dir="src/main/scripts" includes="**"/>
+      <fileset dir="src/main/bin" includes="**"/>
     </copy>
 
     <!-- Copies Ruby scripts -->
