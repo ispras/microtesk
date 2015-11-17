@@ -147,6 +147,16 @@ task getDependencies(type: Copy) {
   into 'libs'
 }
 
+def getVersionWithUpdatedDate() {
+  return project.version.replace("SNAPSHOT", "") + new SimpleDateFormat("yyMMdd").format(new Date())
+}
+
+task updateVersionDate << {
+  project.version = getVersionWithUpdatedDate()
+}
+
+compileJava.dependsOn updateVersionDate
+
 release {
   failOnCommitNeeded = false
 
@@ -156,12 +166,6 @@ release {
   ]
   
 }
-
-task setReleaseData << {
-  project.version=project.version+'-'+new SimpleDateFormat("yyMMdd").format(new Date())
-}
-
-confirmReleaseVersion.dependsOn setReleaseData
 
 compileJava {
   options.encoding = "UTF-8"
