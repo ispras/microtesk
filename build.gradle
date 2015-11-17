@@ -247,3 +247,42 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 mainClassName = "ru.ispras.microtesk.MicroTESK"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  archiveName = 'microtesk-src.jar'
+  from(projectDir) {
+    into('microtesk')
+    include('src/')
+    include('config/')
+  }
+
+  from(files { projectDir.listFiles() }.filter { File file -> file.isFile() ? file : null }) {
+    into('microtesk')
+  }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  archiveName = 'microtesk-javadoc.jar'
+  from javadoc.destinationDir
+}
+
+artifacts {
+  archives sourcesJar
+  archives javadocJar
+}
+
+distributions {
+  main{
+    baseName = 'microtesk'
+    contents {
+      from(sourcesJar) {
+        into("src")
+      }
+
+      from(javadocJar) {
+        into("javadoc")
+      }
+    }
+  }
+}
+
