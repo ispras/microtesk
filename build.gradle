@@ -279,6 +279,10 @@ distributions {
   main{
     baseName = 'microtesk'
     contents {
+      from("src/main/arch/") {
+        into("arch")
+      }
+
       from(sourcesJar) {
         into("src")
       }
