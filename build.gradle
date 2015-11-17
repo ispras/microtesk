@@ -296,6 +296,11 @@ distributions {
       from("NOTICE")
       from("src/main/text/README")
 
+      from("src/main/text/README_TOOLS") {
+        into("tools")
+        rename("README_TOOLS", "README")
+      }
+
       from("xdocs/") {
         into("doc")
       }
