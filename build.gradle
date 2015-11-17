@@ -265,6 +265,7 @@ jar {
     attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
     attributes 'Built-By': System.getProperty('user.name')
     attributes 'Built-JDK': System.getProperty('java.version')
+    attributes 'Main-Class': mainClassName
     attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
   }
 }
