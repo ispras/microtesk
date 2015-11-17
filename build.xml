@@ -301,7 +301,7 @@
 
     <!-- Copies configuration files -->
     <copy todir="${dist}/etc">
-      <fileset dir="src/main/config" includes="**"/>
+      <fileset dir="src/main/etc" includes="**"/>
     </copy>
 
     <!-- Copies batch files -->
