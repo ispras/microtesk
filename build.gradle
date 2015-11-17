@@ -93,12 +93,12 @@ dependencies {
   testRuntime cvc4
 
   antlr 'org.antlr:antlr:3.4'
-
   compile 'commons-cli:commons-cli:1.2'
-  compile 'jruby:jruby:1.7.3'
-  compile 'fortress:fortress:0.4.10-beta-150904'
-  compile 'testbase:testbase:0.0.8-alpha-150710'
-  compile 'jsoftfloat:jsoftfloat:1.0.1-beta-151002'
+
+  compile files("${project.projectDir}/jars/jruby.jar")
+  compile files("${project.projectDir}/jars/fortress.jar")
+  compile files("${project.projectDir}/jars/testbase.jar")
+  compile files("${project.projectDir}/jars/jsoftfloat.jar")
 }
 
 task getZ3(type: Copy) {
