@@ -282,6 +282,10 @@ distributions {
       from(javadocJar) {
         into("javadoc")
       }
+
+      from("xdocs/") {
+        into("doc")
+      }
     }
   }
 }
