@@ -287,6 +287,15 @@ distributions {
         into("javadoc")
       }
 
+      from("src/main/etc/") {
+        into("etc")
+      }
+
+      from("ChangeLog")
+      from("LICENSE")
+      from("NOTICE")
+      from("src/main/text/README")
+
       from("xdocs/") {
         into("doc")
       }
