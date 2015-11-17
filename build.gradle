@@ -283,6 +283,10 @@ distributions {
         into("arch")
       }
 
+      from("src/main/bin/") {
+        into("bin")
+      }
+
       from(sourcesJar) {
         into("src")
       }
@@ -295,6 +299,10 @@ distributions {
         into("etc")
       }
 
+      from("xdocs/") {
+        into("doc")
+      }
+
       from("ChangeLog")
       from("LICENSE")
       from("NOTICE")
@@ -303,10 +311,6 @@ distributions {
       from("src/main/text/README_TOOLS") {
         into("tools")
         rename("README_TOOLS", "README")
-      }
-
-      from("xdocs/") {
-        into("doc")
       }
     }
   }
