@@ -80,6 +80,22 @@ final class Float128Operations implements Operations {
   }
 
   @Override
+  public boolean isNan(final FloatX arg) {
+    // TODO
+    throw new UnsupportedOperationException(
+        "JSoftFloat.float128_is_nan is not supported");
+    //return JSoftFloat.float128_is_nan(newFloat128(arg));
+  }
+
+  @Override
+  public boolean isSignalingNan(final FloatX arg) {
+    // TODO
+    throw new UnsupportedOperationException(
+        "JSoftFloat.float128_is_signaling_nan is not supported");
+    //return JSoftFloat.float128_is_signaling_nan(newFloat128(arg));
+  }
+
+  @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT32: {

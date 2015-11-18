@@ -27,6 +27,9 @@ interface Operations {
   FloatX sqrt(final FloatX arg);
   int compare(final FloatX first, final FloatX second);
 
+  boolean isNan(final FloatX arg);
+  boolean isSignalingNan(final FloatX arg);
+
   FloatX toFloat(final FloatX value, final Precision precision);
   BitVector toInteger(final FloatX value, final int size);
   FloatX fromInteger(final BitVector value);

@@ -203,6 +203,14 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return getOperations().sqrt(this);
   }
 
+  public boolean isNan() {
+    return getOperations().isNan(this);
+  }
+
+  public boolean isSignalingNan() {
+    return getOperations().isSignalingNan(this);
+  }
+
   public FloatX toFloat(final Precision newPrecision) {
     InvariantChecks.checkNotNull(newPrecision);
 

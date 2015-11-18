@@ -80,6 +80,16 @@ final class Float32Operations implements Operations {
   }
 
   @Override
+  public boolean isNan(final FloatX arg) {
+    return JSoftFloat.float32_is_nan(arg.floatValue());
+  }
+
+  @Override
+  public boolean isSignalingNan(final FloatX arg) {
+    return JSoftFloat.float32_is_signaling_nan(arg.floatValue());
+  }
+
+  @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT64: {
