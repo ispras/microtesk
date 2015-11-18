@@ -28,5 +28,7 @@ public enum EOperatorID {
   AND, OR, NOT,
 
   // Floating-point operators
-  SQRT
+  SQRT,
+  IS_NAN,
+  IS_SIGNALING_NAN
 }

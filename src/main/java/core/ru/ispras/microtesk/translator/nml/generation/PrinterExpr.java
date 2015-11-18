@@ -272,6 +272,8 @@ public final class PrinterExpr {
     result.put(Operator.BIT_NOT, EOperatorID.BIT_NOT);
     result.put(Operator.NOT, EOperatorID.NOT);
     result.put(Operator.SQRT, EOperatorID.SQRT);
+    result.put(Operator.IS_NAN, EOperatorID.IS_NAN);
+    result.put(Operator.IS_SIGN_NAN, EOperatorID.IS_SIGNALING_NAN);
 
     return Collections.unmodifiableMap(result);
   }

@@ -204,6 +204,20 @@ public final class DataEngine {
         return floatXToData(arg.sqrt());
       }
     });
+
+    FLOAT_UNARY_OPERATORS.put(EOperatorID.IS_NAN, new FloatUnary() {
+      @Override
+      protected Data calculate(FloatX arg) {
+        return arg.isNan() ? TRUE : FALSE;
+      }
+    });
+
+    FLOAT_UNARY_OPERATORS.put(EOperatorID.IS_SIGNALING_NAN, new FloatUnary() {
+      @Override
+      protected Data calculate(FloatX arg) {
+        return arg.isSignalingNan() ? TRUE : FALSE;
+      }
+    });
   }
 
   public static Data valueOf(Type type, BigInteger value) {
