@@ -271,7 +271,9 @@ enum OperatorLogic {
 
   ITE(Operator.ITE, Arrays.asList(TypeId.BOOL, TypeId.CARD, TypeId.INT)),
 
-  SQRT(Operator.SQRT, Arrays.asList(TypeId.FLOAT));
+  SQRT(Operator.SQRT, Arrays.asList(TypeId.FLOAT)),
+  IS_NAN(Operator.IS_NAN, Type.BOOLEAN, Arrays.asList(TypeId.FLOAT), Boolean.class),
+  IS_SIGN_NAN(Operator.IS_SIGN_NAN, Type.BOOLEAN, Arrays.asList(TypeId.FLOAT), Boolean.class);
 
   private static final Map<Operator, OperatorLogic> operators;
   static {

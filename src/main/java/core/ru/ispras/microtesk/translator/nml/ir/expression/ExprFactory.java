@@ -236,6 +236,42 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr isNan(final Where w, final Expr operand) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(operand);
+
+    if (!operand.getValueInfo().isModelOf(TypeId.FLOAT)) {
+      raiseError(w, "The is_nan operation supports only the float type.");
+    }
+
+    final SourceOperator source = new SourceOperator(
+        Operator.IS_NAN, operand.getValueInfo(), ValueInfo.createNativeType(Boolean.class));
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(source);
+    final Node node = new NodeOperation(Operator.IS_NAN, operand.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
+  public Expr isSignalingNan(final Where w, final Expr operand) throws SemanticException {
+    checkNotNull(w);
+    checkNotNull(operand);
+
+    if (!operand.getValueInfo().isModelOf(TypeId.FLOAT)) {
+      raiseError(w, "The is_signaling_nan operation supports only the float type.");
+    }
+
+    final SourceOperator source = new SourceOperator(
+        Operator.IS_SIGN_NAN, operand.getValueInfo(), ValueInfo.createNativeType(Boolean.class));
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(source);
+    final Node node = new NodeOperation(Operator.IS_SIGN_NAN, operand.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
   public Expr signExtend(
       final Where w,
       final Expr src,

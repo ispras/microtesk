@@ -63,7 +63,9 @@ public enum Operator {
 
   // Synthetic operators
   ITE("",  Operands.TERNARY, Priority.HIGHER),
-  SQRT("", Operands.UNARY,  Priority.HIGHER);
+  SQRT("", Operands.UNARY, Priority.HIGHER),
+  IS_NAN("", Operands.UNARY, Priority.CURRENT),
+  IS_SIGN_NAN("", Operands.UNARY, Priority.CURRENT);
 
   private static enum Priority {
     CURRENT {

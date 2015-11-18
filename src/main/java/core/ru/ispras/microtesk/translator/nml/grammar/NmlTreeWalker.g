@@ -842,6 +842,16 @@ $res = $tc.res;
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().sqrt(where($token), $e.res);
 })
+    |  ^(token=IS_NAN e=dataExpr
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().isNan(where($token), $e.res);
+})
+    |  ^(token=IS_SIGN_NAN e=dataExpr
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().isSignalingNan(where($token), $e.res);
+})
     ;
 
 /*======================================================================================*/
