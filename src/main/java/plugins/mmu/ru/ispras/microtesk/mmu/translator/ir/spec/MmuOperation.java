@@ -55,4 +55,9 @@ public final class MmuOperation {
   public Map<IntegerField, MmuBinding> getAssignments() {
     return assignments;
   }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }
