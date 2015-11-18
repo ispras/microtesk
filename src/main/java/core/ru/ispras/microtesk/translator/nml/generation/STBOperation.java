@@ -140,12 +140,14 @@ final class STBOperation extends STBPrimitiveBase {
       final ST argCheckST;
       if (Primitive.Kind.MODE == argType.getKind()) {
         importModeDependencies(t);
-        t.add("arg_types", IAddressingMode.class.getSimpleName());
+        t.add("arg_types",
+            argType.isOrRule() ? IAddressingMode.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else if (Primitive.Kind.OP == argType.getKind()) {
         importOpDependencies(t);
-        t.add("arg_types", IOperation.class.getSimpleName());
+        t.add( "arg_types",
+            argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else // if Primitive.Kind.IMM == oa.getKind()
@@ -241,10 +243,12 @@ final class STBOperation extends STBPrimitiveBase {
 
         if (Primitive.Kind.MODE == argType.getKind()) {
           importModeDependencies(t);
-          shortcutST.add("arg_types", IAddressingMode.class.getSimpleName());
+          shortcutST.add("arg_types",
+              argType.isOrRule() ? IAddressingMode.class.getSimpleName() : argType.getName());
         } else if (Primitive.Kind.OP == argType.getKind()) {
           importOpDependencies(t);
-          shortcutST.add("arg_types", IOperation.class.getSimpleName());
+          shortcutST.add("arg_types",
+              argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
         } else // if Primitive.Kind.IMM == oa.getKind()
         {
           importImmDependencies(t);
