@@ -84,6 +84,7 @@ declaration
     | extern
     | struct
     | address
+    | operation
     | segment
     | buffer
     | mmu
@@ -146,6 +147,15 @@ address
                     chain=idList?)
       { newAddress($addressId, addressType, $chain.res); }
     ; finally {popSymbolScope();}
+
+//==================================================================================================
+// Operation
+//==================================================================================================
+
+operation
+    : ^(MMU_OP id=ID addressArgId=ID addressArgType=ID
+      attrId=ID stmts=sequence)
+    ;
 
 //==================================================================================================
 // Segment
