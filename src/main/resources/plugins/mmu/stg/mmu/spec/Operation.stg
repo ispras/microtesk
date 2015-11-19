@@ -14,7 +14,7 @@
 
 group Operation;
 
-operation_body(name, addr) ::= <<
+operation_body(name, addr, bindings) ::= <<
 private static MmuOperation operation = null;<\n>
 public static MmuOperation get() {
   if (null == operation) {
@@ -25,7 +25,8 @@ public static MmuOperation get() {
 private static MmuOperation newOperation() {
   return new MmuOperation(
       "<name>",
-      <addr>.get()
+      <addr>.get()<if(bindings)>,
+      <bindings : {b | <b>}; separator=",\n"><\n><else><\n><endif>
       );
 }
 >>
