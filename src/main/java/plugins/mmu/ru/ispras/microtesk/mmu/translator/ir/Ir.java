@@ -30,6 +30,7 @@ public final class Ir {
   private final Map<String, Memory> memories;
   private final Map<String, Type> types;
   private final Map<String, Callable> functions;
+  private final Map<String, Operation> operations;
 
   public Ir(final String modelName) {
     checkNotNull(modelName);
@@ -43,6 +44,7 @@ public final class Ir {
     this.memories = new LinkedHashMap<>();
     this.types = new LinkedHashMap<>();
     this.functions = new LinkedHashMap<>();
+    this.operations = new LinkedHashMap<>();
   }
 
   public String getModelName() {
@@ -79,6 +81,10 @@ public final class Ir {
 
   public Map<String, Callable> getFunctions() {
     return Collections.unmodifiableMap(functions);
+  }
+
+  public Map<String, Operation> getOperations() {
+    return Collections.unmodifiableMap(operations);
   }
 
   public void addConstant(final Constant constant) {
@@ -127,11 +133,16 @@ public final class Ir {
     functions.put(f.getName(), f);
   }
 
+  public void addOperation(final Operation operation) {
+    checkNotNull(operation);
+    operations.put(operation.getId(), operation);
+  }
+
   @Override
   public String toString() {
     return String.format(
         "Mmu Ir(%s):%n constants=%s%n externals=%s%n addresses=%s%n segments=%s" +
-        "%n buffers=%s%n memories=%s%n types=%s",
+        "%n buffers=%s%n memories=%s%n types=%s%n functions=%s%n operations=%s",
         modelName,
         mapToString(constants),
         mapToString(externs),
@@ -140,16 +151,19 @@ public final class Ir {
         mapToString(buffers),
         mapToString(memories),
         mapToString(types),
-        mapToString(functions)
+        mapToString(functions),
+        mapToString(operations)
         );
   }
 
   public static <U, V> String mapToString(final Map<U, V> map) {
     final StringBuilder builder = new StringBuilder();
     builder.append(String.format("{%n"));
+
     for (final Map.Entry<U, V> entry : map.entrySet()) {
       builder.append(String.format("%s = %s%n", entry.getKey(), entry.getValue()));
     }
+
     builder.append("}");
     return builder.toString();
   }
