@@ -23,6 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -54,6 +55,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
+      processOperations(ir, factory);
       processFunctions(ir, factory);
       processBuffers(ir, factory);
       processSegments(ir, factory);
@@ -105,6 +107,24 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
     }
   }
 
+  private void processOperations(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
+    for (final Operation operation : ir.getOperations().values()) {
+      final FileGenerator fileGenerator = factory.newOperationGenerator(operation);
+      fileGenerator.generate();
+    }
+  }
+
+  private void processFunctions(
+      final Ir ir,
+      final SpecGeneratorFactory factory) throws IOException {
+    for (final Callable func : ir.getFunctions().values()) {
+      final FileGenerator fileGenerator = factory.newFunctionGenerator(ir, func);
+      fileGenerator.generate();
+    }
+  }
+
   private void processBuffers(
       final Ir ir,
       final SpecGeneratorFactory factory) throws IOException {
@@ -137,14 +157,5 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       final SpecGeneratorFactory factory) throws IOException {
     final FileGenerator fileGenerator = factory.newSpecificationGenerator(ir);
     fileGenerator.generate();
-  }
-
-  private void processFunctions(
-      final Ir ir,
-      final SpecGeneratorFactory factory) throws IOException {
-    for (final Callable func : ir.getFunctions().values()) {
-      final FileGenerator fileGenerator = factory.newFunctionGenerator(ir, func);
-      fileGenerator.generate();
-    }
   }
 }

@@ -24,6 +24,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
@@ -67,6 +68,7 @@ final class STBSpecification implements STBuilder {
     st.add("members", stBody);
 
     registerAddresses(stBody, group);
+    registerOperations(stBody, group);
     registerBuffers(stBody, group);
     registerSegments(stBody, group);
     registerMemories(stBody, group);
@@ -88,6 +90,20 @@ final class STBSpecification implements STBuilder {
     for(final Address address : ir.getAddresses().values()) {
       final String name = address.getId();
       final ST stReg = group.getInstanceOf("address_reg");
+
+      stReg.add("name", name);
+      st.add("stmts", stReg);
+    }
+  }
+
+  private void registerOperations(final ST st, final STGroup group) {
+    if (!ir.getOperations().isEmpty()) {
+      st.add("stmts", "");
+    }
+
+    for(final Operation operation : ir.getOperations().values()) {
+      final String name = operation.getId();
+      final ST stReg = group.getInstanceOf("operation_reg");
 
       stReg.add("name", name);
       st.add("stmts", stReg);

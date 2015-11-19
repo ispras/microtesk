@@ -21,6 +21,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -56,6 +57,9 @@ final class SpecGeneratorFactory {
 
   private static final String CONSTANT_STG = MMU_STG_DIR + "Constant.stg";
   private static final String[] CONSTANT_STGS = new String[] {JAVA_COMMON_STG, CONSTANT_STG};
+
+  private static final String OPERATION_STG = MMU_STG_DIR + "Operation.stg";
+  private static final String[] OPERATION_STGS = new String[] {JAVA_COMMON_STG, OPERATION_STG};
 
   private final String outDir;
   private final String packageName;
@@ -108,6 +112,24 @@ final class SpecGeneratorFactory {
     return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
 
+  public FileGenerator newFunctionGenerator(final Ir ir, final Callable func) {
+    InvariantChecks.checkNotNull(func);
+
+    final String outputFileName = getOutputFileName(func.getName());
+    final STBuilder builder = new STBFunction(packageName, ir, func);
+
+    return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
+  }
+
+  public FileGenerator newOperationGenerator(final Operation operation) {
+    InvariantChecks.checkNotNull(operation);
+
+    final String outputFileName = getOutputFileName(operation.getId());
+    final STBuilder builder = new STBOperation(packageName, operation);
+
+    return new STFileGenerator(outputFileName, OPERATION_STGS, builder);
+  }
+
   public FileGenerator newBufferGenerator(final Buffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
@@ -142,14 +164,5 @@ final class SpecGeneratorFactory {
     final STBuilder builder = new STBSpecification(packageName, ir);
 
     return new STFileGenerator(outputFileName, SPEC_STGS, builder);
-  }
-
-  public FileGenerator newFunctionGenerator(final Ir ir, final Callable func) {
-    InvariantChecks.checkNotNull(func);
-
-    final String outputFileName = getOutputFileName(func.getName());
-    final STBuilder builder = new STBFunction(packageName, ir, func);
-
-    return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
   }
 }

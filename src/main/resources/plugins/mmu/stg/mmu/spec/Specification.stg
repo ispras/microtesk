@@ -34,6 +34,10 @@ address_reg(name) ::= <<
 builder.registerAddress(<name>.get());
 >>
 
+operation_reg(name) ::= <<
+builder.registerOperation(<name>.get());
+>>
+
 buffer_reg(name) ::= <<
 builder.registerBuffer(<name>.get());
 >>
