@@ -93,7 +93,12 @@ public final class Type extends Nested<Type> {
 
   @Override
   public String toString() {
-    return String.format("type [size=%d, fields=%s]", bitSize, fields);
+    return String.format(
+        "type %s[size=%d, fields=%s]",
+        id != null ? id : "",
+        bitSize,
+        fields
+        );
   }
 
   @Override
