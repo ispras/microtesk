@@ -106,9 +106,11 @@ public final class Type extends Nested<Type> {
     if (o == this) {
       return true;
     }
+
     if (o == null || !(o instanceof Type)) {
       return false;
     }
+
     final Type type = (Type) o;
     return bitSize == type.bitSize &&
            fields.equals(type.fields);
