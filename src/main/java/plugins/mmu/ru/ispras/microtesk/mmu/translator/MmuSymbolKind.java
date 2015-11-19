@@ -49,5 +49,8 @@ public enum MmuSymbolKind {
   ATTRIBUTE,
 
   TYPE,
-  FUNCTION
+  FUNCTION,
+
+  /** Operation associated with an operation in the ISA specification */
+  OPERATION
 }

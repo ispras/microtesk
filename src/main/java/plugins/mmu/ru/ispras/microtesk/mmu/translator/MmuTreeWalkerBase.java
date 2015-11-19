@@ -56,6 +56,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
@@ -447,6 +448,74 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new Type(bitSize);
   }
 
+  protected final class OperationBuilder {
+    private static final String ATTRIBUTE_NAME = "init";
+
+    private final CommonTree id;
+    private final Address address;
+    private final Variable addressArg;
+    private List<Stmt> stmts;
+
+    public OperationBuilder(
+        final CommonTree id,
+        final CommonTree addressArgId,
+        final CommonTree addressArgType) throws SemanticException {
+      this.id = id;
+      this.address = getAddress(addressArgType);
+
+      storage.newScope(id.getText());
+      this.addressArg = storage.declare(addressArgId.getText(), address.getContentType());
+
+      this.stmts = null;
+    }
+
+    public void addAttribute(
+        final CommonTree attrId,
+        final List<Stmt> stmts) throws SemanticException {
+      checkNotNull(attrId, stmts);
+
+      if (!ATTRIBUTE_NAME.equals(attrId.getText())) {
+        raiseError(where(attrId), String.format(
+            "The %s attribute is not supported for the %s operation.",
+            attrId.getText(),
+            id.getText())
+            );
+      }
+
+      if (null != this.stmts) {
+        raiseError(where(attrId), String.format(
+            "The %s attribute is already defined for the %s operation.",
+            attrId.getText(),
+            id.getText())
+            );
+      }
+
+      this.stmts = stmts;
+    }
+
+    public Operation build() throws SemanticException {
+      if (null == stmts) {
+        raiseError(where(id), String.format(
+            "The %s attribute is undefined for the %s operation.",
+            ATTRIBUTE_NAME,
+            id.getText())
+            );
+      }
+
+      final Operation operation = new Operation(
+          id.getText(),
+          address,
+          addressArg,
+          stmts
+          );
+
+      ir.addOperation(operation);
+      storage.popScope();
+
+      return operation;
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   // TODO: Review + comments are needed
 
@@ -686,6 +755,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     if (outputVarId == null || outputVarType == null) {
       return new CommonBuilder(where(id), id.getText(), address, addressArgId.getText());
     }
+
     final Address outputAddr = getAddress(outputVarType);
     return new CommonBuilder(where(id),
                              id.getText(),

@@ -153,9 +153,20 @@ address
 //==================================================================================================
 
 operation
-    : ^(MMU_OP id=ID addressArgId=ID addressArgType=ID
-      attrId=ID stmts=sequence)
-    ;
+    : ^(MMU_OP operationId=ID {declareAndPushSymbolScope($operationId, MmuSymbolKind.OPERATION);}
+      addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);}
+      addressArgType=ID
+{
+final OperationBuilder builder = new OperationBuilder(
+    $operationId, $addressArgId, $addressArgType);
+}
+      attrId=ID stmts=sequence
+{
+builder.addAttribute($attrId, $stmts.res);
+builder.build();
+}
+      )
+    ; finally {popSymbolScope();}
 
 //==================================================================================================
 // Segment
