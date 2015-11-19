@@ -23,6 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -88,6 +89,25 @@ final class SimGeneratorFactory {
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 
+  public FileGenerator newOperationGenerator(final Operation operation) {
+    InvariantChecks.checkNotNull(operation);
+
+    final String outputFileName = getOutputFileName(operation.getId());
+    final STBuilder builder = new STBOperation(packageName, operation);
+
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+  }
+
+  public FileGenerator newFunctionGenerator(final Ir ir, final Callable function) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(function);
+
+    final String outputFileName = getOutputFileName(function.getName());
+    final STBuilder builder = new STBFunction(packageName, function);
+
+    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+  }
+
   public FileGenerator newStructGenerator(final Type structType) {
     InvariantChecks.checkNotNull(structType);
 
@@ -136,15 +156,5 @@ final class SimGeneratorFactory {
     final STBuilder builder = new STBModel(packageName, ir, targetBuffer);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
-  }
-
-  public FileGenerator newFunctionGenerator(final Ir ir, final Callable function) {
-    InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkNotNull(function);
-
-    final String outputFileName = getOutputFileName(function.getName());
-    final STBuilder builder = new STBFunction(packageName, function);
-
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
 }
