@@ -42,6 +42,16 @@ public <type> value() {
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Operation-related templates
+
+operation_body(addr, addr_name, stmts) ::= <<
+@Override
+public void init(final <addr> <addr_name>) {
+  <stmts; separator="\n">
+}
+>>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Function-related templates
 
 function_body(type, anames, atypes, stmts) ::= <<
