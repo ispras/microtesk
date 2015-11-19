@@ -56,6 +56,9 @@ public final class MmuSubsystem {
   /** Refers to the physical address type of the MMU. */
   private final MmuAddressType physicalAddress;
 
+  /** Stores operations of MMU (linked to with operations in SA specs) */
+  private final Map<String, MmuOperation> operations;
+
   /** Stores segments of the MMU. */
   private final Map<String, MmuSegment> segments;
 
@@ -87,6 +90,7 @@ public final class MmuSubsystem {
       final List<MmuAddressType> sortedAddresses,
       final MmuAddressType virtualAddress,
       final MmuAddressType physicalAddress,
+      final Map<String, MmuOperation> operations,
       final Map<String, MmuSegment> segments,
       final Map<String, MmuBuffer> buffers,
       final List<MmuBuffer> sortedBuffers,
@@ -99,6 +103,7 @@ public final class MmuSubsystem {
     // InvariantChecks.checkNotNull(virtualAddress);
     // InvariantChecks.checkNotNull(physicalAddress);
 
+    InvariantChecks.checkNotNull(operations);
     InvariantChecks.checkNotNull(segments);
     InvariantChecks.checkNotNull(buffers);
     InvariantChecks.checkNotNull(sortedBuffers);
@@ -113,6 +118,7 @@ public final class MmuSubsystem {
     this.virtualAddress = virtualAddress;
     this.physicalAddress = physicalAddress;
 
+    this.operations = Collections.unmodifiableMap(operations);
     this.segments = Collections.unmodifiableMap(segments);
     this.regions = Collections.emptyMap();
     this.buffers = Collections.unmodifiableMap(buffers);
@@ -177,6 +183,25 @@ public final class MmuSubsystem {
    */
   public MmuBuffer getTargetBuffer() {
     return targetBuffer;
+  }
+
+  /**
+   * Returns the collection of operations registered in the MMU.
+   * 
+   * @return the collection of operations.
+   */
+  public Collection<MmuOperation> getOperations() {
+    return operations.values();
+  }
+
+  /**
+   * Returns an operation registered in the MMU by its name.
+   * 
+   * @param name the name of the operation.
+   * @return operation or {@code null} if it is undefined.
+   */
+  public MmuOperation getOperation(final String name) {
+    return operations.get(name);
   }
 
   /**
@@ -324,10 +349,10 @@ public final class MmuSubsystem {
      * Stores available address types.
      * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
      */
-    private Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
+    private final Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
 
     // TODO:
-    private List<MmuAddressType> sortedAddresses = new ArrayList<>();
+    private final List<MmuAddressType> sortedAddresses = new ArrayList<>();
 
     /** Refers to the virtual address type of the MMU. */
     private MmuAddressType virtualAddress;
@@ -335,14 +360,17 @@ public final class MmuSubsystem {
     /** Refers to the physical address type of the MMU. */
     private MmuAddressType physicalAddress;
 
+    /** Stores operations of MMU (linked to with operations in SA specs) */
+    private final Map<String, MmuOperation> operations = new LinkedHashMap<>();
+
     /** Stores segments of the MMU. */
-    private Map<String, MmuSegment> segments = new LinkedHashMap<>();
+    private final Map<String, MmuSegment> segments = new LinkedHashMap<>();
 
     /** Stores buffers of the MMU. */
-    private Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
+    private final Map<String, MmuBuffer> buffers = new LinkedHashMap<>();
 
     // TODO:
-    private List<MmuBuffer> sortedBuffers = new ArrayList<>();
+    private final List<MmuBuffer> sortedBuffers = new ArrayList<>();
 
     /** Refers to the target buffer of the MMU. */
     private MmuBuffer targetBuffer;
@@ -360,6 +388,7 @@ public final class MmuSubsystem {
           sortedAddresses,
           virtualAddress,
           physicalAddress,
+          operations,
           segments,
           buffers,
           sortedBuffers,
@@ -422,13 +451,21 @@ public final class MmuSubsystem {
     }
 
     /**
+     * Registers an operation in the MMU.
+     * 
+     * @param operation the operation to be registered.
+     * @throws IllegalArgumentException if {@code operation} is {@code null}.
+     */
+    public void registerOperation(final MmuOperation operation) {
+      InvariantChecks.checkNotNull(operation);
+      operations.put(operation.getName(), operation);
+    }
+
+    /**
      * Registers a segment in the MMU.
      * 
-     * <p>Devices are identified by their name. Devices with equal names are considered duplicates
-     * and ignored.</p>
-     * 
-     * @param buffer the buffer to be registered.
-     * @throws IllegalArgumentException if {@code buffer} is {@code null}.
+     * @param segment the segment to be registered.
+     * @throws IllegalArgumentException if {@code segment} is {@code null}.
      */
     public void registerSegment(final MmuSegment segment) {
       InvariantChecks.checkNotNull(segment);
