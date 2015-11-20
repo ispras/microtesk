@@ -22,7 +22,7 @@ require_relative 'minimips_base'
 # This test template demonstrates how to generate test cases for the memory subsystem.
 #
 class MemorySubsystemTemplate < MiniMipsBaseTemplate
-  
+
   def pre
     super
 
@@ -45,7 +45,7 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
     atomic(:engine => 'memory', :classifier => 'event-based', :page_mask => 0x0fff, :align => 4) {
       lw s0, 0, t0 do situation('address', :base => 'lw.address') end
       lw s1, 0, t1 do situation('address', :base => 'lw.address') end
-    }
+    }.run
   end
 
 end

@@ -29,15 +29,14 @@ class BlockTemplate < MiniMipsBaseTemplate
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)
-    }
+    }.run
 
     # Produces three test cases each consisting of one instruction
     block {
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)
-    }
+    }.run
   end
 
 end
-

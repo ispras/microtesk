@@ -42,7 +42,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
           nop
         }
       }
-    }
+    }.run()
   end
 
 end

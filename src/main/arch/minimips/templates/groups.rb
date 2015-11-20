@@ -33,21 +33,19 @@ class GroupsTemplate < MiniMipsBaseTemplate
   def run
     # Using groups defined in the specification
 
-    10.times {
-      atomic {
-        # Selects from {add, addu, sub, subu}
-        arithm t0, t1, t2
+    atomic {
+      # Selects from {add, addu, sub, subu}
+      arithm t0, t1, t2
 
-        # Selects from {and, or, nor, xor}
-        bitwise t3, t4, t5
+      # Selects from {and, or, nor, xor}
+      bitwise t3, t4, t5
 
-        # Selects from {{add, addu, sub, subu}, {and, or, nor, xor}, {sllv, srav, srlv}}
-        alu t6, t7, t8
+      # Selects from {{add, addu, sub, subu}, {and, or, nor, xor}, {sllv, srav, srlv}}
+      alu t6, t7, t8
 
-        # Placeholder to return from an exception 
-        nop
-      }
-    }
+      # Placeholder to return from an exception 
+      nop
+    }.run(10)
 
     # Using user-defined groups
 
@@ -57,16 +55,15 @@ class GroupsTemplate < MiniMipsBaseTemplate
                     range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
 
     define_op_group('xxx', xxx_dist)
-    10.times {
-      atomic {
-        # Selects an instruction according to the 'xxx_dist' distribution
-        xxx t0, t1, t2
-        xxx t3, t4, t5
-        xxx t6, t7, t8
+    atomic {
+      # Selects an instruction according to the 'xxx_dist' distribution
+      xxx t0, t1, t2
+      xxx t3, t4, t5
+      xxx t6, t7, t8
 
-        # Placeholder to return from an exception
-        nop
-      }
-    }
+      # Placeholder to return from an exception
+      nop
+    }.run(10)
   end
+
 end
