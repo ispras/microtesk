@@ -32,11 +32,13 @@ class BlockTemplate < MiniMipsBaseTemplate
     }.run
 
     # Produces three test cases each consisting of one instruction
-    block {
+    my_block = block {
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)
-    }.run
+    }
+
+    my_block.run
   end
 
 end
