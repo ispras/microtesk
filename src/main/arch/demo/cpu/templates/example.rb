@@ -81,7 +81,7 @@ class ExampleTemplate < CpuBaseTemplate
     text "Multiline comment. Line 2."
     text "Multiline comment. Line 3."
     end_comment
-    
+
     ############################################################################
     # Specifying instruction calls
 
@@ -169,7 +169,7 @@ class ExampleTemplate < CpuBaseTemplate
         sub reg(3), reg(4) do situation('sub', :case => 'overflow', :size => 8) end
         mov reg(4), reg(3)
       }
-    }
+    }.run
 
   end
 
