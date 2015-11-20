@@ -573,12 +573,16 @@ class Template
     end
   end
 
-  def entry()
-    unless defined? @entry_reference
-      @entry_reference = BufferEntryReference.new @template
-    end
+  def entry(*args)
+    if args.count == 2
+      @template.newEntryReference args.at(0), args.at(1)
+    else
+      unless defined? @entry_reference
+        @entry_reference = BufferEntryReference.new @template
+      end
 
-    @entry_reference
+      @entry_reference
+    end
   end
 
   # -------------------------------------------------------------------------- #

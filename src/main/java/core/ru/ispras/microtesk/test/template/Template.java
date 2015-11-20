@@ -642,6 +642,11 @@ public final class Template {
     return bufferPreparatorBuilder.newAddressReference(start, end);
   }
 
+  public LazyValue newEntryReference(final int start, final int end) {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newEntryReference(start, end);
+  }
+
   public LazyValue newEntryFieldReference(final String fieldId) {
     checkBufferPreparatorBlock();
     return bufferPreparatorBuilder.newEntryFieldReference(fieldId);
