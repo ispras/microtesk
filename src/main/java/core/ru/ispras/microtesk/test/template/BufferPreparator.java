@@ -55,7 +55,6 @@ public final class BufferPreparator {
       final Map<String, BitVector> entryFieldValues) {
     InvariantChecks.checkNotNull(addressValue);
     InvariantChecks.checkNotNull(entryFieldValues);
-    InvariantChecks.checkFalse(entryFieldValues.isEmpty(), "Entry is empty.");
 
     address.setValue(addressValue);
 
@@ -72,11 +71,13 @@ public final class BufferPreparator {
       field.setValue(fieldValue);
     }
 
-    final BitVector[] fieldValues =
-        entryFieldValues.values().toArray(new BitVector[entryFieldValues.size()]);
+    if (!entryFieldValues.isEmpty()) {
+      final BitVector[] fieldValues =
+          entryFieldValues.values().toArray(new BitVector[entryFieldValues.size()]);
 
-    final BitVector entryValue = BitVector.newMapping(fieldValues);
-    entryData.setValue(entryValue);
+      final BitVector entryValue = BitVector.newMapping(fieldValues);
+      entryData.setValue(entryValue);
+    }
 
     return Call.newCopy(calls);
   }
