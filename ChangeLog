@@ -6,6 +6,18 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2015/11/20 MicroTESK 2.3.11 beta
+
+ The new build contains the following changes:
+
+ - Test template blocks were made "passive" (processed by the generation engine
+   only on request)
+ - Support for reuse (composition, repetition) of test template blocks
+   was implemented
+ - Support for new floating-point functions 'is_nan' and 'is_signaling_nan'
+   in nML was implemented
+ - Several bug fixes and general improvements were made
+
  2015/11/13 MicroTESK 2.3.10 beta
 
  The new build contains the following changes:
