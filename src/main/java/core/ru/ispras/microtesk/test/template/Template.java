@@ -35,6 +35,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 
 public final class Template {
@@ -262,7 +263,7 @@ public final class Template {
     return current;
   }
 
-  public void endBlock() {
+  public BlockHolder endBlock() {
     if (blockBuilders.isEmpty()) {
       throw new IllegalStateException();
     }
@@ -275,17 +276,63 @@ public final class Template {
     final BlockBuilder builder = blockBuilders.pop();
     final Block block = builder.build();
 
-    if (isMainSection && isRoot) {
-      processBlock(Section.MAIN, block);
-
+    if (isRoot) {
+      // A root block is just returned to the caller.
+      // Then a new root block builder is created and pushed to the stack.
       final BlockBuilder newBuilder = new BlockBuilder();
       newBuilder.setAtomic(true);
+
+      if (isMainSection) {
+        newBuilder.setPrologue(prologue);
+        newBuilder.setEpilogue(epilogue);
+      }
+
       blockBuilders.push(newBuilder);
     } else {
+      // A non-root block is added to its parent.
       blockBuilders.peek().addBlock(block);
     }
 
     --openBlockCount;
+    return new BlockHolder(block);
+  }
+
+  public final class BlockHolder {
+    private final Block block;
+
+    private BlockHolder(final Block block) {
+      checkNotNull(block);
+      this.block = block;
+    }
+
+    public BlockHolder add() {
+      blockBuilders.peek().addBlock(block);
+      return this;
+    }
+
+    public BlockHolder add(final int times) {
+      for (int index = 0; index < times; index++) {
+        add();
+      }
+      return this;
+    }
+
+    public BlockHolder run() {
+      if (!isMainSection) {
+        throw new GenerationAbortedException(
+            "A block can be run only in the main section of a test template.");
+      }
+
+      processBlock(Section.MAIN, block);
+      return this;
+    }
+
+    public BlockHolder run(final int times) {
+      for (int index = 0; index < times; index++) {
+        run();
+      }
+      return this;
+    }
   }
 
   public void addLabel(final String name) {
