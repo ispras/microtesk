@@ -25,6 +25,7 @@ public final class BufferPreparatorBuilder {
   private final String bufferId;
   private final LazyData address;
   private final Map<String, LazyData> entry;
+  private final LazyData entryData;
   private final List<Call> calls;
 
   protected BufferPreparatorBuilder(final String bufferId) {
@@ -33,7 +34,8 @@ public final class BufferPreparatorBuilder {
     this.bufferId = bufferId;
     this.address = new LazyData();
     this.entry = new HashMap<>();
-    this.calls = new ArrayList<Call>();
+    this.entryData = new LazyData();
+    this.calls = new ArrayList<>();
   }
 
   public String getBufferId() {
@@ -46,6 +48,14 @@ public final class BufferPreparatorBuilder {
 
   public LazyValue newAddressReference(final int start, final int end) {
     return new LazyValue(address, start, end);
+  }
+
+  public LazyValue newEntryReference() {
+    return new LazyValue(entryData);
+  }
+
+  public LazyValue newEntryReference(final int start, final int end) {
+    return new LazyValue(entryData, start, end);
   }
 
   public LazyValue newEntryFieldReference(final String fieldId) {
@@ -80,6 +90,12 @@ public final class BufferPreparatorBuilder {
   }
 
   public BufferPreparator build() {
-    return new BufferPreparator(bufferId, address, entry, calls);
+    return new BufferPreparator(
+        bufferId,
+        address,
+        entry,
+        entryData,
+        calls
+        );
   }
 }

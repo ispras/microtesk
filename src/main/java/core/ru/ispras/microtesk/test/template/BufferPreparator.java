@@ -25,12 +25,14 @@ public final class BufferPreparator {
   private final String bufferId;
   private final LazyData address;
   private final Map<String, LazyData> entry;
+  private final LazyData entryData;
   private final List<Call> calls;
 
   protected BufferPreparator(
       final String bufferId,
       final LazyData address,
       final Map<String, LazyData> entry,
+      final LazyData entryData,
       final List<Call> calls) {
     InvariantChecks.checkNotNull(bufferId);
     InvariantChecks.checkNotNull(address);
@@ -40,6 +42,7 @@ public final class BufferPreparator {
     this.bufferId = bufferId;
     this.address = address;
     this.entry = Collections.unmodifiableMap(entry);
+    this.entryData = entryData;
     this.calls = Collections.unmodifiableList(calls);
   }
 
@@ -55,6 +58,8 @@ public final class BufferPreparator {
 
     address.setValue(addressValue);
 
+    final BitVector[] fieldValues = new BitVector[entry.size()];
+    int fieldIndex = 0;
     for (final Map.Entry<String, LazyData> e : entry.entrySet()) {
       final String fieldId = e.getKey();
       final LazyData field = e.getValue();
@@ -66,7 +71,13 @@ public final class BufferPreparator {
       }
 
       field.setValue(fieldValue);
+
+      fieldValues[fieldIndex] = fieldValue;
+      fieldIndex++;
     }
+
+    final BitVector entryValue = BitVector.newMapping(fieldValues);
+    entryData.setValue(entryValue);
 
     return Call.newCopy(calls);
   }
