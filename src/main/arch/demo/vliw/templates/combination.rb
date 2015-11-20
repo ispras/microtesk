@@ -51,7 +51,7 @@ class CombinationTemplate < VliwBaseTemplate
           (sub_s f(11), f(11), f(12) do situation('fp.sub', :case => 'overflow', :exp => 8, :frac => 23) end)
         )
       }
-    }
+    }.run
   end
 
 end
