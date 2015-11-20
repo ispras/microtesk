@@ -59,8 +59,6 @@ public final class BufferPreparator {
 
     address.setValue(addressValue);
 
-    final BitVector[] fieldValues = new BitVector[entry.size()];
-    int fieldIndex = 0;
     for (final Map.Entry<String, LazyData> e : entry.entrySet()) {
       final String fieldId = e.getKey();
       final LazyData field = e.getValue();
@@ -72,10 +70,10 @@ public final class BufferPreparator {
       }
 
       field.setValue(fieldValue);
-
-      fieldValues[fieldIndex] = fieldValue;
-      fieldIndex++;
     }
+
+    final BitVector[] fieldValues =
+        entryFieldValues.values().toArray(new BitVector[entryFieldValues.size()]);
 
     final BitVector entryValue = BitVector.newMapping(fieldValues);
     entryData.setValue(entryValue);
