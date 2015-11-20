@@ -55,6 +55,7 @@ public final class BufferPreparator {
       final Map<String, BitVector> entryFieldValues) {
     InvariantChecks.checkNotNull(addressValue);
     InvariantChecks.checkNotNull(entryFieldValues);
+    InvariantChecks.checkFalse(entryFieldValues.isEmpty(), "Entry is empty.");
 
     address.setValue(addressValue);
 
