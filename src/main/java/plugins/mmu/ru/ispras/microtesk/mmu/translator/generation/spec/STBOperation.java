@@ -29,6 +29,7 @@ public final class STBOperation implements STBuilder {
 
   private final String packageName;
   private final Operation operation;
+  private final String context;
 
   protected STBOperation(
       final String packageName,
@@ -38,6 +39,7 @@ public final class STBOperation implements STBuilder {
 
     this.packageName = packageName;
     this.operation = operation;
+    this.context = operation.getId();
   }
 
   @Override
@@ -61,6 +63,7 @@ public final class STBOperation implements STBuilder {
 
     stBody.add("name", operation.getId());
     stBody.add("addr", operation.getAddress().getId());
+    stBody.add("addr_name", Utils.getVariableName(context, operation.getAddressArg().getName()));
 
     for (final Stmt stmt : operation.getStmts()) {
       buildStmt(st, stmt);
@@ -88,12 +91,10 @@ public final class STBOperation implements STBuilder {
     final Atom lhs = AtomExtractor.extract(assignment.getLeft());
     final Atom rhs = AtomExtractor.extract(assignment.getRight());
 
-    /*
     if (Atom.Kind.VARIABLE != lhs.getKind() &&
-        Atom.Kind.GROUP != lhs.getKind() &&
         Atom.Kind.FIELD != lhs.getKind()) {
       throw new IllegalArgumentException(
           assignment.getLeft() + " cannot be used as left side of assignment.");
-    }*/
+    }
   }
 }
