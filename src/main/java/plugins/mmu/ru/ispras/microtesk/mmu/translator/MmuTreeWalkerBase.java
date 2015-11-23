@@ -490,7 +490,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             );
       }
 
+      for (final Stmt stmt : stmts) {
+        checkValidStmt(where(attrId), stmt);
+      }
+
       this.stmts = stmts;
+    }
+
+    private void checkValidStmt(final Where where, final Stmt stmt) throws SemanticException {
+      if (stmt.getKind() == Stmt.Kind.TRACE) {
+        // Trace statements are ignored (they work only in the simulator)
+        return;
+      }
+
+      if (stmt.getKind() != Stmt.Kind.ASSIGN) {
+        raiseError(where, String.format(
+            "%s statements are not allowed in operations.", stmt.getKind()));
+      }
     }
 
     public Operation build() throws SemanticException {
