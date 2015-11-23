@@ -256,7 +256,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final List<BigInteger> argValues = new ArrayList<>(args.size());
     for (final Node arg : args) {
       if (arg.getKind() != Node.Kind.VALUE) {
-        raiseError(where(id), 
+        raiseError(where(id),
             "References to external elements can be parameterized only with constant values.");
       }
 
@@ -520,6 +520,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             id.getText())
             );
       }
+
+      if (!isConstant(right)) {
+        raiseError(where,
+            "Only constants are allowed in right side of assignments in operations.");
+      }
     }
 
     private boolean isAddressField(final Node node) {
@@ -546,6 +551,50 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Object userData = node.getUserData();
       return (userData instanceof Variable) && 
              ((Variable) userData).isParent(addressArg);
+    }
+
+    private boolean isConstant(final Node node) {
+      if (node.getKind() == Node.Kind.VALUE) {
+        return true;
+      }
+
+      if (node.getKind() == Node.Kind.VARIABLE) {
+        final NodeVariable variable = (NodeVariable) node;
+        final Object userData = variable.getUserData();
+
+        if (userData instanceof Constant) {
+          return true;
+        }
+
+        if (userData instanceof Variable &&
+           ((Variable) userData).getTypeSource() instanceof ExternalSource) {
+          return true;
+        }
+
+        return false;
+      }
+
+      if (node.getKind() == Node.Kind.OPERATION) {
+        final NodeOperation op = (NodeOperation) node;
+
+        if (op.getOperationId() == StandardOperation.BVEXTRACT &&
+            op.getOperandCount() == 3) {
+          return isConstant(op.getOperand(2));
+        }
+
+        if (op.getOperationId() == StandardOperation.BVCONCAT) {
+          for (int index = 0; index < op.getOperandCount(); ++index) {
+            if (!isConstant(op.getOperand(index))) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        return false;
+      }
+
+      return false;
     }
 
     public Operation build() throws SemanticException {
