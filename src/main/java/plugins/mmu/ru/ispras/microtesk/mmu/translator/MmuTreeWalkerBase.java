@@ -515,8 +515,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       if (!isAddressField(left)) {
         raiseError(where, String.format(
-            "Only assignments to %s and its fields (no concatenations) " +
-            "are allowed in the %s operation.",
+            "Only assignments to individual fields of %s are allowed in the %s operation.",
             addressArg.getName(),
             id.getText())
             );
@@ -540,9 +539,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         return false;
       }
 
-      final Object userData = node.getUserData();
-      return (userData instanceof Variable) && 
-             ((Variable) userData).isParent(addressArg);
+      if (node.getKind() == Node.Kind.VARIABLE &&
+          node.getUserData() instanceof Variable) {
+        final Variable variable = (Variable) node.getUserData();
+        return variable.isParent(addressArg) && !variable.isStruct();
+      }
+
+      return false;
     }
 
     private boolean isConstant(final Node node) {
