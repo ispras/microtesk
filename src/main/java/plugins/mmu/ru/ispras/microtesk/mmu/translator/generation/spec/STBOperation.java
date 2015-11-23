@@ -19,6 +19,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
+import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBOperation implements STBuilder {
@@ -60,6 +62,38 @@ public final class STBOperation implements STBuilder {
     stBody.add("name", operation.getId());
     stBody.add("addr", operation.getAddress().getId());
 
+    for (final Stmt stmt : operation.getStmts()) {
+      buildStmt(st, stmt);
+    }
+
     st.add("members", stBody);
+  }
+
+  private void buildStmt(final ST st, final Stmt stmt) {
+    if (stmt.getKind() == Stmt.Kind.TRACE) {
+      // Trace statements are ignored (they work only in the simulator)
+      return;
+    }
+
+    if (stmt.getKind() != Stmt.Kind.ASSIGN) {
+      throw new IllegalArgumentException(String.format(
+          "The %s operation contains illegal statement %s.%n" +
+          "Only assignment statements are allowed.",
+          operation.getId(),
+          stmt
+          ));
+    }
+
+    final StmtAssign assignment = (StmtAssign) stmt;
+    final Atom lhs = AtomExtractor.extract(assignment.getLeft());
+    final Atom rhs = AtomExtractor.extract(assignment.getRight());
+
+    /*
+    if (Atom.Kind.VARIABLE != lhs.getKind() &&
+        Atom.Kind.GROUP != lhs.getKind() &&
+        Atom.Kind.FIELD != lhs.getKind()) {
+      throw new IllegalArgumentException(
+          assignment.getLeft() + " cannot be used as left side of assignment.");
+    }*/
   }
 }
