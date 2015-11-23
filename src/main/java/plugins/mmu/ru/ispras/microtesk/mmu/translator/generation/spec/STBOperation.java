@@ -14,10 +14,15 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
@@ -66,7 +71,7 @@ public final class STBOperation implements STBuilder {
     stBody.add("addr_name", Utils.getVariableName(context, operation.getAddressArg().getName()));
 
     for (final Stmt stmt : operation.getStmts()) {
-      buildStmt(st, stmt);
+      buildStmt(stBody, stmt);
     }
 
     st.add("members", stBody);
@@ -96,5 +101,49 @@ public final class STBOperation implements STBuilder {
       throw new IllegalArgumentException(
           assignment.getLeft() + " cannot be used as left side of assignment.");
     }
+
+    final String left = toString(lhs);
+    final String right = "null";
+
+    final String binding = String.format("new MmuBinding(%s, %s)", left, right);
+    st.add("bindings", binding);
+  }
+
+  @SuppressWarnings("unchecked")
+  private String toString(final Atom atom) {
+    InvariantChecks.checkNotNull(atom);
+
+    final Object object = atom.getObject();
+    switch (atom.getKind()) {
+      case VALUE: {
+        return Utils.toString((BigInteger) object);
+      }
+
+      case VARIABLE: {
+        final IntegerVariable variable = (IntegerVariable) object;
+        return getVariableName(variable);
+      }
+
+      case FIELD: {
+        final IntegerField field = (IntegerField) object;
+        final IntegerVariable variable = field.getVariable();
+        return String.format("%s.field(%d, %d)",
+            getVariableName(variable), field.getLoIndex(), field.getHiIndex());
+      }
+
+      case CONCAT: {
+        return Utils.toMmuExpressionText(
+            context, (List<IntegerField>) object);
+      }
+
+      default:
+        throw new IllegalStateException(
+            "Unsupported atom kind: " + atom.getKind());
+    }
+  }
+
+  private String getVariableName(final IntegerVariable variable) {
+    final String name = variable.getName();
+    return Utils.getVariableName(context, name);
   }
 }
