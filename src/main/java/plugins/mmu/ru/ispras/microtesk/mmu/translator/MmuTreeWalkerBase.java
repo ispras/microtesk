@@ -507,6 +507,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(where, String.format(
             "%s statements are not allowed in operations.", stmt.getKind()));
       }
+
+      final StmtAssign assignment = (StmtAssign) stmt;
+
+      final Node left = assignment.getLeft();
+      final Node right = assignment.getRight();
+
+      if (!(left.getUserData() instanceof Variable) || 
+          !((Variable) left.getUserData()).isParent(addressArg)) {
+        raiseError(where, String.format(
+            "Only assignments to %s are allowed in the %s operation.",
+            id.getText(),
+            addressArg.getName())
+            );
+      }
     }
 
     public Operation build() throws SemanticException {

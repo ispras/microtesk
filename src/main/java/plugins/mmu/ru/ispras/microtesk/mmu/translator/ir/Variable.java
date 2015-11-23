@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Variable extends Nested<Variable> {
   private final String name;
@@ -95,6 +96,11 @@ public final class Variable extends Nested<Variable> {
 
   public boolean isField() {
     return null != parent;
+  }
+
+  public boolean isParent(final Variable variable) {
+    InvariantChecks.checkNotNull(variable);
+    return this == variable || (null != parent && parent.isParent(variable));
   }
 
   public NodeVariable getNode() {
