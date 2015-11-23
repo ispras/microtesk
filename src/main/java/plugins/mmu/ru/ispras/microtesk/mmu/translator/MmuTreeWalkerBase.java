@@ -437,7 +437,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     if (type != null && size != null) {
-      raiseError(w, "Ambigous type in variable declaration: " + typeId.getText());
+      raiseError(w, "Ambiguous type in variable declaration: " + typeId.getText());
     }
 
     if (type != null) {
