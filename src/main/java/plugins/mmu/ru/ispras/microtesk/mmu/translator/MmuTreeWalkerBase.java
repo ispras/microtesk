@@ -515,7 +515,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       if (!isAddressField(left)) {
         raiseError(where, String.format(
-            "Only assignments to %s and its fields are allowed in the %s operation.",
+            "Only assignments to %s and its fields (no concatenations) " +
+            "are allowed in the %s operation.",
             addressArg.getName(),
             id.getText())
             );
@@ -534,15 +535,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         if (op.getOperationId() == StandardOperation.BVEXTRACT &&
             op.getOperandCount() == 3) {
           return isAddressField(op.getOperand(2));
-        }
-
-        if (op.getOperationId() == StandardOperation.BVCONCAT) {
-          for (int index = 0; index < op.getOperandCount(); ++index) {
-            if (!isAddressField(op.getOperand(index))) {
-              return false;
-            }
-          }
-          return true;
         }
 
         return false;
