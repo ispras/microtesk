@@ -513,14 +513,39 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Node left = assignment.getLeft();
       final Node right = assignment.getRight();
 
-      if (!(left.getUserData() instanceof Variable) || 
-          !((Variable) left.getUserData()).isParent(addressArg)) {
+      if (!isAddressField(left)) {
         raiseError(where, String.format(
-            "Only assignments to %s are allowed in the %s operation.",
-            id.getText(),
-            addressArg.getName())
+            "Only assignments to %s and its fields are allowed in the %s operation.",
+            addressArg.getName(),
+            id.getText())
             );
       }
+    }
+
+    private boolean isAddressField(final Node node) {
+      if (node.getKind() == Node.Kind.OPERATION) {
+        final NodeOperation op = (NodeOperation) node;
+
+        if (op.getOperationId() == StandardOperation.BVEXTRACT &&
+            op.getOperandCount() == 3) {
+          return isAddressField(op.getOperand(2));
+        }
+
+        if (op.getOperationId() == StandardOperation.BVCONCAT) {
+          for (int index = 0; index < op.getOperandCount(); ++index) {
+            if (!isAddressField(op.getOperand(index))) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        return false;
+      }
+
+      final Object userData = node.getUserData();
+      return (userData instanceof Variable) && 
+             ((Variable) userData).isParent(addressArg);
     }
 
     public Operation build() throws SemanticException {
