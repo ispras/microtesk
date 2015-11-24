@@ -60,6 +60,7 @@ public abstract class Mmu <A extends Address>
     final A address = newAddress();
     address.getValue().assign(value);
 
+    Operation.initAddress(address);
     return address;
   }
 

@@ -40,7 +40,6 @@ final class STBOperation extends STBCommon implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     final ST st = group.getInstanceOf("source_file");
-    st.add("instance", "instance");
 
     buildHeader(st);
     buildBody(st, group);
@@ -64,6 +63,9 @@ final class STBOperation extends STBCommon implements STBuilder {
   }
 
   private void buildBody(final ST st, final STGroup group) {
+    final String instanceText =
+        String.format("public static final %s INSTANCE = new %s();", getId(), getId());
+
     final ST stBody = group.getInstanceOf("operation_body");
     stBody.add("addr", operation.getAddress().getId());
 
@@ -76,6 +78,8 @@ final class STBOperation extends STBCommon implements STBuilder {
     buildStmts(stBody, group, operation.getStmts());
     ExprPrinter.get().popVariableScope();
 
+    st.add("members", instanceText);
+    st.add("members", "");
     st.add("members", stBody);
   }
 

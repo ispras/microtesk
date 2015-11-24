@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+
 /**
  * The {@link Operation} class describes objects responsible for initializing
  * fields of an address passed to the MMU simulator when simulation of a memory
@@ -28,4 +34,29 @@ package ru.ispras.microtesk.mmu.model.api;
 
 public abstract class Operation <A extends Address> {
   public abstract void init(final A address);
+
+  private static final Map<String, Operation<? extends Address>> INSTANCES = new HashMap<>();
+
+  public Operation() {
+    INSTANCES.put(getClass().getSimpleName(), this);
+  }
+
+  private static String getCurrentOperation() {
+    return ru.ispras.microtesk.model.api.instruction.Operation.getCurrentOperation();
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Address> void initAddress(final A address) {
+    final String operationId = getCurrentOperation();
+    InvariantChecks.checkNotNull(operationId, "No operations on call stack.");
+
+    final Operation<? extends Address> operation = INSTANCES.get(operationId);
+    if (null == operation) {
+      //TODO
+      //Logger.error("No address initializer is defined for the %s operation.", operationId);
+      return;
+    }
+
+    ((Operation<A>) operation).init(address);
+  }
 }
