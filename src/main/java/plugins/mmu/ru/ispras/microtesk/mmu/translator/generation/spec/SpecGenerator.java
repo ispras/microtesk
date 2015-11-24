@@ -111,7 +111,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       final Ir ir,
       final SpecGeneratorFactory factory) throws IOException {
     for (final Operation operation : ir.getOperations().values()) {
-      final FileGenerator fileGenerator = factory.newOperationGenerator(operation);
+      final FileGenerator fileGenerator = factory.newOperationGenerator(ir, operation);
       fileGenerator.generate();
     }
   }

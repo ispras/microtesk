@@ -121,11 +121,11 @@ final class SpecGeneratorFactory {
     return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
   }
 
-  public FileGenerator newOperationGenerator(final Operation operation) {
+  public FileGenerator newOperationGenerator(final Ir ir, final Operation operation) {
     InvariantChecks.checkNotNull(operation);
 
     final String outputFileName = getOutputFileName(operation.getId());
-    final STBuilder builder = new STBOperation(packageName, operation);
+    final STBuilder builder = new STBOperation(packageName, ir, operation);
 
     return new STFileGenerator(outputFileName, OPERATION_STGS, builder);
   }
