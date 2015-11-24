@@ -49,7 +49,7 @@ final class STBOperation extends STBCommon implements STBuilder {
   }
 
   protected final void buildHeader(final ST st) {
-    final String implText = String.format(
+    final String baseText = String.format(
         "%s<%s>",
         OPERATION_CLASS.getName(),
         operation.getAddress().getId()
@@ -57,7 +57,7 @@ final class STBOperation extends STBCommon implements STBuilder {
 
     st.add("name", operation.getId()); 
     st.add("pack", packageName);
-    st.add("impls", implText);
+    st.add("ext", baseText);
 
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));

@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 /**
- * The {@link Operation} interface describes objects responsible for initializing
+ * The {@link Operation} class describes objects responsible for initializing
  * fields of an address passed to the MMU simulator when simulation of a memory
  * access is started. Each {@code Operation} object is associated with a specific
  * operation defined in the ISA model and is called when a memory access has been
@@ -26,6 +26,6 @@ package ru.ispras.microtesk.mmu.model.api;
  * @param <A> the address type.
  */
 
-public interface Operation <A extends Address> {
-  void init(final A address);
+public abstract class Operation <A extends Address> {
+  public abstract void init(final A address);
 }
