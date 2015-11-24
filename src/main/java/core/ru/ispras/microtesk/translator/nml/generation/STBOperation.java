@@ -180,11 +180,14 @@ final class STBOperation extends STBPrimitiveBase {
       }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
+        attrST.add("stmts", "try {");
         attrST.add("stmts", "actionBegin();");
         for (Statement stmt : attr.getStatements()) {
           addStatement(attrST, stmt, false);
         }
+        attrST.add("stmts", "} finally {");
         attrST.add("stmts", "actionEnd();");
+        attrST.add("stmts", "}");
       } else if (Attribute.Kind.EXPRESSION == attr.getKind()) {
         assert 1 == attr.getStatements().size() : "Expression attributes must always include a single statement.";
 
