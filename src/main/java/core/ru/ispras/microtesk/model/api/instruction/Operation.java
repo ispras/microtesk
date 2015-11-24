@@ -565,11 +565,11 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         );
   }
 
-  public void actionBegin() {
+  protected final void actionBegin() {
     CALL_STACK.push(getClass().getSimpleName());
   }
 
-  public void actionEnd() {
+  protected final void actionEnd() {
     CALL_STACK.pop();
   }
 }
