@@ -612,6 +612,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             );
       }
 
+      for (final Memory memory : ir.getMemories().values()) {
+        if (!memory.getAddress().equals(address)) {
+          raiseError(where(id), String.format(
+              "The %s operation is not compatible with the %s definition: address type mismatch.",
+              id.getText(), memory.getId())
+              );
+        }
+      }
+
       final Operation operation = new Operation(
           id.getText(),
           address,
@@ -1191,6 +1200,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       if (!attributes.containsKey("write")) {
         raiseError(where, "The 'write' action is not defined.");
+      }
+
+      for (final Operation operation : ir.getOperations().values()) {
+        if (!operation.getAddress().equals(address)) {
+          raiseError(where, String.format(
+              "The %s operation is not compatible with the %s definition: address type mismatch.",
+              operation.getId(), id)
+              );
+        }
       }
 
       final Memory memory = new Memory(
