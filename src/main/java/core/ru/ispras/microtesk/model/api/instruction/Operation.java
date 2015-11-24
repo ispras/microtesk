@@ -17,9 +17,11 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -510,6 +512,11 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
   }
 
+  private static final Deque<String> CALL_STACK = new LinkedList<>();
+  public static String getCurrentOperation() {
+    return CALL_STACK.peek();
+  }
+
   /**
    * Default implementation of the syntax attribute. Provided to allow using addressing modes that
    * have no explicitly specified syntax attribute. This method does not do any useful work and
@@ -556,5 +563,13 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         "No action will be performed.",
         getClass().getSimpleName()
         );
+  }
+
+  public void actionBegin() {
+    CALL_STACK.push(getClass().getSimpleName());
+  }
+
+  public void actionEnd() {
+    CALL_STACK.pop();
   }
 }
