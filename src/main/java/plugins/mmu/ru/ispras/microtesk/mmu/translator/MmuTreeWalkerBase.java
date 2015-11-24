@@ -20,10 +20,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
@@ -455,6 +457,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Address address;
     private final Variable addressArg;
     private List<Stmt> stmts;
+    private final Set<Node> assigned;
 
     public OperationBuilder(
         final CommonTree id,
@@ -467,6 +470,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.addressArg = storage.declare(addressArgId.getText(), address.getContentType());
 
       this.stmts = null;
+      this.assigned = new HashSet<>();
     }
 
     public void addAttribute(
@@ -525,6 +529,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(where,
             "Only constants are allowed in right side of assignments in operations.");
       }
+
+      if (assigned.contains(left)) {
+        raiseError(where,
+            left + " is already assigned. Reassignments are not allowed in operations.");
+      }
+
+      assigned.add(left);
     }
 
     private boolean isAddressField(final Node node) {
