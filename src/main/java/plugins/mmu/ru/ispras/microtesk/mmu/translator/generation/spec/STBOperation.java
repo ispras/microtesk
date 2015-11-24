@@ -29,6 +29,12 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public final class STBOperation implements STBuilder {
+  public static final Class<?> BINDING_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+
+  public static final Class<?> EXPRESSION_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
+
   public static final Class<?> OPERATION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuOperation.class;
 
@@ -60,6 +66,9 @@ public final class STBOperation implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", operation.getId()); 
     st.add("pack", packageName);
+    st.add("imps", BigInteger.class.getName());
+    st.add("imps", BINDING_CLASS.getName());
+    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", OPERATION_CLASS.getName());
   }
 
@@ -103,7 +112,7 @@ public final class STBOperation implements STBuilder {
     }
 
     final String left = toString(lhs);
-    final String right = "null";
+    final String right = toString(rhs);
 
     final String binding = String.format("new MmuBinding(%s, %s)", left, right);
     st.add("bindings", binding);
