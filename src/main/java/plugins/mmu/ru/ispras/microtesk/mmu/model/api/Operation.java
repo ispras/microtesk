@@ -32,7 +32,7 @@ import ru.ispras.microtesk.Logger;
  * @param <A> the address type.
  */
 
-public abstract class Operation <A extends Address> {
+public abstract class Operation<A extends Address & Data> {
   public abstract void init(final A address);
 
   private static final Map<String, Operation<? extends Address>> INSTANCES = new HashMap<>();
@@ -46,17 +46,23 @@ public abstract class Operation <A extends Address> {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Address> void initAddress(final A address) {
+  public static <A extends Address & Data> void initAddress(final A address) {
+    InvariantChecks.checkNotNull(address);
+
     final String operationId = getCurrentOperation();
     InvariantChecks.checkNotNull(operationId, "No operations on call stack.");
 
     final Operation<? extends Address> operation = INSTANCES.get(operationId);
-    if (null == operation) {
-      //TODO
-      //Logger.error("No address initializer is defined for the %s operation.", operationId);
+    if (null != operation) {
+      ((Operation<A>) operation).init(address);
       return;
     }
 
-    ((Operation<A>) operation).init(address);
+    // An address initializer is needed when there are uninitialized fields.
+    // This means fields other than "value", which is the only field initialized by default.
+    final boolean isInitialized = address.asBitVector().equals(address.getValue());
+    if (!isInitialized) {
+      Logger.error("No address initializer is defined for the %s operation.", operationId);
+    }
   }
 }

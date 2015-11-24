@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @param <A> Address type.
  */
 
-public abstract class MmuMapping<D extends Data, A extends Address>
+public abstract class MmuMapping<D extends Data, A extends Address & Data>
     implements Buffer<D, A> {
 
   @Override
