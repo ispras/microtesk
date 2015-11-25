@@ -349,6 +349,7 @@ final class Executor {
 
         final String uniqueName;
         final String searchPattern;
+        final String patchedText;
 
         if (null != target) {
           // For code labels
@@ -358,8 +359,10 @@ final class Executor {
           final int index = addressMap.get(address);
           labelRef.setTarget(target.getLabel(), index);
 
+          searchPattern = "<label>0";
+          patchedText = call.getText().replace(searchPattern, uniqueName);
+
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
-          searchPattern = String.format("<label>%d", address);
         } else {
           if (null != labelRef.getArgumentValue()) {
             // For data labels 
@@ -368,7 +371,7 @@ final class Executor {
           } else {
             // For unrecognized labels
             uniqueName = source.getName();
-            searchPattern = String.format("<label>0");
+            searchPattern = "<label>0";
 
             /*
             throw new GenerationAbortedException(String.format(
@@ -377,9 +380,10 @@ final class Executor {
                 source.getName(), call.getText(), call.getAddress()));
             */
           }
+
+          patchedText = call.getText().replace(searchPattern, uniqueName);
         }
 
-        final String patchedText =  call.getText().replace(searchPattern, uniqueName);
         call.setText(patchedText);
       }
 
