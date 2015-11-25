@@ -344,7 +344,7 @@ public final class DataManager {
     checkNotNull(origin);
 
     final String text = String.format(TestSettings.getOriginFormat(), origin);
-    Logger.debug("Setting allocation address: %s", text);
+    Logger.debug("Setting origin: %s", text);
 
     getDataDecls().add(new DataDeclText(text));
 
