@@ -44,7 +44,15 @@ public <type> value() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Operation-related templates
 
-operation_body(addr, addr_name, stmts) ::= <<
+operation_body(name, addr, addr_name, stmts) ::= <<
+private <name>() {}<\n>
+private static <name> instance = null;<\n>
+public static void register() {
+  if (null == instance) {
+     instance = new <name>();
+     register(instance);
+  }
+}<\n>
 @Override
 public void init(final <addr> <addr_name>) {
   <stmts; separator="\n">

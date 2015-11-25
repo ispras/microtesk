@@ -63,10 +63,8 @@ final class STBOperation extends STBCommon implements STBuilder {
   }
 
   private void buildBody(final ST st, final STGroup group) {
-    final String instanceText =
-        String.format("public static final %s INSTANCE = new %s();", getId(), getId());
-
     final ST stBody = group.getInstanceOf("operation_body");
+    stBody.add("name", getId());
     stBody.add("addr", operation.getAddress().getId());
 
     final String addrName = removePrefix(operation.getAddressArg().getName());
@@ -78,8 +76,6 @@ final class STBOperation extends STBCommon implements STBuilder {
     buildStmts(stBody, group, operation.getStmts());
     ExprPrinter.get().popVariableScope();
 
-    st.add("members", instanceText);
-    st.add("members", "");
     st.add("members", stBody);
   }
 
