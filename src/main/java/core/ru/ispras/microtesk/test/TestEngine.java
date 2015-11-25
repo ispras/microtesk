@@ -49,6 +49,7 @@ import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.Call;
@@ -646,16 +647,6 @@ public final class TestEngine {
       Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
       InvariantChecks.checkNotNull(handler);
 
-      final Engine<?> engine = config.getEngine("default");
-      InvariantChecks.checkNotNull(engine);
-
-      final Adapter<?> adapter = config.getAdapter("default");
-      InvariantChecks.checkNotNull(adapter);
-
-      if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
-        throw new IllegalStateException("Mismatched solver/adapter pair");
-      }
-
       final PrintWriter fileWriter;
       try {
         fileWriter = printer.newFileWriter(exceptionFileName);
@@ -666,38 +657,19 @@ public final class TestEngine {
 
       try {
         final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
-
-        final TestSequenceEngine testSequenceEngine = 
-            new TestSequenceEngine(engine, adapter);
-
         for (final ExceptionHandler.Section section : handler.getSections()) {
-          final Iterator<AdapterResult> iterator;
-          final boolean tempIsGenerateData = engineContext.isGenerateData();
+          final List<ConcreteCall> concreteCalls;
           try {
-            engineContext.setGenerateData(false);
-            iterator = testSequenceEngine.process(engineContext, section.getCalls());
-          } finally {
-            engineContext.setGenerateData(tempIsGenerateData);
+             concreteCalls = EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
+          } catch (final ConfigurationException e) {
+            InvariantChecks.checkTrue(false, e.getMessage());
+            return;
           }
 
-          // At least one sequence is expected 
-          iterator.init(); 
-          InvariantChecks.checkTrue(iterator.hasValue());
+          final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+          concreteSequenceBuilder.add(concreteCalls);
 
-          final AdapterResult adapterResult = iterator.value();
-
-          // Only one sequence is expected
-          iterator.next();
-          InvariantChecks.checkFalse(iterator.hasValue());
-
-          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-            throw new GenerationAbortedException(
-                String.format("%nAdapter Error: %s", adapterResult.getErrors()));
-          }
-
-          final TestSequence concreteSequence = adapterResult.getResult();
-          InvariantChecks.checkNotNull(concreteSequence);
-
+          final TestSequence concreteSequence = concreteSequenceBuilder.build();
           final long address = section.getAddress().longValue();
           concreteSequence.setAddress(address);
 
@@ -719,7 +691,7 @@ public final class TestEngine {
             Logger.debug(org);
             printer.printToFile(fileWriter, org);
             printer.printSequence(fileWriter, concreteSequence);
-          } catch (ConfigurationException e) {
+          } catch (final ConfigurationException e) {
             e.printStackTrace();
           }
 
