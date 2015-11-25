@@ -150,22 +150,30 @@ public final class TestEngine {
 
       try {
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
-      } catch(org.jruby.embed.EvalFailedException e) {
+      } catch(final org.jruby.embed.EvalFailedException e) {
         // JRuby wraps exceptions that occur in Java libraries it calls into
         // EvalFailedException. To handle them correctly, we need to unwrap them.
-        throw e.getCause();
+        try {
+          throw e.getCause();
+        } catch (final GenerationAbortedException e2) {
+          handleGenerationAborted(e2);
+        }
       }
     } catch (final GenerationAbortedException e) {
-      Logger.message("Generation Aborted");
-      Logger.error(e.getMessage());
-
-      if (null != Printer.getLastFileName()) {
-        new File(Printer.getLastFileName()).delete();
-        STATISTICS.testProgramNumber--;
-      }
+      handleGenerationAborted(e);
     }
 
     return STATISTICS;
+  }
+
+  private static void handleGenerationAborted(final GenerationAbortedException e) {
+    Logger.message("Generation Aborted");
+    Logger.error(e.getMessage());
+
+    if (null != Printer.getLastFileName()) {
+      new File(Printer.getLastFileName()).delete();
+      STATISTICS.testProgramNumber--;
+    }
   }
 
   private TestEngine(final IModel model) {
