@@ -212,7 +212,7 @@ public final class DataManager {
     final Memory memory = Memory.get(target);
 
     allocator = memory.newAllocator(
-        addressableSize, TestSettings.getBaseVirtualAddress());
+        addressableSize, TestSettings.getBasePhysicalAddress());
  
     addressTranslator = new AddressTranslator(
         TestSettings.getBaseVirtualAddress(), TestSettings.getBasePhysicalAddress());
