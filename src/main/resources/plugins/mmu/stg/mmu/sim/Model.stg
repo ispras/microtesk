@@ -14,7 +14,7 @@
 
 group Model;
 
-body(name, mem_type, buf_type, buffers, memories, target) ::= <<
+body(name, mem_type, buf_type, buffers, memories, target, ops) ::= <<
 private final Map\<String, <buf_type>\> buffers;
 private final <mem_type> device;
 private final <target> target;
@@ -25,6 +25,7 @@ public <name>() {
   this.device = <memories>.get();
   this.target = <target>.get();
   this.targetId = "<target>";
+  <if(ops)><\n><ops : {op | <op>.register();}; separator="\n"><endif>
 }
 
 private static Map\<String, <buf_type>\> newBuffers() {

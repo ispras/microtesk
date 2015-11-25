@@ -21,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -76,6 +77,10 @@ final class STBModel implements STBuilder {
     stBody.add("name", CLASS_NAME);
     stBody.add("buf_type", BUF_CLASS.getSimpleName());
     stBody.add("mem_type", MEM_CLASS.getSimpleName()); 
+
+    for (final Operation operation : ir.getOperations().values()) {
+      stBody.add("ops", operation.getId());
+    }
 
     for (final Buffer buffer : ir.getBuffers().values()) {
       if (buffer.getKind() == MmuBuffer.Kind.UNMAPPED) {
