@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
  * The {@link Operation} class describes objects responsible for initializing
@@ -64,7 +64,8 @@ public abstract class Operation<A extends Address & Data> {
     // This means fields other than "value", which is the only field initialized by default.
     final boolean isInitialized = address.asBitVector().equals(address.getValue());
     if (!isInitialized) {
-      Logger.error("No address initializer is defined for the %s operation.", operationId);
+      throw new GenerationAbortedException(String.format(
+          "No address initializer is defined for the %s operation.", operationId));
     }
   }
 }

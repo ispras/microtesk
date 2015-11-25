@@ -153,6 +153,7 @@ public final class TestEngine {
       } catch(final org.jruby.embed.EvalFailedException e) {
         // JRuby wraps exceptions that occur in Java libraries it calls into
         // EvalFailedException. To handle them correctly, we need to unwrap them.
+
         try {
           throw e.getCause();
         } catch (final GenerationAbortedException e2) {
@@ -529,7 +530,7 @@ public final class TestEngine {
     private void sandboxExecution(final Executor exe, final TestSequence s, final int index) {
       try {
         exe.executeSequence(s, index);
-      } catch (final Throwable e) {
+      } catch (final ConfigurationException e) {
         final java.io.StringWriter writer = new java.io.StringWriter();
         e.printStackTrace(new java.io.PrintWriter(writer));
         Logger.warning("Simulation failed: %s%n%s", e.getMessage(), writer);
