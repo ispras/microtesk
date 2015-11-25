@@ -37,8 +37,10 @@ public abstract class Operation<A extends Address & Data> {
 
   private static final Map<String, Operation<? extends Address>> INSTANCES = new HashMap<>();
 
-  public Operation() {
-    INSTANCES.put(getClass().getSimpleName(), this);
+  protected static <A extends Address & Data> void register(final Operation<A> operation) {
+    InvariantChecks.checkNotNull(operation);
+    final String operationName = operation.getClass().getSimpleName();
+    INSTANCES.put(operationName, operation);
   }
 
   private static String getCurrentOperation() {
