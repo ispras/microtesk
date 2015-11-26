@@ -28,6 +28,7 @@ import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFactory extends WalkerFactoryBase {
@@ -69,6 +70,14 @@ public final class StatementFactory extends WalkerFactoryBase {
               ));
         }
       }
+    }
+
+    final Type leftType = left.getType();
+    final Type rightType = right.getValueInfo().getModelType();
+
+    if (leftType.getBitSize() != rightType.getBitSize()) {
+      raiseError(where, String.format(
+          "Assigning %s to %s is not allowed.", rightType.getTypeName(), leftType.getTypeName()));
     }
 
     return new StatementAssignment(left, right);

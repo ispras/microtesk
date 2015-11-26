@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +17,8 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 public final class Type {
   public final static Type BOOLEAN = new Type(TypeId.BOOL, Expr.CONST_ONE);
@@ -266,11 +268,5 @@ public final class Type {
     }
 
     return true;
-  }
-  
-  private static void checkNotNull(Object o) {
-    if (null == o) {
-      throw new NullPointerException();
-    }
   }
 }
