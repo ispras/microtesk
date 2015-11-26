@@ -157,7 +157,7 @@ op mult (rs: REG, rt: REG)
   syntax = format("mult %s, %s", rs.syntax, rt.syntax)
   image = format("000000%s%s0000000000011000", rs.image, rt.image)
   action = {
-    mult_result = coerce(int(64), rs) * coerce(int(64), rt);
+    mult_result = sign_extend(int(64), rs) * sign_extend(int(64), rt);
     HI[0] = mult_result<63..32>;
     LO[0] = mult_result<31..0>;
   }
@@ -166,7 +166,7 @@ op multu (rs: REG, rt: REG)
   syntax = format("multu %s, %s", rs.syntax, rt.syntax)
   image = format("000000%s%s0000000000011001", rs.image, rt.image)
   action = {
-    mult_result_unsigned = coerce(card(32), rs) * coerce(card(32), rt);
+    mult_result_unsigned = zero_extend(card(64), rs) * zero_extend(card(64), rt);
     HI[0] = mult_result_unsigned<63..32>;
     LO[0] = mult_result_unsigned<31..0>;
   }
