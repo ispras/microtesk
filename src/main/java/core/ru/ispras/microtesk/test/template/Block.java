@@ -25,6 +25,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;
+  private final Where where;
   private final Iterator<List<Call>> iterator;
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
@@ -32,6 +33,7 @@ public final class Block {
 
   protected Block(
       final BlockId blockId,
+      final Where where,
       final Iterator<List<Call>> iterator,
       final Map<String, Object> attributes) {
     checkNotNull(blockId);
@@ -39,6 +41,7 @@ public final class Block {
     checkNotNull(attributes);
 
     this.blockId = blockId;
+    this.where = where;
     this.iterator = iterator;
     this.attributes = attributes;
 
@@ -53,12 +56,16 @@ public final class Block {
     this.isSingle = iterator instanceof GeneratorSingle;
   }
 
-  protected Block(final BlockId blockId, final Iterator<List<Call>> iterator) {
-    this(blockId, iterator, Collections.<String, Object>emptyMap());
+  protected Block(final BlockId blockId, final Where where, final Iterator<List<Call>> iterator) {
+    this(blockId, where, iterator, Collections.<String, Object>emptyMap());
   }
 
   public BlockId getBlockId() {
     return blockId;
+  }
+
+  public Where getWhere() {
+    return where;
   }
 
   public Iterator<List<Call>> getIterator() {

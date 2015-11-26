@@ -30,6 +30,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
   private final BlockId blockId;
+  private Where where;
 
   private List<Block> nestedBlocks;
   private Map<String, Object> attributes;
@@ -52,6 +53,7 @@ public final class BlockBuilder {
 
   private BlockBuilder(final BlockId blockId) {
     this.blockId = blockId;
+    this.where = null;
 
     this.nestedBlocks = new ArrayList<>();
     this.attributes = new HashMap<>();
@@ -75,6 +77,11 @@ public final class BlockBuilder {
     // affect only the block itself and are not useful outside the block.
 
     return nestedBlocks.isEmpty();
+  }
+
+  public void setWhere(final Where where) {
+    checkNotNull(where);
+    this.where = where;
   }
 
   public void setCompositor(final String name) {
@@ -117,7 +124,7 @@ public final class BlockBuilder {
     sequence.add(call);
 
     final Iterator<List<Call>> iterator = new SingleValueIterator<>(sequence);
-    nestedBlocks.add(new Block(blockId, iterator));
+    nestedBlocks.add(new Block(blockId, where, iterator));
   }
 
   public void setPrologue(final List<Call> value) {
@@ -149,12 +156,12 @@ public final class BlockBuilder {
     final Generator<Call> generator = generatorBuilder.getGenerator();
 
     if (prologue.isEmpty() && epilogue.isEmpty()) {
-      return new Block(blockId, generator, attributes);
+      return new Block(blockId, where, generator, attributes);
     }
 
     final Generator<Call> generatorPrologueEpilogue =
         new GeneratorPrologueEpilogue<>(generator, prologue, epilogue);
 
-    return new Block(blockId, generatorPrologueEpilogue, attributes);
+    return new Block(blockId, where, generatorPrologueEpilogue, attributes);
   }
 }

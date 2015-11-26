@@ -122,6 +122,12 @@ class Template
     end
   end
 
+  def get_caller_location
+    # Parses the caller of this method's caller, so the index is 1
+    caller_info = Template.parse_caller(caller[1])
+    @template.where File.basename(caller_info[0]), caller_info[1]
+  end
+
   # ------------------------------------------------------------------------- #
   # Main template writing methods                                             #
   # ------------------------------------------------------------------------- #
@@ -148,6 +154,7 @@ class Template
   def block(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
     blockBuilder.setAtomic false
+    blockBuilder.setWhere get_caller_location
 
     if attributes.has_key? :compositor
       blockBuilder.setCompositor(attributes[:compositor])
@@ -169,6 +176,7 @@ class Template
   def atomic(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
     blockBuilder.setAtomic true
+    blockBuilder.setWhere get_caller_location
 
     attributes.each_pair do |key, value|
       blockBuilder.setAttribute(key.to_s, value)

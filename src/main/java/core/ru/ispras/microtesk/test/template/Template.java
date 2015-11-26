@@ -325,7 +325,7 @@ public final class Template {
 
       if (!block.getBlockId().isRoot()) {
         throw new GenerationAbortedException(String.format(
-            "Running nested blocks is not allowed. Block: %s", block.getBlockId()));
+            "Running nested blocks is not allowed. At: %s", block.getWhere()));
       }
 
       processBlock(Section.MAIN, block);
@@ -848,5 +848,9 @@ public final class Template {
         dataManager.getMemoryMap(),
         context.getSettings()
         );
+  }
+
+  public Where where(final String file, final int line) {
+    return new Where(file, line);
   }
 }
