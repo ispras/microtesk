@@ -323,6 +323,11 @@ public final class Template {
             "A block can be run only in the main section of a test template.");
       }
 
+      if (!block.getBlockId().isRoot()) {
+        throw new GenerationAbortedException(String.format(
+            "Running nested blocks is not allowed. Block: %s", block.getBlockId()));
+      }
+
       processBlock(Section.MAIN, block);
       return this;
     }

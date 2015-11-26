@@ -235,10 +235,14 @@ public final class BlockId {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    for (Integer index : indexes) {
-      sb.append('_');
+
+    for (final Integer index : indexes) {
+      if (sb.length() != 0) {
+        sb.append('_');
+      }
       sb.append(index);
     }
+
     return sb.toString();
   }
 
@@ -254,7 +258,7 @@ public final class BlockId {
     final int prime = 31;
     int result = 1;
 
-    for (int index : indexes) {
+    for (final int index : indexes) {
       result = prime * result + index;
     }
 
