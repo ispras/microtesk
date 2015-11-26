@@ -296,9 +296,9 @@ public final class BlockId {
   }
 
   /**
-   * Returns the size of a common sequence that presents in both lists and starts from the 0th
-   * position. E.g. two lists are equal, if their sizes are equal and the size of the common
-   * sequence equals the size of the lists.
+   * Returns the size of a common sequence that presents in both lists and starts
+   * from the 0th position. E.g. two lists are equal, if their sizes are equal and
+   * the size of the common sequence equals the size of the lists.
    * 
    * @param a First list.
    * @param b Second list.
