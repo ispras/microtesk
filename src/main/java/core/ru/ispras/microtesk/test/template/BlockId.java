@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,19 +14,18 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The BlockId class describes unique identifiers for instruction call blocks. The identifiers help
  * uniquely identify elements that belong to different blocks, but have the same name. The
  * identifier reflects the hierarchical structure of instruction call blocks.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class BlockId {
@@ -35,16 +34,16 @@ public final class BlockId {
    * including directions. First we go up (by the specified number of steps, if needed) and then go
    * down (by the specified number of steps, if needed).
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   public static final class Distance {
     private final int up;
     private final int down;
 
-    public Distance(int up, int down) {
-      checkGreaterOrEqZero(up);
-      checkGreaterOrEqZero(down);
+    public Distance(final int up, final int down) {
+      InvariantChecks.checkGreaterOrEqZero(up);
+      InvariantChecks.checkGreaterOrEqZero(down);
 
       this.up = up;
       this.down = down;
@@ -74,7 +73,7 @@ public final class BlockId {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
       if (this == obj) {
         return true;
       }
@@ -109,7 +108,7 @@ public final class BlockId {
     this(null, Collections.singletonList(1));
   }
 
-  private BlockId(BlockId parent, List<Integer> indexes) {
+  private BlockId(final BlockId parent, final List<Integer> indexes) {
     this.parent = parent;
     this.indexes = indexes;
     this.childCount = 0;
@@ -123,7 +122,7 @@ public final class BlockId {
 
   public BlockId nextChildId() {
     childCount++;
-    final List<Integer> childIndexes = new ArrayList<Integer>(indexes.size() + 1);
+    final List<Integer> childIndexes = new ArrayList<>(indexes.size() + 1);
 
     childIndexes.addAll(indexes);
     childIndexes.add(childCount);
@@ -132,14 +131,24 @@ public final class BlockId {
   }
 
   /**
-   * Returns the identifier of the parent block or <code>null</code> if there is no parent block
-   * (the current one is root).
+   * Returns the identifier of the parent block or {@code null} if there
+   * is no parent block (the current one is root).
    * 
-   * @return Parent identifier or <code>null</code> if there is no parent.
+   * @return Parent identifier or {@code null} if there is no parent.
    */
 
   public BlockId parentId() {
     return parent;
+  }
+
+  /**
+   * Checks whether the current block is a root block (has no parent).
+   * 
+   * @return {@code true} is this is a root block or {@false} otherwise.
+   */
+
+  public boolean isRoot() {
+    return null == parentId();
   }
 
   /**
@@ -148,14 +157,14 @@ public final class BlockId {
    * parent to itself.
    * 
    * @param parentId Identifier of the candidate parent block.
-   * @return <code>true</code> if the specified block identifier refers to a parent block or
-   *         <code>false<code> otherwise.
+   * @return {@code true} if the specified block identifier refers to a parent block or
+   *         {@code false} otherwise.
    * 
-   * @throws NullPointerException if the parameter is <code>null<code>.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public boolean isParent(BlockId parentId) {
-    checkNotNull(parentId);
+  public boolean isParent(final BlockId parentId) {
+    InvariantChecks.checkNotNull(parentId);
 
     if (parentId.indexes.size() >= indexes.size()) {
       return false;
@@ -170,14 +179,14 @@ public final class BlockId {
    * itself.
    * 
    * @param childId Identifier of the candidate child block.
-   * @return <code>true</code> if the specified block identifier refers to a child block or
-   *         <code>false<code> otherwise.
+   * @return {@code true} if the specified block identifier refers to a child block or
+   *         {@code false} otherwise.
    * 
-   * @throws NullPointerException if the parameter is <code>null<code>.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public boolean isChild(BlockId childId) {
-    checkNotNull(childId);
+  public boolean isChild(final BlockId childId) {
+    InvariantChecks.checkNotNull(childId);
 
     if (childId.indexes.size() <= indexes.size()) {
       return false;
@@ -203,11 +212,11 @@ public final class BlockId {
    * @param target Target block.
    * @return Distance from the current block to the target block.
    * 
-   * @throws NullPointerException if the parameter is <code>null<code>.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  public Distance getDistance(BlockId target) {
-    checkNotNull(target);
+  public Distance getDistance(final BlockId target) {
+    InvariantChecks.checkNotNull(target);
 
     final int forkDepth = getEqualSize(indexes, target.indexes) - 1;
 
@@ -255,12 +264,12 @@ public final class BlockId {
   /**
    * Checks whether the specified object is a block identifier that is equal to the current one.
    * 
-   * @return <code>true</code> the object refers to an equal block identifier or <code>false</code>
-   *         other wise.
+   * @return {@code true} the object refers to an equal block identifier or
+   *         {@code false} otherwise.
    */
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -292,7 +301,7 @@ public final class BlockId {
    * @return Size of a common sequence starting from the 0th position.
    */
 
-  private static int getEqualSize(List<Integer> a, List<Integer> b) {
+  private static int getEqualSize(final List<Integer> a, final List<Integer> b) {
     final int maxEqualSize = Math.min(a.size(), b.size());
 
     int index = 0;
