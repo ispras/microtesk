@@ -313,7 +313,7 @@ public final class BlockId {
       index++;
     }
 
-    assert index > 1 : "Invariant: not empty, first elements (0-index) equal.";
+    InvariantChecks.checkTrue(index >= 1, "Invariant: not empty, first elements (0-index) equal.");
     return index;
   }
 }
