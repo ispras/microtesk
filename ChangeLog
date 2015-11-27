@@ -6,6 +6,15 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2015/11/27 MicroTESK 2.3.12 beta
+
+ The new build contains the following changes:
+
+- Possibility of initialize address fields depending on the operation that 
+  performs memory access was implemented in the MMU specification language
+- Cases of incorrect use of test template blocks are now reported to the user
+- Several bug fixes and general improvements were made
+
 2015/11/20 MicroTESK 2.3.11 beta
 
  The new build contains the following changes:
