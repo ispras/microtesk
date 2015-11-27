@@ -237,9 +237,7 @@ public final class BlockId {
     final StringBuilder sb = new StringBuilder();
 
     for (final Integer index : indexes) {
-      if (sb.length() != 0) {
-        sb.append('_');
-      }
+      sb.append('_');
       sb.append(index);
     }
 
