@@ -101,9 +101,9 @@ final class ExprPrinter extends MapBasedPrinter {
     addBitVectorMathMapping(StandardOperation.BVROR, "rotr");
 
     addMapping(StandardOperation.BVZEROEXT,
-        "", new String[] {".resize("}, ", false)", new int[] {1, 0});
+        "", new String[] {".extend("}, ", false)", new int[] {1, 0});
     addMapping(StandardOperation.BVSIGNEXT,
-        "", new String[] {".resize("}, ", true)", new int[] {1, 0});
+        "", new String[] {".extend("}, ", true)", new int[] {1, 0});
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".field(", ", "}, ")", new int[] {2, 0, 1});
 
