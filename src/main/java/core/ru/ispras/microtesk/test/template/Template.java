@@ -20,11 +20,14 @@ import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
@@ -83,6 +86,8 @@ public final class Template {
   private List<Call> epilogue;
   private boolean isBuildingEpilogue;
 
+  private final Set<Block> unusedBlocks;
+
   public Template(
       final EngineContext context,
       final MetaModel metaModel,
@@ -130,6 +135,8 @@ public final class Template {
 
     this.epilogue = new ArrayList<>();
     this.isBuildingEpilogue = false;
+
+    this.unusedBlocks = new LinkedHashSet<>();
   }
 
   private void processBlock(final Section section, final Block block) {
@@ -142,6 +149,10 @@ public final class Template {
 
   public Processor getProcessor() {
     return processor;
+  }
+
+  public Set<Block> getUnusedBlocks() {
+    return Collections.unmodifiableSet(unusedBlocks);
   }
 
   public BigInteger getAddressForLabel(final String label) {
@@ -299,14 +310,28 @@ public final class Template {
 
   public final class BlockHolder {
     private final Block block;
+    private boolean isAddedToUnused;
 
     private BlockHolder(final Block block) {
       checkNotNull(block);
       this.block = block;
+
+      if (block.getBlockId().isRoot()) {
+        unusedBlocks.add(block);
+        this.isAddedToUnused = true;
+      } else {
+        this.isAddedToUnused = false;
+      }
     }
 
     public BlockHolder add() {
       blockBuilders.peek().addBlock(block);
+
+      if (isAddedToUnused) {
+        unusedBlocks.remove(block);
+        isAddedToUnused = false;
+      }
+
       return this;
     }
 
@@ -329,6 +354,12 @@ public final class Template {
       }
 
       processBlock(Section.MAIN, block);
+
+      if (isAddedToUnused) {
+        unusedBlocks.remove(block);
+        isAddedToUnused = false;
+      }
+
       return this;
     }
 

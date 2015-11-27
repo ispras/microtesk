@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -267,6 +268,21 @@ public final class TestEngine {
 
   public void process(final Template template) throws ConfigurationException, IOException {
     template.getProcessor().finish();
+
+    final Set<Block> unusedBlocks = template.getUnusedBlocks();
+    if (!unusedBlocks.isEmpty()) {
+      final StringBuilder sb = new StringBuilder("Unused blocks have been detected at: ");
+      boolean isFirst = true;
+      for (final Block block : unusedBlocks) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append(", ");
+        }
+        sb.append(block.getWhere());
+      }
+      Logger.warning(sb.toString());
+    }
   }
 
   private static class TemplateProcessor implements Template.Processor {
