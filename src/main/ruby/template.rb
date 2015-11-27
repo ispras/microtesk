@@ -633,9 +633,16 @@ class Template
 
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
+    baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(
-      self, @template.getDataManager, text, target, addressableSize)
+      self,
+      @template.getDataManager,
+      text,
+      target,
+      addressableSize,
+      baseVirtAddr
+      )
 
     @data_manager.instance_eval &contents
   end
@@ -834,10 +841,10 @@ class DataManager
     end
   end
 
-  def initialize(template, manager, text, target, addressableSize)
+  def initialize(template, manager, text, target, addressableSize, baseVirtAddr)
     @template = template
     @manager = manager
-    @manager.init text, target, addressableSize
+    @manager.init text, target, addressableSize, baseVirtAddr
   end
 
   def align(value)

@@ -157,6 +157,7 @@ public final class DataManager {
   private String sectionText;
   private MemoryAllocator allocator;
   private AddressTranslator addressTranslator;
+  private BigInteger basePhysicalAddressForAllocation;
   private List<String> labels;
 
   private String spaceText;
@@ -190,6 +191,7 @@ public final class DataManager {
     this.sectionText = null;
     this.allocator = null;
     this.addressTranslator = null;
+    this.basePhysicalAddressForAllocation = null;
     this.labels = null;
 
     this.spaceText = null;
@@ -200,7 +202,11 @@ public final class DataManager {
     this.typeMap = new HashMap<>(); 
   }
 
-  public void init(final String text, final String target, final int addressableSize) {
+  public void init(
+      final String text,
+      final String target,
+      final int addressableSize,
+      final BigInteger baseVirtualAddress) {
     checkNotNull(text);
     checkNotNull(target);
 
@@ -211,11 +217,15 @@ public final class DataManager {
     sectionText = text;
     final Memory memory = Memory.get(target);
 
-    allocator = memory.newAllocator(
-        addressableSize, TestSettings.getBasePhysicalAddress());
- 
     addressTranslator = new AddressTranslator(
         TestSettings.getBaseVirtualAddress(), TestSettings.getBasePhysicalAddress());
+
+    basePhysicalAddressForAllocation = null != baseVirtualAddress ?
+        addressTranslator.virtualToPhysical(baseVirtualAddress) :
+        TestSettings.getBasePhysicalAddress();
+
+    allocator = memory.newAllocator(
+        addressableSize, basePhysicalAddressForAllocation);
   }
 
   public boolean isInitialized() {
@@ -348,7 +358,7 @@ public final class DataManager {
 
     getDataDecls().add(new DataDeclText(text));
 
-    final BigInteger physicalAddress = addressTranslator.physicalFromOrigin(origin);
+    final BigInteger physicalAddress = basePhysicalAddressForAllocation.add(origin);
     allocator.setCurrentAddress(physicalAddress);
   }
 
