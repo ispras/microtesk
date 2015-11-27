@@ -259,6 +259,8 @@ jar {
     into('META-INF/')
   }
 
+  from('src/main/resources/core/config.xml')
+
   manifest {
     attributes 'Title'  : 'MicroTESK'
     attributes 'Version': getVersionWithUpdatedDate()
