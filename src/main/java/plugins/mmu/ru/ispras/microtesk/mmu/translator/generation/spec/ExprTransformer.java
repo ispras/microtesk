@@ -90,10 +90,10 @@ public final class ExprTransformer {
       final Node sizeExpr = op.getOperand(0);
       final Node argExpr = op.getOperand(1);
 
-      final int newSize = FortressUtils.extractInt(sizeExpr);
-      final int oldSize = argExpr.getDataType().getSize();
+      // BVZEROEXT specifies the amount by which the argument must be extended.
+      // In other words, it is a delta size, not the result size.
 
-      final int deltaSize = newSize - oldSize;
+      final int deltaSize = FortressUtils.extractInt(sizeExpr);
       InvariantChecks.checkGreaterThanZero(deltaSize);
 
       return newConcat(
