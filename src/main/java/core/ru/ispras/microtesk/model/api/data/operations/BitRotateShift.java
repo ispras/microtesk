@@ -19,6 +19,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.microtesk.model.api.type.Type;
@@ -30,33 +31,25 @@ public final class BitRotateShift implements IBinaryOperator {
   private final BitVectorMath.Operations unsignedOp;
   private final BitVectorMath.Operations signedOp;
 
-  public BitRotateShift(BitVectorMath.Operations unsignedOp, BitVectorMath.Operations signedOp) {
-    if (null == unsignedOp) {
-      throw new NullPointerException();
-    }
+  public BitRotateShift(
+      final BitVectorMath.Operations unsignedOp,
+      final BitVectorMath.Operations signedOp) {
+    InvariantChecks.checkNotNull(unsignedOp);
+    InvariantChecks.checkTrue(unsignedOp.getOperands() == BitVectorMath.Operands.BINARY);
 
-    if (unsignedOp.getOperands() != BitVectorMath.Operands.BINARY) {
-      throw new IllegalArgumentException();
-    }
-
-    if (null == signedOp) {
-      throw new NullPointerException();
-    }
-
-    if (signedOp.getOperands() != BitVectorMath.Operands.BINARY) {
-      throw new IllegalArgumentException();
-    }
+    InvariantChecks.checkNotNull(signedOp);
+    InvariantChecks.checkTrue(signedOp.getOperands() == BitVectorMath.Operands.BINARY);
 
     this.unsignedOp = unsignedOp;
     this.signedOp = signedOp;
   }
 
-  public BitRotateShift(BitVectorMath.Operations op) {
+  public BitRotateShift(final BitVectorMath.Operations op) {
     this(op, op);
   }
 
   @Override
-  public final Data execute(Data lhs, Data rhs) {
+  public final Data execute(final Data lhs, final Data rhs) {
     final BitVector result;
 
     if (lhs.getType().getTypeId() == TypeId.CARD) {
@@ -69,7 +62,7 @@ public final class BitRotateShift implements IBinaryOperator {
   }
 
   @Override
-  public final boolean supports(Type lhs, Type rhs) {
+  public final boolean supports(final Type lhs, final Type rhs) {
     if (!SUPPORTED_TYPES.contains(lhs.getTypeId())) {
       return false;
     }
