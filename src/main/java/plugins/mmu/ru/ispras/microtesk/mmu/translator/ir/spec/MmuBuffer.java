@@ -273,7 +273,9 @@ public class MmuBuffer extends MmuStruct {
   // TODO:
   public final boolean checkGuard(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
-    InvariantChecks.checkTrue((guardCondition == null) == (guard == null));
+
+    // TODO: Leave uncommented
+    // InvariantChecks.checkTrue((guardCondition == null) == (guard == null));
 
     return guard != null ? guard.test(access) : true;
   }

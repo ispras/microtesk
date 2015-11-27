@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -133,6 +134,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
           MmuPlugin.getSpecification(), accessType, settings);
       final Collection<MemoryAccessPath> feasiblePaths = constraints != null ?
           MemoryEngineUtils.getFeasiblePaths(paths, constraints) : paths;
+
+      Logger.debug("Composing memory access paths size(%s)=%d", accessType, feasiblePaths.size());
+      Logger.debug("Composing memory access paths %s=%s", accessType, feasiblePaths);
 
       final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
@@ -46,6 +47,8 @@ import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.Range;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -68,6 +71,21 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   public static final String PARAM_ALIGN = "align";
   public static final DataType PARAM_ALIGN_DEFAULT = null;
+
+  public static boolean isMemoryAccessWithSituation(final Call abstractCall) {
+    InvariantChecks.checkNotNull(abstractCall);
+
+    if (!abstractCall.isLoad() && !abstractCall.isStore()) {
+      return false;
+    }
+
+    final Primitive primitive = abstractCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive, "Primitive is null");
+
+    final Situation situation = primitive.getSituation();
+
+    return situation != null;
+  }
 
   private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
     final String id = value != null ? value.toString() : null;
@@ -150,6 +168,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
     }
 
+    Logger.debug("Memory engine: regions=%s", regions);
+
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuAddressType addrType : memory.getSortedListOfAddresses()) {
@@ -196,7 +216,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
 
     for (final Call abstractCall : abstractSequence) {
-      InvariantChecks.checkTrue(abstractCall.isLoad() || abstractCall.isStore());
+      if(!isMemoryAccessWithSituation(abstractCall)) {
+        // Skip non memory access instructions and memory accesses instructions without situations.
+        continue;
+      }
 
       final MemoryOperation operation =
           abstractCall.isLoad() ? MemoryOperation.LOAD : MemoryOperation.STORE;
@@ -204,9 +227,11 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final int blockSizeInBits = abstractCall.getBlockSize();
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
-      accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBits >>> 3)));
+      final int blockSizeInBytes = blockSizeInBits >>> 3;
+      accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
     }
 
+    Logger.debug("Creating memory access iterator: %s", accessTypes);
     return new MemoryAccessStructureIterator(
         accessTypes, classifier, engineContext.getSettings());
   }
@@ -219,7 +244,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     // TODO: Remove the custom context (it is required for MMU TestGen only).
     final MemoryEngineContext customContext;
-    
+
     if (engineContext.getCustomContext(ID) != null) {
       customContext = (MemoryEngineContext) engineContext.getCustomContext(ID);
     } else {
@@ -230,6 +255,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         hitCheckers.put(addressType, new Predicate<Long>() {
           @Override
           public boolean test(final Long address) {
+            // TODO: Integration with the MMU simulator.
             return false;
           }
         });

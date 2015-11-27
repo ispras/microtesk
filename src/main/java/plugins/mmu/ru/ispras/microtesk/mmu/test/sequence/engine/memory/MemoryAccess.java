@@ -46,7 +46,6 @@ public final class MemoryAccess {
       final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
-    // Parameter {@code settings} can be null.
 
     final Map<RegionSettings, Collection<MmuSegment>> regions = path.getRegions();
 

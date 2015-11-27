@@ -700,6 +700,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
 
+    Logger.debug("Solve[%d]: %s", j, access);
+
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
@@ -1011,6 +1013,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Collection<MemoryAccessPath> bestPaths =
         MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints);
 
+    Logger.debug("Getting normal paths: target=%s, buffer=%s, normal=%d",
+        memory.getTargetBuffer(), parent, normalPaths.size());
+
     final MemoryAccessPath normalPath = Randomizer.get().choose(
         bestPaths.isEmpty() ? normalPaths : bestPaths);
 
@@ -1046,6 +1051,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final RegionSettings region = access.getRegion(); // PA constraint.
     final MmuSegment segment = access.getSegment();   // VA constraint.
+
+    Logger.debug("Construct address: region=%s, segment=%s", region, segment);
 
     // Allocate physical and virtual addresses.
     long pa = allocateAddr(paType, region, false);

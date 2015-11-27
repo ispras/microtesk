@@ -26,8 +26,10 @@ import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -143,7 +145,13 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
           buffer, engineContext, addressValue, entryFieldValues);
       InvariantChecks.checkNotNull(initializer);
 
-      preparation.addAll(initializer);
+      if (!initializer.isEmpty()) {
+        preparation.add(ConcreteCall.newLine());
+        preparation.add(ConcreteCall.newComment(String.format(
+            "Initializing %s: Goal=WRITE[0x%x], Entry=%s", buffer.getName(), index, data)));
+
+        preparation.addAll(initializer);
+      }
     }
 
     return preparation;
@@ -180,13 +188,31 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     // Load data into the buffers.
     for (final Load load : loads) {
-      final BitVector address = BitVector.valueOf(load.getAddress(), addressType.getWidth());
+      final MmuBuffer buffer = load.getBuffer();
+      final BufferAccessEvent targetEvent = load.getTargetEvent();
+
+      final long targetAddress = load.getTargetAddress();
+      final long targetIndex = buffer.getIndex(targetAddress);
+      final long targetTag = buffer.getTag(targetAddress);
+
+      final long currentAddress = load.getAddress();
+      final long currentTag = buffer.getTag(currentAddress);
+
+      final BitVector address = BitVector.valueOf(currentAddress, addressType.getWidth());
 
       final List<ConcreteCall> initializer = prepareBuffer(
-          load.getBuffer(), engineContext, address, Collections.<String, BitVector>emptyMap());
+          buffer, engineContext, address, Collections.<String, BitVector>emptyMap());
       InvariantChecks.checkNotNull(initializer);
 
-      preparation.addAll(initializer);
+      if (!initializer.isEmpty()) {
+        preparation.add(ConcreteCall.newLine());
+        preparation.add(ConcreteCall.newComment(String.format(
+            "Initializing %s: Goal=%s[0x%x] (Index=0x%x, Tag=0x%x), Address=0x%x (Tag=0x%x)",
+            buffer.getName(), targetEvent, targetAddress, targetIndex, targetTag,
+            currentAddress, currentTag)));
+
+        preparation.addAll(initializer);
+      }
     }
 
     return preparation;
@@ -239,14 +265,30 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final List<ConcreteCall> preparation = new ArrayList<>();
     final Set<AddressingModeWrapper> initializedModes = new LinkedHashSet<>();
 
-    for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call abstractCall = abstractSequence.get(i);
+    int i = 0;
+
+    for (final Call abstractCall : abstractSequence) {
+      if (!MemoryEngine.isMemoryAccessWithSituation(abstractCall)) {
+        continue;
+      }
+
       final AddressObject addressObject = solution.getAddressObject(i);
 
-      final List<ConcreteCall> callPreparation = prepareAddress(
+      final List<ConcreteCall> initializer = prepareAddress(
           engineContext, abstractCall, addressObject, initializedModes);
+      InvariantChecks.checkNotNull(initializer);
 
-      preparation.addAll(callPreparation);
+      Logger.debug("Call preparation: %s", initializer);
+
+      if (!initializer.isEmpty()) {
+        preparation.add(ConcreteCall.newLine());
+        preparation.add(ConcreteCall.newComment(String.format(
+            "Initializing Instruction %d: %s", i, addressObject)));
+
+        preparation.addAll(initializer);
+      }
+
+      i++;
     }
 
     return preparation;
@@ -261,7 +303,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(initializedModes);
 
-    InvariantChecks.checkTrue(abstractCall.isLoad() || abstractCall.isStore());
+    InvariantChecks.checkTrue(MemoryEngine.isMemoryAccessWithSituation(abstractCall));
 
     final Primitive primitive = abstractCall.getRootOperation();
     InvariantChecks.checkNotNull(primitive, "Primitive is null");

@@ -215,6 +215,7 @@ public final class MemoryAccessPath {
       final MmuSubsystem memory = MmuPlugin.getSpecification();
       final Map<RegionSettings, Collection<MmuSegment>> regions = new LinkedHashMap<>();
 
+      // Compose all regions and the corresponding segments.
       for (final RegionSettings region : memory.getRegions()) {
         final Collection<MmuSegment> regionSegments = new LinkedHashSet<>();
 
@@ -227,10 +228,12 @@ public final class MemoryAccessPath {
         }
       }
 
+      // Strike out irrelevant regions and segments.
       for (final MmuTransition transition : transitions) {
         final MmuGuard guard = transition.getGuard();
 
         if (guard != null) {
+          // Regions.
           final Collection<String> guardRegionNames = guard.getRegions();
 
           if (guardRegionNames != null) {
@@ -243,6 +246,7 @@ public final class MemoryAccessPath {
             regions.keySet().retainAll(guardRegions);
           }
 
+          // Segments.
           final Collection<MmuSegment> guardSegments = guard.getSegments();
 
           if (guardSegments != null) {
@@ -434,6 +438,13 @@ public final class MemoryAccessPath {
 
       if (guard != null && guard.getOperation() == null) {
         builder.append(guard);
+        builder.append(separator);
+      }
+
+      final MmuAction action = transition.getSource();
+
+      if (action.getBuffer() != null && (guard == null || guard.getBuffer() == null)) {
+        builder.append(action.getBuffer());
         builder.append(separator);
       }
     }

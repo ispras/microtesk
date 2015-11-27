@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.instruction.IsaException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.IsaException;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class ConcreteCall {
@@ -36,6 +36,45 @@ public final class ConcreteCall {
   private long address = 0;
   private String text = null;
   private int executionCount = 0;
+
+  // TODO:
+  public static ConcreteCall newText(final String text) {
+    InvariantChecks.checkNotNull(text);
+
+    final Call abstractCall = new Call(
+        text,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        null,
+        null,
+        null);
+
+    return new ConcreteCall(abstractCall);
+  }
+
+  public static ConcreteCall newLine() {
+    return newText("");
+  }
+
+  public static ConcreteCall newComment(final String comment) {
+    InvariantChecks.checkNotNull(comment);
+
+    final Call abstractCall = new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.singletonList(
+            new Output(false, true,
+                String.format("%s %s", TestSettings.getCommentToken(), comment))),
+        null,
+        null,
+        null);
+
+    return new ConcreteCall(abstractCall);
+  }
 
   public ConcreteCall(
       final Call abstractCall,
