@@ -56,8 +56,16 @@ public final class Block {
     this.isSingle = iterator instanceof GeneratorSingle;
   }
 
-  protected Block(final BlockId blockId, final Where where, final Iterator<List<Call>> iterator) {
-    this(blockId, where, iterator, Collections.<String, Object>emptyMap());
+  protected Block(
+      final BlockId blockId,
+      final Where where,
+      final Iterator<List<Call>> iterator) {
+    this(
+        blockId,
+        where,
+        iterator,
+        Collections.<String, Object>emptyMap()
+        );
   }
 
   public BlockId getBlockId() {
