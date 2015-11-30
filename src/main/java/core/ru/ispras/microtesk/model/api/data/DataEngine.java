@@ -25,6 +25,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 import ru.ispras.microtesk.model.api.data.operations.ArithmBinary;
 import ru.ispras.microtesk.model.api.data.operations.ArithmDiv;
+import ru.ispras.microtesk.model.api.data.operations.ArithmMod;
 import ru.ispras.microtesk.model.api.data.operations.ArithmMul;
 import ru.ispras.microtesk.model.api.data.operations.ArithmUnary;
 import ru.ispras.microtesk.model.api.data.operations.BitBinary;
@@ -98,6 +99,7 @@ public final class DataEngine {
 
     BINARY_OPERATORS.put(EOperatorID.MUL, new ArithmMul());
     BINARY_OPERATORS.put(EOperatorID.DIV, new ArithmDiv());
+    BINARY_OPERATORS.put(EOperatorID.MOD, new ArithmMod());
 
     // /////////////////////////////////////////////////////////////////////////////////
 
