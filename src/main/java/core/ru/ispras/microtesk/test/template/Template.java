@@ -259,10 +259,10 @@ public final class Template {
 
         current = new BlockBuilder();
         blockBuilders.push(current);
-      }
 
-      current.setPrologue(prologue);
-      current.setEpilogue(epilogue);
+        current.setPrologue(prologue);
+        current.setEpilogue(epilogue);
+      }
     } else {
       current = new BlockBuilder(parent);
       blockBuilders.push(current);
