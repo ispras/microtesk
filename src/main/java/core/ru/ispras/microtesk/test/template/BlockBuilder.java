@@ -14,14 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
@@ -63,8 +62,8 @@ public final class BlockBuilder {
 
     this.isAtomic = false;
 
-    this.prologue = Collections.emptyList();
-    this.epilogue = Collections.emptyList();
+    this.prologue = null;
+    this.epilogue = null;
   }
 
   public BlockId getBlockId() {
@@ -80,17 +79,17 @@ public final class BlockBuilder {
   }
 
   public void setWhere(final Where where) {
-    checkNotNull(where);
+    InvariantChecks.checkNotNull(where);
     this.where = where;
   }
 
   public void setCompositor(final String name) {
-    assert null == compositorName;
+    InvariantChecks.checkTrue(null == compositorName);
     compositorName = name;
   }
 
   public void setCombinator(final String name) {
-    assert null == combinatorName;
+    InvariantChecks.checkTrue(null == combinatorName);
     combinatorName = name;
   }
 
@@ -99,12 +98,12 @@ public final class BlockBuilder {
   }
 
   public void setAttribute(final String name, final Object value) {
-    assert !attributes.containsKey(name);
+    InvariantChecks.checkFalse(attributes.containsKey(name));
     attributes.put(name, value);
   }
 
   public void addBlock(final Block block) {
-    checkNotNull(block);
+    InvariantChecks.checkNotNull(block);
 
     if (block.isEmpty()) {
       return;
@@ -114,7 +113,7 @@ public final class BlockBuilder {
   }
 
   public void addCall(final Call call) {
-    checkNotNull(call);
+    InvariantChecks.checkNotNull(call);
 
     if (call.isEmpty()) {
       return;
@@ -128,13 +127,25 @@ public final class BlockBuilder {
   }
 
   public void setPrologue(final List<Call> value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkFalse(hasPrologue());
+
     this.prologue = value;
   }
 
+  public boolean hasPrologue() {
+    return prologue != null;
+  }
+
   public void setEpilogue(final List<Call> value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkFalse(hasEpilogue());
+
     this.epilogue = value;
+  }
+
+  public boolean hasEpilogue() {
+    return epilogue != null;
   }
 
   public Block build() {
@@ -155,12 +166,15 @@ public final class BlockBuilder {
 
     final Generator<Call> generator = generatorBuilder.getGenerator();
 
-    if (prologue.isEmpty() && epilogue.isEmpty()) {
+    if (prologue == null && epilogue == null) {
       return new Block(blockId, where, generator, attributes);
     }
 
-    final Generator<Call> generatorPrologueEpilogue =
-        new GeneratorPrologueEpilogue<>(generator, prologue, epilogue);
+    final Generator<Call> generatorPrologueEpilogue = new GeneratorPrologueEpilogue<>(
+       generator,
+       prologue != null ? prologue : Collections.<Call>emptyList(),
+       epilogue != null ? epilogue : Collections.<Call>emptyList()
+       );
 
     return new Block(blockId, where, generatorPrologueEpilogue, attributes);
   }
