@@ -281,7 +281,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       stConstructor.add("sets", buffer.getSets());
 
       stConstructor.add("policy", String.format("%s.%s",
-            POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
 
       st.add("members", stConstructor);
     }
@@ -329,7 +329,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       buildEntry(st, group);
       buildIndexer(st, group);
       buildMatcher(st, group);
-      st.add("members", String.format("private %s() { super(\"%s\"); }", getId(), getId()));
+      buildConstructor(st, group);
       buildNewData(st, group);
       buildGetDataSize(st, group);
     }
@@ -342,6 +342,21 @@ final class STBBuffer extends STBCommon implements STBuilder {
           );
 
       STBBuffer.this.buildHeader(st, baseName);
+    }
+    
+    private void buildConstructor(final ST st, final STGroup group) {
+      buildNewLine(st);
+      final ST stConstructor = group.getInstanceOf("buffer_constructor");
+
+      stConstructor.add("name", buffer.getId());
+      stConstructor.add("ways", buffer.getWays());
+      stConstructor.add("sets", buffer.getSets());
+      stConstructor.add("is_mapped", true);
+
+      stConstructor.add("policy", String.format("%s.%s",
+          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+
+      st.add("members", stConstructor);
     }
   }
 }

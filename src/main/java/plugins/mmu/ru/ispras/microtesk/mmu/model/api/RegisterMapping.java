@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
@@ -44,7 +46,22 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     }
   }
 
-  public RegisterMapping(final String name) {
+  /**
+   * Constructs a register-mapped buffer of the given length and associativity.
+   * 
+   * @param name Name of the register file mapped to the buffer.
+   * @param length the number of sets in the buffer.
+   * @param associativity the number of lines in each set.
+   * @param indexer the set indexer.
+   * @param matcher the line matcher.
+   */
+  public RegisterMapping(
+      final String name,
+      final BigInteger length,
+      final int associativity,
+      final PolicyId policyId,
+      final Indexer<A> indexer,
+      final Matcher<D, A> matcher) {
     this.storage = MemoryDeviceWrapper.newWrapperFor(name);
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
   }
