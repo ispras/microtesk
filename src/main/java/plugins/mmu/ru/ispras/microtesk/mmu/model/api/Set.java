@@ -41,7 +41,10 @@ public final class Set<D, A extends Address> implements Buffer<D, A> {
    * @param matcher the data-address matcher.
    */
 
-  public Set(int associativity, final PolicyId policyId, final Matcher<D, A> matcher) {
+  public Set(
+      final int associativity,
+      final PolicyId policyId,
+      final Matcher<D, A> matcher) {
     // Fill the set with the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
       lines.add(new Line<D, A>(matcher));
