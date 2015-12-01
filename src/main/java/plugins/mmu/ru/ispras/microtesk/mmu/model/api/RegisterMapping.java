@@ -26,6 +26,12 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
 
   private final MemoryDevice storage;
 
+  private final BigInteger length;
+  private final int associativity;
+  private final PolicyId policyId;
+  private final Indexer<A> indexer;
+  private final Matcher<D, A> matcher;
+
   /**
    * Proxy class is used to simplify code of assignment expressions.
    */
@@ -62,8 +68,22 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
       final PolicyId policyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(length);
+    InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
+    InvariantChecks.checkGreaterThanZero(associativity);
+    InvariantChecks.checkNotNull(policyId);
+    InvariantChecks.checkNotNull(indexer);
+    InvariantChecks.checkNotNull(matcher);
+
     this.storage = MemoryDeviceWrapper.newWrapperFor(name);
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
+
+    this.length = length;
+    this.associativity = associativity;
+    this.policyId = policyId;
+    this.indexer = indexer;
+    this.matcher = matcher;
   }
 
   @Override
