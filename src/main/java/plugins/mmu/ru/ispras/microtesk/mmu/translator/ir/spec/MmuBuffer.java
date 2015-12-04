@@ -280,6 +280,11 @@ public class MmuBuffer extends MmuStruct {
     return guard != null ? guard.test(access) : true;
   }
 
+  public final boolean isFake() {
+    // TODO:
+    return ways == 1 && sets == 1 && tagExpression.size() == 0 && indexExpression.size() == 0;
+  }
+
   /**
    * Checks whether the buffer support data replacement.
    * 

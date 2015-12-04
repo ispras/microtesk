@@ -658,7 +658,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     if (canBeAccessed && buffer.checkGuard(access)) {
       SolverResult<MemorySolution> result = null;
 
-      if (buffer.isReplaceable()) {
+      if (buffer.isFake()) {
+        return new SolverResult<MemorySolution>(solution);
+      } else if (buffer.isReplaceable()) {
         // Construct a sequence of addresses to be accessed.
         if (usedEvent == BufferAccessEvent.HIT) {
           result = solveHitConstraint(j, buffer);
@@ -1104,22 +1106,30 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
     for (final MmuBuffer buffer : path.getBuffers()) {
+      if (buffer.isFake()) {
+        continue;
+      }
+
       final MmuAddressType addrType = buffer.getAddress();
       final long address = addrObject.getAddress(addrType);
 
-      final MmuExpression tagExpr = buffer.getTagExpression();
-      InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
+      if (buffer.getWays() > 1) {
+        final MmuExpression tagExpr = buffer.getTagExpression();
+        InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
 
-      final long tag = buffer.getTag(address);
-      knownValues.putAll(
-          IntegerField.split(tagExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(tag)));
+        final long tag = buffer.getTag(address);
+        knownValues.putAll(
+            IntegerField.split(tagExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(tag)));
+      }
 
-      final MmuExpression indexExpr = buffer.getIndexExpression();
-      InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
+      if (buffer.getSets() > 1) {
+        final MmuExpression indexExpr = buffer.getIndexExpression();
+        InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
 
-      final long index = buffer.getIndex(address);
-      knownValues.putAll(
-          IntegerField.split(indexExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(index)));
+        final long index = buffer.getIndex(address);
+        knownValues.putAll(
+            IntegerField.split(indexExpr.getTerms(), BigIntegerUtils.valueOfUnsignedLong(index)));
+      }
     }
 
     final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
