@@ -161,9 +161,10 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 };
 >>
 
-buffer_constructor(name, ways, sets, policy) ::= <<
+buffer_constructor(name, ways, sets, policy, is_mapped) ::= <<
 private <name>() {
   super(
+    <if(is_mapped)>"<name>",<endif>
     new BigInteger("<sets>", 10),
     <ways>,
     <policy>,
