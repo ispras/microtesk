@@ -20,20 +20,76 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
+import ru.ispras.microtesk.utils.SparseArray;
 
 public abstract class RegisterMapping<D extends Data, A extends Address>
     implements Buffer<D, A> {
 
   private final MemoryDevice storage;
 
-  private final BigInteger length;
   private final int associativity;
   private final PolicyId policyId;
+
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
 
+  private final SparseArray<Buffer<D, A>> sets;
+  private BigInteger currentRegisterIndex;
+
   /**
-   * Proxy class is used to simplify code of assignment expressions.
+   * The {@link RegisterMappedSet} class is an extension of the {@link Set} class
+   * for register-mapped buffers.
+   */
+  private final class RegisterMappedSet extends Set<D, A> {
+    public RegisterMappedSet() {
+      super(associativity, policyId, matcher);
+    }
+
+    @Override
+    protected Buffer<D, A> newLine(final Matcher<D, A> matcher) {
+      return new RegisterMappedLine();
+    }
+  }
+
+  /**
+   * The {@link RegisterMappedLine} class is an implementation of a line
+   * for register-mapped buffers.
+   */
+  private final class RegisterMappedLine implements Buffer<D, A> {
+    private final BitVector registerIndex;
+
+    private RegisterMappedLine() {
+      this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
+      currentRegisterIndex = currentRegisterIndex.add(BigInteger.ONE);
+    }
+
+    @Override
+    public boolean isHit(final A address) {
+      if (!storage.isInitialized(registerIndex)) {
+        return false;
+      }
+
+      final BitVector rawData = storage.load(registerIndex);
+      final D data = newData(rawData); 
+
+      return matcher.areMatching(data, address);
+    }
+
+    @Override
+    public D getData(final A address) {
+      final BitVector rawData = storage.load(registerIndex);
+      return newData(rawData); 
+    }
+
+    @Override
+    public D setData(final A address, final D data) {
+      storage.store(registerIndex, data.asBitVector());
+      return null;
+    }
+  }
+
+  /**
+   * The {@link Proxy} class is used to simplify code of assignment expressions.
    */
   public final class Proxy {
     private final A address;
@@ -79,33 +135,48 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     this.storage = MemoryDeviceWrapper.newWrapperFor(name);
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
 
-    this.length = length;
     this.associativity = associativity;
     this.policyId = policyId;
     this.indexer = indexer;
     this.matcher = matcher;
+
+    this.sets = new SparseArray<>(length);
+    this.currentRegisterIndex = BigInteger.ZERO;
+
+    for (BigInteger index = BigInteger.ZERO;
+         index.compareTo(length) < 0;
+         index = index.add(BigInteger.ONE)) {
+      final Buffer<D, A> set = new RegisterMappedSet();
+      final BitVector setIndex = BitVector.valueOf(index, storage.getAddressBitSize());
+      sets.set(setIndex, set);
+    }
   }
 
   @Override
   public final boolean isHit(final A address) {
-    throw new UnsupportedOperationException(
-        "isHit is unsupported for mapped buffers.");
+    final Buffer<D, A> set = getSet(address);
+    return null != set && set.isHit(address);
   }
 
   @Override
   public final D getData(final A address) {
-    final BitVector value = storage.load(address.getValue());
-    return newData(value);
+    final Buffer<D, A> set = getSet(address);
+    return set.getData(address);
   }
 
   @Override
   public final D setData(final A address, final D data) {
-    storage.store(address.getValue(), data.asBitVector());
-    return null;
+    final Buffer<D, A> set = getSet(address);
+    return set.setData(address, data);
   }
 
   public final Proxy setData(final A address) {
     return new Proxy(address);
+  }
+
+  private Buffer<D, A> getSet(final A address) {
+    final BitVector index = indexer.getIndex(address);
+    return sets.get(index);
   }
 
   protected abstract D newData(final BitVector value);
