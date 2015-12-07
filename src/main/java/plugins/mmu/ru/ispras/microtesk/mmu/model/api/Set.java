@@ -17,6 +17,8 @@ package ru.ispras.microtesk.mmu.model.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
  * 
@@ -24,14 +26,15 @@ import java.util.List;
  * @param <A> the address type.
  *
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class Set<D, A extends Address> implements Buffer<D, A> {
+public class Set<D, A extends Address> implements Buffer<D, A> {
   /** The array of cache lines. */
-  private final List<Line<D, A>> lines = new ArrayList<>();
+  private final List<Buffer<D, A>> lines = new ArrayList<>();
 
   /** The data replacement policy. */
-  private Policy policy;
+  private final Policy policy;
 
   /**
    * Constructs a cache set of the given associativity.
@@ -45,28 +48,37 @@ public final class Set<D, A extends Address> implements Buffer<D, A> {
       final int associativity,
       final PolicyId policyId,
       final Matcher<D, A> matcher) {
+    InvariantChecks.checkGreaterThanZero(associativity);
+    InvariantChecks.checkNotNull(policyId);
+    InvariantChecks.checkNotNull(matcher);
+
     // Fill the set with the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
-      lines.add(new Line<D, A>(matcher));
+      final Buffer<D, A> line = newLine(matcher);
+      lines.add(line);
     }
 
     this.policy = policyId.newPolicy(associativity);
   }
 
+  protected Buffer<D, A> newLine(final Matcher<D, A> matcher) {
+    return new Line<D, A>(matcher);
+  }
+
   @Override
-  public boolean isHit(final A address) {
+  public final boolean isHit(final A address) {
     return getLine(address) != null;
   }
 
   @Override
-  public D getData(final A address) {
-    final Line<D, A> line = getLine(address);
+  public final D getData(final A address) {
+    final Buffer<D, A> line = getLine(address);
     return line != null ? line.getData(address) : null;
   }
 
   @Override
-  public D setData(final A address, final D data) {
-    Line<D, A> line = getLine(address);
+  public final D setData(final A address, final D data) {
+    Buffer<D, A> line = getLine(address);
 
     // If there is a miss, choose a victim.
     if (line == null) {
@@ -80,14 +92,14 @@ public final class Set<D, A extends Address> implements Buffer<D, A> {
    * Returns the line associated with the given address.
    *  
    * @param address the data address.
-   * @return the line associated with the given address if it exists; <code>null</code> otherwise.
+   * @return the line associated with the given address if it exists; {@code null} otherwise.
    */
 
-  private Line<D, A> getLine(final A address) {
+  private Buffer<D, A> getLine(final A address) {
     int index = -1;
 
     for (int i = 0; i < lines.size(); i++) {
-      final Line<D, A> line = lines.get(i);
+      final Buffer<D, A> line = lines.get(i);
 
       if (line.isHit(address)) {
         if (index != -1) {
