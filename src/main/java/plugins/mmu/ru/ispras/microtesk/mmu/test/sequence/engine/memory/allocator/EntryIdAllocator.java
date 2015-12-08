@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +31,7 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryIdAllocator {
-  private final Map<MmuBuffer, AllocationTable<Long, ?>> allocators = new HashMap<>();
+  private final Map<MmuBuffer, AllocationTable<Long, ?>> allocators = new LinkedHashMap<>();
 
   public EntryIdAllocator(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);

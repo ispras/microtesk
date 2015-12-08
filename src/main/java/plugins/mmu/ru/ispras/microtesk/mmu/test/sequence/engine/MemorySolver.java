@@ -945,7 +945,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(addrType);
-    Logger.debug("Partial address: %x", partialAddress);
+    Logger.debug("Partial address: %s=%x", addrType, partialAddress);
 
     final Predicate<Long> hitChecker = hitCheckers.get(addrType);
 
@@ -1038,7 +1038,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private long allocateEntryId(final MmuBuffer buffer, final boolean peek) {
-    return entryIdAllocator.allocate(buffer, peek, null);
+    final long entryId = entryIdAllocator.allocate(buffer, peek, null);
+    Logger.debug("Allocate entry: buffer=%s, entryId=%d", buffer, entryId);
+
+    return entryId;
   }
 
   private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
