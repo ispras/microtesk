@@ -149,6 +149,10 @@ public final class BlockBuilder {
   }
 
   public Block build() {
+    return build(null, null);
+  }
+
+  public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
     final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<>();
     generatorBuilder.setSingle(isAtomic);
 
@@ -170,7 +174,10 @@ public final class BlockBuilder {
     final Generator<Call> generatorPrologueEpilogue =
         wrapWithPrologueAndEpilogue(generator, prologue, epilogue);
 
-    return new Block(blockId, where, generatorPrologueEpilogue, attributes);
+    final Generator<Call> generatorGlobalPrologueEpilogue =
+        wrapWithPrologueAndEpilogue(generatorPrologueEpilogue, globalPrologue, globalEpilogue);
+
+    return new Block(blockId, where, generatorGlobalPrologueEpilogue, attributes);
   }
 
   private static Generator<Call> wrapWithPrologueAndEpilogue(
