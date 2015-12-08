@@ -164,18 +164,28 @@ public final class BlockBuilder {
       generatorBuilder.addIterator(block.getIterator());
     }
 
-    final Generator<Call> generator = generatorBuilder.getGenerator();
+    final Generator<Call> generator =
+        generatorBuilder.getGenerator();
 
-    if (prologue == null && epilogue == null) {
-      return new Block(blockId, where, generator, attributes);
-    }
-
-    final Generator<Call> generatorPrologueEpilogue = new GeneratorPrologueEpilogue<>(
-       generator,
-       prologue != null ? prologue : Collections.<Call>emptyList(),
-       epilogue != null ? epilogue : Collections.<Call>emptyList()
-       );
+    final Generator<Call> generatorPrologueEpilogue =
+        wrapWithPrologueAndEpilogue(generator, prologue, epilogue);
 
     return new Block(blockId, where, generatorPrologueEpilogue, attributes);
+  }
+
+  private static Generator<Call> wrapWithPrologueAndEpilogue(
+      final Generator<Call> generator,
+      final List<Call> prologue,
+      final List<Call> epilogue) {
+
+    if (prologue == null && epilogue == null) {
+      return generator;
+    }
+
+    return new GeneratorPrologueEpilogue<>(
+        generator,
+        prologue != null ? prologue : Collections.<Call>emptyList(),
+        epilogue != null ? epilogue : Collections.<Call>emptyList()
+        );
   }
 }
