@@ -110,7 +110,7 @@ public class Set<D, A extends Address> implements Buffer<D, A> {
       }
     }
 
-    if (index != -1) {
+    if (index != -1 && policy != null) {
       policy.accessLine(index);
     }
 
