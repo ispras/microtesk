@@ -68,7 +68,8 @@ public final class MemoryDeviceWrapper implements MemoryDevice {
 
   @Override
   public boolean isInitialized(final BitVector address) {
-    throw new UnsupportedOperationException();
+    final Location location = memory.access(address.bigIntegerValue(false));
+    return location.isInitialized();
   }
 
   @Override
