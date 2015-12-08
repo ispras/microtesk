@@ -66,6 +66,6 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
   @Override
   public String toString() {
     return String.format(
-        "Line [data=%x]", data.asBitVector().toHexString());
+        "Line [data=0x%s]", data.asBitVector().toHexString());
   }
 }

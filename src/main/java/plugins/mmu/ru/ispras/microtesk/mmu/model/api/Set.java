@@ -104,7 +104,8 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
       if (line.isHit(address)) {
         if (index != -1) {
           throw new IllegalStateException(
-              String.format("Multiple hits in a cache set. Address=%s, Lines=%s",
+              String.format("Multiple hits in a cache set. Address=%s:0x%s, Lines=%s",
+              address.getClass().getSimpleName(),
               address.getValue().toHexString(),
               lines.toString()
               ));
