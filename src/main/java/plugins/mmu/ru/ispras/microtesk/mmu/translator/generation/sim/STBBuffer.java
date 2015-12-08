@@ -30,6 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer extends STBCommon implements STBuilder {
@@ -148,6 +149,21 @@ final class STBBuffer extends STBCommon implements STBuilder {
     st.add("members", stMatcher);
   }
 
+  private void buildConstructor(final ST st, final STGroup group) {
+    buildNewLine(st);
+    final ST stConstructor = group.getInstanceOf("buffer_constructor");
+
+    stConstructor.add("name", buffer.getId());
+    stConstructor.add("ways", buffer.getWays());
+    stConstructor.add("sets", buffer.getSets());
+    stConstructor.add("is_mapped", buffer.getKind() == Kind.REGISTER);
+
+    stConstructor.add("policy", String.format("%s.%s",
+        POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
+
+    st.add("members", stConstructor);
+  }
+
   private void buildNewAddress(final ST st, final STGroup group) {
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("new_address");
@@ -217,7 +233,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
     public void build(final ST st, final STGroup group) {
       buildHeader(st);
       buildEntry(st, group);
-      buildConstructor(st, group);
+      buildMemoryConstructor(st, group);
       buildNewAddress(st, group);
       buildNewData(st, group);
       buildGetDataSize(st, group);
@@ -233,7 +249,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       STBBuffer.this.buildHeader(st, baseName);
     }
 
-    private void buildConstructor(final ST st, final STGroup group) {
+    private void buildMemoryConstructor(final ST st, final STGroup group) {
       final ST stConstructor = group.getInstanceOf("memory_constructor");
 
       final BigInteger ways = buffer.getWays();
@@ -271,20 +287,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
 
       STBBuffer.this.buildHeader(st, baseName);
     }
-
-    private void buildConstructor(final ST st, final STGroup group) {
-      buildNewLine(st);
-      final ST stConstructor = group.getInstanceOf("buffer_constructor");
-
-      stConstructor.add("name", buffer.getId());
-      stConstructor.add("ways", buffer.getWays());
-      stConstructor.add("sets", buffer.getSets());
-
-      stConstructor.add("policy", String.format("%s.%s",
-          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
-
-      st.add("members", stConstructor);
-    }
   }
 
   private final class MemoryStrategy implements BuildStrategy {
@@ -292,8 +294,11 @@ final class STBBuffer extends STBCommon implements STBuilder {
     public void build(final ST st, final STGroup group) {
       buildHeader(st);
       buildEntry(st, group);
-      st.add("members", String.format("private %s() {}", getId()));
+      buildIndexer(st, group);
+      buildMatcher(st, group);
+      buildConstructor(st, group);
       buildGetMmu(st, group);
+      buildNewAddress(st, group);
       buildNewData(st, group);
       buildGetDataSize(st, group);
     }
@@ -343,21 +348,6 @@ final class STBBuffer extends STBCommon implements STBuilder {
           );
 
       STBBuffer.this.buildHeader(st, baseName);
-    }
-    
-    private void buildConstructor(final ST st, final STGroup group) {
-      buildNewLine(st);
-      final ST stConstructor = group.getInstanceOf("buffer_constructor");
-
-      stConstructor.add("name", buffer.getId());
-      stConstructor.add("ways", buffer.getWays());
-      stConstructor.add("sets", buffer.getSets());
-      stConstructor.add("is_mapped", true);
-
-      stConstructor.add("policy", String.format("%s.%s",
-          POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
-
-      st.add("members", stConstructor);
     }
   }
 }
