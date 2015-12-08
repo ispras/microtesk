@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.template;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.math.BigInteger;
@@ -80,11 +79,11 @@ public final class Template {
   private int openBlockCount;
 
   // Test case level prologue and epilogue
-  private List<Call> prologue;
-  private boolean isBuildingPrologue;
+  private List<Call> prologueBuilder;
+  private List<Call> epilogueBuilder;
 
-  private List<Call> epilogue;
-  private boolean isBuildingEpilogue;
+  private List<Call> globalPrologue;
+  private List<Call> globalEpilogue;
 
   private final Set<Block> unusedBlocks;
 
@@ -130,11 +129,11 @@ public final class Template {
 
     this.groupVariates = newVariatesForGroups(metaModel);
 
-    this.prologue = new ArrayList<>();
-    this.isBuildingPrologue = false;
+    this.prologueBuilder = null;
+    this.epilogueBuilder = null;
 
-    this.epilogue = new ArrayList<>();
-    this.isBuildingEpilogue = false;
+    this.globalPrologue = null;
+    this.globalEpilogue = null;
 
     this.unusedBlocks = new LinkedHashSet<>();
   }
@@ -168,7 +167,7 @@ public final class Template {
   }
 
   public void endPreSection() {
-    final Block rootBlock = endCurrentSection();
+    final Block rootBlock = endCurrentSection().build();
     processBlock(Section.PRE, rootBlock);
     Logger.debugHeader("Ended Processing Initialization Section");
   }
@@ -182,7 +181,7 @@ public final class Template {
   }
 
   public void endPostSection() {
-    final Block rootBlock = endCurrentSection();
+    final Block rootBlock = endCurrentSection().build();
     processBlock(Section.POST, rootBlock);
     Logger.debugHeader("Ended Processing Finalization Section");
   }
@@ -193,14 +192,10 @@ public final class Template {
 
     isMainSection = true;
     openBlockCount = 0;
-
-    final BlockBuilder rootBlockBuilder = blockBuilders.getLast();
-    rootBlockBuilder.setPrologue(prologue);
-    rootBlockBuilder.setEpilogue(epilogue);
   }
 
   public void endMainSection() {
-    final Block rootBlock = endCurrentSection();
+    final Block rootBlock = endCurrentSection().build(globalPrologue, globalEpilogue);
     processBlock(Section.MAIN, rootBlock);
     Logger.debugHeader("Ended Processing Main Section");
     isMainSection = false;
@@ -215,20 +210,19 @@ public final class Template {
     this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
 
-  private Block endCurrentSection() {
+  private BlockBuilder endCurrentSection() {
     endBuildingCall();
 
     if (blockBuilders.size() != 1) {
       throw new IllegalStateException();
     }
 
-    final BlockBuilder rootBuilder = blockBuilders.getLast();
-    final Block rootBlock = rootBuilder.build();
+    final BlockBuilder rootBuilder = blockBuilders.peek();
 
     blockBuilders = null;
     callBuilder = null;
 
-    return rootBlock;
+    return rootBuilder;
   }
 
   private BlockId getCurrentBlockId() {
@@ -254,14 +248,11 @@ public final class Template {
       if (parent.isEmpty()) {
         current = parent;
       } else {
-        processBlock(Section.MAIN, parent.build());
+        processBlock(Section.MAIN, parent.build(globalPrologue, globalEpilogue));
         blockBuilders.pop();
 
         current = new BlockBuilder();
         blockBuilders.push(current);
-
-        current.setPrologue(prologue);
-        current.setEpilogue(epilogue);
       }
     } else {
       current = new BlockBuilder(parent);
@@ -285,22 +276,19 @@ public final class Template {
     final boolean isRoot = openBlockCount == 1;
 
     final BlockBuilder builder = blockBuilders.pop();
-    final Block block = builder.build();
+    final Block block;
 
     if (isRoot) {
       // A root block is just returned to the caller.
       // Then a new root block builder is created and pushed to the stack.
+      block = builder.build(globalPrologue, globalEpilogue);
+
       final BlockBuilder newBuilder = new BlockBuilder();
       newBuilder.setAtomic(true);
-
-      if (isMainSection) {
-        newBuilder.setPrologue(prologue);
-        newBuilder.setEpilogue(epilogue);
-      }
-
       blockBuilders.push(newBuilder);
     } else {
       // A non-root block is added to its parent.
+      block = builder.build();
       blockBuilders.peek().addBlock(block);
     }
 
@@ -404,10 +392,10 @@ public final class Template {
         streamPreparatorBuilder.addCall(call);
       } else if (null != exceptionHandlerBuilder) {
         exceptionHandlerBuilder.addCall(call);
-      } else if (isBuildingPrologue) {
-        prologue.add(call);
-      } else if (isBuildingEpilogue) {
-        epilogue.add(call);
+      } else if (null != prologueBuilder) {
+        prologueBuilder.add(call);
+      } else if (null != epilogueBuilder) {
+        epilogueBuilder.add(call);
       } else {
         blockBuilders.peek().addCall(call);
       }
@@ -835,19 +823,25 @@ public final class Template {
     checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
+    checkTrue(null == prologueBuilder);
+    checkTrue(null == epilogueBuilder);
 
-    checkFalse(isBuildingPrologue);
-    checkFalse(isBuildingEpilogue);
-    checkTrue(epilogue.isEmpty());
-
-    isBuildingPrologue = true;
+    prologueBuilder = new ArrayList<>();
   }
 
   public void endPrologue() {
     endBuildingCall();
     Logger.debug("End Test Case Level Prologue");
 
-    isBuildingPrologue = false;
+    if (openBlockCount > 0) {
+      final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+      currentBlockBuilder.setPrologue(prologueBuilder);
+    } else {
+      checkTrue(null == globalPrologue, "Global test case level prologue is redefined");
+      globalPrologue = Collections.unmodifiableList(prologueBuilder);
+    }
+
+    prologueBuilder = null;
   }
 
   public void beginEpilogue() {
@@ -858,19 +852,25 @@ public final class Template {
     checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
+    checkTrue(null == prologueBuilder);
+    checkTrue(null == epilogueBuilder);
 
-    checkFalse(isBuildingPrologue);
-    checkFalse(isBuildingEpilogue);
-    checkTrue(epilogue.isEmpty());
-
-    isBuildingEpilogue = true;
+    epilogueBuilder = new ArrayList<>();
   }
 
   public void endEpilogue() {
     endBuildingCall();
     Logger.debug("End Test Case Level Epilogue");
 
-    isBuildingEpilogue = false;
+    if (openBlockCount > 0) {
+      final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+      currentBlockBuilder.setEpilogue(epilogueBuilder);
+    } else {
+      checkTrue(null == globalEpilogue, "Global test case level epilogue is redefined");
+      globalEpilogue = Collections.unmodifiableList(epilogueBuilder);
+    }
+
+    epilogueBuilder = null;
   }
 
   public MemoryObjectBuilder newMemoryObjectBuilder(final int size) {
