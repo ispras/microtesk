@@ -23,7 +23,7 @@ package ru.ispras.microtesk.mmu.model.api;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
 
-public final class Line<D, A extends Address> implements Buffer<D, A> {
+public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
   /** The stored data. */
   private D data;
 
@@ -37,6 +37,7 @@ public final class Line<D, A extends Address> implements Buffer<D, A> {
    */
 
   public Line(final Matcher<D, A> matcher) {
+    this.data = null;
     this.matcher = matcher;
   }
 
@@ -60,5 +61,11 @@ public final class Line<D, A extends Address> implements Buffer<D, A> {
 
     data = newData;
     return oldData;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "Line [data=%x]", data.asBitVector().toHexString());
   }
 }

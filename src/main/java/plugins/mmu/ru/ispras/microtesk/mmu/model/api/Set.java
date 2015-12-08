@@ -29,7 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class Set<D, A extends Address> implements Buffer<D, A> {
+public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
   /** The array of cache lines. */
   private final List<Buffer<D, A>> lines = new ArrayList<>();
 
@@ -103,7 +103,11 @@ public class Set<D, A extends Address> implements Buffer<D, A> {
 
       if (line.isHit(address)) {
         if (index != -1) {
-          throw new IllegalStateException("Multiple hits in a cache set");
+          throw new IllegalStateException(
+              String.format("Multiple hits in a cache set. Address=%s, Lines=%s",
+              address.getValue().toHexString(),
+              lines.toString()
+              ));
         }
 
         index = i;
@@ -115,5 +119,10 @@ public class Set<D, A extends Address> implements Buffer<D, A> {
     }
 
     return index == -1 ? null : lines.get(index);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Set [lines=%s]", lines);
   }
 }
