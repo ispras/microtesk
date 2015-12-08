@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
 import ru.ispras.microtesk.utils.SparseArray;
 
 public abstract class RegisterMapping<D extends Data, A extends Address>
-    implements Buffer<D, A> {
+    implements Buffer<D, A>, BufferObserver {
 
   private final MemoryDevice storage;
 
@@ -159,6 +159,13 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   }
 
   @Override
+  public final boolean isHit(final BitVector value) {
+    final A address = newAddress(); 
+    address.getValue().assign(value);
+    return isHit(address);
+  }
+
+  @Override
   public final D getData(final A address) {
     final Buffer<D, A> set = getSet(address);
     return set.getData(address);
@@ -179,6 +186,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     return sets.get(index);
   }
 
+  protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
 }

@@ -83,7 +83,8 @@ final class STBModel implements STBuilder {
     }
 
     for (final Buffer buffer : ir.getBuffers().values()) {
-      if (buffer.getKind() == MmuBuffer.Kind.UNMAPPED) {
+      if (buffer.getKind() == MmuBuffer.Kind.UNMAPPED ||
+          buffer.getKind() == MmuBuffer.Kind.REGISTER) {
         stBody.add("buffers", buffer.getId());
       }
     }

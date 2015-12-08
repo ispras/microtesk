@@ -330,6 +330,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
       buildIndexer(st, group);
       buildMatcher(st, group);
       buildConstructor(st, group);
+      buildNewAddress(st, group);
       buildNewData(st, group);
       buildGetDataSize(st, group);
     }
