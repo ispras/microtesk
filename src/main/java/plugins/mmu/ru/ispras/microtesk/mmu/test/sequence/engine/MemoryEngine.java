@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.classifier.Classifier;
@@ -32,6 +33,8 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.model.api.BufferObserver;
+import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
@@ -40,6 +43,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllo
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
@@ -255,7 +259,18 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         hitCheckers.put(addressType, new Predicate<Long>() {
           @Override
           public boolean test(final Long address) {
-            // TODO: Integration with the MMU simulator.
+            final MmuModel model = MmuPlugin.getModel();
+            final MmuSubsystem memory = MmuPlugin.getSpecification();
+
+            for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
+              if (buffer.getAddress().equals(addressType)) {
+                final BufferObserver observer = model.getBufferObserver(buffer.getName());
+                if (observer.isHit(BitVector.valueOf(address, addressType.getWidth()))) {
+                  return true;
+                }
+              }
+            }
+
             return false;
           }
         });
