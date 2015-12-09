@@ -66,7 +66,7 @@ public class MmuBuffer extends MmuStruct {
   /** The offset calculation function. */
   private final MmuExpression offsetExpression;
 
-  private final Collection<MmuBinding> matchBindings;
+  private Collection<MmuBinding> matchBindings;
 
   /** Guard condition (only for views). */
   private MmuCondition guardCondition;
@@ -198,8 +198,13 @@ public class MmuBuffer extends MmuStruct {
     return offsetExpression;
   }
 
-  public Collection<MmuBinding> getMatchBindings() {
+  public final Collection<MmuBinding> getMatchBindings() {
     return matchBindings;
+  }
+
+  protected final void setMatchBindings(final Collection<MmuBinding> matchBindings) {
+    InvariantChecks.checkNotNull(matchBindings);
+    this.matchBindings = matchBindings;
   }
 
   /**

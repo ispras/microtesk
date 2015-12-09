@@ -54,15 +54,3 @@ public <name>(final String name) {
   <stmts; separator="\n">
 }
 >>
-
-match_field_decl() ::= <<
-<\n>private final Collection\<MmuBinding\> matchBindings;<\n>
-@Override
-public Collection\<MmuBinding\> getMatchBindings() {
-  return matchBindings;
-}
->>
-
-match_field_def(value) ::= <<
-<\n>this.matchBindings = <value>;
->>

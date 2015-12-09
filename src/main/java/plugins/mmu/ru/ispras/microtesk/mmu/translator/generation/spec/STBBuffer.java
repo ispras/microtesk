@@ -82,7 +82,6 @@ final class STBBuffer implements STBuilder {
     st.add("instance", "INSTANCE");
 
     st.add("imps", Collections.class.getName());
-    st.add("imps", Collection.class.getName());
     st.add("imps", Arrays.class.getName());
     st.add("imps", BigInteger.class.getName());
     st.add("imps", INTEGER_CLASS.getName());
@@ -146,12 +145,9 @@ final class STBBuffer implements STBuilder {
     }
 
     if (!analyzer.getMatchBindings().isEmpty()) {
-      final ST stDecl = group.getInstanceOf("match_field_decl");
-      st.add("members", stDecl);
-
-      final ST stDef = group.getInstanceOf("match_field_def");
-      stDef.add("value", toMmuBindingsText(analyzer.getMatchBindings()));
-      stConstructor.add("stmts", stDef);
+      stConstructor.add("stmts", "");
+      stConstructor.add("stmts",
+          String.format("setMatchBindings(%s);", toMmuBindingsText(analyzer.getMatchBindings())));
     }
 
     if (buffer.getGuard() != null) {
