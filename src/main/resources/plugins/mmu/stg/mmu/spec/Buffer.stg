@@ -30,8 +30,8 @@ private <name>(final String name) {
       <tag>,
       <index>,
       <offset>,
-      <match>,
-      <guard_cond>,
+      <match>, // set up with setMatchBindings
+      <guard_cond>, // set up with setGuardCondition
       <guard>,
       <replaceable>,
       <if(parent)><parent>.get()<else>null<endif>

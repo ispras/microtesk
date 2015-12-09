@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
