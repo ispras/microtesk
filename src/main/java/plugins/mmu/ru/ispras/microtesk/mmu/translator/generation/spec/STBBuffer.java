@@ -131,10 +131,12 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("ways", String.format("%dL", buffer.getWays().longValue()));
     stConstructor.add("sets", String.format("%dL", buffer.getSets().longValue()));
     stConstructor.add("addr", buffer.getAddress().getId());
+
     stConstructor.add("tag", Utils.toMmuExpressionText(buffer.getId(), analyzer.getTagFields()));
     stConstructor.add("index", Utils.toMmuExpressionText(buffer.getId(), analyzer.getIndexFields()));
     stConstructor.add("offset", Utils.toMmuExpressionText(buffer.getId(), analyzer.getOffsetFields()));
     stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
+
     stConstructor.add("guard_cond", "null");
     stConstructor.add("guard", "null");
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
