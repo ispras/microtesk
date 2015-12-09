@@ -227,7 +227,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the index.
    */
-  public long getIndex(long address) {
+  public final long getIndex(long address) {
     return addressView.getIndex(address);
   }
 
