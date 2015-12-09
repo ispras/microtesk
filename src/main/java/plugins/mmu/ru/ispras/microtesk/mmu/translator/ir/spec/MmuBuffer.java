@@ -265,7 +265,7 @@ public class MmuBuffer extends MmuStruct {
     return getAddress(0, 0, getOffset(-1L));
   }
 
-  public MmuCondition getGuardCondition() {
+  public final MmuCondition getGuardCondition() {
     return guardCondition;
   }
 
