@@ -139,6 +139,7 @@ final class STBBuffer implements STBuilder {
 
     stConstructor.add("guard_cond", "null");
     stConstructor.add("guard", "null");
+
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
