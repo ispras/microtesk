@@ -265,6 +265,10 @@ public class MmuBuffer extends MmuStruct {
     return getAddress(0, 0, getOffset(-1L));
   }
 
+  public MmuCondition getGuardCondition() {
+    return guardCondition;
+  }
+
   protected final void setGuardCondition(final MmuCondition condition) {
     InvariantChecks.checkNotNull(condition);
     this.guardCondition = condition;
