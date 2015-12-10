@@ -14,29 +14,25 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
 
-public abstract class Stmt {
+public final class StmtAssert extends Stmt {
+  private final Node condition;
 
-  public static enum Kind {
-    ASSIGN,
-    EXCEPT,
-    IF,
-    MARK,
-    TRACE,
-    RETURN,
-    CALL,
-    ASSERT
+  public StmtAssert(final Node condition) {
+    super(Kind.ASSERT);
+
+    InvariantChecks.checkNotNull(condition);
+    this.condition = condition;
   }
 
-  private final Kind kind;
-
-  Stmt(final Kind kind) {
-    checkNotNull(kind);
-    this.kind = kind;
+  public Node getCondition() {
+    return condition;
   }
 
-  public final Kind getKind() {
-    return kind;
+  @Override
+  public String toString() {
+    return String.format("stmt assert %s", condition);
   }
 }

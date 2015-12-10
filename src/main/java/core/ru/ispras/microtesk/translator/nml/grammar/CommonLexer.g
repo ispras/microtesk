@@ -217,6 +217,7 @@ MARK          : 'mark'        { pp(); };
 UNPREDICTED   : 'unpredicted' { pp(); };
 UNDEFINED     : 'undefined'   { pp(); };
 
+ASSERT        : 'assert'      { pp(); };
 FUNCTION      : 'function'    { pp(); };
 
 //==================================================================================================

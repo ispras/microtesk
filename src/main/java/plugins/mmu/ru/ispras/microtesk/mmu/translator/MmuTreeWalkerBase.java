@@ -61,6 +61,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssert;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -1345,6 +1346,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   protected final Stmt newMark(final CommonTree text) {
     return new StmtMark(text.getText());
+  }
+
+  protected final Stmt newAssert(final CommonTree place, final Node condition) throws SemanticException {
+    if (!condition.isType(DataTypeId.LOGIC_BOOLEAN)) {
+      raiseError(where(place), "Assertion is not a logical expression.");
+    }
+
+    return new StmtAssert(condition);
   }
 
   protected final class IfBuilder {

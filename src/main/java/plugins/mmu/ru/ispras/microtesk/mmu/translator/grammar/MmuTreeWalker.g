@@ -306,6 +306,7 @@ functionCallStmt returns [Stmt res]
        {$res = newTrace($fs, fargs);}
     | ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
     | ^(MARK s=STRING_CONST) {$res = newMark($s);}
+    | ^(ASSERT cond=expr[0]) {checkNotNull($cond.start, $cond.res); $res = newAssert($cond.start, $cond.res);}
     | functionCall[0] { $res = newCallStmt($functionCall.res); }
     ;
 
