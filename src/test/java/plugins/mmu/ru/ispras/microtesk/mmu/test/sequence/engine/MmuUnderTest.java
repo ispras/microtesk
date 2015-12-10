@@ -189,7 +189,6 @@ public final class MmuUnderTest {
       MmuExpression.empty(),         // Index
       MmuExpression.var(va, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
-      null, null,                    // Guard
       false, null);
 
   {
@@ -227,7 +226,6 @@ public final class MmuUnderTest {
       MmuExpression.empty(),                         // Index
       MmuExpression.var(va, 0, 12),                  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(vpn2), MmuExpression.var(va, 13, 39))),
-      MmuCondition.eq(v, BigInteger.ONE), dtlbGuard, // Guard
       true, jtlb
       );
   {
@@ -255,7 +253,6 @@ public final class MmuUnderTest {
       Collections.singleton(
           new MmuBinding(new IntegerField(l1Tag),
               MmuExpression.var(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
-      null, null,                                                  // Guard
       true, null
       );
   {
@@ -272,7 +269,6 @@ public final class MmuUnderTest {
       Collections.singleton(
           new MmuBinding(new IntegerField(l2Tag),
               MmuExpression.var(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
-      null, null,                                                  // Guard
       true, null
       );
   {
@@ -287,7 +283,6 @@ public final class MmuUnderTest {
       MmuExpression.var(pa, POS_BITS, PA_BITS - 1), // Index
       MmuExpression.var(pa, 0, POS_BITS - 1),       // Offset
       Collections.<MmuBinding>emptySet(),
-      null, null,                                   // Guard
       false, null
       );
   {

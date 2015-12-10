@@ -77,7 +77,7 @@ public class MmuBufferTestCase {
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, false, null
+      false, null
       );
 
   static {
@@ -102,7 +102,7 @@ public class MmuBufferTestCase {
       MmuExpression.empty(),         // Index
       MmuExpression.var(VA, 0, 12),  // Offset
       Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
-      null, null, true, JTLB
+      true, JTLB
       );
 
   static {
@@ -151,7 +151,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L1_TAG), MmuExpression.var(PA, 12, 35))),
-      null, null, true, null
+      true, null
       );
 
   static {
@@ -188,7 +188,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(new IntegerField(L2_TAG), MmuExpression.var(PA, 17, 35))),
-      null, null, true, null
+      true, null
       );
 
   static {
@@ -223,7 +223,7 @@ public class MmuBufferTestCase {
       MmuExpression.var(PA, 5, 35), // Index
       MmuExpression.var(PA, 0, 4),  // Offset
       Collections.<MmuBinding>emptySet(),
-      null, null, false, null
+      false, null
       );
 
   static {

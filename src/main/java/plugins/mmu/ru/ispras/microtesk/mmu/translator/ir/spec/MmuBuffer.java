@@ -20,8 +20,6 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.AddressView;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
  * {@link MmuBuffer} represents an MMU buffer.
