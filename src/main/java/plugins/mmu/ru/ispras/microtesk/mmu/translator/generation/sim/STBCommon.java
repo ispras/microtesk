@@ -179,6 +179,10 @@ abstract class STBCommon {
         buildStmtReturn(st, (StmtReturn) stmt);
         break;
 
+      case ASSERT:
+        // TODO: Currently, ignored in simulator
+        break;
+
       default:
         throw new IllegalArgumentException(
             "Unsupported statement kind: " + stmt.getKind());

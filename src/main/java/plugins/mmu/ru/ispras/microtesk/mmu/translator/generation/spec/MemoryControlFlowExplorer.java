@@ -108,6 +108,10 @@ public final class MemoryControlFlowExplorer {
           if (ret.getExpr() != null) {
             latestAccess = extractBufferAccess(ret.getExpr(), attrId);
           }
+          return latestAccess;
+
+        case ASSERT:
+          // Ignored. Should not affect path to target buffer.
           break;
 
         default:

@@ -42,6 +42,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtAssert;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtException;
@@ -95,6 +96,7 @@ final class ControlFlowBuilder {
   private int branchIndex = 0;
   private int joinIndex = 0;
   private int assignIndex = 0;
+  private int guardIndex = 0;
   private int callIndex = 0;
   private int temporaryIndex = 0;
 
@@ -144,6 +146,10 @@ final class ControlFlowBuilder {
 
   private String newAssign() {
     return String.format("ASSIGN_%d", assignIndex++);
+  }
+
+  private String newGuard() {
+    return String.format("GUARD_%d", guardIndex++);
   }
 
   public void build(
@@ -248,6 +254,10 @@ final class ControlFlowBuilder {
           current = buildStmtIf(current, stop, (StmtIf) stmt);
           break;
 
+        case ASSERT:
+          current = buildStmtAssert(current, (StmtAssert) stmt);
+          break;
+
         case EXCEPT:
           buildStmtException(current, (StmtException) stmt);
           // If current became null as a result of exception,
@@ -316,6 +326,21 @@ final class ControlFlowBuilder {
 
     buildAction(target, targetBindings);
     buildTransition(rule.getState(), target);
+
+    return target;
+  }
+
+  private String buildStmtAssert(final String source, final StmtAssert stmt) {
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(stmt);
+
+    final GuardPrinter guardPrinter =
+        new GuardPrinter(ir, context, stmt.getCondition());
+
+    final String target = newGuard();
+
+    buildAction(target);
+    buildTransition(source, target, guardPrinter.getGuard());
 
     return target;
   }
