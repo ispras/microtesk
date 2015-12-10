@@ -814,7 +814,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           sets,
           index,
           match,
-          guard,
           policy,
           parent
           );

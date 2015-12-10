@@ -83,7 +83,6 @@ MMU_ENTRY   : 'entry';
 MMU_INDEX   : 'index';
 MMU_MATCH   : 'match';
 MMU_POLICY  : 'policy';
-MMU_GUARD   : 'guard';
 
 MMU         : 'mmu';
 MMU_VAR     : 'var';

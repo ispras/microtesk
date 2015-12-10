@@ -33,7 +33,6 @@ public final class Buffer extends AbstractStorage {
   private final BigInteger sets;
   private final Node index;
   private final Node match;
-  private final Node guard;
   private final PolicyId policy;
   private final Buffer parent;
 
@@ -47,7 +46,6 @@ public final class Buffer extends AbstractStorage {
       final BigInteger sets,
       final Node index,
       final Node match,
-      final Node guard,
       final PolicyId policy,
       final Buffer parent) {
 
@@ -67,14 +65,11 @@ public final class Buffer extends AbstractStorage {
     checkNotNull(match);
     checkNotNull(policy);
 
-    checkTrue((guard == null) == (parent == null));
-
     this.kind = kind;
     this.ways = ways;
     this.sets = sets;
     this.index = index;
     this.match = match;
-    this.guard = guard;
     this.policy = policy;
     this.parent = parent;
   }
@@ -124,10 +119,6 @@ public final class Buffer extends AbstractStorage {
     return match;
   }
 
-  public Node getGuard() {
-    return guard;
-  }
-
   public PolicyId getPolicy() {
     return policy;
   }
@@ -149,7 +140,6 @@ public final class Buffer extends AbstractStorage {
         index,
         match,
         policy,
-        guard,
         parent != null ? parent.getId() : null
         );
   }

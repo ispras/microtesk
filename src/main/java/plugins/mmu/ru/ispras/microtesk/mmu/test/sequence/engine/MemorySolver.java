@@ -550,7 +550,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long offset = buffer.getOffset(address);
 
       // Check the buffer access condition.
-      if (path.contains(buffer) && buffer.checkGuard(access)) {
+      if (path.contains(buffer)) {
         final Long replacedTag = stateTracker.track(address);
 
         if (replacedTag != null) {
@@ -651,11 +651,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       solveBufferConstraint(j, buffer.getParent());
     }
 
-    final boolean canBeAccessed =
-        // The parent access event is a hit or null, but not a miss.
-        !buffer.isView() || path.getEvent(buffer.getParent()) != BufferAccessEvent.MISS;
-
-    if (canBeAccessed && buffer.checkGuard(access)) {
+    // The parent access event is a hit or null, but not a miss.
+    if (!buffer.isView() || path.getEvent(buffer.getParent()) != BufferAccessEvent.MISS) {
       SolverResult<MemorySolution> result = null;
 
       if (buffer.isFake()) {

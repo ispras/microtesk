@@ -135,9 +135,6 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("offset", Utils.toMmuExpressionText(buffer.getId(), analyzer.getOffsetFields()));
     stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
 
-    stConstructor.add("guard_cond", "null");
-    stConstructor.add("guard", "null");
-
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
     if (buffer.getParent() != null) {
       stConstructor.add("parent", buffer.getParent().getId());
@@ -149,18 +146,6 @@ final class STBBuffer implements STBuilder {
           String.format("setMatchBindings(%s);", toMmuBindingsText(analyzer.getMatchBindings())));
     }
 
-    if (buffer.getGuard() != null) {
-      st.add("imps", COND_CLASS.getName());
-      st.add("imps", COND_ATOM_CLASS.getName());
-
-      final GuardPrinter guardPrinter =
-          new GuardPrinter(new Ir(""), buffer.getId(), buffer.getGuard());
-
-      stConstructor.add("stmts", "");
-      stConstructor.add("stmts",
-          String.format("setGuardCondition(%s);", guardPrinter.getCondition()));
-    }
- 
     st.add("members", stConstructor);
   }
 

@@ -68,11 +68,6 @@ public class MmuBuffer extends MmuStruct {
 
   private Collection<MmuBinding> matchBindings;
 
-  /** Guard condition (only for views). */
-  private MmuCondition guardCondition;
-  // TODO: Temporal solution.
-  private final Predicate<MemoryAccess> guard;
-
   /** The flag indicating whether the device supports data replacement. */
   private final boolean replaceable;
 
@@ -94,8 +89,6 @@ public class MmuBuffer extends MmuStruct {
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
       final Collection<MmuBinding> matchBindings,
-      final MmuCondition guardCondition,
-      final Predicate<MemoryAccess> guard,
       final boolean replaceable,
       final MmuBuffer parent) {
     super(name);
@@ -119,9 +112,6 @@ public class MmuBuffer extends MmuStruct {
     this.indexExpression = indexExpression;
     this.offsetExpression = offsetExpression;
     this.matchBindings = matchBindings;
-
-    this.guardCondition = guardCondition;
-    this.guard = guard;
 
     this.replaceable = replaceable;
 
@@ -268,25 +258,6 @@ public class MmuBuffer extends MmuStruct {
 
   public final long getOffsetMask() {
     return getAddress(0, 0, getOffset(-1L));
-  }
-
-  public final MmuCondition getGuardCondition() {
-    return guardCondition;
-  }
-
-  protected final void setGuardCondition(final MmuCondition condition) {
-    InvariantChecks.checkNotNull(condition);
-    this.guardCondition = condition;
-  }
-
-  // TODO:
-  public final boolean checkGuard(final MemoryAccess access) {
-    InvariantChecks.checkNotNull(access);
-
-    // TODO: Leave uncommented
-    // InvariantChecks.checkTrue((guardCondition == null) == (guard == null));
-
-    return guard != null ? guard.test(access) : true;
   }
 
   public final boolean isFake() {

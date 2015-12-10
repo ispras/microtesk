@@ -221,7 +221,6 @@ buffer
             }
           | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
           | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
-          | ^(w=MMU_GUARD guard=expr[0]) {builder.setGuard($w, $guard.res);}
           | ^(w=MMU_POLICY policyId=ID)  {builder.setPolicyId($w, $policyId);}
         )*
         {builder.build();}

@@ -177,15 +177,6 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
       final MmuBuffer parentDevice = (null != buffer.getParent()) ?
           spec.getBuffer(buffer.getParent().getId()) : null;
 
-      final MmuCondition guardCondition;
-      if (buffer.getGuard() != null) {
-        final GuardExtractor guardExtractor = 
-            new GuardExtractor(spec, new AtomExtractor("", variables), buffer.getGuard());
-        guardCondition = guardExtractor.getGuard().getCondition();
-      } else {
-        guardCondition = null;
-      }
-
       final MmuBuffer device = new MmuBuffer(
           buffer.getId(),
           buffer.getKind(),
@@ -196,8 +187,6 @@ public final class MmuSpecBuilder implements TranslatorHandler<Ir> {
           addressFormat.getIndexExpr(),
           addressFormat.getOffsetExpr(),
           Collections.<MmuBinding>emptySet(), // TODO: Bindings
-          guardCondition,
-          null, // TODO: Guard
           isReplaceable,
           parentDevice
           );
