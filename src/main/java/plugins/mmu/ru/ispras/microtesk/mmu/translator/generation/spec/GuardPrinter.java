@@ -280,7 +280,6 @@ final class GuardPrinter {
 
       final String variableText = toString(equality.getLhs());
       final String valueText = toString(equality.getRhs());
-      final String operationText = equality.isNegated() ? "eq" : "neq";
 
       /*
       final BigInteger value;
@@ -332,7 +331,7 @@ final class GuardPrinter {
       */
 
       final String conditionAtom = String.format(
-          "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
+          "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
 
       result.add(conditionAtom);
     }
@@ -345,16 +344,15 @@ final class GuardPrinter {
 
     final String variableText = toString(equality.getLhs());
     final String valueText = toString(equality.getRhs());
-    final String operationText = equality.isNegated() ? "eq" : "neq";
 
     if (equality.getLhs().getKind() == Atom.Kind.GROUP &&
         equality.getRhs().getKind() == Atom.Kind.GROUP) {
       return String.format(
-          "MmuCondition.%s(%s, %s)", operationText, variableText, valueText);
+          "MmuCondition.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
     }
 
     return String.format(
-        "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
+        "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
   }
 
   private String getVariableName(final IntegerVariable variable) {
@@ -448,8 +446,8 @@ final class GuardPrinter {
       return rhs;
     }
 
-    public boolean isNegated() {
-      return negated;
+    public String getOperationText() {
+      return negated ? "neq" : "eq";
     }
   }
 }
