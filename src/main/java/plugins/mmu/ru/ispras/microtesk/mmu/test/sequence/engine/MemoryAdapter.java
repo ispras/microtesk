@@ -237,7 +237,16 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final List<Call> abstractInitializer = preparator.makeInitializer(address, entry);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
-    return prepareSequence(engineContext, abstractInitializer);
+    final List<ConcreteCall> concreteCalls =
+        prepareSequence(engineContext, abstractInitializer);
+
+    Logger.debug("Code:");
+    for (final ConcreteCall concreteCall : concreteCalls) {
+      Logger.debug(concreteCall.getText());
+    }
+    Logger.debug("");
+
+    return concreteCalls;
   }
 
   private List<ConcreteCall> prepareSequence(
