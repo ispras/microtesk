@@ -278,33 +278,16 @@ final class GuardPrinter {
     for (final Node node : nodes) {
       final Equality equality = Equality.newEquality(node);
 
-      final String variableText = toString(equality.getLhs());
-      final String valueText = toString(equality.getRhs());
+      InvariantChecks.checkFalse(
+          equality.isStruct(),
+          "Comparing multi-field variables is not allowed in compound equalities."
+          );
 
-      /*
-      final BigInteger value;
-      final Atom variableAtom;
-
-      if (Atom.Kind.VALUE == lhs.getKind() && Atom.Kind.VALUE == rhs.getKind()) {
-        throw new IllegalArgumentException(String.format(
-            "Both sides of an equality expression are constants: %s = %s",
-            op.getOperand(0), op.getOperand(1)));
-      } else if (Atom.Kind.VALUE == lhs.getKind()) {
-        value = (BigInteger) lhs.getObject();
-        variableAtom = rhs;
-      } else if (Atom.Kind.VALUE == rhs.getKind()) {
-        value = (BigInteger) rhs.getObject();
-        variableAtom = lhs;
-      } else {
-        throw new IllegalArgumentException(String.format( 
-            "Both sides of an equality expression are variables: %s = %s",
-            op.getOperand(0), op.getOperand(1)));
-      }
-
-      */
+      final String lhsText = toString(equality.getLhs());
+      final String rhsText = toString(equality.getRhs());
 
       final String conditionAtom = String.format(
-          "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
+          "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), lhsText, rhsText);
 
       result.add(conditionAtom);
     }
@@ -315,18 +298,17 @@ final class GuardPrinter {
   private String extractEqualityCondition(final Node node) {
     final Equality equality = Equality.newEquality(node);
 
-    final String variableText = toString(equality.getLhs());
-    final String valueText = toString(equality.getRhs());
-
-    if (equality.getLhs().getKind() == Atom.Kind.GROUP &&
-        equality.getRhs().getKind() == Atom.Kind.GROUP) {
-      return String.format(
-          "MmuCondition.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
-    }
+    final String lhsText = toString(equality.getLhs());
+    final String rhsText = toString(equality.getRhs());
 
     return String.format(
-        "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), variableText, valueText);
-  }
+        "%s.%s(%s, %s)",
+        equality.isStruct() ? "MmuCondition" : "MmuConditionAtom",
+        equality.getOperationText(),
+        lhsText,
+        rhsText
+        );
+   }
 
   private String getVariableName(final IntegerVariable variable) {
     final String name = variable.getName();
@@ -395,8 +377,21 @@ final class GuardPrinter {
 
       final Atom lhs = AtomExtractor.extract(op.getOperand(0));
       final Atom rhs = AtomExtractor.extract(op.getOperand(1));
+      final boolean negated = op.getOperationId() == StandardOperation.NOTEQ;
 
-      return new Equality(lhs, rhs, op.getOperationId() == StandardOperation.NOTEQ);
+      if (Atom.Kind.VALUE == lhs.getKind() && Atom.Kind.VALUE == rhs.getKind()) {
+        throw new IllegalArgumentException(String.format(
+            "Both sides of an equality expression are constants: %s = %s",
+            op.getOperand(0),
+            op.getOperand(1))
+            );
+      }
+
+      if (Atom.Kind.VALUE == rhs.getKind()) {
+        return new Equality(lhs, rhs, negated);
+      } else {
+        return new Equality(rhs, lhs, negated);
+      }
     }
 
     private Equality(final Atom lhs, final Atom rhs, final boolean negated) {
@@ -418,6 +413,11 @@ final class GuardPrinter {
 
     public String getOperationText() {
       return negated ? "neq" : "eq";
+    }
+
+    public boolean isStruct() {
+      return Atom.Kind.GROUP == lhs.getKind() &&
+             Atom.Kind.GROUP == rhs.getKind();
     }
   }
 }
