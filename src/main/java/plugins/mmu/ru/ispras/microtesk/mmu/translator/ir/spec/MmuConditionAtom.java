@@ -28,26 +28,32 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  */
 public final class MmuConditionAtom {
   public static enum Type {
-    /** Constraint: {@code expression1 == expression2}. */
-    EQUAL,
-    /** Constraint: {@code expression == constant}. */
-    EQUAL_CONST,
-    /** Constraint: {@code lowerBound <= variable <= upperBound}. */
-    RANGE,
+    /** Constraint: {@code lhsExpr == rhsExpr}. */
+    EQ_EXPR_EXPR,
+    /** Constraint: {@code lhsExpr[1] == rhsExpr[2]}. */
+    EQ_SAME_EXPR,
+    /** Constraint: {@code lhsExpr == rhsConst}. */
+    EQ_EXPR_CONST,
+    /** Constraint: {@code lhsVar in rhsRange}. */
+    IN_EXPR_RANGE,
     /** Constraint: {@code expression == replacedTag}. */
-    EQUAL_REPLACED,
+    EQ_REPLACED
   }
 
   //------------------------------------------------------------------------------------------------
   // Positive Atomic Conditions
   //------------------------------------------------------------------------------------------------
 
-  public static MmuConditionAtom eq(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL, false, expression);
+  public static MmuConditionAtom eq(final MmuExpression lhsExpr, final MmuExpression rhsExpr) {
+    return new MmuConditionAtom(Type.EQ_EXPR_EXPR, false, lhsExpr, rhsExpr);
   }
 
-  public static MmuConditionAtom eq(final MmuExpression expression, final BigInteger value) {
-    return new MmuConditionAtom(Type.EQUAL_CONST, false, expression, value);
+  public static MmuConditionAtom eq(final MmuExpression expression) {
+    return new MmuConditionAtom(Type.EQ_SAME_EXPR, false, expression);
+  }
+
+  public static MmuConditionAtom eq(final MmuExpression lhsExpr, final BigInteger rhsConst) {
+    return new MmuConditionAtom(Type.EQ_EXPR_CONST, false, lhsExpr, rhsConst);
   }
 
   public static MmuConditionAtom eq(final IntegerField field) {
@@ -58,31 +64,32 @@ public final class MmuConditionAtom {
     return eq(MmuExpression.var(variable));
   }
 
-  public static MmuConditionAtom eq(final IntegerField field, final BigInteger value) {
-    return eq(MmuExpression.field(field), value);
+  public static MmuConditionAtom eq(final IntegerField lhsField, final BigInteger rhsConst) {
+    return eq(MmuExpression.field(lhsField), rhsConst);
   }
 
-  public static MmuConditionAtom eq(final IntegerVariable variable, final BigInteger value) {
-    return eq(MmuExpression.var(variable), value);
-  }
-
-  public static MmuConditionAtom range(
-      final MmuExpression expression, final BigInteger min, final BigInteger max) {
-    return new MmuConditionAtom(Type.RANGE, false, expression, new IntegerRange(min, max));
+  public static MmuConditionAtom eq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
+    return eq(MmuExpression.var(lhsVar), rhsConst);
   }
 
   public static MmuConditionAtom range(
-      final IntegerField field, final BigInteger min, final BigInteger max) {
-    return range(MmuExpression.field(field), min, max);
+      final MmuExpression lhsExpr, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return new MmuConditionAtom(
+        Type.IN_EXPR_RANGE, false, lhsExpr, new IntegerRange(rhsMin, rhsMax));
   }
 
   public static MmuConditionAtom range(
-      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
-    return range(MmuExpression.var(variable), min, max);
+      final IntegerField lhsField, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return range(MmuExpression.field(lhsField), rhsMin, rhsMax);
+  }
+
+  public static MmuConditionAtom range(
+      final IntegerVariable lhsVar, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return range(MmuExpression.var(lhsVar), rhsMin, rhsMax);
   }
 
   public static MmuConditionAtom eqReplaced(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL_REPLACED, false, expression);
+    return new MmuConditionAtom(Type.EQ_REPLACED, false, expression);
   }
 
   public static MmuConditionAtom eqReplaced(final IntegerField field) {
@@ -97,17 +104,21 @@ public final class MmuConditionAtom {
   // Negative Atomic Conditions
   //------------------------------------------------------------------------------------------------
 
-  public static MmuConditionAtom not(final MmuConditionAtom equality) {
+  public static MmuConditionAtom not(final MmuConditionAtom atom) {
     return new MmuConditionAtom(
-        equality.type, !equality.negation, equality.expression, equality.range);
+        atom.type, !atom.negation, atom.lhsExpr, atom.rhsRange);
+  }
+
+  public static MmuConditionAtom neq(final MmuExpression lhsExpr, final MmuExpression rhsExpr) {
+    return new MmuConditionAtom(Type.EQ_EXPR_CONST, true, lhsExpr, rhsExpr);
   }
 
   public static MmuConditionAtom neq(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL, true, expression);
+    return new MmuConditionAtom(Type.EQ_SAME_EXPR, true, expression);
   }
 
-  public static MmuConditionAtom neq(final MmuExpression expression, final BigInteger value) {
-    return new MmuConditionAtom(Type.EQUAL_CONST, true, expression, value);
+  public static MmuConditionAtom neq(final MmuExpression lhsExpr, final BigInteger rhsConst) {
+    return new MmuConditionAtom(Type.EQ_EXPR_CONST, true, lhsExpr, rhsConst);
   }
 
   public static MmuConditionAtom neq(final IntegerField field) {
@@ -118,31 +129,32 @@ public final class MmuConditionAtom {
     return neq(MmuExpression.var(variable));
   }
 
-  public static MmuConditionAtom neq(final IntegerField field, final BigInteger value) {
-    return neq(MmuExpression.field(field), value);
+  public static MmuConditionAtom neq(final IntegerField lhsField, final BigInteger rhsConst) {
+    return neq(MmuExpression.field(lhsField), rhsConst);
   }
 
-  public static MmuConditionAtom neq(final IntegerVariable variable, final BigInteger value) {
-    return neq(MmuExpression.var(variable), value);
-  }
-
-  public static MmuConditionAtom nrange(
-      final MmuExpression expression, final BigInteger min, final BigInteger max) {
-    return new MmuConditionAtom(Type.RANGE, true, expression, new IntegerRange(min, max));
+  public static MmuConditionAtom neq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
+    return neq(MmuExpression.var(lhsVar), rhsConst);
   }
 
   public static MmuConditionAtom nrange(
-      final IntegerField field, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.field(field), min, max);
+      final MmuExpression lhsExpr, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return new MmuConditionAtom(
+        Type.IN_EXPR_RANGE, true, lhsExpr, new IntegerRange(rhsMin, rhsMax));
   }
 
   public static MmuConditionAtom nrange(
-      final IntegerVariable variable, final BigInteger min, final BigInteger max) {
-    return nrange(MmuExpression.var(variable), min, max);
+      final IntegerField lhsField, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return nrange(MmuExpression.field(lhsField), rhsMin, rhsMax);
+  }
+
+  public static MmuConditionAtom nrange(
+      final IntegerVariable lhsVar, final BigInteger rhsMin, final BigInteger rhsMax) {
+    return nrange(MmuExpression.var(lhsVar), rhsMin, rhsMax);
   }
 
   public static MmuConditionAtom neqReplaced(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQUAL_REPLACED, true, expression);
+    return new MmuConditionAtom(Type.EQ_REPLACED, true, expression);
   }
 
   public static MmuConditionAtom neqReplaced(final IntegerField field) {
@@ -162,34 +174,55 @@ public final class MmuConditionAtom {
   /** Negation flag. */
   private final boolean negation;
 
-  /** Expression. */
-  private final MmuExpression expression;
+  /** Left-hand-side expression. */
+  private final MmuExpression lhsExpr;
+  /** Right-hand-side expression. */
+  private final MmuExpression rhsExpr;
   /** Constant or range. */
-  private final IntegerRange range;
+  private final IntegerRange rhsRange;
 
   private MmuConditionAtom(
       final Type type,
       final boolean negation,
-      final MmuExpression expression,
-      final IntegerRange range) {
+      final MmuExpression lhsExpr,
+      final MmuExpression rhsExpr,
+      final IntegerRange rhsRange) {
     InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(expression);
-    InvariantChecks.checkNotNull(range);
-    InvariantChecks.checkTrue(range.isSingular() || expression.size() == 1);
-    InvariantChecks.checkTrue(range.isSingular() != (type == Type.RANGE));
+    InvariantChecks.checkNotNull(lhsExpr);
+    InvariantChecks.checkTrue(rhsExpr != null || rhsRange != null);
+    InvariantChecks.checkTrue(rhsExpr == null || lhsExpr.getWidth() == rhsExpr.getWidth());
+    InvariantChecks.checkTrue(rhsRange == null || rhsRange.isSingular() || lhsExpr.size() == 1);
+    InvariantChecks.checkTrue(rhsRange == null || rhsRange.isSingular() != (type == Type.IN_EXPR_RANGE));
 
     this.type = type;
     this.negation = negation;
-    this.expression = expression;
-    this.range = range;
+    this.lhsExpr = lhsExpr;
+    this.rhsExpr = rhsExpr;
+    this.rhsRange = rhsRange;
   }
 
   private MmuConditionAtom(
       final Type type,
       final boolean negation,
-      final MmuExpression expression,
-      final BigInteger value) {
-    this(type, negation, expression, new IntegerRange(value));
+      final MmuExpression lhsExpr,
+      final MmuExpression rhsExpr) {
+    this(type, negation, lhsExpr, rhsExpr, null);
+  }
+
+  private MmuConditionAtom(
+      final Type type,
+      final boolean negation,
+      final MmuExpression lhsExpr,
+      final IntegerRange rhsRange) {
+    this(type, negation, lhsExpr, null, rhsRange);
+  }
+
+  private MmuConditionAtom(
+      final Type type,
+      final boolean negation,
+      final MmuExpression lhsExpr,
+      final BigInteger rhsValue) {
+    this(type, negation, lhsExpr, null, new IntegerRange(rhsValue));
   }
 
   private MmuConditionAtom(
@@ -207,16 +240,20 @@ public final class MmuConditionAtom {
     return negation;
   }
 
-  public MmuExpression getExpression() {
-    return expression;
+  public MmuExpression getLhsExpr() {
+    return lhsExpr;
   }
 
-  public IntegerRange getRange() {
-    return range;
+  public MmuExpression getRhsExpr() {
+    return rhsExpr;
   }
 
-  public BigInteger getConstant() {
-    return range.getMin();
+  public IntegerRange getRhsRange() {
+    return rhsRange;
+  }
+
+  public BigInteger getRhsConst() {
+    return rhsRange.getMin();
   }
 
   @Override
@@ -225,14 +262,16 @@ public final class MmuConditionAtom {
     final String rangeSign = (negation ? "!in" : "in");
 
     switch (type) {
-      case EQUAL:
-        return String.format("%s%s%s", expression, equalSign, expression);
-      case EQUAL_CONST:
-        return String.format("%s%s%s", expression, equalSign, range.getMin().toString(16));
-      case RANGE:
-        return String.format("%s%s%s", expression, rangeSign, range);
+      case EQ_EXPR_EXPR:
+        return String.format("%s%s%s", lhsExpr, equalSign, rhsExpr);
+      case EQ_SAME_EXPR:
+        return String.format("%s%s%s", lhsExpr, equalSign, lhsExpr);
+      case EQ_EXPR_CONST:
+        return String.format("%s%s%s", lhsExpr, equalSign, rhsRange.getMin().toString(16));
+      case IN_EXPR_RANGE:
+        return String.format("%s%s%s", lhsExpr, rangeSign, rhsRange);
       default:
-        return String.format("%s%sREPLACED", expression, equalSign);
+        return String.format("%s%sREPLACED", lhsExpr, equalSign);
     }
   }
 }

@@ -142,7 +142,7 @@ public final class MmuExpression {
   public int size() {
     return terms.size();
   }
-  
+
   public List<IntegerField> getTerms() {
     return terms;
   }

@@ -155,7 +155,7 @@ public final class MemoryAccessPath {
         // Variables used in the guards.
         if (condition != null) {
           for (final MmuConditionAtom atom : condition.getAtoms()) {
-            for (final IntegerField field : atom.getExpression().getTerms()) {
+            for (final IntegerField field : atom.getLhsExpr().getTerms()) {
               result.add(field.getVariable());
             }
           }

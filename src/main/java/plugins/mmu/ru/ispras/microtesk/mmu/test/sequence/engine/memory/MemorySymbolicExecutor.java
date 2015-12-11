@@ -246,11 +246,11 @@ public final class MemorySymbolicExecutor {
         new IntegerClause.Builder<>(clauseType);
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
-      if (atom.getType() != MmuConditionAtom.Type.EQUAL) {
+      if (atom.getType() != MmuConditionAtom.Type.EQ_SAME_EXPR) {
         continue;
       }
 
-      final MmuExpression expression = atom.getExpression();
+      final MmuExpression expression = atom.getLhsExpr();
 
       for (final IntegerField term : expression.getTerms()) {
         final IntegerField field1 = getPathFieldInstance(term, pathIndex1);
@@ -320,28 +320,58 @@ public final class MemorySymbolicExecutor {
         new IntegerClause.Builder<>(definedType);
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
-      InvariantChecks.checkTrue(atom.getType() == MmuConditionAtom.Type.EQUAL_CONST);
-
-      final MmuExpression expression = atom.getExpression();
-      final BigInteger constant = atom.getConstant();
-
-      int offset = 0;
-
-      for (final IntegerField term : expression.getTerms()) {
-        final int lo = offset;
-        final int hi = offset + (term.getWidth() - 1);
-
-        final IntegerField field = getPathFieldInstance(term, pathIndex);
-        final BigInteger value = BitUtils.getField(constant, lo, hi);
-
-        clauseBuilder.addEquation(field, value, !atom.isNegated());
-        offset += term.getWidth();
-
-        result.variables.add(field.getVariable());
-        result.originals.add(getPathVar(term.getVariable(), pathIndex));
-      }
+      execute(clauseBuilder, atom, pathIndex);
     }
+
     result.formula.addClause(clauseBuilder.build());
+  }
+
+  private void execute(final IntegerClause.Builder<IntegerField> clauseBuilder,
+      final MmuConditionAtom atom, final int pathIndex) {
+    final MmuExpression lhsExpr = atom.getLhsExpr();
+
+    switch(atom.getType()) {
+      case EQ_EXPR_CONST:
+        final BigInteger rhsConst = atom.getRhsConst();
+
+        int offset = 0;
+        for (final IntegerField term : lhsExpr.getTerms()) {
+          final int lo = offset;
+          final int hi = offset + (term.getWidth() - 1);
+
+          final IntegerField field = getPathFieldInstance(term, pathIndex);
+          final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
+
+          clauseBuilder.addEquation(field, value, !atom.isNegated());
+          offset += term.getWidth();
+
+          result.variables.add(field.getVariable());
+          result.originals.add(getPathVar(term.getVariable(), pathIndex));
+        }
+        break;
+      case EQ_EXPR_EXPR:
+        final MmuExpression rhsExpr = atom.getRhsExpr();
+        InvariantChecks.checkTrue(lhsExpr.size() == rhsExpr.size());
+
+        for (int i = 0; i < lhsExpr.size(); i++) {
+          final IntegerField lhsTerm = lhsExpr.getTerms().get(i);
+          final IntegerField rhsTerm = rhsExpr.getTerms().get(i);
+          InvariantChecks.checkTrue(lhsTerm.getWidth() == rhsTerm.getWidth());
+
+          final IntegerField lhsField = getPathFieldInstance(lhsTerm, pathIndex);
+          final IntegerField rhsField = getPathFieldInstance(rhsTerm, pathIndex);
+
+          result.variables.add(lhsField.getVariable());
+          result.variables.add(rhsField.getVariable());
+
+          result.originals.add(getPathVar(lhsTerm.getVariable(), pathIndex));
+          result.originals.add(getPathVar(rhsTerm.getVariable(), pathIndex));
+        }
+        break;
+      default:
+        InvariantChecks.checkTrue(false);
+        break;
+    }
   }
 
   private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
