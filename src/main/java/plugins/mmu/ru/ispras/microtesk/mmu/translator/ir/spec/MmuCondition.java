@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -71,6 +72,17 @@ public final class MmuCondition {
   // Atomic Conditions
   //------------------------------------------------------------------------------------------------
 
+  public static MmuCondition eq(final MmuStruct struct) {
+    InvariantChecks.checkNotNull(struct);
+
+    final List<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
+    for (final IntegerVariable field : struct.getFields()) {
+      atoms.add(MmuConditionAtom.eq(field));
+    }
+
+    return new MmuCondition(Type.AND, atoms);
+  }
+
   public static MmuCondition eq(final MmuExpression expression) {
     return new MmuCondition(MmuConditionAtom.eq(expression));
   }
@@ -93,6 +105,29 @@ public final class MmuCondition {
 
   public static MmuCondition eq(final IntegerVariable variable, final BigInteger value) {
     return eq(MmuExpression.var(variable), value);
+  }
+
+  public static MmuCondition eq(final MmuStruct lhsStruct, final MmuStruct rhsStruct) {
+    InvariantChecks.checkNotNull(lhsStruct);
+    InvariantChecks.checkNotNull(rhsStruct);
+
+    InvariantChecks.checkTrue(lhsStruct.getBitSize() == rhsStruct.getBitSize());
+    InvariantChecks.checkTrue(lhsStruct.getFieldCount() == rhsStruct.getFieldCount());
+
+    final List<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
+
+    final Iterator<IntegerVariable> leftIt = lhsStruct.getFields().iterator();
+    final Iterator<IntegerVariable> rightIt = rhsStruct.getFields().iterator();
+
+    while(leftIt.hasNext() && rightIt.hasNext()) {
+      final IntegerVariable leftVar = leftIt.next();
+      final IntegerVariable rightVar = rightIt.next();
+
+      InvariantChecks.checkTrue(leftVar.getWidth() == rightVar.getWidth());
+      atoms.add(MmuConditionAtom.eq(leftVar, rightVar));
+    }
+
+    return new MmuCondition(Type.AND, atoms);
   }
 
   public static MmuCondition range(
@@ -131,6 +166,17 @@ public final class MmuCondition {
   // Negated Atomic Conditions
   //------------------------------------------------------------------------------------------------
 
+  public static MmuCondition neq(final MmuStruct struct) {
+    InvariantChecks.checkNotNull(struct);
+
+    final List<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
+    for (final IntegerVariable field : struct.getFields()) {
+      atoms.add(MmuConditionAtom.neq(field));
+    }
+
+    return new MmuCondition(Type.OR, atoms);
+  }
+
   public static MmuCondition neq(final MmuExpression expression) {
     return new MmuCondition(MmuConditionAtom.neq(expression));
   }
@@ -153,6 +199,29 @@ public final class MmuCondition {
 
   public static MmuCondition neq(final IntegerVariable variable, final BigInteger value) {
     return neq(MmuExpression.var(variable), value);
+  }
+
+  public static MmuCondition neq(final MmuStruct lhsStruct, final MmuStruct rhsStruct) {
+    InvariantChecks.checkNotNull(lhsStruct);
+    InvariantChecks.checkNotNull(rhsStruct);
+
+    InvariantChecks.checkTrue(lhsStruct.getBitSize() == rhsStruct.getBitSize());
+    InvariantChecks.checkTrue(lhsStruct.getFieldCount() == rhsStruct.getFieldCount());
+
+    final List<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
+
+    final Iterator<IntegerVariable> leftIt = lhsStruct.getFields().iterator();
+    final Iterator<IntegerVariable> rightIt = rhsStruct.getFields().iterator();
+
+    while(leftIt.hasNext() && rightIt.hasNext()) {
+      final IntegerVariable leftVar = leftIt.next();
+      final IntegerVariable rightVar = rightIt.next();
+
+      InvariantChecks.checkTrue(leftVar.getWidth() == rightVar.getWidth());
+      atoms.add(MmuConditionAtom.neq(leftVar, rightVar));
+    }
+
+    return new MmuCondition(Type.OR, atoms);
   }
 
   public static MmuCondition nrange(

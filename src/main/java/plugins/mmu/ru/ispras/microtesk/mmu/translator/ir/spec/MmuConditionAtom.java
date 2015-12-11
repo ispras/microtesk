@@ -141,8 +141,16 @@ public final class MmuConditionAtom {
     return neq(MmuExpression.field(lhsField), rhsConst);
   }
 
+  public static MmuConditionAtom neq(final IntegerField lhsField, final IntegerField rhsField) {
+    return neq(MmuExpression.field(lhsField), MmuExpression.field(rhsField));
+  }
+
   public static MmuConditionAtom neq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
     return neq(MmuExpression.var(lhsVar), rhsConst);
+  }
+
+  public static MmuConditionAtom neq(final IntegerVariable lhsVar, final IntegerVariable rhsVar) {
+    return neq(MmuExpression.var(lhsVar), MmuExpression.var(rhsVar));
   }
 
   public static MmuConditionAtom nrange(
