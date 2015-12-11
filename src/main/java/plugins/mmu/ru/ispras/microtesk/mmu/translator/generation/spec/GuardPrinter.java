@@ -348,13 +348,11 @@ final class GuardPrinter {
             );
       }
 
-      case GROUP: {
+      case GROUP:
         return Utils.getVariableName(context, ((Variable) object).getName());
-      }
 
-      case CONCAT: {
+      case CONCAT:
         return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
-      }
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
