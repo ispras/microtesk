@@ -40,6 +40,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 final class GuardPrinter {
   private final Ir ir;
@@ -66,10 +67,6 @@ final class GuardPrinter {
 
   public String getNegatedGuard() {
     return printGuard(condFalse);
-  }
-
-  public String getCondition() {
-    return printCondition(condTrue);
   }
 
   private String printGuard(final Condition cond) {
@@ -122,6 +119,11 @@ final class GuardPrinter {
         equalities.isEmpty() && segments.isEmpty() && buffers.isEmpty());
 
     if (!equalities.isEmpty() && segments.isEmpty() && buffers.isEmpty()) {
+      if (equalities.size() == 1) {
+        final String condition = extractEqualityCondition(equalities.get(0));
+        return String.format("new MmuGuard(%s)", condition);
+      }
+
       final List<String> conditionAtoms = extractEqualityConditionAtoms(equalities);
       InvariantChecks.checkNotEmpty(conditionAtoms);
 
@@ -157,28 +159,6 @@ final class GuardPrinter {
     throw new UnsupportedOperationException(
         "Guards for complex conditions that include several condition types " +
         "are not supported: " + cond);
-  }
-
-  private String printCondition(final Condition cond) {
-    InvariantChecks.checkNotNull(cond);
-
-    for (final Node atom : cond.getAtoms()) {
-      if (!isEquality(atom)) {
-        throw new IllegalStateException(
-            "Only equality conditions are allowed: " + atom);
-      } 
-    }
-
-    final List<String> conditionAtoms = extractEqualityConditionAtoms(cond.getAtoms());
-    InvariantChecks.checkNotEmpty(conditionAtoms);
-
-    final String operation =
-        cond.getType() == Condition.Type.AND ? "and" : "or";
-
-    return String.format("MmuCondition.%s(%s%s)",
-        operation,
-        System.lineSeparator() + "    ",
-        Utils.toString(conditionAtoms, "," + System.lineSeparator() + "    "));
   }
 
   private static boolean isEquality(final Node node) {
@@ -304,6 +284,10 @@ final class GuardPrinter {
       final Atom lhs = AtomExtractor.extract(op.getOperand(0));
       final Atom rhs = AtomExtractor.extract(op.getOperand(1));
 
+      final String variableText = toString(lhs);
+      final String valueText = toString(rhs);
+
+      /*
       final BigInteger value;
       final Atom variableAtom;
 
@@ -350,6 +334,7 @@ final class GuardPrinter {
           throw new IllegalArgumentException("Variable is expected.");
         }
       }
+      */
 
       final String operationText =
           op.getOperationId() == StandardOperation.EQ ? "eq" : "neq";
@@ -361,6 +346,32 @@ final class GuardPrinter {
     }
 
     return result;
+  }
+
+  private String extractEqualityCondition(final Node node) {
+    InvariantChecks.checkNotNull(node);
+
+    final NodeOperation op = (NodeOperation) node;
+    InvariantChecks.checkTrue(
+        op.getOperationId() == StandardOperation.EQ ||
+        op.getOperationId() == StandardOperation.NOTEQ);
+
+    final Atom lhs = AtomExtractor.extract(op.getOperand(0));
+    final Atom rhs = AtomExtractor.extract(op.getOperand(1));
+
+    final String variableText = toString(lhs);
+    final String valueText = toString(rhs);
+
+    final String operationText =
+        op.getOperationId() == StandardOperation.EQ ? "eq" : "neq";
+
+    if (lhs.getKind() == Atom.Kind.GROUP && rhs.getKind() == Atom.Kind.GROUP) {
+      return String.format(
+          "MmuCondition.%s(%s, %s)", operationText, variableText, valueText);
+    }
+
+    return String.format(
+          "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
   }
 
   private String getVariableName(final IntegerVariable variable) {
@@ -377,5 +388,43 @@ final class GuardPrinter {
     }
 
     return Utils.getVariableName(context, name);
+  }
+
+  @SuppressWarnings("unchecked")
+  private String toString(final Atom atom) {
+    InvariantChecks.checkNotNull(atom);
+
+    final Object object = atom.getObject();
+    switch (atom.getKind()) {
+      case VALUE: {
+        return Utils.toString((BigInteger) object);
+      }
+
+      case VARIABLE: {
+        final IntegerVariable variable = (IntegerVariable) object;
+        return getVariableName(variable);
+      }
+
+      case FIELD: {
+        final IntegerField field = (IntegerField) object;
+        final IntegerVariable variable = field.getVariable();
+        return String.format("%s.field(%d, %d)",
+            getVariableName(variable),
+            field.getLoIndex(),
+            field.getHiIndex()
+            );
+      }
+
+      case GROUP: {
+        return Utils.getVariableName(context, ((Variable) object).getName());
+      }
+
+      case CONCAT: {
+        return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
+      }
+
+      default:
+        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
   }
 }
