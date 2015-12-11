@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +78,12 @@ public final class BufferPreparator {
     }
 
     if (!entryFieldValues.isEmpty()) {
-      final BitVector[] fieldValues =
-          entryFieldValues.values().toArray(new BitVector[entryFieldValues.size()]);
+      final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
+      Collections.reverse(fieldValues);
 
-      final BitVector entryValue = BitVector.newMapping(fieldValues);
+      final BitVector entryValue =
+          BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
+
       entryData.setValue(entryValue);
 
       Logger.debug("Entry data: %s", entryValue);
