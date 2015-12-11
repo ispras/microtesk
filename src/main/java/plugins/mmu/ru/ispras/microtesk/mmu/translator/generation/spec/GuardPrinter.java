@@ -342,14 +342,7 @@ final class GuardPrinter {
         case CONCAT: {
           @SuppressWarnings("unchecked")
           final List<IntegerField> fields = (List<IntegerField>) variableAtom.getObject();
-          final List<String> fieldTexts = new ArrayList<>();
-
-          for (final IntegerField field : fields) {
-            fieldTexts.add(Utils.toString(context, field, false));
-          }
-
-          variableText = String.format(
-            "MmuExpression.rcat(%s)", Utils.toString(fieldTexts, ", "));
+          variableText = Utils.toMmuExpressionText(context, fields);
           break;
         }
 
