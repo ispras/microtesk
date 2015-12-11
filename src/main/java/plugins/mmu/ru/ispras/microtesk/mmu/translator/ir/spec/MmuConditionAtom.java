@@ -68,8 +68,16 @@ public final class MmuConditionAtom {
     return eq(MmuExpression.field(lhsField), rhsConst);
   }
 
+  public static MmuConditionAtom eq(final IntegerField lhsField, final IntegerField rhsField) {
+    return eq(MmuExpression.field(lhsField), MmuExpression.field(rhsField));
+  }
+
   public static MmuConditionAtom eq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
     return eq(MmuExpression.var(lhsVar), rhsConst);
+  }
+
+  public static MmuConditionAtom eq(final IntegerVariable lhsVar, final IntegerVariable rhsVar) {
+    return eq(MmuExpression.var(lhsVar), MmuExpression.var(rhsVar));
   }
 
   public static MmuConditionAtom range(
@@ -110,7 +118,7 @@ public final class MmuConditionAtom {
   }
 
   public static MmuConditionAtom neq(final MmuExpression lhsExpr, final MmuExpression rhsExpr) {
-    return new MmuConditionAtom(Type.EQ_EXPR_CONST, true, lhsExpr, rhsExpr);
+    return new MmuConditionAtom(Type.EQ_EXPR_EXPR, true, lhsExpr, rhsExpr);
   }
 
   public static MmuConditionAtom neq(final MmuExpression expression) {
