@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 
 public final class BufferPreparator {
   private final String bufferId;
@@ -56,6 +57,10 @@ public final class BufferPreparator {
     InvariantChecks.checkNotNull(addressValue);
     InvariantChecks.checkNotNull(entryFieldValues);
 
+    Logger.debug("Making a preparator for buffer %s", getBufferId());
+    Logger.debug("Address: %s", addressValue);
+    Logger.debug("Entry fields: %s", entryFieldValues);
+
     address.setValue(addressValue);
 
     for (final Map.Entry<String, LazyData> e : entry.entrySet()) {
@@ -77,6 +82,8 @@ public final class BufferPreparator {
 
       final BitVector entryValue = BitVector.newMapping(fieldValues);
       entryData.setValue(entryValue);
+
+      Logger.debug("Entry data: %s", entryValue);
     }
 
     return Call.newCopy(calls);
