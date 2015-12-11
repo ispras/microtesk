@@ -72,12 +72,20 @@ public final class MmuConditionAtom {
     return eq(MmuExpression.field(lhsField), MmuExpression.field(rhsField));
   }
 
+  public static MmuConditionAtom eq(final IntegerField lhsField, final IntegerVariable rhsVar) {
+    return eq(MmuExpression.field(lhsField), MmuExpression.var(rhsVar));
+  }
+
   public static MmuConditionAtom eq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
     return eq(MmuExpression.var(lhsVar), rhsConst);
   }
 
   public static MmuConditionAtom eq(final IntegerVariable lhsVar, final IntegerVariable rhsVar) {
     return eq(MmuExpression.var(lhsVar), MmuExpression.var(rhsVar));
+  }
+
+  public static MmuConditionAtom eq(final IntegerVariable lhsVar, final IntegerField rhsField) {
+    return eq(MmuExpression.var(lhsVar), MmuExpression.field(rhsField));
   }
 
   public static MmuConditionAtom range(
@@ -145,12 +153,20 @@ public final class MmuConditionAtom {
     return neq(MmuExpression.field(lhsField), MmuExpression.field(rhsField));
   }
 
+  public static MmuConditionAtom neq(final IntegerField lhsField, final IntegerVariable rhsVar) {
+    return neq(MmuExpression.field(lhsField), MmuExpression.var(rhsVar));
+  }
+
   public static MmuConditionAtom neq(final IntegerVariable lhsVar, final BigInteger rhsConst) {
     return neq(MmuExpression.var(lhsVar), rhsConst);
   }
 
   public static MmuConditionAtom neq(final IntegerVariable lhsVar, final IntegerVariable rhsVar) {
     return neq(MmuExpression.var(lhsVar), MmuExpression.var(rhsVar));
+  }
+
+  public static MmuConditionAtom neq(final IntegerVariable lhsVar, final IntegerField rhsField) {
+    return neq(MmuExpression.var(lhsVar), MmuExpression.field(rhsField));
   }
 
   public static MmuConditionAtom nrange(

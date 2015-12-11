@@ -301,33 +301,6 @@ final class GuardPrinter {
             op.getOperand(0), op.getOperand(1)));
       }
 
-      final String variableText;
-      final String valueText = Utils.toString(value);
-
-      switch (variableAtom.getKind()) {
-        case VARIABLE: {
-          final IntegerVariable intVar = (IntegerVariable) variableAtom.getObject();
-          variableText = getVariableName(intVar);
-          break;
-        }
-
-        case FIELD: {
-          final IntegerField intField = (IntegerField) variableAtom.getObject();
-          variableText = Utils.toString(context, intField);
-          break;
-        }
-
-        case CONCAT: {
-          @SuppressWarnings("unchecked")
-          final List<IntegerField> fields = (List<IntegerField>) variableAtom.getObject();
-          variableText = Utils.toMmuExpressionText(context, fields);
-          break;
-        }
-
-        default: {
-          throw new IllegalArgumentException("Variable is expected.");
-        }
-      }
       */
 
       final String conditionAtom = String.format(
@@ -377,14 +350,11 @@ final class GuardPrinter {
 
     final Object object = atom.getObject();
     switch (atom.getKind()) {
-      case VALUE: {
+      case VALUE:
         return Utils.toString((BigInteger) object);
-      }
 
-      case VARIABLE: {
-        final IntegerVariable variable = (IntegerVariable) object;
-        return getVariableName(variable);
-      }
+      case VARIABLE:
+        return getVariableName((IntegerVariable) object);
 
       case FIELD: {
         final IntegerField field = (IntegerField) object;
