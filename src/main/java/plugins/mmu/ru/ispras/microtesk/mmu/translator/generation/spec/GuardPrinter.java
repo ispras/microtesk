@@ -276,16 +276,11 @@ final class GuardPrinter {
 
     final List<String> result = new ArrayList<>();
     for (final Node node : nodes) {
-      final NodeOperation op = (NodeOperation) node;
-      InvariantChecks.checkTrue(
-          op.getOperationId() == StandardOperation.EQ ||
-          op.getOperationId() == StandardOperation.NOTEQ);
+      final Equality equality = Equality.newEquality(node);
 
-      final Atom lhs = AtomExtractor.extract(op.getOperand(0));
-      final Atom rhs = AtomExtractor.extract(op.getOperand(1));
-
-      final String variableText = toString(lhs);
-      final String valueText = toString(rhs);
+      final String variableText = toString(equality.getLhs());
+      final String valueText = toString(equality.getRhs());
+      final String operationText = equality.isNegated() ? "eq" : "neq";
 
       /*
       final BigInteger value;
@@ -336,11 +331,8 @@ final class GuardPrinter {
       }
       */
 
-      final String operationText =
-          op.getOperationId() == StandardOperation.EQ ? "eq" : "neq";
-
-      final String conditionAtom = String.format("MmuConditionAtom.%s(%s, %s)",
-          operationText, variableText, valueText);
+      final String conditionAtom = String.format(
+          "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
 
       result.add(conditionAtom);
     }
@@ -349,29 +341,20 @@ final class GuardPrinter {
   }
 
   private String extractEqualityCondition(final Node node) {
-    InvariantChecks.checkNotNull(node);
+    final Equality equality = Equality.newEquality(node);
 
-    final NodeOperation op = (NodeOperation) node;
-    InvariantChecks.checkTrue(
-        op.getOperationId() == StandardOperation.EQ ||
-        op.getOperationId() == StandardOperation.NOTEQ);
+    final String variableText = toString(equality.getLhs());
+    final String valueText = toString(equality.getRhs());
+    final String operationText = equality.isNegated() ? "eq" : "neq";
 
-    final Atom lhs = AtomExtractor.extract(op.getOperand(0));
-    final Atom rhs = AtomExtractor.extract(op.getOperand(1));
-
-    final String variableText = toString(lhs);
-    final String valueText = toString(rhs);
-
-    final String operationText =
-        op.getOperationId() == StandardOperation.EQ ? "eq" : "neq";
-
-    if (lhs.getKind() == Atom.Kind.GROUP && rhs.getKind() == Atom.Kind.GROUP) {
+    if (equality.getLhs().getKind() == Atom.Kind.GROUP &&
+        equality.getRhs().getKind() == Atom.Kind.GROUP) {
       return String.format(
           "MmuCondition.%s(%s, %s)", operationText, variableText, valueText);
     }
 
     return String.format(
-          "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
+        "MmuConditionAtom.%s(%s, %s)", operationText, variableText, valueText);
   }
 
   private String getVariableName(final IntegerVariable variable) {
@@ -425,6 +408,48 @@ final class GuardPrinter {
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
+  }
+
+  private static final class Equality {
+    private final Atom lhs;
+    private final Atom rhs;
+    private final boolean negated;
+
+    public static Equality newEquality(final Node expr) {
+      InvariantChecks.checkNotNull(expr);
+      InvariantChecks.checkTrue(expr.getKind() == Node.Kind.OPERATION);
+
+      final NodeOperation op = (NodeOperation) expr;
+      InvariantChecks.checkTrue(
+          op.getOperationId() == StandardOperation.EQ ||
+          op.getOperationId() == StandardOperation.NOTEQ);
+
+      final Atom lhs = AtomExtractor.extract(op.getOperand(0));
+      final Atom rhs = AtomExtractor.extract(op.getOperand(1));
+
+      return new Equality(lhs, rhs, op.getOperationId() == StandardOperation.NOTEQ);
+    }
+
+    private Equality(final Atom lhs, final Atom rhs, final boolean negated) {
+      InvariantChecks.checkNotNull(lhs);
+      InvariantChecks.checkNotNull(rhs);
+
+      this.lhs = lhs;
+      this.rhs = rhs;
+      this.negated = negated;
+    }
+
+    public Atom getLhs() {
+      return lhs;
+    }
+
+    public Atom getRhs() {
+      return rhs;
+    }
+
+    public boolean isNegated() {
+      return negated;
     }
   }
 }
