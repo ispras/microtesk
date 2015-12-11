@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBBuffer implements STBuilder {
