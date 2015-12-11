@@ -6,6 +6,13 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2015/12/11 MicroTESK 2.3.14 beta
+
+ The new build contains the following changes:
+
+- Support for block-level prologue and epilogue was implemented
+- Some bug fixes and general improvements were made
+
 2015/12/04 MicroTESK 2.3.13 beta
 
  The new build contains the following changes:
