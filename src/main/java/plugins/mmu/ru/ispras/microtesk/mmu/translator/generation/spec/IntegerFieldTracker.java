@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
+package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class IntegerFieldTracker {
+final class IntegerFieldTracker {
   private final IntegerVariable variable;
   private List<IntegerField> fields;
 

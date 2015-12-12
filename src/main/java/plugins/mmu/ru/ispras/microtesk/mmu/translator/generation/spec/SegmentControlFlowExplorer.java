@@ -42,7 +42,6 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.builder.IntegerFieldTracker;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 final class SegmentControlFlowExplorer {
