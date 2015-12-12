@@ -40,6 +40,17 @@ public class ScopeStorage<T> {
       this.variables = Collections.unmodifiableMap(new HashMap<>(vars));
       this.readOnly = true;
     }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "Scope [name=%s, path=%s, readOnly=%s, variables=%s]",
+          name,
+          path,
+          readOnly,
+          variables
+          );
+    }
   }
 
   private final Deque<Scope<T>> scopes = new ArrayDeque<>();
