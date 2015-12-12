@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.coverage;
 
-import ru.ispras.microtesk.mmu.basis.DataType;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
