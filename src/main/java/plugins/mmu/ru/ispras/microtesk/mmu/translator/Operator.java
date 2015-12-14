@@ -27,7 +27,7 @@ public enum Operator {
 
   //------------------------------------------------------------------------------------------------
   AND("&&",    rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.AND)),
-  
+
   //------------------------------------------------------------------------------------------------
   BIT_OR("|",  rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVOR)),
   BIT_XOR("^", rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVXOR)),
@@ -116,7 +116,7 @@ public enum Operator {
   public String getText() {
     return text;
   }
-  
+
   public static Operator fromText(final String text) {
     return operators.get(text);
   }
