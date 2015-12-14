@@ -82,33 +82,33 @@ public enum Operator {
   private static final Map<String, Operator> operators;
   static {
     operators = new HashMap<>(); 
-    for (Operator op : values()) {
+    for (final Operator op : values()) {
       operators.put(op.getText(), op);
     }
   }
-  
+
   private static class Rule {
     final DataTypeId type;
     final StandardOperation op;
 
-    Rule(DataTypeId type, StandardOperation op) {
+    Rule(final DataTypeId type, final StandardOperation op) {
       this.type = type;
       this.op = op;
     }
   }
 
-  private static Rule rule(DataTypeId type, StandardOperation op) {
+  private static Rule rule(final DataTypeId type, final StandardOperation op) {
     return new Rule(type, op);
   }
 
   private final String text;
   private final Map<DataTypeId, StandardOperation> fortressOperators;
 
-  private Operator(String text, Rule... rules) {
+  private Operator(final String text, final Rule... rules) {
     this.text = text;
     this.fortressOperators = new EnumMap<>(DataTypeId.class);
 
-    for (Rule rule : rules) {
+    for (final Rule rule : rules) {
       this.fortressOperators.put(rule.type, rule.op);
     }
   }
@@ -117,11 +117,11 @@ public enum Operator {
     return text;
   }
   
-  public static Operator fromText(String text) {
+  public static Operator fromText(final String text) {
     return operators.get(text);
   }
 
-  public StandardOperation toFortressFor(DataTypeId typeId) {
+  public StandardOperation toFortressFor(final DataTypeId typeId) {
     return fortressOperators.get(typeId);
   }
 }
