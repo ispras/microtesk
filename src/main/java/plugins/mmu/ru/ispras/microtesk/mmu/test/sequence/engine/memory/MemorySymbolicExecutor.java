@@ -361,6 +361,8 @@ public final class MemorySymbolicExecutor {
           final IntegerField lhsField = getPathFieldInstance(lhsTerm, pathIndex);
           final IntegerField rhsField = getPathFieldInstance(rhsTerm, pathIndex);
 
+          clauseBuilder.addEquation(lhsField, rhsField, !atom.isNegated());
+
           result.variables.add(lhsField.getVariable());
           result.variables.add(rhsField.getVariable());
 

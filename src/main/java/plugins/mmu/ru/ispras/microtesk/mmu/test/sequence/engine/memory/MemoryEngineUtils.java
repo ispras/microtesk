@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
@@ -206,6 +207,8 @@ public final class MemoryEngineUtils {
       variables.add(collection);
       formulae.add(formula);
     }
+
+    Logger.debug("Formulae: %s", formulae);
 
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formulae, initializer);
