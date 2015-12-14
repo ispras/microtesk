@@ -52,9 +52,14 @@ public final class MemoryAccessConstraints {
       bufferEventConstraints.add(constraint);
     }
 
+    public void addConstraints(final MemoryAccessConstraints constraints) {
+      InvariantChecks.checkNotNull(constraints);
+      this.integerConstraints.addAll(constraints.getIntegers());
+      this.bufferEventConstraints.addAll(constraints.getBufferEvents());
+    }
+
     public MemoryAccessConstraints build() {
-      return new MemoryAccessConstraints(
-          integerConstraints, bufferEventConstraints);
+      return new MemoryAccessConstraints(integerConstraints, bufferEventConstraints);
     }
   }
 
