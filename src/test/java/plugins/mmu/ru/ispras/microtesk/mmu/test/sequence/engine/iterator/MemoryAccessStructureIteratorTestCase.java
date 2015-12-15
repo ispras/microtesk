@@ -74,7 +74,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     }
 
     final MemoryAccessStructureIterator mmuIterator = new MemoryAccessStructureIterator(
-        accessTypes, new ClassifierTrivial<MemoryAccessPath>(), null);
+        accessTypes, null, new ClassifierTrivial<MemoryAccessPath>(), null);
 
     final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
     for (final MemoryHazard.Type type : MemoryHazard.Type.values()) {

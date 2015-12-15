@@ -267,7 +267,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     Logger.debug("Constraints: %s", accessConstraints);
 
     return new MemoryAccessStructureIterator(
-        accessTypes, classifier, engineContext.getSettings());
+        accessTypes, accessConstraints, classifier, engineContext.getSettings());
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -35,12 +36,12 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MmuSettingsUtils extends GeneratorSettings {
+public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
 
-  private static Collection<IntegerConstraint<IntegerField>> constraints = null;
+  private static List<IntegerConstraint<IntegerField>> constraints = null;
 
-  public static Collection<IntegerConstraint<IntegerField>> getConstraints(
+  public static List<IntegerConstraint<IntegerField>> getConstraints(
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 

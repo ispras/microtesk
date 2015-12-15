@@ -166,7 +166,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private void initStructure() {
     structureIterator = new MemoryAccessStructureIterator(
-        typesIterator.value(), classifier, settings);
+        typesIterator.value(), null, classifier, settings);
     structureIterator.addFilterBuilder(filterBuilder);
     structureIterator.init();
   }

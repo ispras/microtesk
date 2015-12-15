@@ -28,6 +28,7 @@ import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.MmuPlugin;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
@@ -111,13 +112,18 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   public MemoryAccessStructureIterator(
       final List<MemoryAccessType> accessTypes,
+      final List<MemoryAccessConstraints> accessConstraints,
       final Classifier<MemoryAccessPath> classifier,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
     // Parameter {@code settings} can be null.
- 
+
+    if (null != accessConstraints) {
+      InvariantChecks.checkTrue(accessTypes.size() == accessConstraints.size());
+    }
+
     this.accessTypes = accessTypes;
 
     this.dependencyIndices = new int[accessTypes.size()][accessTypes.size()];
@@ -126,14 +132,19 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     // Classify the memory access paths and initialize the path iterator.
     final ProductIterator<Integer> accessPathIterator = new ProductIterator<>();
 
-    final Collection<IntegerConstraint<IntegerField>> constraints =
-        settings != null ? MmuSettingsUtils.getConstraints(settings) : null;
+    final MemoryAccessConstraints constraints = settings != null ?
+        MemoryAccessConstraints.fromIntegers(MmuSettingsUtils.getConstraints(settings)) : null;
 
+    int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
+      final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
+          constraints, accessConstraints != null ? accessConstraints.get(index) : null);
+
       final Collection<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
-          MmuPlugin.getSpecification(), accessType, settings);
-      final Collection<MemoryAccessPath> feasiblePaths = constraints != null ?
-          MemoryEngineUtils.getFeasiblePaths(paths, constraints) : paths;
+          MmuPlugin.getSpecification(), accessType, currentConstraints);
+
+      final Collection<MemoryAccessPath> feasiblePaths = currentConstraints != null ?
+          MemoryEngineUtils.getFeasiblePaths(paths, currentConstraints.getIntegers()) : paths;
 
       Logger.debug("Composing memory access paths size(%s)=%d", accessType, feasiblePaths.size());
       Logger.debug("Composing memory access paths %s=%s", accessType, feasiblePaths);
@@ -142,6 +153,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
       this.accessPathClasses.add(accessPathClasses);
       accessPathIterator.registerIterator(new IntRangeIterator(0, accessPathClasses.size() - 1));
+
+      index++;
     }
 
     this.accessPathIterator = accessPathIterator;
