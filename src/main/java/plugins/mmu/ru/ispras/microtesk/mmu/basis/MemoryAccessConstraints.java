@@ -20,7 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 
 /**
  * The {@link MemoryAccessConstraints} class holds constraints related to memory
@@ -34,7 +34,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 public final class MemoryAccessConstraints {
 
   public static final class Builder {
-    private final List<IntegerConstraint<IntegerVariable>> integerConstraints;
+    private final List<IntegerConstraint<IntegerField>> integerConstraints;
     private final List<BufferEventConstraint> bufferEventConstraints;
 
     public Builder() {
@@ -42,7 +42,7 @@ public final class MemoryAccessConstraints {
       this.bufferEventConstraints = new ArrayList<>(); 
     }
 
-    public void addConstraint(final IntegerConstraint<IntegerVariable> constrant) {
+    public void addConstraint(final IntegerConstraint<IntegerField> constrant) {
       InvariantChecks.checkNotNull(constrant);
       integerConstraints.add(constrant);
     }
@@ -63,11 +63,11 @@ public final class MemoryAccessConstraints {
     }
   }
 
-  private final List<IntegerConstraint<IntegerVariable>> integerConstraints;
+  private final List<IntegerConstraint<IntegerField>> integerConstraints;
   private final List<BufferEventConstraint> bufferEventConstraints;
 
   public MemoryAccessConstraints(
-      final List<IntegerConstraint<IntegerVariable>> integerConstraints,
+      final List<IntegerConstraint<IntegerField>> integerConstraints,
       final List<BufferEventConstraint> bufferEventConstraints) {
     InvariantChecks.checkNotNull(integerConstraints);
     InvariantChecks.checkNotNull(bufferEventConstraints);
@@ -76,7 +76,7 @@ public final class MemoryAccessConstraints {
     this.bufferEventConstraints = Collections.unmodifiableList(bufferEventConstraints);
   }
 
-  public List<IntegerConstraint<IntegerVariable>> getIntegers() {
+  public List<IntegerConstraint<IntegerField>> getIntegers() {
     return integerConstraints;
   }
 
