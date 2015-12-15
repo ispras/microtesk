@@ -32,6 +32,7 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
@@ -89,6 +90,27 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final Situation situation = primitive.getSituation();
 
     return situation != null;
+  }
+
+  public static MemoryAccessConstraints getMemoryAccessConstants(final Call abstractCall) {
+    if (!isMemoryAccessWithSituation(abstractCall)) {
+      return null;
+    }
+
+    final Primitive primitive = abstractCall.getRootOperation();
+    final Situation situation = primitive.getSituation();
+
+    final Object attribute = situation.getAttribute("path");
+    if (null == attribute) {
+      return null;
+    }
+
+    if (attribute instanceof MemoryAccessConstraints) {
+      return (MemoryAccessConstraints) attribute;
+    }
+
+    Logger.warning("Unexpected format of the path attribute of a test situation: %s", attribute);
+    return null;
   }
 
   private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
@@ -218,6 +240,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
+    final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
     for (final Call abstractCall : abstractSequence) {
       if(!isMemoryAccessWithSituation(abstractCall)) {
@@ -228,14 +251,21 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final MemoryOperation operation =
           abstractCall.isLoad() ? MemoryOperation.LOAD : MemoryOperation.STORE;
 
+      final MemoryAccessConstraints constraints =
+          getMemoryAccessConstants(abstractCall);
+
       final int blockSizeInBits = abstractCall.getBlockSize();
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
       final int blockSizeInBytes = blockSizeInBits >>> 3;
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
+
+      accessConstraints.add(constraints);
     }
 
     Logger.debug("Creating memory access iterator: %s", accessTypes);
+    Logger.debug("Constraints: %s", accessConstraints);
+
     return new MemoryAccessStructureIterator(
         accessTypes, classifier, engineContext.getSettings());
   }
