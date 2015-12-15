@@ -27,6 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
@@ -54,20 +55,20 @@ public final class ConstraintFactory {
     return instance;
   }
 
-  public IntegerConstraint<IntegerVariable> newEqValue(
+  public IntegerConstraint<IntegerField> newEqValue(
       final String variableName,
       final BigInteger value) {
     InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(value);
 
-    final IntegerVariable variable = getVariable(variableName);
-    final IntegerConstraint<IntegerVariable> constraint =
+    final IntegerField variable = getVariable(variableName);
+    final IntegerConstraint<IntegerField> constraint =
         new IntegerDomainConstraint<>(variable, value);
 
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> newEqRange(
+  public IntegerConstraint<IntegerField> newEqRange(
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
@@ -83,36 +84,36 @@ public final class ConstraintFactory {
       values.add(value);
     }
 
-    final IntegerVariable variable = getVariable(variableName);
-    final IntegerConstraint<IntegerVariable> constraint =
+    final IntegerField variable = getVariable(variableName);
+    final IntegerConstraint<IntegerField> constraint =
         new IntegerDomainConstraint<>(variable, null, values);
 
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> newEqArray(
+  public IntegerConstraint<IntegerField> newEqArray(
       final String variableName,
       final BigInteger[] values) {
     InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(values);
 
-    final IntegerVariable variable = getVariable(variableName);
-    final IntegerConstraint<IntegerVariable> constraint =
+    final IntegerField variable = getVariable(variableName);
+    final IntegerConstraint<IntegerField> constraint =
         new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
 
     return constraint;
   }
 
-  public IntegerConstraint<IntegerVariable> newEqDist(
+  public IntegerConstraint<IntegerField> newEqDist(
       final String variableName,
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(distribution);
 
-    final IntegerVariable variable = getVariable(variableName);
+    final IntegerField variable = getVariable(variableName);
     final Set<BigInteger> values = extractValues(distribution);
 
-    final IntegerConstraint<IntegerVariable> constraint =
+    final IntegerConstraint<IntegerField> constraint =
         new IntegerDomainConstraint<>(variable, null, values);
 
     return constraint;
@@ -174,7 +175,7 @@ public final class ConstraintFactory {
       InvariantChecks.checkNotNull(constraint); 
 
       if (constraint instanceof IntegerConstraint<?>) {
-        builder.addConstraint((IntegerConstraint<IntegerVariable>) constraint);
+        builder.addConstraint((IntegerConstraint<IntegerField>) constraint);
       } else if (constraint instanceof BufferEventConstraint) {
         builder.addConstraint((BufferEventConstraint) constraint);
       } else {
@@ -190,7 +191,7 @@ public final class ConstraintFactory {
     return MmuPlugin.getSpecification();
   }
 
-  private IntegerVariable getVariable(final String name) {
+  private IntegerField getVariable(final String name) {
     final MmuSubsystem spec = getSpecification();
     final IntegerVariable variable = spec.getVariable(name);
     if (null == variable) {
@@ -198,7 +199,7 @@ public final class ConstraintFactory {
           "Invalid test template: variable %s is not defined in the MMU model.", name));
     }
 
-    return variable;
+    return new IntegerField(variable);
   }
 
   private MmuBuffer getBuffer(final String name) {
