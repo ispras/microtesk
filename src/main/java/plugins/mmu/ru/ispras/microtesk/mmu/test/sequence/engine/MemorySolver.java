@@ -38,6 +38,7 @@ import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -79,7 +80,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessStructure structure;
 
   private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
-  private final Collection<IntegerConstraint<IntegerField>> constraints;
+  private final MemoryAccessConstraints constraints;
 
   private final long pageMask;
   private final DataType alignType;
@@ -123,7 +124,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.entryIdAllocator = entryIdAllocator;
 
     this.hitCheckers = context.getHitCheckers();
-    this.constraints = MmuSettingsUtils.getConstraints(settings);
+    this.constraints = MmuSettingsUtils.getConstraints(memory, settings);
 
     this.pageMask = pageMask;
     this.alignType = alignType;
@@ -767,9 +768,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Satisfying dependencies may lead to changing the memory access path.
     if (correctAddr(addrObject)) {
       final Collection<MemoryAccessPath> paths =
-          CoverageExtractor.get().getEnabledPaths(memory, access.getType(), settings);
+          CoverageExtractor.get().getEnabledPaths(memory, access.getType(), constraints);
       final Collection<MemoryAccessPath> variants =
-          MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints);
+          MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints.getIntegers());
 
       boolean pathFound = false;
 
@@ -1007,10 +1008,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Select normal paths that affect the parent buffer.
     final Collection<MemoryAccessPath> normalPaths =
-        CoverageExtractor.get().getNormalPaths(memory, parent, settings);
+        CoverageExtractor.get().getNormalPaths(memory, parent, constraints);
     // The normal paths satisfying the user-defined constraints are of greater priority.
     final Collection<MemoryAccessPath> bestPaths =
-        MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints);
+        MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints.getIntegers());
 
     Logger.debug("Getting normal paths: target=%s, buffer=%s, normal=%d",
         memory.getTargetBuffer(), parent, normalPaths.size());
@@ -1133,7 +1134,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
-        new ArrayList<>(this.constraints) : new ArrayList<IntegerConstraint<IntegerField>>();
+        new ArrayList<>(this.constraints.getIntegers()) : new ArrayList<IntegerConstraint<IntegerField>>();
 
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       final IntegerField field = entry.getKey();
@@ -1276,7 +1277,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Fix the known values of the addresses.
     final Collection<IntegerConstraint<IntegerField>> constraints =
-        new ArrayList<>(this.constraints);
+        new ArrayList<>(this.constraints.getIntegers());
 
     for (final Map.Entry<MmuAddressType, Long> addrEntry : addresses.entrySet()) {
       final MmuAddressType addrType = addrEntry.getKey();

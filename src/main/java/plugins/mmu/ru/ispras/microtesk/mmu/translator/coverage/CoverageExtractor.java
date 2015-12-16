@@ -94,6 +94,7 @@ public final class CoverageExtractor {
     return coverage;
   }
 
+  @Deprecated
   public Collection<MemoryAccessPath> getEnabledPaths(
       final MmuSubsystem memory,
       final MemoryAccessType type,
@@ -127,6 +128,7 @@ public final class CoverageExtractor {
     return getEnabledPaths(memory, paths, constraints);
   }
 
+  @Deprecated
   public Collection<MemoryAccessPath> getNormalPaths(
       final MmuSubsystem memory,
       final MmuBuffer buffer,
