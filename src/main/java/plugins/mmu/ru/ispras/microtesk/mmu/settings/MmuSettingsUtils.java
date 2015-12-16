@@ -22,11 +22,16 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+
 import ru.ispras.microtesk.mmu.MmuPlugin;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -45,11 +50,18 @@ public final class MmuSettingsUtils {
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
-    if (constraints != null) {
-      return constraints;
+    if (constraints == null) {
+      constraints = getIntegerConstraints(settings);
     }
 
-    constraints = new ArrayList<>();
+    return constraints;
+  }
+
+  public static List<IntegerConstraint<IntegerField>> getIntegerConstraints(
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(settings);
+
+    final List<IntegerConstraint<IntegerField>> integerConstraints = new ArrayList<>();
 
     final Collection<AbstractSettings> integerValuesSettings =
         settings.get(IntegerValuesSettings.TAG);
@@ -57,10 +69,10 @@ public final class MmuSettingsUtils {
     if (integerValuesSettings != null) {
       for (final AbstractSettings section : integerValuesSettings) {
         final IntegerConstraint<IntegerField> constraint =
-            getConstraint((IntegerValuesSettings) section);
+            getIntegerConstraint((IntegerValuesSettings) section);
 
         if (constraint != null) {
-          constraints.add(constraint);
+          integerConstraints.add(constraint);
         }
       }
     }
@@ -71,15 +83,15 @@ public final class MmuSettingsUtils {
     if (booleanValuesSettings != null) {
       for (final AbstractSettings section : booleanValuesSettings) {
         final IntegerConstraint<IntegerField> constraint =
-            getConstraint((BooleanValuesSettings) section);
+            getIntegerConstraint((BooleanValuesSettings) section);
 
         if (constraint != null) {
-          constraints.add(constraint);
+          integerConstraints.add(constraint);
         }
       }
     }
 
-    return constraints;
+    return integerConstraints;
   }
 
   /**
@@ -89,7 +101,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint<IntegerField> getConstraint(
+  public static IntegerConstraint<IntegerField> getIntegerConstraint(
       final IntegerValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
@@ -131,7 +143,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint<IntegerField> getConstraint(
+  public static IntegerConstraint<IntegerField> getIntegerConstraint(
       final BooleanValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
@@ -157,6 +169,40 @@ public final class MmuSettingsUtils {
         IntegerDomainConstraint.Type.RETAIN,
         new IntegerField(variable),
         null,
-        values); 
+        values);
+  }
+
+  public static  List<BufferEventConstraint> getBufferEventConstraints(
+      final MmuSubsystem memory,
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(memory);
+
+    if (null == settings) {
+      return null;
+    }
+
+    final List<BufferEventConstraint> bufferEventConstraints = new ArrayList<>();
+
+    final Collection<AbstractSettings> bufferEventsSettings =
+        settings.get(BufferEventsSettings.TAG);
+
+    if (bufferEventsSettings != null) {
+      for (final AbstractSettings section : bufferEventsSettings) {
+        final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
+
+        final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
+        InvariantChecks.checkNotNull(buffer);
+
+        final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
+        InvariantChecks.checkNotNull(events);
+
+        final BufferEventConstraint constraint =
+            new BufferEventConstraint(buffer, events);
+
+        bufferEventConstraints.add(constraint);
+      }
+    }
+
+    return bufferEventConstraints;
   }
 }
