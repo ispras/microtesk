@@ -36,6 +36,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
+import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
@@ -264,10 +265,14 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     Logger.debug("Creating memory access iterator: %s", accessTypes);
-    Logger.debug("Constraints: %s", accessConstraints);
+    Logger.debug("Memory access constraints: %s", accessConstraints);
+
+    final GeneratorSettings settings = engineContext.getSettings();
+    final MemoryAccessConstraints globalConstraints = null != settings ?
+        MmuSettingsUtils.getConstraints(MmuPlugin.getSpecification(), settings) : null;
 
     return new MemoryAccessStructureIterator(
-        accessTypes, accessConstraints, classifier, engineContext.getSettings());
+        accessTypes, accessConstraints, classifier, globalConstraints);
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

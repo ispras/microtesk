@@ -27,7 +27,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
-import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -42,7 +41,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualP
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -112,7 +110,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
       final Classifier<MemoryAccessPath> classifier,
-      final GeneratorSettings settings) {
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkNotNull(classifier);
@@ -129,9 +127,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     // Classify the memory access paths and initialize the path iterator.
     final ProductIterator<Integer> accessPathIterator = new ProductIterator<>();
-
-    final MemoryAccessConstraints constraints = settings != null ?
-        MemoryAccessConstraints.fromIntegers(MmuSettingsUtils.getConstraints(settings)) : null;
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
