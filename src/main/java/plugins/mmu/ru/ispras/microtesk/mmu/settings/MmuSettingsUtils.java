@@ -47,19 +47,6 @@ public final class MmuSettingsUtils {
 
   private static MemoryAccessConstraints constraints = null;
 
-  @Deprecated
-  public static List<IntegerConstraint<IntegerField>> getConstraints(
-      final GeneratorSettings settings) {
-    InvariantChecks.checkNotNull(settings);
-
-    if (constraints == null) {
-      constraints = MemoryAccessConstraints.fromIntegers(
-          getIntegerConstraints(settings));
-    }
-
-    return constraints.getIntegers();
-  }
-
   public static MemoryAccessConstraints getConstraints(
       final MmuSubsystem memory,
       final GeneratorSettings settings) {

@@ -76,18 +76,6 @@ public final class MemoryAccessConstraints {
     this.bufferEventConstraints = Collections.unmodifiableList(bufferEventConstraints);
   }
 
-  public static MemoryAccessConstraints fromIntegers(
-      final List<IntegerConstraint<IntegerField>> integerConstraints) {
-    return new MemoryAccessConstraints(
-        integerConstraints, Collections.<BufferEventConstraint>emptyList());
-  }
-
-  public static MemoryAccessConstraints fromBufferEvents(
-      final List<BufferEventConstraint> bufferEventConstraints) {
-    return new MemoryAccessConstraints(
-        Collections.<IntegerConstraint<IntegerField>>emptyList(), bufferEventConstraints);
-  }
-
   public static MemoryAccessConstraints merge(
       final MemoryAccessConstraints first,
       final MemoryAccessConstraints second) {
