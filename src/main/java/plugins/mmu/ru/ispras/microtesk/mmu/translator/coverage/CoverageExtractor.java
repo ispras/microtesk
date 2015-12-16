@@ -24,14 +24,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
-import ru.ispras.microtesk.mmu.settings.BufferEventsSettings;
+import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 
 /**
@@ -99,7 +98,9 @@ public final class CoverageExtractor {
       final MmuSubsystem memory,
       final MemoryAccessType type,
       final GeneratorSettings settings) {
-    final MemoryAccessConstraints constraints = getConstraints(memory, settings);
+    final MemoryAccessConstraints constraints =
+        settings != null ? MmuSettingsUtils.getConstraints(memory, settings) : null;
+
     return getEnabledPaths(memory, type, constraints);
   }
 
@@ -130,7 +131,8 @@ public final class CoverageExtractor {
       final MmuSubsystem memory,
       final MmuBuffer buffer,
       final GeneratorSettings settings) {
-    final MemoryAccessConstraints constraints = getConstraints(memory, settings);
+    final MemoryAccessConstraints constraints =
+        settings != null ? MmuSettingsUtils.getConstraints(memory, settings) : null;
     return getNormalPaths(memory, buffer, constraints);
   }
 
@@ -222,40 +224,5 @@ public final class CoverageExtractor {
     }
 
     return enabledPaths;
-  }
-
-  private static MemoryAccessConstraints getConstraints(
-      final MmuSubsystem memory,
-      final GeneratorSettings settings) {
-    InvariantChecks.checkNotNull(memory);
-
-    if (null == settings) {
-      return null;
-    }
-
-    final Collection<AbstractSettings> bufferEventsSettings =
-        settings.get(BufferEventsSettings.TAG);
-
-    final MemoryAccessConstraints.Builder builder =
-        new MemoryAccessConstraints.Builder();
-
-    if (bufferEventsSettings != null) {
-      for (final AbstractSettings section : bufferEventsSettings) {
-        final BufferEventsSettings bufferEventsSection = (BufferEventsSettings) section;
-
-        final MmuBuffer buffer = memory.getBuffer(bufferEventsSection.getName());
-        InvariantChecks.checkNotNull(buffer);
-
-        final Set<BufferAccessEvent> events = bufferEventsSection.getValues();
-        InvariantChecks.checkNotNull(events);
-
-        final BufferEventConstraint constraint =
-            new BufferEventConstraint(buffer, events);
-
-        builder.addConstraint(constraint);
-      }
-    }
-
-    return builder.build();
   }
 }
