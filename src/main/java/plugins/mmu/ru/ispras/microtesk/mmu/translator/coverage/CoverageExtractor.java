@@ -24,14 +24,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
-import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.settings.GeneratorSettings;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -94,17 +92,6 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  @Deprecated
-  public Collection<MemoryAccessPath> getEnabledPaths(
-      final MmuSubsystem memory,
-      final MemoryAccessType type,
-      final GeneratorSettings settings) {
-    final MemoryAccessConstraints constraints =
-        settings != null ? MmuSettingsUtils.getConstraints(memory, settings) : null;
-
-    return getEnabledPaths(memory, type, constraints);
-  }
-
   public Collection<MemoryAccessPath> getEnabledPaths(
       final MmuSubsystem memory,
       final MemoryAccessType type,
@@ -126,16 +113,6 @@ public final class CoverageExtractor {
     }
 
     return getEnabledPaths(memory, paths, constraints);
-  }
-
-  @Deprecated
-  public Collection<MemoryAccessPath> getNormalPaths(
-      final MmuSubsystem memory,
-      final MmuBuffer buffer,
-      final GeneratorSettings settings) {
-    final MemoryAccessConstraints constraints =
-        settings != null ? MmuSettingsUtils.getConstraints(memory, settings) : null;
-    return getNormalPaths(memory, buffer, constraints);
   }
 
   public Collection<MemoryAccessPath> getNormalPaths(
