@@ -31,6 +31,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
@@ -44,14 +45,32 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
 
-  private static List<IntegerConstraint<IntegerField>> constraints = null;
+  private static MemoryAccessConstraints constraints = null;
 
+  @Deprecated
   public static List<IntegerConstraint<IntegerField>> getConstraints(
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
     if (constraints == null) {
-      constraints = getIntegerConstraints(settings);
+      constraints = MemoryAccessConstraints.fromIntegers(
+          getIntegerConstraints(settings));
+    }
+
+    return constraints.getIntegers();
+  }
+
+  public static MemoryAccessConstraints getConstraints(
+      final MmuSubsystem memory,
+      final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(settings);
+
+    if (constraints == null) {
+      constraints = new MemoryAccessConstraints(
+          getIntegerConstraints(settings),
+          getBufferEventConstraints(memory, settings)
+          );
     }
 
     return constraints;
@@ -176,10 +195,7 @@ public final class MmuSettingsUtils {
       final MmuSubsystem memory,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
-
-    if (null == settings) {
-      return null;
-    }
+    InvariantChecks.checkNotNull(settings);
 
     final List<BufferEventConstraint> bufferEventConstraints = new ArrayList<>();
 
