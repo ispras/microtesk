@@ -553,9 +553,16 @@ public final class Template {
 
   public void addPreparatorCall(
       final Primitive targetMode, final LazyValue value) {
-    // TODO
-    throw new UnsupportedOperationException(
-        "Preparator invocation are not supported for LazyValue yet.");
+    checkNotNull(targetMode);
+    checkNotNull(value);
+
+    endBuildingCall();
+    Logger.debug("Preparator reference: %s", targetMode.getName());
+
+    callBuilder.setPreparatorTarget(targetMode);
+    callBuilder.setPreparatorValue(value);
+
+    endBuildingCall();
   }
 
   public StreamPreparatorBuilder beginStreamPreparator(

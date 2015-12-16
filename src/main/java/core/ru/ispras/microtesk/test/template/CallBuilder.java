@@ -34,6 +34,9 @@ public final class CallBuilder {
   private BigInteger alignment;
   private BigInteger alignmentInBytes;
 
+  private Primitive preparatorTarget;
+  private LazyValue preparatorValue;
+
   protected CallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
 
@@ -95,6 +98,21 @@ public final class CallBuilder {
 
     alignment = value;
     alignmentInBytes = valueInBytes;
+  }
+
+  public void setPreparatorTarget(final Primitive target) {
+    checkNotNull(target);
+
+    if (target.getKind() != Primitive.Kind.MODE) {
+      throw new IllegalArgumentException("Illegal kind: " + target.getKind());
+    }
+
+    preparatorTarget = target;
+  }
+
+  public void setPreparatorValue(final LazyValue value) {
+    checkNotNull(value);
+    preparatorValue = value;
   }
 
   public Call build() {
