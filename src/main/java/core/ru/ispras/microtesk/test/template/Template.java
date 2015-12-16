@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.microtesk.Logger;
@@ -383,6 +384,13 @@ public final class Template {
     Logger.debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
+    addCall(call);
+    this.callBuilder = new CallBuilder(getCurrentBlockId());
+  }
+
+  private void addCall(final Call call) {
+    checkNotNull(call);
+
     if (!call.isEmpty()) {
       if (null != preparatorBuilder) {
         preparatorBuilder.addCall(call);
@@ -400,8 +408,6 @@ public final class Template {
         blockBuilders.peek().addCall(call);
       }
     }
-
-    this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
 
   public PrimitiveBuilder newOperationBuilder(final String name) {
@@ -503,6 +509,53 @@ public final class Template {
       throw new IllegalStateException(
           "The construct cannot be used outside a preparator block.");
     }
+  }
+
+  public void addPreparatorCall(
+      final Primitive targetMode, final BigInteger value) {
+    checkNotNull(targetMode);
+    checkNotNull(value);
+
+    endBuildingCall();
+    Logger.debug("Preparator invocation: %s = 0x%x", targetMode.getName(), value); 
+
+    final MetaAddressingMode metaTargetMode =
+        metaModel.getAddressingMode(targetMode.getName());
+
+    checkNotNull(
+        metaTargetMode, "No such addressing mode: " + targetMode.getName());
+
+    final BitVector data =
+        BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
+
+    final Preparator preparator =
+        preparators.getPreparator(targetMode, data);
+
+    if (null == preparator) {
+      throw new GenerationAbortedException(
+          String.format("No suitable preparator is found for %s.", targetMode.getSignature()));
+    }
+
+    final List<Call> initializer =
+        preparator.makeInitializer(targetMode, data);
+
+    for (final Call call : initializer) {
+      addCall(call);
+    }
+  }
+
+  public void addPreparatorCall(
+      final Primitive targetMode, final RandomValue value) {
+    checkNotNull(targetMode);
+    checkNotNull(value);
+    addPreparatorCall(targetMode, value.getValue());
+  }
+
+  public void addPreparatorCall(
+      final Primitive targetMode, final LazyValue value) {
+    // TODO
+    throw new UnsupportedOperationException(
+        "Preparator invocation are not supported for LazyValue yet.");
   }
 
   public StreamPreparatorBuilder beginStreamPreparator(

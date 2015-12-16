@@ -37,8 +37,8 @@ class EuclidTemplate < MiniMipsBaseTemplate
 
     trace "\nInput parameter values: %d, %d\n", val1, val2
 
-    addi t1, zero, val1
-    addi t2, zero, val2
+    prepare t1, val1
+    prepare t2, val2
 
     label :cycle
     trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr_observer(9), gpr_observer(10)

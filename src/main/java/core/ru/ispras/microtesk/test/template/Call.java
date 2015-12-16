@@ -142,8 +142,8 @@ public final class Call {
 
   public boolean isEmpty() {
     return null == text      &&
-           !isExecutable()   && 
-           labels.isEmpty()  && 
+           !isExecutable()   &&
+           labels.isEmpty()  &&
            outputs.isEmpty() &&
            null == origin    &&
            null == alignment;

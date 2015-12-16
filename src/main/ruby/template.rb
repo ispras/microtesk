@@ -521,6 +521,10 @@ class Template
     end
   end
 
+  def prepare(target_mode, value_object)
+    @template.addPreparatorCall target_mode, value_object
+  end
+
   # -------------------------------------------------------------------------- #
   # Creating Stream Preparators                                                #
   # -------------------------------------------------------------------------- #
