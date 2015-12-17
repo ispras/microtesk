@@ -43,8 +43,8 @@ op test(m: MMM)
   image  = "0010"
   action =  {
     TEST_REG1[0] = TEST_REG1[0]<0..31> + 1;
-    TEST_REG1[1] = TEST_REG1[1]<8> + 1;
-    TEST_REG1[1] = TEST_REG1[1]<1 + TEST_REG2 - 1..1 + TEST_REG2 + 5> + 1;
+    TEST_REG1[1] = zero_extend(DWORD, TEST_REG1[1]<8>) + 1;
+    TEST_REG1[1] = zero_extend(DWORD, TEST_REG1[1]<1 + TEST_REG2 - 1..1 + TEST_REG2 + 5>) + 1;
   }
 
 op instruction (x : test)
