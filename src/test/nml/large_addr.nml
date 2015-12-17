@@ -17,7 +17,7 @@
  * addresses (48 and 64 bits).
  */
 
-let minusOne48 = 0xFFFFFFFFFFFF 
+let minusOne48 = 0xFFFFFFFFFFFF
 let minusOne64 = 0xFFFFFFFFFFFFFFFF
 
 type WORD48 = card(48)
@@ -61,6 +61,6 @@ op sw64(rd: r64, addr: WORD64)
 
 op instruction()
   action = {
-    M48[0x800000000000] = minusOne48;
+    M48[0x800000000000] = coerce(WORD48, minusOne48);
     M64[0x8000000000000000] = minusOne64;
   }
