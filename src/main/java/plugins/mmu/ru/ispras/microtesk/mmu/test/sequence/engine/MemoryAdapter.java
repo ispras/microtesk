@@ -234,7 +234,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final BufferPreparator preparator = preparators.getPreparatorFor(buffer.getName());
     InvariantChecks.checkNotNull(preparator, "Missing preparator for " + buffer.getName());
 
-    final List<Call> abstractInitializer = preparator.makeInitializer(address, entry);
+    final List<Call> abstractInitializer =
+        preparator.makeInitializer(engineContext.getPreparators(), address, entry);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
     final List<ConcreteCall> concreteCalls =

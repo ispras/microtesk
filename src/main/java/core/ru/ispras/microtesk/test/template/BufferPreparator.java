@@ -53,8 +53,10 @@ public final class BufferPreparator {
   }
 
   public List<Call> makeInitializer(
+      final PreparatorStore preparators,
       final BitVector addressValue,
       final Map<String, BitVector> entryFieldValues) {
+    InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(addressValue);
     InvariantChecks.checkNotNull(entryFieldValues);
 

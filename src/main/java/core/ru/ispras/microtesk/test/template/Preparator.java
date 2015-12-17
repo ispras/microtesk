@@ -90,7 +90,11 @@ public final class Preparator {
     return true;
   }
 
-  public List<Call> makeInitializer(final Primitive target, final BitVector data) {
+  public List<Call> makeInitializer(
+      final PreparatorStore preparators,
+      final Primitive target,
+      final BitVector data) {
+    checkNotNull(preparators);
     checkNotNull(target);
     checkNotNull(data);
 

@@ -514,11 +514,10 @@ public final class EngineUtils {
     checkNotNull(value);
 
     final PreparatorStore preparators = engineContext.getPreparators();
-    final Preparator preparator = 
-        preparators.getPreparator(mode, value);
+    final Preparator preparator = preparators.getPreparator(mode, value);
 
     if (null != preparator) {
-      return preparator.makeInitializer(mode, value);
+      return preparator.makeInitializer(preparators, mode, value);
     }
 
     throw new GenerationAbortedException(

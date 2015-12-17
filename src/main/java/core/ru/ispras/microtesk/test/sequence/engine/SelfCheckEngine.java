@@ -33,6 +33,7 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Preparator;
+import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 
 public final class SelfCheckEngine {
@@ -77,8 +78,8 @@ public final class SelfCheckEngine {
 
     Logger.debug("Expected value is 0x%s", value.toHexString());
 
-    final Preparator comparator =
-        engineContext.getPreparators().getComparator(abstractMode, value);
+    final PreparatorStore preparators = engineContext.getPreparators();
+    final Preparator comparator = preparators.getComparator(abstractMode, value);
 
     if (null == comparator) {
       throw new GenerationAbortedException(
@@ -86,7 +87,7 @@ public final class SelfCheckEngine {
     }
 
     final List<Call> abstractCalls =
-        comparator.makeInitializer(abstractMode, value);
+        comparator.makeInitializer(preparators, abstractMode, value);
 
     for (final Call abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);

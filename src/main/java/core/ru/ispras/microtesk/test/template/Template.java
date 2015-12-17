@@ -537,7 +537,7 @@ public final class Template {
     }
 
     final List<Call> initializer =
-        preparator.makeInitializer(targetMode, data);
+        preparator.makeInitializer(preparators, targetMode, data);
 
     for (final Call call : initializer) {
       addCall(call);
