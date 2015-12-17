@@ -18,11 +18,13 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public final class Preparator {
   private final boolean isComparator;
@@ -101,7 +103,37 @@ public final class Preparator {
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    return Call.newCopy(calls);
+    return expandCalls(preparators, calls);
+  }
+
+  public static List<Call> expandCalls(
+      final PreparatorStore preparators,
+      final List<Call> calls) {
+    checkNotNull(preparators);
+    checkNotNull(calls);
+
+    final List<Call> expandedCalls = new ArrayList<>();
+    for (final Call call : calls) {
+      if (call.isPreparatorCall()) {
+        final BitVector data = call.getPreparatorValue().getData().getValue();
+        final Primitive target = call.getPreparatorTarget();
+
+        final Preparator preparator = preparators.getPreparator(target, data);
+        if (null == preparator) {
+          throw new GenerationAbortedException(String.format(
+              "No suitable preparator is found for %s.", target.getSignature()));
+        }
+
+        final List<Call> expanded =
+            preparator.makeInitializer(preparators, target, data);
+
+        expandedCalls.addAll(expanded);
+      } else {
+        expandedCalls.add(new Call(call));
+      }
+    }
+
+    return expandedCalls;
   }
 
   protected static final class Mask {

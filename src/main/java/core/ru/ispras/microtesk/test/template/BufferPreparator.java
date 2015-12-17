@@ -91,6 +91,6 @@ public final class BufferPreparator {
       Logger.debug("Entry data: %s", entryValue);
     }
 
-    return Call.newCopy(calls);
+    return Preparator.expandCalls(preparators, calls);
   }
 }
