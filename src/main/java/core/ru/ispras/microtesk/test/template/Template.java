@@ -553,6 +553,12 @@ public final class Template {
 
   public void addPreparatorCall(
       final Primitive targetMode, final LazyValue value) {
+    if (null == preparatorBuilder && null == bufferPreparatorBuilder) {
+      throw new IllegalStateException(
+          "A preparator with a lazy value can be invoked only inside " + 
+          "a preparator or buffer_preparator block.");
+    }
+
     checkNotNull(targetMode);
     checkNotNull(value);
 
