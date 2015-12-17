@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.ir.spec.builder;
+package ru.ispras.microtesk.mmu.translator;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
