@@ -161,6 +161,10 @@ public final class Call {
     return null != rootOperation;
   }
 
+  public boolean isPreparatorCall() {
+    return null != preparatorTarget; 
+  }
+
   public boolean isEmpty() {
     return null == text      &&
            !isExecutable()   &&
