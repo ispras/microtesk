@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.sequence.engine.utils;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -338,6 +339,9 @@ public final class EngineUtils {
       final Call abstractCall) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractCall);
+
+    // A preparator call must be expanded when the preparator containing this call is instantiated.
+    checkFalse(abstractCall.isPreparatorCall() , "Unexpanded preparator invocation.");
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);
