@@ -166,11 +166,12 @@ public final class Call {
   }
 
   public boolean isEmpty() {
-    return null == text      &&
-           !isExecutable()   &&
-           labels.isEmpty()  &&
-           outputs.isEmpty() &&
-           null == origin    &&
+    return null == text        &&
+           !isExecutable()     &&
+           !isPreparatorCall() &&
+           labels.isEmpty()    &&
+           outputs.isEmpty()   &&
+           null == origin      &&
            null == alignment;
   }
 
@@ -251,7 +252,8 @@ public final class Call {
   public String toString() {
     return String.format(
         "instruction call %s" + 
-        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d)",
+        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d, " +
+        "preparator: %s)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
         isBranch(),
@@ -259,7 +261,8 @@ public final class Call {
         canThrowException(),
         isLoad(),
         isStore(),
-        getBlockSize()
+        getBlockSize(),
+        isPreparatorCall() ? preparatorTarget.getName() : "null"
         );
   }
 }
