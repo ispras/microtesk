@@ -36,7 +36,6 @@ buffer DTLB (va: VA) viewof JTLB
   ways   = 4
   sets   = 1
   index  = 0
-  guard  = va.value<12>::V0 == 0b01 || va.value<12>::V1 == 0b11
   match  = VPN2 == va.value<39..13> // ASID, G and non-4KB pages are unsupported
   policy = PLRU
 
