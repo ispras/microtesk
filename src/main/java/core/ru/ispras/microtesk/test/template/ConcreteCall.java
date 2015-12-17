@@ -49,6 +49,8 @@ public final class ConcreteCall {
         Collections.<Output>emptyList(),
         null,
         null,
+        null,
+        null,
         null);
 
     return new ConcreteCall(abstractCall);
@@ -69,6 +71,8 @@ public final class ConcreteCall {
         Collections.singletonList(
             new Output(false, true,
                 String.format("%s %s", TestSettings.getCommentToken(), comment))),
+        null,
+        null,
         null,
         null,
         null);

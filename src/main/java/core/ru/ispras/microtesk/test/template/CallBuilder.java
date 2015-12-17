@@ -124,7 +124,9 @@ public final class CallBuilder {
         outputs,
         origin,
         alignment,
-        alignmentInBytes
+        alignmentInBytes,
+        preparatorTarget,
+        preparatorValue
         );
   }
 }

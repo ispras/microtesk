@@ -41,6 +41,12 @@ public final class Call {
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
 
+  // These fields are used when a call describes an invocation of a preparator with a lazy
+  // value. Such a call is created when one preparator refers to another. It will be replaced
+  // with a sequence of calls once the value is known and a specific preparator is chosen.
+  private final Primitive preparatorTarget;
+  private final LazyValue preparatorValue;
+
   public Call(
       final String text,
       final Primitive rootOperation,
@@ -49,13 +55,19 @@ public final class Call {
       final List<Output> outputs,
       final BigInteger origin,
       final BigInteger alignment,
-      final BigInteger alignmentInBytes) {
+      final BigInteger alignmentInBytes,
+      final Primitive preparatorTarget,
+      final LazyValue preparatorValue) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
 
     // Both either null or not null
     InvariantChecks.checkTrue((null == alignment) == (null == alignmentInBytes));
+    InvariantChecks.checkTrue((null == preparatorTarget) == (null == preparatorValue));
+
+    // Both cannot be not null. A call cannot be both an instruction and a preparator invocation.
+    InvariantChecks.checkTrue((null == rootOperation) || (null == preparatorTarget));
 
     this.text = text;
     this.rootOperation = rootOperation;
@@ -82,6 +94,9 @@ public final class Call {
     this.origin = origin;
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
+
+    this.preparatorTarget = preparatorTarget;
+    this.preparatorValue = preparatorValue;
   }
 
   public Call(final Call other) {
@@ -106,6 +121,12 @@ public final class Call {
     this.origin = other.origin;
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
+
+    this.preparatorTarget =
+        null != other.preparatorTarget ? other.preparatorTarget.newCopy() : null;
+
+    this.preparatorValue =
+        null != other.preparatorValue ? new LazyValue(other.preparatorValue) : null;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -212,6 +233,14 @@ public final class Call {
 
   public BigInteger getAlignmentInBytes() {
     return alignmentInBytes;
+  }
+
+  public Primitive getPreparatorTarget() {
+    return preparatorTarget;
+  }
+
+  public LazyValue getPreparatorValue() {
+    return preparatorValue;
   }
 
   @Override
