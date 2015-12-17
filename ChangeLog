@@ -6,6 +6,14 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2015/12/17 MicroTESK 2.3.15 beta
+
+ The new build contains the following changes:
+
+- Support for explicit invocation of preparators in test templates
+- Support for MMU-related constraints in test situations
+- Some bug fixes and general improvements
+
 2015/12/11 MicroTESK 2.3.14 beta
 
  The new build contains the following changes:
