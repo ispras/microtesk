@@ -333,7 +333,7 @@ public final class EngineUtils {
 
     return concreteSequence;
   }
-  
+
   public static ConcreteCall makeConcreteCall(
       final EngineContext engineContext,
       final Call abstractCall) throws ConfigurationException {
