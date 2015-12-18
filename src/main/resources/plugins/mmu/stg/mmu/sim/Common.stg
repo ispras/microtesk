@@ -107,6 +107,17 @@ public BitVector asBitVector() {
   <else>
   return null;
   <endif>
+}<\n>
+@Override
+public String toString() {
+  <if(fnames)>
+  return String.format(
+      "<type> [<fnames, fis_struct : {n, fis | <n>=<if(!fis)>0x<endif>%s}; separator=", ">]",
+      <fnames, fis_struct : {n, fis | <n><if(!fis)>.toHexString()<endif>}; separator=",\n">
+      );
+  <else>
+  return "";
+  <endif>
 }
 >>
 
