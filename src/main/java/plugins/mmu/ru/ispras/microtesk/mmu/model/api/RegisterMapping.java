@@ -89,8 +89,8 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
 
     @Override
     public String toString() {
-      return String.format(
-          "RegisterMappedLine [data=0x%s]", storage.load(registerIndex).toHexString());
+      final BitVector value = storage.load(registerIndex);
+      return String.format("RegisterMappedLine [data=%s]", newData(value));
     }
   }
 
