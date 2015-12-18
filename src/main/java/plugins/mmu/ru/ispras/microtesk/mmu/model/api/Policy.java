@@ -26,7 +26,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 
 public abstract class Policy {
   /** The associativity. */
-  protected int associativity;
+  protected final int associativity;
 
   /**
    * Constructs a data replacement controller.
