@@ -28,7 +28,7 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
   private D data;
 
   /** The data-address matcher. */
-  private Matcher<D, A> matcher;
+  private final Matcher<D, A> matcher;
 
   /**
    * Constructs a default (invalid) line.
@@ -65,7 +65,6 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
 
   @Override
   public String toString() {
-    return String.format(
-        "Line [data=0x%s]", data.asBitVector().toHexString());
+    return String.format("Line [data=%s]", data);
   }
 }
