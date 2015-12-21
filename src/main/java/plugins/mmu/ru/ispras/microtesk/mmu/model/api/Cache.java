@@ -146,6 +146,6 @@ public abstract class Cache<D extends Data, A extends Address>
 
   @Override
   public String toString() {
-    return String.format("%s = %s", getClass().getSimpleName(), sets);
+    return String.format("%s %s", getClass().getSimpleName(), sets);
   }
 }

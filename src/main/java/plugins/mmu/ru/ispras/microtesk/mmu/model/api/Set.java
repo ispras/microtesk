@@ -124,6 +124,18 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
 
   @Override
   public String toString() {
-    return String.format("Set [lines=%s]", lines);
+    final StringBuilder sb = new StringBuilder("Set [");
+
+    for (int index = 0; index < lines.size(); index++) {
+      if (0 != index) {
+        sb.append(", ");
+      }
+
+      final Buffer<D, A> line = lines.get(index);
+      sb.append(String.format("%d: %s", index, line));
+    }
+
+    sb.append(']');
+    return sb.toString();
   }
 }

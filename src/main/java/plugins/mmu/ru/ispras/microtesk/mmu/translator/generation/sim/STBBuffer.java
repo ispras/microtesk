@@ -97,6 +97,7 @@ final class STBBuffer extends STBCommon implements STBuilder {
 
   @Override
   public ST build(final STGroup group) {
+    ExprPrinter.get().addVariableMapping(buffer.getId(), buffer.getId() + ".get()");
     ExprPrinter.get().pushVariableScope();
 
     ExprPrinter.get().addVariableMappings(
