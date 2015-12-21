@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.utils;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -29,7 +29,7 @@ public class SparseArray<T> {
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
 
-    this.indexMap = new HashMap<>();
+    this.indexMap = new TreeMap<>();
     this.arrayLength = length;
   }
 
@@ -54,5 +54,21 @@ public class SparseArray<T> {
     InvariantChecks.checkGreaterThan(arrayLength, indexValue);
 
     return indexMap.put(indexValue, value);
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append('[');
+
+    for (final Map.Entry<BigInteger, T> e : indexMap.entrySet()) {
+      sb.append(System.lineSeparator());
+      sb.append(String.format("%d: %s", e.getKey(), e.getValue()));
+    }
+
+    sb.append(System.lineSeparator());
+    sb.append(']');
+
+    return sb.toString();
   }
 }
