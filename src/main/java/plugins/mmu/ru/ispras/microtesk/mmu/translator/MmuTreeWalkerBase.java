@@ -44,6 +44,7 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.ReduceOptions;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.transformer.TypeConversion;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
@@ -1534,24 +1535,26 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Node from = propagator.get(fromExpr);
     final Node to = (null != toExpr) ? propagator.get(toExpr) : from;
 
-    final Where w = this.where(where);
-
     final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
-    // FIXME
-    //assertNodeInteger(w, reducedFrom);
-
     final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
-    // FIXME
-    //assertNodeInteger(w, reducedTo);
 
-    return new NodeOperation(StandardOperation.BVEXTRACT, reducedFrom, reducedTo, variable);
-  }
+    final Where w = this.where(where);
+    final Node distance = DistanceCalculator.get().distance(reducedTo, reducedFrom);
 
-  private void assertNodeInteger(final Where w, final Node node) throws SemanticException {
-    if (node.getKind() != Node.Kind.VALUE ||
-        !node.isType(DataType.INTEGER)) {
-      raiseError(w, "Expecting constant integer expression, found " + node);
+    if (distance.getKind() != Node.Kind.VALUE) {
+      raiseError(w, "Unable to calculate bit field size.");
     }
+
+    final BigInteger fieldSize =
+        BigInteger.ONE.add(TypeConversion.integerValue((NodeValue) distance, false));
+
+    return new NodeOperation(
+        StandardOperation.BVEXTRACT,
+        DataType.BIT_VECTOR(fieldSize.intValue()),
+        reducedFrom,
+        reducedTo,
+        variable
+        );
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
