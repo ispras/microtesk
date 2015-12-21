@@ -195,4 +195,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
   protected abstract int getDataBitSize();
+
+  @Override
+  public String toString() {
+    return String.format("%s [%n%s%n]", getClass().getSimpleName(), sets);
+  }
 }

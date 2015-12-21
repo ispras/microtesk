@@ -143,4 +143,9 @@ public abstract class Cache<D extends Data, A extends Address>
 
   protected abstract A newAddress();
   protected abstract D newData(final BitVector value);
+
+  @Override
+  public String toString() {
+    return String.format("%s [%n%s%n]", getClass().getSimpleName(), sets);
+  }
 }
