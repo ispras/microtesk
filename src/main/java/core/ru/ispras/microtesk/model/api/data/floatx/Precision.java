@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.data.fp;
+package ru.ispras.microtesk.model.api.data.floatx;
 
 import ru.ispras.fortress.util.InvariantChecks;
 

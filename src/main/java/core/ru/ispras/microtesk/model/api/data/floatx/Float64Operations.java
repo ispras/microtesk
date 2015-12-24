@@ -12,98 +12,98 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.data.fp;
+package ru.ispras.microtesk.model.api.data.floatx;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.softfloat.Float128;
 import ru.ispras.softfloat.FloatX80;
 import ru.ispras.softfloat.JSoftFloat;
 
-final class Float80Operations implements Operations {
+final class Float64Operations implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {
     if (null == instance) {
-      instance = new Float80Operations();
+      instance = new Float64Operations();
     }
     return instance;
   }
 
-  private Float80Operations() {}
+  private Float64Operations() {}
 
   @Override
   public FloatX add(final FloatX lhs, final FloatX rhs) {
-    final FloatX80 result = JSoftFloat.floatx80_add(newFloatX80(lhs), newFloatX80(rhs));
+    final double result = JSoftFloat.float64_add(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public FloatX sub(final FloatX lhs, final FloatX rhs) {
-    final FloatX80 result = JSoftFloat.floatx80_sub(newFloatX80(lhs), newFloatX80(rhs));
+    final double result = JSoftFloat.float64_sub(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public FloatX mul(final FloatX lhs, final FloatX rhs) {
-    final FloatX80 result = JSoftFloat.floatx80_mul(newFloatX80(lhs), newFloatX80(rhs));
+    final double result = JSoftFloat.float64_mul(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public FloatX div(final FloatX lhs, final FloatX rhs) {
-    final FloatX80 result = JSoftFloat.floatx80_div(newFloatX80(lhs), newFloatX80(rhs));
+    final double result = JSoftFloat.float64_div(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public FloatX rem(final FloatX lhs, final FloatX rhs) {
-    final FloatX80 result = JSoftFloat.floatx80_rem(newFloatX80(lhs), newFloatX80(rhs));
+    final double result = JSoftFloat.float64_rem(lhs.doubleValue(), rhs.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public FloatX sqrt(final FloatX arg) {
-    final FloatX80 result = JSoftFloat.floatx80_sqrt(newFloatX80(arg));
+    final double result = JSoftFloat.float64_sqrt(arg.doubleValue());
     return newFloatX(result);
   }
 
   @Override
   public int compare(final FloatX first, final FloatX second) {
-    final FloatX80 value1 = newFloatX80(first);
-    final FloatX80 value2 = newFloatX80(second);
+    final double value1 = first.doubleValue();
+    final double value2 = second.doubleValue();
 
-    if (JSoftFloat.floatx80_eq(value1, value2)){
+    if (JSoftFloat.float64_eq(value1, value2)){
       return 0;
     }
 
-    return JSoftFloat.floatx80_lt(value1, value2) ? -1 : 1;
+    return JSoftFloat.float64_lt(value1, value2) ? -1 : 1;
   }
 
   @Override
   public boolean isNan(final FloatX arg) {
-    return JSoftFloat.floatx80_is_nan(newFloatX80(arg));
+    return JSoftFloat.float64_is_nan(arg.doubleValue());
   }
 
   @Override
   public boolean isSignalingNan(final FloatX arg) {
-    return JSoftFloat.floatx80_is_signaling_nan(newFloatX80(arg));
+    return JSoftFloat.float64_is_signaling_nan(arg.doubleValue());
   }
 
   @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT32: {
-        final float float32Value = JSoftFloat.floatx80_to_float32(newFloatX80(value));
+        final float float32Value = JSoftFloat.float64_to_float32(value.doubleValue());
         return Float32Operations.newFloatX(float32Value);
       }
 
-      case FLOAT64: {
-        final double float64Value = JSoftFloat.floatx80_to_float64(newFloatX80(value));
-        return Float64Operations.newFloatX(float64Value);
+      case FLOAT80: {
+        final FloatX80 float80Value = JSoftFloat.float64_to_floatx80(value.doubleValue());
+        return Float80Operations.newFloatX(float80Value);
       }
 
       case FLOAT128: {
-        final Float128 float128Value = JSoftFloat.floatx80_to_float128(newFloatX80(value));
+        final Float128 float128Value = JSoftFloat.float64_to_float128(value.doubleValue());
         return Float128Operations.newFloatX(float128Value);
       }
 
@@ -118,12 +118,12 @@ final class Float80Operations implements Operations {
   @Override
   public BitVector toInteger(final FloatX value, final int size) {
     if (size == 32) {
-      final int intValue = JSoftFloat.floatx80_to_int32(newFloatX80(value));
+      final int intValue = JSoftFloat.float64_to_int32(value.doubleValue());
       return BitVector.valueOf(intValue, size); 
     }
 
     if (size == 64) {
-      final long longValue = JSoftFloat.floatx80_to_int64(newFloatX80(value));
+      final long longValue = JSoftFloat.float64_to_int64(value.doubleValue());
       return BitVector.valueOf(longValue, size); 
     }
 
@@ -135,17 +135,17 @@ final class Float80Operations implements Operations {
 
   @Override
   public FloatX fromInteger(final BitVector value) {
-    final FloatX80 result;
+    final double result;
     final int size = value.getBitSize();
 
     if (size == 32) {
-      result = JSoftFloat.int32_to_floatx80(value.intValue());
+      result = JSoftFloat.int32_to_float64(value.intValue());
     } else if (size == 64) {
-      result = JSoftFloat.int64_to_floatx80(value.longValue());
+      result = JSoftFloat.int64_to_float64(value.longValue());
     } else {
       throw new UnsupportedOperationException(String.format(
           "Conversion from a %d-bit integer to %s is not supported.",
-          size, Precision.FLOAT80.getText()));
+          size, Precision.FLOAT64.getText()));
     }
 
     return newFloatX(result);
@@ -153,30 +153,18 @@ final class Float80Operations implements Operations {
 
   @Override
   public String toString(final FloatX arg) {
-    final FloatX80 value = newFloatX80(arg);
-    return value.toString();
+    return Double.toString(arg.doubleValue());
   }
 
   @Override
   public String toHexString(final FloatX arg) {
-    return toString(arg);
+    return Double.toHexString(arg.doubleValue());
   }
 
-  private static FloatX80 newFloatX80(final FloatX value) {
-    final BitVector data = value.getData();
-
-    final long low = data.field(0, 63).longValue();
-    final short high = (short)(data.field(64, 79).intValue() & 0x0000FFFF);
- 
-    return new FloatX80(high, low);
-  }
-
-  static FloatX newFloatX(final FloatX80 value) {
-    final BitVector data = BitVector.newEmpty(80);
-
-    data.field(0,  63).assign(BitVector.valueOf(value.low,  64));
-    data.field(64, 79).assign(BitVector.valueOf(value.high, 16));
-
-    return new FloatX(data, Precision.FLOAT128);
+  static FloatX newFloatX(final double value) {
+    return new FloatX(
+        BitVector.valueOf(Double.doubleToRawLongBits(value), Double.SIZE),
+        Precision.FLOAT64
+    );
   }
 }

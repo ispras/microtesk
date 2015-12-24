@@ -22,7 +22,7 @@ import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath.Operations;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.fp.FloatX;
+import ru.ispras.microtesk.model.api.data.floatx.FloatX;
 import ru.ispras.microtesk.model.api.data.operations.ArithmBinary;
 import ru.ispras.microtesk.model.api.data.operations.ArithmDiv;
 import ru.ispras.microtesk.model.api.data.operations.ArithmMod;

@@ -19,8 +19,8 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.model.api.data.fp.FloatX;
-import ru.ispras.microtesk.model.api.data.fp.Precision;
+import ru.ispras.microtesk.model.api.data.floatx.FloatX;
+import ru.ispras.microtesk.model.api.data.floatx.Precision;
 
 public abstract class FloatBinary implements IBinaryOperator {
   public static FloatX dataToFloatX(final Data data) {
