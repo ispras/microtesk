@@ -24,6 +24,7 @@ import java.util.Map;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
@@ -351,6 +352,7 @@ final class CoercionFormatter {
     return result;
   }
 
+  private static final String DATA_CLASS = Data.class.getSimpleName();
   private static final String ENGINE_CLASS = DataEngine.class.getSimpleName();
 
   //private static final String COERCE_METHOD = "coerce";
@@ -383,8 +385,12 @@ final class CoercionFormatter {
       final String methodName = source.isModel() ?
           coercionType.getMethodName() : VALUE_OF_METHOD;
 
-      return String.format(TO_MODEL_FORMAT,
-          ENGINE_CLASS, methodName, target.getModelType().getJavaText());
+      return String.format(
+          TO_MODEL_FORMAT,
+          DATA_CLASS,
+          methodName,
+          target.getModelType().getJavaText()
+          );
     }
 
     if (source.isModel()) {

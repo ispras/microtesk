@@ -112,15 +112,15 @@ public final class NodeInfo {
   public static enum CoercionType {
     IMPLICIT("coerce"),
 
-    SIGN_EXTEND("sign_extend"),
-    ZERO_EXTEND("zero_extend"),
+    SIGN_EXTEND("signExtend"),
+    ZERO_EXTEND("zeroExtend"),
 
     COERCE("coerce"),
     CAST("cast"),
 
-    INT_TO_FLOAT("int_to_float"),
-    FLOAT_TO_INT("float_to_int"),
-    FLOAT_TO_FLOAT("float_to_float");
+    INT_TO_FLOAT("intToFloat"),
+    FLOAT_TO_INT("floatToInt"),
+    FLOAT_TO_FLOAT("floatToFloat");
 
     private final String methodName;
     private CoercionType(String methodName) {
