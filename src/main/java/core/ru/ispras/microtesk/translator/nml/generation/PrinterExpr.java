@@ -353,13 +353,12 @@ final class CoercionFormatter {
   }
 
   private static final String DATA_CLASS = Data.class.getSimpleName();
-  private static final String ENGINE_CLASS = DataEngine.class.getSimpleName();
 
   //private static final String COERCE_METHOD = "coerce";
   private static final String VALUE_OF_METHOD = "valueOf";
 
   private static final String TO_MODEL_FORMAT = "%s.%s(%s, %%s)";
-  private static final String TO_NATIVE_FORMAT = "%s.%s(%%s)";
+  private static final String TO_NATIVE_FORMAT = "%%s.%s()";
 
   private static final String ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
   private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
@@ -399,7 +398,7 @@ final class CoercionFormatter {
         throw new IllegalArgumentException(String.format(
           ERR_UNSUPPORTED_COERCION, target.getTypeName(), source.getTypeName()));
       }
-      return String.format(TO_NATIVE_FORMAT, ENGINE_CLASS, methodName);
+      return String.format(TO_NATIVE_FORMAT, methodName);
     } else {
       final String coercionFormat = nativeToNativeMap.get(target.getNativeType());
       if (null == coercionFormat) {
