@@ -75,14 +75,6 @@ public final class Type {
       );
   }
 
-  public static Type FIX(int beforeBinPtSize, int afterBinPtSize) {
-    return new Type(TypeId.FIX, beforeBinPtSize, afterBinPtSize);
-  }
-
-  public static Type FIX(Expr beforeBinPtSize, Expr afterBinPtSize) {
-    return new Type(TypeId.FIX, beforeBinPtSize, afterBinPtSize);
-  }
-
   private static final Class<?> MODEL_API_CLASS = ru.ispras.microtesk.model.api.type.Type.class;
 
   private final TypeId typeId;

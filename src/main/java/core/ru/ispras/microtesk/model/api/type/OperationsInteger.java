@@ -12,13 +12,14 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.data2;
+package ru.ispras.microtesk.model.api.type;
 
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.Data;
 
 final class OperationsInteger implements Operations {
   private static Operations instance = null;

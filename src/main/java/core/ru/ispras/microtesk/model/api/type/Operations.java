@@ -12,9 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.data2;
+package ru.ispras.microtesk.model.api.type;
 
-interface Operations {
+import ru.ispras.microtesk.model.api.data.Data;
+
+public interface Operations {
   Data negate(final Data arg);
   Data add(final Data lhs, final Data rhs);
   Data subtract(final Data lhs, final Data rhs);

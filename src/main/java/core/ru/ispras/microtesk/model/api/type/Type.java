@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,98 +14,63 @@
 
 package ru.ispras.microtesk.model.api.type;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The Type class stores information on a type defined in the design specification. This includes
- * type identifier and size of the data in bits.
- * 
- * <p>For example, the following definition in nML:
- * 
- * <pre>type index = card(6)</pre>
- * 
- * corresponds to:
- * 
- * <pre>Type index = Type.CARD(6);</pre>
- * 
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Type {
-  private static final class TypeDefCreator implements TypeCreator {
-    private final String name;
-    private final Type type;
-
-    TypeDefCreator(final String name, final Type type) {
-      this.name = name;
-      this.type = type;
-    }
-
-    @Override
-    public Type createWithParams(final int... params) {
-      if (params.length > 0) {
-        throw new IllegalArgumentException(String.format(
-            "The %s type not have any parameters.", name));
-      }
-      return type;
-    }
-  }
-
-  private static final Map<String, TypeCreator> typeCreators = new HashMap<>();
-  static {
-    for (final TypeId typeId : TypeId.values()) {
-      typeCreators.put(typeId.name().toLowerCase(), typeId);
-    }
-  }
+  private static final Map<String, Type> ALIASES = new HashMap<>();
 
   public static Type typeOf(final String name, final int... params) {
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
 
-    final TypeCreator creator = typeCreators.get(name);
-    if (null == creator) {
+    final TypeId typeId = TypeId.fromName(name);
+    if (null != typeId) {
+      return typeId.newType(params);
+    }
+
+    final Type aliasType = ALIASES.get(name);
+    if (null == aliasType) {
       throw new IllegalArgumentException("Unknown type: " + name);
     }
 
-    return creator.createWithParams(params);
+    if (params.length > 0) {
+      throw new IllegalArgumentException(
+          String.format("The %s type must not have any parameters.", name));
+    }
+
+    return aliasType;
   }
 
   public static Type def(final String name, final Type type) {
-    checkNotNull(name);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(type);
 
-    if (typeCreators.containsKey(name)) {
-      throw new IllegalArgumentException(String.format(
-          "The %s type is already defined.", name)); 
+    if (null != TypeId.fromName(name) || null != ALIASES.get(name)) {
+      throw new IllegalArgumentException(
+          String.format("The %s type is already defined.", name)); 
     }
 
-    typeCreators.put(name, new TypeDefCreator(name, type));
+    ALIASES.put(name, type);
     return type;
   }
 
   public static Type INT(final int bitSize) {
-    return TypeId.INT.createWithParams(bitSize);
+    return TypeId.INT.newType(bitSize);
   }
 
   public static Type CARD(final int bitSize) {
-    return TypeId.CARD.createWithParams(bitSize);
+    return TypeId.CARD.newType(bitSize);
   }
 
   public static Type BOOL(final int bitSize) {
-    return TypeId.BOOL.createWithParams(bitSize);
+    return TypeId.BOOL.newType(bitSize);
   }
 
   public static Type FLOAT(final int fracBitSize, final int expBitSize) {
-    return TypeId.FLOAT.createWithParams(fracBitSize, expBitSize);
-  }
-
-  public static Type FIX(final int beforeBinPtSize, final int afterBinPtSize) {
-    return TypeId.FIX.createWithParams(beforeBinPtSize, afterBinPtSize);
+    return TypeId.FLOAT.newType(fracBitSize, expBitSize);
   }
 
   private final TypeId typeId;
@@ -113,16 +78,20 @@ public final class Type {
   private final int bitSize;
 
   Type(final TypeId typeId, final int bitSize, final int... fieldSizes) {
-    checkNotNull(typeId);
-    checkGreaterThanZero(bitSize);
+    InvariantChecks.checkNotNull(typeId);
+    InvariantChecks.checkGreaterThanZero(bitSize);
 
     this.typeId = typeId;
     this.bitSize = bitSize;
     this.fieldSizes = fieldSizes;
   }
 
+  public boolean isInteger() {
+    return typeId.isInteger();
+  }
+
   public Type resize(final int newBitSize) {
-    checkGreaterThanZero(bitSize);
+    InvariantChecks.checkGreaterThanZero(bitSize);
 
     if (bitSize == newBitSize) {
       return this;
@@ -132,7 +101,7 @@ public final class Type {
   }
 
   public Type castTo(final TypeId newTypeId) {
-    checkNotNull(typeId);
+    InvariantChecks.checkNotNull(typeId);
 
     if (typeId == newTypeId) {
       return this;
@@ -154,7 +123,7 @@ public final class Type {
   }
 
   public int getFieldSize(final int index) {
-    checkBounds(index, getFieldCount());
+    InvariantChecks.checkBounds(index, getFieldCount());
     return fieldSizes[index];
   }
 
@@ -198,7 +167,7 @@ public final class Type {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    
+
     if (fieldSizes.length == 0) {
       sb.append(bitSize);
     } else {
@@ -210,7 +179,7 @@ public final class Type {
       }
     }
 
-    return String.format("%s.%s(%s)",
-      getClass().getSimpleName(), typeId, sb);
+    return String.format(
+        "%s.%s(%s)", getClass().getSimpleName(), typeId, sb);
   }
 }

@@ -12,8 +12,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.data2;
+package ru.ispras.microtesk.model.api.type;
 
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 
 final class OperationsFloat implements Operations {

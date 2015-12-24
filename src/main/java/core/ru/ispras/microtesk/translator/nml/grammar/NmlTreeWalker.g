@@ -152,8 +152,8 @@ typeExpr returns [Type res]
 //  |   BOOL                       // TODO: NOT SUPPORTED IN THIS VERSION
     |   ^(t=INT   n=sizeExpr) { $res=getTypeFactory().newInt(where($t), $n.res); }
     |   ^(t=CARD  n=sizeExpr) { $res=getTypeFactory().newCard(where($t), $n.res); }
-    |   ^(t=FIX   n=sizeExpr m=sizeExpr)
-            { $res=getTypeFactory().newFix(where($t), $n.res, $m.res); }
+//  |   ^(t=FIX   n=sizeExpr m=sizeExpr)
+//           { $res=getTypeFactory().newFix(where($t), $n.res, $m.res); }
     |   ^(t=FLOAT n=sizeExpr m=sizeExpr)
             { $res=getTypeFactory().newFloat(where($t), $n.res, $m.res); }
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION

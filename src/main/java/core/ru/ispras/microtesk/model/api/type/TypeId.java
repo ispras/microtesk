@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,73 +14,78 @@
 
 package ru.ispras.microtesk.model.api.type;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * The TypeCreator interface describes the protocol for creating
- * a type object parameterized with a variable parameter count.
- * This is needed when a type is created from some external data
- * (e.g. provided by user in a test template). 
+ * The {@link TypeId} enumeration stores the list of data types (ways to interpret raw data)
+ * supported by the model. The data types are taken from the nML language.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-interface TypeCreator {
-  Type createWithParams(int... params);
-}
-
-/**
- * The TypeId enumeration stores the list of data types (ways to interpret raw data) supported by
- * the model. The data types are taken from the nML language.
- * 
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
-
-public enum TypeId implements TypeCreator {
+public enum TypeId {
 
   INT (1, true) {
     @Override
-    public Type createWithParams(final int ... params) {
+    protected Type newType(final int... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
+    }
+
+    @Override
+    public Operations getOperations() {
+      return OperationsInteger.get();
     }
   },
 
   CARD (1, true) {
     @Override
-    public Type createWithParams(final int... params) {
+    protected Type newType(final int... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
     }
+
+    @Override
+    public Operations getOperations() {
+      return OperationsInteger.get();
+    }
   },
 
-  FLOAT(2, false) {
+  FLOAT (2, false) {
     @Override
-    public Type createWithParams(final int... params) {
+    protected Type newType(final int... params) {
       checkParamCount(params.length);
       // 1 is added to make room for implicit sign bit
       final int bitSize = params[0] + params[1] + 1;
       return new Type(TypeId.FLOAT, bitSize, params[0], params[1]);
     }
-  },
 
-  FIX (2, false) {
     @Override
-    public Type createWithParams(final int... params) {
-      checkParamCount(params.length);
-      final int bitSize = params[0] + params[1];
-      return new Type(TypeId.FIX, bitSize, params[0], params[1]);
+    public Operations getOperations() {
+      return OperationsFloat.get();
     }
   },
-
-  // RANGE, // NOT SUPPORTED IN THIS VERSION
-  // ENUM,  // NOT SUPPORTED IN THIS VERSION
 
   BOOL (1, true) {
     @Override
-    public Type createWithParams(final int... params) {
+    public Type newType(final int... params) {
       checkParamCount(params.length);
       return new Type(this, params[0]);
     }
+
+    @Override
+    public Operations getOperations() {
+      return null;
+    }
   };
+
+  private static final Map<String, TypeId> TYPES = new HashMap<>();
+  static {
+    for (final TypeId typeId : values()) {
+      TYPES.put(typeId.getName(), typeId);
+    }
+  }
 
   private final int paramCount;
   private final boolean isInteger;
@@ -90,11 +95,22 @@ public enum TypeId implements TypeCreator {
     this.isInteger = isInteger;
   }
 
-  public boolean isInteger() {
+  protected final String getName() {
+    return name().toLowerCase();
+  }
+
+  public final boolean isInteger() {
     return isInteger;
   }
 
-  void checkParamCount(final int paramCount) {
+  public static TypeId fromName(final String name) {
+    return TYPES.get(name);
+  }
+
+  protected abstract Type newType(final int... params);
+  public abstract Operations getOperations();
+
+  protected final void checkParamCount(final int paramCount) {
     if (paramCount != this.paramCount) {
       throw new IllegalArgumentException(String.format(
           "Wrong parameter count %d for the %s type", paramCount, name()));
