@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 
 public final class OperationsFloat implements Operations {
