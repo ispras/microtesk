@@ -65,6 +65,19 @@ public enum TypeId {
     protected Operations getOperations() {
       return OperationsFloat.get();
     }
+  },
+
+  BOOL (1, true) {
+    @Override
+    public Type newType(final int... params) {
+      checkParamCount(params.length);
+      return new Type(this, params[0]);
+    }
+
+    @Override
+    protected Operations getOperations() {
+      return null;
+    }
   };
 
   private static final Map<String, TypeId> TYPES = new HashMap<>();
