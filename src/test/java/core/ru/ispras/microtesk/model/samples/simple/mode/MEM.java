@@ -31,7 +31,6 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.index;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
@@ -100,6 +99,6 @@ public class MEM extends AddressingMode
     @Override
     public Location access()
     {
-        return M.access(DataEngine.intValue(i.load()));
+        return M.access(i.load());
     }
 }

@@ -101,6 +101,6 @@ public class IREG extends AddressingMode
     @Override
     public Location access()
     {
-        return M.access(DataEngine.intValue(R.access(DataEngine.intValue(i.load())).load()));
+        return M.access(R.access(DataEngine.intValue(i.load())).load());
     }
 }
