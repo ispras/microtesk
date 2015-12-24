@@ -12,12 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.type;
+package ru.ispras.microtesk.model.api.data;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
 
-final class OperationsFloat implements Operations {
+public final class OperationsFloat implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {

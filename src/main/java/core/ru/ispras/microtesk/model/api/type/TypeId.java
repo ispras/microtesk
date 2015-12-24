@@ -17,6 +17,10 @@ package ru.ispras.microtesk.model.api.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.Operations;
+import ru.ispras.microtesk.model.api.data.OperationsFloat;
+import ru.ispras.microtesk.model.api.data.OperationsInteger;
+
 /**
  * The {@link TypeId} enumeration stores the list of data types (ways to interpret raw data)
  * supported by the model. The data types are taken from the nML language.

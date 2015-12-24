@@ -12,9 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.type;
-
-import ru.ispras.microtesk.model.api.data.Data;
+package ru.ispras.microtesk.model.api.data;
 
 public interface Operations {
   Data negate(final Data arg);
