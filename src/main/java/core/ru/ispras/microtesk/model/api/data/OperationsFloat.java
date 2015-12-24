@@ -16,7 +16,7 @@ package ru.ispras.microtesk.model.api.data;
 
 import ru.ispras.microtesk.model.api.data.floatx.FloatX;
 
-public final class OperationsFloat implements Operations {
+final class OperationsFloat implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {

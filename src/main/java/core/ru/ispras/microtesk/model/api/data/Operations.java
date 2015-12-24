@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-public interface Operations {
+interface Operations {
   Data negate(final Data arg);
   Data add(final Data lhs, final Data rhs);
   Data subtract(final Data lhs, final Data rhs);
