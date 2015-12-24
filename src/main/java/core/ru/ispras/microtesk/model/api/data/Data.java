@@ -24,22 +24,6 @@ public final class Data implements Comparable<Data> {
   private final Type type;
   private final BitVector rawData;
 
-  public static Data valueOf(final Type type, final BigInteger value) {
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(value);
-    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
-  }
-
-  public static Data valueOf(final Type type, final long value) {
-    InvariantChecks.checkNotNull(type);
-    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
-  }
-
-  public static Data valueOf(final Type type, final int value) {
-    InvariantChecks.checkNotNull(type);
-    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
-  }
-
   public Data(final BitVector rawData, final Type type) {
     this(type, rawData);
   }
@@ -240,6 +224,19 @@ public final class Data implements Comparable<Data> {
     return getOperations().compare(this, other);
   }
 
+  public Data sqrt() {
+    final FloatX result = floatXValue().sqrt();
+    return new Data(type, result.getData());
+  }
+
+  public boolean isNan() {
+    return floatXValue().isNan();
+  }
+
+  public boolean isSignalingNan() {
+    return floatXValue().isSignalingNan();
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -301,5 +298,73 @@ public final class Data implements Comparable<Data> {
 
   private Operations getOperations() {
     return type.getTypeId().getOperations();
+  }
+
+  public static Data valueOf(final Type type, final BigInteger value) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(value);
+    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
+  }
+
+  public static Data valueOf(final Type type, final long value) {
+    InvariantChecks.checkNotNull(type);
+    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
+  }
+
+  public static Data valueOf(final Type type, final int value) {
+    InvariantChecks.checkNotNull(type);
+    return new Data(type, BitVector.valueOf(value, type.getBitSize()));
+  }
+
+  public static Data signExtend(final Type type, final Data value) {
+    return value.signExtendTo(type);
+  }
+
+  public static Data zeroExtend(final Type type, final Data value) {
+    return value.zeroExtendTo(type);
+  }
+
+  public static Data coerce(final Type type, final Data value) {
+    return value.coerceTo(type);
+  }
+
+  public static Data cast(final Type type, final Data value) {
+    return value.castTo(type);
+  }
+
+  public static Data intToFloat(final Type type, final Data value) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(type.getTypeId() == TypeId.FLOAT);
+    InvariantChecks.checkTrue(value.getType().getTypeId().isInteger());
+
+    final BitVector source = value.getRawData();
+    final FloatX target = FloatX.fromInteger(type.getFieldSize(0), type.getFieldSize(1), source);
+
+    return new Data(type, target.getData());
+  }
+
+  public static Data floatToInt(final Type type, final Data value) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(type.getTypeId().isInteger());
+    InvariantChecks.checkTrue(value.isType(TypeId.FLOAT));
+
+    final FloatX source = value.floatXValue();
+    final BitVector target = source.toInteger(type.getBitSize());
+
+    return new Data(type, target);
+  }
+
+  public static Data floatToFloat(final Type type, final Data value) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(type.getTypeId() == TypeId.FLOAT);
+    InvariantChecks.checkTrue(value.isType(TypeId.FLOAT));
+
+    final FloatX source = value.floatXValue();
+    final FloatX target = source.toFloat(type.getFieldSize(0), type.getFieldSize(1));
+
+    return new Data(type, target.getData());
   }
 }
