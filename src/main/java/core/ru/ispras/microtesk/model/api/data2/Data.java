@@ -40,6 +40,10 @@ public final class Data implements Comparable<Data> {
     return new Data(type, BitVector.valueOf(value, type.getBitSize()));
   }
 
+  public Data(final BitVector rawData, final Type type) {
+    this(type, rawData);
+  }
+
   public Data(final Type type, final BitVector rawData) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(rawData);
