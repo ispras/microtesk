@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public class BitRotateTestCase {
 

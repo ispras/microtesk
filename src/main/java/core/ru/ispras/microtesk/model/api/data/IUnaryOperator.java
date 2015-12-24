@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-import ru.ispras.microtesk.model.api.type.Type;
 
 public interface IUnaryOperator {
   public Data execute(Data arg);

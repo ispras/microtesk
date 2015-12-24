@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
@@ -75,7 +75,7 @@ public final class Type {
       );
   }
 
-  private static final Class<?> MODEL_API_CLASS = ru.ispras.microtesk.model.api.type.Type.class;
+  private static final Class<?> MODEL_API_CLASS = ru.ispras.microtesk.model.api.data.Type.class;
 
   private final TypeId typeId;
   private final String aliasName;

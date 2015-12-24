@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 /**

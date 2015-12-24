@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operator;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;

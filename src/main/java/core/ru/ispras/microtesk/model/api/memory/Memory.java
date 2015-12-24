@@ -20,7 +20,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 public abstract class Memory {
   private static final Map<String, Memory> INSTANCES = new HashMap<>();

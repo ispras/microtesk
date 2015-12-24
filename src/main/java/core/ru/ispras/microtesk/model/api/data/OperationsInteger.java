@@ -20,8 +20,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class OperationsInteger implements Operations {
   private static Operations instance = null;

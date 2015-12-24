@@ -23,8 +23,8 @@ import org.junit.Test;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
+import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public class LargeAddressTestCase {
   public static final Type WORD48 = Type.def("WORD48", Type.CARD(0x30));

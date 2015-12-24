@@ -18,8 +18,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.fp.FloatX;
-import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class DataMath {
   private DataMath() {}

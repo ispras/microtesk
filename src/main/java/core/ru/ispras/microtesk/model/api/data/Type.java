@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.type;
+package ru.ispras.microtesk.model.api.data;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -20,11 +20,11 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.DataEngine;
+import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.UninitializedException;
-import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * The AddressingModeBuilder class implements logic responsible for creating and initializing

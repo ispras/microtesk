@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.valueinfo;
 import java.math.BigInteger;
 import java.util.List;
 
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;

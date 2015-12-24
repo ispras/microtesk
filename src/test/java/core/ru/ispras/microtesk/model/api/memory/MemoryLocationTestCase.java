@@ -24,7 +24,7 @@ import org.junit.Test;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 public final class MemoryLocationTestCase {
 

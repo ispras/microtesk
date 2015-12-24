@@ -22,8 +22,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.model.api.data.TypeId;
 
 public final class BitRotateShift implements IBinaryOperator {
   private final static Set<TypeId> SUPPORTED_TYPES = EnumSet.of(TypeId.INT, TypeId.CARD);

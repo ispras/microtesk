@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.microtesk.model.api.type.Type;
 
 /**
  * This is a test to make sure that shifts work correctly for large shift amounts

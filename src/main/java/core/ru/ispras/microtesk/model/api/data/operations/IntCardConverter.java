@@ -20,7 +20,7 @@ import ru.ispras.fortress.data.types.Radix;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IValueConverter;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 public class IntCardConverter implements IValueConverter {
   @Override

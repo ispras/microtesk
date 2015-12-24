@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api.data;
 
-import ru.ispras.microtesk.model.api.type.Type;
 
 public interface IBinaryOperator {
   public Data execute(Data left, Data right);

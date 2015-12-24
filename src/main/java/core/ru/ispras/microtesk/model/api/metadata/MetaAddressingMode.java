@@ -17,7 +17,8 @@ package ru.ispras.microtesk.model.api.metadata;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Map;
-import ru.ispras.microtesk.model.api.type.Type;
+
+import ru.ispras.microtesk.model.api.data.Type;
 
 /**
  * The {@code MetaAddressingMode} class holds information on the specified

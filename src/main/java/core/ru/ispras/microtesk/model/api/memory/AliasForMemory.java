@@ -19,7 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 final class AliasForMemory extends Memory {
   private final int itemBitSize;

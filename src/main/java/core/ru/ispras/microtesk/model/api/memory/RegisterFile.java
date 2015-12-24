@@ -22,7 +22,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 final class RegisterFile extends Memory {
   private final List<Location> locations;

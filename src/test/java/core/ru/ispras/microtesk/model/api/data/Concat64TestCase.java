@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.Memory.Kind;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public class Concat64TestCase {
 

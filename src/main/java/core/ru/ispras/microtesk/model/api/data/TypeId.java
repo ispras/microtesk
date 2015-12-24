@@ -12,14 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.type;
+package ru.ispras.microtesk.model.api.data;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.data.Operations;
-import ru.ispras.microtesk.model.api.data.OperationsFloat;
-import ru.ispras.microtesk.model.api.data.OperationsInteger;
 
 /**
  * The {@link TypeId} enumeration stores the list of data types (ways to interpret raw data)

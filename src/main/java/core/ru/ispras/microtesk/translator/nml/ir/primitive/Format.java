@@ -19,7 +19,7 @@ import java.util.EmptyStackException;
 import java.util.LinkedList;
 
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.nml.generation.PrinterInstance;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;

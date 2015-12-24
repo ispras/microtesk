@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api.data;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.Radix;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public interface IValueConverter {
   Data fromLong(Type type, long value);

@@ -25,11 +25,11 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.model.api.state.Status;
-import ru.ispras.microtesk.model.api.type.TypeId;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
@@ -61,7 +61,7 @@ final class STBShared implements STBuilder {
 
     if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty()) {
       t.add("imps", TypeId.class.getName());
-      t.add("imps", ru.ispras.microtesk.model.api.type.Type.class.getName());
+      t.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     }
 
     t.add("imps", Memory.class.getName());

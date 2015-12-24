@@ -19,8 +19,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
-import ru.ispras.microtesk.model.api.type.Type;
 
 public final class Argument {
   public static enum Kind {

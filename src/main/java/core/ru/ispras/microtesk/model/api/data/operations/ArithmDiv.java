@@ -22,8 +22,8 @@ import java.util.Set;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.IBinaryOperator;
-import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
+import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.model.api.data.TypeId;
 
 public class ArithmDiv implements IBinaryOperator {
   private final static Set<TypeId> SUPPORTED_TYPES = Collections.unmodifiableSet(EnumSet.of(

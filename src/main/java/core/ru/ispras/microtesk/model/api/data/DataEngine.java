@@ -35,8 +35,6 @@ import ru.ispras.microtesk.model.api.data.operations.FloatBinary;
 import ru.ispras.microtesk.model.api.data.operations.FloatUnary;
 import ru.ispras.microtesk.model.api.data.operations.IntCardConverter;
 import ru.ispras.microtesk.model.api.data.operations.LogicBinary;
-import ru.ispras.microtesk.model.api.type.Type;
-import ru.ispras.microtesk.model.api.type.TypeId;
 
 public final class DataEngine {
   private DataEngine() {}

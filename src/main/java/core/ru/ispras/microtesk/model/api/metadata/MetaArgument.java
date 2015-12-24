@@ -20,7 +20,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.type.Type;
+import ru.ispras.microtesk.model.api.data.Type;
 
 /**
  * The {@code MetaArgument} class describes arguments or addressing modes and operations.
