@@ -372,4 +372,41 @@ public final class Data implements Comparable<Data> {
 
     return new Data(type, target.getData());
   }
+
+  /**
+   * Checks whether the significant bits are lost when the specified integer is converted to
+   * the specified Model API type. This happens when the type is shorter than the value
+   * and the truncated part goes beyond sign extension bits.
+   * 
+   * @param type Conversion target type.
+   * @param value Value to be converted.
+   * @return {@code true} if significant bits will be lost during the conversion
+   * or {@code false} otherwise.
+   */
+
+  public static boolean isLossOfSignificantBits(final Type type, final BigInteger value) {
+
+    final int valueBitSize = value.bitLength() + 1; // Minimal two's complement + sign bit
+    if (type.getBitSize() >= valueBitSize) {
+      return false;
+    }
+
+    final BitVector whole = BitVector.valueOf(value, valueBitSize);
+    final BitVector truncated = BitVector.newMapping(
+        whole, type.getBitSize(), whole.getBitSize() - type.getBitSize());
+
+    final long truncatedValue = truncated.longValue();
+    if (truncatedValue == 0) {
+      return false;
+    }
+
+    final boolean isNegative = whole.getBit(type.getBitSize() - 1);
+    final long allOnesPattern = (-1L >>> valueBitSize - truncated.getBitSize());
+
+    if (isNegative && (truncatedValue == allOnesPattern)) {
+      return false;
+    }
+
+    return true;
+  }
 }
