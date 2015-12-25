@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api.data;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * The {@link TypeId} enumeration stores the list of data types (ways to interpret raw data)
  * supported by the model. The data types are taken from the nML language.
@@ -35,7 +34,7 @@ public enum TypeId {
     }
 
     @Override
-    public Operations getOperations() {
+    protected Operations getOperations() {
       return IntegerOperations.get();
     }
   },
@@ -48,7 +47,7 @@ public enum TypeId {
     }
 
     @Override
-    public Operations getOperations() {
+    protected Operations getOperations() {
       return IntegerOperations.get();
     }
   },
@@ -63,7 +62,7 @@ public enum TypeId {
     }
 
     @Override
-    public Operations getOperations() {
+    protected Operations getOperations() {
       return FloatOperations.get();
     }
   },
@@ -76,7 +75,7 @@ public enum TypeId {
     }
 
     @Override
-    public Operations getOperations() {
+    protected Operations getOperations() {
       return null;
     }
   };
@@ -104,12 +103,12 @@ public enum TypeId {
     return isInteger;
   }
 
-  public static TypeId fromName(final String name) {
+  protected static TypeId fromName(final String name) {
     return TYPES.get(name);
   }
 
   protected abstract Type newType(final int... params);
-  public abstract Operations getOperations();
+  protected abstract Operations getOperations();
 
   protected final void checkParamCount(final int paramCount) {
     if (paramCount != this.paramCount) {
