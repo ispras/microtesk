@@ -24,7 +24,6 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
@@ -61,7 +60,6 @@ final class STBAddressingMode extends STBPrimitiveBase {
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
-    t.add("imps", String.format("%s.*", Type.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", ru.ispras.microtesk.model.api.memory.Location.class.getName());
 

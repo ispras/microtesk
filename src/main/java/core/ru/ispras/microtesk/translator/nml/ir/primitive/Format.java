@@ -28,31 +28,31 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class Format {
   public static interface Argument {
-    public boolean isConvertibleTo(FormatMarker kind);
-    public String convertTo(FormatMarker kind);
+    boolean isConvertibleTo(FormatMarker kind);
+    String convertTo(FormatMarker kind);
   }
 
-  public static Argument createArgument(String str) {
+  public static Argument createArgument(final String str) {
     return new StringBasedArgument(str);
   }
 
-  public static Argument createArgument(Expr expr) {
+  public static Argument createArgument(final Expr expr) {
     return new ExprBasedArgument(expr);
   }
 
-  public static Argument createArgument(StatementAttributeCall call) {
+  public static Argument createArgument(final StatementAttributeCall call) {
     return new AttributeCallBasedArgument(call);
   }
 
   private static final class ExprBasedArgument implements Argument {
     private final Expr expr;
 
-    public ExprBasedArgument(Expr expr) {
+    public ExprBasedArgument(final Expr expr) {
       this.expr = expr;
     }
 
     @Override
-    public boolean isConvertibleTo(FormatMarker marker) {
+    public boolean isConvertibleTo(final FormatMarker marker) {
       if (FormatMarker.STR == marker) {
         return true;
       }
@@ -64,7 +64,7 @@ public final class Format {
       return isJavaConvertibleTo(marker);
     }
 
-    private boolean isModelConvertibleTo(FormatMarker marker) {
+    private boolean isModelConvertibleTo(final FormatMarker marker) {
       if (FormatMarker.BIN == marker) {
         return true;
       }
@@ -80,7 +80,7 @@ public final class Format {
       return false;
     }
 
-    private boolean isJavaConvertibleTo(FormatMarker marker) {
+    private boolean isJavaConvertibleTo(final FormatMarker marker) {
       final Class<?> type = expr.getValueInfo().getNativeType();
 
       if (!type.equals(int.class) || !type.equals(Integer.class)) {
@@ -92,7 +92,7 @@ public final class Format {
     }
 
     @Override
-    public String convertTo(FormatMarker marker) {
+    public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
 
       if (expr.getValueInfo().isModel()) {
@@ -102,28 +102,21 @@ public final class Format {
       return convertJavaTo(marker);
     }
 
-    private String convertModelTo(FormatMarker marker) {
+    private String convertModelTo(final FormatMarker marker) {
       final String methodName;
 
-      if (FormatMarker.BIN == marker) {
-        methodName = "toBinString";
-      } else if (FormatMarker.STR == marker) {
-        methodName = "toString";
+      if (FormatMarker.BIN == marker || FormatMarker.STR == marker) {
+        methodName = "toBinString()";
       } else {
-        final int bitSize = expr.getValueInfo().getModelType().getBitSize();
-        if (bitSize <= 32) {
-          methodName = "intValue";
-        } else if (bitSize <= 64) {
-          methodName = "longValue";
-        } else {
-          methodName = "bigIntegerValue";
-        }
+        final boolean signed = expr.getValueInfo().isModelOf(TypeId.INT);
+        methodName = String.format("bigIntegerValue(%b)", signed);
       }
 
-      return String.format("%s.getRawData().%s()", new PrinterExpr(expr), methodName);
+      return String.format(
+          "%s.%s", new PrinterExpr(expr), methodName);
     }
 
-    private String convertJavaTo(FormatMarker marker) {
+    private String convertJavaTo(final FormatMarker marker) {
       final PrinterExpr printer = new PrinterExpr(expr);
       return (FormatMarker.BIN == marker) ? 
         String.format("Integer.toBinaryString(%s)", printer) : printer.toString();
@@ -133,7 +126,7 @@ public final class Format {
   private static final class AttributeCallBasedArgument implements Argument {
     private final StatementAttributeCall callInfo;
 
-    public AttributeCallBasedArgument(StatementAttributeCall callInfo) {
+    public AttributeCallBasedArgument(final StatementAttributeCall callInfo) {
       assert null != callInfo;
       this.callInfo = callInfo;
     }
@@ -166,7 +159,7 @@ public final class Format {
     }
 
     @Override
-    public String convertTo(FormatMarker marker) {
+    public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
 
       if ((FormatMarker.STR == marker) || (FormatMarker.BIN == marker)) {
@@ -180,17 +173,17 @@ public final class Format {
   private static final class StringBasedArgument implements Argument {
     private final String string;
 
-    private StringBasedArgument(String string) {
+    private StringBasedArgument(final String string) {
       this.string = string;
     }
 
     @Override
-    public boolean isConvertibleTo(FormatMarker kind) {
+    public boolean isConvertibleTo(final FormatMarker kind) {
       return FormatMarker.STR == kind;
     }
 
     @Override
-    public String convertTo(FormatMarker marker) {
+    public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
       return String.format("\"%s\"", string);
     }
@@ -201,19 +194,19 @@ public final class Format {
     private final Argument left;
     private final Argument right;
 
-    private TernaryConditionalArgument(Expr expr, Argument left, Argument right) {
+    private TernaryConditionalArgument(final Expr expr, final Argument left, final Argument right) {
       this.expr = expr;
       this.left = left;
       this.right = right;
     }
 
     @Override
-    public boolean isConvertibleTo(FormatMarker kind) {
+    public boolean isConvertibleTo(final FormatMarker kind) {
       return left.isConvertibleTo(kind) && right.isConvertibleTo(kind);
     }
 
     @Override
-    public String convertTo(FormatMarker kind) {
+    public String convertTo(final FormatMarker kind) {
       assert isConvertibleTo(kind);
       return String.format("%s ? %s : %s",
           new PrinterExpr(expr), left.convertTo(kind), right.convertTo(kind));
@@ -227,7 +220,7 @@ public final class Format {
       this.conditions = new LinkedList<>();
     }
 
-    public void addCondition(Expr expr, Argument argument) {
+    public void addCondition(Expr expr, final Argument argument) {
       if (null == expr) {
         expr = Expr.CONST_ONE; // Fake value to be ignored.
       }
