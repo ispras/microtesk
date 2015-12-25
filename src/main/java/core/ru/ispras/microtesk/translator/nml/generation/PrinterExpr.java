@@ -25,8 +25,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
-import ru.ispras.microtesk.model.api.data.EOperatorID;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
@@ -177,20 +176,27 @@ public final class PrinterExpr {
     }
 
     if (source.getCastValueInfo().isModel()) {
-      final StringBuilder sb = new StringBuilder();
-
-      for (int index = 0; index < nodeExpr.getOperandCount(); ++index) {
-        final Node operandNode = nodeExpr.getOperand(index);
-
-        sb.append(", ");
-        sb.append(operandToString(source, operandNode, false));
+      if (Operands.UNARY.count() == nodeExpr.getOperandCount()) {
+        final Node operandNode = nodeExpr.getOperand(0);
+        return toModelString(op, operandToString(source, operandNode, false));
       }
 
-      return String.format("%s.execute(%s%s)",
-        DataEngine.class.getSimpleName(),
-        toModelString(source.getOperator()),
-        sb.toString()
-        );
+      if (Operands.BINARY.count() == nodeExpr.getOperandCount()) {
+        final Node operandNode1 = nodeExpr.getOperand(0);
+        final Node operandNode2 = nodeExpr.getOperand(1);
+
+        return toModelString(
+            op,
+            operandToString(source, operandNode1, true),
+            operandToString(source, operandNode2, true)
+            );
+      }
+
+      throw new IllegalArgumentException(String.format(
+          "Unsupported operand number: %d, operator: %s.",
+          nodeExpr.getOperandCount(),
+          source.getOperator())
+          );
     }
 
     if (Operands.UNARY.count() == nodeExpr.getOperandCount()) {
@@ -242,39 +248,46 @@ public final class PrinterExpr {
     return enclose ? String.format("(%s)", text) : text;
   }
 
-  private static final Map<Operator, EOperatorID> operators = createModelOperators();
+  private static final Map<Operator, String> operators = createModelOperators();
 
-  private static Map<Operator, EOperatorID> createModelOperators() {
-    final Map<Operator, EOperatorID> result = new EnumMap<Operator, EOperatorID>(Operator.class);
+  private static Map<Operator, String> createModelOperators() {
+    final Map<Operator, String> result = new EnumMap<>(Operator.class);
 
-    result.put(Operator.OR, EOperatorID.OR);
-    result.put(Operator.AND, EOperatorID.AND);
-    result.put(Operator.BIT_OR, EOperatorID.BIT_OR);
-    result.put(Operator.BIT_XOR, EOperatorID.BIT_XOR);
-    result.put(Operator.BIT_AND, EOperatorID.BIT_AND);
-    result.put(Operator.EQ, EOperatorID.EQ);
-    result.put(Operator.NOT_EQ, EOperatorID.NOT_EQ);
-    result.put(Operator.LEQ, EOperatorID.LESS_EQ);
-    result.put(Operator.GEQ, EOperatorID.GREATER_EQ);
-    result.put(Operator.LESS, EOperatorID.LESS);
-    result.put(Operator.GREATER, EOperatorID.GREATER);
-    result.put(Operator.L_SHIFT, EOperatorID.L_SHIFT);
-    result.put(Operator.R_SHIFT, EOperatorID.R_SHIFT);
-    result.put(Operator.L_ROTATE, EOperatorID.L_ROTATE);
-    result.put(Operator.R_ROTATE, EOperatorID.R_ROTATE);
-    result.put(Operator.PLUS, EOperatorID.PLUS);
-    result.put(Operator.MINUS, EOperatorID.MINUS);
-    result.put(Operator.MUL, EOperatorID.MUL);
-    result.put(Operator.DIV, EOperatorID.DIV);
-    result.put(Operator.MOD, EOperatorID.MOD);
-    result.put(Operator.POW, EOperatorID.POW);
-    result.put(Operator.UPLUS, EOperatorID.UNARY_PLUS);
-    result.put(Operator.UMINUS, EOperatorID.UNARY_MINUS);
-    result.put(Operator.BIT_NOT, EOperatorID.BIT_NOT);
-    result.put(Operator.NOT, EOperatorID.NOT);
-    result.put(Operator.SQRT, EOperatorID.SQRT);
-    result.put(Operator.IS_NAN, EOperatorID.IS_NAN);
-    result.put(Operator.IS_SIGN_NAN, EOperatorID.IS_SIGNALING_NAN);
+    result.put(Operator.OR,  "%s || %s");
+    result.put(Operator.AND, "%s && %s");
+    result.put(Operator.NOT, "!%s");
+
+    result.put(Operator.BIT_OR,  "%s.or(%s)");
+    result.put(Operator.BIT_XOR, "%s.xor(%s)");
+    result.put(Operator.BIT_AND, "%s.and(%s)");
+
+    result.put(Operator.EQ,      "%s.equals(%s)");
+    result.put(Operator.NOT_EQ,  "!%s.equals(%s)");
+
+    result.put(Operator.LEQ,     "%s.compareTo(%s) <= 0");
+    result.put(Operator.GEQ,     "%s.compareTo(%s) >= 0");
+    result.put(Operator.LESS,    "%s.compareTo(%s) < 0");
+    result.put(Operator.GREATER, "%s.compareTo(%s) > 0");
+
+    result.put(Operator.L_SHIFT,  "%s.shiftLeft(%s)");
+    result.put(Operator.R_SHIFT,  "%s.shiftRight(%s)");
+    result.put(Operator.L_ROTATE, "%s.rotateLeft(%s)");
+    result.put(Operator.R_ROTATE, "%s.rotateRight(%s)");
+
+    result.put(Operator.PLUS,     "%s.add(%s)");
+    result.put(Operator.MINUS,    "%s.subtract(%s)");
+    result.put(Operator.MUL,      "%s.multiply(%s)");
+    result.put(Operator.DIV,      "%s.divide(%s)");
+    result.put(Operator.MOD,      "%s.mod(%s)");
+    result.put(Operator.POW,      "%s.pow(%s)");
+
+    result.put(Operator.UPLUS,    "%s");
+    result.put(Operator.UMINUS,   "%s.negate()");
+    result.put(Operator.BIT_NOT,  "%s.not()");
+
+    result.put(Operator.SQRT,        "%s.sqrt()");
+    result.put(Operator.IS_NAN,      "%s.isNan");
+    result.put(Operator.IS_SIGN_NAN, "%s.isSignalingNan");
 
     return Collections.unmodifiableMap(result);
   }
@@ -313,8 +326,12 @@ public final class PrinterExpr {
     return result;
   }
 
-  private static String toModelString(Operator op) {
-    return EOperatorID.class.getSimpleName() + "." + operators.get(op).name();
+  private static String toModelString(Operator op, String arg) {
+    return String.format(operators.get(op), arg);
+  }
+
+  private static String toModelString(Operator op, String arg1, String arg2) {
+    return String.format(operators.get(op), arg1, arg2);
   }
 
   private static final String toOperatorString(Operator op, String arg) {
@@ -393,6 +410,12 @@ final class CoercionFormatter {
     }
 
     if (source.isModel()) {
+      // Model BOOLEAN  values do not require conversion
+      // since boolean methods of Data always return Java boolean.
+      if (source.isModelOf(TypeId.BOOL) && target.getNativeType().equals(Boolean.class)) {
+        return "%s";
+      }
+
       final String methodName = modelToNativeMap.get(target.getNativeType());
       if (null == methodName) {
         throw new IllegalArgumentException(String.format(

@@ -316,6 +316,11 @@ public final class Data implements Comparable<Data> {
     return new Data(type, BitVector.valueOf(value, type.getBitSize()));
   }
 
+  public static Data valueOf(final Type type, final boolean value) {
+    InvariantChecks.checkNotNull(type);
+    return new Data(type, BitVector.valueOf(value).resize(type.getBitSize(), false));
+  }
+
   public static Data signExtend(final Type type, final Data value) {
     return value.signExtendTo(type);
   }

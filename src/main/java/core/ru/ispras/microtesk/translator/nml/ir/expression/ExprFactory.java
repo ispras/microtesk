@@ -771,6 +771,21 @@ public final class ExprFactory extends WalkerFactoryBase {
     checkNotNull(src);
 
     final ValueInfo srcValueInfo = src.getValueInfo();
+    if (srcValueInfo.isModelOf(TypeId.BOOL)) {
+      NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
+          ValueInfo.createNativeType(Boolean.class),
+          NodeInfo.CoercionType.IMPLICIT
+          );
+
+      newNodeInfo = newNodeInfo.coerceTo(
+          ValueInfo.createModel(Type.CARD(srcValueInfo.getModelType().getBitSize())),
+          NodeInfo.CoercionType.IMPLICIT
+          );
+
+      src.setNodeInfo(newNodeInfo);
+      return src;
+    }
+
     if (srcValueInfo.isModel()) {
       return src;
     }
