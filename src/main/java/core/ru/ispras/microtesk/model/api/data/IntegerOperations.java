@@ -20,17 +20,17 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
 
-final class OperationsInteger implements Operations {
+final class IntegerOperations implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {
     if (null == instance) {
-      instance = new OperationsInteger();
+      instance = new IntegerOperations();
     }
     return instance;
   }
 
-  private OperationsInteger() {}
+  private IntegerOperations() {}
 
   @Override
   public final Data negate(final Data arg) {

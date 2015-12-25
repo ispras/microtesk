@@ -16,17 +16,17 @@ package ru.ispras.microtesk.model.api.data;
 
 import ru.ispras.microtesk.model.api.data.floatx.FloatX;
 
-final class OperationsFloat implements Operations {
+final class FloatOperations implements Operations {
   private static Operations instance = null;
 
   public static Operations get() {
     if (null == instance) {
-      instance = new OperationsFloat();
+      instance = new FloatOperations();
     }
     return instance;
   }
 
-  private OperationsFloat() {}
+  private FloatOperations() {}
 
   @Override
   public Data negate(final Data arg) {

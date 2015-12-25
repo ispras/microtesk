@@ -36,7 +36,7 @@ public enum TypeId {
 
     @Override
     public Operations getOperations() {
-      return OperationsInteger.get();
+      return IntegerOperations.get();
     }
   },
 
@@ -49,7 +49,7 @@ public enum TypeId {
 
     @Override
     public Operations getOperations() {
-      return OperationsInteger.get();
+      return IntegerOperations.get();
     }
   },
 
@@ -64,7 +64,7 @@ public enum TypeId {
 
     @Override
     public Operations getOperations() {
-      return OperationsFloat.get();
+      return FloatOperations.get();
     }
   },
 
