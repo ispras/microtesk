@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
@@ -41,24 +40,6 @@ public final class OperationBuilder implements IOperationBuilder {
   }
 
   @Override
-  public LocationAccessor setArgument(String name, String value) throws ConfigurationException {
-    checkUndeclaredArgument(name);
-    checkReassignment(name);
-
-    final Operation.Param decl = decls.get(name);
-
-    if (decl.getKind() != Operation.Param.Kind.IMM) {
-      throw new UndeclaredException(String.format(
-        "The %s argument of the %s operation must be an immediate value.", name, opName));
-    }
-
-    final Location arg = Location.newLocationForConst(DataEngine.valueOf(decl.getType(), value));
-    args.put(name, arg);
-
-    return arg;
-  }
-
-  @Override
   public LocationAccessor setArgument(String name, BigInteger value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
@@ -69,8 +50,8 @@ public final class OperationBuilder implements IOperationBuilder {
         "The %s argument of the %s operation must be an immediate value.", name, opName));
     }
 
-    final Data data = DataEngine.valueOf(decl.getType(), value);
-    if (DataEngine.isLossOfSignificantBits(decl.getType(), value)) {
+    final Data data = Data.valueOf(decl.getType(), value);
+    if (Data.isLossOfSignificantBits(decl.getType(), value)) {
       System.out.printf("Warning: The value of the %s argument (= %d) of the %s operation " +
          "will be truncated to suit %s. This will cause loss of significant bits. Result: %d%n",
          name, value, opName, decl.getType(), data.getRawData().intValue());

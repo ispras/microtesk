@@ -27,17 +27,6 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public interface IAddressingModeBuilder {
   /**
-   * Initializes the specified addressing mode argument with a textual value (parsing will be
-   * performed by the model library).
-   * 
-   * @param name Mode argument name.
-   * @param value Mode argument value text.
-   */
-
-  IAddressingModeBuilder setArgumentValue(String name, String value)
-      throws ConfigurationException;
-
-  /**
    * Initializes the specified addressing mode argument with an integer value.
    * 
    * @param name Mode argument name.

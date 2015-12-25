@@ -20,11 +20,10 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public interface IOperationBuilder {
-  LocationAccessor setArgument(String name, String value) throws ConfigurationException;
   LocationAccessor setArgument(String name, BigInteger value) throws ConfigurationException;
 
   IOperationBuilder setArgument(String name, IAddressingMode value) throws ConfigurationException;
   IOperationBuilder setArgument(String name, IOperation value) throws ConfigurationException;
-
+  
   IOperation build() throws ConfigurationException;
 }

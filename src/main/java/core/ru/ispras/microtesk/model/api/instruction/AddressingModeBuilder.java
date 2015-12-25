@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
@@ -56,27 +55,15 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
   }
 
   @Override
-  public IAddressingModeBuilder setArgumentValue(String name, String value)
-      throws ConfigurationException {
-    checkUndeclaredArgument(name);
-    checkReassignment(name);
-
-    final Data data = DataEngine.valueOf(decls.get(name), value);
-    args.put(name, data);
-
-    return this;
-  }
-
-  @Override
   public IAddressingModeBuilder setArgumentValue(String name, BigInteger value)
       throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
     final Type type = decls.get(name);
-    final Data data = DataEngine.valueOf(type, value);
+    final Data data = Data.valueOf(type, value);
 
-    if (DataEngine.isLossOfSignificantBits(type, value)) {
+    if (Data.isLossOfSignificantBits(type, value)) {
       System.out.printf("Warning: The value of the %s argument (= %d) of the %s addressing mode " +
          "will be truncated to suit %s. This will cause loss of significant bits. Result: %d%n",
          name, value, modeName, type, data.getRawData().intValue());
