@@ -44,23 +44,21 @@ public class BigShiftTestCase {
     System.out.println(SHIFT);
 
     test("1011110101011011011111011101111000000000000000000000000000000000",
-        EOperatorID.L_SHIFT, VALUE, SHIFT);
+        VALUE.shiftLeft(SHIFT));
 
     test("0000000000000000000000000000000001111000011110001000011111111000",
-        EOperatorID.R_SHIFT,  VALUE, SHIFT);
+        VALUE.shiftRight(SHIFT));
 
     test("1011110101011011011111011101111111100001111000100001111111100001",
-        EOperatorID.L_ROTATE, VALUE, SHIFT);
+        VALUE.rotateLeft(SHIFT));
 
     test("0110111101010110110111110111011111111000011110001000011111111000",
-        EOperatorID.R_ROTATE, VALUE, SHIFT);
+        VALUE.rotateRight(SHIFT));
   }
 
-  private static void test(String expectedStr, EOperatorID op, Data value, Data shift) {
-    final Data expected = new Data(BitVector.valueOf(expectedStr, 2, LARGE_SIZE), LARGE);
-    final Data result = DataEngine.execute(op, value, shift);
-
+  private static void test(final String expectedStr, final Data result) {
     System.out.println(result);
+    final Data expected = new Data(BitVector.valueOf(expectedStr, 2, LARGE_SIZE), LARGE);
     assertEquals(expected, result);
   }
 }

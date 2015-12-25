@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 public class BitRotateTestCase {
-
   @Test
   public void test() {
     final Location lhs = Location.newLocationForConst(
@@ -31,12 +30,10 @@ public class BitRotateTestCase {
     final Location rhs = Location.newLocationForConst(
         new Data(BitVector.valueOf(4, 32), Type.CARD(32)));
 
-    final Data result1 = DataEngine.execute(
-        EOperatorID.R_ROTATE, lhs.load(), rhs.load());
+    final Data result1 = lhs.load().rotateRight(rhs.load());
     assertEquals(BitVector.valueOf(0xFDEADBEE, 32), result1.getRawData());
 
-    final Data result2 = DataEngine.execute(
-        EOperatorID.R_ROTATE, lhs.bitField(0, 15).load(), rhs.load());
+    final Data result2 = lhs.bitField(0, 15).load().rotateRight(rhs.load());
     assertEquals(BitVector.valueOf(0xFBEE, 16), result2.getRawData());
   }
 }

@@ -22,8 +22,7 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC2;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.data.DataEngine;
-import ru.ispras.microtesk.model.api.data.EOperatorID;
+import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -124,9 +123,6 @@ public class Arith_Mem_Inst extends Operation
         op1.access().assign(DEST.access());
 
         PC.access().store(
-            DataEngine.execute(
-                EOperatorID.PLUS, PC.access().load(), DataEngine.valueOf(PC.getType(), 2)
-            )
-        );
+            PC.access().load().add(Data.valueOf(PC.getType(), 2)));
     }
 }

@@ -21,8 +21,6 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC2;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.data.DataEngine;
-import ru.ispras.microtesk.model.api.data.EOperatorID;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -111,12 +109,6 @@ public class Sub extends Operation
   @Override
   public void action() {
     DEST.access().store(
-        DataEngine.execute(
-            EOperatorID.MINUS,
-            SRC1.access().load(),
-            SRC2.access().load()
-        )
-    );
+        SRC1.access().load().subtract(SRC2.access().load()));
   }
 }
-

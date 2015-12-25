@@ -29,8 +29,8 @@ public class Concat64TestCase {
   public void test() {
     final Memory temp = Memory.def(Kind.VAR, "temp", Type.INT(64), 1);
 
-    temp.access().bitField(31, 0).store(DataEngine.valueOf(Type.INT(32), 0xffffffffL));
-    temp.access().bitField(63, 32).store(DataEngine.valueOf(Type.INT(32), 0x77777777));
+    temp.access().bitField(31, 0).store(Data.valueOf(Type.INT(32), 0xffffffffL));
+    temp.access().bitField(63, 32).store(Data.valueOf(Type.INT(32), 0x77777777));
 
     trace("temp =%s", temp.access().load().getRawData().toHexString());
     assertEquals(

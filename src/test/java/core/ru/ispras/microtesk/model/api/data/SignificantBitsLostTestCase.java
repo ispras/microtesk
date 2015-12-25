@@ -74,6 +74,6 @@ public class SignificantBitsLostTestCase {
   }
 
   private static boolean check(Type type, long value) {
-    return DataEngine.isLossOfSignificantBits(type, BigInteger.valueOf(value));
+    return Data.isLossOfSignificantBits(type, BigInteger.valueOf(value));
   }
 }

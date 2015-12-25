@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.DataEngine;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
@@ -40,20 +39,20 @@ public class LargeAddressTestCase {
 
   @Test
   public void test() {
-    M48.access(0x800000000000L).store(DataEngine.valueOf(WORD48, 0xffffffffffffL));
+    M48.access(0x800000000000L).store(Data.valueOf(WORD48, 0xffffffffffffL));
     assertEquals(new Data(BitVector.valueOf(-1L, WORD48.getBitSize()), WORD48), M48.access(0x800000000000L).load());
 
-    M48.access(0x800000000000L).store(DataEngine.valueOf(WORD48, 0xdeadbeefbaadL));
+    M48.access(0x800000000000L).store(Data.valueOf(WORD48, 0xdeadbeefbaadL));
     assertEquals(new Data(BitVector.valueOf(0xdeadbeefbaadL, WORD48.getBitSize()), WORD48), M48.access(0x800000000000L).load());
 
-    M64.access(new BigInteger("8000000000000000", 16)).store(DataEngine.valueOf(WORD64, new BigInteger("ffffffffffffffff", 16)));
+    M64.access(new BigInteger("8000000000000000", 16)).store(Data.valueOf(WORD64, new BigInteger("ffffffffffffffff", 16)));
     assertEquals(new Data(BitVector.valueOf(-1L, WORD64.getBitSize()), WORD64), M64.access(new BigInteger("8000000000000000", 16)).load());
 
-    M64.access(new BigInteger("8000000000000001", 16)).store(DataEngine.valueOf(WORD64, new BigInteger("deadfeedbaadf00d", 16)));
+    M64.access(new BigInteger("8000000000000001", 16)).store(Data.valueOf(WORD64, new BigInteger("deadfeedbaadf00d", 16)));
     assertEquals(new Data(BitVector.valueOf(0xdeadfeedbaadf00dL, WORD64.getBitSize()), WORD64), M64.access(new BigInteger("8000000000000001", 16)).load());
 
-    GPR64.access(0).store(DataEngine.valueOf(WORD64, new BigInteger("8000000000000002", 16)));
-    M64.access(GPR64.access(0).load()).store(DataEngine.valueOf(WORD64, new BigInteger("deadfeedbaadf00d", 16)));
+    GPR64.access(0).store(Data.valueOf(WORD64, new BigInteger("8000000000000002", 16)));
+    M64.access(GPR64.access(0).load()).store(Data.valueOf(WORD64, new BigInteger("deadfeedbaadf00d", 16)));
     assertEquals(new Data(BitVector.valueOf(0xdeadfeedbaadf00dL, WORD64.getBitSize()), WORD64), M64.access(new BigInteger("8000000000000002", 16)).load());
   }
 }
