@@ -267,24 +267,6 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
   }
 
   /**
-   * Basic generic implementation of the onBeforeLoad method.
-   */
-
-  @Override
-  public void onBeforeLoad() {
-    Logger.debug(getClass().getSimpleName() + ": onBeforeLoad");
-  }
-
-  /**
-   * Basic generic implementation of the onBeforeStore method.
-   */
-
-  @Override
-  public void onBeforeStore() {
-    Logger.debug(getClass().getSimpleName() + ": onBeforeStore");
-  }
-
-  /**
    * Default implementation of the syntax attribute. Provided to allow using addressing modes that
    * have no explicitly specified syntax attribute. This method does not do any useful work and
    * should never be called. It is needed only to let inherited classes compile.

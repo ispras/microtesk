@@ -33,17 +33,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
  */
 
 public interface IAddressingMode extends IPrimitive {
-  /**
-   * Sends a notification to trace an attempt to load data from memory storage.
-   */
-
-  void onBeforeLoad();
-
-  /**
-   * Sends a notification to trace an attempt to write data to memory storage.
-   */
-
-  void onBeforeStore();
 
   /**
    * Returns the location the addressing mode object points to (when initialized with specific

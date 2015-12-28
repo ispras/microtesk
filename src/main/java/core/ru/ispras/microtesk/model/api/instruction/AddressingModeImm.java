@@ -84,18 +84,6 @@ public final class AddressingModeImm extends AddressingMode {
   }
 
   @Override
-  public void onBeforeLoad() {
-    // NOTHING
-    assert false : "Must not be called!";
-  }
-
-  @Override
-  public void onBeforeStore() {
-    // NOTHING
-    assert false : "Must not be called!";
-  }
-
-  @Override
   public Location access() {
     return value;
   }
