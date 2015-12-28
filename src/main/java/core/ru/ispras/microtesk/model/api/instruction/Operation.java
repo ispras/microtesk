@@ -248,16 +248,6 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
   }
 
-  protected static Object getArgument(
-      final String name,
-      final ParamDecls decls,
-      final Map<String, Object> args) {
-
-    final Object arg = args.get(name);
-    // TODO Check argument
-    return arg;
-  }
-
   protected static final class Shortcuts {
     private final Map<String, InfoAndRule> shortcuts;
 
