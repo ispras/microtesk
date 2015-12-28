@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -91,7 +92,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     @Override
     public MetaArgument getMetaData() {
       return new MetaArgument(
-          MetaArgument.Kind.IMM,
+          ArgumentKind.IMM,
           ArgumentMode.IN,
           name,
           Collections.singleton(AddressingModeImm.NAME),
@@ -143,7 +144,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       }
 
       return new MetaArgument(
-          MetaArgument.Kind.MODE,
+          ArgumentKind.MODE,
           usageMode, // IN/OUT/INOUT/NA (if no return type)
           name,
           modeNames,
@@ -190,7 +191,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       }
 
       return new MetaArgument(
-          MetaArgument.Kind.OP,
+          ArgumentKind.OP,
           ArgumentMode.NA,
           name,
           opNames,

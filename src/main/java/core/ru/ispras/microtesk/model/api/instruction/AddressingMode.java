@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
@@ -145,7 +146,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         final Type argType = e.getValue();
 
         final MetaArgument arg = new MetaArgument(
-            MetaArgument.Kind.IMM,
+            ArgumentKind.IMM,
             ArgumentMode.IN,
             argName,
             Collections.singleton(AddressingModeImm.NAME),

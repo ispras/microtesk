@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Set;
 
+import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 
@@ -29,21 +30,7 @@ import ru.ispras.microtesk.model.api.data.Type;
  */
 
 public final class MetaArgument implements MetaData {
-
-  /**
-   * Specifies the type of object used as an argument.
-   */
-
-  public enum Kind {
-    /** Immediate value */
-    IMM,
-    /** Addressing mode */
-    MODE,
-    /** Operation */
-    OP,
-  }
-
-  private final Kind kind;
+  private final ArgumentKind kind;
   private final ArgumentMode mode;
   private final String name;
   private final Set<String> typeNames;
@@ -63,7 +50,7 @@ public final class MetaArgument implements MetaData {
    */
 
   public MetaArgument(
-      final Kind kind,
+      final ArgumentKind kind,
       final ArgumentMode mode,
       final String name,
       final Set<String> typeNames,
@@ -86,7 +73,7 @@ public final class MetaArgument implements MetaData {
    * @return Argument kind.
    */
 
-  public Kind getKind() {
+  public ArgumentKind getKind() {
     return kind;
   }
 
