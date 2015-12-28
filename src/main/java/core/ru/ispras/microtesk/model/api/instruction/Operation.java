@@ -47,14 +47,8 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 
 public abstract class Operation extends StandardFunctions implements IOperation {
   interface Param {
-    public enum Kind {
-      IMM,
-      MODE,
-      OP
-    }
-
     public String getName();
-    public Kind getKind();
+    public ArgumentKind getKind();
     public boolean isSupported(IPrimitive o);
     public Type getType();
     public MetaArgument getMetaData();
@@ -75,8 +69,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Kind getKind() {
-      return Kind.IMM;
+    public ArgumentKind getKind() {
+      return ArgumentKind.IMM;
     }
 
     @Override
@@ -121,8 +115,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Kind getKind() {
-      return Kind.MODE;
+    public ArgumentKind getKind() {
+      return ArgumentKind.MODE;
     }
 
     @Override
@@ -168,8 +162,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Kind getKind() {
-      return Kind.OP;
+    public ArgumentKind getKind() {
+      return ArgumentKind.OP;
     }
 
     @Override

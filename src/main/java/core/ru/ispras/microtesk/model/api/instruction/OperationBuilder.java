@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
@@ -45,7 +46,7 @@ public final class OperationBuilder implements IOperationBuilder {
     checkReassignment(name);
 
     final Operation.Param decl = decls.get(name);
-    if (decl.getKind() != Operation.Param.Kind.IMM) {
+    if (decl.getKind() != ArgumentKind.IMM) {
       throw new UndeclaredException(String.format(
         "The %s argument of the %s operation must be an immediate value.", name, opName));
     }
@@ -71,7 +72,7 @@ public final class OperationBuilder implements IOperationBuilder {
 
     final Operation.Param decl = decls.get(name);
 
-    if (decl.getKind() != Operation.Param.Kind.MODE) {
+    if (decl.getKind() != ArgumentKind.MODE) {
       throw new UndeclaredException(String.format(
         "The %s argument of the %s operation must be an addressing mode.", name, opName));
     }
@@ -92,7 +93,7 @@ public final class OperationBuilder implements IOperationBuilder {
 
     final Operation.Param decl = decls.get(name);
 
-    if (decl.getKind() != Operation.Param.Kind.OP) {
+    if (decl.getKind() != ArgumentKind.OP) {
       throw new UndeclaredException(String.format(
         "The %s argument of the %s operation must be an operation.", name, opName));
     }
