@@ -106,14 +106,13 @@ public final class Format {
       final String methodName;
 
       if (FormatMarker.BIN == marker || FormatMarker.STR == marker) {
-        methodName = "toBinString()";
+        methodName = "toBinString";
       } else {
-        final boolean signed = expr.getValueInfo().isModelOf(TypeId.INT);
-        methodName = String.format("bigIntegerValue(%b)", signed);
+        methodName = "bigIntegerValue";
       }
 
       return String.format(
-          "%s.%s", new PrinterExpr(expr), methodName);
+          "%s.%s()", new PrinterExpr(expr), methodName);
     }
 
     private String convertJavaTo(final FormatMarker marker) {

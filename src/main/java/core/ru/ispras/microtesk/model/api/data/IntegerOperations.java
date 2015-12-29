@@ -160,8 +160,7 @@ final class IntegerOperations implements Operations {
 
   @Override
   public String toString(final Data arg) {
-    final boolean signed = isSigned(arg);
-    return arg.bigIntegerValue(signed).toString();
+    return arg.bigIntegerValue().toString();
   }
 
   @Override

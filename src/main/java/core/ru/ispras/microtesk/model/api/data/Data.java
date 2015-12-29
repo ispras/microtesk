@@ -270,7 +270,8 @@ public final class Data implements Comparable<Data> {
     return rawData.equals(other.rawData);
   }
 
-  public BigInteger bigIntegerValue(final boolean signed) {
+  public BigInteger bigIntegerValue() {
+    final boolean signed = type.getTypeId() == TypeId.INT;
     return rawData.bigIntegerValue(signed);
   }
 
