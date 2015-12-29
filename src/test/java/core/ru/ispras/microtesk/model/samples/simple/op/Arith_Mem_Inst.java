@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -53,10 +54,10 @@ public class Arith_Mem_Inst extends Operation
                 Arith_Mem_Inst.class,
                 Arith_Mem_Inst.class.getSimpleName(),
                 false,
-                new ParamDecls()
-                    .declareParam("y",   Add_sub_mov.INFO)
-                    .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
-                    .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO),
+                new ArgumentDecls()
+                    .add("y",   Add_sub_mov.INFO)
+                    .add("op1", ArgumentMode.NA, OPRNDL.INFO)
+                    .add("op2", ArgumentMode.NA, OPRNDR.INFO),
                 false,
                 false,
                 false,

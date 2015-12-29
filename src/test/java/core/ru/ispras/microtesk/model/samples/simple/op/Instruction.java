@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.samples.simple.op;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 
@@ -34,8 +35,8 @@ public final class Instruction extends Operation {
           Instruction.class,
           Instruction.class.getSimpleName(),
           true,
-          new ParamDecls()
-              .declareParam("x", Arith_Mem_Inst.INFO),
+          new ArgumentDecls()
+              .add("x", Arith_Mem_Inst.INFO),
           false,
           false,
           false,

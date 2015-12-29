@@ -20,6 +20,7 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC2;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -42,7 +43,7 @@ public final class Mov extends Operation {
           Mov.class,
           Mov.class.getSimpleName(),
           false,
-          new ParamDecls(),
+          new ArgumentDecls(),
           false,
           false,
           false,
@@ -67,9 +68,9 @@ public final class Mov extends Operation {
           Instruction.class, 
           "Mov",
           true,
-          new ParamDecls()
-              .declareParam("op1", ArgumentMode.NA, OPRNDL.INFO)
-              .declareParam("op2", ArgumentMode.NA, OPRNDR.INFO),
+          new ArgumentDecls()
+              .add("op1", ArgumentMode.NA, OPRNDL.INFO)
+              .add("op2", ArgumentMode.NA, OPRNDR.INFO),
           false,
           false,
           false,

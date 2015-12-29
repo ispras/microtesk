@@ -21,6 +21,7 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.SRC2;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -38,7 +39,7 @@ public final class Add extends Operation {
           Add.class,
           Add.class.getSimpleName(),
           false,
-          new ParamDecls(),
+          new ArgumentDecls(),
           false,
           false,
           false,
@@ -63,9 +64,9 @@ public final class Add extends Operation {
           Instruction.class,
           "Add",
           true,
-          new ParamDecls()
-              .declareParam("op1", ArgumentMode.INOUT, OPRNDL.INFO)
-              .declareParam("op2", ArgumentMode.IN, OPRNDR.INFO),
+          new ArgumentDecls()
+              .add("op1", ArgumentMode.INOUT, OPRNDL.INFO)
+              .add("op2", ArgumentMode.IN, OPRNDR.INFO),
           false,
           false,
           false,
