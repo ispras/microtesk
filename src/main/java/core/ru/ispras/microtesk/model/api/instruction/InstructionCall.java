@@ -18,10 +18,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.state.IStateResetter;
 
 /**
- * The InstructionCall class provides methods to run execution simulation of some instruction
- * within the processor model.
+ * The InstructionCall class provides methods to run execution simulation
+ * of some instruction within the processor model.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class InstructionCall {
