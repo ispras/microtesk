@@ -82,7 +82,7 @@ public final class Reader {
         modeBuilder.setArgumentValue(argName, argValue);
       }
 
-      mode = modeBuilder.getProduct();
+      mode = modeBuilder.build();
     } catch (final ConfigurationException e) {
       throw new IllegalArgumentException(e);
     }

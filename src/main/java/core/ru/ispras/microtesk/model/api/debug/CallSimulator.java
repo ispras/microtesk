@@ -41,7 +41,7 @@ public abstract class CallSimulator {
       modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
     }
 
-    return modeBuilder.getProduct();
+    return modeBuilder.build();
   }
 
   protected final IOperation newOp(String name, String context, Map<String, IAddressingMode> args)

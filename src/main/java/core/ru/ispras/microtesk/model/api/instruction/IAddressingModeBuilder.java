@@ -44,5 +44,5 @@ public interface IAddressingModeBuilder {
    *         build an addressing mode object due to incorrect configuration.
    */
 
-  IAddressingMode getProduct() throws ConfigurationException;
+  IAddressingMode build() throws ConfigurationException;
 }

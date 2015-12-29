@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -26,10 +27,10 @@ import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.UninitializedException;
 
 /**
- * The AddressingModeBuilder class implements logic responsible for creating and initializing
- * addressing mode objects.
+ * The {@link AddressingModeBuilder} class implements logic responsible for
+ * creating and initializing addressing mode objects.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class AddressingModeBuilder implements IAddressingModeBuilder {
@@ -47,16 +48,19 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
    */
 
   public AddressingModeBuilder(
-      String modeName, IAddressingMode.IFactory factory, Map<String, Type> decls) {
+      final String modeName,
+      final IAddressingMode.IFactory factory,
+      final Map<String, Type> decls) {
     this.modeName = modeName;
     this.factory = factory;
     this.decls = decls;
-    this.args = new HashMap<String, Data>();
+    this.args = new HashMap<>();
   }
 
   @Override
-  public IAddressingModeBuilder setArgumentValue(String name, BigInteger value)
-      throws ConfigurationException {
+  public IAddressingModeBuilder setArgumentValue(
+      final String name,
+      final BigInteger value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
@@ -64,9 +68,11 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
     final Data data = Data.valueOf(type, value);
 
     if (Data.isLossOfSignificantBits(type, value)) {
-      System.out.printf("Warning: The value of the %s argument (= %d) of the %s addressing mode " +
-         "will be truncated to suit %s. This will cause loss of significant bits. Result: %d%n",
-         name, value, modeName, type, data.getRawData().intValue());
+      Logger.warning(
+         "The value of the %s argument (= %d) of the %s addressing mode " +
+         "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
+         name, value, modeName, type, data.getRawData().intValue()
+         );
     }
 
     args.put(name, data);
@@ -74,35 +80,31 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
   }
 
   @Override
-  public IAddressingMode getProduct() throws ConfigurationException {
+  public IAddressingMode build() throws ConfigurationException {
     checkInitialized();
     return factory.create(args);
   }
 
-  private void checkUndeclaredArgument(String name) throws UndeclaredException {
-    final String ERROR_FORMAT = "The %s argument is not declared for the %s addressing mode.";
-
+  private void checkUndeclaredArgument(final String name) throws UndeclaredException {
     if (!decls.containsKey(name)) {
-      throw new UndeclaredException(String.format(ERROR_FORMAT, name, modeName));
+      throw new UndeclaredException(String.format(
+          "The %s argument is not declared for the %s addressing mode.", name, modeName));
     }
   }
 
-  private void checkReassignment(String name) throws ReassignmentException {
-    final String ERROR_FORMAT =
-      "The value of the %s argument has already been assigned for " +
-      "the current instance of the %s addressing mode.";
-
+  private void checkReassignment(final String name) throws ReassignmentException {
     if (args.containsKey(name)) {
-      throw new ReassignmentException(String.format(ERROR_FORMAT, name, modeName));
+      throw new ReassignmentException(String.format(
+          "The value of the %s argument has already been assigned for " +
+          "the current instance of the %s addressing mode.", name, modeName));
     }
   }
 
   private void checkInitialized() throws UninitializedException {
-    final String ERROR_FORMAT = "The % argument of the %s mode is not initialized.";
-
-    for (String name : decls.keySet()) {
+    for (final String name : decls.keySet()) {
       if (!args.containsKey(name)) {
-        throw new UninitializedException(String.format(ERROR_FORMAT, name, modeName));
+        throw new UninitializedException(String.format(
+            "The % argument of the %s mode is not initialized.", name, modeName));
       }
     }
   }

@@ -436,7 +436,7 @@ public final class EngineUtils {
       }
     }
 
-    return builder.getProduct();
+    return builder.build();
   }
 
   public static IOperation makeOp(
