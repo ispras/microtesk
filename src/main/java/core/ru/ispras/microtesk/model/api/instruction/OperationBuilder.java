@@ -62,7 +62,8 @@ public final class OperationBuilder implements IOperationBuilder {
       Logger.warning(
           "The value of the %s argument (= %d) of the %s operation " +
           "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
-          name, value, opName, decl.getType(), data.getRawData().intValue());
+          name, value, opName, decl.getType(), data.bigIntegerValue()
+          );
     }
 
     final Location arg = Location.newLocationForConst(data);

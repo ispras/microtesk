@@ -71,7 +71,7 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
       Logger.warning(
          "The value of the %s argument (= %d) of the %s addressing mode " +
          "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
-         name, value, modeName, type, data.getRawData().intValue()
+         name, value, modeName, type, data.bigIntegerValue()
          );
     }
 
