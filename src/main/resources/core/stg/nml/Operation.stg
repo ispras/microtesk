@@ -111,7 +111,7 @@ public IOperation create(Map\<String, Object\> args) {
 >>
 
 new_op_decls(arg_names, arg_tnames) ::= <<
-new ParamDecls()<arg_names, arg_tnames:{n, t | <\n>    .declareParam("<n>", <t>)}>
+new ArgumentDecls()<arg_names, arg_tnames:{n, t | <\n>    .add("<n>", <t>)}>
 >>
 
 ///////////////////////////////////////////////////////////////////////////////

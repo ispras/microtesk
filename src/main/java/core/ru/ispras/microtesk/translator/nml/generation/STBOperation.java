@@ -27,6 +27,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -90,6 +91,7 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
     t.add("imps", IOperation.class.getName());
+    t.add("imps", ArgumentDecls.class.getName());
     t.add("imps", Operation.class.getName());
     t.add("imps", ArgumentMode.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));

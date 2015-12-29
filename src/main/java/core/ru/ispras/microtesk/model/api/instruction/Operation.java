@@ -20,18 +20,11 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ArgumentKind;
-import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -46,202 +39,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  */
 
 public abstract class Operation extends StandardFunctions implements IOperation {
-  interface Param {
-    public String getName();
-    public ArgumentKind getKind();
-    public boolean isSupported(IPrimitive o);
-    public Type getType();
-    public MetaArgument getMetaData();
-  }
-
-  private static class ParamIMM implements Param {
-    private final String name;
-    private final Type type;
-
-    private ParamIMM(final String name, final Type type) {
-      this.name = name;
-      this.type = type;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public ArgumentKind getKind() {
-      return ArgumentKind.IMM;
-    }
-
-    @Override
-    public boolean isSupported(final IPrimitive o) {
-      return false;
-    }
-
-    @Override
-    public Type getType() {
-      return type;
-    }
-
-    @Override
-    public MetaArgument getMetaData() {
-      return new MetaArgument(
-          ArgumentKind.IMM,
-          ArgumentMode.IN,
-          name,
-          Collections.singleton(AddressingModeImm.NAME),
-          getType()
-          );
-    }
-  }
-
-  private static class ParamMode implements Param {
-    private final String name;
-    private final ArgumentMode usageMode;
-    private final IAddressingMode.IInfo info;
-
-    private ParamMode(
-        final String name,
-        final ArgumentMode usageMode,
-        final IAddressingMode.IInfo info) {
-      this.name = name;
-      this.usageMode = usageMode;
-      this.info = info;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public ArgumentKind getKind() {
-      return ArgumentKind.MODE;
-    }
-
-    @Override
-    public boolean isSupported(final IPrimitive o) {
-      return (o instanceof IAddressingMode) && info.isSupported((IAddressingMode) o);
-    }
-
-    @Override
-    public Type getType() {
-      return info.getType();
-    }
-
-    @Override
-    public MetaArgument getMetaData() {
-      final Set<String> modeNames = new LinkedHashSet<>(info.getMetaData().size());
-
-      for (final MetaAddressingMode mode : info.getMetaData()) {
-        modeNames.add(mode.getName());
-      }
-
-      return new MetaArgument(
-          ArgumentKind.MODE,
-          usageMode, // IN/OUT/INOUT/NA (if no return type)
-          name,
-          modeNames,
-          getType()
-          );
-    }
-  }
-
-  private static class ParamOp implements Param {
-    private final String name;
-    private final IOperation.IInfo info;
-
-    private ParamOp(final String name, final IOperation.IInfo info) {
-      this.name = name;
-      this.info = info;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public ArgumentKind getKind() {
-      return ArgumentKind.OP;
-    }
-
-    @Override
-    public boolean isSupported(final IPrimitive o) {
-      return (o instanceof IOperation) && info.isSupported((IOperation) o);
-    }
-
-    @Override
-    public Type getType() {
-      return null;
-    }
-
-    @Override
-    public MetaArgument getMetaData() {
-      final Set<String> opNames = new LinkedHashSet<>(info.getMetaData().size());
-
-      for (final MetaOperation op : info.getMetaData()) {
-        opNames.add(op.getName());
-      }
-
-      return new MetaArgument(
-          ArgumentKind.OP,
-          ArgumentMode.NA,
-          name,
-          opNames,
-          getType()
-          );
-    }
-  }
-
-  /**
-   * The ParamDecl class is aimed to specify declarations operation parameters.
-   * 
-   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
-   */
-
-  public final static class ParamDecls {
-    private final Map<String, Param> decls;
-
-    public ParamDecls() {
-      this.decls = new LinkedHashMap<>();
-    }
-
-    public ParamDecls declareParam(
-        final String name,
-        final Type type) {
-      decls.put(name, new ParamIMM(name, type));
-      return this;
-    }
-
-    public ParamDecls declareParam(
-        final String name,
-        final ArgumentMode mode,
-        final AddressingMode.IInfo info) {
-      decls.put(name, new ParamMode(name, mode, info));
-      return this;
-    }
-
-    public ParamDecls declareParam(
-        final String name,
-        final IOperation.IInfo info) {
-      decls.put(name, new ParamOp(name, info));
-      return this;
-    }
-
-    public Map<String, MetaArgument> getMetaData() {
-      final Map<String, MetaArgument> metaData = new LinkedHashMap<>(decls.size());
-      for (final Param p : decls.values()) {
-        metaData.put(p.getName(), p.getMetaData());
-      }
-
-      return metaData;
-    }
-
-    public Map<String, Param> getDecls() {
-      return decls;
-    }
-  }
 
   protected static final class Shortcuts {
     private final Map<String, InfoAndRule> shortcuts;
@@ -293,7 +90,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     private final Class<?> opClass;
     private final String name;
     private final boolean isRoot;
-    private final ParamDecls decls;
+    private final ArgumentDecls decls;
     private final Shortcuts shortcuts;
     private final MetaOperation metaData;
 
@@ -301,7 +98,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final Class<?> opClass,
         final String name,
         final boolean isRoot,
-        final ParamDecls decls,
+        final ArgumentDecls decls,
         final boolean isBranch,
         final boolean isConditionalBranch,
         final boolean canThrowException,
@@ -334,7 +131,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
         final Class<?> opClass,
         final String name,
         final boolean isRoot,
-        final ParamDecls decls,
+        final ArgumentDecls decls,
         final boolean isBranch,
         final boolean isConditionalBranch,
         final boolean canThrowException,

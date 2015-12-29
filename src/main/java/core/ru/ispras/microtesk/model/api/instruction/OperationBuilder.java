@@ -31,13 +31,13 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
 public final class OperationBuilder implements IOperationBuilder {
   private final String opName;
   private final IOperation.IFactory factory;
-  private final Map<String, Operation.Param> decls;
+  private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Object> args;
 
   public OperationBuilder(
       final String opName,
       final IOperation.IFactory factory,
-      final Operation.ParamDecls decls) {
+      final ArgumentDecls decls) {
     this.opName = opName;
     this.factory = factory;
     this.decls = decls.getDecls();
@@ -51,7 +51,7 @@ public final class OperationBuilder implements IOperationBuilder {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final Operation.Param decl = decls.get(name);
+    final ArgumentDecls.Argument decl = decls.get(name);
     if (decl.getKind() != ArgumentKind.IMM) {
       throw new UndeclaredException(String.format(
           "The %s argument of the %s operation must be an immediate value.", name, opName));
@@ -79,7 +79,7 @@ public final class OperationBuilder implements IOperationBuilder {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final Operation.Param decl = decls.get(name);
+    final ArgumentDecls.Argument decl = decls.get(name);
 
     if (decl.getKind() != ArgumentKind.MODE) {
       throw new UndeclaredException(String.format(
@@ -102,7 +102,7 @@ public final class OperationBuilder implements IOperationBuilder {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final Operation.Param decl = decls.get(name);
+    final ArgumentDecls.Argument decl = decls.get(name);
 
     if (decl.getKind() != ArgumentKind.OP) {
       throw new UndeclaredException(String.format(
