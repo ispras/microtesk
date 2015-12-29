@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
+
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
@@ -36,7 +38,7 @@ import ru.ispras.microtesk.model.api.exception.UninitializedException;
 public final class AddressingModeBuilder implements IAddressingModeBuilder {
   private final String modeName;
   private final IAddressingMode.IFactory factory;
-  private final Map<String, Type> decls;
+  private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Data> args;
 
   /**
@@ -50,10 +52,10 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
   public AddressingModeBuilder(
       final String modeName,
       final IAddressingMode.IFactory factory,
-      final Map<String, Type> decls) {
+      final ArgumentDecls decls) {
     this.modeName = modeName;
     this.factory = factory;
-    this.decls = decls;
+    this.decls = decls.getDecls();
     this.args = new HashMap<>();
   }
 
@@ -64,7 +66,13 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final Type type = decls.get(name);
+    final ArgumentDecls.Argument decl = decls.get(name);
+    if (decl.getKind() != ArgumentKind.IMM) {
+      throw new UndeclaredException(String.format(
+          "The %s argument of the %s addressing mode must be an immediate value.", name, modeName));
+    }
+
+    final Type type = decl.getType();
     final Data data = Data.valueOf(type, value);
 
     if (Data.isLossOfSignificantBits(type, value)) {

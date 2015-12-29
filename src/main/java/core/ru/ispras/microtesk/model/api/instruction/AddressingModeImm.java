@@ -39,7 +39,7 @@ public final class AddressingModeImm extends AddressingMode {
           AddressingModeImm.class,
           NAME,
           type,
-          new ParamDecls().declareParam(PARAM_NAME, type),
+          new ArgumentDecls().add(PARAM_NAME, type),
           false,
           false,
           false,

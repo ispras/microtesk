@@ -18,18 +18,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ArgumentKind;
-import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 
@@ -43,30 +39,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 
 public abstract class AddressingMode extends StandardFunctions implements IAddressingMode {
   /**
-   * The ParamDeclsr class provides facilities to build a table of addressing mode parameter
-   * declarations.
-   * 
-   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
-   */
-
-  protected static class ParamDecls {
-    private final Map<String, Type> decls;
-
-    public ParamDecls() {
-      this.decls = new LinkedHashMap<>();
-    }
-
-    public ParamDecls declareParam(final String name, final Type type) {
-      decls.put(name, type);
-      return this;
-    }
-
-    public Map<String, Type> getDecls() {
-      return decls;
-    }
-  }
-
-  /**
    * The AddressingMode.Info class is an implementation of the IInfo interface that provides logic
    * for storing information about a single addressing mode. The class is to be used by generated
    * classes that implement behavior of particular addressing modes.
@@ -78,7 +50,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     private final Class<?> modeClass;
     private final String name;
     private final Type type;
-    private final Map<String, Type> decls;
+    private final ArgumentDecls decls;
     private final boolean exception;
     private final boolean memoryReference;
     private final boolean load;
@@ -91,7 +63,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
         final Class<?> modeClass,
         final String name,
         final Type type,
-        final ParamDecls decls,
+        final ArgumentDecls decls,
         final boolean exception,
         final boolean memoryReference,
         final boolean load,
@@ -100,7 +72,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
       this.modeClass = modeClass;
       this.name = name;
       this.type = type; 
-      this.decls = decls.getDecls();
+      this.decls = decls;
       this.metaData = null;
       this.exception = exception;
 
@@ -139,27 +111,10 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     }
 
     private MetaAddressingMode createMetaData() {
-      final Map<String, MetaArgument> args = new LinkedHashMap<>(decls.size());
-
-      for (Map.Entry<String, Type> e : decls.entrySet()) {
-        final String argName = e.getKey();
-        final Type argType = e.getValue();
-
-        final MetaArgument arg = new MetaArgument(
-            ArgumentKind.IMM,
-            ArgumentMode.IN,
-            argName,
-            Collections.singleton(AddressingModeImm.NAME),
-            argType
-            );
-
-        args.put(argName, arg);
-      }
-
       return new MetaAddressingMode(
           name,
           type,
-          args,
+          decls.getMetaData(),
           exception,
           memoryReference,
           load,
@@ -185,8 +140,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     protected final Location getArgument(final String name, final Map<String, Data> args) {
       final Data data = args.get(name);
 
-      assert decls.get(name).equals(data.getType()) : String.format(
-          "The %s parameter does not exist.", name);
+      assert decls.getDecls().get(name).getType().equals(data.getType()) :
+          String.format("The %s parameter does not exist.", name);
 
       return Location.newLocationForConst(data);
     }

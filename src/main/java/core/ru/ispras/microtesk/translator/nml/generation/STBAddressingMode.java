@@ -25,6 +25,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
@@ -65,6 +66,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
 
     t.add("imps", IAddressingMode.class.getName());
     t.add("imps", AddressingMode.class.getName());
+    t.add("imps", ArgumentDecls.class.getName());
 
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
     t.add("base",  AddressingMode.class.getSimpleName());

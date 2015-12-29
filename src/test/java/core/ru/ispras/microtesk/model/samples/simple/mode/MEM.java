@@ -32,6 +32,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -51,7 +52,7 @@ public class MEM extends AddressingMode
                 MEM.class,
                 "MEM",
                 byte_t,
-                new ParamDecls().declareParam("i", index),
+                new ArgumentDecls().add("i", index),
                 false,
                 true,
                 false,

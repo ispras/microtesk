@@ -30,6 +30,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -49,8 +50,8 @@ public final class IMM extends AddressingMode
                 IMM.class,
                 "IMM",
                 byte_t,
-                new ParamDecls()
-                    .declareParam("i", byte_t),
+                new ArgumentDecls()
+                    .add("i", byte_t),
                 false,
                 false,
                 false,

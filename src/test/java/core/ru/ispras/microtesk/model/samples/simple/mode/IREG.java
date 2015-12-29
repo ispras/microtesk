@@ -33,6 +33,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -52,7 +53,7 @@ public class IREG extends AddressingMode
                IREG.class,
                "IREG",
                byte_t,
-               new ParamDecls().declareParam("i", nibble),
+               new ArgumentDecls().add("i", nibble),
                false,
                true,
                false,

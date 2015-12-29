@@ -84,7 +84,7 @@ public IAddressingMode create(<data_map_type()> args) {
 data_map_type() ::= <<Map\<String, Data\>>>
 
 param_decls(param_names, param_types) ::= <<
-new ParamDecls()<param_names, param_types:{n, t | <\n>    .declareParam("<n>", <t>)}>
+new ArgumentDecls()<param_names, param_types:{n, t | <\n>    .add("<n>", <t>)}>
 >>
 
 mode_constructor(name, param_names) ::= <<
