@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
+import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Label;
@@ -169,7 +169,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // ICallFactory
   @Override
-  public final IOperationBuilder newOp(String name, String contextName)
+  public final OperationBuilder newOp(String name, String contextName)
       throws ConfigurationException {
     final String ERROR_FORMAT = "The %s operation is not defined.";
 
@@ -182,14 +182,14 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
     }
 
-    Map<String, IOperationBuilder> builders = null;
+    Map<String, OperationBuilder> builders = null;
 
     builders = opInfo.createBuildersForShortcut(contextName);
     if (null == builders) {
       builders = opInfo.createBuilders();
     }
 
-    final IOperationBuilder result = builders.get(name);
+    final OperationBuilder result = builders.get(name);
     if (null == result) {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
     }

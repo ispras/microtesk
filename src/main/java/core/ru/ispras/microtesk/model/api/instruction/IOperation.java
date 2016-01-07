@@ -57,9 +57,9 @@ public interface IOperation extends IPrimitive {
 
     boolean isRoot();
 
-    Map<String, IOperationBuilder> createBuilders();
+    Map<String, OperationBuilder> createBuilders();
 
-    Map<String, IOperationBuilder> createBuildersForShortcut(String contextName);
+    Map<String, OperationBuilder> createBuildersForShortcut(String contextName);
 
     /**
      * Checks if the current operation (or group of operations) implements (or contains) the

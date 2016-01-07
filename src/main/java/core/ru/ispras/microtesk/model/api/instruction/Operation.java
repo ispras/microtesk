@@ -178,8 +178,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public final Map<String, IOperationBuilder> createBuilders() {
-      final IOperationBuilder builder = new OperationBuilder(name, this, decls);
+    public final Map<String, OperationBuilder> createBuilders() {
+      final OperationBuilder builder = new OperationBuilder(name, this, decls);
       return Collections.singletonMap(name, builder);
     }
 
@@ -189,7 +189,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
       return arg;
     }
 
-    public final Map<String, IOperationBuilder> createBuildersForShortcut(
+    public final Map<String, OperationBuilder> createBuildersForShortcut(
         final String contextName) {
 
       final IInfo shortcut = shortcuts.getShortcut(contextName);
@@ -265,8 +265,8 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Map<String, IOperationBuilder> createBuilders() {
-      final Map<String, IOperationBuilder> result = new HashMap<>();
+    public Map<String, OperationBuilder> createBuilders() {
+      final Map<String, OperationBuilder> result = new HashMap<>();
       for (final IInfo i : childs) {
         result.putAll(i.createBuilders());
       }
@@ -275,7 +275,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
     }
 
     @Override
-    public Map<String, IOperationBuilder> createBuildersForShortcut(final String contextName) {
+    public Map<String, OperationBuilder> createBuildersForShortcut(final String contextName) {
       return null;
     }
 

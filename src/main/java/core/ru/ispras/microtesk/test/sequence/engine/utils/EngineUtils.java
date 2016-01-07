@@ -45,7 +45,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
+import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -459,7 +459,7 @@ public final class EngineUtils {
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 
-    final IOperationBuilder builder = callFactory.newOp(name, context);
+    final OperationBuilder builder = callFactory.newOp(name, context);
 
     for (Argument arg : abstractOp.getArguments().values()) {
       final String argName = arg.getName();

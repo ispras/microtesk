@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
-import ru.ispras.microtesk.model.api.instruction.IOperationBuilder;
+import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public abstract class CallSimulator {
@@ -46,7 +46,7 @@ public abstract class CallSimulator {
 
   protected final IOperation newOp(String name, String context, Map<String, IAddressingMode> args)
       throws ConfigurationException {
-    final IOperationBuilder opBuilder = model.getCallFactory().newOp(name, context);
+    final OperationBuilder opBuilder = model.getCallFactory().newOp(name, context);
 
     for (Map.Entry<String, IAddressingMode> arg : args.entrySet()) {
       opBuilder.setArgument(arg.getKey(), arg.getValue());

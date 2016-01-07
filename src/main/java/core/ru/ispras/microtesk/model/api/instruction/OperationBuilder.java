@@ -28,7 +28,7 @@ import ru.ispras.microtesk.model.api.exception.UninitializedException;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
-public final class OperationBuilder implements IOperationBuilder {
+public final class OperationBuilder {
   private final String opName;
   private final IOperation.IFactory factory;
   private final Map<String, ArgumentDecls.Argument> decls;
@@ -44,7 +44,6 @@ public final class OperationBuilder implements IOperationBuilder {
     this.args = new HashMap<>();
   }
 
-  @Override
   public LocationAccessor setArgument(
       final String name,
       final BigInteger value) throws ConfigurationException {
@@ -72,8 +71,7 @@ public final class OperationBuilder implements IOperationBuilder {
     return arg;
   }
 
-  @Override
-  public IOperationBuilder setArgument(
+  public OperationBuilder setArgument(
       final String name,
       final IAddressingMode value) throws ConfigurationException {
     checkUndeclaredArgument(name);
@@ -95,8 +93,7 @@ public final class OperationBuilder implements IOperationBuilder {
     return this;
   }
 
-  @Override
-  public IOperationBuilder setArgument(
+  public OperationBuilder setArgument(
       final String name,
       final IOperation value) throws ConfigurationException {
     checkUndeclaredArgument(name);
@@ -118,7 +115,6 @@ public final class OperationBuilder implements IOperationBuilder {
     return this;
   }
 
-  @Override
   public IOperation build() throws ConfigurationException {
     checkInitialized();
     return factory.create(args);
