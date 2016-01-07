@@ -43,7 +43,7 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
@@ -405,7 +405,7 @@ public final class EngineUtils {
     checkMode(abstractMode);
 
     final ICallFactory callFactory = engineContext.getModel().getCallFactory();
-    final IAddressingModeBuilder builder = callFactory.newMode(abstractMode.getName());
+    final AddressingModeBuilder builder = callFactory.newMode(abstractMode.getName());
 
     for (Argument arg : abstractMode.getArguments().values()) {
       final String argName = arg.getName();

@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
@@ -35,7 +35,7 @@ public abstract class CallSimulator {
 
   protected final IAddressingMode newMode(String name, Map<String, BigInteger> args)
       throws ConfigurationException {
-    final IAddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
+    final AddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
 
     for (Map.Entry<String, BigInteger> arg : args.entrySet()) {
       modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());

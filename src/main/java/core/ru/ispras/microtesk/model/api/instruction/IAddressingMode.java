@@ -93,7 +93,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return A table of addressing mode builders (key is the mode name, value is the builder).
      */
 
-    Map<String, IAddressingModeBuilder> createBuilders();
+    Map<String, AddressingModeBuilder> createBuilders();
 
     /**
      * Returns a collection of meta data objects describing the addressing mode (or the group of

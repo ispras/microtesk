@@ -93,8 +93,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     }
 
     @Override
-    public final Map<String, IAddressingModeBuilder> createBuilders() {
-      final IAddressingModeBuilder builder = new AddressingModeBuilder(name, this, decls);
+    public final Map<String, AddressingModeBuilder> createBuilders() {
+      final AddressingModeBuilder builder = new AddressingModeBuilder(name, this, decls);
       return Collections.singletonMap(name, builder);
     }
 
@@ -175,8 +175,8 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
     }
 
     @Override
-    public Map<String, IAddressingModeBuilder> createBuilders() {
-      final Map<String, IAddressingModeBuilder> result = new HashMap<>();
+    public Map<String, AddressingModeBuilder> createBuilders() {
+      final Map<String, AddressingModeBuilder> result = new HashMap<>();
 
       for (final IInfo i : childs) {
         result.putAll(i.createBuilders());

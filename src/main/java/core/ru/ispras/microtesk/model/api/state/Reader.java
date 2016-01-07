@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.api.ICallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -74,7 +74,7 @@ public final class Reader {
     final IAddressingMode mode;
     try {
       final ICallFactory callFactory = model.getCallFactory();
-      final IAddressingModeBuilder modeBuilder = callFactory.newMode(name);
+      final AddressingModeBuilder modeBuilder = callFactory.newMode(name);
 
       int argIndex = 0;
       for (final String argName : metaMode.getArgumentNames()) {

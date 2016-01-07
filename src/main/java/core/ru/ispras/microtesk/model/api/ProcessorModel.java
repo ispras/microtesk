@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IAddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
@@ -145,7 +145,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // ICallFactory
   @Override
-  public final IAddressingModeBuilder newMode(String name) throws ConfigurationException {
+  public final AddressingModeBuilder newMode(String name) throws ConfigurationException {
     final String ERROR_FORMAT = "The %s addressing mode is not defined.";
 
     if (null == name) {
@@ -157,8 +157,8 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
     }
 
-    final Map<String, IAddressingModeBuilder> builders = modeInfo.createBuilders();
-    final IAddressingModeBuilder result = builders.get(name);
+    final Map<String, AddressingModeBuilder> builders = modeInfo.createBuilders();
+    final AddressingModeBuilder result = builders.get(name);
 
     if (null == result) {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));

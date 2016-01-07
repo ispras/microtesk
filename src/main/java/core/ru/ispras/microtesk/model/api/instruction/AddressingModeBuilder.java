@@ -35,7 +35,7 @@ import ru.ispras.microtesk.model.api.exception.UninitializedException;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class AddressingModeBuilder implements IAddressingModeBuilder {
+public final class AddressingModeBuilder {
   private final String modeName;
   private final IAddressingMode.IFactory factory;
   private final Map<String, ArgumentDecls.Argument> decls;
@@ -59,8 +59,14 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
     this.args = new HashMap<>();
   }
 
-  @Override
-  public IAddressingModeBuilder setArgumentValue(
+  /**
+   * Initializes the specified addressing mode argument with an integer value.
+   * 
+   * @param name Mode argument name.
+   * @param value Mode argument integer value.
+   */
+
+  public AddressingModeBuilder setArgumentValue(
       final String name,
       final BigInteger value) throws ConfigurationException {
     checkUndeclaredArgument(name);
@@ -87,7 +93,14 @@ public final class AddressingModeBuilder implements IAddressingModeBuilder {
     return this;
   }
 
-  @Override
+  /**
+   * Returns an addressing mode object created by the builder.
+   * 
+   * @return The addressing mode object.
+   * @throws ConfigurationException Exception that informs of an error that occurs on attempt to
+   *         build an addressing mode object due to incorrect configuration.
+   */
+
   public IAddressingMode build() throws ConfigurationException {
     checkInitialized();
     return factory.create(args);
