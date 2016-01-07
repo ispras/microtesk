@@ -24,7 +24,7 @@ public abstract class StandardFunctions {
     throw new IsaException(text);
   }
 
-  public static void trace(final String format, Object ... args) {
+  public static void trace(final String format, final Object ... args) {
     Logger.debug(format, args);
   }
 
@@ -38,7 +38,7 @@ public abstract class StandardFunctions {
         "Undefined state was reached during instruction call simulation");
   }
 
-  public static void mark(String name) {
+  public static void mark(final String name) {
     //System.out.println(String.format("Mark \"%s\" was reached", name));
   }
 }
