@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -41,22 +40,12 @@ public final class MetaModel {
       final Collection<MetaGroup> operationGroups,
       final Collection<MetaLocationStore> registers,
       final Collection<MetaLocationStore> memory) {
-    this.modes = toMap(modes);
-    this.modeGroups = toMap(modeGroups); 
-    this.operations = toMap(operations);
-    this.operationGroups = toMap(operationGroups);
-    this.registers = toMap(registers);
-    this.memory = toMap(memory);
-  }
-
-  private static <T extends MetaData> Map<String, T> toMap(final Collection<T> c) {
-    final Map<String, T> map = new LinkedHashMap<>();
-
-    for (final T t : c) {
-      map.put(t.getName(), t);
-    }
-
-    return map;
+    this.modes = MetaDataUtils.toMap(modes);
+    this.modeGroups = MetaDataUtils.toMap(modeGroups); 
+    this.operations = MetaDataUtils.toMap(operations);
+    this.operationGroups = MetaDataUtils.toMap(operationGroups);
+    this.registers = MetaDataUtils.toMap(registers);
+    this.memory = MetaDataUtils.toMap(memory);
   }
 
   /**

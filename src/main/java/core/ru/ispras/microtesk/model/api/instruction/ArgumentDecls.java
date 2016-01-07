@@ -14,10 +14,8 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +25,7 @@ import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaData;
+import ru.ispras.microtesk.model.api.metadata.MetaDataUtils;
 
 /**
  * The {@link ArgumentDecls} class is aimed to specify declarations of
@@ -95,7 +93,7 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.MODE,
         mode,
-        getNames(info.getMetaData()),
+        MetaDataUtils.toNameSet(info.getMetaData()),
         info.getType()) {
 
       @Override
@@ -126,7 +124,7 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.OP,
         ArgumentMode.NA,
-        getNames(info.getMetaData()),
+        MetaDataUtils.toNameSet(info.getMetaData()),
         null) {
 
       @Override
@@ -152,14 +150,6 @@ public final class ArgumentDecls {
 
   public Map<String, Argument> getDecls() {
     return Collections.unmodifiableMap(decls);
-  }
-
-  private static Set<String> getNames(final Collection<? extends MetaData> items) {
-    final Set<String> names = new LinkedHashSet<>(items.size());
-    for (final MetaData item : items) {
-      names.add(item.getName());
-    }
-    return names;
   }
 
   static abstract class Argument {
