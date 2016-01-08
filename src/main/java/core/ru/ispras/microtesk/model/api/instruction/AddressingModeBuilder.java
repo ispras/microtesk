@@ -38,7 +38,7 @@ import ru.ispras.microtesk.model.api.memory.Location;
 
 public final class AddressingModeBuilder {
   private final String modeName;
-  private final IAddressingMode.IFactory factory;
+  private final IPrimitive.IFactory<IAddressingMode> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Object> args;
 
@@ -52,7 +52,7 @@ public final class AddressingModeBuilder {
 
   public AddressingModeBuilder(
       final String modeName,
-      final IAddressingMode.IFactory factory,
+      final IPrimitive.IFactory<IAddressingMode> factory,
       final ArgumentDecls decls) {
     this.modeName = modeName;
     this.factory = factory;

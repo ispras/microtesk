@@ -30,13 +30,13 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public final class OperationBuilder {
   private final String opName;
-  private final IOperation.IFactory factory;
+  private final IPrimitive.IFactory<IOperation> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Object> args;
 
   public OperationBuilder(
       final String opName,
-      final IOperation.IFactory factory,
+      final IPrimitive.IFactory<IOperation> factory,
       final ArgumentDecls decls) {
     this.opName = opName;
     this.factory = factory;

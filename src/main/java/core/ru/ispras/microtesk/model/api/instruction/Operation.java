@@ -86,7 +86,7 @@ public abstract class Operation extends StandardFunctions implements IOperation 
    * @author Andrei Tatarnikov
    */
 
-  public static abstract class InfoAndRule implements IInfo, IFactory {
+  public static abstract class InfoAndRule implements IInfo, IFactory<IOperation> {
     private final Class<?> opClass;
     private final String name;
     private final boolean isRoot;

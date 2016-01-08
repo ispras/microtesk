@@ -43,24 +43,6 @@ public interface IAddressingMode extends IPrimitive {
   Location access();
 
   /**
-   * The IAddressingMode.IFactory interfaces is a base interface for factories that create concrete
-   * types of addressing mode implementations and initialize them with the parameter list.
-   * 
-   * @author Andrei Tatarnikov
-   */
-
-  public interface IFactory {
-    /**
-     * Creates an addressing mode object.
-     * 
-     * @param args A table of arguments (key is the argument name, value is the argument value).
-     * @return The addressing mode object.
-     */
-
-    IAddressingMode create(Map<String, Object> args);
-  }
-
-  /**
    * The IInfo interface provides information on an addressing mode object or a group of addressing
    * mode object united by an OR rule. This information is needed to instantiate a concrete
    * addressing mode object at runtime depending on the selected builder.

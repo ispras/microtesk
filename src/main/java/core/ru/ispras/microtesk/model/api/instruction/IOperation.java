@@ -27,10 +27,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
  */
 
 public interface IOperation extends IPrimitive {
-  public interface IFactory {
-    IOperation create(Map<String, Object> args);
-  }
-
   /**
    * The IInfo interface provides information on an operation object or a group of operation object
    * united by an OR rule. This information is needed for runtime checks to make sure that

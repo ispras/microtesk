@@ -45,7 +45,7 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
-  protected static abstract class InfoAndRule implements IInfo, IFactory {
+  protected static abstract class InfoAndRule implements IInfo, IFactory<IAddressingMode> {
     private final Class<?> modeClass;
     private final String name;
     private final Type type;
