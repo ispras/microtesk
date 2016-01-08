@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
@@ -169,13 +170,11 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // ICallFactory
   @Override
-  public final OperationBuilder newOp(String name, String contextName)
+  public final OperationBuilder newOp(final String name, final String contextName)
       throws ConfigurationException {
-    final String ERROR_FORMAT = "The %s operation is not defined.";
+    InvariantChecks.checkNotNull(name);
 
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    final String ERROR_FORMAT = "The %s operation is not defined.";
 
     final IOperation.IInfo opInfo = ops.getOpInfo(name);
     if (null == opInfo) {
@@ -199,19 +198,16 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // ICallFactory
   @Override
-  public InstructionCall newCall(IOperation op) {
-    if (null == op) {
-      throw new NullPointerException();
-    }
-
+  public InstructionCall newCall(final IOperation op) {
+    InvariantChecks.checkNotNull(op);
     return new InstructionCall(resetter, op);
   }
 
   private static final class MemoryStore {
     private final Collection<MetaLocationStore> metaData;
 
-    public MemoryStore(Memory[] memory) {
-      this.metaData = new ArrayList<MetaLocationStore>(memory.length);
+    public MemoryStore(final Memory[] memory) {
+      this.metaData = new ArrayList<>(memory.length);
       for (final Memory m : memory) {
         this.metaData.add(new MetaLocationStore(m.getName(), m.getType(), m.getLength()));
       }
@@ -226,9 +222,9 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     private final Map<String, IAddressingMode.IInfo> items;
     private final Collection<MetaAddressingMode> metaData;
 
-    public AddressingModeStore(IAddressingMode.IInfo[] modes) {
-      this.items = new HashMap<String, IAddressingMode.IInfo>(modes.length);
-      this.metaData = new ArrayList<MetaAddressingMode>(modes.length);
+    public AddressingModeStore(final IAddressingMode.IInfo[] modes) {
+      this.items = new HashMap<>(modes.length);
+      this.metaData = new ArrayList<>(modes.length);
 
       for (IAddressingMode.IInfo i : modes) {
         items.put(i.getName(), i);
@@ -236,7 +232,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       }
     }
 
-    public IAddressingMode.IInfo getModeInfo(String name) {
+    public IAddressingMode.IInfo getModeInfo(final String name) {
       return items.get(name);
     }
 
@@ -249,9 +245,9 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     private final Map<String, IOperation.IInfo> items;
     private final Collection<MetaOperation> metaData;
 
-    public OperationStore(IOperation.IInfo[] ops) {
-      this.items = new HashMap<String, IOperation.IInfo>(ops.length);
-      this.metaData = new ArrayList<MetaOperation>(ops.length);
+    public OperationStore(final IOperation.IInfo[] ops) {
+      this.items = new HashMap<>(ops.length);
+      this.metaData = new ArrayList<>(ops.length);
 
       for (IOperation.IInfo i : ops) {
         items.put(i.getName(), i);
@@ -259,7 +255,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       }
     }
 
-    public IOperation.IInfo getOpInfo(String name) {
+    public IOperation.IInfo getOpInfo(final String name) {
       return items.get(name);
     }
 
