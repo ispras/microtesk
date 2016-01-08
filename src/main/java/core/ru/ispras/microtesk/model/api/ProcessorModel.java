@@ -146,12 +146,10 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // ICallFactory
   @Override
-  public final AddressingModeBuilder newMode(String name) throws ConfigurationException {
-    final String ERROR_FORMAT = "The %s addressing mode is not defined.";
+  public final AddressingModeBuilder newMode(final String name) throws ConfigurationException {
+    InvariantChecks.checkNotNull(name);
 
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    final String ERROR_FORMAT = "The %s addressing mode is not defined.";
 
     final IAddressingMode.IInfo modeInfo = modes.getModeInfo(name);
     if (null == modeInfo) {
