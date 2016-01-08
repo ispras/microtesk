@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,8 @@ package ru.ispras.microtesk.translator.generation;
 
 /**
  * The PackageInfo class holds information on package structure and names of generated Java classes.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class PackageInfo {
@@ -57,7 +59,7 @@ public final class PackageInfo {
    * The folder where the root package for generated models is located.
    */
 
-  public static final String getModelOutDir(String outDir) {
+  public static final String getModelOutDir(final String outDir) {
     return outDir + "/" + nameToPath(MODEL_PACKAGE);
   }
 
@@ -75,7 +77,7 @@ public final class PackageInfo {
    * Format parameters: model name.
    */
 
-  public static String getModelFileFormat(String outDir) {
+  public static String getModelFileFormat(final String outDir) {
     return getModelOutDir(outDir) + "/%s/Model.java";
   }
 
@@ -104,7 +106,7 @@ public final class PackageInfo {
    * Format parameters: model name.
    */
 
-  public static String getSharedFileFormat(String outDir) {
+  public static String getSharedFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(SHARED_CLASS_FORMAT) + JAVA_EXT;
   }
 
@@ -130,7 +132,7 @@ public final class PackageInfo {
    * Format parameters: model name, mode name.
    */
 
-  public static String getModeFileFormat(String outDir) {
+  public static String getModeFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(MODE_CLASS_FORMAT) + JAVA_EXT;
   }
 
@@ -156,22 +158,8 @@ public final class PackageInfo {
    * Format parameters: model name, op name.
    */
 
-  public static String getOpFileFormat(String outDir) {
+  public static String getOpFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(OP_CLASS_FORMAT) + JAVA_EXT;
-  }
-
-  public static final String SITUATION_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.situation";
-  public static final String SITUATION_CLASS_FORMAT = SITUATION_PACKAGE_FORMAT + ".%s";
-
-  public static String getSituationFileFormat(String outDir) {
-    return outDir + "/" + nameToPath(SITUATION_CLASS_FORMAT) + JAVA_EXT;
-  }
-
-  public static final String INITIALIZER_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.initializer";
-  public static final String INITIALIZER_CLASS_FORMAT = INITIALIZER_PACKAGE_FORMAT + ".%s";
-
-  public static String getInitializerFileFormat(String outDir) {
-    return outDir + "/" + nameToPath(INITIALIZER_CLASS_FORMAT) + JAVA_EXT;
   }
 
   /**
@@ -181,7 +169,7 @@ public final class PackageInfo {
    * @return The path for the source name.
    */
 
-  private static String nameToPath(String name) {
+  private static String nameToPath(final String name) {
     return name.replace('.', '/');
   }
 }
