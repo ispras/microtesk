@@ -38,7 +38,7 @@ public abstract class CallSimulator {
     final AddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
 
     for (Map.Entry<String, BigInteger> arg : args.entrySet()) {
-      modeBuilder.setArgumentValue(arg.getKey(), arg.getValue());
+      modeBuilder.setArgument(arg.getKey(), arg.getValue());
     }
 
     return modeBuilder.build();

@@ -79,7 +79,7 @@ public final class Reader {
       int argIndex = 0;
       for (final String argName : metaMode.getArgumentNames()) {
         final BigInteger argValue = args[argIndex++];
-        modeBuilder.setArgumentValue(argName, argValue);
+        modeBuilder.setArgument(argName, argValue);
       }
 
       mode = modeBuilder.build();

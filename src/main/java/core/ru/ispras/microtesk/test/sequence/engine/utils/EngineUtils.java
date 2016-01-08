@@ -411,23 +411,23 @@ public final class EngineUtils {
       final String argName = arg.getName();
       switch (arg.getKind()) {
         case IMM:
-          builder.setArgumentValue(argName, makeImm(arg));
+          builder.setArgument(argName, makeImm(arg));
           break;
 
         case IMM_RANDOM:
-          builder.setArgumentValue(argName, makeImmRandom(arg));
+          builder.setArgument(argName, makeImmRandom(arg));
           break;
 
         case IMM_UNKNOWN:
-          builder.setArgumentValue(argName, makeImmUnknown(arg));
+          builder.setArgument(argName, makeImmUnknown(arg));
           break;
 
         case IMM_LAZY:
-          builder.setArgumentValue(argName, makeImmLazy(arg));
+          builder.setArgument(argName, makeImmLazy(arg));
           break;
 
         case LABEL:
-          builder.setArgumentValue(argName, makeLabel(arg));
+          builder.setArgument(argName, makeLabel(arg));
           break;
 
         default:
