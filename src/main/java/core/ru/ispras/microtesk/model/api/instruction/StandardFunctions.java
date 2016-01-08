@@ -18,13 +18,12 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public abstract class StandardFunctions {
-
   public static void exception(final String text) {
     Logger.debug("Exception was raised: " + text);
     throw new IsaException(text);
   }
 
-  public static void trace(final String format, final Object ... args) {
+  public static void trace(final String format, final Object... args) {
     Logger.debug(format, args);
   }
 
