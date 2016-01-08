@@ -16,7 +16,6 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -49,7 +48,7 @@ public final class AddressingModeImm extends AddressingMode {
     }
 
     @Override
-    public IAddressingMode create(final Map<String, Data> args) {
+    public IAddressingMode create(final Map<String, Object> args) {
       final Location value = getArgument(PARAM_NAME, args);
       return new AddressingModeImm(value);
     }

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -137,13 +136,14 @@ public abstract class AddressingMode extends StandardFunctions implements IAddre
      * @return The location that stores the specified addressing mode argument.
      */
 
-    protected final Location getArgument(final String name, final Map<String, Data> args) {
-      final Data data = args.get(name);
-
+    protected final Location getArgument(final String name, final Map<String, Object> args) {
+      final Object arg = args.get(name);
+      // TODO Check argument
+      /*
       assert decls.getDecls().get(name).getType().equals(data.getType()) :
           String.format("The %s parameter does not exist.", name);
-
-      return Location.newLocationForConst(data);
+      */
+      return (Location) arg;
     }
   }
 

@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.Collection;
 import java.util.Map;
 
-import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -58,7 +57,7 @@ public interface IAddressingMode extends IPrimitive {
      * @return The addressing mode object.
      */
 
-    IAddressingMode create(Map<String, Data> args);
+    IAddressingMode create(Map<String, Object> args);
   }
 
   /**

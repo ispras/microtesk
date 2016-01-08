@@ -27,6 +27,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.ReassignmentException;
 import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.exception.UninitializedException;
+import ru.ispras.microtesk.model.api.memory.Location;
 
 /**
  * The {@link AddressingModeBuilder} class implements logic responsible for
@@ -39,7 +40,7 @@ public final class AddressingModeBuilder {
   private final String modeName;
   private final IAddressingMode.IFactory factory;
   private final Map<String, ArgumentDecls.Argument> decls;
-  private final Map<String, Data> args;
+  private final Map<String, Object> args;
 
   /**
    * Creates a builder for an addressing mode based on the specified configuration parameters.
@@ -89,7 +90,9 @@ public final class AddressingModeBuilder {
          );
     }
 
-    args.put(name, data);
+    final Location arg = Location.newLocationForConst(data);
+    args.put(name, arg);
+
     return this;
   }
 

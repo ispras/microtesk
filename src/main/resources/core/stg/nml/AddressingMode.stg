@@ -75,13 +75,13 @@ Info() {
   );
 }<\n>
 @Override
-public IAddressingMode create(<data_map_type()> args) {
+public IAddressingMode create(final <data_map_type()> args) {
   <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
   return new <name>(<param_names :{n | <n>}; separator=", ">);
 }
 >>
 
-data_map_type() ::= <<Map\<String, Data\>>>
+data_map_type() ::= <<Map\<String, Object\>>>
 
 param_decls(param_names, param_types) ::= <<
 new ArgumentDecls()<param_names, param_types:{n, t | <\n>    .add("<n>", <t>)}>
