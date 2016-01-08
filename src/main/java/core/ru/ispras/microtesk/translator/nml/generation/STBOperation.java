@@ -27,7 +27,6 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -46,21 +45,12 @@ final class STBOperation extends STBPrimitiveBase {
   private final PrimitiveAND op;
 
   private boolean modesImported = false;
-  private boolean opsImported = false;
   private boolean immsImported = false;
 
   private void importModeDependencies(final ST t) {
     if (!modesImported) {
-      t.add("imps", IAddressingMode.class.getName());
       t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
       modesImported = true;
-    }
-  }
-
-  private void importOpDependencies(final ST t) {
-    if (!opsImported) {
-      t.add("imps", IOperation.class.getName());
-      opsImported = true;
     }
   }
 
@@ -90,12 +80,10 @@ final class STBOperation extends STBPrimitiveBase {
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
-    t.add("imps", IOperation.class.getName());
-    t.add("imps", ArgumentDecls.class.getName());
-    t.add("imps", Operation.class.getName());
     t.add("imps", ArgumentMode.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
+    t.add("imps", String.format("%s.*", Operation.class.getPackage().getName()));
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
     t.add("base", Operation.class.getSimpleName());
@@ -145,7 +133,6 @@ final class STBOperation extends STBPrimitiveBase {
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else if (Primitive.Kind.OP == argType.getKind()) {
-        importOpDependencies(t);
         t.add( "arg_types",
             argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
 
@@ -252,7 +239,6 @@ final class STBOperation extends STBPrimitiveBase {
           shortcutST.add("arg_types",
               argType.isOrRule() ? IAddressingMode.class.getSimpleName() : argType.getName());
         } else if (Primitive.Kind.OP == argType.getKind()) {
-          importOpDependencies(t);
           shortcutST.add("arg_types",
               argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
         } else // if Primitive.Kind.IMM == oa.getKind()
