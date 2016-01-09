@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,7 @@ public final class Status {
   private final int defaultValue;
   private int value;
 
-  public Status(String name, int defaultValue) {
+  public Status(final String name, final int defaultValue) {
     this.name = name;
     this.defaultValue = defaultValue;
     this.value = defaultValue;
@@ -41,7 +41,7 @@ public final class Status {
     return value;
   }
 
-  public void set(int value) {
+  public void set(final int value) {
     this.value = value;
   }
 
@@ -54,7 +54,7 @@ public final class Status {
   }
 
   private static final Map<String, Status> createStandardStatuses() {
-    final Map<String, Status> result = new HashMap<String, Status>();
+    final Map<String, Status> result = new HashMap<>();
     result.put(CTRL_TRANSFER.getName(), CTRL_TRANSFER);
     return Collections.unmodifiableMap(result);
   }
