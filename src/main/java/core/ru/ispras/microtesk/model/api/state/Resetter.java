@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package ru.ispras.microtesk.model.api.state;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
 
-public final class Resetter implements IStateResetter {
+public final class Resetter {
   private final Memory[] variables;
   private final Status[] statuses;
 

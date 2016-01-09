@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.state.IStateResetter;
+import ru.ispras.microtesk.model.api.state.Resetter;
 
 /**
  * The InstructionCall class provides methods to run execution simulation
@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.state.IStateResetter;
  */
 
 public final class InstructionCall {
-  private final IStateResetter resetter;
+  private final Resetter resetter;
   private final IOperation instruction;
   private final String image;
   private final int byteSize;
@@ -41,7 +41,7 @@ public final class InstructionCall {
    */
 
   public InstructionCall(
-      final IStateResetter resetter,
+      final Resetter resetter,
       final IOperation instruction) {
     InvariantChecks.checkNotNull(resetter);
     InvariantChecks.checkNotNull(instruction);
