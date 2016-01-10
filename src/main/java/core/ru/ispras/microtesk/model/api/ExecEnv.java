@@ -18,19 +18,19 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
- * The {@link SimEnv} class implements the simulator runtime environment.
- * It provides a set of methods to be used by all kinds of simulation models
- * to control the simulation process.
+ * The {@link ExecEnv} class implements the execution environment.
+ * It provides a set of methods to be used by all kinds of executable models
+ * to control the execution process.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class SimEnv {
-  private SimEnv() {}
+public final class ExecEnv {
+  private ExecEnv() {}
 
   public static void exception(final String text) {
     Logger.debug("Exception was raised: " + text);
-    throw new SimException(text);
+    throw new ExecException(text);
   }
 
   public static void trace(final String format, final Object... args) {

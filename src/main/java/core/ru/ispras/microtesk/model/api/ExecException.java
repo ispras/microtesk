@@ -15,16 +15,16 @@
 package ru.ispras.microtesk.model.api;
 
 /**
- * The {@link SimException} exception is thrown by the simulator runtime environment
- * (see the {@link SimEnv#exception(String)} method).
+ * The {@link ExecException} exception is thrown by the execution environment
+ * (see the {@link ExecEnv#exception(String)} method).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class SimException extends RuntimeException {
+public final class ExecException extends RuntimeException {
   private static final long serialVersionUID = 3218257121771089034L;
 
-  public SimException(final String message) {
+  public ExecException(final String message) {
     super(message);
   }
 }

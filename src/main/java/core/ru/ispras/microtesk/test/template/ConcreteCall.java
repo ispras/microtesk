@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.SimException;
+import ru.ispras.microtesk.model.api.ExecException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.test.TestSettings;
 
@@ -169,7 +169,7 @@ public final class ConcreteCall {
 
     try {
       executable.execute();
-    } catch (final SimException e) {
+    } catch (final ExecException e) {
       return e.getMessage();
     }
 
