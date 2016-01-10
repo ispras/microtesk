@@ -83,6 +83,9 @@ abstract class STBCommon {
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
 
+  public static final Class<?> EXECUTION_CLASS =
+      ru.ispras.microtesk.model.api.Execution.class;
+
   public static final Class<?> VALUE_CLASS =
       ru.ispras.fortress.util.Value.class;
 
@@ -108,6 +111,7 @@ abstract class STBCommon {
     st.add("pack", packageName);
 
     st.add("imps", BigInteger.class.getName());
+    st.add("imps", EXECUTION_CLASS.getName());
     st.add("imps", String.format("%s.*", BUFFER_CLASS.getPackage().getName()));
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
   }
@@ -299,11 +303,13 @@ abstract class STBCommon {
   }
 
   private void buildStmtException(final ST st, final StmtException stmt) {
-    st.add("stmts", String.format("exception(\"%s\");", stmt.getMessage()));
+    st.add("stmts", String.format(
+        "%s.exception(\"%s\");", EXECUTION_CLASS.getSimpleName(), stmt.getMessage()));
   }
 
   private void buildStmtMark(final ST st, final StmtMark stmt) {
-    st.add("stmts", String.format("mark(\"%s\");", stmt.getName()));
+    st.add("stmts", String.format(
+        "%s.mark(\"%s\");", EXECUTION_CLASS.getSimpleName(), stmt.getName()));
   }
 
   private void buildStmtTrace(final ST st, final StmtTrace stmt) {
@@ -371,7 +377,8 @@ abstract class STBCommon {
       sbFormat.append(format.substring(formatIndex));
     }
 
-    st.add("stmts", String.format("trace(\"%s\"%s);", sbFormat, sbArgs));
+    st.add("stmts", String.format(
+        "%s.trace(\"%s\"%s);", EXECUTION_CLASS.getSimpleName(), sbFormat, sbArgs));
   }
 
   private void buildStmtCall(final ST st, final StmtCall stmt) {
