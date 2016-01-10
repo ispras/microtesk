@@ -21,19 +21,19 @@ public final class StatementAttributeCall extends Statement {
   private final String calleeName;
   private final String attributeName;
 
-  static StatementAttributeCall newThisCall(
+  public static StatementAttributeCall newThisCall(
       final String attributeName) {
     return new StatementAttributeCall(null, null, attributeName);
   }
 
-  static StatementAttributeCall newArgumentCall(
+  public static StatementAttributeCall newArgumentCall(
       final String calleeName,
       final String attributeName) {
     InvariantChecks.checkNotNull(calleeName);
     return new StatementAttributeCall(null, calleeName, attributeName);
   }
-  
-  static StatementAttributeCall newInstanceCall(
+
+  public static StatementAttributeCall newInstanceCall(
       final Instance calleeInstance,
       final String attributeName) {
     InvariantChecks.checkNotNull(calleeInstance);

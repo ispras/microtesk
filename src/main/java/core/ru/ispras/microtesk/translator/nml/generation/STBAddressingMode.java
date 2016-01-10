@@ -32,7 +32,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 final class STBAddressingMode extends STBPrimitiveBase {
   private final String specFileName;
@@ -95,7 +95,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
       attrST.add("rettype", getRetTypeName(attr.getKind()));
 
       if (isInitNeeded && !Attribute.INIT_NAME.equals(attr.getName())) {
-        addStatement(attrST, new StatementFunctionCall(Attribute.INIT_NAME), false);
+        addStatement(attrST, StatementAttributeCall.newThisCall(Attribute.INIT_NAME), false);
       }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
