@@ -12,13 +12,15 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.debug;
+package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -28,27 +30,29 @@ import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public abstract class CallSimulator {
-  protected final void addCall(IOperation op) {
+  protected final void addCall(final IOperation op) {
     final InstructionCall call = model.getCallFactory().newCall(op);
     calls.add(call);
   }
 
-  protected final IAddressingMode newMode(String name, Map<String, BigInteger> args)
-      throws ConfigurationException {
+  protected final IAddressingMode newMode(
+      final String name,
+      final Map<String, BigInteger> args) throws ConfigurationException {
     final AddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
-
-    for (Map.Entry<String, BigInteger> arg : args.entrySet()) {
+    for (final Map.Entry<String, BigInteger> arg : args.entrySet()) {
       modeBuilder.setArgument(arg.getKey(), arg.getValue());
     }
 
     return modeBuilder.build();
   }
 
-  protected final IOperation newOp(String name, String context, Map<String, IAddressingMode> args)
-      throws ConfigurationException {
+  protected final IOperation newOp(
+      final String name,
+      final String context,
+      final Map<String, IAddressingMode> args) throws ConfigurationException {
     final OperationBuilder opBuilder = model.getCallFactory().newOp(name, context);
 
-    for (Map.Entry<String, IAddressingMode> arg : args.entrySet()) {
+    for (final Map.Entry<String, IAddressingMode> arg : args.entrySet()) {
       opBuilder.setArgument(arg.getKey(), arg.getValue());
     }
 
@@ -58,25 +62,23 @@ public abstract class CallSimulator {
   private final IModel model;
   private final List<InstructionCall> calls;
 
-  protected CallSimulator(IModel model) {
-    if (null == model) {
-      throw new NullPointerException();
-    }
+  protected CallSimulator(final IModel model) {
+    InvariantChecks.checkNotNull(model);
 
     this.model = model;
-    this.calls = new ArrayList<InstructionCall>();
+    this.calls = new ArrayList<>();
   }
 
   public final void execute() {
-    for (InstructionCall call : calls) {
+    for (final InstructionCall call : calls) {
       call.execute();
     }
   }
 
   public final void print() {
-    System.out.println("************************************************");
-    for (InstructionCall call : calls) {
-      System.out.println(call.getText());
+    Logger.debugBar();
+    for (final InstructionCall call : calls) {
+      Logger.debug(call.getText());
     }
   }
 }
