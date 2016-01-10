@@ -33,7 +33,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 abstract class STBPrimitiveBase implements STBuilder {
   private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
-    new EnumMap<Attribute.Kind, String>(Attribute.Kind.class);
+    new EnumMap<>(Attribute.Kind.class);
 
   static {
     RET_TYPE_MAP.put(Attribute.Kind.ACTION, "void");
