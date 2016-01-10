@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.StandardFunctions;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;

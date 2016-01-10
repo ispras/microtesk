@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.IsaException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.model.api.instruction.IsaException;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class ConcreteCall {

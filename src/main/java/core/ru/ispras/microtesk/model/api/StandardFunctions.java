@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.instruction;
+package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;

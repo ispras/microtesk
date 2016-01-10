@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.instruction;
+package ru.ispras.microtesk.model.api;
 
 public class IsaException extends RuntimeException {
   private static final long serialVersionUID = 3218257121771089034L;

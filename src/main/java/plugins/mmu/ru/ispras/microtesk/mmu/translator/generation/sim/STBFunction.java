@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBFunction extends STBCommon implements STBuilder {
   private static final Class<?> STD_FUNC_CLASS =
-      ru.ispras.microtesk.model.api.instruction.StandardFunctions.class;
+      ru.ispras.microtesk.model.api.StandardFunctions.class;
 
   private final Callable function;
 
