@@ -15,16 +15,16 @@
 package ru.ispras.microtesk.model.api;
 
 /**
- * The {@link ExecException} exception is thrown by the execution environment
- * (see the {@link ExecEnv#exception(String)} method).
+ * The {@link ExecutionException} exception is thrown by the execution environment
+ * (see the {@link Execution#exception(String)} method).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class ExecException extends RuntimeException {
+public final class ExecutionException extends RuntimeException {
   private static final long serialVersionUID = 3218257121771089034L;
 
-  public ExecException(final String message) {
+  public ExecutionException(final String message) {
     super(message);
   }
 }
