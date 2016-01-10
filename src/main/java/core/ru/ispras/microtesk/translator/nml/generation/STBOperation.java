@@ -81,6 +81,7 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
     t.add("imps", ArgumentMode.class.getName());
+    t.add("imps", ru.ispras.microtesk.model.api.Execution.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Operation.class.getPackage().getName()));
