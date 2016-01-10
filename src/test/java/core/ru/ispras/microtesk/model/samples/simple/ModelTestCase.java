@@ -14,12 +14,15 @@
 
 package ru.ispras.microtesk.model.samples.simple;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
-public class ModelMain {
+public class ModelTestCase {
 
   private static final class TestCode extends ModelISA {
     private TestCode(final IModel model) throws ConfigurationException {
@@ -39,7 +42,8 @@ public class ModelMain {
     }
   }
 
-  public static void main(String[] args) {
+  @Test
+  public void test() {
     final IModel model = new Model();
 
     final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
@@ -54,7 +58,7 @@ public class ModelMain {
       testCode.execute();
       testCode.print();
     } catch (final ConfigurationException e) {
-      System.out.println(e.getMessage());
+      Assert.fail(e.getMessage());
     }
 
     modelStatePrinter.printRegisters();
