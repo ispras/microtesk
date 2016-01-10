@@ -202,7 +202,7 @@ final class StatementBuilder {
     if (null == stmt.getFunction()) {
       addStatement(String.format("String.format(\"%s\"%s);", stmt.getFormat(), sb.toString()));
     } else {
-      addStatement(String.format("%s(\"%s\"%s);", stmt.getFunction(), stmt.getFormat(), sb.toString()));
+      addStatement(String.format("Execution.%s(\"%s\"%s);", stmt.getFunction(), stmt.getFormat(), sb.toString()));
     }
   }
 
@@ -221,7 +221,8 @@ final class StatementBuilder {
       if (isString) sb.append('"');
     }
 
-    addStatement(String.format("%s(%s);", stmt.getName(), sb.toString()));
+    addStatement(String.format(
+        "Execution.%s(%s);", stmt.getName(), sb.toString()));
   }
 
   private void addStatement(StatementStatus stmt) {
