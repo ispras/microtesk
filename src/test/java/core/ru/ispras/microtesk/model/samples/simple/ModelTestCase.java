@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.samples.simple;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
@@ -45,6 +46,7 @@ public class ModelTestCase {
   @Test
   public void test() {
     final IModel model = new Model();
+    Logger.setDebug(true);
 
     final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(model.getMetaData());
     metaModelPrinter.printAll();
