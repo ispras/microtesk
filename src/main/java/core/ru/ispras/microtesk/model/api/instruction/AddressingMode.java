@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.StandardFunctions;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -37,7 +36,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class AddressingMode extends StandardFunctions implements IAddressingMode {
+public abstract class AddressingMode implements IAddressingMode {
   /**
    * The AddressingMode.Info class is an implementation of the IInfo interface that provides logic
    * for storing information about a single addressing mode. The class is to be used by generated

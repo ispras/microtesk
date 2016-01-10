@@ -16,11 +16,10 @@ package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.StandardFunctions;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public abstract class Mmu <A extends Address & Data>
-    extends StandardFunctions implements Buffer<BitVector, A>, MemoryDevice {
+    implements Buffer<BitVector, A>, MemoryDevice {
 
   @Override
   public boolean isInitialized(final BitVector address) {

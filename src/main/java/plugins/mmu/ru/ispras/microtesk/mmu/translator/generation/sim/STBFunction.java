@@ -26,9 +26,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBFunction extends STBCommon implements STBuilder {
-  private static final Class<?> STD_FUNC_CLASS =
-      ru.ispras.microtesk.model.api.StandardFunctions.class;
-
   private final Callable function;
 
   public STBFunction(
@@ -58,7 +55,6 @@ final class STBFunction extends STBCommon implements STBuilder {
   protected final void buildHeader(final ST st) {
     st.add("name", getId()); 
     st.add("pack", packageName);
-    st.add("ext",  STD_FUNC_CLASS.getName());
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
   }

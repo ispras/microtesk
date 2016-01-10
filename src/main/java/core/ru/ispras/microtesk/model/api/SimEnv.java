@@ -30,7 +30,7 @@ public final class SimEnv {
 
   public static void exception(final String text) {
     Logger.debug("Exception was raised: " + text);
-    throw new IsaException(text);
+    throw new SimException(text);
   }
 
   public static void trace(final String format, final Object... args) {

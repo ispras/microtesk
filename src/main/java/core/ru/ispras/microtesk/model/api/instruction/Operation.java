@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.StandardFunctions;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -39,7 +38,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Operation extends StandardFunctions implements IOperation {
+public abstract class Operation implements IOperation {
 
   protected static final class Shortcuts {
     private final Map<String, InfoAndRule> shortcuts;
