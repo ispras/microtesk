@@ -181,7 +181,7 @@ final class StatementBuilder {
       if (null == stmt.getFunction()) {
         addStatement(String.format("\"%s\";", stmt.getFormat()));
       } else {
-        addStatement(String.format("%s(\"%s\");", stmt.getFunction(), stmt.getFormat()));
+        addStatement(String.format("Execution.%s(\"%s\");", stmt.getFunction(), stmt.getFormat()));
       }
       return;
     }
