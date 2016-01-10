@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api;
+package ru.ispras.microtesk.model.samples.simple;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

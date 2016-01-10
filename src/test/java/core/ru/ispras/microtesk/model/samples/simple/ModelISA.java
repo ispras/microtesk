@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.CallSimulator;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 
