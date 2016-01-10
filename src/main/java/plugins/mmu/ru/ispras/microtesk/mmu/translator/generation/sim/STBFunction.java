@@ -57,6 +57,7 @@ final class STBFunction extends STBCommon implements STBuilder {
     st.add("pack", packageName);
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
+    st.add("imps", STBCommon.EXECUTION_CLASS.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
