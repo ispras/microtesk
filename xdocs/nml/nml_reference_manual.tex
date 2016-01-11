@@ -1,0 +1,1055 @@
+
+\documentclass[oneside,final,12pt]{extreport}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english]{babel}
+\usepackage{vmargin}
+\usepackage{listings}
+\setpapersize{A4}
+\setmarginsrb{2cm}{1.5cm}{1cm}{1.5cm}{0pt}{0mm}{0pt}{13mm}
+\usepackage{indentfirst}
+\usepackage{tocloft}
+
+
+
+
+
+\makeatletter
+    \renewcommand{\@dotsep}{2}
+    \newcommand{\l@likechapter}[2]{{\bfseries\@dottedtocline{0}{0pt}{0pt}{#1}{#2}}}
+\makeatother
+\newcommand{\likechapter}[1]{    
+    \likechapterheading{#1}    
+    \addcontentsline{toc}{likechapter}{\MakeUppercase{#1}}}
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\Large{Institute for System Programming of the Russian Academy of Sciences}
+\end{center}
+
+\vfill
+
+
+\LARGE
+
+\bf  
+\centerline{Getting started with}
+\centerline{MicroTESK test program generator}
+\centerline{by the example of miniMIPS architecture}
+
+\mdseries
+
+\vfill
+\thispagestyle{empty}
+\normalsize
+
+\bf  
+\centerline{Moscow 2015}
+\mdseries
+
+\bigskip
+\bigskip
+
+
+\end{titlepage}
+
+\newpage
+%\centerline{\bf Содержание}
+
+
+% Increase page counter by one
+\stepcounter{page}
+
+\tableofcontents
+
+%\listoftables
+%\input{urgency}
+
+
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+
+\newpage
+
+
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{\numberline{}Introduction}
+
+%\centerline
+\bigskip
+
+Getting started document is intended to explain how to generate template based test programs with MicroTESK generator by the example of miniMIPS architecture. 
+
+
+\bigskip
+
+
+MicroTESK is a reconfigurable (retargetable and extendable) model-based test program generator (TPG) for microprocessors and other programmable devices. The generator is customized with the help of instruction-set architecture (ISA) specifications and configuration files, which describe parameters of the microprocessor subsystems (pipeline, memory and others). The suggested approach eases the model development and makes it possible to apply the model-based testing in the early design stages when the microprocessor architecture is frequently modified.
+
+\bigskip
+
+The framework is applicable to a wide range of microprocessor architectures including RISC(ARM, MIPS, SPARC, etc.), CISC (x86, etc.), VLIW/EPIC (Elbrus, Itanium, etc.), DSP, GPU, etc.
+
+\bigskip
+
+The key idea of the reconfigurable TPG is that configuration of a generator for a concrete microprocessor architecture is implemented as easy as possible. It is obvious that to fulfill this requirement, a generator should be divided into two parts: (1) a platform-independent component (so-called core or engine) and (2) a component describing all platform-specific features (model or configuration). Such kinds of TPG tools are usually called model-based test program generators. 
+
+\bigskip
+
+Test program generation is fulfilled in the following way. A verification engineer provides a test template of the scenario that should occur in the test program. A TPG tool generates a program by formulating and then solving constraints for each instruction of the test template or for groups of instructions. It also randomizes values of the unspecified parameters to produce different test program variations for the template given. The constraints are formulated in terms of the model, which consists of the microprocessor model and test coverage model. The first of them defines syntax and semantics of the target design's instructions, while the second one describes special conditions (known as test situations) to be achieved when verifying the design.
+\bigskip
+
+The generation core solves constraints by using external or built-in solvers and assigns the values to the instructions' operands. Then, it interprets the instructions under processing (for example, by using a microprocessor simulator) and takes the next group of instructions. Having performance limitations, TPG tools generally do not process test templates as a whole. Instead, they split them up into small pieces and formulate several Constraint Satisfaction Problems (CSPs). It is clear that such a technique can fail to find an exact solution of the joint CSP even when one is available, but it works well for test programs with low-density dependencies between instructions.
+
+\bigskip
+
+Our goal is to reach a new level in the TPG configuration flexibility. In order to do it, we suggest applying so-called architecture description languages (ADL), which are commonly used for developing microprocessor simulators (nML, ISDL, EXPRESSION, etc.). In the approach suggested, a microprocessor ISA is described in some ADL and then automatically translated into a microprocessor model together with a test coverage model. Fine tuning of the generator is performed by the subsystem-specific configuration files. Such an approach is especially useful in the early design stages when the project is frequently modified and rapid generator reconfiguration is required. The current version of the tool supports ISA specification (in nML) and manual development of test program templates (in Ruby).
+
+\bigskip
+
+The suggested approach eases the model development and makes it possible to apply the model-based testing in the early design stages when the microprocessor architecture is frequently modified.
+The MicroTESK installation guide can be found in 
+
+
+%\bigskip
+
+
+
+
+
+%\begin{verbatim}
+
+\lstinline!http://forge.ispras.ru/projects/microtesk/wiki/Installation_Guide.!
+
+%\end{verbatim}
+
+
+
+\bigskip
+
+\newpage
+
+\section*{Generation steps}
+\addcontentsline{toc}{section}{\numberline{}Generation steps}
+
+
+The test program generation with MicroTESK consists of 4 main steps: 1) specification of the instruction set for the purpose microprocessor architecture, 2) microprocessor model generation based on specification described, 3) test templates description, 4) test program generation based on templates.
+\bigskip
+
+
+\newpage
+
+\section*{Instruction set specification}
+\addcontentsline{toc}{section}{\numberline{}Instruction set specification}
+
+
+\bigskip
+
+\itshape
+
+\bfseries
+
+%Почему нужна спецификация на языке nML/Sim-nML?
+
+\mdseries
+
+\upshape
+
+\bigskip
+
+To describe a purpose microprocessor architecture MicroTESK supports ADLs, at that moment only nML/Sim-nML language. Thus instruction set specification should be specified in nML/Sim-nML. 
+
+\bigskip
+
+
+Instruction set specification includes register specification, memory specification and instructions specification. Instruction set specification for microprocessor starts with register description. 
+
+
+
+
+\itshape
+
+\bfseries
+
+%Что включает в себя спецификация системы команд?
+
+\mdseries
+
+\upshape
+
+\bigskip
+
+%Спецификация системы команд включает в себя спецификацию регистров, спецификацию памяти и спецификацию %инструкций. Процесс спецификации системы команд для целевого микропроцессора начинается с описания регистров. 
+
+
+\bigskip 
+
+\subsection*{Registers}
+\addcontentsline{toc}{subsection}{\numberline{}Registers}
+
+
+\bigskip
+
+In miniMIPS the following registers are available: GPR, \lstinline!COP!$_0$\lstinline!_R!,  HI, LO, CIA.
+
+%\begin{lstlisting}COP$_0$_R
+%\end{lstlisting}  
+
+
+%\lstinline!COP0_R!
+
+
+
+
+%$COP_0\_R$,
+
+
+Registers GPR and \lstinline!COP!$_0$\lstinline!_R! are 32 bits wide. 
+
+
+\bigskip
+
+The data types description is necessary for register description. To define 32 bits wide register we need first to define 32-bit type.
+
+\bigskip
+
+\subsubsection*{Data types}
+\addcontentsline{toc}{subsubsection}{\numberline{}Data types}
+
+Data types are defined as bit-vectors having different wide. These bit-vectors are interpreted as signed or unsigned numbers. To define 32-bit type we should write 
+
+\bigskip
+
+type \lstinline!TYPE_NAME! = card(32).
+
+\bigskip
+
+%\begin{verbatim}
+
+%\end{verbatim}
+
+For example,
+
+\bigskip
+
+type BYTE = card(8) 
+
+\bigskip
+
+Data type is declared which name is BYTE. This type has 8 bits and it is interpreted as unsigned number.
+
+\bigskip
+
+type WORD = int(32) 
+
+\bigskip
+
+Data type is declared which name is WORD. It has 32 bits and is interpreted as signed number. 
+
+\bigskip
+
+
+\bigskip
+
+We defined the data type. After that we can define the register file where each element is a bit-vector of the defined type. For this purpose ‘reg’ expression is used. For example, define the register GPR in miniMIPS: 
+
+\bigskip reg GPR [32, WORD] 
+
+\bigskip
+
+Here GPR register of type WORD and having 32 elements is declared. 
+
+\bigskip
+
+reg HI [WORD] 
+
+\bigskip
+
+Register HI of type WORD is declared.
+
+\bigskip
+
+Using such constructions we could define GPR and HI register files of miniMIPS microprocessor.
+The examples of other register files description of miniMIPS microprocessor one can find in: 
+
+%\begin{verbatim}
+
+\lstinline!https://forge.ispras.ru/svn/microtesk/trunk/microtesk/src/main/arch/minimips/model/!\\minimips.nml.
+
+%\end{verbatim}
+
+\bigskip
+
+
+\subsection*{Memory}
+\addcontentsline{toc}{subsection}{\numberline{}Memory}
+
+
+\bigskip
+
+The next step of set instruction specification is memory specification. Main memory in miniMIPS supports 4 kilobyte addressing. Address has 16 bits wide. To define this memory we use mem construction. The number of elements in memory one can set with expression in square brackets. For example,
+
+\bigskip
+
+
+mem M [2 ** 16, WORD]
+
+\bigskip
+
+Line memory is set as array with name M which type is WORD with 2 ** 16 elements.
+
+
+\bigskip
+\bigskip
+
+
+\subsubsection*{Constants and labels}
+\addcontentsline{toc}{subsubsection}{\numberline{}Constants and labels}
+
+\bigskip
+
+One can set constants and labels with ‘let’ expression:
+
+\bigskip
+
+let \lstinline!REGISTER_INDEX_SIZE! = 5
+%let REGISTER INDEX SIZE = 5
+
+%\begin{verbatim}
+%\end{verbatim}
+
+\bigskip
+
+Constant \lstinline!REGISTER_INDEX_SIZE! is declared, its value equals 5. 
+
+%\begin{verbatim}
+ 
+%\end{verbatim}
+
+
+\bigskip
+\bigskip
+
+
+
+\subsubsection*{Variables}
+\addcontentsline{toc}{subsubsection}{\numberline{}Variables}
+
+\bigskip
+
+Variables could be necessary for instruction description. They can be defined with ‘var’ expression. For example, define the variable ‘temp’ in miniMIPS as 33-bits signed integer:
+
+\bigskip
+var temp[int(33)]
+
+\bigskip
+
+After defining registers and memory we can switch to instruction description.
+
+\bigskip
+
+\newpage
+
+\subsection*{Instructions}
+\addcontentsline{toc}{subsection}{\numberline{}Instructions}
+
+\bigskip
+
+Instructions are described using operations and operands. The operations are specified as ‘op-rules’ whereas the operands are specified as parameters to ‘op-rules’.
+ The types of parameters that define the operands are the addressing modes specified using ‘mode-reles’.
+‘Mode’ and ‘Op-rules’ are arranged hierarchically using production rules. There are two kinds of production rules, OR rule and AND rule. 
+
+\bigskip
+
+
+\subsubsection*{Operations \itshape{op}}
+\addcontentsline{toc}{subsubsection}{\numberline{}Operations \itshape{op}}
+
+\bigskip
+
+Both the production rules for ‘op-rules’ are as follows. 
+
+\bigskip
+\itshape
+
+\bfseries
+
+OR rule
+
+\mdseries
+
+\upshape
+
+
+\bigskip
+
+op n = n$_1$ | n$_2$ | n$_3$ …
+
+\bigskip
+
+For example, define add sub mov operation using or rule:
+
+
+%\begin{verbatim}
+
+ 
+%\end{verbatim}
+
+
+\bigskip
+
+%\begin{verbatim}
+% Add_sub_mov = Add | Sub | Mov
+\lstinline!Add_sub_mov! = Add | Sub | Mov
+%\end{verbatim}
+
+\bigskip
+\bigskip
+\itshape
+
+\bfseries
+
+AND rule 
+
+\mdseries
+
+\upshape
+
+\bigskip
+
+op n$_0$ (p$_1$ : t$_1$, p$_2$ : t$_2$, p$_3$ : t$_3$ …)
+
+\bigskip
+
+a$_1$ = e$_1$ a$_2$ = e$_2$ a$_3$ = e$_3$ …
+
+\bigskip
+
+
+where t$_i$ are tokens, interpreted as the type of p$_i$ parameter.
+Each pair (a$_i$ e$_i$) distinguishes the attribute and corresponding definition for n$_0$ symbol.
+
+\bigskip
+
+For example, in the expression
+
+\bigskip
+
+op y (rd: REG)
+
+
+\bigskip
+
+REG is a token for rd parameter. 
+
+\bigskip
+\bigskip
+
+
+\subsubsection*{Addressing \itshape{modes}}
+\addcontentsline{toc}{subsubsection}{\numberline{}Addressing \itshape{modes}}
+
+\bigskip
+
+Mode rules are nearly analogous to above described op rules. Keyword ‘mode’ is used to define mode rules.
+
+\bigskip
+\bigskip
+
+
+\subsubsection*{The attributes}
+\addcontentsline{toc}{subsubsection}{\numberline{}The attributes}
+
+\bigskip
+
+Attributes are used to describe properties of instructions and addressing modes. There are some important predefined attributes.
+
+\bigskip
+
+Syntax-attribute describes textual (assembler) syntax of the instruction and evaluates to a string value. Image-attribute describes binary coding of the instruction. Action-attribute describes semantics of the instruction in terms of sequence of register transfer statements. 
+
+\bigskip
+
+
+
+\subsubsection*{Root instruction}
+\addcontentsline{toc}{subsubsection}{\numberline{}Root instruction}
+
+\bigskip
+
+One can describe an instruction set in microprocessor by hierarchical tree like structure. The hierarchical structure facilitates sharing of description among related instructions in the instruction set. Any part from the root node to a leaf node constructs an individual instruction description. Each non-leaf node contains certain attributes, which can be shared by its descendants. 
+
+\bigskip
+
+This structure facilitates description of processors having more than one instruction set. The root node provides an abstraction of the complete instruction set. Each node in between the root and the leaf nodes represents a set of instructions having certain common features, such as numeric instruction and load/store instruction. 
+
+\bigskip
+
+The root instruction is named as ‘instruction’. Assembler format of operation is set in the field ‘syntax’ (command.syntax). Binary coding is set in the field  ‘image’ (command.image). Root instruction operation is described in ‘action’.
+
+\bigskip
+
+\begin{verbatim}
+op instruction (command: Operations)
+  syntax = command.syntax
+  image  = command.image
+  action = {
+    GPR[0] = coerce(WORD, 0);
+
+    // PC is set based on the result of the previous instruction execution.
+    // This is needed to simulate MIPS delay slot.
+    if BRANCH == 0 then
+      CIA = CIA + 4;
+    else
+      CIA = JMPADDR;
+    endif;
+
+    BRANCH = 0;
+    command.action;
+  }
+
+\end{verbatim}
+
+
+
+\subsubsection*{Instruction \itshape \bfseries add}
+\addcontentsline{toc}{subsubsection}{\numberline{}Instruction \itshape \bfseries add}
+
+\bigskip
+
+Let us consider the description of arithmetic operation addition (\it add \upshape).
+
+\bigskip
+
+\begin{verbatim}
+
+op add (rd: REG, rs: REG, rt: REG)
+	syntax = format("add %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+	image = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
+	action = {
+	temp = rs<31>::rs + rt<31>::rt; 
+		if temp<32> != temp<31> then 
+		exception("IntegerOverflow");
+		else
+		rd = temp<31..0>;
+		endif;
+	}
+
+\end{verbatim}
+
+%\bigskip
+
+The signature of addition operation is set by the expression: 
+
+\bigskip
+
+op add (rd: REG, rs: REG, rt: REG)
+
+\bigskip
+
+%Ассемблерный формат операции сложения задается в виде: «add строка, строка, строка».
+
+%\bigskip
+
+%Бинарное представление инструкции – в виде: 
+
+%\begin{verbatim}
+%«000000%s%s%s00000100000».
+%\end{verbatim}
+
+%\bigskip
+
+An action of the instruction is described in the field ‘action’.  
+
+As we can see, describing an instruction based on an instruction set manual is a relatively easy task that can be performed by a verification engineer who does not have significant programming skills.
+
+%\it add \upshape.
+
+\bigskip
+\bigskip
+
+
+\subsubsection*{Instruction \itshape \bfseries beq}
+\addcontentsline{toc}{subsubsection}{\numberline{}Instruction \itshape \bfseries beq}
+
+\bigskip
+
+% (\it beq \upshape) 
+The example of unconditional transfer instruction is below:
+
+\begin{verbatim}
+
+op beq (rs: REG, rt: REG, imm: SHORT)
+syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, imm)
+image = format("000100%s%s%d", rs.image, rt.image, imm)
+action = {
+if rt == rs then
+BRANCH = 1;
+JMPADDR = CIA + 4 * imm + 4;
+endif;
+}
+
+\end{verbatim}
+
+The examples of other instructions for miniMIPS architecture one can find also in svn.
+
+\bigskip
+
+
+
+\bigskip
+
+
+
+\subsubsection*{The groups of operations}
+\addcontentsline{toc}{subsubsection}{\numberline{}The groups of operations}
+
+
+\bigskip
+
+If an operation (instruction) has a common features with other operation, one can define the common operation for them. Then instructions having equal features will inherit one with other. In this case the instruction is defined as a set of operations which have one node.
+
+One can use ‘or’ rule to describe a group of instructions. For example, in miniMIPS define the root instruction ‘Operation’ as a set of several instructions:
+
+\bigskip
+
+\begin{verbatim}
+op Operations =  add   
+                |addi  
+                |addiu 
+                |addu  
+                |and   
+                |andi  
+                |beq   
+                |bgez  
+                |bgezal
+                |bgtz
+                
+            
+\end{verbatim}
+
+\bigskip
+
+Then the root instruction will be one for each of above instructions.
+
+\bigskip
+
+So, the microprocessor instruction set can be easily described. After that we can feed this description to SinmNL translator in MicroTESK. The translator builds the inner representation (on Java) which is need for building the microprocessor model.
+
+\bigskip
+
+\newpage
+
+\section*{Microprocessor model generation}
+\addcontentsline{toc}{section}{\numberline{}Microprocessor model generation}
+
+\bigskip
+
+Based on the microprocessor specification (in Sim-nML) described above we can generate Java model of miniMIPS microprocessor with MicroTESK.
+
+\bigskip
+
+The MicroTESK installation instruction is described in
+
+http://forge.ispras.ru/projects/microtesk/wiki/\lstinline!Installation_Guide!.
+
+\bigskip
+
+Run compile.bat script:
+
+% папке microtesk запускает генерацию Java модели микропроцессора по  его nml описанию: (для систем Unix, Linux, OS X,  или compile.bat для Windows). Команда запуска генерации модели по спецификации miniMIPS:
+
+\bigskip
+%scripts\textbackslash{compile.bat} arch\textbackslash{minimips}\textbackslash{model}\textbackslash{minimips.nml}
+
+\begin{verbatim}
+bin\compile.bat arch\minimips\model\minimips.nml
+\end{verbatim}
+
+%sh bin/compile.sh arch/demo/MiniMIPS/model/miniMIPS.nml 
+
+\bigskip
+
+%Модель микропроцессора, полученная по заданной нами спецификации, строится и содержится в директории MicroTESK.
+
+This is script output:
+
+%\bigskip
+
+\begin{verbatim}
+
+Buildfile: C:\Programs\1\bin\build.xml
+
+clean:
+   [delete] Deleting directory C:\Programs\1\gen
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+Translating: arch\minimips\model\minimips.nml
+Model name: minimips
+Included: arch\minimips\model\minimips.nml
+Buildfile: C:\Programs\1\bin\build.xml
+
+build:
+    [mkdir] Created dir: C:\Programs\1\gen\bin
+    [javac] Compiling 58 source files to C:\Programs\1\gen\bin
+    [mkdir] Created dir: C:\Programs\1\gen\src\resources
+      [jar] Building jar: C:\Programs\1\lib\jars\models.jar
+
+BUILD SUCCESSFUL
+Total time: 1 second
+
+
+\end{verbatim}
+
+\bigskip
+
+Thus we have generated Java model of miniMIPS microprocessor. This model can be found in C:\textbackslash{Programs}\textbackslash{1}\textbackslash{lib}\textbackslash{jars} и называется models.jar.
+
+\bigskip
+
+The next step is test templates writing.
+
+\bigskip
+
+\newpage
+
+
+\section*{Test template writing}
+\addcontentsline{toc}{section}{\numberline{}Test template writing}
+
+%\subsection*{Что такое тестовый шаблон?}
+%\addcontentsline{toc}{subsection}{\numberline{}Что такое тестовый шаблон?}
+
+
+\bigskip
+
+%\begin{tabbing}
+
+Test template is the test scenario which should be executed by microprocessor model. Template consists of the instruction set and is written in Ruby. User writes the test template and feed it to MicroTESK input to generate test programs. 
+
+%\end{tabbing}
+
+\bigskip
+
+
+The sequence of instructions in test template is executed by generated Java model of the microprocessor and then is translated to the assembler code. Thus the test programs are generated.
+
+
+\bigskip
+
+The test template consists of two parts, the first one is a base template and the second one is a heritor of base template. If the set of test templates which contain some common parts is produced but not only one template hence all these parts are placed in the base class and then will be used. For that purpose the base template is created.
+
+\bigskip
+
+\bigskip
+
+\subsection*{Template sample}
+\addcontentsline{toc}{subsection}{\numberline{}Template sample}
+
+\bigskip
+
+Let us define the base template for miniMIPS.
+
+
+\begin{verbatim}
+require ENV['TEMPLATE']
+
+class MiniMipsBaseTemplate < Template
+
+  def initialize
+    super
+    # Initialize settings here 
+  end
+
+  def pre
+    data_config(:text => '.data', :target => 'M', :addressableSize => 8) {
+      define_type :id => :byte, :text => '.byte', :type => type('card', 8)
+      define_type :id => :half, :text => '.half', :type => type('card', 16)
+      define_type :id => :word, :text => '.word', :type => type('card', 32)
+
+      define_space :id => :space, :text => '.space', :fillWith => 0
+      define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
+      define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
+    }
+
+    #
+    # The code below specifies an instruction sequence that writes a value
+    # to the specified register (target) via the REG addressing mode.
+    #
+    preparator(:target => 'REG') {
+      lui  target, value(16, 31)
+      addi target, target, value(0, 15)
+    }
+  end
+
+  def post
+    # Place your finalization code here
+  end
+
+  # Alias for the NOP instruction (MIPS idiom)
+  def nop
+    sll zero, zero, 0
+  end
+
+  # Aliases for accessing General-Purpose Registers
+  #   Name    Number Usage                Preserved?
+  #   $zero      0   Constant zero
+  #   $at        1   Reserved (assembler)
+  #   $v0–$v1   2–3  Function result
+  #   $a0–$a3   4–7  Function arguments
+  #   $t0–$t7  8–15  Temporaries
+  #   $s0–$s7  16–23 Saved                    yes
+  #   $t8–$t9  24–25 Temporaries
+  #   $k0–$k1  26-27 Reserved (OS)
+  #   $gp       28   Global pointer           yes
+  #   $sp       29   Stack pointer            yes
+  #   $fp       30   Frame pointer            yes
+  #   $ra       31   Return address           yes
+
+  def zero
+    reg(0)
+  end
+
+  def at
+    reg(1)
+  end
+
+  def v0
+    reg(2)
+  end
+
+  def v1
+    reg(3)
+  end
+
+  def a0
+    reg(4)
+  end
+
+  def a1
+    reg(5)
+  end
+
+  def a2
+    reg(6)
+  end
+
+  def a3
+    reg(7)
+  end
+
+  def t0
+    reg(8)
+  end
+
+  def t1
+    reg(9)
+  end
+
+  def t2
+    reg(10)
+  end
+
+  def t3
+    reg(11)
+  end
+
+  def t4
+    reg(12)
+  end
+
+  def t5
+    reg(13)
+  end
+
+  def t6
+    reg(14)
+  end
+
+  def t7
+    reg(15)
+  end
+
+  def s0
+    reg(16)
+  end
+
+  def s1
+    reg(17)
+  end
+
+  def s2
+    reg(18)
+  end
+
+  def s3
+    reg(19)
+  end
+
+  def s4
+    reg(20)
+  end
+
+  def s5
+    reg(21)
+  end
+
+  def s6
+    reg(22)
+  end
+
+  def s7
+    reg(23)
+  end
+
+  def t8 
+    reg(24)
+  end
+
+  def t9
+    reg(25)
+  end
+
+  def k0 
+    reg(26)
+  end
+
+  def k1 
+    reg(27)
+  end
+
+  def gp
+    reg(28)
+  end
+
+  def sp
+    reg(29)
+  end
+
+  def fp
+    reg(30)
+  end
+
+  def ra
+    reg(31)
+  end
+
+  # Shortcut methods to access memory resources in debug messages
+
+  def gpr(index)
+    location('GPR', index)
+  end
+
+  def mem(index)
+    location('M', index)
+  end
+end
+
+
+\end{verbatim}
+
+
+Then define the heritor of the base template. For example, describe the situations with overflow for integer addition and subtraction. 
+
+\begin{verbatim}
+
+ class IntExceptionTemplate < MiniMipsBaseTemplate
+
+  def run
+    block(:combinator => 'PRODUCT', :compositor => 'RANDOM') {
+      block {
+        add t0, t1, t2 do situation('add', :case =>   'normal', :size => 32) end
+        add t0, t1, t2 do situation('add', :case => 'overflow', :size => 32) end
+      }
+
+      block {
+        sub t3, t4, t5 do situation('sub', :case =>   'normal', :size => 32) end
+        sub t3, t4, t5 do situation('sub', :case => 'overflow', :size => 32) end
+      }
+    }
+  end
+
+end
+
+\end{verbatim}
+
+\bigskip
+
+\newpage
+
+\section*{Test program generation }
+\addcontentsline{toc}{section}{\numberline{}Test program generation }
+
+
+\bigskip
+
+We built the test template. Now we can feed it to MicroTESK and run it on generated Java model of miniMIPS microprocessor. 
+
+%Скрипт для генерации тестовой программы - generate.sh (для систем Unix, Linux, OS X  или generate.bat для Windows). 
+
+\bigskip
+
+Run generate.bat script to generate the test program:
+
+\begin{verbatim}
+bin\generate.bat minimips arch/minimips/templates/int_exception.rb test.asm
+\end{verbatim}
+
+\bigskip
+
+The generated test program is in test.asm file.
+
+\bigskip
+
+The output of running generate.bat script is long enough and we show the small part of it only for one of four test situations.
+
+
+\begin{verbatim}
+
+----------------------------- Printing Test Case 1 -----------------------------
+
+Initialization:
+
+lui $12, 0x7044
+addi $12, $12, 0xc4aa
+lui $13, 0x5b68
+addi $13, $13, 0xbad1
+lui $9, 0x82ef
+addi $9, $9, 0x796b
+lui $10, 0x7f53
+addi $10, $10, 0x5053
+
+Main Code:
+
+sub $11, $12, $13
+add $8, $9, $10
+
+
+\end{verbatim}
+
+\bigskip
+
+The generated test program can be run on the simulator of the miniMIPS microprocessor model.
+
+\bigskip
+
+\newpage
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{\numberline{}Conclusion}
+
+\bigskip
+
+We have demonstrated how to generate the test programs based on templates with MicroTESK for miniMIPS architecture.
+
+Easy-to-use the MicroTESK generator could be applied not only for uncomplicated architectures, such as in case considered with miniMIPS. But also the generator is useful for more complicated microprocessor architectures. 
+
+\end{document}
