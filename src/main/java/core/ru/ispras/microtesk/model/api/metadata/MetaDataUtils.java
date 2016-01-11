@@ -103,4 +103,34 @@ public final class MetaDataUtils {
 
     return names;
   }
+
+  /**
+   * Takes a collection of {@link MetaData} objects and creates a string
+   * that consists of their names separated with the specified separator string.
+   * The order of objects is preserved.
+   * 
+   * @param c Collection of {@code MetaData} objects.
+   * @return String containing a list of {@code MetaData} object names or
+   *         empty string of the collection is empty.
+   */
+
+  public static <T extends MetaData> String toNameListString(
+      final Collection<T> c,
+      final String sep) {
+    InvariantChecks.checkNotNull(c);
+
+    if (c.isEmpty()) {
+      return "";
+    }
+
+    final StringBuilder sb = new StringBuilder();
+    for (final T t : c) {
+      if (sb.length() != 0) {
+        sb.append(sep);
+      }
+      sb.append(t.getName());
+    }
+
+    return sb.toString();
+  }
 }
