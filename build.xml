@@ -334,7 +334,8 @@
   <!-- Copies MicroTESK documentation to the distributive folder -->
   <target name="copy.docs">
     <copy todir="${doc}">
-      <fileset dir="xdocs" includes="**"/>  
+      <fileset dir="xdocs" includes="*.pdf"/>
+      <fileset dir="xdocs/nml" includes="*.pdf"/>
     </copy>
   </target>
 
