@@ -45,7 +45,7 @@ public interface IPrimitive {
    */
 
   void action();
-  
+
   /**
    * The {@link IPrimitive.IFactory} interface is a base interface for factories that create
    * instances of nML primitives (addressing modes and operations) initialize them with
