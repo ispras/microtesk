@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,18 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.debug;
+package ru.ispras.microtesk.model.api.metadata;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaData;
-import ru.ispras.microtesk.model.api.metadata.MetaGroup;
-import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
-import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.metadata.MetaOperation;
-import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
 
 public final class MetaModelPrinter {
   private final MetaModel metaModel;

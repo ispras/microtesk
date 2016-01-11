@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.debug;
+package ru.ispras.microtesk.model.api.state;
 
 import java.math.BigInteger;
 
@@ -21,8 +21,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public final class ModelStatePrinter {
   private final IModel model;

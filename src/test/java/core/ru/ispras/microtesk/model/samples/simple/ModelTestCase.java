@@ -19,8 +19,8 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
-import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
-import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
+import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 
 public class ModelTestCase {

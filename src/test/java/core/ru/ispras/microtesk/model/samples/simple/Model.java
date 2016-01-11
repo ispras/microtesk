@@ -21,8 +21,8 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__RESETTER;
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__STATUSES;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
-import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
+import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.samples.simple.mode.IMM;

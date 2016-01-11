@@ -26,8 +26,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.debug.MetaModelPrinter;
-import ru.ispras.microtesk.model.api.debug.ModelStatePrinter;
+import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
+import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.translator.generation.STBuilder;
