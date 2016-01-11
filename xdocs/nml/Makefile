@@ -1,11 +1,5 @@
-ARTICLE=nml_reference_manual
-
-all: ${ARTICLE}.pdf
-
-${ARTICLE}.pdf: ${ARTICLE}.tex
-	pdflatex ${ARTICLE}
-	pdflatex ${ARTICLE}
-	acroread ${ARTICLE}.pdf &
+all:
+	pdflatex nml_reference_manual.tex
 
 clean:
-	rm -rf *.dvi *.log *.aux
+	rm -rf *.dvi *.log *.aux *.toc
