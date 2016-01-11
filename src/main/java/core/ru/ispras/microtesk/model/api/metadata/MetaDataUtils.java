@@ -14,10 +14,12 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,6 +74,29 @@ public final class MetaDataUtils {
     }
 
     final Set<String> names = new LinkedHashSet<>(c.size());
+    for (final T t : c) {
+      names.add(t.getName());
+    }
+
+    return names;
+  }
+
+  /**
+   * Takes a collection of {@link MetaData} objects and creates a list containing
+   * their names. The order of objects is preserved.
+   * 
+   * @param c Collection of {@code MetaData} objects.
+   * @return List of {@code MetaData} object names.
+   */
+
+  public static <T extends MetaData> List<String> toNameList(final Collection<T> c) {
+    InvariantChecks.checkNotNull(c);
+
+    if (c.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<String> names = new ArrayList<>(c.size());
     for (final T t : c) {
       names.add(t.getName());
     }
