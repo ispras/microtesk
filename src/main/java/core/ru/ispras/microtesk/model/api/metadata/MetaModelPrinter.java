@@ -19,6 +19,12 @@ import java.util.Collection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
+/**
+ * TODO: port all code to the toString method of corresponding meta data objects.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public final class MetaModelPrinter {
   private final MetaModel metaModel;
 
