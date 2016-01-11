@@ -66,7 +66,7 @@ public final class MetaDataUtils {
    * @return Set of {@code MetaData} object names.
    */
 
-  public static <T extends MetaData> Set<String> toNameSet(final Collection<T> c) {
+  public static Set<String> toNameSet(final Collection<? extends MetaData> c) {
     InvariantChecks.checkNotNull(c);
 
     if (c.isEmpty()) {
@@ -74,8 +74,8 @@ public final class MetaDataUtils {
     }
 
     final Set<String> names = new LinkedHashSet<>(c.size());
-    for (final T t : c) {
-      names.add(t.getName());
+    for (final MetaData item : c) {
+      names.add(item.getName());
     }
 
     return names;
@@ -89,7 +89,7 @@ public final class MetaDataUtils {
    * @return List of {@code MetaData} object names.
    */
 
-  public static <T extends MetaData> List<String> toNameList(final Collection<T> c) {
+  public static List<String> toNameList(final Collection<? extends MetaData> c) {
     InvariantChecks.checkNotNull(c);
 
     if (c.isEmpty()) {
@@ -97,8 +97,8 @@ public final class MetaDataUtils {
     }
 
     final List<String> names = new ArrayList<>(c.size());
-    for (final T t : c) {
-      names.add(t.getName());
+    for (final MetaData item : c) {
+      names.add(item.getName());
     }
 
     return names;
@@ -114,9 +114,8 @@ public final class MetaDataUtils {
    *         empty string of the collection is empty.
    */
 
-  public static <T extends MetaData> String toNameListString(
-      final Collection<T> c,
-      final String sep) {
+  public static String toNameListString(
+      final Collection<? extends MetaData> c, final String sep) {
     InvariantChecks.checkNotNull(c);
 
     if (c.isEmpty()) {
@@ -124,11 +123,11 @@ public final class MetaDataUtils {
     }
 
     final StringBuilder sb = new StringBuilder();
-    for (final T t : c) {
+    for (final MetaData item : c) {
       if (sb.length() != 0) {
         sb.append(sep);
       }
-      sb.append(t.getName());
+      sb.append(item.getName());
     }
 
     return sb.toString();

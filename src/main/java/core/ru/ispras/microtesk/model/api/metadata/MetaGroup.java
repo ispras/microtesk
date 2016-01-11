@@ -94,7 +94,7 @@ public final class MetaGroup implements MetaData {
    * @return Items being grouped (an {@link Iterable} object).
    */
 
-  public Iterable<? extends MetaData> getItems() {
+  public Collection<? extends MetaData> getItems() {
     return items;
   }
 }

@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import java.util.Collection;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
@@ -27,91 +29,82 @@ public final class MetaModelPrinter {
 
   public void printAll() {
     printSepator();
-    printRegisterMetaData();
+    printRegisters();
 
     printSepator();
-    printMemoryMetaData();
+    printMemoryStores();
 
     printSepator();
-    printAddressingModeMetaData();
+    printAddressingModeGroups();
 
     printSepator();
-    printOperationMetaData();
+    printAddressingModes();
+
+    printSepator();
+    printOperationGroups();
+
+    printSepator();
+    printOperations();
   }
 
   public void printSepator() {
     Logger.message(Logger.BAR);
   }
 
-  public void printRegisterMetaData() {
+  public void printRegisters() {
     Logger.message("REGISTERS:");
     for (final MetaLocationStore r : metaModel.getRegisters()) {
       Logger.message("Name: %s, Size: %d", r.getName(), r.getCount());
     }
   }
 
-  public void printMemoryMetaData() {
+  public void printMemoryStores() {
     Logger.message("MEMORY STORES:");
     for (final MetaLocationStore m : metaModel.getMemoryStores()) {
       Logger.message("Name: %s, Size: %d", m.getName(), m.getCount());
     }
   }
 
-  private void printAddressingModeMetaData() {
+  public void printAddressingModeGroups() {
     Logger.message("ADDRESSING MODE GROUPS:");
-    boolean isEmpty = true;
     for (final MetaGroup g : metaModel.getAddressingModeGroups()) {
-      isEmpty = false;
-      Logger.message("   " + g.getName());
-      for (final MetaData md : g.getItems()) {
-        Logger.message("      " + md.getName());
-      }
+      Logger.message(
+          "Name: %s, Items: {%s}",
+          g.getName(),
+          MetaDataUtils.toNameListString(g.getItems(), ", ")
+          );
     }
-    if (isEmpty) {
-      Logger.message("   <NO>");
-    }
-    Logger.message("");
+  }
 
+  public void printAddressingModes() {
     Logger.message("ADDRESSING MODES:");
-    for (final MetaAddressingMode am : metaModel.getAddressingModes()) {
+    for (final MetaAddressingMode mode : metaModel.getAddressingModes()) {
       final StringBuilder sb = new StringBuilder();
+      sb.append(String.format("Name: %s", mode.getName()));
 
-      sb.append(String.format("Name: %s", am.getName()));
-      if (am.canThrowException()) {
+      if (mode.canThrowException()) {
         sb.append(" throws");
       }
 
       sb.append(", Parameters: ");
-
-      boolean isFirstArg = true;
-      for (final String an : am.getArgumentNames()) {
-        if (isFirstArg) {
-          isFirstArg = false;
-        } else {
-          sb.append(", ");
-        }
-        sb.append(an);
-      }
+      sb.append(toString(mode.getArgumentNames(), ", "));
 
       Logger.message(sb.toString());
     }
   }
 
-  private void printOperationMetaData() {
+  public void printOperationGroups() {
     Logger.message("OPERATION GROUPS:");
-    boolean isEmpty = true;
     for (final MetaGroup g : metaModel.getOperationGroups()) {
-      isEmpty = false;
-      Logger.message("   " + g.getName());
-      for (final MetaData md : g.getItems()) {
-        Logger.message("      " + md.getName());
-      }
+      Logger.message(
+          "Name: %s, Items: {%s}",
+          g.getName(),
+          MetaDataUtils.toNameListString(g.getItems(), ", ")
+          );
     }
-    if (isEmpty) {
-      Logger.message("   <NO>");
-    }
-    Logger.message("");
+  }
 
+  private void printOperations() {
     Logger.message("OPERATIONS:");
     for (final MetaOperation o : metaModel.getOperations()) {
       Logger.message(String.format(
@@ -181,5 +174,19 @@ public final class MetaModelPrinter {
     if (0 == count) {
       Logger.message("   <none>");
     }
+  }
+
+  private static String toString(final Collection<String> list, final String sep) {
+    InvariantChecks.checkNotNull(list);
+
+    final StringBuilder sb = new StringBuilder();
+    for (final String string : list) {
+      if (sb.length() != 0) {
+        sb.append(sep);
+      }
+      sb.append(string);
+    }
+
+    return sb.toString();
   }
 }

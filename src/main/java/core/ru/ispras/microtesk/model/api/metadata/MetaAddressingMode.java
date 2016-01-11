@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collection;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Type;
@@ -126,7 +127,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return Collection of argument names.
    */
 
-  public Iterable<String> getArgumentNames() {
+  public Collection<String> getArgumentNames() {
     return args.keySet();
   }
 
