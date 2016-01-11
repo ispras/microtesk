@@ -1,0 +1,16 @@
+type HWORD = card(16)
+type DWORD = card(64)
+
+type INT   = int(32)
+type LONG  = int(64)
+
+reg GPR [32, DWORD]
+
+mode R (i : card(5)) = GPR[i]
+  syntax = format("r%d", i)
+
+op lui (rt: R, immediate: HWORD)
+  syntax = format("lui %s, 0x%x", rt.syntax, immediate)
+  action = {
+    rt = coerce(LONG, (coerse(INT, immedidate) << 16));
+  }
