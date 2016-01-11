@@ -69,7 +69,7 @@ public final class MetaModelPrinter {
     Logger.message("ADDRESSING MODE GROUPS:");
     for (final MetaGroup g : metaModel.getAddressingModeGroups()) {
       Logger.message(
-          "Name: %s, Items: {%s}",
+          "Name: %s, Items: [%s]",
           g.getName(),
           MetaDataUtils.toNameListString(g.getItems(), ", ")
           );
@@ -86,8 +86,9 @@ public final class MetaModelPrinter {
         sb.append(" throws");
       }
 
-      sb.append(", Parameters: ");
+      sb.append(", Parameters: [");
       sb.append(toString(mode.getArgumentNames(), ", "));
+      sb.append("]");
 
       Logger.message(sb.toString());
     }
@@ -97,7 +98,7 @@ public final class MetaModelPrinter {
     Logger.message("OPERATION GROUPS:");
     for (final MetaGroup g : metaModel.getOperationGroups()) {
       Logger.message(
-          "Name: %s, Items: {%s}",
+          "Name: %s, Items: [%s]",
           g.getName(),
           MetaDataUtils.toNameListString(g.getItems(), ", ")
           );
@@ -107,8 +108,7 @@ public final class MetaModelPrinter {
   private void printOperations() {
     Logger.message("OPERATIONS:");
     for (final MetaOperation o : metaModel.getOperations()) {
-      Logger.message(String.format(
-          "Name: %s%s", o.getName(), o.canThrowException() ? " throws" : ""));
+      Logger.message("Name: %s%s", o.getName(), o.canThrowException() ? " throws" : "");
       Logger.message("Parameters:");
 
       int count = 0;
@@ -144,18 +144,9 @@ public final class MetaModelPrinter {
     asb.append("   ");
     asb.append(a.getName());
     asb.append(" [");
-
-    boolean isFirstMode = true;
-    for (final String tn : a.getTypeNames()) {
-      if (isFirstMode) {
-        isFirstMode = false;
-      } else {
-        asb.append(", ");
-      }
-      asb.append(tn);
-    }
-
+    asb.append(toString(a.getTypeNames(), ", "));
     asb.append("]");
+
     Logger.message(asb.toString());
   }
 

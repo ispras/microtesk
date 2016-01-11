@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.api.metadata;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Collection;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentKind;
@@ -106,7 +107,7 @@ public final class MetaArgument implements MetaData {
    *         of type names (e.g. addressing mode names).
    */
 
-  public Iterable<String> getTypeNames() {
+  public Collection<String> getTypeNames() {
     return typeNames;
   }
 
