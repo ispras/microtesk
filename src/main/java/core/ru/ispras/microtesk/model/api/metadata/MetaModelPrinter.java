@@ -105,7 +105,7 @@ public final class MetaModelPrinter {
     }
   }
 
-  private void printOperations() {
+  public void printOperations() {
     Logger.message("OPERATIONS:");
     for (final MetaOperation o : metaModel.getOperations()) {
       Logger.message("Name: %s%s", o.getName(), o.canThrowException() ? " throws" : "");
