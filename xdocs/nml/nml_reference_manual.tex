@@ -55,6 +55,29 @@ Moscow 2016
 
 \section{Constants}
 
+A declaration like
+
+\begin{lstlisting}
+let A=100
+\end{lstlisting}
+
+declares a global constant A to have the value 100. Such a constant might be used in every context
+its value could stand. Any constant may be defined only once. Constants may be used to extend nML:
+Any information about a machine that can be given with a single number or string can easily be
+defined as a constant (with a default value, so that standard nML descriptions still work).
+
+In core nML, there is just one such constant (or global parameter).
+This is the pipeline factor. On machines with an instruction pipeline visible to the programmer,
+there are delay slots whenever a jump occurs. Usually, there is one such slot, but two are not
+unheard of. A declaration
+
+\begin{lstlisting}
+let pipeline_factor=1
+\end{lstlisting}
+
+introduces one delay slot after each instruction that changes the program counter. The default
+value is 0.
+
 \section{Data Types}
 
 A data type specifies the format of values stored in registers or memory. nML supports
@@ -68,8 +91,8 @@ complement form. The range of possible values is [-2n-1 ... 2n-1 - 1].
 \item card(N): N-bit unsigned integer data type. The range of possible values is [0 ... 2n - 1].
 
 \item float(N, M): IEEE 754 floating point number, where fraction size is N and exponent size is M.
-The resulting type size is N + M + 1 bits, where 1 is an implicitly added bit for store the
-sign. Supported floating-point formats include:
+The resulting type size is N + M +1 bits, where 1 is an implicitly added bit for store the sign.
+Supported floating-point formats include:
 
 \begin{itemize}
 \item 32-bit single-precision. Defined as float(23, 8).
@@ -92,5 +115,10 @@ the actual data type.
 \lstinputlisting{examples/test.nml}
 
 \addcontentsline{toc}{section}{\numberline{}Introduction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Appendixes}
+
+\section{Grammar of nML}
 
 \end{document}
