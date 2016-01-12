@@ -52,13 +52,6 @@ import ru.ispras.microtesk.model.api.state.Status;
  */
 
 public abstract class ProcessorModel implements IModel, ICallFactory {
-  public static final String SHARED_REGISTERS = "__REGISTERS";
-  public static final String SHARED_MEMORY = "__MEMORY";
-  public static final String SHARED_VARIABLES = "__VARIABLES";
-  public static final String SHARED_LABELS = "__LABELS";
-  public static final String SHARED_STATUSES = "__STATUSES";
-  public static final String SHARED_RESETTER = "__RESETTER";
-
   private final String name;
 
   private final AddressingModeStore modes;

@@ -137,9 +137,9 @@ final class STBShared implements STBuilder {
 
     insertEmptyLine(t);
 
-    buildMemoryLineArray(group, t, ProcessorModel.SHARED_REGISTERS, registers);
-    buildMemoryLineArray(group, t, ProcessorModel.SHARED_MEMORY, memory);
-    buildMemoryLineArray(group, t, ProcessorModel.SHARED_VARIABLES, variables);
+    buildMemoryLineArray(group, t, STBModel.SHARED_REGISTERS, registers);
+    buildMemoryLineArray(group, t, STBModel.SHARED_MEMORY, memory);
+    buildMemoryLineArray(group, t, STBModel.SHARED_VARIABLES, variables);
   }
 
   private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory) {
@@ -189,7 +189,7 @@ final class STBShared implements STBuilder {
     final ST tLabels = group.getInstanceOf("memory_array");
 
     tLabels.add("type", Label.class.getSimpleName() + "[]");
-    tLabels.add("name", ProcessorModel.SHARED_LABELS);
+    tLabels.add("name", STBModel.SHARED_LABELS);
 
     for (LetLabel label : ir.getLabels().values()) {
       final ST tNewLabel = group.getInstanceOf("new_label");
@@ -210,7 +210,7 @@ final class STBShared implements STBuilder {
     final ST tStatuses = group.getInstanceOf("memory_array");
 
     tStatuses.add("type", Status.class.getSimpleName() + "[]");
-    tStatuses.add("name", ProcessorModel.SHARED_STATUSES);
+    tStatuses.add("name", STBModel.SHARED_STATUSES);
 
     for (Status status : Status.STANDARD_STATUSES.values()) {
       final ST tStatus = group.getInstanceOf("status");
@@ -231,10 +231,10 @@ final class STBShared implements STBuilder {
     final ST tResetter = group.getInstanceOf("resetter");
 
     tResetter.add("type", Resetter.class.getSimpleName());
-    tResetter.add("name", ProcessorModel.SHARED_RESETTER);
+    tResetter.add("name", STBModel.SHARED_RESETTER);
 
-    tResetter.add("items", ProcessorModel.SHARED_VARIABLES);
-    tResetter.add("items", ProcessorModel.SHARED_STATUSES);
+    tResetter.add("items", STBModel.SHARED_VARIABLES);
+    tResetter.add("items", STBModel.SHARED_STATUSES);
 
     t.add("members", tResetter);
   }

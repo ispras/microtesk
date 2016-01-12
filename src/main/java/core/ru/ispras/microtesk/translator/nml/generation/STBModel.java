@@ -35,6 +35,13 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 final class STBModel implements STBuilder {
+  public static final String SHARED_REGISTERS = "__REGISTERS";
+  public static final String SHARED_MEMORY = "__MEMORY";
+  public static final String SHARED_VARIABLES = "__VARIABLES";
+  public static final String SHARED_LABELS = "__LABELS";
+  public static final String SHARED_STATUSES = "__STATUSES";
+  public static final String SHARED_RESETTER = "__RESETTER";
+
   private final String specFileName;
   private final String modelName;
   private final Ir ir;
@@ -68,11 +75,11 @@ final class STBModel implements STBuilder {
     final ST tc = group.getInstanceOf("constructor");
 
     tc.add("name", modelName);
-    tc.add("reg", ProcessorModel.SHARED_REGISTERS);
-    tc.add("mem", ProcessorModel.SHARED_MEMORY);
-    tc.add("lab", ProcessorModel.SHARED_LABELS);
-    tc.add("stat", ProcessorModel.SHARED_STATUSES);
-    tc.add("reset", ProcessorModel.SHARED_RESETTER);
+    tc.add("reg", SHARED_REGISTERS);
+    tc.add("mem", SHARED_MEMORY);
+    tc.add("lab", SHARED_LABELS);
+    tc.add("stat", SHARED_STATUSES);
+    tc.add("reset", SHARED_RESETTER);
 
     addAddressingModes(t, tc);
     addOperations(t, tc);
