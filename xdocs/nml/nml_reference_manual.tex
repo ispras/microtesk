@@ -53,6 +53,42 @@ Moscow 2016
 
 \section{Introduction}
 
+\section{Constants}
+
+\section{Data Types}
+
+A data type specifies the format of values stored in registers or memory. nML supports
+the following data types: 
+
+\begin{itemize}
+
+\item int(N): N-bit signed integer data type. Negative numbers are stored in two's 
+complement form. The range of possible values is [-2n-1 ... 2n-1 - 1].
+
+\item card(N): N-bit unsigned integer data type. The range of possible values is [0 ... 2n - 1].
+
+\item float(N, M): IEEE 754 floating point number, where fraction size is N and exponent size is M.
+The resulting type size is N + M + 1 bits, where 1 is an implicitly added bit for store the
+sign. Supported floating-point formats include:
+
+\begin{itemize}
+\item 32-bit single-precision. Defined as float(23, 8).
+\item 64-bit double-precision. Defined as float(52, 11).
+\item 80-bit double-extended-precision. Defined as float(64, 15).
+\item 128-bit quadruple-precision. Defined as float(112, 15).
+\end{itemize}
+
+\end{itemize}
+
+nML allows declaring aliases for data types. Here is a simple type declaration:
+
+\begin{lstlisting}
+type DWORD = card(32)
+\end{lstlisting}
+
+In this example, type is a reserved word, DWORD is the declared alias type name, the card(32) is
+the actual data type.
+
 \lstinputlisting{examples/test.nml}
 
 \addcontentsline{toc}{section}{\numberline{}Introduction}
