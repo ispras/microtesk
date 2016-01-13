@@ -19,6 +19,7 @@
        var, hit, path, transition, guard},
  emphstyle={\bfseries}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
@@ -38,9 +39,9 @@
 \bf
 Moscow 2016
 \end{center}
-
-
 \end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
 \stepcounter{page} % Increase page counter by one
@@ -85,6 +86,25 @@ set. A node describes a primitive operation responsible for some task within
 an instruction. Each node has certain attributes that can be shared with its
 descendants. Actions performed by instructions are described as operations
 with registers and memory represented by bit vectors of arbitrary size.
+
+A specification in nML starts with definitions of types and global constants.
+For example, a type definition for a 32-bit unsigned integer looks as follows:
+
+\begin{lstlisting}
+let WORD_SIZE = 32
+type WORD = card(WORD_SIZE)
+\end{lstlisting}
+
+Type definitions and constants can be used to describe registers and memory.
+In addition to registers and memory, it is also possible to define temporary
+variables that are internal abstractions provided by nML to store intermediate
+results of operations. They do not correspond to any data storage in real
+hardware and do not save their data across instruction calls. Also, there is
+often a need to specify some properties of the described model. For this
+purpose, special constants are used. For example, the code below defines
+general-purpose registers, memory and a temporary variable. Also, it includes
+a special constant to establish a correspondence between the general purpose
+register number 15 and the program counter (PC). Here is the code:
 
 \section{Constants}
 
