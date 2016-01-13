@@ -699,8 +699,7 @@ final class SsaBuilder {
           ((LocationAtom.MemorySource) atom.getSource()).getMemory();
 
       // get required bitsize of index
-      final int size =
-          memory.getSizeExpr().bigIntegerValue().subtract(BigInteger.ONE).bitLength();
+      final int size = memory.getSize().subtract(BigInteger.ONE).bitLength();
 
       // 'var x[type]' is considered as array of length 1 allowing x[0], skip
       if (size > 0) {

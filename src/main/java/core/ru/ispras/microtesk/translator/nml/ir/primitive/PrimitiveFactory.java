@@ -289,8 +289,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         final LocationAtom.MemorySource source =
             (LocationAtom.MemorySource) locationAtom.getSource();
 
-        final BigInteger memorySize = 
-            source.getMemory().getSizeExpr().bigIntegerValue();
+        final BigInteger memorySize = source.getMemory().getSize();
 
         // MEMs of length 1 are often used as global variables.
         // For this reason, there such MEMs are excluded.

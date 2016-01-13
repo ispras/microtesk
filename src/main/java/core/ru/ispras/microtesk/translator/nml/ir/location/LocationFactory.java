@@ -297,9 +297,9 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
     if (index != null && index.getValueInfo().isConstant()) {
       final BigInteger indexValue = index.bigIntegerValue();
       if (indexValue.compareTo(BigInteger.ZERO) < 0 || 
-          indexValue.compareTo(memory.getSizeExpr().bigIntegerValue()) >= 0) {
+          indexValue.compareTo(memory.getSize()) >= 0) {
         raiseError(where, String.format("Index is out of bounds: %d. It must be in [0..%d)",
-            indexValue, memory.getSizeExpr().bigIntegerValue()));
+            indexValue, memory.getSize()));
       }
     }
 

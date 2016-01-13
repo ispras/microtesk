@@ -41,8 +41,8 @@ public final class Alias {
       final int min,
       final int max) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkBounds(min, memory.getSize());
-    InvariantChecks.checkBounds(max, memory.getSize());
+    InvariantChecks.checkBounds(min, memory.getSize().intValue());
+    InvariantChecks.checkBounds(max, memory.getSize().intValue());
     return new Alias(Kind.MEMORY, null, name, memory, min, max);
   }
 

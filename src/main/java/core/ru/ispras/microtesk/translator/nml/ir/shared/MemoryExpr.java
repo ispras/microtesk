@@ -14,23 +14,25 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
 public final class MemoryExpr {
   private final Memory.Kind kind;
   private final Type type;
-  private final Expr size;
+  private final BigInteger size;
   private final Alias alias;
 
   MemoryExpr(
       final Memory.Kind kind,
       final Type type,
-      final Expr size,
+      final BigInteger size,
       final Alias alias) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(size);
+    InvariantChecks.checkGreaterThan(size, BigInteger.ZERO);
 
     this.size = size;
     this.type = type;
@@ -46,12 +48,8 @@ public final class MemoryExpr {
     return type;
   }
 
-  public Expr getSizeExpr() {
+  public BigInteger getSize() {
     return size;
-  }
-
-  public int getSize() {
-    return size.integerValue();
   }
 
   public Alias getAlias() {
@@ -60,7 +58,7 @@ public final class MemoryExpr {
 
   @Override
   public String toString() {
-    return String.format("MemoryExpr [kind=%s, type=%s, size=%s]",
-        kind, type, size);
+    return String.format(
+        "MemoryExpr [kind=%s, type=%s, size=%s]", kind, type, size);
   }
 }
