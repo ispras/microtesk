@@ -108,9 +108,9 @@ final class STBShared implements STBuilder {
       insertEmptyLine(t);
     }
 
-    final List<String> registers = new ArrayList<String>();
-    final List<String> memory = new ArrayList<String>();
-    final List<String> variables = new ArrayList<String>();
+    final List<String> registers = new ArrayList<>();
+    final List<String> memory = new ArrayList<>();
+    final List<String> variables = new ArrayList<>();
 
     for (Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet()) {
       buildMemoryLine(group, t, mem.getKey(), mem.getValue());
@@ -157,7 +157,7 @@ final class STBShared implements STBuilder {
       tMemory.add("type", tNewType);
     }
 
-    tMemory.add("size", memory.getSize());
+    tMemory.add("size", PrinterExpr.bigIntegerToHexString(memory.getSize()));
 
     final Alias alias = memory.getAlias();
     if (null == alias) {
