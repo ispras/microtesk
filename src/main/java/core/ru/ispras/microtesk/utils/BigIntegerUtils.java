@@ -61,11 +61,11 @@ public final class BigIntegerUtils {
   }
 
   public static List<Integer> toIntegerList(final Collection<BigInteger> values) {
-    return new ArrayList<Integer>(toIntegerCollection(values));
+    return new ArrayList<>(toIntegerCollection(values));
   }
 
   public static Set<Integer> toIntegerSet(final Collection<BigInteger> values) {
-    return new LinkedHashSet<Integer>(toIntegerCollection(values));
+    return new LinkedHashSet<>(toIntegerCollection(values));
   }
 
   public static Collection<Long> toLongCollection(final Collection<BigInteger> values) {
@@ -81,10 +81,10 @@ public final class BigIntegerUtils {
   }
 
   public static List<Long> toLongList(final Collection<BigInteger> values) {
-    return new ArrayList<Long>(toLongCollection(values));
+    return new ArrayList<>(toLongCollection(values));
   }
 
   public static Set<Long> toLongSet(final Collection<BigInteger> values) {
-    return new LinkedHashSet<Long>(toLongCollection(values));
+    return new LinkedHashSet<>(toLongCollection(values));
   }
 }
