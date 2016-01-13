@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -153,10 +152,8 @@ class ModelTypeCastRules {
       return null;
     }
 
-    final Expr bitSizeExpr = (left.getBitSize() >= right.getBitSize()) ?
-      left.getBitSizeExpr() : right.getBitSizeExpr();
-
-    return (typeId == left.getTypeId()) ? left.resize(bitSizeExpr) : right.resize(bitSizeExpr);
+    final int bitSize = Math.max(left.getBitSize(), right.getBitSize());
+    return (typeId == left.getTypeId()) ? left.resize(bitSize) : right.resize(bitSize);
   }
 }
 

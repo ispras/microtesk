@@ -148,7 +148,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
     }
 
-    final Type bitfieldType = location.getType().resize(Expr.CONST_ONE);
+    final Type bitfieldType = location.getType().resize(1);
     return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
   }
 

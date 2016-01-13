@@ -40,13 +40,13 @@ public final class TypeFactory extends WalkerFactoryBase {
   public Type newInt(
       final Where where,
       final Expr bitSize) throws SemanticException {
-    return Type.INT(bitSize);
+    return Type.INT(bitSize.integerValue());
   }
 
   public Type newCard(
       final Where where,
       final Expr bitSize) throws SemanticException {
-    return Type.CARD(bitSize);
+    return Type.CARD(bitSize.integerValue());
   }
 
   public Type newFloat(
@@ -66,6 +66,6 @@ public final class TypeFactory extends WalkerFactoryBase {
           ));
     }
 
-    return Type.FLOAT(fractionBitSize, exponentBitSize);
+    return Type.FLOAT(fractionSize, exponentSize);
   }
 }

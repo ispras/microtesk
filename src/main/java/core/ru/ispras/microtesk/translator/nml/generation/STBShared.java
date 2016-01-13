@@ -153,7 +153,7 @@ final class STBShared implements STBuilder {
     } else {
       final ST tNewType = group.getInstanceOf("new_type");
       tNewType.add("typeid", typeExpr.getTypeId());
-      tNewType.add("size", new PrinterExpr(typeExpr.getBitSizeExpr()));
+      tNewType.add("size", typeExpr.getBitSize());
       tMemory.add("type", tNewType);
     }
 

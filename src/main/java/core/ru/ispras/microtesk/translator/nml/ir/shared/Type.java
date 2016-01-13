@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,78 +14,55 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import java.util.Arrays;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.TypeId;
 
 public final class Type {
-  public final static Type BOOLEAN = new Type(TypeId.BOOL, Expr.CONST_ONE);
+  public final static Type BOOLEAN = new Type(TypeId.BOOL, 1);
 
-  public static Type INT(int bitSize) {
+  public static Type INT(final int bitSize) {
+    InvariantChecks.checkGreaterThanZero(bitSize);
     return new Type(TypeId.INT, bitSize);
   }
 
-  public static Type INT(Expr bitSize) {
-    return new Type(TypeId.INT, bitSize);
-  }
-
-  public static Type CARD(int bitSize) {
+  public static Type CARD(final int bitSize) {
+    InvariantChecks.checkGreaterThanZero(bitSize);
     return new Type(TypeId.CARD, bitSize);
   }
 
-  public static Type CARD(Expr bitSize) {
-    return new Type(TypeId.CARD, bitSize);
-  }
-
-  public static Type FLOAT(int fracBitSize, int expBitSize) {
-    if (fracBitSize <= 0) {
-      throw new IllegalArgumentException();
-    }
-
-    if (expBitSize <= 0) {
-      throw new IllegalArgumentException();
-    }
+  public static Type FLOAT(final int fracBitSize, final int expBitSize) {
+    InvariantChecks.checkGreaterThanZero(fracBitSize);
+    InvariantChecks.checkGreaterThanZero(expBitSize);
 
     // 1 is added to make room for implicit sign bit
     final int bitSize = fracBitSize + expBitSize + 1;
 
     return new Type(
-      TypeId.FLOAT,
-      null,
-      Expr.newConstant(bitSize),
-      toExprArray(fracBitSize, expBitSize)
-      );
+        TypeId.FLOAT,
+        null,
+        bitSize,
+        new int[] {fracBitSize, expBitSize}
+        );
   }
 
-  public static Type FLOAT(Expr fracBitSize, Expr expBitSize) {
-    checkNotNull(fracBitSize);
-    checkNotNull(expBitSize);
-
-    // 1 is added to make room for implicit sign bit
-    final int bitSize = 
-      fracBitSize.integerValue() + expBitSize.integerValue() + 1;
-
-    return new Type(
-      TypeId.FLOAT,
-      null,
-      Expr.newConstant(bitSize),
-      new Expr[] { fracBitSize, expBitSize }
-      );
-  }
-
-  private static final Class<?> MODEL_API_CLASS = ru.ispras.microtesk.model.api.data.Type.class;
+  private static final Class<?> MODEL_API_CLASS =
+      ru.ispras.microtesk.model.api.data.Type.class;
 
   private final TypeId typeId;
   private final String aliasName;
-  private final Expr bitSize;
-  private final Expr[] fieldSizes;
+  private final int bitSize;
+  private final int[] fieldSizes;
 
-  private Type(TypeId typeId, String aliasName, Expr bitSize, Expr[] fieldSizes) {
-    checkNotNull(typeId);
-    checkNotNull(bitSize);
-    checkNotNull(fieldSizes);
+  private Type(
+      final TypeId typeId,
+      final String aliasName,
+      final int bitSize,
+      final int[] fieldSizes) {
+    InvariantChecks.checkNotNull(typeId);
+    InvariantChecks.checkGreaterThanZero(bitSize);
+    InvariantChecks.checkTrue(fieldSizes.length > 0);
 
     this.typeId = typeId;
     this.aliasName = aliasName;
@@ -93,62 +70,31 @@ public final class Type {
     this.fieldSizes = fieldSizes;
   }
 
-  private Type(Type type, String aliasName) {
+  private Type(final Type type, final String aliasName) {
     this.typeId = type.typeId;
     this.aliasName = aliasName;
     this.bitSize = type.bitSize;
     this.fieldSizes = type.fieldSizes;
   }
 
-  private Type(TypeId typeId, Expr bitSize) {
-    this(typeId, null, bitSize, new Expr[] {bitSize});
+  private Type(final TypeId typeId, final int bitSize) {
+    this(typeId, null, bitSize, new int[] {bitSize});
   }
 
-  private Type(TypeId typeId, int bitSize) {
-    this(typeId, Expr.newConstant(bitSize));
-  }
-
-  private Type(TypeId typeId, Expr... fieldSizes) {
+  private Type(final TypeId typeId, final int... fieldSizes) {
     this(typeId, null, getTotalSize(fieldSizes), fieldSizes);
   }
 
-  private static Expr getTotalSize(Expr... fieldSizes) {
-    if (fieldSizes.length == 1) {
-      return fieldSizes[0];
+  private static int getTotalSize(final int... fieldSizes) {
+    int totalSize = 0;
+    for (final int size : fieldSizes) {
+      totalSize += size;
     }
-
-    int total = 0;
-    for (Expr size : fieldSizes) {
-      total += size.integerValue();
-    }
-
-    return Expr.newConstant(total);
+    return totalSize;
   }
 
-  private Type(TypeId typeId, int... fieldSizes) {
-    this(typeId, null, getTotalSize(fieldSizes), toExprArray(fieldSizes));
-  }
-
-  private static Expr getTotalSize(int... fieldSizes) {
-    int total = 0;
-    for (int size : fieldSizes) {
-      total += size;
-    }
-
-    return Expr.newConstant(total);
-  }
-
-  private static Expr[] toExprArray(int... values) {
-    final Expr[] exprs = new Expr[values.length];
-    for (int index = 0; index < exprs.length; index++) {
-      exprs[index] = Expr.newConstant(values[index]);
-    }
-
-    return exprs;
-  }
-
-  public Type alias(String name) {
-    checkNotNull(name);
+  public Type alias(final String name) {
+    InvariantChecks.checkNotNull(name);
 
     if (name.equals(aliasName)) {
       return this;
@@ -157,16 +103,8 @@ public final class Type {
     return new Type(this, name);
   }
 
-  public Type resize(int newBitSize) {
-    if (newBitSize == getBitSize()) {
-      return this;
-    }
-
-    return new Type(typeId, newBitSize);
-  }
-
-  public Type resize(Expr newBitSize) {
-    if (newBitSize.integerValue() == getBitSize()) {
+  public Type resize(final int newBitSize) {
+    if (newBitSize == bitSize) {
       return this;
     }
 
@@ -177,46 +115,30 @@ public final class Type {
     return typeId;
   }
 
-  public Expr getBitSizeExpr() {
-    return bitSize;
-  }
-
   public int getBitSize() {
-    return bitSize.integerValue();
+    return bitSize;
   }
 
   public String getAlias() {
     return aliasName;
   }
 
-  /**
-   * Returns printable representation of the type for the generated Java code. Returns an alias name
-   * if it is defined.
-   * 
-   * @return Textual representation of the type in Java format.
-   */
-
   public String getJavaText() {
     return (null != aliasName) ? aliasName : getTypeName();
   }
 
-  /**
-   * Return a printable name of the type to be used in various diagnostic messages.
-   * 
-   * @return Printable name of the type.
-   */
-
   public String getTypeName() {
-    final StringBuilder sbFieldSizes = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
 
-    for (Expr fieldSize : fieldSizes) {
-      if (sbFieldSizes.length() > 0) {
-        sbFieldSizes.append(", ");
+    for (final int fieldSize : fieldSizes) {
+      if (sb.length() > 0) {
+        sb.append(", ");
       }
-      sbFieldSizes.append(new PrinterExpr(fieldSize).toString());
+      sb.append(fieldSize);
     }
 
-    return String.format("%s.%s(%s)", MODEL_API_CLASS.getSimpleName(), getTypeId(), sbFieldSizes);
+    return String.format(
+        "%s.%s(%s)", MODEL_API_CLASS.getSimpleName(), getTypeId(), sb);
   }
 
   @Override
@@ -231,13 +153,13 @@ public final class Type {
     int result = 1;
 
     result = prime * result + typeId.hashCode();
-    result = prime * result + getBitSize();
+    result = prime * result + Arrays.hashCode(fieldSizes);
 
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -255,10 +177,6 @@ public final class Type {
       return false;
     }
 
-    if (getBitSize() != other.getBitSize()) {
-      return false;
-    }
-
-    return true;
+    return Arrays.equals(this.fieldSizes, other.fieldSizes);
   }
 }
