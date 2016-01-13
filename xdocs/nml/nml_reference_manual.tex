@@ -51,13 +51,40 @@ Moscow 2016
 
 \chapter{Introduction}
 
-\section{About This Reference Manual}
+\section{Disclaimer}
 
 This reference manual describes syntax and semantics of the nML architecture
-description language. It covers language facilities supported by ISP RAS
-version of nML and does not attempt to be complete. It may differ from
-documentation provided by other vendors as there are differences in
-language implementations.
+description language. It covers only language facilities supported by the ISP RAS
+version of nML. It may differ from documentation provided by other vendors as
+there are differences in language implementations.
+
+\section{Overview}
+
+nML is an architecture description language (ADL) used to describe the
+instruction set architecture (ISA) of an arbitrary microprocessor. It is a
+flexible and easy-to-use language based on attribute grammar. nML was designed
+to provide a retargetable way to specify microprocessor architecture for
+various microprocessor-related software tools including instruction-set
+simulators, assemblers, disassemblers, compiler back-ends etc. It works at
+the instruction-set level concentrating on behavioral properties and hiding
+implementation details. An nML specification represents a programmer's model
+of the microprocessor which covers the following aspects:
+
+\begin{itemize}
+\item supported data types;
+\item registers and memory;
+\item addressing modes;
+\item syntax and semantics of instructions.
+\end{itemize}
+
+nML uses a hierarchical tree-like structure to describe an instruction set.
+Such a structure facilitates grouping related instructions and sharing their
+common parts. An instruction is described as a path in the tree from the root
+node to a leaf node. The set of all possible paths represents an instruction
+set. A node describes a primitive operation responsible for some task within
+an instruction. Each node has certain attributes that can be shared with its
+descendants. Actions performed by instructions are described as operations
+with registers and memory represented by bit vectors of arbitrary size.
 
 \section{Constants}
 
@@ -117,6 +144,36 @@ type DWORD = card(32)
 
 In this example, type is a reserved word, DWORD is the declared alias type name, the card(32) is
 the actual data type.
+
+\subsection{Converting Data Types}
+
+In nML, type conversion is performed explicitly using the following functions:
+
+\begin{itemize}
+\item sign{\_}extend(type, value).
+Sign-extends the value to the specified type. Applied to any types. Requires
+the new type to be larger or equal to the original type.
+
+\item zero{\_}extend(type, value).
+Zero-extends the value to the specified type. Applied to any types. Requires the new type to be larger or equal to the original type.
+
+\item coerce(type, value).
+Converts an integer value to another integer type. For smaller types the value is truncated, for larger types it is extended. If the original type is a signed integer, sign extension is performed. Otherwise, zero-extension is performed.
+
+\item cast(type, value).
+Reinterprets the value as the specified type. Applied to any types. The new type must be of the same size as the original type.
+
+\item int{\_}to{\_}float(type, value).
+Converts 32 and 64-bit integers into 32, 64, 80 and 128-bit floating-point values (IEEE 754).
+
+\item float{\_}to{\_}int(type, value).
+Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into 32 and 64-bit integers.
+
+\item float{\_}to{\_}float(type, value).
+Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each other.
+
+\end{itemize}
+
 
 \lstinputlisting{examples/test.nml}
 
