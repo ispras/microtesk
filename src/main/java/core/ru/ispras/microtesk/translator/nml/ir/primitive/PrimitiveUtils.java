@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Reference;
 
 /**
@@ -45,8 +46,8 @@ public final class PrimitiveUtils {
    */
 
   public static void saveAllOrsToList(Primitive source, List<PrimitiveAND> destination) {
-    notNullCheck(source, "source");
-    notNullCheck(destination, "destination");
+    InvariantChecks.checkNotNull(source, "source");
+    InvariantChecks.checkNotNull(destination, "destination");
 
     if (!source.isOrRule()) {
       destination.add((PrimitiveAND) source);
@@ -69,8 +70,8 @@ public final class PrimitiveUtils {
    */
 
   public static int getChildCount(PrimitiveAND root, Primitive.Kind kind) {
-    notNullCheck(root, "root");
-    notNullCheck(kind, "kind");
+    InvariantChecks.checkNotNull(root, "root");
+    InvariantChecks.checkNotNull(kind, "kind");
 
     int count = 0;
     for (Primitive p : root.getArguments().values()) {
@@ -93,7 +94,7 @@ public final class PrimitiveUtils {
    */
 
   public static boolean isLeaf(Primitive primitive) {
-    notNullCheck(primitive, "primitive");
+    InvariantChecks.checkNotNull(primitive, "primitive");
 
     if (primitive.isOrRule()) {
       return false;
@@ -114,7 +115,7 @@ public final class PrimitiveUtils {
    */
 
   public static boolean isJunction(Primitive primitive) {
-    notNullCheck(primitive, "primitive");
+    InvariantChecks.checkNotNull(primitive, "primitive");
 
     if (primitive.isOrRule()) {
       return false;
@@ -133,7 +134,7 @@ public final class PrimitiveUtils {
    */
 
   public static int countNonJunctionParents(Primitive primitive) {
-    notNullCheck(primitive, "primitive");
+    InvariantChecks.checkNotNull(primitive, "primitive");
 
     int nonJunctionParents = 0;
 
@@ -226,8 +227,8 @@ public final class PrimitiveUtils {
      */
 
     public int getPathCount(Primitive source, String target) {
-      notNullCheck(source, "source");
-      notNullCheck(target, "target");
+      InvariantChecks.checkNotNull(source, "source");
+      InvariantChecks.checkNotNull(target, "target");
 
       if (source.getKind() != Primitive.Kind.OP) {
         return 0;
@@ -260,12 +261,6 @@ public final class PrimitiveUtils {
 
       remember(source.getName(), target, count);
       return count;
-    }
-  }
-
-  private static void notNullCheck(Object o, String name) {
-    if (null == o) {
-      throw new NullPointerException(String.format("The %s parameter is null.", name));
     }
   }
 }
