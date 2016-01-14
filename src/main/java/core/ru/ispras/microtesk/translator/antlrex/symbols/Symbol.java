@@ -60,13 +60,8 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public final int getLine() {
-    return where.getLine();
-  }
-
-  @Override
-  public final int getPositionInLine() {
-    return where.getPosition();
+  public final Where getWhere() {
+    return where;
   }
 
   @Override

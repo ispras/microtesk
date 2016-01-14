@@ -45,13 +45,8 @@ public final class BuiltInSymbol implements ISymbol {
   }
 
   @Override
-  public int getLine() {
-    return -1;
-  }
-
-  @Override
-  public int getPositionInLine() {
-    return -1;
+  public Where getWhere() {
+    return null;
   }
 
   @Override

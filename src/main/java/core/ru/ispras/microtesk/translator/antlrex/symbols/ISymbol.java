@@ -18,8 +18,7 @@ public interface ISymbol {
   String getName();
   Enum<?> getKind();
 
-  int getLine();
-  int getPositionInLine();
+  Where getWhere();
 
   IScope getOuterScope();
   IScope getInnerScope();

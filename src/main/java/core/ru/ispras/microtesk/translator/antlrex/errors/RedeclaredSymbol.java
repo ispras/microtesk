@@ -37,7 +37,12 @@ public final class RedeclaredSymbol implements ISemanticError {
       return String.format(FORMAT_KEYWORD, symbol.getName(), symbol.getKind().name());
     }
 
-    return String.format(FORMAT,
-      symbol.getName(), symbol.getKind().name(), symbol.getLine(), symbol.getPositionInLine());
+    return String.format(
+        FORMAT,
+        symbol.getName(),
+        symbol.getKind().name(),
+        symbol.getWhere().getLine(),
+        symbol.getWhere().getPosition()
+        );
   }
 }
