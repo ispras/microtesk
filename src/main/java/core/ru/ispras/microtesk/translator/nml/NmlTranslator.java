@@ -34,7 +34,7 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
-import ru.ispras.microtesk.translator.antlrex.symbols.ReservedKeywords;
+import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.generation.Generator;

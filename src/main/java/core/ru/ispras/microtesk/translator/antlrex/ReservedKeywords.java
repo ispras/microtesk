@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.antlrex.symbols;
+package ru.ispras.microtesk.translator.antlrex;
 
 public final class ReservedKeywords {
   private ReservedKeywords() {}
