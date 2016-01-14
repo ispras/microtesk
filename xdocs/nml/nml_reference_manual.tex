@@ -47,10 +47,11 @@ Moscow 2016
 \stepcounter{page} % Increase page counter by one
 \tableofcontents
 
-\newpage
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introduction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Disclaimer}
 
@@ -58,6 +59,8 @@ This reference manual describes syntax and semantics of the nML architecture
 description language. It covers only language facilities supported by the ISP RAS
 version of nML. It may differ from documentation provided by other vendors as
 there are differences in language implementations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Overview}
 
@@ -105,6 +108,86 @@ purpose, special constants are used. For example, the code below defines
 general-purpose registers, memory and a temporary variable. Also, it includes
 a special constant to establish a correspondence between the general purpose
 register number 15 and the program counter (PC). Here is the code:
+
+\begin{lstlisting}
+reg GPR[32, WORD]
+mem M[2 ** 20, BYTE]
+var carry[1, BIT]
+let PC = "GPR[15]"
+\end{lstlisting}
+
+As stated above, an instruction set is described as a tree of primitive
+operations. There two kinds of primitives: operations and addressing modes.
+Operations describe parts of instructions responsible for specific tasks and
+can be used as leaf and root nodes. Addressing modes are aimed to customize
+operations (for example, they encapsulate rules for accessing microprocessor
+resources). They can only be used as leaf nodes. For example, here are
+simplified examples of operation and addressing mode specifications:
+
+\begin{lstlisting}
+mode REG(i: nibble) = R[i]
+syntax = format("R%d", i)
+image  = format("01%4b", i)
+\end{lstlisting}
+
+\begin{lstlisting}
+op Add()
+syntax = "add" 
+image  = "00" 
+action = { DEST = SRC1 + SRC2; }
+\end{lstlisting}
+
+Operations and addressing modes have three standard attributes: syntax, image
+and action. The first two specify textual and binary syntax. The third
+describes semantics of the primitive. In addition, addressing modes have
+a return expression that enables them to be used as variables in various
+expressions. Attributes can be used by parent primitives referring to a given
+primitive to describe more complex abstractions.
+
+Primitives are arranged into a tree using production rules. There are two kinds
+of production rules: AND rules and OR rules. AND rules specify parent-child
+relationships where a child primitive is described as a parameter of its
+parent. Here is an example of an AND rule:
+
+\begin{lstlisting}
+op arith_inst(act: Add, op1: OPRND, op2: OPRND)
+\end{lstlisting}
+
+This is the header of the "arith{\_}inst" operation that states that the
+"arith{\_}inst" operation node has three child nodes: the "act" operation and the
+"op1" and "op2" addressing modes. The syntax of an operation header is similar
+to a function where parameter types specify the primitives the rule refers to.
+Parameter can be, in turn, parameterized with other primitives (they will be
+encapsulated behind attributes). For this reason child nodes represent
+independent instances that are accessed from their parent node via parameters.
+OR rules specify alternatives. This means that a group of primitives is united
+under some alias so that each of them can used when this alias is specified in
+an AND rule. An OR rule looks as follows:
+
+\begin{lstlisting}
+op Add_Sub_Mov = Add | Sub | Mov
+\end{lstlisting}
+
+Figure 1 displays a tree path describing the "mov" instruction from an
+imaginary instruction set. This instruction copies data from one register to
+another. The root operation of the instruction is called "instruction".
+According to nML conventions, the root operation is always called "instruction"
+and it specifies the point from which all paths describing specific
+instructions start. The "instruction" operation can be defined either as AND or
+OR rule. In the latter case, there are several starting points. Usually root
+operations holds some common properties and perform common actions (such as
+increment of the program counter). In the given example, the root operation is
+linked to the "Arithm" operation with the help of an AND rule. This operation
+describes a group of arithmetic operations. It is parameterized with the
+"Add{\_}Mov{\_}Sub" and "OPRND" primitives. Both of them are specified as OR rules.
+The first one describes arithmetic operations that can be performed by the
+"Arithm" primitive while the second one specifies supported addressing modes.
+Dashed lines that connect OR-rules with their child primitives specify possible
+alternative paths. Instructions are identified by the terminal operation node of
+the path (in this example, it is the "Mov" node). An important note is that, to
+avoid ambiguity, nodes can have only one child operation.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Constants}
 
