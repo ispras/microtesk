@@ -22,6 +22,8 @@ public class Symbol implements ISymbol {
   private final Enum<?> kind;
   private final IScope scope;
 
+  private Object tag = null;
+
   public Symbol(
       final String name,
       final Where where,
@@ -36,17 +38,6 @@ public class Symbol implements ISymbol {
     this.where = where;
     this.kind = kind;
     this.scope = scope;
-  }
-
-  @Override
-  public String toString() {
-    return String.format(
-        "Symbol [name=%s, kind=%s, scope=%s, innerScope=%s]",
-         getName(),
-         getKind(),
-         getOuterScope(),
-         getInnerScope()
-         );
   }
 
   @Override
@@ -65,6 +56,16 @@ public class Symbol implements ISymbol {
   }
 
   @Override
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
+  public void setTag(final Object tag) {
+    this.tag = tag;
+  }
+
+  @Override
   public final IScope getOuterScope() {
     return scope;
   }
@@ -72,5 +73,16 @@ public class Symbol implements ISymbol {
   @Override
   public IScope getInnerScope() {
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "Symbol [name=%s, kind=%s, scope=%s, innerScope=%s]",
+         getName(),
+         getKind(),
+         getOuterScope(),
+         getInnerScope()
+         );
   }
 }

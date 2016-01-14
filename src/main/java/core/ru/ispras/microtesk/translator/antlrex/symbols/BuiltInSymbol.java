@@ -58,4 +58,14 @@ public final class BuiltInSymbol implements ISymbol {
   public IScope getInnerScope() {
     return null;
   }
+
+  @Override
+  public Object getTag() {
+    return getName();
+  }
+
+  @Override
+  public void setTag(final Object tag) {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -17,8 +17,10 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 public interface ISymbol {
   String getName();
   Enum<?> getKind();
-
   Where getWhere();
+
+  Object getTag();
+  void setTag(Object tag);
 
   IScope getOuterScope();
   IScope getInnerScope();
