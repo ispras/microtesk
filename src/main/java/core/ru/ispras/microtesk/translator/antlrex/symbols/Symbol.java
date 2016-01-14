@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class Symbol {
+public final class Symbol {
   private final String name;
   private final Enum<?> kind;
   private final Where where;

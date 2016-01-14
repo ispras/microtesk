@@ -41,10 +41,7 @@ public final class SymbolTable {
 
   public void push(final SymbolScope scope) {
     InvariantChecks.checkNotNull(scope);
-
-    if (globalScope == scope) {
-      throw new IllegalStateException();
-    }
+    InvariantChecks.checkTrue(globalScope != scope);
 
     this.scope = scope;
   }
@@ -53,7 +50,7 @@ public final class SymbolTable {
     InvariantChecks.checkNotNull(scope);
 
     if (globalScope == scope) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Cannot pop global scope.");
     }
 
     scope = scope.getOuterScope();
