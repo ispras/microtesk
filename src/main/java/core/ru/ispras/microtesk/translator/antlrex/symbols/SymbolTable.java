@@ -16,13 +16,32 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link SymbolTable} class implements a symbol table.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public final class SymbolTable {
-  private final SymbolScope globalScope = new SymbolScope(null);
+  private final SymbolScope globalScope;
   private SymbolScope scope;
 
+  /**
+   * Creates a symbol table with a global scope. 
+   */
+
   public SymbolTable() {
+    this.globalScope = new SymbolScope(null);
     this.scope = globalScope;
   }
+
+  /**
+   * Defines reserved keywords by placing corresponding symbols
+   * into the global scope.
+   * 
+   * @param kind Symbol kind for reserved keywords.
+   * @param names Collection of keywords to be registered.
+   */
 
   public void defineReserved(final Enum<?> kind, final String[] names) {
     for (final String s : names) {
@@ -30,35 +49,76 @@ public final class SymbolTable {
     }
   }
 
+  /**
+   * Checks whether the specified named was registered as reserved keyword.
+   * 
+   * @param name Name to be checked.
+   * @return {@code true} if it is a reserved keyword of {@code false} otherwise.
+   */
+
   public boolean isReserved(final String name) {
     final Symbol symbol = globalScope.resolve(name);
     return symbol != null && symbol.isReserved();
   }
 
+  /**
+   * Returns the current scope.
+   * 
+   * @return Current scope.
+   */
+
+  public SymbolScope peek() {
+    return scope;
+  }
+
+  /**
+   * Starts a new scope and sets it as the current scope. The new scope
+   * will be nested into the current scope.
+   */
+
   public void push() {
     this.scope = new SymbolScope(scope);
   }
 
+  /**
+   * Sets the specified scope as the current scope. The new scope must be
+   * nested in the old scope.
+   *  
+   * @param scope Scope to be set as the current scope.
+   * 
+   * @throws IllegalArgumentException if {@code scope} is {@code null};
+   *         if {@code scope} is not nested into the current scope.
+   */
+
   public void push(final SymbolScope scope) {
     InvariantChecks.checkNotNull(scope);
-    InvariantChecks.checkTrue(globalScope != scope);
+    InvariantChecks.checkTrue(this.scope == scope.getOuterScope(), "Not a nested scope.");
 
     this.scope = scope;
   }
+
+  /**
+   * Discards the current scope and replaces it with its outer scope.
+   * 
+   * @throws IllegalStateException if the current scope is the global scope
+   *         which cannot be discarded.
+   */
 
   public void pop() {
     InvariantChecks.checkNotNull(scope);
 
     if (globalScope == scope) {
-      throw new IllegalStateException("Cannot pop global scope.");
+      throw new IllegalStateException("Cannot pop the global scope.");
     }
 
     scope = scope.getOuterScope();
   }
 
-  public SymbolScope peek() {
-    return scope;
-  }
+  /**
+   * Defines the specified symbol in the current scope.
+   * 
+   * @param symbol Symbol to be defined.
+   */
 
   public void define(final Symbol symbol) {
     peek().define(symbol);
