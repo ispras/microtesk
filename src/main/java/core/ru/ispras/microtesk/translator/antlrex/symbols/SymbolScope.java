@@ -75,6 +75,14 @@ public final class SymbolScope {
     memberSymbols.put(symbol.getName(), symbol);
   }
 
+  /**
+   * Searches for a symbol by its name in the current scope and its outer scopes.
+   * If no symbol is found, {@code null} is returned.
+   * 
+   * @param name Symbol name.
+   * @return Symbol or {@code null} if it is not defined.
+   */
+
   public Symbol resolve(final String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
@@ -87,14 +95,20 @@ public final class SymbolScope {
     return null;
   }
 
+  /**
+   * Searches for a symbol by its name in the current scope only. Outer
+   * scopes are not searched. If no such symbol is found, {@code null} is returned.
+   * 
+   * @param name Symbol name.
+   * @return Symbol or {@code null} if it is not defined.
+   */
+
   public Symbol resolveMember(final String name) {
     return memberSymbols.get(name);
   }
 
   public Symbol resolveNested(final String... names) {
-    if (names.length == 0) {
-      throw new IllegalArgumentException("No arguments.");
-    }
+    InvariantChecks.checkNotEmpty(names);
 
     Symbol symbol = resolve(names[0]);
     for (int index = 1; index < names.length; ++index) {

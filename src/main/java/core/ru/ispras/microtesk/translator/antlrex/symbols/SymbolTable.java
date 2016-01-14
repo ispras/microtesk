@@ -124,9 +124,25 @@ public final class SymbolTable {
     peek().define(symbol);
   }
 
+  /**
+   * Searches for a symbol by its name in the current scope and its outer scopes.
+   * If no such symbol is found, {@code null} is returned.
+   * 
+   * @param name Symbol name.
+   * @return Symbol or {@code null} if it is not defined.
+   */
+
   public Symbol resolve(final String name) {
     return peek().resolve(name);
   }
+
+  /**
+   * Searches for a symbol by its name in the current scope only. Outer
+   * scopes are not searched. If no such symbol is found, {@code null} is returned.
+   * 
+   * @param name Symbol name.
+   * @return Symbol or {@code null} if it is not defined.
+   */
 
   public Symbol resolveMember(final String name) {
     return peek().resolveMember(name);
