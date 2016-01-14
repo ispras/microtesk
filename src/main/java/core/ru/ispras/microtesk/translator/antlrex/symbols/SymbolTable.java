@@ -16,9 +16,9 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class SymbolTable implements IScope {
-  private final IScope globalScope = new Scope(null);
-  private IScope scope;
+public final class SymbolTable {
+  private final SymbolScope globalScope = new SymbolScope(null);
+  private SymbolScope scope;
 
   public SymbolTable() {
     this.scope = globalScope;
@@ -36,10 +36,10 @@ public final class SymbolTable implements IScope {
   }
 
   public void push() {
-    this.scope = new Scope(scope);
+    this.scope = new SymbolScope(scope);
   }
 
-  public void push(final IScope scope) {
+  public void push(final SymbolScope scope) {
     InvariantChecks.checkNotNull(scope);
 
     if (globalScope == scope) {
@@ -59,37 +59,23 @@ public final class SymbolTable implements IScope {
     scope = scope.getOuterScope();
   }
 
-  public IScope peek() {
+  public SymbolScope peek() {
     return scope;
   }
 
-  @Override
   public void define(final Symbol symbol) {
     peek().define(symbol);
   }
 
-  @Override
   public Symbol resolve(final String name) {
     return peek().resolve(name);
   }
 
-  @Override
   public Symbol resolveMember(final String name) {
     return peek().resolveMember(name);
   }
 
-  @Override
   public Symbol resolveNested(final String... names) {
     return peek().resolveNested(names);
-  }
-
-  @Override
-  public IScope getOuterScope() {
-    return peek().getOuterScope();
-  }
-
-  @Override
-  public Symbol getAssociatedSymbol() {
-    return peek().getAssociatedSymbol();
   }
 }

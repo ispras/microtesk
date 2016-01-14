@@ -77,7 +77,7 @@ import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.coverage.IntegerCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -1161,7 +1161,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void addVariable(
         final CommonTree varId, final CommonTree typeId) throws SemanticException {
-      final ISymbol symbol = getSymbol(typeId);
+      final Symbol symbol = getSymbol(typeId);
 
       final Type type;
       final Object source;

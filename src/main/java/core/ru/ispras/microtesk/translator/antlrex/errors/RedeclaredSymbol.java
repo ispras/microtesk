@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.antlrex.errors;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 
 public final class RedeclaredSymbol implements ISemanticError {
   private static final String FORMAT =
@@ -24,9 +24,9 @@ public final class RedeclaredSymbol implements ISemanticError {
   private final String FORMAT_KEYWORD =
     "The '%s' name is already used a reserved keyword (the %s type).";
 
-  private final ISymbol symbol;
+  private final Symbol symbol;
 
-  public RedeclaredSymbol(ISymbol symbol) {
+  public RedeclaredSymbol(Symbol symbol) {
     this.symbol = symbol;
   }
 

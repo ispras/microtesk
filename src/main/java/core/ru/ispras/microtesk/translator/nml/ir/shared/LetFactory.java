@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
@@ -49,7 +49,7 @@ public final class LetFactory extends WalkerFactoryBase {
     final int indexPos = text.indexOf('[');
     final String memoryName = (-1 == indexPos) ? text : text.substring(0, indexPos);
 
-    final ISymbol symbol = getSymbols().resolve(memoryName);
+    final Symbol symbol = getSymbols().resolve(memoryName);
     if ((null == symbol) || (symbol.getKind() != NmlSymbolKind.MEMORY)) {
       return null;
     }

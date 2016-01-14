@@ -22,7 +22,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
@@ -54,7 +53,7 @@ public class ParserBase extends ParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol =
+    final Symbol symbol =
         Symbol.newSymbol(t.getText(), where(t), kind, symbols.peek(), scoped);
 
     symbols.define(symbol);
@@ -65,7 +64,7 @@ public class ParserBase extends ParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol = Symbol.newSymbol(
+    final Symbol symbol = Symbol.newSymbol(
         t.getText(), where(t), kind, symbols.peek(), true);
 
     symbols.define(symbol);
@@ -79,7 +78,7 @@ public class ParserBase extends ParserEx {
   private final void checkRedeclared(final Token t) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolve(t.getText());
+    final Symbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {// OK
       return;
     }
@@ -90,7 +89,7 @@ public class ParserBase extends ParserEx {
   protected final void checkDeclaration(Token t, Enum<?> expectedKind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolve(t.getText());
+    final Symbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       raiseError(where(t), new UndeclaredSymbol(t.getText()));
     }
@@ -103,7 +102,7 @@ public class ParserBase extends ParserEx {
   protected final boolean isDeclaredAs(Token t, Enum<?> expectedKind) {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolve(t.getText());
+    final Symbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       return false;
     }

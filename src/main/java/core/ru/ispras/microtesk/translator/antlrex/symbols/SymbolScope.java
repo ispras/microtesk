@@ -19,32 +19,21 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-final class Scope implements IScope {
-  private final IScope outerScope;
+public final class SymbolScope {
+  private final SymbolScope outerScope;
   private final Map<String, Symbol> memberSymbols;
   private final Symbol associatedSymbol;
 
-  public Scope(final IScope scope, final Symbol associatedSymbol) {
+  public SymbolScope(final SymbolScope scope, final Symbol associatedSymbol) {
     this.outerScope = scope;
     this.memberSymbols = new HashMap<>();
     this.associatedSymbol = associatedSymbol;
   }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "Scope [symbol=%s, outerScope=%s, members=%d]",
-        null != associatedSymbol ? associatedSymbol.getName() : "null",
-        null != outerScope ? "YES" : "NO",
-        memberSymbols.size()
-        );
-  }
-
-  public Scope(final IScope scope) {
+  public SymbolScope(final SymbolScope scope) {
     this(scope, null);
   }
 
-  @Override
   public void define(final Symbol symbol) {
     InvariantChecks.checkNotNull(symbol);
 
@@ -58,7 +47,6 @@ final class Scope implements IScope {
     }
   }
 
-  @Override
   public Symbol resolve(final String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
@@ -71,12 +59,10 @@ final class Scope implements IScope {
     return null;
   }
 
-  @Override
   public Symbol resolveMember(final String name) {
     return memberSymbols.get(name);
   }
 
-  @Override
   public Symbol resolveNested(final String... names) {
     if (names.length == 0) {
       throw new IllegalArgumentException("No arguments.");
@@ -88,7 +74,7 @@ final class Scope implements IScope {
         return null;
       }
 
-      final IScope scope = symbol.getInnerScope();
+      final SymbolScope scope = symbol.getInnerScope();
       if (null == scope) {
         return null;
       }
@@ -99,13 +85,22 @@ final class Scope implements IScope {
     return symbol;
   }
 
-  @Override
-  public IScope getOuterScope() {
+  public SymbolScope getOuterScope() {
     return outerScope;
   }
 
-  @Override
   public Symbol getAssociatedSymbol() {
     return associatedSymbol;
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "SymbolScope [symbol=%s, outerScope=%s, members=%d]",
+        null != associatedSymbol ? associatedSymbol.getName() : "null",
+        null != outerScope ? "YES" : "NO",
+        memberSymbols.size()
+        );
+  }
+
 }

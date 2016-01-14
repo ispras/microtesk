@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
@@ -205,7 +205,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final List<InstanceArgument> args) throws SemanticException {
-    final ISymbol symbol = getSymbols().resolve(name);
+    final Symbol symbol = getSymbols().resolve(name);
     if (null == symbol) {
       raiseError(where, new UndeclaredSymbol(name));
     }

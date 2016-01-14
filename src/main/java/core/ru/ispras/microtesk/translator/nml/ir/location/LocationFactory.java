@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
@@ -101,7 +101,7 @@ public final class LocationFactory extends WalkerFactoryBase {
   }
 
   public LocationAtom location(Where where, String name) throws SemanticException {
-    final ISymbol symbol = findSymbol(where, name);
+    final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
     if ((NmlSymbolKind.MEMORY != kind) && (NmlSymbolKind.ARGUMENT != kind)) {
@@ -125,7 +125,7 @@ public final class LocationFactory extends WalkerFactoryBase {
   public LocationAtom location(Where where, String name, Expr index) throws SemanticException {
     checkNotNull(index);
 
-    final ISymbol symbol = findSymbol(where, name);
+    final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
     if (NmlSymbolKind.MEMORY != kind) {
@@ -228,8 +228,8 @@ public final class LocationFactory extends WalkerFactoryBase {
     return value.repeat(count.integerValue());
   }
 
-  private ISymbol findSymbol(Where where, String name) throws SemanticException {
-    final ISymbol symbol = getSymbols().resolve(name);
+  private Symbol findSymbol(Where where, String name) throws SemanticException {
+    final Symbol symbol = getSymbols().resolve(name);
 
     if (null == symbol) {
       raiseError(where, new UndeclaredSymbol(name));

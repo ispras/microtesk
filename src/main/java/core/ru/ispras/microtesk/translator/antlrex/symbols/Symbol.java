@@ -26,15 +26,15 @@ public class Symbol {
   private final String name;
   private final Enum<?> kind;
   private final Where where;
-  private final IScope scope;
-  private final IScope innerScope;
+  private final SymbolScope scope;
+  private final SymbolScope innerScope;
   private Object tag;
 
   private Symbol(
       final String name,
       final Enum<?> kind,
       final Where where,
-      final IScope scope,
+      final SymbolScope scope,
       final boolean hasInnerScope,
       final Object tag) {
     InvariantChecks.checkNotNull(name);
@@ -45,14 +45,14 @@ public class Symbol {
     this.kind = kind;
     this.where = where;
     this.scope = scope;
-    this.innerScope = hasInnerScope ? new Scope(scope, this) : null;
+    this.innerScope = hasInnerScope ? new SymbolScope(scope, this) : null;
     this.tag = tag;
   }
 
   public static Symbol newBuiltInSymbol(
       final String name,
       final Enum<?> kind,
-      final IScope scope) {
+      final SymbolScope scope) {
     return new Symbol(
         name,
         kind,
@@ -67,7 +67,7 @@ public class Symbol {
       final String name,
       final Where where,
       final Enum<?> kind,
-      final IScope scope,
+      final SymbolScope scope,
       final boolean hasInnerScope) {
     InvariantChecks.checkNotNull(where);
     return new Symbol(
@@ -92,11 +92,11 @@ public class Symbol {
     return where;
   }
 
-  public IScope getOuterScope() {
+  public SymbolScope getOuterScope() {
     return scope;
   }
 
-  public IScope getInnerScope() {
+  public SymbolScope getInnerScope() {
     return innerScope;
   }
 

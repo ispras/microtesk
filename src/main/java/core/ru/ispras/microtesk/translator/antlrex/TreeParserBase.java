@@ -22,7 +22,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
@@ -54,8 +53,7 @@ public class TreeParserBase extends TreeParserEx {
   protected final void checkRedeclared(CommonTree current) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolve(current.getText());
-
+    final Symbol symbol = symbols.resolve(current.getText());
     if (null != symbol) {
       raiseError(where(current), new RedeclaredSymbol(symbol));
     }
@@ -64,7 +62,7 @@ public class TreeParserBase extends TreeParserEx {
   protected final boolean isDeclaredAs(CommonTree t, Enum<?> expectedKind) {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolve(t.getText());
+    final Symbol symbol = symbols.resolve(t.getText());
     if (null == symbol) {
       return false;
     }
@@ -82,7 +80,7 @@ public class TreeParserBase extends TreeParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol =
+    final Symbol symbol =
         Symbol.newSymbol(t.getText(), where(t), kind, symbols.peek(), scoped);
 
     symbols.define(symbol);
@@ -93,7 +91,7 @@ public class TreeParserBase extends TreeParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol = Symbol.newSymbol(
+    final Symbol symbol = Symbol.newSymbol(
         t.getText(), where(t), kind, symbols.peek(), true);
 
     symbols.define(symbol);
@@ -105,7 +103,7 @@ public class TreeParserBase extends TreeParserEx {
 
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol symbol = symbols.resolveMember(t.getText());
+    final Symbol symbol = symbols.resolveMember(t.getText());
     if (null == symbol) {
       raiseError(where(t), new UndeclaredSymbol(t.getText()));
     }
@@ -123,8 +121,7 @@ public class TreeParserBase extends TreeParserEx {
   protected final void pushSymbolScope(CommonTree scopeID) {
     InvariantChecks.checkNotNull(symbols);
 
-    final ISymbol scopeSymbol = symbols.resolve(scopeID.getText());
-
+    final Symbol scopeSymbol = symbols.resolve(scopeID.getText());
     if (null == scopeSymbol) {
       throw new IllegalStateException(String.format(
          "The %s symbol must be registered in the symbol table.", scopeID.getText()));
@@ -142,8 +139,8 @@ public class TreeParserBase extends TreeParserEx {
     symbols.pop();
   }
 
-  protected final ISymbol getSymbol(CommonTree id) throws SemanticException {
-    final ISymbol symbol = getSymbols().resolve(id.getText());
+  protected final Symbol getSymbol(CommonTree id) throws SemanticException {
+    final Symbol symbol = getSymbols().resolve(id.getText());
     if (null == symbol) {
       raiseError(where(id), new UndeclaredSymbol(id.getText()));
     }
