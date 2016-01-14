@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,12 +15,12 @@
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
 public interface IScope {
-  public void define(ISymbol symbol);
+  void define(ISymbol symbol);
 
-  public ISymbol resolve(String name);
-  public ISymbol resolveMember(String name);
-  public ISymbol resolveNested(String ... names);
+  ISymbol resolve(String name);
+  ISymbol resolveMember(String name);
+  ISymbol resolveNested(String ... names);
 
-  public IScope getOuterScope();
-  public ISymbol getAssociatedSymbol();
+  IScope getOuterScope();
+  ISymbol getAssociatedSymbol();
 }

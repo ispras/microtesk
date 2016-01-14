@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,10 @@ import org.antlr.runtime.Token;
 public final class ScopedSymbol extends Symbol {
   private final IScope innerScope;
 
-  public ScopedSymbol(Token token, Enum<?> kind, IScope scope) {
+  public ScopedSymbol(
+      final Token token,
+      final Enum<?> kind,
+      final IScope scope) {
     super(token, kind, scope);
     this.innerScope = new Scope(scope, this);
   }

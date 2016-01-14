@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,6 +13,8 @@
  */
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class SymbolTable implements IScope {
   private final IScope globalScope = new Scope(null);
@@ -36,10 +38,8 @@ public final class SymbolTable implements IScope {
     this.scope = new Scope(scope);
   }
 
-  public void push(IScope scope) {
-    if (null == scope) {
-      throw new NullPointerException();
-    }
+  public void push(final IScope scope) {
+    InvariantChecks.checkNotNull(scope);
 
     if (globalScope == scope) {
       throw new IllegalStateException();
@@ -49,9 +49,7 @@ public final class SymbolTable implements IScope {
   }
 
   public void pop() {
-    if (null == scope) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(scope);
 
     if (globalScope == scope) {
       throw new IllegalStateException();
@@ -65,22 +63,22 @@ public final class SymbolTable implements IScope {
   }
 
   @Override
-  public void define(ISymbol symbol) {
+  public void define(final ISymbol symbol) {
     peek().define(symbol);
   }
 
   @Override
-  public ISymbol resolve(String name) {
+  public ISymbol resolve(final String name) {
     return peek().resolve(name);
   }
 
   @Override
-  public ISymbol resolveMember(String name) {
+  public ISymbol resolveMember(final String name) {
     return peek().resolveMember(name);
   }
 
   @Override
-  public ISymbol resolveNested(String ... names) {
+  public ISymbol resolveNested(final String... names) {
     return peek().resolveNested(names);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,23 +14,20 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class BuiltInSymbol implements ISymbol {
   private final String name;
   private final Enum<?> kind;
   private final IScope scope;
 
-  public BuiltInSymbol(String name, Enum<?> kind, IScope scope) {
-    if (null == name) {
-      throw new NullPointerException();
-    }
-
-    if (null == kind) {
-      throw new NullPointerException();
-    }
-
-    if (null == scope) {
-      throw new NullPointerException();
-    }
+  public BuiltInSymbol(
+      final String name,
+      final Enum<?> kind,
+      final IScope scope) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(scope);
 
     this.name = name;
     this.kind = kind;
@@ -45,11 +42,6 @@ public final class BuiltInSymbol implements ISymbol {
   @Override
   public Enum<?> getKind() {
     return kind;
-  }
-
-  @Override
-  public int getTokenIndex() {
-    return -1;
   }
 
   @Override

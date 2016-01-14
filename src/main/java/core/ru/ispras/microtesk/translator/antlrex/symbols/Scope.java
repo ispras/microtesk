@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,12 +17,14 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class Scope implements IScope {
   private final IScope outerScope;
   private final Map<String, ISymbol> memberSymbols;
   private final ISymbol associatedSymbol;
 
-  public Scope(IScope scope, ISymbol associatedSymbol) {
+  public Scope(final IScope scope, final ISymbol associatedSymbol) {
     this.outerScope = scope;
     this.memberSymbols = new HashMap<String, ISymbol>();
     this.associatedSymbol = associatedSymbol;
@@ -30,25 +32,25 @@ public final class Scope implements IScope {
 
   @Override
   public String toString() {
-    return String.format("Scope [symbol=%s, outerScope=%s, members=%d]",
-      null != associatedSymbol ? associatedSymbol.getName() : "null",
-      null != outerScope ? "YES" : "NO",
-      memberSymbols.size());
+    return String.format(
+        "Scope [symbol=%s, outerScope=%s, members=%d]",
+        null != associatedSymbol ? associatedSymbol.getName() : "null",
+        null != outerScope ? "YES" : "NO",
+        memberSymbols.size()
+        );
   }
 
-  public Scope(IScope scope) {
+  public Scope(final IScope scope) {
     this(scope, null);
   }
 
   @Override
-  public void define(ISymbol symbol) {
-    if (null == symbol) {
-      throw new NullPointerException();
-    }
+  public void define(final ISymbol symbol) {
+    InvariantChecks.checkNotNull(symbol);
 
     if (memberSymbols.containsKey(symbol.getName())) {
-      throw new IllegalAccessError(String.format(
-        "Symbol %s is already defined.", symbol.getName()));
+      throw new IllegalAccessError(
+          String.format("Symbol %s is already defined.", symbol.getName()));
     }
 
     if (!memberSymbols.containsKey(symbol.getName())) {
@@ -57,7 +59,7 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public ISymbol resolve(String name) {
+  public ISymbol resolve(final String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
     }
@@ -70,12 +72,12 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public ISymbol resolveMember(String name) {
+  public ISymbol resolveMember(final String name) {
     return memberSymbols.get(name);
   }
 
   @Override
-  public ISymbol resolveNested(String... names) {
+  public ISymbol resolveNested(final String... names) {
     if (names.length == 0) {
       throw new IllegalArgumentException("No arguments.");
     }
