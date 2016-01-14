@@ -264,6 +264,8 @@ let pipeline_factor=1
 introduces one delay slot after each instruction that changes the program counter. The default
 value is 0.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Data Types}
 
 A data type specifies the format of values stored in registers or memory. nML supports
@@ -271,10 +273,12 @@ the following data types:
 
 \begin{itemize}
 
-\item int(N): N-bit signed integer data type. Negative numbers are stored in two's 
-complement form. The range of possible values is [-2n-1 ... 2n-1 - 1].
+\item int(N):
+N-bit signed integer data type. Negative numbers are stored in two's complement
+form. The range of possible values is [-2$^{n-1}$ ... 2$^{n-1}$ - 1].
 
-\item card(N): N-bit unsigned integer data type. The range of possible values is [0 ... 2n - 1].
+\item card(N):
+N-bit unsigned integer data type. The range of possible values is [0 ... 2$^n$ - 1].
 
 \item float(N, M): IEEE 754 floating point number, where fraction size is N and exponent size is M.
 The resulting type size is N + M +1 bits, where 1 is an implicitly added bit for store the sign.
@@ -330,8 +334,7 @@ Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each other
 
 \lstinputlisting{examples/test.nml}
 
-\addcontentsline{toc}{section}{\numberline{}Introduction}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Appendixes}
 
@@ -343,6 +346,7 @@ Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each other
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\addcontentsline{toc}{section}{\numberline{}Bibliography}
 \begin{thebibliography}{1}
 
 \bibitem{freericks}
