@@ -14,21 +14,26 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-import org.antlr.runtime.Token;
-
 import ru.ispras.fortress.util.InvariantChecks;
 
 public class Symbol implements ISymbol {
-  private final Token token;
+  private final String name;
+  private final Where where;
   private final Enum<?> kind;
   private final IScope scope;
 
-  public Symbol(final Token token, final Enum<?> kind, final IScope scope) {
-    InvariantChecks.checkNotNull(token);
+  public Symbol(
+      final String name,
+      final Where where,
+      final Enum<?> kind,
+      final IScope scope) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(scope);
 
-    this.token = token;
+    this.name = name;
+    this.where = where;
     this.kind = kind;
     this.scope = scope;
   }
@@ -46,7 +51,7 @@ public class Symbol implements ISymbol {
 
   @Override
   public final String getName() {
-    return token.getText();
+    return name;
   }
 
   @Override
@@ -56,12 +61,12 @@ public class Symbol implements ISymbol {
 
   @Override
   public final int getLine() {
-    return token.getLine();
+    return where.getLine();
   }
 
   @Override
   public final int getPositionInLine() {
-    return token.getCharPositionInLine();
+    return where.getPosition();
   }
 
   @Override

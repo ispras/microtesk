@@ -85,8 +85,8 @@ public class TreeParserBase extends TreeParserEx {
     checkRedeclared(t);
 
     final ISymbol symbol = scoped ?
-        new ScopedSymbol(t.getToken(), kind, symbols.peek()) :
-        new Symbol(t.getToken(), kind, symbols.peek());
+        new ScopedSymbol(t.getText(), where(t), kind, symbols.peek()) :
+        new Symbol(t.getText(), where(t), kind, symbols.peek());
 
     symbols.define(symbol);
   }
@@ -96,7 +96,8 @@ public class TreeParserBase extends TreeParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol = new ScopedSymbol(t.getToken(), kind, symbols.peek());
+    final ISymbol symbol = new ScopedSymbol(
+        t.getText(), where(t), kind, symbols.peek());
 
     symbols.define(symbol);
     symbols.push(symbol.getInnerScope());

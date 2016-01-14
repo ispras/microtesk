@@ -14,16 +14,15 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-import org.antlr.runtime.Token;
-
 public final class ScopedSymbol extends Symbol {
   private final IScope innerScope;
 
   public ScopedSymbol(
-      final Token token,
+      final String name,
+      final Where where,
       final Enum<?> kind,
       final IScope scope) {
-    super(token, kind, scope);
+    super(name, where, kind, scope);
     this.innerScope = new Scope(scope, this);
   }
 

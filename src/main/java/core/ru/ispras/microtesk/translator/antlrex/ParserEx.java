@@ -25,6 +25,7 @@ import ru.ispras.microtesk.translator.antlrex.errors.UnrecognizedStructure;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 
 /**
  * The ParserEx class is an extension of the ANTLR library class Parser that

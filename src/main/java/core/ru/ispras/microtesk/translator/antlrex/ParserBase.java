@@ -56,8 +56,8 @@ public class ParserBase extends ParserEx {
 
     checkRedeclared(t);
     final ISymbol symbol = scoped ?
-        new ScopedSymbol(t, kind, symbols.peek()) :
-        new Symbol(t, kind, symbols.peek());
+        new ScopedSymbol(t.getText(), where(t), kind, symbols.peek()) :
+        new Symbol(t.getText(), where(t), kind, symbols.peek());
 
     symbols.define(symbol);
   }
@@ -67,7 +67,8 @@ public class ParserBase extends ParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol = new ScopedSymbol(t, kind, symbols.peek());
+    final ISymbol symbol = new ScopedSymbol(
+        t.getText(), where(t), kind, symbols.peek());
 
     symbols.define(symbol);
     symbols.push(symbol.getInnerScope());

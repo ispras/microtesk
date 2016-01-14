@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import ru.ispras.microtesk.model.api.data.floatx.Precision;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.Where;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.antlrex;
 
 import org.antlr.runtime.RecognitionException;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 
 /**
  * The {@code SemanticException} exception is thrown by the translator (lexer, parser, tree walker

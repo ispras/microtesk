@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,11 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.antlrex;
+package ru.ispras.microtesk.translator.antlrex.symbols;
 
 /**
- * The Where class is used in error reporting to describe the place in a source file
- * where the reported issue occurred.
+ * The {@link Where} class describes a place in a source file. 
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -25,7 +24,7 @@ public final class Where {
   private final String unit;
   private final int line;
   private final int position;
-  
+
   /**
    * Constructs the object from unit name, line number and position.
    * 
@@ -34,7 +33,7 @@ public final class Where {
    * @param position Position in the line.
    */
 
-  public Where(String unit, int line, int position) {
+  public Where(final String unit, final int line, final int position) {
     this.unit = unit;
     this.line = line;
     this.position = position;
@@ -85,7 +84,7 @@ public final class Where {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -110,6 +109,7 @@ public final class Where {
       }
     }
 
-    return (line == other.line) && (position == other.position);
+    return this.line == other.line &&
+           this.position == other.position;
   }
 }

@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
+
 public interface ErrorReporter {
-  public void raiseError(Where where, ISemanticError error) throws SemanticException;
-  public void raiseError(Where where, String what) throws SemanticException;
+  void raiseError(Where where, ISemanticError error) throws SemanticException;
+  void raiseError(Where where, String what) throws SemanticException;
 }
