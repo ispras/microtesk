@@ -24,4 +24,6 @@ public interface ISymbol {
 
   IScope getOuterScope();
   IScope getInnerScope();
+
+  boolean isReserved();
 }

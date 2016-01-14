@@ -23,7 +23,6 @@ import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
-import ru.ispras.microtesk.translator.antlrex.symbols.ScopedSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
@@ -83,10 +82,8 @@ public class TreeParserBase extends TreeParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-
-    final ISymbol symbol = scoped ?
-        new ScopedSymbol(t.getText(), where(t), kind, symbols.peek()) :
-        new Symbol(t.getText(), where(t), kind, symbols.peek());
+    final ISymbol symbol =
+        Symbol.newSymbol(t.getText(), where(t), kind, symbols.peek(), scoped);
 
     symbols.define(symbol);
   }
@@ -96,8 +93,8 @@ public class TreeParserBase extends TreeParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
-    final ISymbol symbol = new ScopedSymbol(
-        t.getText(), where(t), kind, symbols.peek());
+    final ISymbol symbol = Symbol.newSymbol(
+        t.getText(), where(t), kind, symbols.peek(), true);
 
     symbols.define(symbol);
     symbols.push(symbol.getInnerScope());

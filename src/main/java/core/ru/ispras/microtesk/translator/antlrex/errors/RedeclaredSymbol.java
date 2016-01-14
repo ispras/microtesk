@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.antlrex.errors;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
-import ru.ispras.microtesk.translator.antlrex.symbols.BuiltInSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.ISymbol;
 
 public final class RedeclaredSymbol implements ISemanticError {
@@ -33,7 +32,7 @@ public final class RedeclaredSymbol implements ISemanticError {
 
   @Override
   public String getMessage() {
-    if (symbol instanceof BuiltInSymbol) {
+    if (symbol.isReserved()) {
       return String.format(FORMAT_KEYWORD, symbol.getName(), symbol.getKind().name());
     }
 

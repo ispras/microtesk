@@ -26,12 +26,13 @@ public final class SymbolTable implements IScope {
 
   public void defineReserved(final Enum<?> kind, final String[] names) {
     for (final String s : names) {
-      globalScope.define(new BuiltInSymbol(s, kind, globalScope));
+      globalScope.define(Symbol.newBuiltInSymbol(s, kind, globalScope));
     }
   }
 
   public boolean isReserved(final String name) {
-    return resolve(name) instanceof BuiltInSymbol;
+    final ISymbol symbol = globalScope.resolve(name);
+    return symbol != null && symbol.isReserved();
   }
 
   public void push() {

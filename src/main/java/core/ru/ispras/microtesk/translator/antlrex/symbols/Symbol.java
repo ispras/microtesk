@@ -16,28 +16,68 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Symbol} class describes a record in a symbol table.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public class Symbol implements ISymbol {
   private final String name;
-  private final Where where;
   private final Enum<?> kind;
+  private final Where where;
   private final IScope scope;
+  private final IScope innerScope;
+  private Object tag;
 
-  private Object tag = null;
-
-  public Symbol(
+  private Symbol(
       final String name,
-      final Where where,
       final Enum<?> kind,
-      final IScope scope) {
+      final Where where,
+      final IScope scope,
+      final boolean hasInnerScope,
+      final Object tag) {
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(scope);
 
     this.name = name;
-    this.where = where;
     this.kind = kind;
+    this.where = where;
     this.scope = scope;
+    this.innerScope = hasInnerScope ? new Scope(scope, this) : null;
+    this.tag = tag;
+  }
+
+  public static Symbol newBuiltInSymbol(
+      final String name,
+      final Enum<?> kind,
+      final IScope scope) {
+    return new Symbol(
+        name,
+        kind,
+        null,
+        scope,
+        false,
+        name
+        );
+  }
+
+  public static Symbol newSymbol(
+      final String name,
+      final Where where,
+      final Enum<?> kind,
+      final IScope scope,
+      final boolean hasInnerScope) {
+    InvariantChecks.checkNotNull(where);
+    return new Symbol(
+        name,
+        kind,
+        where,
+        scope,
+        hasInnerScope,
+        null
+        );
   }
 
   @Override
@@ -56,23 +96,24 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public Object getTag() {
-    return tag;
-  }
-
-  @Override
-  public void setTag(final Object tag) {
-    this.tag = tag;
-  }
-
-  @Override
   public final IScope getOuterScope() {
     return scope;
   }
 
   @Override
   public IScope getInnerScope() {
-    return null;
+    return innerScope;
+  }
+
+  @Override
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
+  public void setTag(final Object tag) {
+    InvariantChecks.checkTrue(this.tag == null, "Tag is already set.");
+    this.tag = tag;
   }
 
   @Override
@@ -84,5 +125,10 @@ public class Symbol implements ISymbol {
          getOuterScope(),
          getInnerScope()
          );
+  }
+
+  @Override
+  public boolean isReserved() {
+    return null == where;
   }
 }
