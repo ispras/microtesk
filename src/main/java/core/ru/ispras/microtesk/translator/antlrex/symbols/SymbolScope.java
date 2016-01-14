@@ -19,10 +19,25 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link SymbolScope} class describes scopes that contain symbols.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+
 public final class SymbolScope {
   private final SymbolScope outerScope;
   private final Map<String, Symbol> memberSymbols;
   private final Symbol associatedSymbol;
+
+  /**
+   * Constructs a new scope for the given outer scope and associated symbol.
+   * An associated symbol is a symbol than contains the scope to be constructed.
+   * 
+   * @param scope Outer scope or {@code null} if there is no outer scope.
+   * @param associatedSymbol Associated symbol or {@code null} if there is
+   *        no associated symbol.
+   */
 
   public SymbolScope(final SymbolScope scope, final Symbol associatedSymbol) {
     this.outerScope = scope;
@@ -30,21 +45,34 @@ public final class SymbolScope {
     this.associatedSymbol = associatedSymbol;
   }
 
+  /**
+   * Constructs a new scope for the given outer scope.
+   * 
+   * @param scope Outer scope or {@code null} if there is no outer scope.
+   */
+
   public SymbolScope(final SymbolScope scope) {
     this(scope, null);
   }
+
+  /**
+   * Defines the specified symbol in the current scope.
+   * 
+   * @param symbol Symbol to be defined.
+   * 
+   * @throws IllegalArgumentException if {@code symbol} is {@code null};
+   *         if a symbol with such a name is already defined in the current scope.
+   */
 
   public void define(final Symbol symbol) {
     InvariantChecks.checkNotNull(symbol);
 
     if (memberSymbols.containsKey(symbol.getName())) {
-      throw new IllegalAccessError(
+      throw new IllegalArgumentException(
           String.format("Symbol %s is already defined.", symbol.getName()));
     }
 
-    if (!memberSymbols.containsKey(symbol.getName())) {
-      memberSymbols.put(symbol.getName(), symbol);
-    }
+    memberSymbols.put(symbol.getName(), symbol);
   }
 
   public Symbol resolve(final String name) {
@@ -102,5 +130,4 @@ public final class SymbolScope {
         memberSymbols.size()
         );
   }
-
 }

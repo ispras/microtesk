@@ -57,7 +57,7 @@ public final class SymbolTable {
    */
 
   public boolean isReserved(final String name) {
-    final Symbol symbol = globalScope.resolve(name);
+    final Symbol symbol = globalScope.resolveMember(name);
     return symbol != null && symbol.isReserved();
   }
 
