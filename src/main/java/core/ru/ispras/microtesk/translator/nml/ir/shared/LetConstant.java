@@ -21,7 +21,7 @@ public final class LetConstant {
   private final String name;
   private final Expr expr;
 
-  LetConstant(String name, Expr expr) {
+  LetConstant(final String name, final Expr expr) {
     checkNotNull(name);
     checkNotNull(expr);
 
@@ -39,6 +39,7 @@ public final class LetConstant {
 
   @Override
   public String toString() {
-    return String.format("LetConstant [name=%s, value=%s]", name, expr.getValueInfo());
+    return String.format(
+        "LetConstant [name=%s, value=%s]", name, expr.getNode());
   }
 }
