@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public class Symbol implements ISymbol {
+public class Symbol {
   private final String name;
   private final Enum<?> kind;
   private final Where where;
@@ -80,40 +80,37 @@ public class Symbol implements ISymbol {
         );
   }
 
-  @Override
-  public final String getName() {
+  public String getName() {
     return name;
   }
 
-  @Override
-  public final Enum<?> getKind() {
+  public Enum<?> getKind() {
     return kind;
   }
 
-  @Override
-  public final Where getWhere() {
+  public Where getWhere() {
     return where;
   }
 
-  @Override
-  public final IScope getOuterScope() {
+  public IScope getOuterScope() {
     return scope;
   }
 
-  @Override
   public IScope getInnerScope() {
     return innerScope;
   }
 
-  @Override
   public Object getTag() {
     return tag;
   }
 
-  @Override
   public void setTag(final Object tag) {
     InvariantChecks.checkTrue(this.tag == null, "Tag is already set.");
     this.tag = tag;
+  }
+
+  public boolean isReserved() {
+    return null == where;
   }
 
   @Override
@@ -125,10 +122,5 @@ public class Symbol implements ISymbol {
          getOuterScope(),
          getInnerScope()
          );
-  }
-
-  @Override
-  public boolean isReserved() {
-    return null == where;
   }
 }

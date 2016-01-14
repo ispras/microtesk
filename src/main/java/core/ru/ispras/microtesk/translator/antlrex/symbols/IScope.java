@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-public interface IScope {
-  void define(ISymbol symbol);
+interface IScope {
+  void define(Symbol symbol);
 
-  ISymbol resolve(String name);
-  ISymbol resolveMember(String name);
-  ISymbol resolveNested(String ... names);
+  Symbol resolve(String name);
+  Symbol resolveMember(String name);
+  Symbol resolveNested(String... names);
 
   IScope getOuterScope();
-  ISymbol getAssociatedSymbol();
+  Symbol getAssociatedSymbol();
 }

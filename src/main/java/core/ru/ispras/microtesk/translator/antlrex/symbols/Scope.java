@@ -19,14 +19,14 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class Scope implements IScope {
+final class Scope implements IScope {
   private final IScope outerScope;
-  private final Map<String, ISymbol> memberSymbols;
-  private final ISymbol associatedSymbol;
+  private final Map<String, Symbol> memberSymbols;
+  private final Symbol associatedSymbol;
 
-  public Scope(final IScope scope, final ISymbol associatedSymbol) {
+  public Scope(final IScope scope, final Symbol associatedSymbol) {
     this.outerScope = scope;
-    this.memberSymbols = new HashMap<String, ISymbol>();
+    this.memberSymbols = new HashMap<>();
     this.associatedSymbol = associatedSymbol;
   }
 
@@ -45,7 +45,7 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public void define(final ISymbol symbol) {
+  public void define(final Symbol symbol) {
     InvariantChecks.checkNotNull(symbol);
 
     if (memberSymbols.containsKey(symbol.getName())) {
@@ -59,7 +59,7 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public ISymbol resolve(final String name) {
+  public Symbol resolve(final String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
     }
@@ -72,17 +72,17 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public ISymbol resolveMember(final String name) {
+  public Symbol resolveMember(final String name) {
     return memberSymbols.get(name);
   }
 
   @Override
-  public ISymbol resolveNested(final String... names) {
+  public Symbol resolveNested(final String... names) {
     if (names.length == 0) {
       throw new IllegalArgumentException("No arguments.");
     }
 
-    ISymbol symbol = resolve(names[0]);
+    Symbol symbol = resolve(names[0]);
     for (int index = 1; index < names.length; ++index) {
       if (null == symbol) {
         return null;
@@ -105,7 +105,7 @@ public final class Scope implements IScope {
   }
 
   @Override
-  public ISymbol getAssociatedSymbol() {
+  public Symbol getAssociatedSymbol() {
     return associatedSymbol;
   }
 }

@@ -31,7 +31,7 @@ public final class SymbolTable implements IScope {
   }
 
   public boolean isReserved(final String name) {
-    final ISymbol symbol = globalScope.resolve(name);
+    final Symbol symbol = globalScope.resolve(name);
     return symbol != null && symbol.isReserved();
   }
 
@@ -64,22 +64,22 @@ public final class SymbolTable implements IScope {
   }
 
   @Override
-  public void define(final ISymbol symbol) {
+  public void define(final Symbol symbol) {
     peek().define(symbol);
   }
 
   @Override
-  public ISymbol resolve(final String name) {
+  public Symbol resolve(final String name) {
     return peek().resolve(name);
   }
 
   @Override
-  public ISymbol resolveMember(final String name) {
+  public Symbol resolveMember(final String name) {
     return peek().resolveMember(name);
   }
 
   @Override
-  public ISymbol resolveNested(final String... names) {
+  public Symbol resolveNested(final String... names) {
     return peek().resolveNested(names);
   }
 
@@ -89,7 +89,7 @@ public final class SymbolTable implements IScope {
   }
 
   @Override
-  public ISymbol getAssociatedSymbol() {
+  public Symbol getAssociatedSymbol() {
     return peek().getAssociatedSymbol();
   }
 }
