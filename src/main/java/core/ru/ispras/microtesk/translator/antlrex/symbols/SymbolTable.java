@@ -148,6 +148,17 @@ public final class SymbolTable {
     return peek().resolveMember(name);
   }
 
+  /**
+   * Searches for a symbol described by an array containing its name 
+   * preceded with names of the scopes the symbol is nested into. Search
+   * starts in the current scope and goes to outer scopes until the first
+   * nesting scope is found. Then the search is continued in that scope.
+   * If no such symbol is found, {@code null} is returned.
+   * 
+   * @param names Array of names.
+   * @return Symbol or {@code null} if it is not defined.
+   */
+
   public Symbol resolveNested(final String... names) {
     return peek().resolveNested(names);
   }

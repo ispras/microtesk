@@ -107,6 +107,17 @@ public final class SymbolScope {
     return memberSymbols.get(name);
   }
 
+  /**
+   * Searches for a symbol described by an array containing its name 
+   * preceded with names of the scopes the symbol is nested into. Search
+   * starts in the current scope and goes to outer scopes until the first
+   * nesting scope is found. Then the search is continued in that scope.
+   * If no such symbol is found, {@code null} is returned.
+   * 
+   * @param names Array of names.
+   * @return Symbol or {@code null} if it is not defined.
+   */
+
   public Symbol resolveNested(final String... names) {
     InvariantChecks.checkNotEmpty(names);
 
@@ -127,9 +138,23 @@ public final class SymbolScope {
     return symbol;
   }
 
+  /**
+   * Returns the outer scope for the current scope or {@code null} if
+   * there is no outer scope.
+   * 
+   * @return Outer scope or {@code null} if there is no outer scope.
+   */
+
   public SymbolScope getOuterScope() {
     return outerScope;
   }
+
+  /**
+   * Returns symbol associated with the scope (or containing the scope)
+   * or {@code null} it there is not such symbol.
+   * 
+   * @return Associated symbol or {@code null} it there is not such symbol.
+   */
 
   public Symbol getAssociatedSymbol() {
     return associatedSymbol;
