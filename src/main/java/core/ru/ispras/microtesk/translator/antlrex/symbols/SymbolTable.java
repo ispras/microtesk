@@ -45,7 +45,7 @@ public final class SymbolTable {
 
   public void defineReserved(final Enum<?> kind, final String[] names) {
     for (final String s : names) {
-      globalScope.define(Symbol.newBuiltInSymbol(s, kind, globalScope));
+      globalScope.define(Symbol.newReserved(s, kind, globalScope));
     }
   }
 

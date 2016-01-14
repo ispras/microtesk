@@ -54,7 +54,7 @@ public class ParserBase extends ParserEx {
 
     checkRedeclared(t);
     final Symbol symbol =
-        Symbol.newSymbol(t.getText(), where(t), kind, symbols.peek(), scoped);
+        Symbol.newSymbol(t.getText(), kind, where(t), symbols.peek(), scoped);
 
     symbols.define(symbol);
   }
@@ -65,7 +65,7 @@ public class ParserBase extends ParserEx {
 
     checkRedeclared(t);
     final Symbol symbol = Symbol.newSymbol(
-        t.getText(), where(t), kind, symbols.peek(), true);
+        t.getText(), kind, where(t), symbols.peek(), true);
 
     symbols.define(symbol);
     symbols.push(symbol.getInnerScope());

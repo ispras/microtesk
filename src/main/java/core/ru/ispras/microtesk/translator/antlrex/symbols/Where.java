@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
 /**
- * The {@link Where} class describes a place in a source file. 
+ * The {@link Where} class describes a location in a source file. 
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
