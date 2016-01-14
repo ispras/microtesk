@@ -1,4 +1,5 @@
 \documentclass[oneside,final,14pt]{extreport}
+
 \usepackage[utf8]{inputenc}
 \usepackage[T2A]{fontenc}
 \usepackage[english]{babel}
@@ -6,7 +7,7 @@
 \usepackage{listings}
 \setpapersize{A4}
 \usepackage{indentfirst}
-
+\usepackage{graphicx}
 
 \lstset{
  language=C,
@@ -186,6 +187,55 @@ Dashed lines that connect OR-rules with their child primitives specify possible
 alternative paths. Instructions are identified by the terminal operation node of
 the path (in this example, it is the "Mov" node). An important note is that, to
 avoid ambiguity, nodes can have only one child operation.
+
+\begin{figure}
+\centering
+\includegraphics [width=0.8\textwidth]
+{figures/figure1.png}
+\caption{Operation tree for the Mov instruction}
+\label{nml-instruction-tree}
+\end{figure}
+
+The syntax of nML resembles the syntax of the pseudocode used in microprocessor
+architecture manuals to describe instruction semantics. For example, here is the
+description of instruction ADD from the MIPS64 manual:
+
+%\begin{lstlisting}
+%if NotWordValue(GPR[rs]) or NotWordValue(GPR[rt]) then
+%    UNPREDICTABLE
+%endif
+%temp ← GPR[rs]31||GPR[rs]31..0) + (GPR[rt]31||GPR[rt]31..0)
+%if temp32 ≠ temp31 then
+%    SignalException(IntegerOverflow)
+%else
+%    GPR[rd] ← sign_extend(temp31..0)
+%endif
+%\end{lstlisting}
+
+Such a description can be translated to nML with minimal effort. Providing that
+all needed data types, resources and operations describing common functionality
+of instructions have already been specified, the specification of the ADD
+instruction (or, to be more precise, the terminal operation that distinguishes 
+it from other similar instructions) will look as follows:
+
+\begin{lstlisting}
+op ADD(rd: GPR, rs: GPR, rt: GPR)
+action = {
+  if (NotWordValue(rs) || NotWordValue(rt)) then
+    UNPREDICTABLE();
+  endif;
+  tmp_word = rs<31>::rs<31..0> + rs<31>::rt<31..0>;
+  if(tmp_word<32> != tmp_word<31>) then
+    SignalException("IntegerOverflow");
+  else
+    rd = sign_extend(tmp_word<31..0>);
+  endif;
+}
+\end{lstlisting}
+
+As we can see, describing an instruction based on an instruction set manual is
+a relatively easy task that can be performed by a verification engineer who
+does not have significant programming skills.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
