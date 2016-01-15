@@ -24,13 +24,11 @@ import java.util.Map;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class Ir {
   private final Map<String, LetConstant> consts;
-  private final Map<String, LetString> strings;
   private final Map<String, LetLabel> labels;
   private final Map<String, Type> types;
   private final Map<String, MemoryExpr> memory;
@@ -40,7 +38,6 @@ public final class Ir {
 
   public Ir() {
     this.consts  = new LinkedHashMap<>();
-    this.strings = new LinkedHashMap<>();
 
     this.labels  = new LinkedHashMap<>();
     this.types   = new LinkedHashMap<>();
@@ -56,12 +53,6 @@ public final class Ir {
     checkNotNull(name);
     checkNotNull(value);
     consts.put(name, value);
-  }
-
-  public void add(final String name, final LetString value) {
-    checkNotNull(name);
-    checkNotNull(value);
-    strings.put(name, value);
   }
 
   public void add(final String name, final LetLabel value) {
@@ -100,10 +91,6 @@ public final class Ir {
 
   public Map<String, LetConstant> getConstants() {
     return Collections.unmodifiableMap(consts);
-  }
-
-  public Map<String, LetString> getStrings() {
-    return Collections.unmodifiableMap(strings);
   }
 
   public Map<String, LetLabel> getLabels() {

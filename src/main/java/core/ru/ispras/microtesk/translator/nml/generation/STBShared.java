@@ -24,6 +24,7 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -32,8 +33,8 @@ import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -70,18 +71,22 @@ final class STBShared implements STBuilder {
   }
 
   private void buildLetStrings(STGroup group, ST t) {
-    if (!ir.getStrings().isEmpty()) {
-      insertEmptyLine(t);
+    boolean isAdded = false;
+    for (final LetConstant constant : ir.getConstants().values()) {
+      if (constant.getExpr().getNode().isType(DataTypeId.LOGIC_STRING)) {
+        final ST tLet = group.getInstanceOf("let");
+
+        tLet.add("name", constant.getName());
+        tLet.add("type", String.class.getSimpleName());
+        tLet.add("value", String.format("\"%s\"", constant.getExpr().getNode().toString()));
+
+        t.add("members", tLet);
+        isAdded = true;
+      }
     }
 
-    for (LetString string : ir.getStrings().values()) {
-      final ST tLet = group.getInstanceOf("let");
-
-      tLet.add("name", string.getName());
-      tLet.add("type", String.class.getSimpleName());
-      tLet.add("value", String.format("\"%s\"", string.getText()));
-
-      t.add("members", tLet);
+    if (!isAdded) {
+      insertEmptyLine(t);
     }
   }
 

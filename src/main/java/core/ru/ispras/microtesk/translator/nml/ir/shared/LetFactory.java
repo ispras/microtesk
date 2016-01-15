@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
@@ -28,11 +29,12 @@ public final class LetFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public LetString createString(String name, String text) {
-    return new LetString(name, text);
+  public LetConstant createString(final String name, final String text) {
+    final NodeValue node = NodeValue.newString(text);
+    return new LetConstant(name, new Expr(node));
   }
 
-  public LetConstant createConstant(String name, Expr value) {
+  public LetConstant createConstant(final String name, final Expr value) {
     return new LetConstant(name, value);
   }
 

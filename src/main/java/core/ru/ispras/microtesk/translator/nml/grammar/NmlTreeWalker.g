@@ -123,7 +123,7 @@ getIR().add(name, constant);
 }
     |  sc = STRING_CONST
 {
-final LetString string = getLetFactory().createString(name, $sc.text);
+final LetConstant string = getLetFactory().createString(name, $sc.text);
 getIR().add(name, string);
 
 final LetLabel label = getLetFactory().createLabel(name, $sc.text);

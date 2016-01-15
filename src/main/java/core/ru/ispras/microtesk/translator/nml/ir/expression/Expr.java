@@ -76,15 +76,6 @@ public final class Expr {
 
   public Expr(Node node) {
     InvariantChecks.checkNotNull(node);
-
-    if (!(node.getUserData() instanceof NodeInfo)) {
-      throw new IllegalArgumentException();
-    }
-
-    if (!((NodeInfo) node.getUserData()).getKind().isCompatibleNode(node.getKind())) {
-      throw new IllegalArgumentException();
-    }
-
     this.node = node;
   }
 

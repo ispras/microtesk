@@ -22,7 +22,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -55,14 +54,6 @@ public interface IrVisitor {
    */
 
   void onLetConstant(LetConstant let);
-
-  /**
-   * Notifies that a let construct describing a string constant has been visited.
-   * 
-   * @param let Object describing the string constant.
-   */
-
-  void onLetString(LetString let);
 
   /**
    * Notifies that a let construct associates a symbolic name with a memory location

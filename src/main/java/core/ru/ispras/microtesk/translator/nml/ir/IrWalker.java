@@ -27,7 +27,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetString;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -85,10 +84,6 @@ public final class IrWalker {
 
     for (LetConstant let : ir.getConstants().values()) {
       visitor.onLetConstant(let);
-    }
-
-    for (LetString let : ir.getStrings().values()) {
-      visitor.onLetString(let);
     }
 
     for (LetLabel let : ir.getLabels().values()) {
