@@ -118,20 +118,12 @@ letExpr [String name]
     :  ce = constExpr
 {
 checkNotNull($ce.start, $ce.res, $ce.text);
-final LetConstant constant = getLetFactory().createConstant(name, $ce.res);
-getIR().add(name, constant);
+getLetFactory().createConstant(name, $ce.res);
 }
     |  sc = STRING_CONST
 {
-final LetConstant string = getLetFactory().createString(name, $sc.text);
-getIR().add(name, string);
-
-final LetLabel label = getLetFactory().createLabel(name, $sc.text);
-if (null != label)
-    getIR().add(name, label);
+getLetFactory().createString(name, $sc.text);
 }
-//  |  IF^ constNumExpr THEN! letExpr (ELSE! letExpr)? ENDIF! // NOT SUPPORTED IN THIS VERSION
-//  |  SWITCH Construction                                    // NOT SUPPORTED IN THIS VERSION
     ;
 
 /*======================================================================================*/

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,27 +25,30 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 
 public final class LetFactory extends WalkerFactoryBase {
-  public LetFactory(WalkerContext context) {
+  private static final String    ID_REX = "[a-zA-Z][\\w]*";
+  private static final String INDEX_REX = "[\\[][\\d]+[\\]]";
+  private static final String LABEL_REX = String.format("^%s(%s)?$", ID_REX, INDEX_REX);
+
+  public LetFactory(final WalkerContext context) {
     super(context);
   }
 
-  public LetConstant createString(final String name, final String text) {
-    final NodeValue node = NodeValue.newString(text);
-    return new LetConstant(name, new Expr(node));
+  public void createString(final String name, final String text) {
+    final LetConstant constant = new LetConstant(name, new Expr(NodeValue.newString(text)));
+    getIR().add(name, constant);
+
+    createLink(name, text);
   }
 
-  public LetConstant createConstant(final String name, final Expr value) {
-    return new LetConstant(name, value);
+  public void createConstant(final String name, final Expr value) {
+    final LetConstant constant = new LetConstant(name, value);
+    getIR().add(name, constant);
   }
 
-  public LetLabel createLabel(String name, String text) {
-    final String ID_REX = "[a-zA-Z][\\w]*";
-    final String INDEX_REX = "[\\[][\\d]+[\\]]";
-    final String LABEL_REX = String.format("^%s(%s)?$", ID_REX, INDEX_REX);
-
+  private void createLink(final String name, final String text) {
     final Matcher matcher = Pattern.compile(LABEL_REX).matcher(text);
     if (!matcher.matches()) {
-      return null;
+      return;
     }
 
     final int indexPos = text.indexOf('[');
@@ -53,14 +56,17 @@ public final class LetFactory extends WalkerFactoryBase {
 
     final Symbol symbol = getSymbols().resolve(memoryName);
     if ((null == symbol) || (symbol.getKind() != NmlSymbolKind.MEMORY)) {
-      return null;
+      return;
     }
 
+    final LetLabel label;
     if (-1 == indexPos) {
-      return new LetLabel(name, memoryName);
+      label = new LetLabel(name, memoryName);
+    } else {
+      final int memoryIndex = Integer.parseInt(text.substring(indexPos + 1, text.length() - 1));
+      label = new LetLabel(name, memoryName, memoryIndex);
     }
 
-    final int memoryIndex = Integer.parseInt(text.substring(indexPos + 1, text.length() - 1));
-    return new LetLabel(name, memoryName, memoryIndex);
+    getIR().add(name, label);
   }
 }
