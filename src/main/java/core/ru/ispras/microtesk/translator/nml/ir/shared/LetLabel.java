@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,11 +22,11 @@ public final class LetLabel {
   private final String memoryName;
   private final int index;
 
-  LetLabel(String name, String memoryName) {
+  LetLabel(final String name, final String memoryName) {
     this(name, memoryName, 0);
   }
 
-  LetLabel(String name, String memoryName, int index) {
+  LetLabel(final String name, final String memoryName, final int index) {
     checkNotNull(name);
     checkNotNull(memoryName);
     checkGreaterOrEqZero(index);
@@ -50,6 +50,11 @@ public final class LetLabel {
 
   @Override
   public String toString() {
-    return String.format("LetLabel [name=%s, memoryName=%s, index=%d]", name, memoryName, index);
+    return String.format(
+        "LetLabel [name=%s, memoryName=%s, index=%d]",
+        name,
+        memoryName,
+        index
+        );
   }
 }
