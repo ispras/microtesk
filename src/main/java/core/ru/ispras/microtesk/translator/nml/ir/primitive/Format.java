@@ -106,13 +106,17 @@ public final class Format {
       final String methodName;
 
       if (FormatMarker.BIN == marker || FormatMarker.STR == marker) {
-        methodName = "toBinString";
+        methodName = "toBinString()";
+      } else if (FormatMarker.HEX == marker) {
+        methodName = "bigIntegerValue(false)";
+      } else if (FormatMarker.DEC == marker) {
+        methodName = "bigIntegerValue()";
       } else {
-        methodName = "bigIntegerValue";
+        throw new IllegalArgumentException("Unsupported marker: " + marker);
       }
 
       return String.format(
-          "%s.%s()", new PrinterExpr(expr), methodName);
+          "%s.%s", new PrinterExpr(expr), methodName);
     }
 
     private String convertJavaTo(final FormatMarker marker) {
