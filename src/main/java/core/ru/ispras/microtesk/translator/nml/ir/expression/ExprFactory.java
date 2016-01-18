@@ -185,7 +185,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       if (operand.getValueInfo().isModelOf(TypeId.BOOL)) {
         final ValueInfo newValueInfo = operand.getValueInfo().toNativeType(Boolean.class);
         final NodeInfo newNodeInfo = operand.getNodeInfo().coerceTo(
-            newValueInfo, NodeInfo.CoercionType.IMPLICIT);
+            newValueInfo, Coercion.IMPLICIT);
 
         operand.setNodeInfo(newNodeInfo);
       }
@@ -294,7 +294,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        ValueInfo.createModel(type), NodeInfo.CoercionType.SIGN_EXTEND);
+        ValueInfo.createModel(type), Coercion.SIGN_EXTEND);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -322,7 +322,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        ValueInfo.createModel(type), NodeInfo.CoercionType.ZERO_EXTEND);
+        ValueInfo.createModel(type), Coercion.ZERO_EXTEND);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -370,7 +370,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.COERCE);
+        newValueInfo, Coercion.COERCE);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -398,7 +398,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = srcValueInfo.toNativeType(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.COERCE);
+        newValueInfo, Coercion.COERCE);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -426,7 +426,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        ValueInfo.createModel(type), NodeInfo.CoercionType.CAST);
+        ValueInfo.createModel(type), Coercion.CAST);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -468,7 +468,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.INT_TO_FLOAT);
+        newValueInfo, Coercion.INT_TO_FLOAT);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -510,7 +510,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.FLOAT_TO_INT);
+        newValueInfo, Coercion.FLOAT_TO_INT);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -547,7 +547,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
     final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.FLOAT_TO_FLOAT);
+        newValueInfo, Coercion.FLOAT_TO_FLOAT);
 
     src.setNodeInfo(newNodeInfo);
     return src;
@@ -741,8 +741,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     if (srcValueInfo.isModel()) {
       final ValueInfo newValueInfo = srcValueInfo.toNativeType(Boolean.class);
-      final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-          newValueInfo, NodeInfo.CoercionType.IMPLICIT);
+      final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo, Coercion.IMPLICIT);
 
       src.setNodeInfo(newNodeInfo);
       return src;
@@ -774,13 +773,12 @@ public final class ExprFactory extends WalkerFactoryBase {
     if (srcValueInfo.isModelOf(TypeId.BOOL)) {
       NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
           ValueInfo.createNativeType(Boolean.class),
-          NodeInfo.CoercionType.IMPLICIT
+          Coercion.IMPLICIT
           );
 
       newNodeInfo = newNodeInfo.coerceTo(
-          ValueInfo.createModel(Type.CARD(srcValueInfo.getModelType().getBitSize())),
-          NodeInfo.CoercionType.IMPLICIT
-          );
+          ValueInfo.createModel(
+              Type.CARD(srcValueInfo.getModelType().getBitSize())), Coercion.IMPLICIT);
 
       src.setNodeInfo(newNodeInfo);
       return src;
@@ -812,8 +810,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final ValueInfo newValueInfo = ValueInfo.createModel(type);
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(
-        newValueInfo, NodeInfo.CoercionType.IMPLICIT);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(newValueInfo, Coercion.IMPLICIT);
 
     src.setNodeInfo(newNodeInfo);
     return src;

@@ -109,29 +109,6 @@ public final class NodeInfo {
     }
   }
 
-  public static enum CoercionType {
-    IMPLICIT("coerce"),
-
-    SIGN_EXTEND("signExtend"),
-    ZERO_EXTEND("zeroExtend"),
-
-    COERCE("coerce"),
-    CAST("cast"),
-
-    INT_TO_FLOAT("intToFloat"),
-    FLOAT_TO_INT("floatToInt"),
-    FLOAT_TO_FLOAT("floatToFloat");
-
-    private final String methodName;
-    private CoercionType(String methodName) {
-      this.methodName = methodName;
-    }
-
-    public String getMethodName() {
-      return methodName;
-    }
-  }
-
   /**
    * Creates a node information object basing on a Location object.
    * 
@@ -193,7 +170,7 @@ public final class NodeInfo {
   private final Object source;
   private final ValueInfo currentVI;
   private final List<ValueInfo> previousVI;
-  private final List<CoercionType> coercionTypes;
+  private final List<Coercion> coercions;
 
   /**
    * Constructs a node information object from the specified attributes.
@@ -212,7 +189,7 @@ public final class NodeInfo {
       final Object source,
       final ValueInfo current,
       final List<ValueInfo> previous,
-      final List<CoercionType> coercionTypes) {
+      final List<Coercion> coercions) {
     if (!kind.isCompatibleSource(source)) {
       throw new IllegalArgumentException(String.format(
         "%s is not proper source for %s.", source.getClass().getSimpleName(), kind));
@@ -222,7 +199,7 @@ public final class NodeInfo {
     this.source = source;
     this.currentVI = current;
     this.previousVI = Collections.unmodifiableList(previous);
-    this.coercionTypes = Collections.unmodifiableList(coercionTypes);
+    this.coercions = Collections.unmodifiableList(coercions);
   }
 
   /**
@@ -242,11 +219,11 @@ public final class NodeInfo {
         source,
         current,
         Collections.<ValueInfo>emptyList(),
-        Collections.<CoercionType>emptyList()
+        Collections.<Coercion>emptyList()
     );
   }
 
-  public NodeInfo coerceTo(final ValueInfo newValueInfo, final CoercionType coercionType) {
+  public NodeInfo coerceTo(final ValueInfo newValueInfo, final Coercion coercionType) {
     checkNotNull(newValueInfo);
     checkNotNull(coercionType);
 
@@ -258,9 +235,9 @@ public final class NodeInfo {
     previous.add(getValueInfo());
     previous.addAll(this.previousVI);
 
-    final List<CoercionType> coercions = new ArrayList<>(this.coercionTypes.size() + 1);
+    final List<Coercion> coercions = new ArrayList<>(this.coercions.size() + 1);
     coercions.add(coercionType);
-    coercions.addAll(this.coercionTypes);
+    coercions.addAll(this.coercions);
 
     return new NodeInfo(getKind(), getSource(), newValueInfo, previous, coercions);
   }
@@ -315,7 +292,7 @@ public final class NodeInfo {
     return Collections.unmodifiableList(result);
   }
 
-  public List<CoercionType> getCoercionTypes() {
-    return coercionTypes;
+  public List<Coercion> getCoercions() {
+    return coercions;
   }
 }

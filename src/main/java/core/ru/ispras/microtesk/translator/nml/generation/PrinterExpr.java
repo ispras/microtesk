@@ -26,6 +26,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.translator.nml.ir.expression.Coercion;
 import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expression.Operands;
@@ -80,7 +81,7 @@ public final class PrinterExpr {
 
     return String.format(
         CoercionFormatter.getFormat(
-            nodeInfo.getCoercionTypes().get(coercionIndex), target, source),
+            nodeInfo.getCoercions().get(coercionIndex), target, source),
         printCoersion(++coercionIndex)
         );
   }
@@ -238,7 +239,7 @@ public final class PrinterExpr {
       text = printer.toString();
     } else {
       final String format = CoercionFormatter.getFormat(
-          NodeInfo.CoercionType.IMPLICIT,
+          Coercion.IMPLICIT,
           operatorInfo.getCastValueInfo(),
           operand.getValueInfo()
           );
@@ -381,7 +382,7 @@ final class CoercionFormatter {
   private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
 
   static String getFormat(
-      final NodeInfo.CoercionType coercionType,
+      final Coercion coercionType,
       final ValueInfo target,
       final ValueInfo source) {
     InvariantChecks.checkNotNull(coercionType);
