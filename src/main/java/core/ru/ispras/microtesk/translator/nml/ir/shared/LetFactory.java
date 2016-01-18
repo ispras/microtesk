@@ -37,7 +37,7 @@ public final class LetFactory extends WalkerFactoryBase {
     final LetConstant constant = new LetConstant(name, new Expr(NodeValue.newString(text)));
     getIR().add(name, constant);
 
-    createLink(name, text);
+    createLabel(name, text);
   }
 
   public void createConstant(final String name, final Expr value) {
@@ -45,7 +45,7 @@ public final class LetFactory extends WalkerFactoryBase {
     getIR().add(name, constant);
   }
 
-  private void createLink(final String name, final String text) {
+  private void createLabel(final String name, final String text) {
     final Matcher matcher = Pattern.compile(LABEL_REX).matcher(text);
     if (!matcher.matches()) {
       return;
