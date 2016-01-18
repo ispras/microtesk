@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.model.api.data.floatx.Precision;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -26,9 +29,7 @@ public final class TypeFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public Type newAlias(
-      final Where where,
-      final String name) throws SemanticException {
+  public Type newAlias(final Where where, final String name) throws SemanticException {
     final Type ref = getIR().getTypes().get(name);
     if (null == ref) {
       raiseError(where, String.format("Undefined type: %s.", name));
@@ -37,16 +38,12 @@ public final class TypeFactory extends WalkerFactoryBase {
     return ref.alias(name);
   }
 
-  public Type newInt(
-      final Where where,
-      final Expr bitSize) throws SemanticException {
-    return Type.INT(bitSize.integerValue());
+  public Type newInt(final Where where, final Expr bitSize) throws SemanticException {
+    return Type.INT(getIntegerValue(where, bitSize));
   }
 
-  public Type newCard(
-      final Where where,
-      final Expr bitSize) throws SemanticException {
-    return Type.CARD(bitSize.integerValue());
+  public Type newCard(final Where where, final Expr bitSize) throws SemanticException {
+    return Type.CARD(getIntegerValue(where, bitSize));
   }
 
   public Type newFloat(
@@ -54,18 +51,27 @@ public final class TypeFactory extends WalkerFactoryBase {
       final Expr fractionBitSize,
       final Expr exponentBitSize) throws SemanticException {
 
-    final int fractionSize = fractionBitSize.integerValue();
-    final int exponentSize = exponentBitSize.integerValue();
+    final int fracBitSize = getIntegerValue(where, fractionBitSize);
+    final int expBitSize = getIntegerValue(where, exponentBitSize);
 
-    final Precision precision = Precision.find(fractionSize, exponentSize);
+    final Precision precision = Precision.find(fracBitSize, expBitSize);
     if (null == precision) {
       raiseError(where, String.format(
           "Unsupported floating-point format: float(%d, %d)",
-          fractionSize,
-          exponentSize
+          fracBitSize,
+          expBitSize
           ));
     }
 
-    return Type.FLOAT(fractionSize, exponentSize);
+    return Type.FLOAT(fracBitSize, expBitSize);
+  }
+
+  private int getIntegerValue(final Where where, final Expr expr) throws SemanticException {
+    final Node node = expr.getNode();
+    if (node.getKind() != Node.Kind.VALUE || !node.isType(DataTypeId.LOGIC_INTEGER)) {
+      raiseError(where, "Statically calculated integer expression is expected.");
+    }
+
+    return ((NodeValue) expr.getNode()).getInteger().intValue();
   }
 }
