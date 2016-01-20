@@ -20,10 +20,10 @@ public final class TypeCast {
   private TypeCast() {}
 
   private static final TypeId TYPE_CAST_MAP[][] = {
-    { null,         TypeId.CARD,  TypeId.INT,  TypeId.BOOL, },
-    { TypeId.CARD,  TypeId.CARD,  TypeId.CARD, null         },
-    { TypeId.INT,   TypeId.CARD,  TypeId.INT,  null         },
-    { TypeId.BOOL,  null,         null,        TypeId.BOOL  }
+    { null,         TypeId.CARD,  TypeId.INT,   TypeId.BOOL, },
+    { TypeId.CARD,  TypeId.CARD,  TypeId.CARD,  null         },
+    { TypeId.INT,   TypeId.CARD,  TypeId.INT,   null         },
+    { TypeId.BOOL,  null,         null,         TypeId.BOOL  }
   };
 
   public static TypeId getCastTypeId(final TypeId left, final TypeId right) {
