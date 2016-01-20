@@ -21,7 +21,6 @@ import ru.ispras.microtesk.model.api.data.TypeId;
 
 public final class Type {
   public final static Type BOOLEAN = new Type(TypeId.BOOL, 1);
-  public final static Type LOGIC_INT = new Type(TypeId.INT, 0);
 
   public static Type INT(final int bitSize) {
     InvariantChecks.checkGreaterThanZero(bitSize);
