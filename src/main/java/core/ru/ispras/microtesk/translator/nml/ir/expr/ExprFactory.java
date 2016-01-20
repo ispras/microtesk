@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -64,6 +65,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     return expr;
   }
+  */
 
   public Expr namedConstant(final Where w, final String name) throws SemanticException {
     checkNotNull(w);
@@ -83,15 +85,15 @@ public final class ExprFactory extends WalkerFactoryBase {
     final NodeInfo nodeInfo = NodeInfo.newLocation(source);
 
     final String name = source.toString();
-    final Data data = Converter.toFortressData(nodeInfo.getType());
+    final DataType dataType = Converter.toFortressDataType(nodeInfo.getType());
 
-    final Variable variable = new Variable(name, data);
-    final Node node = new NodeVariable(variable);
-
+    final Node node = new NodeVariable(name, dataType);
     node.setUserData(nodeInfo);
+
     return new Expr(node);
   }
 
+  /*
   public Expr operator(
       final Where w,
       final ValueInfo.Kind target,
