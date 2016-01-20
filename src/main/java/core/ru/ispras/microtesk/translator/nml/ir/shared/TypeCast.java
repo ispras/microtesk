@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
 
 public final class TypeCast {
@@ -27,9 +28,8 @@ public final class TypeCast {
   };
 
   public static TypeId getCastTypeId(final TypeId left, final TypeId right) {
-    if (null == left || null == right) {
-      return null == left ? right : left;
-    }
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
 
     if (left.equals(right)) {
       return left;
@@ -63,9 +63,8 @@ public final class TypeCast {
   }
 
   public static Type getCastType(final Type left, final Type right) {
-    if (null == left || null == right) {
-      return null == left ? right : left;
-    }
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
 
     if (left.equals(right)) {
       return left;
