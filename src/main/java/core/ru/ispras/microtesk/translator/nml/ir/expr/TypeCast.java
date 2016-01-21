@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-public final class TypeCast {
+final class TypeCast {
   private TypeCast() {}
 
   private static final TypeId TYPE_CAST_MAP[][] = {
@@ -78,5 +80,26 @@ public final class TypeCast {
 
     final int bitSize = Math.max(left.getBitSize(), right.getBitSize());
     return (typeId == left.getTypeId()) ? left.resize(bitSize) : right.resize(bitSize);
+  }
+
+  public static DataType getCastDataType(final DataType left, final DataType right) {
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
+
+    if (left.equals(right)) {
+      return left;
+    }
+
+    if (left.getTypeId() == DataTypeId.BIT_VECTOR &&
+        left.getTypeId() == DataTypeId.BIT_VECTOR) {
+      return left.getSize() >= right.getSize() ? left : right;
+    }
+ 
+    if (left.getTypeId() == DataTypeId.BIT_VECTOR ||
+        left.getTypeId() == DataTypeId.BIT_VECTOR) {
+      return left.getTypeId() == DataTypeId.BIT_VECTOR ? left : right;
+    }
+ 
+    return null;
   }
 }

@@ -33,6 +33,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
@@ -104,22 +105,52 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final Operator op = Operator.forText(id);
     if (null == op) {
-      raiseError(w, String.format(ERR_UNSUPPORTED_OPERATOR, id));
+      raiseError(w, String.format("The %s operator is not supported.", id));
     }
 
     if (operands.length != op.operands()) {
-      raiseError(w, String.format(ERR_OPERAND_NUMBER_MISMATCH, id, op.operands()));
+      raiseError(w, String.format("The %s operator requires %d operands.", id, op.operands()));
     }
 
-    Type castType = null;
+    DataType commonDataType = null; // Common Fortress type
+    Type commonType = null; // Common nML type
+
     for (final Expr operand : operands) {
+      final DataType currentDataType = operand.getNode().getDataType();
+      InvariantChecks.checkNotNull(currentDataType);
+ 
+      commonDataType = commonDataType == null ?
+          currentDataType : TypeCast.getCastDataType(commonDataType, currentDataType);
+      
+      final Type currentType = operand.getNodeInfo().getType();
+
+      // Current operand is typed
+      if (currentType == null) {
+        continue;
+      }
+ 
+      // Common nML type is not known yet
+      if (castType == null) {
+        castType = currentType;
+        continue;
+      }
+
       castType = TypeCast.getCastType(castType, operand.getNodeInfo().getType());
+
+      // No common type is found
+      if (castType == null) {
+        raiseError(w, String.format("Incompatible operand types: %s and %s",
+            castType.getTypeName(), currentType.getTypeName()));
+      }
     }
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
       final Node operandNode;
-      if (operand.isConstant()) {
+
+      if (castType == null) {
+        operandNode = operand.getNode();
+      } else if (operand.isConstant()) {
         final Expr castOperand = castConstantTo(operand, castType);
         operandNode = castOperand.getNode();
       } else {
@@ -128,18 +159,24 @@ public final class ExprFactory extends WalkerFactoryBase {
         }
         operandNode = operand.getNode();
       }
+
       operandNodes.add(operandNode);
     }
 
-    final Enum<?> operator = Converter.toFortressOperator(op, castValueInfo);
-    final Node node = new NodeOperation(operator, operandNodes);
+    final Enum<?> operator = Converter.toFortressOperator(op, castType);
+    final Type resultType = Converter.toResultType(op, castType);
 
+    final Node node = new NodeOperation(operator, operandNodes);
     final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
+
     node.setUserData(nodeInfo);
+    
+    final Node reducedNode = Transformer.reduce(node);
 
     return new Expr(node);
   }
-
+  */
+/*
   public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
     checkNotNull(w);
     checkNotNull(operand);
@@ -521,7 +558,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     return src;
   }
-
+*/
   private static Expr castConstantTo(final Expr value, final Type type) {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(value.isConstant());
@@ -563,12 +600,6 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
   }
 
-  private static final String ERR_UNSUPPORTED_OPERATOR =
-      "The %s operator is not supported.";
-
-  private static final String ERR_OPERAND_NUMBER_MISMATCH =
-      "The %s operator requires %d operands.";
-
   private static final String ERR_TYPE_MISMATCH =
       "%s is unexpected. All parts of the current conditional expression must have the %s type.";
 
@@ -586,5 +617,4 @@ public final class ExprFactory extends WalkerFactoryBase {
 
   private static final String ERR_NOT_LOCATION_COMPATIBLE =
       "The %s type cannot be stored in a location.";
-  */
 }
