@@ -55,17 +55,15 @@ public final class ExprFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  /*
   public Expr constant(final Where w, final String text, final int radix) throws SemanticException {
     checkNotNull(w);
     checkNotNull(text);
 
     final Expr expr = new Expr(NodeValue.newInteger(text, radix));
-    expr.setNodeInfo(NodeInfo.newConst(Type.LOGIC_INT));
+    expr.setNodeInfo(NodeInfo.newConst(null)); // No nML type is associated
 
     return expr;
   }
-  */
 
   public Expr namedConstant(final Where w, final String name) throws SemanticException {
     checkNotNull(w);
