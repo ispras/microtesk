@@ -27,8 +27,8 @@ import ru.ispras.microtesk.test.template.BlockId.Distance;
 import ru.ispras.microtesk.test.template.Label;
 
 /**
- * The role of the LabelManager class is resolving references to labels that have the same names,
- * but are defined in different blocks. It stores all labels defined by a sequence and their
+ * The role of the {@link LabelManager} class is resolving references to labels that have the same
+ * names, but are defined in different blocks. It stores all labels defined by a sequence and their
  * relative positions grouped by name. When it is required to perform a jump to a label with a
  * specific name, it chooses the most suitable label depending on the block from which the jump is
  * performed. Here are the rules according to which the choice is made:
@@ -47,10 +47,10 @@ import ru.ispras.microtesk.test.template.Label;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-final class LabelManager {
+public final class LabelManager {
   /**
-   * The Target class stores information about the target the specified label points to. It
-   * associates a label with an address where an instruction is located.
+   * The {@link Target} class stores information about the target the specified label points to.
+   * It associates a label with an address where an instruction is located.
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
@@ -216,10 +216,10 @@ final class LabelManager {
    * @param label Label to be registered.
    * @param position Address associated with the label.
    * 
-   * @throws IllegalArgumentException if the parameter is <code>null</code>.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
-  protected void addLabel(final Label label, final long address) {
+  public void addLabel(final Label label, final long address) {
     InvariantChecks.checkNotNull(label);
 
     final Target target = new Target(label, address);
@@ -285,7 +285,7 @@ final class LabelManager {
    * @return The most suitable target (label and its position) for the given reference or
    *         <code>null</code> if no label having such name is found.
    * 
-   * @throws IllegalArgumentException if the parameter is <code>null</code>.
+   * @throws IllegalArgumentException if the parameter is {@code null}.
    */
 
   public Target resolve(final Label referenceLabel) {
