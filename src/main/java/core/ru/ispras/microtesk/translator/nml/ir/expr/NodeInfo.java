@@ -31,7 +31,6 @@ public final class NodeInfo {
   }
 
   public static NodeInfo newConst(final Type type) {
-    InvariantChecks.checkNotNull(type);
     return new NodeInfo(NodeInfo.Kind.CONST, null, type);
   }
 
