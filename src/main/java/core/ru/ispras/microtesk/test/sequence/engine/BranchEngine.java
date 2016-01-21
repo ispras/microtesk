@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,12 +17,12 @@ package ru.ispras.microtesk.test.sequence.engine;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getSituationName;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
@@ -92,13 +92,11 @@ public final class BranchEngine implements Engine<BranchSolution> {
     InvariantChecks.checkNotNull(abstractSequence);
 
     // Collect information about labels.
-    final Map<Label, Integer> labels = new HashMap<>();
-
+    final LabelManager labels = new LabelManager();
     for (int i = 0; i < abstractSequence.size(); i++) {
       final Call call = abstractSequence.get(i);
-
       for (final Label label : call.getLabels()) {
-        labels.put(label, i);
+        labels.addLabel(label, i);
       }
     }
 
@@ -132,9 +130,11 @@ public final class BranchEngine implements Engine<BranchSolution> {
       // Set the target label and start the delay slot.
       if (isIfThen || isGoto) {
         final Label label = abstractCall.getTargetLabel();
-        InvariantChecks.checkTrue(labels.containsKey(label));
 
-        branchEntry.setBranchLabel(labels.get(label));
+        final LabelManager.Target target = labels.resolve(label);
+        InvariantChecks.checkNotNull(target, "Undefined label: " + label);
+
+        branchEntry.setBranchLabel((int) target.getAddress());
         delaySlot = engineContext.getDelaySlotSize();
       }
     }
