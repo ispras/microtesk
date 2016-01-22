@@ -40,44 +40,16 @@ public final class ConcreteCall {
   // TODO:
   public static ConcreteCall newText(final String text) {
     InvariantChecks.checkNotNull(text);
-
-    final Call abstractCall = new Call(
-        text,
-        null,
-        Collections.<Label>emptyList(),
-        Collections.<LabelReference>emptyList(),
-        Collections.<Output>emptyList(),
-        null,
-        null,
-        null,
-        null,
-        null);
-
-    return new ConcreteCall(abstractCall);
+    return new ConcreteCall(Call.newText(text));
   }
 
   public static ConcreteCall newLine() {
-    return newText("");
+    return new ConcreteCall(Call.newLine());
   }
 
   public static ConcreteCall newComment(final String comment) {
     InvariantChecks.checkNotNull(comment);
-
-    final Call abstractCall = new Call(
-        null,
-        null,
-        Collections.<Label>emptyList(),
-        Collections.<LabelReference>emptyList(),
-        Collections.singletonList(
-            new Output(false, true,
-                String.format("%s %s", TestSettings.getCommentToken(), comment))),
-        null,
-        null,
-        null,
-        null,
-        null);
-
-    return new ConcreteCall(abstractCall);
+    return new ConcreteCall(Call.newComment(comment));
   }
 
   public ConcreteCall(
