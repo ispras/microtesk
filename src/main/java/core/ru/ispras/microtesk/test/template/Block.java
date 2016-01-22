@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.sequence.GeneratorSingle;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
@@ -29,7 +28,6 @@ public final class Block {
   private final Iterator<List<Call>> iterator;
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
-  private final boolean isSingle;
 
   protected Block(
       final BlockId blockId,
@@ -51,9 +49,6 @@ public final class Block {
 
     iterator.init();
     this.isEmpty = !iterator.hasValue();
-
-    // TODO: HACK! BE CAREFUL! PROBABLY, NEED A MORE RELIABLE WAY
-    this.isSingle = iterator instanceof GeneratorSingle;
   }
 
   protected Block(
@@ -90,9 +85,5 @@ public final class Block {
 
   public boolean isEmpty() {
     return isEmpty;
-  }
-
-  public boolean isSingle() {
-    return isSingle;
   }
 }

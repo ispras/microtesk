@@ -580,7 +580,6 @@ public final class TestEngine {
 
     public List<TestSequence> buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
-      InvariantChecks.checkTrue(block.isSingle());
 
       final TestSequenceEngine engine = getEngine(block);
       final Iterator<List<Call>> sequenceIt = block.getIterator();
@@ -591,9 +590,14 @@ public final class TestEngine {
       }
 
       final List<Call> abstractSequence = sequenceIt.value();
-      final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
 
+      sequenceIt.next();
+      InvariantChecks.checkFalse(
+          sequenceIt.hasValue(), "Pre or Post block must contain a single sequence.");
+
+      final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
       final List<TestSequence> result = new ArrayList<>();
+
       for (iterator.init(); iterator.hasValue(); iterator.next()) {
         final AdapterResult adapterResult = iterator.value();
         InvariantChecks.checkNotNull(adapterResult);
