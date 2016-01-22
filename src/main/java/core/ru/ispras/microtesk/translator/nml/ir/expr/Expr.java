@@ -70,7 +70,7 @@ public final class Expr {
   }
 
   public BigInteger bigIntegerValue() {
-    if (Node.Kind.VALUE == node.getKind() && node.isType(DataTypeId.LOGIC_INTEGER)) {
+    if (isConstant() && node.isType(DataTypeId.LOGIC_INTEGER)) {
       return ((NodeValue) node).getInteger();
     }
 
