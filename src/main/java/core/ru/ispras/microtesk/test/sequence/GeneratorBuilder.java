@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
+import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 
 /**
  * {@link GeneratorBuilder} implements the test sequence generator.
@@ -70,6 +71,16 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
+   * Sets the permutator used in the generator.
+   * 
+   * @param permutator the permutator name.
+   */
+
+  public void setPermutator(final String permutator) {
+    this.permutator = permutator;
+  }
+
+  /**
    * Sets the isSingle flag (whether a single sequence must be generated).
    * 
    * @param isSingle {@code true} to generate a single sequence or {@code false} to prevent this.
@@ -86,16 +97,19 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    */
 
   public Generator<T> getGenerator() {
+    final GeneratorConfig<T> config = GeneratorConfig.get();
+
+    final Permutator<T> permutatorEngine =
+        config.getPermutator(permutator != null ? permutator : DEFAULT_PERMUTATOR);
+
     // If the isSingle flag is set, the single sequence generator is returned.
     if (isSingle) {
-      return new GeneratorSingle<T>(getIterators());
+      return new GeneratorPermutator<>(new GeneratorSingle<>(getIterators()), permutatorEngine);
     }
 
-    /*
-    if ((null == combinator) && (null == compositor) && (null == permutator)) {
-      return new GeneratorSequence<T>(getIterators());
+    if ((null == combinator) && (null == compositor)) {
+      return new GeneratorPermutator<>(new GeneratorSequence<>(getIterators()), permutatorEngine);
     }
-    */
 
     if (null == combinator) { 
       combinator = DEFAULT_COMBINATOR;
@@ -105,16 +119,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       compositor = DEFAULT_COMPOSITOR;
     }
 
-    if (null == permutator) {
-      compositor = DEFAULT_PERMUTATOR;
-    }
-
-    final GeneratorConfig<T> config = GeneratorConfig.get();
-
-    return new GeneratorMerge<T>(
-        config.getCombinator(combinator),
-        config.getCompositor(compositor),
-        config.getPermutator(permutator),
-        getIterators());
+    return new GeneratorPermutator<>(new GeneratorMerge<T>(config.getCombinator(combinator),
+        config.getCompositor(compositor), getIterators()), permutatorEngine);
   }
 }
