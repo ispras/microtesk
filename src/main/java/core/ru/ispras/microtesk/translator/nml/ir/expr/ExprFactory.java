@@ -47,8 +47,6 @@ import ru.ispras.microtesk.translator.nml.errors.UndefinedConstant;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
-import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfo;
-import ru.ispras.microtesk.translator.nml.ir.valueinfo.ValueInfoCalculator;
 
 public final class ExprFactory extends WalkerFactoryBase {
 
@@ -92,14 +90,11 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
-  /*
   public Expr operator(
       final Where w,
-      final ValueInfo.Kind target,
       final String id,
       final Expr... operands) throws SemanticException {
     checkNotNull(w);
-    checkNotNull(target);
     checkNotNull(id);
     checkNotNull(operands);
 
@@ -115,53 +110,59 @@ public final class ExprFactory extends WalkerFactoryBase {
     DataType commonDataType = null; // Common Fortress type
     Type commonType = null; // Common nML type
 
+    boolean allConstantOperands = true;
     for (final Expr operand : operands) {
+      allConstantOperands &= operand.isConstant();
       final DataType currentDataType = operand.getNode().getDataType();
-      InvariantChecks.checkNotNull(currentDataType);
  
       commonDataType = commonDataType == null ?
           currentDataType : TypeCast.getCastDataType(commonDataType, currentDataType);
-      
+
+      if (commonDataType == null) {
+        raiseError(w, String.format(
+            "Incompatible operand data types: %s and %s", commonDataType, currentDataType));
+      } 
+
       final Type currentType = operand.getNodeInfo().getType();
+      if (currentType != null) { // Current operand is typed
+        commonType = commonType == null ?
+            currentType : TypeCast.getCastType(commonType, currentType);
 
-      // Current operand is typed
-      if (currentType == null) {
-        continue;
-      }
- 
-      // Common nML type is not known yet
-      if (castType == null) {
-        castType = currentType;
-        continue;
-      }
-
-      castType = TypeCast.getCastType(castType, operand.getNodeInfo().getType());
-
-      // No common type is found
-      if (castType == null) {
-        raiseError(w, String.format("Incompatible operand types: %s and %s",
-            castType.getTypeName(), currentType.getTypeName()));
+        if (commonType == null) {
+          raiseError(w, String.format("Incompatible operand types: %s and %s",
+              commonType.getTypeName(), currentType.getTypeName()));
+        }
       }
     }
+
+    InvariantChecks.checkNotNull(commonDataType);
+    // If no common nML type, all operands must be constants or the expression is inconsistent.
+    InvariantChecks.checkTrue(null == commonType && allConstantOperands);
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
       final Node operandNode;
 
-      if (castType == null) {
-        operandNode = operand.getNode();
+      if (commonType == null) {
+        operandNode = TypeCast.castConstantTo(operand.getNode(), commonDataType);
       } else if (operand.isConstant()) {
-        final Expr castOperand = castConstantTo(operand, castType);
+        final Expr castOperand = TypeCast.castConstantTo(operand, commonType);
         operandNode = castOperand.getNode();
       } else {
-        if (operand.isTypeOf(castType)) {
-          raiseError(w, "Type mismatch. All operands must be " + castType.getTypeName());
+        if (operand.isTypeOf(commonType)) {
+          raiseError(w, "Type mismatch. All operands must be " + commonType.getTypeName());
         }
         operandNode = operand.getNode();
       }
 
       operandNodes.add(operandNode);
     }
+    
+
+    return null;
+    /*
+
+
 
     final Enum<?> operator = Converter.toFortressOperator(op, castType);
     final Type resultType = Converter.toResultType(op, castType);
@@ -173,10 +174,10 @@ public final class ExprFactory extends WalkerFactoryBase {
     
     final Node reducedNode = Transformer.reduce(node);
 
-    return new Expr(node);
+    return new Expr(node);*/
   }
-  */
-/*
+
+  /*
   public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
     checkNotNull(w);
     checkNotNull(operand);
@@ -559,46 +560,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 */
-  private static Expr castConstantTo(final Expr value, final Type type) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(value.isConstant());
-    InvariantChecks.checkNotNull(type);
-
-    final BitVector data = getBitVector(value, type);
-    final NodeValue node = type.getTypeId() == TypeId.BOOL ? 
-        NodeValue.newBoolean(!data.isAllReset()) :
-        NodeValue.newBitVector(data); 
-
-    final Expr expr = new Expr(node);
-    expr.setNodeInfo(NodeInfo.newConst(type));
-
-    return expr;
-  }
-
-  private static BitVector getBitVector(final Expr value, final Type type) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(value.isConstant());
-    InvariantChecks.checkNotNull(type);
-
-    final int bitSize = type.getBitSize();
-    final boolean signExtend = value.isTypeOf(TypeId.INT);
-
-    final NodeValue node = (NodeValue) value.getNode();
-    switch (node.getDataTypeId()) {
-      case BIT_VECTOR:
-        return node.getBitVector().resize(bitSize, signExtend);
-
-      case LOGIC_INTEGER:
-        return BitVector.valueOf(node.getInteger(), bitSize);
-
-      case LOGIC_BOOLEAN:
-        return BitVector.valueOf(node.getBoolean()).resize(bitSize, false);
-
-      default:
-        throw new IllegalArgumentException(
-            "Unsupported data type: " + node.getDataType());
-    }
-  }
+  
 
   private static final String ERR_TYPE_MISMATCH =
       "%s is unexpected. All parts of the current conditional expression must have the %s type.";
