@@ -34,8 +34,9 @@ public final class BlockBuilder {
   private List<Block> nestedBlocks;
   private Map<String, Object> attributes;
 
-  private String compositorName;
   private String combinatorName;
+  private String compositorName;
+  private String permutatorName;
 
   private boolean isAtomic;
 
@@ -57,8 +58,9 @@ public final class BlockBuilder {
     this.nestedBlocks = new ArrayList<>();
     this.attributes = new HashMap<>();
 
-    this.compositorName = null;
     this.combinatorName = null;
+    this.compositorName = null;
+    this.permutatorName = null;
 
     this.isAtomic = false;
 
@@ -91,6 +93,11 @@ public final class BlockBuilder {
   public void setCombinator(final String name) {
     InvariantChecks.checkTrue(null == combinatorName);
     combinatorName = name;
+  }
+
+  public void setPermutator(final String name) {
+    InvariantChecks.checkTrue(null == permutatorName);
+    permutatorName = name;
   }
 
   public void setAtomic(final boolean value) {
@@ -162,6 +169,10 @@ public final class BlockBuilder {
 
     if (null != compositorName) {
       generatorBuilder.setCompositor(compositorName);
+    }
+
+    if (null != permutatorName) {
+      generatorBuilder.setPermutator(permutatorName);
     }
 
     for (final Block block : nestedBlocks) {

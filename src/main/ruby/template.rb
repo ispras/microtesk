@@ -156,12 +156,16 @@ class Template
     blockBuilder.setAtomic false
     blockBuilder.setWhere get_caller_location
 
+    if attributes.has_key? :combinator
+      blockBuilder.setCombinator(attributes[:combinator])
+    end
+
     if attributes.has_key? :compositor
       blockBuilder.setCompositor(attributes[:compositor])
     end
 
-    if attributes.has_key? :combinator
-      blockBuilder.setCombinator(attributes[:combinator])
+    if attributes.has_key? :permutator
+      blockBuilder.setPermutator(attributes[:permutator])
     end
 
     attributes.each_pair do |key, value|
@@ -177,6 +181,10 @@ class Template
     blockBuilder = @template.beginBlock
     blockBuilder.setAtomic true
     blockBuilder.setWhere get_caller_location
+
+    if attributes.has_key? :permutator
+      blockBuilder.setPermutator(attributes[:permutator])
+    end
 
     attributes.each_pair do |key, value|
       blockBuilder.setAttribute(key.to_s, value)
