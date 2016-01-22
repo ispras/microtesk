@@ -56,6 +56,16 @@ public abstract class CompositeIterator<T> {
   }
 
   /**
+   * Sets the sub-iterators.
+   * 
+   * @param iterators the sub-iterators to be set.
+   */
+  public void setIterators(final List<Iterator<T>> iterators) {
+    this.iterators.clear();
+    this.iterators.addAll(iterators);
+  }
+
+  /**
    * Removes the i-th sub-iterator from the list.
    * 
    * @param i the index of the sub-iterator to be removed from the list.

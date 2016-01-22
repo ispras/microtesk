@@ -17,8 +17,10 @@ package ru.ispras.microtesk.test.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
+import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -28,48 +30,40 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class GeneratorMerge<T> implements Generator<T> {
-  /**
-   * The combinator used by the generator (it produces different combinations of the sequences).
-   */
+  /** Produces different combinations of the sequences. */
   private final Combinator<List<T>> combinator;
-
-  /** The compositor used by the generator (it merges several sequences into one). */
+  /** Merges several sequences into one. */
   private final Compositor<T> compositor;
+  /** Permutes a single sequence. */
+  private final Permutator<T> permutator;
 
   /** The list of iterators. */
   private final List<Iterator<List<T>>> iterators;
 
-  /**
-   * Constructs a test sequence generator.
-   * 
-   * @param combinator the combinator.
-   * @param compositor the compositor.
-   */
+  private boolean hasValue = true;
 
   public GeneratorMerge(
       final Combinator<List<T>> combinator,
       final Compositor<T> compositor,
+      final Permutator<T> permutator,
       final List<Iterator<List<T>>> iterators) {
+    InvariantChecks.checkNotNull(combinator);
+    InvariantChecks.checkNotNull(compositor);
+    InvariantChecks.checkNotNull(permutator);
+    InvariantChecks.checkNotNull(iterators);
+
     this.combinator = combinator;
     this.compositor = compositor;
+    this.permutator = permutator;
     this.iterators = iterators;
   }
 
-  @Override
-  public void init() {
-    combinator.removeIterators();
-    combinator.addIterators(iterators);
-
+  private void initCombinator() {
+    combinator.setIterators(iterators);
     combinator.init();
   }
 
-  @Override
-  public boolean hasValue() {
-    return combinator.hasValue();
-  }
-
-  @Override
-  public List<T> value() {
+  private void initPermutator() {
     final List<List<T>> combination = combinator.value();
 
     compositor.removeIterators();
@@ -77,22 +71,55 @@ public final class GeneratorMerge<T> implements Generator<T> {
       compositor.addIterator(new CollectionIterator<T>(sequence));
     }
 
-    final List<T> result = new ArrayList<T>();
+    final List<T> sequence = new ArrayList<T>();
     for (compositor.init(); compositor.hasValue(); compositor.next()) {
-      result.add(compositor.value());
+      sequence.add(compositor.value());
     }
 
-    return result;
+    permutator.setSequence(sequence);
+    permutator.init();
+  }
+
+  @Override
+  public void init() {
+    initCombinator();
+
+    if (combinator.hasValue()) {
+      initPermutator();
+    }
+
+    hasValue = combinator.hasValue() && permutator.hasValue();
+  }
+
+  @Override
+  public boolean hasValue() {
+    return hasValue;
+  }
+
+  @Override
+  public List<T> value() {
+    return permutator.value();
   }
 
   @Override
   public void next() {
+    permutator.next();
+    if (permutator.hasValue()) {
+      return;
+    }
+
     combinator.next();
+    if (combinator.hasValue()) {
+      initPermutator();
+      return;
+    }
+
+    hasValue = false;
   }
 
   @Override
   public void stop() {
-    combinator.stop();
+    hasValue = false;
   }
 
   @Override

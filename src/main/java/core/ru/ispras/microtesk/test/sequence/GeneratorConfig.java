@@ -31,6 +31,9 @@ import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.permutator.Permutator;
+import ru.ispras.microtesk.test.sequence.permutator.RandomPermutator;
+import ru.ispras.microtesk.test.sequence.permutator.TrivialPermutator;
 
 /**
  * {@link GeneratorConfig} implements a test generator configuration.
@@ -40,6 +43,7 @@ import ru.ispras.microtesk.test.sequence.engine.Engine;
 public final class GeneratorConfig<T> {
   private final Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
   private final Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
+  private final Map<String, Class<?>> permutators = new HashMap<String, Class<?>>();
 
   private final Map<String, Engine<?>> engines = new HashMap<>();
   private final Map<String, Adapter<?>> adapters = new HashMap<>();
@@ -61,6 +65,9 @@ public final class GeneratorConfig<T> {
     compositors.put("overlap", OverlappingCompositor.class);
     compositors.put("nesting", NestingCompositor.class);
     compositors.put("random", RandomCompositor.class);
+
+    permutators.put("trivial", TrivialPermutator.class);
+    permutators.put("random", RandomPermutator.class);
   }
 
   /**
@@ -85,6 +92,18 @@ public final class GeneratorConfig<T> {
   public Compositor<T> getCompositor(final String name) {
     InvariantChecks.checkNotNull(name);
     return createInstance((Class<Compositor<T>>) compositors.get(name.toLowerCase()));
+  }
+
+  /**
+   * Creates an instance of the permutator with the given name.
+   * 
+   * @param name the permutator name.
+   * @return a permutator instance.
+   */
+  @SuppressWarnings("unchecked")
+  public Permutator<T> getPermutator(final String name) {
+    InvariantChecks.checkNotNull(name);
+    return createInstance((Class<Permutator<T>>) permutators.get(name.toLowerCase()));
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {

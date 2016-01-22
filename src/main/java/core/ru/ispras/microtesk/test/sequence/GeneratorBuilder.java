@@ -28,11 +28,15 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   public static final String DEFAULT_COMBINATOR = "diagonal";
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "catenation";
+  /** The default permutator. */
+  public static final String DEFAULT_PERMUTATOR = "trivial";
 
   /** The combinator used in the generator. */
   private String combinator = null;
   /** The compositor used in the generator. */
   private String compositor = null;
+  /** The compositor used in the generator. */
+  private String permutator = null;
 
   /**
    * Specifies whether a single sequence must be generated 
@@ -88,9 +92,10 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     }
 
     /*
-    if ((null == combinator) && (null == compositor)) {
+    if ((null == combinator) && (null == compositor) && (null == permutator)) {
       return new GeneratorSequence<T>(getIterators());
-    }*/
+    }
+    */
 
     if (null == combinator) { 
       combinator = DEFAULT_COMBINATOR;
@@ -100,10 +105,16 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       compositor = DEFAULT_COMPOSITOR;
     }
 
+    if (null == permutator) {
+      compositor = DEFAULT_PERMUTATOR;
+    }
+
     final GeneratorConfig<T> config = GeneratorConfig.get();
 
     return new GeneratorMerge<T>(
         config.getCombinator(combinator),
-        config.getCompositor(compositor), getIterators());
+        config.getCompositor(compositor),
+        config.getPermutator(permutator),
+        getIterators());
   }
 }
