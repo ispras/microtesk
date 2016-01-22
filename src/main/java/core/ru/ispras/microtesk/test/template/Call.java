@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.TestSettings;
 
 public final class Call {
   private final String text;
@@ -46,6 +47,45 @@ public final class Call {
   // with a sequence of calls once the value is known and a specific preparator is chosen.
   private final Primitive preparatorTarget;
   private final LazyValue preparatorValue;
+
+  // TODO:
+  public static Call newText(final String text) {
+    InvariantChecks.checkNotNull(text);
+
+    return new Call(
+        text,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        null,
+        null,
+        null,
+        null,
+        null);
+  }
+
+  public static Call newLine() {
+    return newText("");
+  }
+
+  public static Call newComment(final String comment) {
+    InvariantChecks.checkNotNull(comment);
+
+    return new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.singletonList(
+            new Output(false, true,
+                String.format("%s %s", TestSettings.getCommentToken(), comment))),
+        null,
+        null,
+        null,
+        null,
+        null);
+  }
 
   public Call(
       final String text,
