@@ -25,9 +25,9 @@ import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
  */
 public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default combinator. */
-  public static final String DEFAULT_COMBINATOR = "random";
+  public static final String DEFAULT_COMBINATOR = "diagonal";
   /** The default compositor. */
-  public static final String DEFAULT_COMPOSITOR = "random";
+  public static final String DEFAULT_COMPOSITOR = "catenation";
 
   /** The combinator used in the generator. */
   private String combinator = null;
@@ -87,9 +87,10 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       return new GeneratorSingle<T>(getIterators());
     }
 
+    /*
     if ((null == combinator) && (null == compositor)) {
       return new GeneratorSequence<T>(getIterators());
-    }
+    }*/
 
     if (null == combinator) { 
       combinator = DEFAULT_COMBINATOR;
