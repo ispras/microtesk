@@ -336,6 +336,7 @@
     <copy todir="${doc}">
       <fileset dir="xdocs" includes="*.pdf"/>
       <fileset dir="xdocs/nml" includes="*.pdf"/>
+      <fileset dir="xdocs/mmu" includes="*.pdf"/>
     </copy>
   </target>
 
