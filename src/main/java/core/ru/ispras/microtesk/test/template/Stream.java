@@ -25,8 +25,6 @@ public final class Stream {
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
-  private boolean isInit;
-  private int index;
 
   protected Stream(
       final String startLabelName,
@@ -35,10 +33,10 @@ public final class Stream {
       final List<Call> write,
       final int length) {
     InvariantChecks.checkNotNull(startLabelName);
-    InvariantChecks.checkGreaterThanZero(length);
     InvariantChecks.checkNotNull(init);
     InvariantChecks.checkNotNull(read);
     InvariantChecks.checkNotNull(write);
+    InvariantChecks.checkGreaterThanZero(length);
 
     this.startLabelName = startLabelName;
     this.length = length;
@@ -46,40 +44,31 @@ public final class Stream {
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
     this.write = Collections.unmodifiableList(write);
-
-    this.isInit = false;
-    this.index = 0;
   }
 
   public String getStartLabelName() {
     return startLabelName;
   }
 
+  public int getLength() {
+    return length;
+  }
+
   public List<Call> getInit() {
-    index = 0;
-    isInit = true;
     return init;
   }
 
   public List<Call> getRead() {
-    InvariantChecks.checkTrue(isInit, "Stream is never initialized: " + toString());
-    InvariantChecks.checkBounds(index++, length);
     return read;
   }
 
   public List<Call> getWrite() {
-    InvariantChecks.checkTrue(isInit, "Stream is never initialized: " + toString());
-    InvariantChecks.checkBounds(index++, length);
     return write;
-  }
-
-  public boolean hasNext() {
-    return index < length;
   }
 
   @Override
   public String toString() {
     return String.format(
-        "Stream [label=%s, length=%d, index=%d]", startLabelName, length, index);
+        "Stream [label=%s, length=%d]", startLabelName, length);
   }
 }
