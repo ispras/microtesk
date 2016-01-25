@@ -32,17 +32,22 @@ class PermutatorTemplate < MiniMipsBaseTemplate
       Or  reg(_), reg(_), reg(_)
       Nor reg(_), reg(_), reg(_)
       Xor reg(_), reg(_), reg(_)
-    }.run
+    }.run 5
 
     # Random ordering:
     atomic(:permutator => 'random') {
+      # Needed as a place to return from an exception
+      epilogue {
+        nop
+      }
+
       Add reg(_), reg(_), reg(_)
       Sub reg(_), reg(_), reg(_)
       And reg(_), reg(_), reg(_)
       Or  reg(_), reg(_), reg(_)
       Nor reg(_), reg(_), reg(_)
       Xor reg(_), reg(_), reg(_)
-    }.run
+    }.run 5
   end
 
 end
