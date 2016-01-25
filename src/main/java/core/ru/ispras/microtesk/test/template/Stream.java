@@ -21,10 +21,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Stream {
   private final String startLabelName;
+  private final int length;
   private final List<Call> init;
   private final List<Call> read;
   private final List<Call> write;
-  private final int length;
+  private boolean isInit;
   private int index;
 
   protected Stream(
@@ -34,18 +35,19 @@ public final class Stream {
       final List<Call> write,
       final int length) {
     InvariantChecks.checkNotNull(startLabelName);
+    InvariantChecks.checkGreaterThanZero(length);
     InvariantChecks.checkNotNull(init);
     InvariantChecks.checkNotNull(read);
     InvariantChecks.checkNotNull(write);
-    InvariantChecks.checkGreaterThanZero(length);
 
     this.startLabelName = startLabelName;
+    this.length = length;
 
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
     this.write = Collections.unmodifiableList(write);
 
-    this.length = length;
+    this.isInit = false;
     this.index = 0;
   }
 
@@ -55,20 +57,29 @@ public final class Stream {
 
   public List<Call> getInit() {
     index = 0;
+    isInit = true;
     return init;
   }
 
   public List<Call> getRead() {
+    InvariantChecks.checkTrue(isInit, "Stream is never initialized: " + toString());
     InvariantChecks.checkBounds(index++, length);
     return read;
   }
 
   public List<Call> getWrite() {
+    InvariantChecks.checkTrue(isInit, "Stream is never initialized: " + toString());
     InvariantChecks.checkBounds(index++, length);
     return write;
   }
 
   public boolean hasNext() {
     return index < length;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "Stream [label=%s, length=%d, index=%d]", startLabelName, length, index);
   }
 }
