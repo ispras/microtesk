@@ -35,7 +35,7 @@
                     rev="4.1" 
                     conf="build->default">
           <artifact name="cvc4-windows" type="exe" url="http://cvc4.cs.nyu.edu/builds/win32-opt/cvc4-1.4-win32-opt.exe"/>
-          <artifact name="cvc4-unix" type="bin"    url="http://cvc4.cs.nyu.edu/builds/x86_64-linux-opt/unstable/cvc4-2015-11-18-x86_64-linux-opt"/>
+          <artifact name="cvc4-unix" type="bin"    url="http://cvc4.cs.nyu.edu/builds/x86_64-linux-opt/unstable/cvc4-2016-01-23-x86_64-linux-opt"/>
         </dependency>
     </dependencies>
     <conflicts>
