@@ -1,0 +1,6 @@
+all:
+	pdflatex mmu_reference_manual.tex
+	pdflatex mmu_reference_manual.tex
+
+clean:
+	rm -rf *.dvi *.log *.aux *.toc

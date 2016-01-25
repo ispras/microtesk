@@ -1,0 +1,79 @@
+\documentclass[oneside,final,14pt]{extreport}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english]{babel}
+\usepackage{vmargin}
+\usepackage{listings}
+\setpapersize{A4}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+
+\lstset{
+ language=C,
+ frame=single,
+ basicstyle=\ttfamily\scriptsize,
+ commentstyle=\itshape,
+ emph={op, mode, reg, alias, mem, type, let, card, int, syntax, image, format, action,
+       if, then, else, elif, endif, coerce, exception, address, segment, buffer, register,
+       memory, mmu, range, ways, sets, match, tag, index, entry, policy, read, write,
+       var, hit, path, transition, guard},
+ emphstyle={\bfseries}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\Large{Institute for System Programming of the Russian Academy of Sciences}
+
+\vfill
+
+
+\bf\Large{MMU Reference Manual}
+
+(UNDER DEVELOPMENT)
+
+\vfill
+
+\bf
+Moscow 2016
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\stepcounter{page} % Increase page counter by one
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Overview}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Appendixes}
+
+\section{References}
+
+% Related nML publications/documents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addcontentsline{toc}{section}{\numberline{}Bibliography}
+\begin{thebibliography}{1}
+
+\bibitem{freericks}
+M.~Freericks.
+\emph{The nML Machine Description Formalism}.
+Technical Report TR SM-IMP/DIST/08, TU Berlin CS Department, 1993.
+
+\end{thebibliography}
+
+\end{document}
