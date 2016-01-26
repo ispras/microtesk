@@ -13,7 +13,7 @@
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jruby.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="jars/fortress-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/testbase.jar" sourcepath="jars/testbase-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="jars/testbase.jar" sourcepath="jars/testbase-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jsoftfloat.jar" sourcepath="jars/jsoftfloat-src.zip"/>
 	<classpathentry kind="lib" path="tools/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="tools/junit.jar"/>
