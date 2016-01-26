@@ -56,7 +56,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
    * @return the test data provider.
    */
   public abstract TestDataProvider generateElse(final TestBaseQuery query);
-  
+
   @Override
   public final TestDataProvider generate(final TestBaseQuery query) {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
