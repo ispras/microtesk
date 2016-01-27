@@ -234,6 +234,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractCall,
+      final boolean branchTaken,
       final boolean branchCondition,
       final boolean writeIntoStream)
         throws ConfigurationException {
@@ -269,33 +270,37 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Set unknown immediate values (if there are any).
     setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
 
-    // Initialize test data to ensure branch execution.
-    boolean isInitialized = false;
+    if (branchTaken) {
+      // Initialize test data to ensure branch execution.
+      boolean isInitialized = false;
 
-    for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
-      final String name = testDatum.getKey();
-      final Argument arg = queryCreator.getModes().get(name);
+      for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
+        final String name = testDatum.getKey();
+        final Argument arg = queryCreator.getModes().get(name);
 
-      if (arg == null || arg.getKind() != Argument.Kind.MODE || arg.getMode() == ArgumentMode.OUT) {
-        continue;
+        if (arg == null
+            || arg.getKind() != Argument.Kind.MODE
+            || arg.getMode() == ArgumentMode.OUT) {
+          continue;
+        }
+
+        final Primitive mode = (Primitive) arg.getValue();
+        final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
+
+        final List<Call> initializingCalls = new ArrayList<>();
+
+        initializingCalls.addAll(makeInitializer(engineContext, mode, value));
+        if (writeIntoStream) {
+          final String testDataStream = getTestDataStream(abstractCall);
+          initializingCalls.addAll(makeStreamWrite(engineContext, testDataStream));
+        }
+
+        updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
+        isInitialized = true;
       }
 
-      final Primitive mode = (Primitive) arg.getValue();
-      final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
-
-      final List<Call> initializingCalls = new ArrayList<Call>();
-
-      initializingCalls.addAll(makeInitializer(engineContext, mode, value));
-      if (writeIntoStream) {
-        final String testDataStream = getTestDataStream(abstractCall);
-        initializingCalls.addAll(makeStreamWrite(engineContext, testDataStream));
-      }
-
-      updatePrologue(engineContext, testSequenceBuilder, initializingCalls);
-      isInitialized = true;
+      InvariantChecks.checkTrue(isInitialized);
     }
-
-    InvariantChecks.checkTrue(isInitialized);
   }
 
   private void updatePrologue(
@@ -308,6 +313,18 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractBranchCall);
+
+    // If the branch is not executed, initialize immediate arguments.
+    if (branchTrace.isEmpty()) {
+      updatePrologue(
+          engineContext,
+          testSequenceBuilder,
+          abstractBranchCall,
+          false /* Branch is not taken */,
+          false /* Branch condition is ignored */,
+          true   /* Write into the stream */);
+      return;
+    }
 
     // If the control code is not executed before the first branch execution,
     // the registers of the branch instruction should be initialized.
@@ -343,6 +360,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
               engineContext,
               testSequenceBuilder,
               abstractBranchCall,
+              true /* Branch is taken */,
               branchCondition,
               true /* Write into the stream */);
         }
@@ -366,6 +384,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           engineContext,
           testSequenceBuilder,
           abstractBranchCall,
+          true /* Branch is taken */,
           branchCondition,
           false /* Write into the registers */);
     }
