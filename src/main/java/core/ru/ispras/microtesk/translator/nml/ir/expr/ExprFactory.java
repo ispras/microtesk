@@ -110,34 +110,40 @@ public final class ExprFactory extends WalkerFactoryBase {
     DataType commonDataType = null; // Common Fortress type
     Type commonType = null; // Common nML type
 
-    boolean allConstantOperands = true;
+    boolean isConstantExpr = true;
     for (final Expr operand : operands) {
-      allConstantOperands &= operand.isConstant();
+      isConstantExpr &= operand.isConstant();
+
       final DataType currentDataType = operand.getNode().getDataType();
+      final DataType previousDataType = commonDataType;
  
-      commonDataType = commonDataType == null ?
-          currentDataType : TypeCast.getCastDataType(commonDataType, currentDataType);
+      commonDataType = previousDataType == null ?
+          currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
 
       if (commonDataType == null) {
         raiseError(w, String.format(
-            "Incompatible operand data types: %s and %s", commonDataType, currentDataType));
+            "Incompatible operand data types: %s and %s", previousDataType, currentDataType));
       } 
 
       final Type currentType = operand.getNodeInfo().getType();
+      final Type previousType = commonType;
+
       if (currentType != null) { // Current operand is typed
-        commonType = commonType == null ?
-            currentType : TypeCast.getCastType(commonType, currentType);
+        commonType = previousType == null ?
+            currentType : TypeCast.getCastType(previousType, currentType);
 
         if (commonType == null) {
           raiseError(w, String.format("Incompatible operand types: %s and %s",
-              commonType.getTypeName(), currentType.getTypeName()));
+              previousType.getTypeName(), currentType.getTypeName()));
         }
       }
     }
 
+    // Fortress type must always be calculated
     InvariantChecks.checkNotNull(commonDataType);
+
     // If no common nML type, all operands must be constants or the expression is inconsistent.
-    InvariantChecks.checkTrue(null == commonType && allConstantOperands);
+    InvariantChecks.checkTrue(null == commonType && isConstantExpr);
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
@@ -157,9 +163,15 @@ public final class ExprFactory extends WalkerFactoryBase {
 
       operandNodes.add(operandNode);
     }
-    
 
-    return null;
+    final Node node = null;
+    if (isConstantExpr) {
+      
+    } else {
+      
+    }
+    
+    return new Expr(node);
     /*
 
 
