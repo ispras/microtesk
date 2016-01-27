@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -32,6 +35,10 @@ final class TypeCast {
     { TypeId.INT,   TypeId.CARD,  TypeId.INT,   null         },
     { TypeId.BOOL,  null,         null,         TypeId.BOOL  }
   };
+
+  private static final Set<TypeId> BV_BASED_TYPES = EnumSet.of(
+    TypeId.INT, TypeId.CARD, TypeId.FLOAT
+  );
 
   public static TypeId getCastTypeId(final TypeId left, final TypeId right) {
     InvariantChecks.checkNotNull(left);
@@ -181,5 +188,20 @@ final class TypeCast {
 
     throw new IllegalArgumentException(String.format(
         "Сoercion from %s to %s is unsupported.", valueType, type));
+  }
+
+  public static DataType getFortressDataType(final Type type) {
+    InvariantChecks.checkNotNull(type);
+
+    final TypeId typeId = type.getTypeId();
+    if (typeId == TypeId.BOOL) {
+      return DataType.BOOLEAN;
+    }
+
+    if (BV_BASED_TYPES.contains(typeId)) {
+      return DataType.BIT_VECTOR(type.getBitSize());
+    }
+
+    throw new IllegalArgumentException("Unsupported type: "  + type);
   }
 }
