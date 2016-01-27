@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
