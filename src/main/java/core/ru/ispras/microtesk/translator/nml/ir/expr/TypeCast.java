@@ -163,13 +163,25 @@ final class TypeCast {
       return value; 
     }
 
-    if (type.getTypeId() != DataTypeId.BIT_VECTOR) {
-      throw new IllegalArgumentException(String.format(
-          "Unsupported coercion: %s -> %s", valueType, type));
+    if (type.getTypeId() == DataTypeId.BIT_VECTOR) {
+      final NodeValue valueNode = (NodeValue) value;
+
+      switch (valueType.getTypeId()) {
+        case LOGIC_INTEGER:
+          return NodeValue.newBitVector(
+              BitVector.valueOf(valueNode.getInteger(), type.getSize()));
+
+        case LOGIC_BOOLEAN:
+          return NodeValue.newBitVector(
+              BitVector.valueOf(valueNode.getBoolean()).resize(type.getSize(), false));
+
+        case BIT_VECTOR:
+          return NodeValue.newBitVector(
+              valueNode.getBitVector().resize(type.getSize(), false));
+      }
     }
 
-    final NodeValue valueNode = (NodeValue) value;
-    final BigInteger integer = valueNode.getInteger();
-    return NodeValue.newBitVector(BitVector.valueOf(integer, type.getSize()));
+    throw new IllegalArgumentException(String.format(
+        "Сoercion from %s to %s is unsupported.", valueType, type));
   }
 }
