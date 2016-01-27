@@ -82,7 +82,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     final NodeInfo nodeInfo = NodeInfo.newLocation(source);
 
     final String name = source.toString();
-    final DataType dataType = Converter.toFortressDataType(nodeInfo.getType());
+    final DataType dataType = TypeCast.getFortressDataType(nodeInfo.getType());
 
     final Node node = new NodeVariable(name, dataType);
     node.setUserData(nodeInfo);
@@ -164,18 +164,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       operandNodes.add(operandNode);
     }
 
-    final Node node = null;
-    if (isConstantExpr) {
-      
-    } else {
-      
-    }
-    
-    return new Expr(node);
+    return null;
+
     /*
-
-
-
     final Enum<?> operator = Converter.toFortressOperator(op, castType);
     final Type resultType = Converter.toResultType(op, castType);
 
