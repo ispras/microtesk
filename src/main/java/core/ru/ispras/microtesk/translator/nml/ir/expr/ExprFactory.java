@@ -174,6 +174,8 @@ public final class ExprFactory extends WalkerFactoryBase {
 
       final Node operation = new NodeOperation(operator, operandNodes);
       node = Transformer.reduce(operation);
+      
+      // TODO: check that it was reduced!!!
     } else {
       final Enum<?> operator = op.getFortressOperator(commonType.getTypeId());
       if (null == operator) {
