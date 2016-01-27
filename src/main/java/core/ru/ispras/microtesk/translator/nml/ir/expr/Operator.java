@@ -14,50 +14,56 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.TypeId;
+
 public enum Operator {
-  OR("||",          2),
+  OR("||",          2, true),
 
-  AND("&&",         2),
+  AND("&&",         2, true),
 
-  BIT_OR ("|",      2),
-  BIT_XOR("^",      2),
-  BIT_AND("&",      2),
+  BIT_OR ("|",      2, false),
+  BIT_XOR("^",      2, false),
+  BIT_AND("&",      2, false),
 
-  EQ("==",          2),
-  NOT_EQ("!=",      2),
+  EQ("==",          2, true),
+  NOT_EQ("!=",      2, true),
 
-  LEQ("<=",         2),
-  GEQ(">=",         2),
-  LESS("<",         2),
-  GREATER(">",      2),
+  LEQ("<=",         2, true),
+  GEQ(">=",         2, true),
+  LESS("<",         2, true),
+  GREATER(">",      2, true),
 
-  L_SHIFT("<<",     2),
-  R_SHIFT(">>",     2),
-  L_ROTATE("<<<",   2),
-  R_ROTATE(">>>",   2),
+  L_SHIFT("<<",     2, false),
+  R_SHIFT(">>",     2, false),
+  L_ROTATE("<<<",   2, false),
+  R_ROTATE(">>>",   2, false),
 
-  PLUS("+",         2),
-  MINUS("-",        2),
+  PLUS("+",         2, false),
+  MINUS("-",        2, false),
 
-  MUL("*",          2),
-  DIV("/",          2),
-  MOD("%",          2),
+  MUL("*",          2, false),
+  DIV("/",          2, false),
+  MOD("%",          2, false),
 
-  POW("**",         2),
+  POW("**",         2, false),
 
-  UPLUS("UPLUS",    1),
-  UMINUS("UMINUS",  1),
-  BIT_NOT("~",      1),
-  NOT("!",          1),
+  UPLUS("UPLUS",    1, false),
+  UMINUS("UMINUS",  1, false),
+  BIT_NOT("~",      1, false),
+  NOT("!",          1, true),
 
   // Synthetic operators
-  ITE(null,         3),
-  SQRT(null,        1),
-  IS_NAN(null,      1),
-  IS_SIGN_NAN(null, 1);
+  ITE(null,         3, false),
+  SQRT(null,        1, false),
+  IS_NAN(null,      1, true),
+  IS_SIGN_NAN(null, 1, true);
 
   private static final Map<String, Operator> operators;
   static {
@@ -76,18 +82,44 @@ public enum Operator {
   }
 
   private final String text;
-  private final int operands;
+  private final int operandCount;
+  private final boolean isBooleanOperator;
 
-  private Operator(final String text, final int operands) {
+  private final Map<DataTypeId, StandardOperation> dataTypeOp;
+  private final Map<TypeId,     StandardOperation> typeOps;
+
+
+  private Operator(
+      final String text,
+      final int operandCount,
+      final boolean isBoolean) {
     this.text = text;
-    this.operands = operands;
+    this.operandCount = operandCount;
+
+    this.isBooleanOperator = isBoolean;
+    this.dataTypeOp = new EnumMap<>(DataTypeId.class);
+    this.typeOps = new EnumMap<>(TypeId.class);
   }
 
-  public String text() {
+  public String getText() {
     return text;
   }
 
-  public int operands() {
-    return operands;
+  public int getOperandCount() {
+    return operandCount;
+  }
+
+  public boolean isBoolean() {
+    return isBooleanOperator;
+  }
+
+  public StandardOperation getFortressOperator(final DataTypeId dataTypeId) {
+    InvariantChecks.checkNotNull(dataTypeId);
+    return dataTypeOp.get(dataTypeId);
+  }
+
+  public StandardOperation getFortressOperator(final TypeId typeId) {
+    InvariantChecks.checkNotNull(typeId);
+    return typeOps.get(typeId);
   }
 }

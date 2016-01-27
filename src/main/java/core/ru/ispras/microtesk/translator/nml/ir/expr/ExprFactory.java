@@ -103,8 +103,8 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, String.format("The %s operator is not supported.", id));
     }
 
-    if (operands.length != op.operands()) {
-      raiseError(w, String.format("The %s operator requires %d operands.", id, op.operands()));
+    if (operands.length != op.getOperandCount()) {
+      raiseError(w, String.format("The %s operator requires %d operands.", id, op.getOperandCount()));
     }
 
     DataType commonDataType = null; // Common Fortress type
@@ -164,20 +164,31 @@ public final class ExprFactory extends WalkerFactoryBase {
       operandNodes.add(operandNode);
     }
 
-    return null;
+    final Node node;
+    if (isConstantExpr) {
+      final Enum<?> operator = op.getFortressOperator(commonDataType.getTypeId());
+      if (null == operator) {
+        raiseError(w, String.format(
+            "The %s operator is not applicable to %s.", op, commonDataType.getTypeId()));
+      }
 
-    /*
-    final Enum<?> operator = Converter.toFortressOperator(op, castType);
-    final Type resultType = Converter.toResultType(op, castType);
+      final Node operation = new NodeOperation(operator, operandNodes);
+      node = Transformer.reduce(operation);
+    } else {
+      final Enum<?> operator = op.getFortressOperator(commonType.getTypeId());
+      if (null == operator) {
+        raiseError(w, String.format(
+            "The %s operator is not applicable to %s.", op, commonType.getTypeId()));
+      }
 
-    final Node node = new NodeOperation(operator, operandNodes);
-    final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
+      node = new NodeOperation(operator, operandNodes);
 
-    node.setUserData(nodeInfo);
-    
-    final Node reducedNode = Transformer.reduce(node);
+      final Type resultType = op.isBoolean() ? Type.BOOLEAN : commonType;
+      final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
+      node.setUserData(nodeInfo);
+    }
 
-    return new Expr(node);*/
+    return new Expr(node);
   }
 
   /*
