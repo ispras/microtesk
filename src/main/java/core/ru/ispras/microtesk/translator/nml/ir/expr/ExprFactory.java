@@ -191,7 +191,6 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
-  /*
   public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
     checkNotNull(w);
     checkNotNull(operand);
@@ -252,7 +251,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type);
     }
 
     if (type.getBitSize() < src.getNodeInfo().getType().getBitSize()) {
@@ -278,7 +277,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type);
     }
 
     if (type.getBitSize() < src.getNodeInfo().getType().getBitSize()) {
@@ -304,7 +303,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type);
     }
 
     if (!type.getTypeId().isInteger()) {
@@ -338,7 +337,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type);
     }
 
     if (src.getNodeInfo().getType().getBitSize() != type.getBitSize()) {
@@ -351,6 +350,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
+  /*
   public Expr int_to_float(
       final Where w,
       final Expr src,
