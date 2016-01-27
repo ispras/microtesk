@@ -24,16 +24,39 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
 
 public enum Operator {
-  OR("||",          2, true),
+  OR("||",          2, true,  rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.OR),
+                              rule(TypeId.BOOL,              StandardOperation.OR)),
 
-  AND("&&",         2, true),
+  AND("&&",         2, true,  rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.AND),
+                              rule(TypeId.BOOL,              StandardOperation.AND)),
 
-  BIT_OR ("|",      2, false),
-  BIT_XOR("^",      2, false),
-  BIT_AND("&",      2, false),
+  BIT_OR ("|",      2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVOR),
+                              rule(TypeId.CARD,              StandardOperation.BVOR),
+                              rule(TypeId.INT,               StandardOperation.BVOR)),
 
-  EQ("==",          2, true),
-  NOT_EQ("!=",      2, true),
+  BIT_XOR("^",      2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVXOR),
+                              rule(TypeId.CARD,              StandardOperation.BVXOR),
+                              rule(TypeId.INT,               StandardOperation.BVXOR)),
+
+  BIT_AND("&",      2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVAND),
+                              rule(TypeId.CARD,              StandardOperation.BVAND),
+                              rule(TypeId.INT,               StandardOperation.BVAND)),
+
+  EQ("==",          2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.EQ),
+                              rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.EQ),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.EQ),
+                              rule(TypeId.CARD,              StandardOperation.EQ),
+                              rule(TypeId.INT,               StandardOperation.EQ),
+                              rule(TypeId.BOOL,              StandardOperation.EQ),
+                              rule(TypeId.FLOAT,             StandardOperation.EQ)),
+
+  NOT_EQ("!=",      2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.NOTEQ),
+                              rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.NOTEQ),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.NOTEQ),
+                              rule(TypeId.CARD,              StandardOperation.NOTEQ),
+                              rule(TypeId.INT,               StandardOperation.NOTEQ),
+                              rule(TypeId.BOOL,              StandardOperation.NOTEQ),
+                              rule(TypeId.FLOAT,             StandardOperation.NOTEQ)),
 
   LEQ("<=",         2, true),
   GEQ(">=",         2, true),
@@ -85,20 +108,44 @@ public enum Operator {
   private final int operandCount;
   private final boolean isBooleanOperator;
 
-  private final Map<DataTypeId, StandardOperation> dataTypeOp;
+  private final Map<DataTypeId, StandardOperation> dataTypeOps;
   private final Map<TypeId,     StandardOperation> typeOps;
 
+  private static final class Rule {
+    public final Enum<?> typeId;
+    public final StandardOperation operator;
+
+    private Rule(final Enum<?> typeId, final StandardOperation operator) {
+      this.typeId = typeId;
+      this.operator = operator;
+    }
+  }
+
+  private static Rule rule(final Enum<?> type, final StandardOperation op) {
+    return new Rule(type, op);
+  }
 
   private Operator(
       final String text,
       final int operandCount,
-      final boolean isBoolean) {
+      final boolean isBoolean,
+      final Rule... rules) {
     this.text = text;
     this.operandCount = operandCount;
-
     this.isBooleanOperator = isBoolean;
-    this.dataTypeOp = new EnumMap<>(DataTypeId.class);
+
+    this.dataTypeOps = new EnumMap<>(DataTypeId.class);
     this.typeOps = new EnumMap<>(TypeId.class);
+
+    for (final Rule rule : rules) {
+      if (rule.typeId instanceof DataTypeId) {
+        this.dataTypeOps.put((DataTypeId) rule.typeId, rule.operator);
+      } else if (rule.typeId instanceof TypeId) {
+        this.typeOps.put((TypeId) rule.typeId, rule.operator);
+      } else {
+        throw new IllegalStateException(rule.typeId + " unknown type!");
+      }
+    }
   }
 
   public String getText() {
@@ -115,7 +162,7 @@ public enum Operator {
 
   public StandardOperation getFortressOperator(final DataTypeId dataTypeId) {
     InvariantChecks.checkNotNull(dataTypeId);
-    return dataTypeOp.get(dataTypeId);
+    return dataTypeOps.get(dataTypeId);
   }
 
   public StandardOperation getFortressOperator(final TypeId typeId) {
