@@ -58,10 +58,29 @@ public enum Operator {
                               rule(TypeId.BOOL,              StandardOperation.NOTEQ),
                               rule(TypeId.FLOAT,             StandardOperation.NOTEQ)),
 
-  LEQ("<=",         2, true),
-  GEQ(">=",         2, true),
-  LESS("<",         2, true),
-  GREATER(">",      2, true),
+  LEQ("<=",         2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.LESSEQ),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVULE),
+                              rule(TypeId.CARD,              StandardOperation.BVULE),
+                              rule(TypeId.INT,               StandardOperation.BVSLE),
+                              rule(TypeId.FLOAT,             StandardOperation.LESSEQ)),
+
+  GEQ(">=",         2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATEREQ),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUGE),
+                              rule(TypeId.CARD,              StandardOperation.BVUGE),
+                              rule(TypeId.INT,               StandardOperation.BVSGE),
+                              rule(TypeId.FLOAT,             StandardOperation.GREATEREQ)),
+
+  LESS("<",         2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.LESS),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVULT),
+                              rule(TypeId.CARD,              StandardOperation.BVULT),
+                              rule(TypeId.INT,               StandardOperation.BVSLT),
+                              rule(TypeId.FLOAT,             StandardOperation.LESS)),
+
+  GREATER(">",      2, true,  rule(DataTypeId.LOGIC_INTEGER, StandardOperation.GREATER),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUGT),
+                              rule(TypeId.CARD,              StandardOperation.BVUGT),
+                              rule(TypeId.INT,               StandardOperation.BVSGT),
+                              rule(TypeId.FLOAT,             StandardOperation.GREATER)),
 
   L_SHIFT("<<",     2, false),
   R_SHIFT(">>",     2, false),
