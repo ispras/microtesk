@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.test.sequence.engine.EntryObject;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.EntryObject;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**

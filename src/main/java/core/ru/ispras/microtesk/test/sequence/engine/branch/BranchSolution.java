@@ -12,10 +12,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine;
+package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

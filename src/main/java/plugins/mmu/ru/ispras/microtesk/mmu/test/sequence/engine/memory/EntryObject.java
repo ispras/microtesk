@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;

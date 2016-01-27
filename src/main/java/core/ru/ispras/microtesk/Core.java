@@ -18,11 +18,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
-import ru.ispras.microtesk.test.sequence.engine.BranchAdapter;
-import ru.ispras.microtesk.test.sequence.engine.BranchEngine;
 import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchAdapter;
+import ru.ispras.microtesk.test.sequence.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.NmlTranslator;

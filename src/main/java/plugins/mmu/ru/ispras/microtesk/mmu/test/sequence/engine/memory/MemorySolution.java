@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,8 +21,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine;
+package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getSituationName;
 
@@ -23,9 +23,9 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.LabelManager;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecutionIterator;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
+import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.testbase.knowledge.iterator.Iterator;

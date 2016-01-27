@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine;
+package ru.ispras.microtesk.test.sequence.engine.branch;
 
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.getTestData;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
@@ -37,10 +37,9 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchEntry;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchExecution;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchStructure;
-import ru.ispras.microtesk.test.sequence.engine.branch.BranchTrace;
+import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;

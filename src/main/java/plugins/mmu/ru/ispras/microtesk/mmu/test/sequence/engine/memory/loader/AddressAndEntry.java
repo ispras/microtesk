@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
-import ru.ispras.microtesk.mmu.test.sequence.engine.EntryObject;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.EntryObject;
 
 public final class AddressAndEntry {
   public long address;
