@@ -74,10 +74,9 @@ correspondingly. In addition, the --help key prints information on the command-l
 The --translate and --generate keys are inserted into the command-line by
 compile.sh/compile.bat and generate.sh/generate.bat scripts correspondingly.
 Other options should be specified explicitly to customize the behavior of MicroTESK.
+Here is the list of options:
 
-Options:
-
-\begin{tabular}{ | l | l | l | p{5cm} |}
+\begin{tabular}{ | p{4cm} | p{1cm} | p{5cm} | p{3cm} |}
   \hline
   Full name & Short name & Description & Requires \\ \hline
   --help & -h & Shows help message & \\ \hline
@@ -92,18 +91,18 @@ Options:
   --branch-exec-limit <arg> & -bel & Sets the limit on control transfers to detect endless loops & --generate \\ \hline
   --solver-debug & -sd & Enables debug mode for SMT solvers & --generate \\ \hline
   --tarmac-log  & -tl & Saves simulator log in Tarmac format & --generate \\ \hline
-%  --self-checks               & -sc        | Inserts self-checking code into test programs | --generate |
-%  --arch-dirs <arg>           & -ad        | Home directories for tested architectures | --generate |
-%  --rate-limit <arg>          & -rl        | Generation rate limit, causes error when broken | --generate |
-%  --code-file-extension <arg> & -cfe       | The output file extension | --generate |
-%  --code-file-prefix <arg>    & -cfp       | The output file prefix (file names are as follows prefix_xxxx.ext, where xxxx is a 4-digit decimal number) | --generate |
-%  --data-file-extension <arg> & -dfe       | The data file extension | --generate |
-%  --data-file-prefix <arg>    & -dfp       | The data file prefix | --generate |
-%  --exception-file-prefix <arg> &  -efp    | The exception handler file prefix | --generate |
-%  --program-length-limit <arg>& -pll       | The maximum number of instructions in output programs | --generate |
-%  --trace-length-limit <arg>  & -tll       | The maximum length of execution traces of output programs | --generate |
-%  --comments-enabled          & -ce        | Enables printing comments; if not specified no comments are printed | --generate |
-%  --comments-debug            & -cd        | Enables printing detailed comments; must be used together with --comments-enabled  | --generate |
+  --self-checks & -sc & Inserts self-checking code into test programs & --generate \\ \hline
+  --arch-dirs <arg> & -ad & Home directories for tested architectures & --generate \\ \hline
+  --rate-limit <arg> & -rl & Generation rate limit, causes error when broken & --generate \\ \hline
+  --code-file-extension <arg> & -cfe & The output file extension & --generate \\ \hline
+  --code-file-prefix <arg> & -cfp & The output file prefix (file names are as follows prefix{\_}xxxx.ext, where xxxx is a 4-digit decimal number) & --generate \\ \hline
+  --data-file-extension <arg> & -dfe & The data file extension & --generate \\ \hline
+  --data-file-prefix <arg> & -dfp & The data file prefix & --generate \\ \hline
+  --exception-file-prefix <arg> & -efp & The exception handler file prefix & --generate \\ \hline
+  --program-length-limit <arg> & -pll & The maximum number of instructions in output programs & --generate \\ \hline
+  --trace-length-limit <arg> make& -tll & The maximum length of execution traces of output programs & --generate \\ \hline
+  --comments-enabled & -ce & Enables printing comments; if not specified no comments are printed & --generate \\ \hline
+  --comments-debug & -cd & Enables printing detailed comments; must be used together with --comments-enabled  & --generate \\ \hline
 \end{tabular}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
