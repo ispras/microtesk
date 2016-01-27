@@ -364,7 +364,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type);
     }
 
     if (!src.getNodeInfo().getType().getTypeId().isInteger()) {
