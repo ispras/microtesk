@@ -87,8 +87,17 @@ public enum Operator {
   L_ROTATE("<<<",   2, false),
   R_ROTATE(">>>",   2, false),
 
-  PLUS("+",         2, false),
-  MINUS("-",        2, false),
+  PLUS("+",         2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.ADD),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVADD),
+                              rule(TypeId.CARD,              StandardOperation.BVADD),
+                              rule(TypeId.INT,               StandardOperation.BVADD),
+                              rule(TypeId.FLOAT,             StandardOperation.ADD)),
+
+  MINUS("-",        2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.SUB),
+                              rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVSUB),
+                              rule(TypeId.CARD,              StandardOperation.BVSUB),
+                              rule(TypeId.INT,               StandardOperation.BVSUB),
+                              rule(TypeId.FLOAT,             StandardOperation.SUB)),
 
   MUL("*",          2, false),
   DIV("/",          2, false),
