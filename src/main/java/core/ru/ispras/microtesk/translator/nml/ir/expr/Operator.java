@@ -99,11 +99,25 @@ public enum Operator {
                               rule(TypeId.INT,               StandardOperation.BVSUB),
                               rule(TypeId.FLOAT,             StandardOperation.SUB)),
 
-  MUL("*",          2, false),
-  DIV("/",          2, false),
-  MOD("%",          2, false),
+  MUL("*",          2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVMUL),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MUL),
+                              rule(TypeId.CARD,              StandardOperation.BVMUL),
+                              rule(TypeId.INT,               StandardOperation.BVMUL),
+                              rule(TypeId.FLOAT,             StandardOperation.MUL)),
 
-  POW("**",         2, false),
+  DIV("/",          2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUDIV),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.DIV),
+                              rule(TypeId.CARD,              StandardOperation.BVUDIV),
+                              rule(TypeId.INT,               StandardOperation.BVSDIV),
+                              rule(TypeId.FLOAT,             StandardOperation.DIV)),
+
+  MOD("%",          2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVUREM),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MOD),
+                              rule(TypeId.CARD,              StandardOperation.BVUREM),
+                              rule(TypeId.INT,               StandardOperation.BVSREM),
+                              rule(TypeId.FLOAT,             StandardOperation.MOD)),
+
+  POW("**",         2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.POWER)),
 
   UPLUS("UPLUS",    1, false),
   UMINUS("UMINUS",  1, false),
