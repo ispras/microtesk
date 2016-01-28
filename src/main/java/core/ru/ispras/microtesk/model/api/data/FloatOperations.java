@@ -59,7 +59,7 @@ final class FloatOperations implements Operations {
   }
 
   @Override
-  public Data mod(Data lhs, Data rhs) {
+  public Data mod(final Data lhs, final Data rhs) {
     final FloatX result = lhs.floatXValue().mod(rhs.floatXValue());
     return new Data(lhs.getType(), result.getData());
   }
