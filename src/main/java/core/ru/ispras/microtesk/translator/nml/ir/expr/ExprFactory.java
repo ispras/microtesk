@@ -529,8 +529,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       }
     }
   }
+  */
 
-  public Expr evaluateConst(Where w, Expr src) throws SemanticException {
+  public Expr evaluateConst(final Where w, final Expr src) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
 
@@ -541,7 +542,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
-  public Expr evaluateSize(Where w, Expr src) throws SemanticException {
+  public Expr evaluateSize(final Where w, final Expr src) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
 
@@ -556,7 +557,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
-  public Expr evaluateIndex(Where w, Expr src) throws SemanticException {
+  public Expr evaluateIndex(final Where w, final Expr src) throws SemanticException {
     checkNotNull(w);
     checkNotNull(src);
 
@@ -588,8 +589,6 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     return src;
   }
-*/
-  
 
   private static final String ERR_TYPE_MISMATCH =
       "%s is unexpected. All parts of the current conditional expression must have the %s type.";
