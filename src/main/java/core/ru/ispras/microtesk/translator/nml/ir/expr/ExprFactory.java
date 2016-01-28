@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.data.floatx.FloatX;
@@ -55,8 +54,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr constant(final Where w, final String text, final int radix) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(text);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(text);
 
     final Expr expr = new Expr(NodeValue.newInteger(text, radix));
     expr.setNodeInfo(NodeInfo.newConst(null)); // No nML type is associated
@@ -65,8 +64,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr namedConstant(final Where w, final String name) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(name);
 
     if (!getIR().getConstants().containsKey(name)) {
       raiseError(w, new UndefinedConstant(name));
@@ -77,7 +76,7 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr location(final Location source) {
-    checkNotNull(source);
+    InvariantChecks.checkNotNull(source);
 
     final NodeInfo nodeInfo = NodeInfo.newLocation(source);
 
@@ -94,9 +93,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final String id,
       final Expr... operands) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(id);
-    checkNotNull(operands);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(operands);
 
     final Operator op = Operator.forText(id);
     if (null == op) {
@@ -199,8 +198,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(operand);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(operand);
 
     if (!operand.isTypeOf(TypeId.FLOAT)) {
       raiseError(w, "The sqrt operation supports only the float type.");
@@ -216,8 +215,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr isNan(final Where w, final Expr operand) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(operand);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(operand);
 
     if (!operand.isTypeOf(TypeId.FLOAT)) {
       raiseError(w, "The is_nan operation supports only the float type.");
@@ -231,8 +230,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr isSignalingNan(final Where w, final Expr operand) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(operand);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(operand);
 
     if (!operand.isTypeOf(TypeId.FLOAT)) {
       raiseError(w, "The is_signaling_nan operation supports only the float type.");
@@ -249,9 +248,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -275,9 +274,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -301,9 +300,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -335,9 +334,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -361,9 +360,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -400,9 +399,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -438,9 +437,9 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Where w,
       final Expr src,
       final Type type) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
 
     if (src.isTypeOf(type)) {
       return src;
@@ -468,9 +467,12 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
-  /*
-  public Expr condition(Where w, List<Condition> conds) throws SemanticException {
-    checkNotNull(w);
+  public Expr condition(final Where w, final List<Pair<Expr, Expr>> conds) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(conds);
+    InvariantChecks.checkTrue(conds.size() >= 2);
+
+    /*
     checkConditions(w, conds);
 
     final Deque<Condition> stack = new ArrayDeque<>(conds);
@@ -502,9 +504,12 @@ public final class ExprFactory extends WalkerFactoryBase {
       tail = new Expr(node);
     }
 
-    return tail;
+    return tail;*/
+    
+    return null;
   }
 
+/*
   private void checkConditions(Where w, List<Condition> conds) throws SemanticException {
     checkNotNull(conds);
 
@@ -532,8 +537,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   */
 
   public Expr evaluateConst(final Where w, final Expr src) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
 
     if (!src.isConstant()) {
       raiseError(w, ERR_NOT_STATIC);
@@ -543,8 +548,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr evaluateSize(final Where w, final Expr src) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
 
     if (!src.isConstant()) {
       raiseError(w, ERR_NOT_STATIC);
@@ -558,8 +563,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr evaluateIndex(final Where w, final Expr src) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
 
     if (src.getNode().isType(DataTypeId.LOGIC_INTEGER) ||
         src.isTypeOf(TypeId.CARD) ||
@@ -572,8 +577,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr evaluateLogic(final Where w, final Expr src) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
 
     if (src.getNode().isType(DataTypeId.LOGIC_BOOLEAN)) {
       return src;
@@ -584,8 +589,8 @@ public final class ExprFactory extends WalkerFactoryBase {
   }
 
   public Expr evaluateData(final Where w, final Expr src) throws SemanticException {
-    checkNotNull(w);
-    checkNotNull(src);
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
 
     return src;
   }
