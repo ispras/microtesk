@@ -107,6 +107,11 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, String.format("The %s operator requires %d operands.", id, op.getOperandCount()));
     }
 
+    // Unary plus is redundant.
+    if (op == Operator.UPLUS) {
+      return operands[0];
+    }
+
     DataType commonDataType = null; // Common Fortress type
     Type commonType = null; // Common nML type
 
