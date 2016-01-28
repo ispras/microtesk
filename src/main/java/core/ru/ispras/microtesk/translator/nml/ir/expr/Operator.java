@@ -82,10 +82,23 @@ public enum Operator {
                               rule(TypeId.INT,               StandardOperation.BVSGT),
                               rule(TypeId.FLOAT,             StandardOperation.GREATER)),
 
-  L_SHIFT("<<",     2, false),
-  R_SHIFT(">>",     2, false),
-  L_ROTATE("<<<",   2, false),
-  R_ROTATE(">>>",   2, false),
+  L_SHIFT("<<",     2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVLSHL),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.BVLSHL),
+                              rule(TypeId.CARD,              StandardOperation.BVLSHL),
+                              rule(TypeId.INT,               StandardOperation.BVASHL)),
+
+  R_SHIFT(">>",     2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVLSHR),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.BVASHR),
+                              rule(TypeId.CARD,              StandardOperation.BVLSHR),
+                              rule(TypeId.INT,               StandardOperation.BVASHR)),
+
+  L_ROTATE("<<<",   2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVROL),
+                              rule(TypeId.CARD,              StandardOperation.BVROL),
+                              rule(TypeId.INT,               StandardOperation.BVROL)),
+
+  R_ROTATE(">>>",   2, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVROR),
+                              rule(TypeId.CARD,              StandardOperation.BVROR),
+                              rule(TypeId.INT,               StandardOperation.BVROR)),
 
   PLUS("+",         2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.ADD),
                               rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVADD),
@@ -117,18 +130,31 @@ public enum Operator {
                               rule(TypeId.INT,               StandardOperation.BVSREM),
                               rule(TypeId.FLOAT,             StandardOperation.MOD)),
 
-  POW("**",         2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.POWER)),
+  POW("**",         2, false, rule(DataTypeId.LOGIC_INTEGER, StandardOperation.POWER),
+                              rule(TypeId.CARD,              StandardOperation.POWER),
+                              rule(TypeId.INT,               StandardOperation.POWER),
+                              rule(TypeId.FLOAT,             StandardOperation.POWER)),
 
-  UPLUS("UPLUS",    1, false),
-  UMINUS("UMINUS",  1, false),
-  BIT_NOT("~",      1, false),
-  NOT("!",          1, true),
+  UPLUS("UPLUS",    1, false  /* No rules. This operator must be excluded from expressions. */),
+
+  UMINUS("UMINUS",  1, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVNEG),
+                              rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MINUS),
+                              rule(TypeId.CARD,              StandardOperation.BVNEG),
+                              rule(TypeId.INT,               StandardOperation.BVNEG),
+                              rule(TypeId.FLOAT,             StandardOperation.MINUS)),
+
+  BIT_NOT("~",      1, false, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVNOT),
+                              rule(TypeId.CARD,              StandardOperation.BVNOT),
+                              rule(TypeId.INT,               StandardOperation.BVNOT)),
+
+  NOT("!",          1, true,  rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.NOT),
+                              rule(TypeId.BOOL,              StandardOperation.NOT)),
 
   // Synthetic operators
-  ITE(null,         3, false),
-  SQRT(null,        1, false),
-  IS_NAN(null,      1, true),
-  IS_SIGN_NAN(null, 1, true);
+  ITE(null,         3, false  /* No rules. These operator must be handled separately. */),
+  SQRT(null,        1, false  /* No rules. These operator must be handled separately. */),
+  IS_NAN(null,      1, true   /* No rules. These operator must be handled separately. */),
+  IS_SIGN_NAN(null, 1, true   /* No rules. These operator must be handled separately. */);
 
   private static final Map<String, Operator> operators;
   static {
