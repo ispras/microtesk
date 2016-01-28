@@ -136,6 +136,30 @@ public final class Preparator {
     return expandedCalls;
   }
 
+  protected static final class Variant {
+    private final String name;
+    private final int bias;
+    private final List<Call> calls;
+
+    private Variant(final String name, final int bias, final List<Call> calls) {
+      this.name = name;
+      this.bias = bias;
+      this.calls = Collections.unmodifiableList(calls);
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public int getBias() {
+      return bias;
+    }
+
+    public List<Call> getCalls() {
+      return calls;
+    }
+  }
+
   protected static final class Mask {
     private final Collection<String> masks;
 
