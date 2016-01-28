@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -30,15 +30,17 @@ public final class PreparatorBuilder {
 
   private final LazyPrimitive target;
   private final LazyData data;
-  private final List<Call> calls;
 
   private Preparator.Mask mask;
   private final List<Preparator.Argument> arguments;
 
+  private final List<Call> calls;
+  private final List<Preparator.Variant> variants;
+
   protected PreparatorBuilder(
       final MetaAddressingMode targetMetaData,
       final boolean isComparator) {
-    checkNotNull(targetMetaData);
+    InvariantChecks.checkNotNull(targetMetaData);
 
     this.targetMetaData = targetMetaData;
     this.isComparator = isComparator;
@@ -47,10 +49,12 @@ public final class PreparatorBuilder {
 
     this.target = new LazyPrimitive(Primitive.Kind.MODE, targetName, targetName);
     this.data = new LazyData();
-    this.calls = new ArrayList<>();
 
     this.mask = null;
     this.arguments = new ArrayList<>();
+
+    this.calls = new ArrayList<>();
+    this.variants = new ArrayList<>();
   }
 
   public void setMaskValue(final String mask) {
@@ -91,8 +95,37 @@ public final class PreparatorBuilder {
     }
   }
 
-  public String getTargetName() {
-    return target.getName();
+  public void addVariant(final String name, final int bias) {
+    addVariant(new Preparator.Variant(name, bias));
+  }
+
+  public void addVariant(final String name) {
+    addVariant(new Preparator.Variant(name));
+  }
+
+  private void addVariant(final Preparator.Variant variant) {
+    if (!calls.isEmpty()) {
+      throw new IllegalStateException(
+          "Cannot add a variant to a preparator when it defines calls in the global space.");
+    }
+
+    this.variants.add(variant);
+  }
+
+  public void addCall(final Call call) {
+    InvariantChecks.checkNotNull(call);
+
+    if (variants.isEmpty()) {
+      calls.add(call);
+    } else {
+      if (!variants.isEmpty()) {
+        throw new IllegalStateException(
+            "Cannot add calls in the global space of a preparator when it defines variants.");
+      }
+
+      final Preparator.Variant variant = variants.get(variants.size() - 1);
+      variant.addCall(call);
+    }
   }
 
   public LazyValue newValue() {
@@ -107,12 +140,19 @@ public final class PreparatorBuilder {
     return target;
   }
 
-  public void addCall(final Call call) {
-    checkNotNull(call);
-    calls.add(call);
+  public String getTargetName() {
+    return target.getName();
   }
 
   public Preparator build() {
-    return new Preparator(isComparator, target, data, calls, mask, arguments);
+    return new Preparator(
+        isComparator,
+        target,
+        data,
+        mask,
+        arguments,
+        calls,
+        variants
+        );
   }
 }

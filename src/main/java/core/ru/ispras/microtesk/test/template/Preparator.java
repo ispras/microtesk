@@ -18,9 +18,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -31,22 +34,27 @@ public final class Preparator {
 
   private final LazyPrimitive targetHolder;
   private final LazyData dataHolder;
-  private final Variate<List<Call>> calls;
 
   private final Mask mask;
   private final List<Argument> arguments;
+
+  private final Variate<List<Call>> calls;
+  private final Map<String, Variant> variants;
 
   protected Preparator(
       final boolean isComparator,
       final LazyPrimitive targetHolder,
       final LazyData dataHolder,
-      final List<Call> calls,
       final Mask mask,
-      final List<Argument> arguments) {
+      final List<Argument> arguments,
+      final List<Call> calls,
+      final List<Variant> variants) {
     InvariantChecks.checkNotNull(targetHolder);
     InvariantChecks.checkNotNull(dataHolder);
-    InvariantChecks.checkNotNull(calls);
     InvariantChecks.checkNotNull(arguments);
+    InvariantChecks.checkNotNull(calls);
+    InvariantChecks.checkNotNull(variants);
+    InvariantChecks.checkTrue(calls.isEmpty() || variants.isEmpty());
 
     this.isComparator = isComparator;
 
@@ -56,7 +64,25 @@ public final class Preparator {
     this.mask = mask;
     this.arguments = arguments;
 
-    this.calls = new VariateSingleValue<>(calls);
+    if (!variants.isEmpty()) {
+      final VariateBuilder<List<Call>> callBuilder = new VariateBuilder<>();
+      final Map<String, Variant> variantMap = new HashMap<>();
+
+      for (final Variant variant : variants) {
+        if (variant.isBiased()) {
+          callBuilder.addValue(variant.getCalls(), variant.getBias());
+        } else {
+          callBuilder.addValue(variant.getCalls());
+        }
+
+        variantMap.put(variant.getName(), variant);
+      }
+      this.calls = callBuilder.build();
+      this.variants = Collections.unmodifiableMap(variantMap);
+    } else {
+      this.calls = new VariateSingleValue<>(calls);
+      this.variants = Collections.emptyMap();
+    }
   }
 
   public boolean isComparator() {
@@ -141,17 +167,30 @@ public final class Preparator {
 
   protected static final class Variant {
     private final String name;
+    private final boolean biased;
     private final int bias;
     private final List<Call> calls;
 
-    private Variant(final String name, final int bias) {
+    protected Variant(final String name, final int bias) {
       this.name = name;
+      this.biased = true;
       this.bias = bias;
+      this.calls = new ArrayList<>();
+    }
+
+    protected Variant(final String name) {
+      this.name = name;
+      this.biased = false;
+      this.bias = 0;
       this.calls = new ArrayList<>();
     }
 
     public String getName() {
       return name;
+    }
+
+    public boolean isBiased() {
+      return biased;
     }
 
     public int getBias() {
