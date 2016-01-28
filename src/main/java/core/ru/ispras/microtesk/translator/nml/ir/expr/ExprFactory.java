@@ -357,7 +357,6 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
-  /*
   public Expr int_to_float(
       final Where w,
       final Expr src,
@@ -371,7 +370,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return TypeCast.castConstantTo(src, type);
+      raiseError(w, "int_to_float is not supported for constant expressions.");
     }
 
     if (!src.getNodeInfo().getType().getTypeId().isInteger()) {
@@ -409,6 +408,10 @@ public final class ExprFactory extends WalkerFactoryBase {
       return src;
     }
 
+    if (src.isConstant()) {
+      raiseError(w, "float_to_int is not supported for constant expressions.");
+    }
+
     if (!src.isTypeOf(TypeId.FLOAT)) {
       raiseError(w, String.format(
           "Cannot cast from %s. Only float is supported.",
@@ -443,6 +446,10 @@ public final class ExprFactory extends WalkerFactoryBase {
       return src;
     }
 
+    if (src.isConstant()) {
+      raiseError(w, "float_to_float is not supported for constant expressions.");
+    }
+
     if (!src.isTypeOf(TypeId.FLOAT)) {
       raiseError(w, String.format(
           "Cannot cast from %s. Only float is supported.",
@@ -461,6 +468,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
+  /*
   public Expr condition(Where w, List<Condition> conds) throws SemanticException {
     checkNotNull(w);
     checkConditions(w, conds);
