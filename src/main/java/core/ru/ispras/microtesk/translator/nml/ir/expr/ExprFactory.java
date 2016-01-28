@@ -14,19 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.math.BigInteger;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
 import java.util.List;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -37,7 +30,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.model.api.data.floatx.FloatX;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
@@ -424,74 +416,51 @@ public final class ExprFactory extends WalkerFactoryBase {
     return src;
   }
 
-  public Expr condition(final Where w, final List<Pair<Expr, Expr>> conds) throws SemanticException {
+  public Expr condition(final Where w, final List<Pair<Expr, Expr>> blocks) throws SemanticException {
     InvariantChecks.checkNotNull(w);
-    InvariantChecks.checkNotNull(conds);
-    InvariantChecks.checkTrue(conds.size() >= 2);
+    InvariantChecks.checkNotNull(blocks);
+    InvariantChecks.checkTrue(blocks.size() >= 2);
 
-    /*
-    checkConditions(w, conds);
-
-    final Deque<Condition> stack = new ArrayDeque<>(conds);
-    Expr tail = stack.peekLast().isElse() ? stack.removeLast().getExpression() : null;
-
-    while (!stack.isEmpty()) {
-      final Condition current = stack.removeLast();
-
-      final Expr cond = current.getCondition();
-      final Expr expr = current.getExpression();
-
-      Type resultType = expr.getNodeInfo().getType();
-      if (cond.isConstant()) {
-        final boolean isCondTrue = ((NodeValue) cond.getNode()).getBoolean();
-
-        if (isCondTrue) {
-          resultType = expr.getNodeInfo().getType();
-        } else if (tail != null) {
-          resultType = tail.getNodeInfo().getType();
-        }
-      }
-
-      final Node node = new NodeOperation(
-          StandardOperation.ITE, cond.getNode(), expr.getNode(), tail.getNode());
-
-      final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.ITE, resultType);
-      node.setUserData(nodeInfo);
-
-      tail = new Expr(node);
+    final List<Expr> values = new ArrayList<>(blocks.size());
+    for (final Pair<Expr, Expr> block : blocks) {
+      values.add(block.second);
     }
 
-    return tail;*/
-    
-    return null;
-  }
+    final TypeCalculator typeCalculator = new TypeCalculator(w, values);
 
-/*
-  private void checkConditions(Where w, List<Condition> conds) throws SemanticException {
-    checkNotNull(conds);
+    final Pair<Expr, Expr> elseBlock = blocks.get(blocks.size() - 1);
+    InvariantChecks.checkTrue(elseBlock.first.getNode().equals(NodeValue.newBoolean(true)));
 
-    if (conds.isEmpty()) {
-      throw new IllegalArgumentException("Empty conditions.");
-    }
+    Expr result = elseBlock.second;
 
-    final Iterator<Condition> it = conds.iterator();
-    final Expr firstExpr = it.next().getExpression();
-    final Type firstType = firstExpr.getNodeInfo().getType();
+    for (int index = blocks.size() - 2; index >= 0; index--) {
+      final Pair<Expr, Expr> currentBlock = blocks.get(index);
 
-    while (it.hasNext()) {
-      final Expr currentExpr = it.next().getExpression();
-      final Type currentType = currentExpr.getNodeInfo().getType();
+      final Expr condition = currentBlock.first;
+      final Expr value = typeCalculator.enforceCommonType(currentBlock.second);
 
-      if (!currentExpr.isTypeOf(firstExpr.getNodeInfo().getType())) {
-        raiseError(w, String.format(
-            ERR_TYPE_MISMATCH,
-            currentType != null ? currentType.getTypeName() : currentExpr.getNode().getDataType(),
-            firstType != null ? firstType.getTypeName() : firstExpr.getNode().getDataType())
+      if (condition.getNode().equals(NodeValue.newBoolean(true))) {
+        result = value;
+      } else if (condition.getNode().equals(NodeValue.newBoolean(false))) {
+        // result stays the same
+      } else {
+        final NodeOperation node = new NodeOperation(
+            StandardOperation.ITE,
+            condition.getNode(),
+            value.getNode(),
+            result.getNode()
             );
+
+        final NodeInfo nodeInfo =
+            NodeInfo.newOperator(Operator.ITE, typeCalculator.getCommonType());
+
+        node.setUserData(nodeInfo);
+        result = new Expr(node);
       }
     }
+
+    return result;
   }
-  */
 
   public Expr evaluateConst(final Where w, final Expr src) throws SemanticException {
     InvariantChecks.checkNotNull(w);
@@ -541,7 +510,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       return src;
     }
 
-    raiseError(w, ERR_NOT_BOOLEAN);
+    raiseError(w, "The expression cannot be evaluated to a boolean value.");
     return null; // Never executed.
   }
 
@@ -638,9 +607,6 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
   }
 
-  private static final String ERR_TYPE_MISMATCH =
-      "%s is unexpected. All parts of the current conditional expression must have the %s type.";
-
   private static final String ERR_NOT_STATIC =
       "The expression cannot be statically calculated.";
 
@@ -649,10 +615,4 @@ public final class ExprFactory extends WalkerFactoryBase {
 
   private static final String ERR_NOT_INDEX =
       "The expression cannot be used as an index since it is not an integer value.";
-
-  private static final String ERR_NOT_BOOLEAN =
-      "The expression cannot be evaluated to a boolean value (Java boolean).";
-
-  private static final String ERR_NOT_LOCATION_COMPATIBLE =
-      "The %s type cannot be stored in a location.";
 }
