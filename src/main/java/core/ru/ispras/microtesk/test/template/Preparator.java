@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,23 +14,24 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateSingleValue;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public final class Preparator {
   private final boolean isComparator;
+
   private final LazyPrimitive targetHolder;
   private final LazyData dataHolder;
-  private final List<Call> calls;
+  private final Variate<List<Call>> calls;
 
   private final Mask mask;
   private final List<Argument> arguments;
@@ -42,18 +43,20 @@ public final class Preparator {
       final List<Call> calls,
       final Mask mask,
       final List<Argument> arguments) {
-    checkNotNull(targetHolder);
-    checkNotNull(dataHolder);
-    checkNotNull(calls);
-    checkNotNull(arguments);
+    InvariantChecks.checkNotNull(targetHolder);
+    InvariantChecks.checkNotNull(dataHolder);
+    InvariantChecks.checkNotNull(calls);
+    InvariantChecks.checkNotNull(arguments);
 
     this.isComparator = isComparator;
+
     this.targetHolder = targetHolder;
     this.dataHolder = dataHolder;
-    this.calls = Collections.unmodifiableList(calls);
 
     this.mask = mask;
     this.arguments = arguments;
+
+    this.calls = new VariateSingleValue<>(calls);
   }
 
   public boolean isComparator() {
@@ -69,8 +72,8 @@ public final class Preparator {
   }
 
   public boolean isMatch(final Primitive target, final BitVector data) {
-    checkNotNull(target);
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(data);
 
     if (!target.getName().equals(getTargetName())) {
       return false;
@@ -96,21 +99,21 @@ public final class Preparator {
       final PreparatorStore preparators,
       final Primitive target,
       final BitVector data) {
-    checkNotNull(preparators);
-    checkNotNull(target);
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(preparators);
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(data);
 
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    return expandCalls(preparators, calls);
+    return expandCalls(preparators, calls.value());
   }
 
   public static List<Call> expandCalls(
       final PreparatorStore preparators,
       final List<Call> calls) {
-    checkNotNull(preparators);
-    checkNotNull(calls);
+    InvariantChecks.checkNotNull(preparators);
+    InvariantChecks.checkNotNull(calls);
 
     final List<Call> expandedCalls = new ArrayList<>();
     for (final Call call : calls) {
@@ -141,10 +144,10 @@ public final class Preparator {
     private final int bias;
     private final List<Call> calls;
 
-    private Variant(final String name, final int bias, final List<Call> calls) {
+    private Variant(final String name, final int bias) {
       this.name = name;
       this.bias = bias;
-      this.calls = Collections.unmodifiableList(calls);
+      this.calls = new ArrayList<>();
     }
 
     public String getName() {
@@ -156,7 +159,12 @@ public final class Preparator {
     }
 
     public List<Call> getCalls() {
-      return calls;
+      return Collections.unmodifiableList(calls);
+    }
+
+    public void addCall(final Call call) {
+      InvariantChecks.checkNotNull(call);
+      calls.add(call);
     }
   }
 
@@ -164,17 +172,17 @@ public final class Preparator {
     private final Collection<String> masks;
 
     public Mask(final String mask) {
-      checkNotNull(mask);
+      InvariantChecks.checkNotNull(mask);
       this.masks = Collections.singletonList(mask);
     }
 
     public Mask(final Collection<String> masks) {
-      checkNotEmpty(masks);
+      InvariantChecks.checkNotEmpty(masks);
       this.masks = masks;
     }
 
     public boolean isMatch(final BitVector value) {
-      checkNotNull(value);
+      InvariantChecks.checkNotNull(value);
 
       final String text = value.toHexString();
       for (final String mask: masks) {
@@ -209,7 +217,7 @@ public final class Preparator {
     public static Argument newValue(
         final String name,
         final BigInteger value) {
-      checkNotNull(value);
+      InvariantChecks.checkNotNull(value);
       return newCollection(name, Collections.singletonList(value));
     }
 
@@ -229,7 +237,7 @@ public final class Preparator {
     private final String name;
 
     protected Argument(final String name) {
-      checkNotNull(name);
+      InvariantChecks.checkNotNull(name);
       this.name = name;
     }
 
@@ -247,7 +255,7 @@ public final class Preparator {
         final String name,
         final Collection<BigInteger> values) {
       super(name);
-      checkNotEmpty(values);
+      InvariantChecks.checkNotEmpty(values);
       this.values = values;
     }
 
@@ -272,8 +280,8 @@ public final class Preparator {
         final BigInteger to) {
       super(name);
 
-      checkNotNull(from);
-      checkNotNull(to);
+      InvariantChecks.checkNotNull(from);
+      InvariantChecks.checkNotNull(to);
 
       this.from = from;
       this.to = to;
@@ -281,7 +289,7 @@ public final class Preparator {
 
     @Override
     public boolean isMatch(final BigInteger value) {
-      checkNotNull(value);
+      InvariantChecks.checkNotNull(value);
       return value.compareTo(from) >=0 && value.compareTo(to) <= 0;
     }
   }
