@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link BranchTraceConstructor} implements a constructor of a branch trace.
@@ -44,6 +45,9 @@ final class BranchTraceConstructor {
     @Override
     public void onBranch(
         final int index, final BranchEntry entry, final BranchExecution execution) {
+      InvariantChecks.checkNotNull(entry);
+      InvariantChecks.checkNotNull(execution);
+
       // Process the block segments.
       final Set<Integer> newBlockSegment = execution.getBlockSegment();
       blockSegments.put(index, newBlockSegment);
@@ -54,15 +58,19 @@ final class BranchTraceConstructor {
     }
 
     @Override
-    public void onDelaySlot(final int index, final BranchEntry entry) {
-      for (final Set<Integer> segment : slotSegments.values()) {
+    public void onBasicBlock(final int index, final BranchEntry entry) {
+      InvariantChecks.checkNotNull(entry);
+
+      for (final Set<Integer> segment : blockSegments.values()) {
         segment.add(index);
       }
     }
 
     @Override
-    public void onBasicBlock(final int index, final BranchEntry entry) {
-      for (final Set<Integer> segment : blockSegments.values()) {
+    public void onDelaySlot(final int index, final BranchEntry entry) {
+      InvariantChecks.checkNotNull(entry);
+
+      for (final Set<Integer> segment : slotSegments.values()) {
         segment.add(index);
       }
     }
@@ -79,12 +87,18 @@ final class BranchTraceConstructor {
     private int slotCount = 0;
 
     public CoverageCounter(final int index, final BranchEntry entry) {
+      InvariantChecks.checkNotNull(entry);
+
       this.index = index;
       this.entry = entry;
     }
 
     @Override
-    public void onBranch(int index, BranchEntry entry, BranchExecution execution) {
+    public void onBranch(
+        final int index, final BranchEntry entry, final BranchExecution execution) {
+      InvariantChecks.checkNotNull(entry);
+      InvariantChecks.checkNotNull(execution);
+
       if (this.entry == entry) {
         execution.setBlockCoverageCount(blockCount);
         blockCount = 0;
@@ -95,15 +109,9 @@ final class BranchTraceConstructor {
     }
 
     @Override
-    public void onDelaySlot(final int index, final BranchEntry entry) {
-      // Only single-instruction delay slots are supported.
-      if (index == this.index + 1) {
-        slotCount++;
-      }
-    }
-
-    @Override
     public void onBasicBlock(final int index, final BranchEntry entry) {
+      InvariantChecks.checkNotNull(entry);
+
       final Set<Integer> blockCoverage = this.entry.getBlockCoverage();
 
       if (blockCoverage == null) {
@@ -114,6 +122,16 @@ final class BranchTraceConstructor {
         blockCount++;
       }
     }
+
+    @Override
+    public void onDelaySlot(final int index, final BranchEntry entry) {
+      InvariantChecks.checkNotNull(entry);
+
+      // Only single-instruction delay slots are supported.
+      if (index == this.index + 1) {
+        slotCount++;
+      }
+    }
   }
 
   public static enum Flags {
@@ -121,10 +139,11 @@ final class BranchTraceConstructor {
     DO_NOT_USE_DELAY_SLOTS
   }
 
-  private EnumSet<Flags> flags;
-
   /** Branch structure. */
-  private BranchStructure branchStructure;
+  private final BranchStructure branchStructure;
+
+  /** Control flags. */
+  private final EnumSet<Flags> flags;
 
   /**
    * Construct a branch trace constructor.
@@ -134,6 +153,9 @@ final class BranchTraceConstructor {
    */
   public BranchTraceConstructor(
       final BranchStructure branchStructure, final EnumSet<Flags> flags) {
+    InvariantChecks.checkNotNull(branchStructure);
+    InvariantChecks.checkNotNull(flags);
+
     this.branchStructure = branchStructure;
     this.flags = flags;
   }
@@ -172,6 +194,8 @@ final class BranchTraceConstructor {
    * @return the union of the block segments.
    */
   private Set<Integer> getBlockUnion(final BranchEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+
     final Set<Integer> segment = new LinkedHashSet<>();
     final BranchTrace trace = entry.getBranchTrace();
 
@@ -190,6 +214,8 @@ final class BranchTraceConstructor {
    * @return the intersection of the slot segments.
    */
   private Set<Integer> getSlotIntersection(final BranchEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+
     final Set<Integer> intersection = new LinkedHashSet<>();
     final BranchTrace trace = entry.getBranchTrace();
 
@@ -230,6 +256,8 @@ final class BranchTraceConstructor {
    * @return the list of trace segments.
    */
   private List<Set<Integer>> getChangeSegments(final BranchEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+
     final List<Set<Integer>> segments = new ArrayList<>();
     final BranchTrace trace = entry.getBranchTrace();
 
@@ -254,6 +282,8 @@ final class BranchTraceConstructor {
    * @return {@code true} if the construction is successful; {@code false} otherwise.
    */
   private boolean constructCoverage(final BranchEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+
     // Get all blocks from all segments of the branch.
     final Set<Integer> blocks = getBlockUnion(entry);
 
@@ -362,6 +392,8 @@ final class BranchTraceConstructor {
    * @param entry the branch entry.
    */
   private void calculateCoverageCounts(final int index, final BranchEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+
     final BranchStructureWalker walker =
         new BranchStructureWalker(branchStructure, new CoverageCounter(index, entry));
 

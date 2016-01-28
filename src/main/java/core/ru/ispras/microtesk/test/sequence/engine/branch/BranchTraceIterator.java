@@ -48,7 +48,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     this.maxBranchExecution = maxBranchExecution;
     this.branchStack = new Stack<Integer>();
 
-    hasValue = false;
+    this.hasValue = false;
   }
 
   public BranchTraceIterator(final BranchStructure branchStructure) {

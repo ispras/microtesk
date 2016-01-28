@@ -25,10 +25,11 @@ import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.setUnkn
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -82,8 +83,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 
-    // Maps branch indices to control code.
-    final Map<Integer, List<Call>> steps = new LinkedHashMap<>();
+    // Maps branch indices to control code (the map should be sorted).
+    final SortedMap<Integer, List<Call>> steps = new TreeMap<>();
+
     // Contains positions of the delay slots.
     final Set<Integer> delaySlots = new HashSet<>();
 
@@ -322,7 +324,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           abstractBranchCall,
           false /* Branch is not taken */,
           false /* Branch condition is ignored */,
-          true   /* Write into the stream */);
+          true  /* Write into the stream */);
       return;
     }
 

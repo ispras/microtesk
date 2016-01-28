@@ -32,6 +32,9 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
+ * {@link BranchEngine} implements a test engine that constructs test cases by enumerating
+ * feasible execution traces of bounded length.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchEngine implements Engine<BranchSolution> {
