@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -111,85 +112,41 @@ public final class ExprFactory extends WalkerFactoryBase {
       return operands[0];
     }
 
-    DataType commonDataType = null; // Common Fortress type
-    Type commonType = null; // Common nML type
-
-    boolean isConstantExpr = true;
-    for (final Expr operand : operands) {
-      isConstantExpr &= operand.isConstant();
-
-      final DataType currentDataType = operand.getNode().getDataType();
-      final DataType previousDataType = commonDataType;
- 
-      commonDataType = previousDataType == null ?
-          currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
-
-      if (commonDataType == null) {
-        raiseError(w, String.format(
-            "Incompatible operand data types: %s and %s", previousDataType, currentDataType));
-      } 
-
-      final Type currentType = operand.getNodeInfo().getType();
-      final Type previousType = commonType;
-
-      if (currentType != null) { // Current operand is typed
-        commonType = previousType == null ?
-            currentType : TypeCast.getCastType(previousType, currentType);
-
-        if (commonType == null) {
-          raiseError(w, String.format("Incompatible operand types: %s and %s",
-              previousType.getTypeName(), currentType.getTypeName()));
-        }
-      }
-    }
-
-    // Fortress type must always be calculated
-    InvariantChecks.checkNotNull(commonDataType);
-
-    // If no common nML type, all operands must be constants or the expression is inconsistent.
-    InvariantChecks.checkTrue(null == commonType && isConstantExpr);
+    final TypeCalculator typeCalculator =
+        new TypeCalculator(w, Arrays.asList(operands));
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
-      final Node operandNode;
-
-      if (commonType == null) {
-        operandNode = TypeCast.castConstantTo(operand.getNode(), commonDataType);
-      } else if (operand.isConstant()) {
-        final Expr castOperand = TypeCast.castConstantTo(operand, commonType);
-        operandNode = castOperand.getNode();
-      } else {
-        if (operand.isTypeOf(commonType)) {
-          raiseError(w, "Type mismatch. All operands must be " + commonType.getTypeName());
-        }
-        operandNode = operand.getNode();
-      }
-
-      operandNodes.add(operandNode);
+      final Expr updatedOperand = typeCalculator.enforceCommonType(operand);
+      operandNodes.add(updatedOperand.getNode());
     }
 
     final Node node;
-    if (isConstantExpr) {
-      final Enum<?> operator = op.getFortressOperator(commonDataType.getTypeId());
+    if (typeCalculator.isAllConstant()) {
+      final DataTypeId dataTypeId = typeCalculator.getCommonDataType().getTypeId();
+      final Enum<?> operator = op.getFortressOperator(dataTypeId);
+
       if (null == operator) {
-        raiseError(w, String.format(
-            "The %s operator is not applicable to %s.", op, commonDataType.getTypeId()));
+        raiseError(w, String.format("The %s operator is not applicable to %s.", op, dataTypeId));
       }
 
       final Node operation = new NodeOperation(operator, operandNodes);
       node = Transformer.reduce(operation);
-      
-      // TODO: check that it was reduced!!!
+
+      if (node == operation) {
+        raiseError(w, "Failed to calculate the result of a constant expression.");
+      }
     } else {
-      final Enum<?> operator = op.getFortressOperator(commonType.getTypeId());
+      final TypeId typeId = typeCalculator.getCommonType().getTypeId();
+      final Enum<?> operator = op.getFortressOperator(typeId);
+
       if (null == operator) {
-        raiseError(w, String.format(
-            "The %s operator is not applicable to %s.", op, commonType.getTypeId()));
+        raiseError(w, String.format("The %s operator is not applicable to %s.", op, typeId));
       }
 
       node = new NodeOperation(operator, operandNodes);
 
-      final Type resultType = op.isBoolean() ? Type.BOOLEAN : commonType;
+      final Type resultType = op.isBoolean() ? Type.BOOLEAN : typeCalculator.getCommonType();
       final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
       node.setUserData(nodeInfo);
     }
@@ -593,6 +550,92 @@ public final class ExprFactory extends WalkerFactoryBase {
     InvariantChecks.checkNotNull(src);
 
     return src;
+  }
+
+  private final class TypeCalculator {
+    private final Where w;
+    private final DataType dataType; // Common Fortress type
+    private final Type type;         // Common Fortress type
+    private final boolean constant;  // All operands are constant
+
+    private TypeCalculator(final Where w, final List<Expr> operands) throws SemanticException {
+      InvariantChecks.checkNotNull(w);
+      InvariantChecks.checkNotEmpty(operands);
+
+      DataType commonDataType = null;
+      Type commonType = null;
+
+      boolean isAllConstant = true;
+      for (final Expr operand : operands) {
+        isAllConstant &= operand.isConstant();
+
+        final DataType currentDataType = operand.getNode().getDataType();
+        final DataType previousDataType = commonDataType;
+   
+        commonDataType = previousDataType == null ?
+            currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
+
+        if (commonDataType == null) {
+          raiseError(w, String.format(
+              "Incompatible operand data types: %s and %s", previousDataType, currentDataType));
+        } 
+
+        final Type currentType = operand.getNodeInfo().getType();
+        final Type previousType = commonType;
+
+        if (currentType != null) { // Current operand is typed
+          commonType = previousType == null ?
+              currentType : TypeCast.getCastType(previousType, currentType);
+
+          if (commonType == null) {
+            raiseError(w, String.format("Incompatible operand types: %s and %s",
+                previousType.getTypeName(), currentType.getTypeName()));
+          }
+        }
+      }
+
+      // Fortress type must always be calculated
+      InvariantChecks.checkNotNull(commonDataType);
+
+      // If no common nML type, all operands must be constants or the expression is inconsistent.
+      InvariantChecks.checkTrue(null == commonType && isAllConstant);
+
+      this.w = w;
+      this.dataType = commonDataType;
+      this.type = commonType;
+      this.constant = isAllConstant;
+    }
+
+    private Expr enforceCommonType(final Expr expr) throws SemanticException {
+      InvariantChecks.checkNotNull(expr);
+
+      final Node result;
+      if (type == null) {
+        result = TypeCast.castConstantTo(expr.getNode(), dataType);
+      } else if (expr.isConstant()) {
+        final Expr castOperand = TypeCast.castConstantTo(expr, type);
+        result = castOperand.getNode();
+      } else {
+        if (expr.isTypeOf(type)) {
+          raiseError(w, "Type mismatch. All operands must be " + type.getTypeName());
+        }
+        result = expr.getNode();
+      }
+
+      return new Expr(result);
+    }
+
+    private DataType getCommonDataType() {
+      return dataType;
+    }
+
+    private Type getCommonType() {
+      return type;
+    }
+
+    private boolean isAllConstant() {
+      return constant;
+    }
   }
 
   private static final String ERR_TYPE_MISMATCH =
