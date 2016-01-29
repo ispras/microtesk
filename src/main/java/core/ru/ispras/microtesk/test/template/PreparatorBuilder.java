@@ -36,6 +36,7 @@ public final class PreparatorBuilder {
 
   private final List<Call> calls;
   private final List<Preparator.Variant> variants;
+  private Preparator.Variant currentVariant;
 
   protected PreparatorBuilder(
       final MetaAddressingMode targetMetaData,
@@ -55,6 +56,7 @@ public final class PreparatorBuilder {
 
     this.calls = new ArrayList<>();
     this.variants = new ArrayList<>();
+    this.currentVariant = null;
   }
 
   public void setMaskValue(final String mask) {
@@ -95,36 +97,43 @@ public final class PreparatorBuilder {
     }
   }
 
-  public void addVariant(final String name, final int bias) {
-    addVariant(new Preparator.Variant(name, bias));
+  public void beginVariant(final String name, final int bias) {
+    beginVariant(new Preparator.Variant(name, bias));
   }
 
-  public void addVariant(final String name) {
-    addVariant(new Preparator.Variant(name));
+  public void beginVariant(final String name) {
+    beginVariant(new Preparator.Variant(name));
   }
 
-  private void addVariant(final Preparator.Variant variant) {
+  private void beginVariant(final Preparator.Variant variant) {
+    InvariantChecks.checkTrue(null == currentVariant);
+
     if (!calls.isEmpty()) {
       throw new IllegalStateException(
           "Cannot add a variant to a preparator when it defines calls in the global space.");
     }
 
-    this.variants.add(variant);
+    variants.add(variant);
+    currentVariant = variant;
+  }
+
+  public void endVariant() {
+    InvariantChecks.checkFalse(null == currentVariant);
+    currentVariant = null;
   }
 
   public void addCall(final Call call) {
     InvariantChecks.checkNotNull(call);
 
-    if (variants.isEmpty()) {
-      calls.add(call);
+    if (null != currentVariant) {
+      currentVariant.addCall(call);
     } else {
       if (!variants.isEmpty()) {
         throw new IllegalStateException(
-            "Cannot add calls in the global space of a preparator when it defines variants.");
+            "Cannot add calls to the global space of a preparator when it defines variants.");
       }
 
-      final Preparator.Variant variant = variants.get(variants.size() - 1);
-      variant.addCall(call);
+      calls.add(call);
     }
   }
 

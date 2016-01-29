@@ -491,10 +491,16 @@ public final class Template {
 
   public void beginPreparatorVariant(final String name, final BigInteger bias) {
     checkPreparatorBlock();
+    if (null != bias) {
+      preparatorBuilder.beginVariant(name, bias.intValue());
+    } else {
+      preparatorBuilder.beginVariant(name);
+    }
   }
 
   public void endPreparatorVariant() {
     checkPreparatorBlock();
+    preparatorBuilder.endVariant();
   }
 
   public LazyValue newLazy() {
