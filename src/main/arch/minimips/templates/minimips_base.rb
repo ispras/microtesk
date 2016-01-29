@@ -73,7 +73,7 @@ class MiniMipsBaseTemplate < Template
       }
     
       variant {
-        ori  target, zerovv, value(16, 31)
+        ori  target, zero,   value(16, 31)
         sll  target, target, 16
         addi target, target, value(0, 15)
       }
