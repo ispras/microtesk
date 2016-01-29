@@ -157,6 +157,148 @@ Here is the list of options:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\chapter{Test Templates}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+MicroTESK generates test programs on the basis of test templates that provide
+an abstract description of scenarios to be reproduced by the generated programs.
+Test templates are created using the test template description language. It is
+a Ruby-based domain-specific language that provides facilities to describe test
+cases using symbolic names (that refer to a set of data satisfying certain
+conditions) instead of concrete input data and to manage the structure of the
+generated test programs. The language is implemented as a library that includes
+functionality for describing test templates and for further processing these test
+templates to produce a test program. MicroTESK uses the JRuby interpreter to process
+Ruby files. This allows Ruby libraries to interact with other components of MicroTESK
+written in Java.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Test Template Structure}
+
+A test template is implemented as a class inherited from the Template library class
+that provides access to all features of the library. Information on the location of
+the Template class is stored in the TEMPLATE environment variable. So, the definition
+of a test template class looks like this:
+
+\begin{lstlisting}[language=ruby]
+require ENV['TEMPLATE']
+
+class MyTemplate < Template
+\end{lstlisting}
+
+Test template classes should contain implementations of the following methods:
+
+\begin{enumerate}
+  \item initialize (optional) - specifies settings for the given test template;
+  \item pre (optional) - specifies the initialization code for the test program;
+  \item post (optional) - specifies the finalization code for the test program;
+  \item run - specifies the main code of the test program (test cases).
+\end{enumerate}
+
+The definitions of optional methods can be skipped. In this case, the default
+implementations provided by the parent class will be used. The default implementation
+of the initialize method initializes the settings with default values. The default
+implementations of the pre and post methods do nothing.
+
+The full interface of a test template looks as follows:
+
+\begin{lstlisting}[language=ruby]
+require ENV['TEMPLATE']
+
+class MyTemplate < Template
+
+  def initialize
+    super
+    # Initialize settings here 
+  end
+
+  def pre
+    # Place your initialization code here
+  end
+
+  def post
+    # Place your finalization code here
+  end
+
+  def run
+    # Place your test problem description here
+  end
+
+end
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Reusing Test Templates}
+
+It is possible to reuse code of existing test templates in other test templates.
+To do this, you need to subclass the template you want to reuse instead of the
+Template class. For example, the MyTemplate class below reuses code from the
+MyPrepost class that provides initialization and finalization code for similar
+test templates.
+
+\begin{lstlisting}[language=ruby]
+require ENV['TEMPLATE']
+require_relative 'MyPrepost'
+
+class MyTemplate < MyPrepost
+
+  def run
+  ... 
+  end
+
+end
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Test Template Settings}
+
+Test templates use the following settings:
+
+\begin{enumerate}
+  \item Starting characters for single-line comments in the test program;
+  \item Starting characters for multi-line comments in the test program;
+  \item Terminating characters for multi-line comments in the test program;
+  \item Indentation token;
+  \item Token used in separator lines.
+\end{enumerate}
+
+Here is how these settings are initialized with default values in the Template class:
+
+\begin{lstlisting}[language=ruby]
+@sl_comment_starts_with = "//"
+@ml_comment_starts_with = "/*"
+@ml_comment_ends_with   = "*/"
+
+@indent_token    = "\t"
+@separator_token = "="
+\end{lstlisting}
+
+The settings can be overridden in the initialize method of a test template. For example:
+
+\begin{lstlisting}[language=ruby]
+class MyTemplate < Template
+
+  def initialize
+    super
+    @sl_comment_starts_with = ";" 
+    @ml_comment_starts_with = "/="
+    @ml_comment_ends_with   = "=/"
+
+    @indent_token    = "  "
+    @separator_token = "*" 
+  end
+  ...
+end
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{Appendixes}
 
 \section{References}
