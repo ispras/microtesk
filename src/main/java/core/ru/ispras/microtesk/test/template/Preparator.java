@@ -75,7 +75,9 @@ public final class Preparator {
           callBuilder.addValue(variant.getCalls());
         }
 
-        variantMap.put(variant.getName(), variant);
+        if (null != variant.getName()) {
+          variantMap.put(variant.getName(), variant);
+        }
       }
       this.calls = callBuilder.build();
       this.variants = Collections.unmodifiableMap(variantMap);
