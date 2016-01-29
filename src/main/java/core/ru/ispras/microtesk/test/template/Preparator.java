@@ -146,8 +146,10 @@ public final class Preparator {
     final List<Call> expandedCalls = new ArrayList<>();
     for (final Call call : calls) {
       if (call.isPreparatorCall()) {
-        final BitVector data = call.getPreparatorValue().getData().getValue();
-        final Primitive target = call.getPreparatorTarget();
+        final PreparatorReference reference = call.getPreparatorReference();
+
+        final BitVector data = reference.getValue().getData().getValue();
+        final Primitive target = reference.getTarget();
 
         final Preparator preparator = preparators.getPreparator(target, data);
         if (null == preparator) {

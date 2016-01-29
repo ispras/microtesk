@@ -42,11 +42,7 @@ public final class Call {
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
 
-  // These fields are used when a call describes an invocation of a preparator with a lazy
-  // value. Such a call is created when one preparator refers to another. It will be replaced
-  // with a sequence of calls once the value is known and a specific preparator is chosen.
-  private final Primitive preparatorTarget;
-  private final LazyValue preparatorValue;
+  private final PreparatorReference preparatorReference;
 
   // TODO:
   public static Call newText(final String text) {
@@ -58,7 +54,6 @@ public final class Call {
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
         null,
         null,
         null,
@@ -83,7 +78,6 @@ public final class Call {
         null,
         null,
         null,
-        null,
         null);
   }
 
@@ -96,18 +90,16 @@ public final class Call {
       final BigInteger origin,
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
-      final Primitive preparatorTarget,
-      final LazyValue preparatorValue) {
+      final PreparatorReference preparatorReference) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
 
     // Both either null or not null
     InvariantChecks.checkTrue((null == alignment) == (null == alignmentInBytes));
-    InvariantChecks.checkTrue((null == preparatorTarget) == (null == preparatorValue));
 
     // Both cannot be not null. A call cannot be both an instruction and a preparator invocation.
-    InvariantChecks.checkTrue((null == rootOperation) || (null == preparatorTarget));
+    InvariantChecks.checkTrue((null == rootOperation) || (null == preparatorReference));
 
     this.text = text;
     this.rootOperation = rootOperation;
@@ -135,8 +127,7 @@ public final class Call {
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
 
-    this.preparatorTarget = preparatorTarget;
-    this.preparatorValue = preparatorValue;
+    this.preparatorReference = preparatorReference;
   }
 
   public Call(final Call other) {
@@ -162,15 +153,13 @@ public final class Call {
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
 
-    this.preparatorTarget =
-        null != other.preparatorTarget ? other.preparatorTarget.newCopy() : null;
-
-    this.preparatorValue =
-        null != other.preparatorValue ? new LazyValue(other.preparatorValue) : null;
+    this.preparatorReference = null != other.preparatorReference ?
+        new PreparatorReference(other.preparatorReference) : null;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
     InvariantChecks.checkNotNull(calls);
+
     if (calls.isEmpty()) {
       return Collections.emptyList();
     }
@@ -202,7 +191,7 @@ public final class Call {
   }
 
   public boolean isPreparatorCall() {
-    return null != preparatorTarget; 
+    return null != preparatorReference;
   }
 
   public boolean isEmpty() {
@@ -280,12 +269,8 @@ public final class Call {
     return alignmentInBytes;
   }
 
-  public Primitive getPreparatorTarget() {
-    return preparatorTarget;
-  }
-
-  public LazyValue getPreparatorValue() {
-    return preparatorValue;
+  public PreparatorReference getPreparatorReference() {
+    return preparatorReference;
   }
 
   @Override
@@ -302,7 +287,7 @@ public final class Call {
         isLoad(),
         isStore(),
         getBlockSize(),
-        isPreparatorCall() ? preparatorTarget.getName() : "null"
+        isPreparatorCall() ? preparatorReference : "null"
         );
   }
 }

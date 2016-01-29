@@ -579,8 +579,8 @@ public final class Template {
     endBuildingCall();
     Logger.debug("Preparator reference: %s", targetMode.getName());
 
-    callBuilder.setPreparatorTarget(targetMode);
-    callBuilder.setPreparatorValue(value);
+    callBuilder.setPreparatorReference(
+        new PreparatorReference(targetMode, value, null));
 
     endBuildingCall();
   }

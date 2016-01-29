@@ -37,6 +37,11 @@ public final class PreparatorReference {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(value);
 
+    if (target.getKind() != Primitive.Kind.MODE) {
+      throw new IllegalArgumentException(String.format(
+          "Illegal preparator target kind: %s. An addressing mode is expected.", target.getKind()));
+    }
+
     this.target = target;
     this.value = value;
     this.variantName = variantName;
