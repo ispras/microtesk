@@ -335,9 +335,9 @@
   <target name="copy.docs">
     <copy todir="${doc}">
       <fileset dir="xdocs" includes="*.pdf"/>
-      <fileset dir="xdocs/nml" includes="*.pdf"/>
-      <fileset dir="xdocs/mmu" includes="*.pdf"/>
-      <fileset dir="xdocs/microtesk" includes="*.pdf"/>
+      <!-- <fileset dir="xdocs/nml" includes="*.pdf"/> -->
+      <!-- <fileset dir="xdocs/mmu" includes="*.pdf"/> -->
+      <!-- <fileset dir="xdocs/microtesk" includes="*.pdf"/> -->
     </copy>
   </target>
 
