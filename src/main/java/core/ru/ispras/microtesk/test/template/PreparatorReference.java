@@ -64,10 +64,12 @@ public final class PreparatorReference {
 
   @Override
   public String toString() {
-    return String.format(
-        "PreparatorReference [target=%s, variantName=%s]",
-        target.getName(),
-        variantName
-        );
+    final StringBuilder sb = new StringBuilder(target.getName());
+    if (null != variantName) {
+      sb.append('(');
+      sb.append(variantName);
+      sb.append(')');
+    }
+    return sb.toString();
   }
 }
