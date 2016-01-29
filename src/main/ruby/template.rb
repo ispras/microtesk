@@ -513,6 +513,15 @@ class Template
     @template.endPreparator
   end
 
+  def variant(attrs = {}, &contents)
+    name = attrs[:name]
+    bias = attrs[:bias]
+
+    @template.beginPreparatorVariant name, bias
+    self.instance_eval &contents
+    @template.endPreparatorVariant
+  end
+
   def target
     @template.getPreparatorTarget
   end

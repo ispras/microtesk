@@ -489,6 +489,14 @@ public final class Template {
     preparatorBuilder = null;
   }
 
+  public void beginPreparatorVariant(final String name, final BigInteger bias) {
+    checkPreparatorBlock();
+  }
+
+  public void endPreparatorVariant() {
+    checkPreparatorBlock();
+  }
+
   public LazyValue newLazy() {
     checkPreparatorBlock();
     return preparatorBuilder.newValue();
