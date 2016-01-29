@@ -544,7 +544,7 @@ class Template
     end
 
     target_mode = args.at(0)
-    value_object args.at(1)
+    value_object = args.at(1)
 
     @template.addPreparatorCall target_mode, value_object
   end
