@@ -64,8 +64,19 @@ class MiniMipsBaseTemplate < Template
     # is applicable.
     #
     preparator(:target => 'REG') {
-      lui target, value(16, 31)
-      ori target, target, value(0, 15)
+      # Defines two equally probable variants of default preparator.
+      # A specific variant is selected on random basis.
+
+      variant {
+        lui  target, value(16, 31)
+        ori  target, target, value(0, 15)
+      }
+    
+      variant {
+        ori  target, target, value(16, 31)
+        sll  target, target, 16
+        addi target, target, value(0, 15)
+      }
     }
 
     #
