@@ -539,14 +539,15 @@ class Template
   end
 
   def prepare(*args)
-    if args.count != 2
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 2."
+    if args.count != 2 and args.count != 3 
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 2 or 3."
     end
 
     target_mode = args.at(0)
     value_object = args.at(1)
+    variant_name = if args.count == 3 then args.at(2) else nil end 
 
-    @template.addPreparatorCall target_mode, value_object
+    @template.addPreparatorCall target_mode, value_object, variant_name
   end
 
   # -------------------------------------------------------------------------- #

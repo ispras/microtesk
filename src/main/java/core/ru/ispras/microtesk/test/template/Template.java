@@ -526,7 +526,9 @@ public final class Template {
   }
 
   public void addPreparatorCall(
-      final Primitive targetMode, final BigInteger value) {
+      final Primitive targetMode,
+      final BigInteger value,
+      final String preferedVariantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
 
@@ -551,7 +553,7 @@ public final class Template {
     }
 
     final List<Call> initializer =
-        preparator.makeInitializer(preparators, targetMode, data);
+        preparator.makeInitializer(preparators, targetMode, data, preferedVariantName);
 
     for (final Call call : initializer) {
       addCall(call);
@@ -559,14 +561,18 @@ public final class Template {
   }
 
   public void addPreparatorCall(
-      final Primitive targetMode, final RandomValue value) {
+      final Primitive targetMode,
+      final RandomValue value,
+      final String preferredVariantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
-    addPreparatorCall(targetMode, value.getValue());
+    addPreparatorCall(targetMode, value.getValue(), preferredVariantName);
   }
 
   public void addPreparatorCall(
-      final Primitive targetMode, final LazyValue value) {
+      final Primitive targetMode,
+      final LazyValue value,
+      final String preferredVariantName) {
     if (null == preparatorBuilder && null == bufferPreparatorBuilder) {
       throw new IllegalStateException(
           "A preparator with a lazy value can be invoked only inside " + 
@@ -580,7 +586,7 @@ public final class Template {
     Logger.debug("Preparator reference: %s", targetMode.getName());
 
     callBuilder.setPreparatorReference(
-        new PreparatorReference(targetMode, value, null));
+        new PreparatorReference(targetMode, value, preferredVariantName));
 
     endBuildingCall();
   }

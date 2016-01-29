@@ -87,7 +87,7 @@ public final class SelfCheckEngine {
     }
 
     final List<Call> abstractCalls =
-        comparator.makeInitializer(preparators, abstractMode, value);
+        comparator.makeInitializer(preparators, abstractMode, value, null);
 
     for (final Call abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);

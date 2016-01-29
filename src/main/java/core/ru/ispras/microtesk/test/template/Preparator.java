@@ -126,7 +126,8 @@ public final class Preparator {
   public List<Call> makeInitializer(
       final PreparatorStore preparators,
       final Primitive target,
-      final BitVector data) {
+      final BitVector data,
+      final String preferedVariantName) {
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(data);
@@ -134,7 +135,8 @@ public final class Preparator {
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    return expandCalls(preparators, calls.value());
+    final List<Call> chosenCalls = chooseCalls(preferedVariantName);
+    return expandCalls(preparators, chosenCalls);
   }
 
   public static List<Call> expandCalls(
@@ -150,6 +152,7 @@ public final class Preparator {
 
         final BitVector data = reference.getValue().getData().getValue();
         final Primitive target = reference.getTarget();
+        final String variantName = reference.getVariantName();
 
         final Preparator preparator = preparators.getPreparator(target, data);
         if (null == preparator) {
@@ -158,7 +161,7 @@ public final class Preparator {
         }
 
         final List<Call> expanded =
-            preparator.makeInitializer(preparators, target, data);
+            preparator.makeInitializer(preparators, target, data, variantName);
 
         expandedCalls.addAll(expanded);
       } else {
@@ -167,6 +170,16 @@ public final class Preparator {
     }
 
     return expandedCalls;
+  }
+
+  protected List<Call> chooseCalls(final String preferedVariantName) {
+    if (null != preferedVariantName) {
+      final Variant variant = variants.get(preferedVariantName);
+      if (null != variant) {
+        return variant.getCalls();
+      }
+    }
+    return calls.value();
   }
 
   protected static final class Variant {

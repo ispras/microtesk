@@ -517,7 +517,7 @@ public final class EngineUtils {
     final Preparator preparator = preparators.getPreparator(mode, value);
 
     if (null != preparator) {
-      return preparator.makeInitializer(preparators, mode, value);
+      return preparator.makeInitializer(preparators, mode, value, null);
     }
 
     throw new GenerationAbortedException(
