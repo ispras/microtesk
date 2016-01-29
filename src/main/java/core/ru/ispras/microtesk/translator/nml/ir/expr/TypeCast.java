@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-final class TypeCast {
+public final class TypeCast {
   private TypeCast() {}
 
   private static final TypeId TYPE_CAST_MAP[][] = {
