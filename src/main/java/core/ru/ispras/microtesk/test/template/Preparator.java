@@ -27,6 +27,7 @@ import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public final class Preparator {
@@ -177,6 +178,12 @@ public final class Preparator {
       final Variant variant = variants.get(preferedVariantName);
       if (null != variant) {
         return variant.getCalls();
+      } else {
+        Logger.warning(
+            "The %s variant is not defined for the current preparator. " +
+            "A random variant will be chosen.",
+            preferedVariantName
+            );
       }
     }
     return calls.value();
