@@ -568,9 +568,6 @@ public final class ExprFactory extends WalkerFactoryBase {
       // Fortress type must always be calculated
       InvariantChecks.checkNotNull(commonDataType);
 
-      // If no common nML type, all operands must be constants or the expression is inconsistent.
-      InvariantChecks.checkTrue((null == commonType) == isAllConstant);
-
       this.w = w;
       this.dataType = commonDataType;
       this.type = commonType;
