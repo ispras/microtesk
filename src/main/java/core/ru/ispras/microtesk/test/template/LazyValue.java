@@ -61,7 +61,7 @@ public final class LazyValue implements Value {
     }
 
     if (start == 0 && size == 0) {
-      return value;
+      return value; // All data is used.
     }
 
     final BitVector mapping = BitVector.newMapping(value, start, size);
