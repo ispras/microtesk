@@ -151,7 +151,7 @@ public final class Preparator {
       if (call.isPreparatorCall()) {
         final PreparatorReference reference = call.getPreparatorReference();
 
-        final BitVector data = reference.getValue().getData().getValue();
+        final BitVector data = reference.getValue().asBitVector();
         final Primitive target = reference.getTarget();
         final String variantName = reference.getVariantName();
 

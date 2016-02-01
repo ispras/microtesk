@@ -53,23 +53,19 @@ public final class LazyValue implements Value {
     this.size = other.size;
   }
 
-  protected LazyData getData() {
-    return data;
-  }
-
-  @Override
-  public BigInteger getValue() {
+  public BitVector asBitVector() {
     final BitVector value = data.getValue();
 
     if (null == value) {
       throw new IllegalStateException("LazyData does not have a value.");
     }
 
-    if (0 == start && (0 == size || value.getBitSize() == size)) {
-      return value.bigIntegerValue(); // Use all data.
-    }
-
     final BitVector mapping = BitVector.newMapping(value, start, size);
-    return mapping.bigIntegerValue();
+    return mapping;
+  }
+
+  @Override
+  public BigInteger getValue() {
+    return asBitVector().bigIntegerValue();
   }
 }
