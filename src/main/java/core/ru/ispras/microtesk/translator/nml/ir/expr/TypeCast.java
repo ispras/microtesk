@@ -29,6 +29,10 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 public final class TypeCast {
   private TypeCast() {}
 
+  private static final Set<TypeId> BV_BASED_TYPES = EnumSet.of(
+      TypeId.INT, TypeId.CARD, TypeId.FLOAT
+  );
+
   private static final TypeId TYPE_CAST_MAP[][] = {
     { null,         TypeId.CARD,  TypeId.INT,   TypeId.BOOL, },
     { TypeId.CARD,  TypeId.CARD,  TypeId.CARD,  null         },
@@ -36,11 +40,15 @@ public final class TypeCast {
     { TypeId.BOOL,  null,         null,         TypeId.BOOL  }
   };
 
-  private static final Set<TypeId> BV_BASED_TYPES = EnumSet.of(
-    TypeId.INT, TypeId.CARD, TypeId.FLOAT
-  );
+  private static final DataTypeId DATA_TYPE_CAST_MAP[][] = {
+    { null, DataTypeId.BIT_VECTOR, DataTypeId.LOGIC_INTEGER, DataTypeId.LOGIC_BOOLEAN, },
+    { DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR},
+    { DataTypeId.LOGIC_INTEGER, DataTypeId.BIT_VECTOR, DataTypeId.LOGIC_INTEGER, null },
+    { DataTypeId.LOGIC_BOOLEAN, DataTypeId.BIT_VECTOR, null, DataTypeId.LOGIC_BOOLEAN }
+  };
 
-  public static TypeId getCastTypeId(final TypeId left, final TypeId right) {
+  private static <T> T searchInMatrix(final T[][] matrix, final T left, final T right) {
+    InvariantChecks.checkNotNull(matrix);
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);
 
@@ -49,8 +57,8 @@ public final class TypeCast {
     }
 
     int col = 0; // left -> col
-    for (int columnIndex = 1; columnIndex < TYPE_CAST_MAP[0].length; ++columnIndex) {
-      if (TYPE_CAST_MAP[0][columnIndex] == left) {
+    for (int columnIndex = 1; columnIndex < matrix[0].length; ++columnIndex) {
+      if (matrix[0][columnIndex] == left) {
         col = columnIndex;
         break;
       }
@@ -61,8 +69,8 @@ public final class TypeCast {
     }
 
     int row = 0; // right -> row
-    for (int rowIndex = 1; rowIndex < TYPE_CAST_MAP.length; ++rowIndex) {
-      if (TYPE_CAST_MAP[rowIndex][0] == right) {
+    for (int rowIndex = 1; rowIndex < matrix.length; ++rowIndex) {
+      if (matrix[rowIndex][0] == right) {
         row = rowIndex;
         break;
       }
@@ -72,7 +80,11 @@ public final class TypeCast {
       return null;
     }
 
-    return TYPE_CAST_MAP[col][row];
+    return matrix[col][row];
+  }
+
+  public static TypeId getCastTypeId(final TypeId left, final TypeId right) {
+    return searchInMatrix(TYPE_CAST_MAP, left, right);
   }
 
   public static Type getCastType(final Type left, final Type right) {
@@ -92,6 +104,10 @@ public final class TypeCast {
     return (typeId == left.getTypeId()) ? left.resize(bitSize) : right.resize(bitSize);
   }
 
+  public static DataTypeId getCastDataTypeId(final DataTypeId left, final DataTypeId right) {
+    return searchInMatrix(DATA_TYPE_CAST_MAP, left, right);
+  }
+
   public static DataType getCastDataType(final DataType left, final DataType right) {
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);
@@ -100,17 +116,13 @@ public final class TypeCast {
       return left;
     }
 
-    if (left.getTypeId() == DataTypeId.BIT_VECTOR &&
-        left.getTypeId() == DataTypeId.BIT_VECTOR) {
-      return left.getSize() >= right.getSize() ? left : right;
+    final DataTypeId dataTypeId = getCastDataTypeId(left.getTypeId(), right.getTypeId());
+    if (null == dataTypeId) {
+      return null;
     }
- 
-    if (left.getTypeId() == DataTypeId.BIT_VECTOR ||
-        left.getTypeId() == DataTypeId.BIT_VECTOR) {
-      return left.getTypeId() == DataTypeId.BIT_VECTOR ? left : right;
-    }
- 
-    return null;
+
+    return DataType.newDataType(
+        dataTypeId, Math.max(left.getSize(), right.getSize()));
   }
 
   public static Expr castConstantTo(final Expr value, final Type type) {
