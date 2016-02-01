@@ -567,7 +567,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       InvariantChecks.checkNotNull(commonDataType);
 
       // If no common nML type, all operands must be constants or the expression is inconsistent.
-      InvariantChecks.checkTrue(null == commonType && isAllConstant);
+      InvariantChecks.checkTrue((null == commonType) == isAllConstant);
 
       this.w = w;
       this.dataType = commonDataType;

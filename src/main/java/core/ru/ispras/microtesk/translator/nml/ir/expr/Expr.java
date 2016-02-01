@@ -272,4 +272,9 @@ public final class Expr {
  
     return new Reduced(constant, left.polynomial);
   }
+
+  @Override
+  public String toString() {
+    return node.toString();
+  }
 }

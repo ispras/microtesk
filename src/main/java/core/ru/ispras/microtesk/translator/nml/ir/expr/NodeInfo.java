@@ -87,8 +87,8 @@ public final class NodeInfo {
     newCoercedTypes.addAll(this.coercedTypes);
 
     final List<Coercion> newCoercions = new ArrayList<>(this.coercions.size() + 1);
-    coercions.add(coercion);
-    coercions.addAll(this.coercions);
+    newCoercions.add(coercion);
+    newCoercions.addAll(this.coercions);
 
     return new NodeInfo(kind, source, newType, newCoercedTypes, newCoercions);
   }
