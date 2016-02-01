@@ -41,7 +41,6 @@ public final class NodeInfo {
 
   public static NodeInfo newOperator(final Operator operator, final Type type) {
     InvariantChecks.checkNotNull(operator);
-    InvariantChecks.checkNotNull(type);
     return new NodeInfo(NodeInfo.Kind.OPERATOR, operator, type);
   }
 
@@ -78,7 +77,7 @@ public final class NodeInfo {
     InvariantChecks.checkNotNull(newType);
     InvariantChecks.checkNotNull(coercion);
 
-    if (type.equals(newType)) {
+    if (type != null && type.equals(newType)) {
       return this;
     }
 
