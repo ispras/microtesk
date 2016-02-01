@@ -138,9 +138,14 @@ public final class ExprFactory extends WalkerFactoryBase {
         raiseError(w, String.format("The %s operator is not applicable to %s.", op, typeId));
       }
 
-      node = new NodeOperation(operator, operandNodes);
+      final DataType resultDataType =
+          op.isBoolean() ? DataType.BOOLEAN : typeCalculator.getCommonDataType();
 
-      final Type resultType = op.isBoolean() ? Type.BOOLEAN : typeCalculator.getCommonType();
+      node = new NodeOperation(operator, resultDataType, operandNodes);
+
+      final Type resultType =
+          op.isBoolean() ? Type.BOOLEAN : typeCalculator.getCommonType();
+
       final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
       node.setUserData(nodeInfo);
     }
