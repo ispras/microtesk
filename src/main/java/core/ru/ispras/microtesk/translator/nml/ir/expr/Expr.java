@@ -20,6 +20,7 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
@@ -157,5 +158,118 @@ public final class Expr {
 
     assert (Node.Kind.VALUE == node1.getKind());
     return false;
+  }
+
+  /**
+   * Class for holding a reduced expression that is represented by the formula:
+   * constant + polynomial, where constant is a constant integer value and
+   * polynomial is expression that cannot be reduced any further.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public static class Reduced {
+    public final int constant;
+    public final Expr polynomial;
+
+    private Reduced(final int constant, final Expr polynomial) {
+      this.constant = constant;
+      this.polynomial = polynomial;
+    }
+  
+    @Override
+    public String toString() {
+      return "Reduced [constant=" + constant + 
+             ", polynomial=" + polynomial.getNode() + "]";
+    }
+  }
+
+  /**
+   * Transforms the expression to the format: polynomial + constant, where polynomial is some
+   * expression that could not be further simplified and constant is an integer constant value.
+   * Generally speaking, the transformation algorithm extracts all expressions that can be
+   * statically calculated from the given expression and places their calculated value to the
+   * constant field. The remaining part of the expression is placed in the polynomial field.
+   * 
+   * @return A reduced expression.
+   */
+  public Reduced reduce() {
+    return reduce(this);
+  }
+
+  private static Reduced reduce(Expr expr) {
+    InvariantChecks.checkNotNull(expr);
+ 
+    if (expr.isConstant()) {
+      return new Reduced(expr.integerValue(), null);
+    }
+ 
+    if (expr.getNodeInfo().isCoersionApplied()) {
+      // If a coercion is applied, return without
+      // changes as it may affect the result.
+     return new Reduced(0, expr);
+    }
+ 
+    final NodeInfo.Kind kind = expr.getNodeInfo().getKind();
+    switch (kind) {
+      case LOCATION:
+        // Locations cannot be reduced, return without changes.
+        return new Reduced(0, expr);
+ 
+      case CONST:
+        // Must not reach here. Constants are dealt with by
+        // first check in the method (isConstant).
+        throw new IllegalStateException();
+ 
+      case OPERATOR:
+        return reduceOp(expr);
+ 
+      default:
+        throw new IllegalArgumentException("Unknown node kind: " + kind);
+    }
+  }
+
+  private static Reduced reduceOp(Expr expr) {
+    InvariantChecks.checkNotNull(expr);
+    assert Node.Kind.OPERATION == expr.getNode().getKind();
+ 
+    final NodeOperation nodeExpr = (NodeOperation) expr.getNode();
+    final NodeInfo nodeInfo = expr.getNodeInfo();
+ 
+    final Operator source = (Operator) nodeInfo.getSource();
+    if (Operator.PLUS != source && Operator.MINUS != source) {
+      // Return without changes.
+      return new Reduced(0, expr);
+    }
+
+
+    final boolean isPlus = Operator.PLUS == source;
+    assert source.getOperandCount() == 2;
+ 
+    final Reduced left = reduce(new Expr(nodeExpr.getOperand(0)));
+    final Reduced right = reduce(new Expr(nodeExpr.getOperand(1)));
+ 
+    final int constant = isPlus ? left.constant + right.constant : left.constant - right.constant;
+
+    if (null != left.polynomial && null != right.polynomial) {
+      final Node polynomial = new NodeOperation(
+         nodeExpr.getOperationId(), left.polynomial.getNode(), right.polynomial.getNode());
+
+      polynomial.setUserData(expr.getNodeInfo());
+      return new Reduced(constant, new Expr(polynomial));
+    }
+
+    if (null == left.polynomial) {
+      if (isPlus) {
+        return new Reduced(constant, right.polynomial);
+      }
+
+      final Node polynomial = new NodeOperation(
+          StandardOperation.MINUS, right.polynomial.getNode());
+
+      polynomial.setUserData(expr.getNodeInfo());
+      return new Reduced(constant, new Expr(polynomial));
+    }
+ 
+    return new Reduced(constant, left.polynomial);
   }
 }
