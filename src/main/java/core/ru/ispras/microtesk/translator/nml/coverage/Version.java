@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.Pair;
 
 final class Version {
   public static boolean hasVersion(Node node) {

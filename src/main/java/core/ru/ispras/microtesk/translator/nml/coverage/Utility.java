@@ -21,6 +21,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.util.Pair;
 
 public final class Utility {
   static <T> List<T> appendList(List<T> lhs, List<T> rhs) {

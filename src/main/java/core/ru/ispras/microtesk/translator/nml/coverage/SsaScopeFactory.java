@@ -22,6 +22,7 @@ import java.util.Set;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.Pair;
 
 public final class SsaScopeFactory {
   private static final SsaScope EMPTY_SCOPE = new SsaScope() {

@@ -48,6 +48,7 @@ import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
