@@ -60,6 +60,10 @@ public final class LazyValue implements Value {
       throw new IllegalStateException("LazyData does not have a value.");
     }
 
+    if (start == 0 && size == 0) {
+      return value;
+    }
+
     final BitVector mapping = BitVector.newMapping(value, start, size);
     return mapping;
   }
