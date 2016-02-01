@@ -128,6 +128,8 @@ public final class ExprFactory extends WalkerFactoryBase {
       if (node == operation) {
         raiseError(w, "Failed to calculate the result of a constant expression.");
       }
+
+      node.setUserData(NodeInfo.newConst(null));
     } else {
       final TypeId typeId = typeCalculator.getCommonType().getTypeId();
       final Enum<?> operator = op.getFortressOperator(typeId);
