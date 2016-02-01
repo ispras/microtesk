@@ -71,7 +71,7 @@ class MiniMipsBaseTemplate < Template
         lui  target, value(16, 31)
         ori  target, target, value(0, 15)
       }
-    
+
       variant {
         ori  target, zero,   value(16, 31)
         sll  target, target, 16
@@ -92,7 +92,25 @@ class MiniMipsBaseTemplate < Template
     # more convenient to use $zero register to reset the target.
     #
     preparator(:target => 'REG', :mask => "00000000") {
-      OR target, zero, zero
+      variant {
+        OR target, zero, zero
+      }
+
+      variant {
+        AND target, zero, zero
+      }
+
+      variant {
+        xor target, zero, zero
+      }
+    }
+
+    #
+    # Special case: Value equals 0xFFFFFFFF. In this case, it is
+    # more convenient to use $zero register to set all bits in the target register.
+    #
+    preparator(:target => 'REG', :mask => "FFFFFFFF") {
+      nor target, zero, zero
     }
 
     #
@@ -100,15 +118,36 @@ class MiniMipsBaseTemplate < Template
     # only one initializing instruction is enough.
     #
     preparator(:target => 'REG', :mask => "0000XXXX") {
-      ori target, zero, value(0, 15)
+      variant {
+        ori target, zero, value(0, 15)
+      }
+
+      variant {
+        xori target, zero, value(0, 15)
+      }
+
+      variant {
+        addi target, zero, value(0, 15)
+      }
+
+      variant {
+        addiu target, zero, value(0, 15)
+      }
     }
 
     #
     # Special case: Lower half of value is filled with zeros. In this case,
-    # only one initializing instruction is enough.
+    # it is enough to initialize only the high part.
     #
     preparator(:target => 'REG', :mask => "XXXX0000") {
-      lui target, value(16, 31)
+      variant {
+        lui target, value(16, 31)
+      }
+
+      variant {
+        ori target, zero, value(16, 31)
+        sll target, target, 16
+      }
     }
 
     # The code below specifies a comparator sequence to be used in self-checking tests
@@ -121,8 +160,7 @@ class MiniMipsBaseTemplate < Template
     # Default comparator: It is used when no special case is applicable.
     #
     comparator(:target => 'REG') {
-      lui at, value(16, 31)
-      ori at, target, value(0, 15)
+      prepare target, value
 
       bne at, target, :check_failed
       nop
