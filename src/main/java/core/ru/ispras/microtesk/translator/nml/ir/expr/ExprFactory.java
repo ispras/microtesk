@@ -590,7 +590,9 @@ public final class ExprFactory extends WalkerFactoryBase {
         result = castOperand.getNode();
       } else {
         if (!expr.isTypeOf(type)) {
-          raiseError(w, "Type mismatch. All operands must be " + type.getTypeName());
+          raiseError(w, String.format(
+              "Type mismatch. %s is %s. All operands must be %s.",
+              expr, expr.getNodeInfo().getType().getTypeName(), type.getTypeName()));
         }
         result = expr.getNode();
       }
