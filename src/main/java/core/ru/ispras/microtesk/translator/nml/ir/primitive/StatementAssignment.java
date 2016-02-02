@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
 public final class StatementAssignment extends Statement {

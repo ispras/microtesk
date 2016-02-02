@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class MemoryExprFactory extends WalkerFactoryBase {
 

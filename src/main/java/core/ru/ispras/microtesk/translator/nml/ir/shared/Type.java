@@ -108,7 +108,8 @@ public final class Type {
       return this;
     }
 
-    return new Type(typeId, newBitSize);
+    return new Type(
+        typeId != TypeId.FLOAT ? typeId : TypeId.CARD, newBitSize);
   }
 
   public TypeId getTypeId() {

@@ -34,7 +34,7 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -144,7 +144,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     checkNotNull(location);
     checkNotNull(pos);
 
-    if (pos.getValueInfo().isConstant()) {
+    if (pos.isConstant()) {
       checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
     }
 
@@ -158,11 +158,11 @@ public final class LocationFactory extends WalkerFactoryBase {
     checkNotNull(from);
     checkNotNull(to);
 
-    if (from.getValueInfo().isConstant() != to.getValueInfo().isConstant()) {
+    if (from.isConstant() != to.isConstant()) {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
     }
 
-    if (from.getValueInfo().isConstant()) {
+    if (from.isConstant()) {
       final int fromPos = from.integerValue();
       final int toPos = to.integerValue();
       final int locationSize = location.getType().getBitSize();
@@ -294,7 +294,7 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
     final MemoryExpr memory = findMemory();
 
     // Checking bounds for constant values.
-    if (index != null && index.getValueInfo().isConstant()) {
+    if (index != null && index.isConstant()) {
       final BigInteger indexValue = index.bigIntegerValue();
       if (indexValue.compareTo(BigInteger.ZERO) < 0 || 
           indexValue.compareTo(memory.getSize()) >= 0) {

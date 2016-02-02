@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -25,7 +26,10 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Coercion;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -73,11 +77,25 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     final Type leftType = left.getType();
-    final Type rightType = right.getValueInfo().getModelType();
+    if (right.isConstant()) {
+      final Expr castRight = TypeCast.castConstantTo(right, leftType);
+      return new StatementAssignment(left, castRight);
+    }
 
-    if (leftType.getBitSize() != rightType.getBitSize()) {
-      raiseError(where, String.format(
-          "Assigning %s to %s is not allowed.", rightType.getTypeName(), leftType.getTypeName()));
+    if (right.getNodeInfo().getType() == null) {
+      final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, Coercion.IMPLICIT);
+      right.setNodeInfo(newNodeInfo);
+    } else {
+      final Type rightType = right.getNodeInfo().getType();
+      if (leftType.getBitSize() != rightType.getBitSize()) {
+        raiseError(where, String.format(
+            "Assigning %s to %s is not allowed.", rightType.getTypeName(), leftType.getTypeName()));
+      }
+
+      if (right.isTypeOf(TypeId.BOOL)) {
+        final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, Coercion.IMPLICIT);
+        right.setNodeInfo(newNodeInfo);
+      } 
     }
 
     return new StatementAssignment(left, right);

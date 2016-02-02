@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;

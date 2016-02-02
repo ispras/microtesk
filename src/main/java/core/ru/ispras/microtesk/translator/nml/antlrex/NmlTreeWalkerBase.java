@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.expression.ExprFactory;
+import ru.ispras.microtesk.translator.nml.ir.expr.ExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;

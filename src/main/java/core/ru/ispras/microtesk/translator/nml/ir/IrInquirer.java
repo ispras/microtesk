@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -78,7 +78,7 @@ public final class IrInquirer {
 
     final Expr indexExpr = location.getIndex();
     if (null != indexExpr) {
-      if (!indexExpr.getValueInfo().isConstant()) {
+      if (!indexExpr.isConstant()) {
         return false;
       }
       locationIndex = indexExpr.integerValue();

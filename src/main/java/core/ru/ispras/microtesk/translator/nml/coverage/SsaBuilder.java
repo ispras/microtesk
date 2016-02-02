@@ -47,9 +47,9 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
-import ru.ispras.microtesk.translator.nml.ir.expression.Converter;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
@@ -687,8 +687,8 @@ final class SsaBuilder {
 
     final boolean macro = isModeArgument(atom);
 
-    final DataType sourceType = Converter.getDataTypeForModel(atom.getSource().getType());
-    final DataType targetType = Converter.getDataTypeForModel(atom.getType());
+    final DataType sourceType = TypeCast.getFortressDataType(atom.getSource().getType());
+    final DataType targetType = TypeCast.getFortressDataType(atom.getType());
 
     Node index = null;
     DataType baseType = sourceType;
@@ -765,9 +765,9 @@ final class SsaBuilder {
 
       @Override
       public Node apply(final Node node) {
-        final Data data =
-            Converter.toFortressData(getNodeInfo(node).getValueInfo());
-        return IntegerCast.cast(node, data.getType());
+        final DataType dataType =
+            TypeCast.getFortressDataType(getNodeInfo(node).getType());
+        return IntegerCast.cast(node, dataType);
       }
     };
 
@@ -784,7 +784,7 @@ final class SsaBuilder {
     if (info == null) {
       return node.getDataType();
     }
-    return Converter.toFortressData(info.getValueInfo()).getType();
+    return TypeCast.getFortressDataType(info.getType());
   }
 
   /**
@@ -855,8 +855,15 @@ final class SsaBuilder {
   public static SsaForm macroExpansion(final IrInquirer inquirer, final String prefix, final Expr expr) {
     final SsaBuilder builder = newConverter(inquirer, prefix);
     builder.acquireBlockBuilder();
-    builder.addToContext(EQ(builder.convertExpression(expr.getNode()),
-                            builder.createOutput(Converter.toFortressData(expr.getValueInfo()))));
+
+    builder.addToContext(
+        EQ(builder.convertExpression(expr.getNode()),
+        builder.createOutput(
+            expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
+            expr.getNode().getDataType().valueUninitialized())
+        )
+    );
+
     return builder.build();
   }
 
@@ -865,8 +872,12 @@ final class SsaBuilder {
     builder.acquireBlockBuilder();
     final Location loc = locationFromNodeVariable(expr.getNode());
     if (loc != null) {
-      builder.assign(locationFromNodeVariable(expr.getNode()),
-                     builder.createOutput(Converter.toFortressData(expr.getValueInfo())));
+      builder.assign(
+          locationFromNodeVariable(expr.getNode()),
+          builder.createOutput(
+              expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
+                                  expr.getNode().getDataType().valueUninitialized())
+          );
     }
     return builder.build();
   }
@@ -888,7 +899,7 @@ final class SsaBuilder {
     if (type == null) {
       return DataType.BOOLEAN;
     }
-    return Converter.getDataTypeForModel(type);
+    return TypeCast.getFortressDataType(type);
   }
 
   private NodeOperation createOutput(Data data) {

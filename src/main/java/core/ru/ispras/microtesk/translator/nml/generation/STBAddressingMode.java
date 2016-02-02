@@ -25,8 +25,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;

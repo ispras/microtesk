@@ -18,12 +18,13 @@ import java.util.Deque;
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
 import ru.ispras.microtesk.translator.nml.generation.PrinterInstance;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class Format {
@@ -57,11 +58,7 @@ public final class Format {
         return true;
       }
 
-      if (expr.getValueInfo().isModel()) {
-        return isModelConvertibleTo(marker);
-      }
-
-      return isJavaConvertibleTo(marker);
+      return isModelConvertibleTo(marker);
     }
 
     private boolean isModelConvertibleTo(final FormatMarker marker) {
@@ -70,41 +67,29 @@ public final class Format {
       }
 
       assert ((FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
+      final Node node = expr.getNode();
 
-      final Type type = expr.getValueInfo().getModelType();
-      if (TypeId.CARD == type.getTypeId() || TypeId.INT == type.getTypeId()) {
+      if (node.isType(DataTypeId.BIT_VECTOR) ||
+          node.isType(DataTypeId.LOGIC_INTEGER)) {
         return true;
       }
 
-      assert false : "Unsupported model data type.";
+      assert false : "Unsupported data type: " + node.getDataType();
       return false;
-    }
-
-    private boolean isJavaConvertibleTo(final FormatMarker marker) {
-      final Class<?> type = expr.getValueInfo().getNativeType();
-
-      if (!type.equals(int.class) || !type.equals(Integer.class)) {
-        return false;
-      }
-
-      assert ((FormatMarker.BIN == marker) || (FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
-      return true;
     }
 
     @Override
     public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
-
-      if (expr.getValueInfo().isModel()) {
-        return convertModelTo(marker);
-      }
-
-      return convertJavaTo(marker);
+      return convertModelTo(marker);
     }
 
     private String convertModelTo(final FormatMarker marker) {
-      final String methodName;
+      if (expr.getNodeInfo().getType() == null) {
+        return new PrinterExpr(expr).toString();
+      }
 
+      final String methodName;
       if (FormatMarker.BIN == marker || FormatMarker.STR == marker) {
         methodName = "toBinString()";
       } else if (FormatMarker.HEX == marker) {
@@ -117,12 +102,6 @@ public final class Format {
 
       return String.format(
           "%s.%s", new PrinterExpr(expr), methodName);
-    }
-
-    private String convertJavaTo(final FormatMarker marker) {
-      final PrinterExpr printer = new PrinterExpr(expr);
-      return (FormatMarker.BIN == marker) ? 
-        String.format("Integer.toBinaryString(%s)", printer) : printer.toString();
     }
   }
 
@@ -223,11 +202,9 @@ public final class Format {
       this.conditions = new LinkedList<>();
     }
 
-    public void addCondition(Expr expr, final Argument argument) {
-      if (null == expr) {
-        expr = Expr.CONST_ONE; // Fake value to be ignored.
-      }
-      conditions.push(new Pair<>(expr, argument));
+    public void addCondition(final Expr expr, final Argument argument) {
+      conditions.push(new Pair<>(
+          expr != null ? expr : new Expr(NodeValue.newBoolean(true)), argument));
     }
 
     public Argument build() {

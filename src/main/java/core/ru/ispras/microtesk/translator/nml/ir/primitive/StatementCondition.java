@@ -20,7 +20,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.List;
 
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class StatementCondition extends Statement {
   public static final class Block {

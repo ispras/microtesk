@@ -71,17 +71,21 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
+import ru.ispras.fortress.util.Pair;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.NmlTreeWalkerBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
 import ru.ispras.microtesk.translator.nml.ir.PCAnalyzer;
-import ru.ispras.microtesk.translator.nml.ir.expression.*;
+import ru.ispras.microtesk.translator.nml.ir.expr.*;
 import ru.ispras.microtesk.translator.nml.ir.location.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
-import ru.ispras.microtesk.translator.nml.ir.valueinfo.*;
 }
 
 /*======================================================================================*/
@@ -671,7 +675,7 @@ $res = Collections.singletonList(getStatementFactory().createUndefined());
 /*======================================================================================*/
 
 constExpr returns [Expr res]
-    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+    :  e=expr[0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateConst(where($e.start), $e.res);
@@ -679,7 +683,7 @@ $res = getExprFactory().evaluateConst(where($e.start), $e.res);
     ;
 
 sizeExpr returns [Expr res]
-    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+    :  e=expr[0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateSize(where($e.start), $e.res);
@@ -687,7 +691,7 @@ $res = getExprFactory().evaluateSize(where($e.start), $e.res);
     ;
 
 indexExpr returns [Expr res]
-    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+    :  e=expr[0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateIndex(where($e.start), $e.res);
@@ -695,7 +699,7 @@ $res = getExprFactory().evaluateIndex(where($e.start), $e.res);
     ;
 
 logicExpr returns [Expr res]
-    :  e=expr[ValueInfo.Kind.NATIVE, 0]
+    :  e=expr[0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateLogic(where($e.start), $e.res);
@@ -703,7 +707,7 @@ $res = getExprFactory().evaluateLogic(where($e.start), $e.res);
     ;
 
 dataExpr returns [Expr res]
-    :  e=expr[ValueInfo.Kind.MODEL, 0]
+    :  e=expr[0]
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().evaluateData(where($e.start), $e.res);
@@ -714,35 +718,35 @@ $res = getExprFactory().evaluateData(where($e.start), $e.res);
 /* Expression rules                                                                     */
 /*======================================================================================*/
 
-expr [ValueInfo.Kind target, int depth] returns [Expr res]
+expr [int depth] returns [Expr res]
 @after {$res = $e.res;}
-    : e=nonNumExpr[target, depth]
-    | e=numExpr[target, depth]
+    : e=nonNumExpr[depth]
+    | e=numExpr[depth]
     ;
 
 /*======================================================================================*/
 /* Non-numeric expressions (TODO: temporary implementation)                             */
 /*======================================================================================*/
 
-nonNumExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+nonNumExpr [int depth] returns [Expr res]
 @after {$res = $e.res;}
-    : e=ifExpr[target, depth]
+    : e=ifExpr[depth]
     ;
 
-ifExpr [ValueInfo.Kind target, int depth] returns [Expr res]
-@init  {final List<Condition> conds = new ArrayList<>();}
-    :  ^(op=IF cond=logicExpr e=expr[target, depth]
+ifExpr [int depth] returns [Expr res]
+@init  {final List<Pair<Expr, Expr>> conds = new ArrayList<>();}
+    :  ^(op=IF cond=logicExpr e=expr[depth]
 {
 checkNotNull($cond.start, $cond.res, $cond.text);
 checkNotNull($e.start, $e.res, $e.text);
-conds.add(Condition.newIf($cond.res, $e.res));
+conds.add(new Pair<>($cond.res, $e.res));
 }
-       (eifc=elseIfExpr[target, depth]
+       (eifc=elseIfExpr[depth]
 {
 checkNotNull($eifc.start, $eifc.res, $eifc.text);
 conds.add($eifc.res);
 })*
-       (elsc=elseExpr[target, depth]
+       (elsc=elseExpr[depth]
 {
 checkNotNull($elsc.start, $elsc.res, $elsc.text);
 conds.add($elsc.res);
@@ -752,65 +756,72 @@ $res = getExprFactory().condition(where($op), conds);
 }
     ;
 
-elseIfExpr [ValueInfo.Kind target, int depth] returns [Condition res]
-    :  ^(ELSEIF cond=logicExpr e=expr[target, depth]) {$res=Condition.newIf($cond.res, $e.res);}
+elseIfExpr [int depth] returns [Pair<Expr, Expr> res]
+    :  ^(ELSEIF cond=logicExpr e=expr[depth])
+{
+checkNotNull($cond.start, $cond.res);
+checkNotNull($e.start, $e.res);
+$res = new Pair<>($cond.res, $e.res);
+}
     ;
 
-elseExpr [ValueInfo.Kind target, int depth] returns [Condition res]
-    :  ^(ELSE e=expr[target, depth]) {$res=Condition.newElse($e.res);}
+elseExpr [int depth] returns [Pair<Expr, Expr> res]
+    :  ^(ELSE e=expr[depth]) {
+$res = new Pair<>(new Expr(NodeValue.newBoolean(true)), $e.res);
+}
     ;
 
 /*======================================================================================*/
 /* Numeric expressions                                                                  */
 /*======================================================================================*/
     
-numExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+numExpr [int depth] returns [Expr res]
 @after {$res = $e.res;}
-    :  e=binaryExpr[target, depth]
-    |   e=unaryExpr[target, depth]
+    :  e=binaryExpr[depth]
+    |   e=unaryExpr[depth]
     |        e=atom
     ;
 
-binaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+binaryExpr [int depth] returns [Expr res]
 @after
 {
 checkNotNull($e1.start, $e1.res, $e1.text);
 checkNotNull($e2.start, $e2.res, $e2.text);
-$res = getExprFactory().operator(where($op), target, $op.text, $e1.res, $e2.res);
+$res = getExprFactory().operator(where($op), $op.text, $e1.res, $e2.res);
 }
-    :  ^(op=OR            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=AND           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=VERT_BAR      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=UP_ARROW      e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=AMPER         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=EQ            e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=NEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=LEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=GEQ           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=LEFT_BROCKET  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=RIGHT_BROCKET e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=LEFT_SHIFT    e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=RIGHT_SHIFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=ROTATE_LEFT   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=ROTATE_RIGHT  e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=PLUS          e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=MINUS         e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=MUL           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=DIV           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=REM           e1=expr[target, depth + 1] e2=expr[target, depth + 1])
-    |  ^(op=DOUBLE_STAR   e1=expr[target, depth + 1] e2=expr[target, depth + 1])
+    :  ^(op=OR            e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=AND           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=VERT_BAR      e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=UP_ARROW      e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=AMPER         e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=EQ            e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=NEQ           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=LEQ           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=GEQ           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=LEFT_BROCKET  e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=RIGHT_BROCKET e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=LEFT_SHIFT    e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=RIGHT_SHIFT   e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=ROTATE_LEFT   e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=ROTATE_RIGHT  e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=PLUS          e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=MINUS         e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=MUL           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=DIV           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=REM           e1=expr[depth + 1] e2=expr[depth + 1])
+    |  ^(op=DOUBLE_STAR   e1=expr[depth + 1] e2=expr[depth + 1])
     ;
 
-unaryExpr [ValueInfo.Kind target, int depth] returns [Expr res]
+unaryExpr [int depth] returns [Expr res]
 @after
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = getExprFactory().operator(where($op), target, $op.text, $e.res);
+$res = getExprFactory().operator(where($op), $op.text, $e.res);
 }
-    :  ^(op=UPLUS   e=expr[target, depth + 1])
-    |  ^(op=UMINUS  e=expr[target, depth + 1])
-    |  ^(op=TILDE   e=expr[target, depth + 1])
-    |  ^(op=NOT     e=expr[target, depth + 1])
+    :  ^(op=UPLUS   e=expr[depth + 1])
+    |  ^(op=UMINUS  e=expr[depth + 1])
+    |  ^(op=TILDE   e=expr[depth + 1])
+    |  ^(op=NOT     e=expr[depth + 1])
     ;
 
 atom returns [Expr res]

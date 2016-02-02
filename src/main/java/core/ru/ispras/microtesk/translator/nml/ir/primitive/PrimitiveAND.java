@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveAND extends Primitive {
@@ -122,7 +122,7 @@ public final class PrimitiveAND extends Primitive {
   }
 
   private static Type getReturnType(final Expr retExpr) {
-    return (null != retExpr) ? retExpr.getValueInfo().getModelType() : null;
+    return (null != retExpr) ? retExpr.getNodeInfo().getType() : null;
   }
 
   public ArgumentMode getArgUsage(final String name) {

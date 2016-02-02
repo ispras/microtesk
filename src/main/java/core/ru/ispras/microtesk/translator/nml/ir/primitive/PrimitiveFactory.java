@@ -34,8 +34,9 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expression.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
@@ -204,7 +205,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   public Instance newInstance(
       final Where where,
       final String name,
-      final List<InstanceArgument> args) throws SemanticException {
+      final List<InstanceArgument> arguments) throws SemanticException {
     final Symbol symbol = getSymbols().resolve(name);
     if (null == symbol) {
       raiseError(where, new UndeclaredSymbol(name));
@@ -226,14 +227,24 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, String.format("%s is not an AND rule!", name)); 
     }
 
+    final List<InstanceArgument> args = new ArrayList<>(arguments);
     final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
-    final Instance result = new Instance(primitiveAND, args);
 
     final String[] argNames = 
         primitiveAND.getArguments().keySet().toArray(new String[primitiveAND.getArguments().size()]);
 
     int index = 0;
     for (final InstanceArgument ie : args) {
+      if (ie.getKind() == InstanceArgument.Kind.EXPR && ie.getExpr().isConstant()) {
+        final Primitive argument = primitiveAND.getArguments().get(argNames[index]);
+        final Type argumentType = argument.getReturnType();
+
+        final Expr newExpr = TypeCast.castConstantTo(ie.getExpr(), argumentType);
+        final InstanceArgument newIe = InstanceArgument.newExpr(newExpr, ie.getInvolvedArgs());
+
+        args.set(index, newIe);
+      }
+      
       for(final String involvedArgName : ie.getInvolvedArgs()) {
         /*System.out.println(String.format("%s <- %s.%s [%s]",
             involvedArgName,
@@ -249,6 +260,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       index++;
     }
 
+    final Instance result = new Instance(primitiveAND, args);
     return result;
   }
   
@@ -409,7 +421,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       if (isMemoryReference(right)) {
         // Load action is detected
-        final int bitSize = right.getValueInfo().getModelType().getBitSize();
+        final int bitSize = right.getNodeInfo().getType().getBitSize();
         result = new MemoryAccessStatus(true, false, bitSize);
         addLoadTarget(left);
       }

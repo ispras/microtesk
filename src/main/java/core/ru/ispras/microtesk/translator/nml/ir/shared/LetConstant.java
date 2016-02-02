@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class LetConstant {
   private final String name;

@@ -19,7 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Collections;
 import java.util.Set;
 
-import ru.ispras.microtesk.translator.nml.ir.expression.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class InstanceArgument {
 
