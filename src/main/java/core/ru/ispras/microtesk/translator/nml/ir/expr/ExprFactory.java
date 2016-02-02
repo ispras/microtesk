@@ -592,14 +592,14 @@ public final class ExprFactory extends WalkerFactoryBase {
         final Type exprType = expr.getNodeInfo().getType();
         if (checkSize && exprType.getBitSize() != type.getBitSize()) {
           raiseError(w, String.format(
-              "Size mismatch. %s is %s. Expected size is %d.",
-              expr, exprType.getTypeName(), type.getBitSize()));
+              "Size mismatch: %s is %s while %s is expected.",
+              expr, exprType.getTypeName(), type.getTypeName()));
         }
 
         if (!(type.getTypeId().isInteger() && exprType.getTypeId().isInteger() ||
             type.equals(exprType))) {
           raiseError(w, String.format(
-              "Type mismatch. %s is %s. All operands must be %s.",
+              "Type mismatch: %s is %s while %s is expected.",
               expr, exprType.getTypeName(), type.getTypeName()));
         }
         result = expr.getNode();
