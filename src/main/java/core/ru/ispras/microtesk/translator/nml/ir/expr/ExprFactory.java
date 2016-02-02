@@ -589,10 +589,18 @@ public final class ExprFactory extends WalkerFactoryBase {
         final Expr castOperand = TypeCast.castConstantTo(expr, type);
         result = castOperand.getNode();
       } else {
-        if (!expr.isTypeOf(type)) {
+        final Type exprType = expr.getNodeInfo().getType();
+        if (exprType.getBitSize() != type.getBitSize()) {
+          raiseError(w, String.format(
+              "Size mismatch. %s is %s. Expected size is %d.",
+              expr, exprType.getTypeName(), type.getBitSize()));
+        }
+
+        if (!(type.getTypeId().isInteger() && exprType.getTypeId().isInteger() ||
+            type.equals(exprType))) {
           raiseError(w, String.format(
               "Type mismatch. %s is %s. All operands must be %s.",
-              expr, expr.getNodeInfo().getType().getTypeName(), type.getTypeName()));
+              expr, exprType.getTypeName(), type.getTypeName()));
         }
         result = expr.getNode();
       }
