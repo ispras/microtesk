@@ -433,6 +433,9 @@ op bne (rs: REG, rt: REG, imm: SHORT)
     endif;
   }
 
+////////////////////////////////////////////////////////////////////////////////
+// Comparison Instructions
+
 op slt (rd: REG, rs: REG, rt: REG)
   syntax = format("slt %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
   image = format("000000%s%s%s00000101010", rs.image, rt.image, rd.image)
