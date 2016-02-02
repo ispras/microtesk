@@ -109,7 +109,7 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
-      final Expr updatedOperand = typeCalculator.enforceCommonType(operand);
+      final Expr updatedOperand = typeCalculator.enforceCommonType(operand, !op.isShift());
       operandNodes.add(updatedOperand.getNode());
     }
 
@@ -444,7 +444,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Pair<Expr, Expr> currentBlock = blocks.get(index);
 
       final Expr condition = currentBlock.first;
-      final Expr value = typeCalculator.enforceCommonType(currentBlock.second);
+      final Expr value = typeCalculator.enforceCommonType(currentBlock.second, true);
 
       if (condition.getNode().equals(NodeValue.newBoolean(true))) {
         result = value;
@@ -579,7 +579,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       this.constant = isAllConstant;
     }
 
-    private Expr enforceCommonType(final Expr expr) throws SemanticException {
+    private Expr enforceCommonType(final Expr expr, final boolean checkSize) throws SemanticException {
       InvariantChecks.checkNotNull(expr);
 
       final Node result;
@@ -590,7 +590,7 @@ public final class ExprFactory extends WalkerFactoryBase {
         result = castOperand.getNode();
       } else {
         final Type exprType = expr.getNodeInfo().getType();
-        if (exprType.getBitSize() != type.getBitSize()) {
+        if (checkSize && exprType.getBitSize() != type.getBitSize()) {
           raiseError(w, String.format(
               "Size mismatch. %s is %s. Expected size is %d.",
               expr, exprType.getTypeName(), type.getBitSize()));
