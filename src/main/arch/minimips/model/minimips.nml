@@ -271,18 +271,18 @@ op srlv (rd: REG, rt: REG, rs: REG)
 ////////////////////////////////////////////////////////////////////////////////
 // Memory Instructions
 
-op lw (rt: REG, offset: SHORT, address: REG)
-  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
-  image = format("100011%s%s%s", address.image, rt.image, offset)
-  action = {
-    rt = M[(address + offset) >> 2];
-  }
-
 op lui (rt: REG, imm: SHORT)
   syntax = format("lui %s, 0x%x", rt.syntax, imm)
   image = format("001111%s%s", rt.image, imm)
   action = {
     rt = coerce(WORD, imm) << 16;
+  }
+
+op lw (rt: REG, offset: SHORT, address: REG)
+  syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
+  image = format("100011%s%s%s", address.image, rt.image, offset)
+  action = {
+    rt = M[(address + offset) >> 2];
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
