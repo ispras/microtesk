@@ -589,7 +589,7 @@ public final class ExprFactory extends WalkerFactoryBase {
         final Expr castOperand = TypeCast.castConstantTo(expr, type);
         result = castOperand.getNode();
       } else {
-        if (expr.isTypeOf(type)) {
+        if (!expr.isTypeOf(type)) {
           raiseError(w, "Type mismatch. All operands must be " + type.getTypeName());
         }
         result = expr.getNode();

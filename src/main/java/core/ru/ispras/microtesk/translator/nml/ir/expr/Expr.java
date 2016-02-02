@@ -50,7 +50,7 @@ public final class Expr {
     InvariantChecks.checkNotNull(otherType);
 
     final Type thisType = getNodeInfo().getType();
-    return thisType != null && this.equals(otherType);
+    return thisType != null && thisType.equals(otherType);
   }
 
   public Node getNode() {
@@ -73,6 +73,10 @@ public final class Expr {
   public BigInteger bigIntegerValue() {
     if (isConstant() && node.isType(DataTypeId.LOGIC_INTEGER)) {
       return ((NodeValue) node).getInteger();
+    }
+
+    if (isConstant() && node.isType(DataTypeId.BIT_VECTOR)) {
+      return ((NodeValue) node).getBitVector().bigIntegerValue();
     }
 
     throw new IllegalStateException("Not a constant integer expression.");
