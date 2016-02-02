@@ -82,6 +82,7 @@ public final class NodeInfo {
     }
 
     final List<Type> newCoercedTypes = new ArrayList<>(this.coercedTypes.size() + 1);
+    newCoercedTypes.add(newType);
     newCoercedTypes.add(this.type);
     newCoercedTypes.addAll(this.coercedTypes);
 

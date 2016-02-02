@@ -20,6 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -139,12 +140,16 @@ public final class ExprFactory extends WalkerFactoryBase {
       }
 
       final DataType resultDataType =
-          op.isBoolean() ? DataType.BOOLEAN : typeCalculator.getCommonDataType();
+          op.isBoolean() ? DataType.BOOLEAN :
+          op.isShift() ? operandNodes.get(0).getDataType() :
+          typeCalculator.getCommonDataType();
 
       node = new NodeOperation(operator, resultDataType, operandNodes);
 
       final Type resultType =
-          op.isBoolean() ? Type.BOOLEAN : typeCalculator.getCommonType();
+          op.isBoolean() ? Type.BOOLEAN :
+          op.isShift() ? new Expr(operandNodes.get(0)).getNodeInfo().getType() :
+          typeCalculator.getCommonType();
 
       final NodeInfo nodeInfo = NodeInfo.newOperator(op, resultType);
       node.setUserData(nodeInfo);
@@ -515,6 +520,19 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     if (src.getNode().isType(DataTypeId.LOGIC_BOOLEAN)) {
       return src;
+    }
+
+    if (src.isTypeOf(TypeId.CARD) || src.isTypeOf(TypeId.INT)) {
+      final Type type = src.getNodeInfo().getType();
+
+      final Expr zero = new Expr(NodeValue.newBitVector(BitVector.newEmpty(type.getBitSize())));
+      zero.setNodeInfo(NodeInfo.newConst(type));
+
+      final Expr expr = new Expr(new NodeOperation(
+          StandardOperation.NOTEQ, src.getNode(), zero.getNode()));
+
+      expr.setNodeInfo(NodeInfo.newOperator(Operator.NOT_EQ, type));
+      return expr;
     }
 
     raiseError(w, "The expression cannot be evaluated to a boolean value.");
