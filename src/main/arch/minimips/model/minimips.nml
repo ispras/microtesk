@@ -351,23 +351,23 @@ op mtc0 (rt: REG, cs: COP0)
 ////////////////////////////////////////////////////////////////////////////////
 // Branching Instructions
 
-op beq (rs: REG, rt: REG, imm: SHORT)
-  syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, imm)
-  image = format("000100%s%s%s", rs.image, rt.image, imm)
+op beq (rs: REG, rt: REG, offset: SHORT)
+  syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
+  image = format("000100%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
-op bgez (rs: REG, imm: SHORT)
-  syntax = format("bgez %s, %<label>d", rs.syntax, imm)
-  image = format("000001%s00001%s", rs.image, imm)
+op bgez (rs: REG, offset: SHORT)
+  syntax = format("bgez %s, %<label>d", rs.syntax, offset)
+  image = format("000001%s00001%s", rs.image, offset)
   action = {
     if rs >= 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
@@ -382,33 +382,33 @@ op bgezal (rs: REG, offset: SHORT)
     endif;
   }
 
-op bgtz (rs: REG, imm: SHORT)
-  syntax = format("bgtz %s, %<label>d", rs.syntax, imm)
-  image = format("000111%s00000%s", rs.image, imm)
+op bgtz (rs: REG, offset: SHORT)
+  syntax = format("bgtz %s, %<label>d", rs.syntax, offset)
+  image = format("000111%s00000%s", rs.image, offset)
   action = {
     if rs > 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
-op blez (rs: REG, imm: SHORT)
-  syntax = format("blez %s, %<label>d", rs.syntax, imm)
-  image = format("000110%s00000%s", rs.image, imm)
+op blez (rs: REG, offset: SHORT)
+  syntax = format("blez %s, %<label>d", rs.syntax, offset)
+  image = format("000110%s00000%s", rs.image, offset)
   action = {
     if rs <= 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
-op bltz (rs: REG, imm: SHORT)
-  syntax = format("bltz %s, %<label>d", rs.syntax, imm)
-  image = format("000001%s00000%s", rs.image, imm)
+op bltz (rs: REG, offset: SHORT)
+  syntax = format("bltz %s, %<label>d", rs.syntax, offset)
+  image = format("000001%s00000%s", rs.image, offset)
   action = {
     if rs < 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
@@ -423,13 +423,13 @@ op bltzal (rs: REG, offset: SHORT)
     endif;
   }
 
-op bne (rs: REG, rt: REG, imm: SHORT)
-  syntax = format("bne %s, %s, %<label>d", rs.syntax, rt.syntax, imm)
-  image = format("000101%s%s%s", rs.image, rt.image, imm)
+op bne (rs: REG, rt: REG, offset: SHORT)
+  syntax = format("bne %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
+  image = format("000101%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs != rt then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * imm + 4;
+      JMPADDR = CIA + 4 * offset + 4;
     endif;
   }
 
