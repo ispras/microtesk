@@ -98,7 +98,6 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         continue;
       }
 
-      final BranchTrace branchTrace = branchEntry.getBranchTrace();
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
@@ -159,7 +158,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
             engineContext,
             testSequenceBuilder,
             abstractBranchCall,
-            branchTrace,
+            branchEntry,
             isBasicBlock);
       } catch (final ConfigurationException e) {
         return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
@@ -309,12 +308,16 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
       final Call abstractBranchCall,
-      final BranchTrace branchTrace,
+      final BranchEntry branchEntry,
       final boolean controlCodeInBasicBlock)
         throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractBranchCall);
+    InvariantChecks.checkNotNull(branchEntry);
+
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
+    InvariantChecks.checkNotNull(branchTrace);
 
     // If the branch is not executed, initialize immediate arguments.
     if (branchTrace.isEmpty()) {
@@ -341,8 +344,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         final boolean branchCondition = execution.value();
 
         // Count defines how many times the control code is executed before calling the branch.
-        final int count = controlCodeInBasicBlock ?
-            execution.getBlockCoverageCount() : execution.getSlotCoverageCount();
+        final int count = getCount(controlCodeInBasicBlock, branchEntry, execution);
 
         if(i == 0 && count > 0) {
           initNeeded = false;
@@ -417,6 +419,29 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     for (final Call abstractCall : abstractSequence) {
       updateBody(engineContext, testSequenceBuilder, abstractCall);
     }
+  }
+
+  private int getCount(
+      final boolean controlCodeInBasicBlock,
+      final BranchEntry entry,
+      final BranchExecution execution) {
+    InvariantChecks.checkNotNull(entry);
+    InvariantChecks.checkNotNull(execution);
+
+    int result = 0;
+
+    final Set<Integer> coverage = controlCodeInBasicBlock ?
+        entry.getBlockCoverage() : entry.getSlotCoverage();
+
+    final Map<Integer, Integer> segment = controlCodeInBasicBlock ?
+        execution.getPreBlocks() : execution.getPreSlots();
+
+    for (final int item : coverage) {
+      final Integer count = segment.get(item);
+      result += count != null ? count : 0;
+    }
+
+    return result;
   }
 
   private String getTestDataStream(final Call abstractBranchCall) {

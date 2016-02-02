@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2009-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.test.sequence.engine.branch;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.BooleanIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -28,17 +29,15 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 public final class BranchExecution implements Iterator<Boolean> {
   private final BooleanIterator iterator;
 
-  /** Sequence of basic blocks between two executions of the branch instruction. */
-  private final Set<Integer> blocks = new LinkedHashSet<>();
+  /** Set of basic blocks (with counters) to be executed before the branch execution. */
+  private Map<Integer, Integer> preBlocks;
+  /** Set of delay slots (with counters) to be executed before the branch execution. */
+  private Map<Integer, Integer> preSlots;
 
-  /** Sequence of delay slots between two executions of branch instruction. */
-  private final Set<Integer> slots = new LinkedHashSet<>();
-
-  /** Block coverage count (number of blocks executions followed by the branch execution). */
-  private int blockCoverageCount;
-
-  /** Slot coverage count (number of slot executions followed by the branch execution). */
-  private int slotCoverageCount;
+  /** Set of basic blocks (with counters) to be executed after the branch execution. */
+  private Map<Integer, Integer> postBlocks;
+  /** Set of delay slots (with counters) to be executed after the branch execution. */
+  private Map<Integer, Integer> postSlots;
 
   /**
    * Constructs a branch execution;
@@ -57,83 +56,55 @@ public final class BranchExecution implements Iterator<Boolean> {
   }
 
   private BranchExecution(final BranchExecution r) {
+    InvariantChecks.checkNotNull(r);
+
     iterator = r.iterator.clone();
 
-    blockCoverageCount = r.blockCoverageCount;
-    slotCoverageCount  = r.slotCoverageCount;
-
-    blocks.addAll(r.blocks);
-    slots.addAll(r.slots);
+    preBlocks = new LinkedHashMap<>(r.preBlocks);
+    preSlots = new LinkedHashMap<>(r.preSlots);
+    postBlocks = new LinkedHashMap<>(r.postBlocks);
+    postSlots = new LinkedHashMap<>(r.postSlots);
   }
 
-  /**
-   * Returns the block coverage count.
-   * 
-   * @return the block coverage count.
-   */
-  public int getBlockCoverageCount() {
-    return blockCoverageCount;
+  public Map<Integer, Integer> getPreBlocks() {
+    return preBlocks;
   }
 
-  /**
-   * Sets the block coverage count.
-   * 
-   * @param count the coverage count to be set.
-   */
-  public void setBlockCoverageCount(final int count) {
-    this.blockCoverageCount = count;
+  public void setPreBlocks(final Map<Integer, Integer> preBlocks) {
+    InvariantChecks.checkNotNull(preBlocks);
+    this.preBlocks = preBlocks;
   }
 
-  /**
-   * Returns the slot coverage count.
-   * 
-   * @return the slot coverage count.
-   */
-  public int getSlotCoverageCount() {
-    return slotCoverageCount;
+  public Map<Integer, Integer> getPostBlocks() {
+    return postBlocks;
   }
 
-  /**
-   * Sets the slot coverage count.
-   * 
-   * @param count the coverage count to be set.
-   */
-  public void setSlotCoverageCount(final int count) {
-    this.slotCoverageCount = count;
+  public void setPostBlocks(final Map<Integer, Integer> postBlocks) {
+    InvariantChecks.checkNotNull(postBlocks);
+    this.postBlocks = postBlocks;
   }
 
-  /**
-   * Returns the trace segment consisting of basic blocks.
-   * 
-   * @return the sequence of basic blocks between two executions of the branch instruction.
-   */
-  public Set<Integer> getBlockSegment() {
-    return blocks;
+  public Map<Integer, Integer> getPreSlots() {
+    return preSlots;
   }
 
-  /**
-   * Returns the trace segment consisting of delay slots.
-   * 
-   * @return the sequence of delay slots between two executions of the branch instruction.
-   */
-  public Set<Integer> getSlotSegment() {
-    return slots;
+  public void setPreSlots(final Map<Integer, Integer> preSlots) {
+    InvariantChecks.checkNotNull(preSlots);
+    this.preSlots = preSlots;
   }
 
-  /** Clears the trace segment. */
-  public void clear() {
-    blockCoverageCount = 0;
-    slotCoverageCount = 0;
+  public Map<Integer, Integer> getPostSlots() {
+    return postSlots;
+  }
 
-    blocks.clear();
-    slots.clear();
+  public void setPostSlots(final Map<Integer, Integer> postSlots) {
+    InvariantChecks.checkNotNull(postSlots);
+    this.postSlots = postSlots;
   }
 
   @Override
   public void init() {
     iterator.init();
-
-    clear();
   }
 
   @Override
@@ -149,8 +120,6 @@ public final class BranchExecution implements Iterator<Boolean> {
   @Override
   public void next() {
     iterator.next();
-
-    clear();
   }
 
   @Override
@@ -160,7 +129,13 @@ public final class BranchExecution implements Iterator<Boolean> {
 
   @Override
   public String toString() {
-    return value() + (blocks.isEmpty() ? "" : " " + blocks.toString());
+    final StringBuilder builder = new StringBuilder();
+
+    builder.append(value());
+    builder.append(postBlocks.isEmpty() ? "" : " ");
+    builder.append(postBlocks);
+
+    return builder.toString();
   }
 
   @Override

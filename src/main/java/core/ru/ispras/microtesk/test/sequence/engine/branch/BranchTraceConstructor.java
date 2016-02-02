@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2009-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,71 +27,31 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link BranchTraceConstructor} implements a constructor of a branch trace.
+ * {@link BranchTraceConstructor} implements a branch trace constructor, a component that gathers
+ * useful information for a given execution trace.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class BranchTraceConstructor {
   /**
-   * Trace segment constructor.
+   * {@link SegmentConstructor} implements a segment constructor.
+   * 
+   * <p>A segment is a set of basic blocks (delay slots) executed between two subsequent calls of a
+   * given branch instruction or before its first call.</p>
+   * 
+   * <p>For each basic block (delay slot), a segment contains a counter that shows how many times
+   * the basic block (delay slot) is executed.</p>
    */
   private static final class SegmentConstructor extends BranchEntryVisitor {
-    /** Maps a branch entry index into the block segment. */
-    private Map<Integer, Set<Integer>> blockSegments = new LinkedHashMap<>();
+    /** Contains a set of basic blocks having been executed. */
+    private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
+    /** Contains a set of delay slots having been executed. */
+    private Map<Integer, Integer> preSlots = new LinkedHashMap<>();
 
-    /** Maps a branch entry index into the slot segment. */
-    private Map<Integer, Set<Integer>> slotSegments = new LinkedHashMap<>();
-
-    @Override
-    public void onBranch(
-        final int index, final BranchEntry entry, final BranchExecution execution) {
-      InvariantChecks.checkNotNull(entry);
-      InvariantChecks.checkNotNull(execution);
-
-      // Process the block segments.
-      final Set<Integer> newBlockSegment = execution.getBlockSegment();
-      blockSegments.put(index, newBlockSegment);
-
-      // Process the slot segments.
-      final Set<Integer> newSlotSegment = execution.getSlotSegment();
-      slotSegments.put(index, newSlotSegment);
-    }
-
-    @Override
-    public void onBasicBlock(final int index, final BranchEntry entry) {
-      InvariantChecks.checkNotNull(entry);
-
-      for (final Set<Integer> segment : blockSegments.values()) {
-        segment.add(index);
-      }
-    }
-
-    @Override
-    public void onDelaySlot(final int index, final BranchEntry entry) {
-      InvariantChecks.checkNotNull(entry);
-
-      for (final Set<Integer> segment : slotSegments.values()) {
-        segment.add(index);
-      }
-    }
-  }
-
-  /**
-   * Block coverage counter.
-   */
-  private static final class CoverageCounter extends BranchEntryVisitor {
-    private final int index;
-    private final BranchEntry entry;
-
-    private int blockCount = 0;
-    private int slotCount = 0;
-
-    public CoverageCounter(final int index, final BranchEntry entry) {
-      InvariantChecks.checkNotNull(entry);
-
-      this.index = index;
-      this.entry = entry;
-    }
+    /** Maps a branch index into the current basic block segment. */
+    private Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
+    /** Maps a branch index into the current delay slot segment. */
+    private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
 
     @Override
     public void onBranch(
@@ -99,27 +59,39 @@ final class BranchTraceConstructor {
       InvariantChecks.checkNotNull(entry);
       InvariantChecks.checkNotNull(execution);
 
-      if (this.entry == entry) {
-        execution.setBlockCoverageCount(blockCount);
-        blockCount = 0;
-
-        execution.setSlotCoverageCount(slotCount);
-        slotCount = 0;
+      // Previous basic blocks.
+      if (!postBlocks.containsKey(index)) {
+        execution.setPreBlocks(preBlocks);
+      } else {
+        execution.setPreBlocks(postBlocks.get(index));
       }
+
+      // Previous delay slots.
+      if (!postSlots.containsKey(index)) {
+        execution.setPreSlots(preSlots);
+      } else {
+        execution.setPreSlots(postSlots.get(index));
+      }
+
+      // Next basic blocks.
+      final Map<Integer, Integer> newPostBlocks = new LinkedHashMap<>();
+      execution.setPostBlocks(newPostBlocks);
+      postBlocks.put(index, newPostBlocks);
+
+      // Next delay slots.
+      final Map<Integer, Integer> newPostSlots = new LinkedHashMap<>();
+      execution.setPostSlots(newPostSlots);
+      postSlots.put(index, newPostSlots);
     }
 
     @Override
     public void onBasicBlock(final int index, final BranchEntry entry) {
       InvariantChecks.checkNotNull(entry);
 
-      final Set<Integer> blockCoverage = this.entry.getBlockCoverage();
+      incrementCounter(index, preBlocks);
 
-      if (blockCoverage == null) {
-        return;
-      }
-
-      if (blockCoverage.contains(index)) {
-        blockCount++;
+      for (final Map<Integer, Integer> segment : postBlocks.values()) {
+        incrementCounter(index, segment);
       }
     }
 
@@ -127,10 +99,16 @@ final class BranchTraceConstructor {
     public void onDelaySlot(final int index, final BranchEntry entry) {
       InvariantChecks.checkNotNull(entry);
 
-      // Only single-instruction delay slots are supported.
-      if (index == this.index + 1) {
-        slotCount++;
+      incrementCounter(index, preSlots);
+
+      for (final Map<Integer, Integer> segment : postSlots.values()) {
+        incrementCounter(index, segment);
       }
+    }
+
+    private void incrementCounter(final int index, final Map<Integer, Integer> segment) {
+      final Integer count = segment.get(index);
+      segment.put(index, count != null ? count + 1 : 1);
     }
   }
 
@@ -171,16 +149,6 @@ final class BranchTraceConstructor {
 
   /** Constructs trace segments. */
   private void constructSegments() {
-    for (int i = 0; i < branchStructure.size(); i++) {
-      final BranchEntry entry = branchStructure.get(i);
-      final BranchTrace trace = entry.getBranchTrace();
-
-      for (int j = 0; j < trace.size(); j++) {
-        final BranchExecution execution = trace.get(j);
-        execution.clear();
-      }
-    }
-
     final BranchStructureWalker walker =
         new BranchStructureWalker(branchStructure, new SegmentConstructor());
 
@@ -188,10 +156,10 @@ final class BranchTraceConstructor {
   }
 
   /**
-   * Returns the union of the blocks in the segments of the branch entry.
+   * Returns the union of the basic blocks in the segments of the branch entry.
    * 
    * @param entry the branch entry.
-   * @return the union of the block segments.
+   * @return the union of the basic block segments.
    */
   private Set<Integer> getBlockUnion(final BranchEntry entry) {
     InvariantChecks.checkNotNull(entry);
@@ -201,7 +169,7 @@ final class BranchTraceConstructor {
 
     for (int i = 0; i < trace.size(); i++) {
       final BranchExecution execution = trace.get(i);
-      segment.addAll(execution.getBlockSegment());
+      segment.addAll(execution.getPostBlocks().keySet());
     }
 
     return segment;
@@ -216,35 +184,21 @@ final class BranchTraceConstructor {
   private Set<Integer> getSlotIntersection(final BranchEntry entry) {
     InvariantChecks.checkNotNull(entry);
 
-    final Set<Integer> intersection = new LinkedHashSet<>();
     final BranchTrace trace = entry.getBranchTrace();
 
     if (trace.isEmpty()) {
-      return intersection;
+      return Collections.emptySet();
     }
 
-    final BranchExecution execution = trace.get(0);
-    intersection.addAll(execution.getSlotSegment());
+    final BranchExecution first = trace.get(0);
+    final Set<Integer> intersection = new LinkedHashSet<>(first.getPostSlots().keySet());
 
-    final Set<Integer> remove = new LinkedHashSet<>();
+    for (int i = 1; i < trace.size() && !intersection.isEmpty(); i++) {
+      final BranchExecution execution = trace.get(i);
+      final Map<Integer, Integer> segment = execution.getPostSlots();
 
-    for (final int block : intersection) {
-      boolean contains = true;
-      for (int i = 1; i < trace.size(); i++) {
-        final Set<Integer> segment = trace.get(i).getSlotSegment();
-
-        if (!segment.contains(block)) {
-          contains = false;
-          break;
-        }
-      }
-
-      if (!contains) {
-        remove.add(block);
-      }
+      intersection.retainAll(segment.keySet());
     }
-
-    intersection.removeAll(remove);
 
     return intersection;
   }
@@ -255,17 +209,17 @@ final class BranchTraceConstructor {
    * @param entry the branch entry.
    * @return the list of trace segments.
    */
-  private List<Set<Integer>> getChangeSegments(final BranchEntry entry) {
+  private List<Map<Integer, Integer>> getChangeSegments(final BranchEntry entry) {
     InvariantChecks.checkNotNull(entry);
 
-    final List<Set<Integer>> segments = new ArrayList<>();
+    final List<Map<Integer, Integer>> segments = new ArrayList<>();
     final BranchTrace trace = entry.getBranchTrace();
 
     for (int i = 0; i < trace.size() - 1; i++) {
       final BranchExecution pre = trace.get(i);
       final BranchExecution post = trace.get(i + 1);
 
-      final Set<Integer> segment = pre.getBlockSegment();
+      final Map<Integer, Integer> segment = pre.getPostBlocks();
 
       if (pre.value() != post.value()) {
         segments.add(segment);
@@ -286,9 +240,8 @@ final class BranchTraceConstructor {
 
     // Get all blocks from all segments of the branch.
     final Set<Integer> blocks = getBlockUnion(entry);
-
     // Get the set of segments to be covered.
-    final List<Set<Integer>> segments = getChangeSegments(entry);
+    final List<Map<Integer, Integer>> segments = getChangeSegments(entry);
 
     // Reset the block and the slot coverage.
     entry.setBlockCoverage(null);
@@ -300,7 +253,7 @@ final class BranchTraceConstructor {
       return true;
     }
 
-    for (final Set<Integer> segment : segments) {
+    for (final Map<Integer, Integer> segment : segments) {
       // Cannot cover the empty segment.
       if (segment.isEmpty()) {
         if (flags.contains(Flags.DO_NOT_USE_DELAY_SLOTS)) {
@@ -318,8 +271,8 @@ final class BranchTraceConstructor {
 
     if (segments.size() == 1) {
       // Get a random block from the segment.
-      final Set<Integer> segment = segments.get(0);
-      final int block = Randomizer.get().choose(segment);
+      final Map<Integer, Integer> segment = segments.iterator().next();
+      final int block = Randomizer.get().choose(segment.keySet());
 
       // Add the block to the coverage.
       coverage.add(block);
@@ -339,8 +292,8 @@ final class BranchTraceConstructor {
     while (!segments.isEmpty()) {
       // Calculate the block coverage count.
       for (final int block : blocks) {
-        for (final Set<Integer> segment : segments) {
-          if (segment.contains(block)) {
+        for (final Map<Integer, Integer> segment : segments) {
+          if (segment.containsKey(block)) {
             Integer count = counts.get(block);
             count = count == null ? new Integer(0) : new Integer(count + 1);
 
@@ -367,9 +320,9 @@ final class BranchTraceConstructor {
 
       // Change the coverage.
       for (int i = 0; i < segments.size(); i++) {
-        final Set<Integer> segment = segments.get(i);
+        final Map<Integer, Integer> segment = segments.get(i);
 
-        if (segment.contains(block)) {
+        if (segment.containsKey(block)) {
           segments.remove(segment);
           i--;
         }
@@ -386,21 +339,6 @@ final class BranchTraceConstructor {
   }
 
   /**
-   * Calculates the block coverage counts for the branch executions.
-   * 
-   * @param index the branch entry index.
-   * @param entry the branch entry.
-   */
-  private void calculateCoverageCounts(final int index, final BranchEntry entry) {
-    InvariantChecks.checkNotNull(entry);
-
-    final BranchStructureWalker walker =
-        new BranchStructureWalker(branchStructure, new CoverageCounter(index, entry));
-
-    walker.start();
-  }
-
-  /**
    * Constructs the coverage for all branch entries.
    * 
    * @return {@code true} if construction is successful; {@code false} otherwise.
@@ -414,8 +352,6 @@ final class BranchTraceConstructor {
       if (!constructCoverage(entry)) {
         return false;
       }
-
-      calculateCoverageCounts(i, entry);
     }
 
     return true;
