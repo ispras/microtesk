@@ -282,14 +282,14 @@ op lw (rt: REG, offset: SHORT, address: REG)
   syntax = format("lw %s, %d(%s)", rt.syntax, offset, address.syntax)
   image = format("100011%s%s%s", address.image, rt.image, offset)
   action = {
-    rt = M[(address + offset) >> 2];
+    rt = M[(address + sign_extend(WORD, offset)) >> 2];
   }
 
 op sw (rd: REG, offset: SHORT, address: REG)
   syntax = format("sw %s, %d(%s)", rd.syntax, offset, address.syntax)
   image = format("101011%s%s%s", address.image, rd.image, offset)
   action = {
-    M[(address + offset) >> 2] = rd;
+    M[(address + sign_extend(WORD, offset)) >> 2] = rd;
   }
 
 op mfhi (rd: REG)
@@ -324,14 +324,14 @@ op swc0 (cs: COP0, offset: SHORT, address: REG)
   syntax = format("swc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
   image = format("111000%s%s%s", address.image, cs.image, offset)
   action = {
-    M[(address + offset) >> 2] = cs;
+    M[(address + sign_extend(WORD, offset)) >> 2] = cs;
   }
 
 op lwc0 (cs: COP0, offset: SHORT, address: REG)
   syntax = format("lwc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
   image = format("110000%s%s%s", address.image, cs.image, offset)
   action = {
-    cs = M[(address + offset) >> 2];
+    cs = M[(address + sign_extend(WORD, offset)) >> 2];
   }
 
 op mfc0 (rt: REG, cs: COP0)
@@ -357,7 +357,7 @@ op beq (rs: REG, rt: REG, offset: SHORT)
   action = {
     if rs == rt then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -367,7 +367,7 @@ op bgez (rs: REG, offset: SHORT)
   action = {
     if rs >= 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -378,7 +378,7 @@ op bgezal (rs: REG, offset: SHORT)
     if rs >= 0 then
       GPR[31] = CIA + 4 + 4;
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -388,7 +388,7 @@ op bgtz (rs: REG, offset: SHORT)
   action = {
     if rs > 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -398,7 +398,7 @@ op blez (rs: REG, offset: SHORT)
   action = {
     if rs <= 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -408,7 +408,7 @@ op bltz (rs: REG, offset: SHORT)
   action = {
     if rs < 0 then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -419,7 +419,7 @@ op bltzal (rs: REG, offset: SHORT)
     if rs < 0 then
       GPR[31] = CIA + 4 + 4;
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -429,7 +429,7 @@ op bne (rs: REG, rt: REG, offset: SHORT)
   action = {
     if rs != rt then
       BRANCH = 1;
-      JMPADDR = CIA + 4 * offset + 4;
+      JMPADDR = CIA + 4 + (sign_extend(WORD, offset) << 2);
     endif;
   }
 
@@ -451,7 +451,7 @@ op slti (rt: REG, rs: REG, imm: SHORT)
   syntax = format("slti %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
-    if rs < imm then
+    if rs < sign_extend(WORD, imm) then
       rt = coerce(WORD, 1);
     else
       rt = coerce(WORD, 0);
