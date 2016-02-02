@@ -130,7 +130,7 @@ op addiu (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addiu %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
-    rt = rs + imm;
+    rt = rs + sign_extend(int(32), imm);
   }
 
 op sub (rd: REG, rs: REG, rt: REG)
@@ -185,7 +185,7 @@ op andi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("andi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("000000%s%s%s", rs.image, rt.image, imm)
   action = {
-    rt = rs & coerce(card(32), imm);
+    rt = rs & zero_extend(int(32), imm);
   }
 
 op or (rd: REG, rs: REG, rt: REG)
@@ -199,7 +199,7 @@ op ori (rt: REG, rs: REG, imm: SHORT)
   syntax = format("ori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001101%s%s%s", rs.image, rt.image, imm)
   action = {
-    rt = rs | zero_extend(card(32), imm);
+    rt = rs | zero_extend(int(32), imm);
   }
 
 op nor (rd: REG, rs: REG, rt: REG)
@@ -220,7 +220,7 @@ op xori (rt: REG, rs: REG, imm: SHORT)
   syntax = format("xori %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image = format("001110%s%s%s", rs.image, rt.image, imm)
   action = {
-    rt = rs ^ zero_extend(card(32), imm);
+    rt = rs ^ zero_extend(int(32), imm);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
