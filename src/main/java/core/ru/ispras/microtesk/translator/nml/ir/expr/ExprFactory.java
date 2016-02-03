@@ -110,7 +110,21 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final List<Node> operandNodes = new ArrayList<>(operands.length);
     for (final Expr operand : operands) {
-      final Expr updatedOperand = typeCalculator.enforceCommonType(operand, !op.isShift());
+      final Type operandType = operand.getNodeInfo().getType();
+      final Expr updatedOperand;
+
+      if (op.isShift() && operandType != null) {
+        if (!operandType.getTypeId().isInteger()) {
+          raiseError(w, String.format(
+              "Type mismatch: %s is %s while %s an integer type is expected.",
+              operand, operandType.getTypeName()));
+        }
+
+        updatedOperand = operand;
+      } else {
+        updatedOperand = typeCalculator.enforceCommonType(operand);
+      }
+
       operandNodes.add(updatedOperand.getNode());
     }
 
@@ -449,7 +463,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Pair<Expr, Expr> currentBlock = blocks.get(index);
 
       final Expr condition = currentBlock.first;
-      final Expr value = typeCalculator.enforceCommonType(currentBlock.second, true);
+      final Expr value = typeCalculator.enforceCommonType(currentBlock.second);
 
       if (condition.getNode().equals(NodeValue.newBoolean(true))) {
         result = value;
@@ -597,7 +611,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       this.constant = isAllConstant;
     }
 
-    private Expr enforceCommonType(final Expr expr, final boolean checkSize) throws SemanticException {
+    private Expr enforceCommonType(final Expr expr) throws SemanticException {
       InvariantChecks.checkNotNull(expr);
 
       final Node result;
@@ -608,18 +622,13 @@ public final class ExprFactory extends WalkerFactoryBase {
         result = castOperand.getNode();
       } else {
         final Type exprType = expr.getNodeInfo().getType();
-        if (checkSize && exprType.getBitSize() != type.getBitSize()) {
-          raiseError(w, String.format(
-              "Size mismatch: %s is %s while %s is expected.",
-              expr, exprType.getTypeName(), type.getTypeName()));
-        }
 
-        if (!(type.getTypeId().isInteger() && exprType.getTypeId().isInteger() ||
-            type.equals(exprType))) {
+        if (!exprType.equals(type)) {
           raiseError(w, String.format(
               "Type mismatch: %s is %s while %s is expected.",
               expr, exprType.getTypeName(), type.getTypeName()));
         }
+
         result = expr.getNode();
       }
 
