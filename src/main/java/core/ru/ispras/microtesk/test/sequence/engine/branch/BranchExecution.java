@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.sequence.engine.branch;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.BooleanIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -27,6 +28,8 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchExecution implements Iterator<Boolean> {
+  private static final boolean RANDOM = true;
+
   private final BooleanIterator iterator;
 
   /** Set of basic blocks (with counters) to be executed before the branch execution. */
@@ -45,10 +48,15 @@ public final class BranchExecution implements Iterator<Boolean> {
    * @param conditionalBranch the flag that indicates if the branch is conditional or not.
    */
   public BranchExecution(final boolean conditionalBranch) {
-    iterator = new BooleanIterator();
+    iterator = new BooleanIterator(
+        conditionalBranch && RANDOM ? Randomizer.get().nextBoolean() : false);
 
     iterator.init();
-    iterator.setValue(!conditionalBranch);
+
+    // There is only one possibility for unconditional branches.
+    if (!conditionalBranch) {
+      iterator.next();
+    }
   }
 
   public BranchExecution() {
