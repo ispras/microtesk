@@ -33,7 +33,7 @@ public final class BranchExecutionIteratorTestCase {
         new SingleValueIterator<>(branchStructure);
 
     final BranchExecutionIterator j =
-        new BranchExecutionIterator(i, maxBranchExecution);
+        new BranchExecutionIterator(i, maxBranchExecution, -1);
 
     for (j.init(); j.hasValue(); j.next()) {
       final BranchStructure v = j.value();

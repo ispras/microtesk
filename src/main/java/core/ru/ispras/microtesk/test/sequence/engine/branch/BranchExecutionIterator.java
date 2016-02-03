@@ -24,19 +24,25 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchExecutionIterator implements Iterator<BranchStructure> {
-  private final int maxBranchExecution;
+  private final int maxBranchExecutions;
+  private final int maxExecutionTraces;
+
   private final Iterator<BranchStructure> branchStructureIterator;
+
   private BranchTraceIterator branchTraceIterator;
   private boolean hasValue;
 
   public BranchExecutionIterator(
       final Iterator<BranchStructure> branchStructureIterator,
-      final int maxBranchExecution) {
+      final int maxBranchExecutions,
+      final int maxExecutionTraces) {
     InvariantChecks.checkNotNull(branchStructureIterator);
-    InvariantChecks.checkTrue(maxBranchExecution >= 0);
+    InvariantChecks.checkTrue(maxBranchExecutions >= 0);
+    InvariantChecks.checkTrue(maxExecutionTraces >= 0 || maxExecutionTraces == -1);
 
     this.branchStructureIterator = branchStructureIterator;
-    this.maxBranchExecution = maxBranchExecution;
+    this.maxBranchExecutions = maxBranchExecutions;
+    this.maxExecutionTraces = maxExecutionTraces;
 
     hasValue = false;
   }
@@ -56,8 +62,8 @@ public final class BranchExecutionIterator implements Iterator<BranchStructure> 
   }
 
   private boolean initBranchTraceIterator() {
-    branchTraceIterator =
-        new BranchTraceIterator(branchStructureIterator.value(), maxBranchExecution);
+    branchTraceIterator = new BranchTraceIterator(
+        branchStructureIterator.value(), maxBranchExecutions, maxExecutionTraces);
 
     branchTraceIterator.init();
 
@@ -118,9 +124,11 @@ public final class BranchExecutionIterator implements Iterator<BranchStructure> 
     if (!hasValue()) {
       return;
     }
+
     if (nextBranchTraceIterator()) {
       return;
     }
+
     if (nextBranchStructureIterator()) {
       return;
     }

@@ -29,30 +29,43 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   private final BranchStructure branchStructure;
 
   /** Upper bound of branch occurrences in a trace. */
-  private final int maxBranchExecution;
+  private final int maxBranchExecutions;
+  /** Upper bound of execution traces. */
+  private final int maxExecutionTraces;
 
   /** Stack of branches. */
   private final Stack<Integer> branchStack;
 
   /** Current branch index. */
   private int currentBranch;
+  /** Count of iterated traces. */
+  private int traceCount;
 
   /** Flag that reflects availability of the value. */
   private boolean hasValue;
 
-  public BranchTraceIterator(final BranchStructure branchStructure, final int maxBranchExecution) {
+  public BranchTraceIterator(
+      final BranchStructure branchStructure,
+      final int maxBranchExecutions,
+      final int maxExecutionTraces) {
     InvariantChecks.checkNotNull(branchStructure);
-    InvariantChecks.checkTrue(maxBranchExecution >= 0);
+    InvariantChecks.checkTrue(maxBranchExecutions >= 0);
+    InvariantChecks.checkTrue(maxExecutionTraces >= 0 || maxExecutionTraces == -1);
 
     this.branchStructure = branchStructure;
-    this.maxBranchExecution = maxBranchExecution;
+    this.maxBranchExecutions = maxBranchExecutions;
+    this.maxExecutionTraces = maxExecutionTraces;
     this.branchStack = new Stack<Integer>();
 
     this.hasValue = false;
   }
 
+  public BranchTraceIterator(final BranchStructure branchStructure, final int maxExecutionTraces) {
+    this(branchStructure, 1, maxExecutionTraces);
+  }
+
   public BranchTraceIterator(final BranchStructure branchStructure) {
-    this(branchStructure, 1);
+    this(branchStructure, 1, -1);
   }
 
   @Override
@@ -69,6 +82,8 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     }
 
     currentBranch = 0;
+    traceCount = 0;
+
     searchNextBranch();
 
     if (currentBranch != -1) {
@@ -81,7 +96,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
 
   @Override
   public boolean hasValue() {
-    return hasValue;
+    return hasValue && (maxExecutionTraces == -1 || traceCount <= maxExecutionTraces);
   }
 
   @Override
@@ -100,6 +115,8 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
         break;
       }
     }
+
+    traceCount++;
   }
 
   @Override
@@ -116,7 +133,8 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     InvariantChecks.checkNotNull(r);
 
     this.branchStructure = r.branchStructure.clone();
-    this.maxBranchExecution = r.maxBranchExecution;
+    this.maxBranchExecutions = r.maxBranchExecutions;
+    this.maxExecutionTraces = r.maxExecutionTraces;
     this.currentBranch = r.currentBranch;
     this.hasValue = r.hasValue;
 
@@ -165,7 +183,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
       BranchTrace trace = entry.getBranchTrace();
       BranchExecution execution = trace.isEmpty() ? null : trace.getLastExecution();
 
-      if (!isTraceCompleted && trace.size() < maxBranchExecution) {
+      if (!isTraceCompleted && trace.size() < maxBranchExecutions) {
         // Prolong the trace if it is not completed.
         trace.addExecution(entry.isIfThen());
         branchStack.push(currentBranch);

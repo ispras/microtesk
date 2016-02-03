@@ -38,9 +38,14 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchEngine implements Engine<BranchSolution> {
-  public static final String PARAM_LIMIT = "limit";
-  public static final int PARAM_LIMIT_DEFAULT = 1;
-  
+  /** Maximum number of executions of a single branch instruction. */
+  public static final String PARAM_BRANCH_LIMIT = "branch_exec_limit";
+  public static final int PARAM_BRANCH_LIMIT_DEFAULT = 1;
+
+  /** Maximum number of execution traces to be enumerated. */
+  public static final String PARAM_TRACE_LIMIT = "trace_count_limit";
+  public static final int PARAM_TRACE_LIMIT_DEFAULT = -1;
+
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
@@ -71,7 +76,9 @@ public final class BranchEngine implements Engine<BranchSolution> {
   }
 
   /** Branch execution limit: default value is 1. */
-  private int maxBranchExecution = PARAM_LIMIT_DEFAULT;
+  private int maxBranchExecutions = PARAM_BRANCH_LIMIT_DEFAULT;
+  /** Trace count limit: default value is -1 (no limitations). */
+  private int maxExecutionTraces = PARAM_TRACE_LIMIT_DEFAULT;
 
   @Override
   public Class<BranchSolution> getSolutionClass() {
@@ -82,10 +89,13 @@ public final class BranchEngine implements Engine<BranchSolution> {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    final Object branchExecLimit = attributes.get(PARAM_LIMIT);
+    final Object branchExecLimit = attributes.get(PARAM_BRANCH_LIMIT);
+    maxBranchExecutions = branchExecLimit != null ?
+        Integer.parseInt(branchExecLimit.toString()) : PARAM_BRANCH_LIMIT_DEFAULT;
 
-    maxBranchExecution = branchExecLimit != null ?
-        Integer.parseInt(branchExecLimit.toString()) : PARAM_LIMIT_DEFAULT;
+    final Object traceCountLimit = attributes.get(PARAM_TRACE_LIMIT);
+    maxExecutionTraces = traceCountLimit != null ?
+        Integer.parseInt(traceCountLimit.toString()) : PARAM_TRACE_LIMIT_DEFAULT;
   }
 
   @Override
@@ -151,7 +161,8 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
       /** Iterator of branch structures and execution trances. */
       private final BranchExecutionIterator branchStructureExecutionIterator =
-          new BranchExecutionIterator(branchStructureIterator, maxBranchExecution);
+          new BranchExecutionIterator(
+              branchStructureIterator, maxBranchExecutions, maxExecutionTraces);
 
       @Override
       public void init() {
