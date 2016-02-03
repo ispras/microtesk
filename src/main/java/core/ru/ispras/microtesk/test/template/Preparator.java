@@ -36,6 +36,7 @@ public final class Preparator {
   private final LazyPrimitive targetHolder;
   private final LazyData dataHolder;
 
+  private final int dataOffset;
   private final Mask mask;
   private final List<Argument> arguments;
 
@@ -46,6 +47,7 @@ public final class Preparator {
       final boolean isComparator,
       final LazyPrimitive targetHolder,
       final LazyData dataHolder,
+      final int dataOffset,
       final Mask mask,
       final List<Argument> arguments,
       final List<Call> calls,
@@ -62,6 +64,7 @@ public final class Preparator {
     this.targetHolder = targetHolder;
     this.dataHolder = dataHolder;
 
+    this.dataOffset = dataOffset;
     this.mask = mask;
     this.arguments = arguments;
 
@@ -100,9 +103,16 @@ public final class Preparator {
     return null == mask && arguments.isEmpty();
   }
 
-  public boolean isMatch(final Primitive target, final BitVector data) {
+  public boolean isMatch(
+      final Primitive target,
+      final BitVector data,
+      final int dataOffset) {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(data);
+
+    if (this.dataOffset != dataOffset) {
+      return false;
+    }
 
     if (!target.getName().equals(getTargetName())) {
       return false;
@@ -151,11 +161,14 @@ public final class Preparator {
       if (call.isPreparatorCall()) {
         final PreparatorReference reference = call.getPreparatorReference();
 
-        final BitVector data = reference.getValue().asBitVector();
         final Primitive target = reference.getTarget();
+        final BitVector data = reference.getValue().asBitVector();
+        final int dataOffset = reference.getValueOffset();
         final String variantName = reference.getVariantName();
 
-        final Preparator preparator = preparators.getPreparator(target, data);
+        final Preparator preparator =
+            preparators.getPreparator(target, data, dataOffset);
+
         if (null == preparator) {
           throw new GenerationAbortedException(String.format(
               "No suitable preparator is found for %s.", target.getSignature()));

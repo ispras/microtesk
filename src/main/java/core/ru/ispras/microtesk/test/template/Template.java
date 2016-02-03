@@ -545,7 +545,7 @@ public final class Template {
         BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
 
     final Preparator preparator =
-        preparators.getPreparator(targetMode, data);
+        preparators.getPreparator(targetMode, data, 0);
 
     if (null == preparator) {
       throw new GenerationAbortedException(

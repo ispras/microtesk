@@ -79,7 +79,7 @@ public final class SelfCheckEngine {
     Logger.debug("Expected value is 0x%s", value.toHexString());
 
     final PreparatorStore preparators = engineContext.getPreparators();
-    final Preparator comparator = preparators.getComparator(abstractMode, value);
+    final Preparator comparator = preparators.getComparator(abstractMode, value, 0);
 
     if (null == comparator) {
       throw new GenerationAbortedException(
