@@ -269,18 +269,18 @@ value is 0.
 \section{Data Types}
 
 A data type specifies the format of values stored in registers or memory. nML supports
-the following data types: 
+the following data types:
 
 \begin{itemize}
 
-\item int(N):
+\item \textbf{\textit{int(N)}}:
 N-bit signed integer data type. Negative numbers are stored in two's complement
 form. The range of possible values is [-2$^{n-1}$ ... 2$^{n-1}$ - 1].
 
-\item card(N):
+\item \textbf{\textit{card(N)}}:
 N-bit unsigned integer data type. The range of possible values is [0 ... 2$^n$ - 1].
 
-\item float(N, M): IEEE 754 floating point number, where fraction size is N and exponent size is M.
+\item \textbf{\textit{float(N, M)}}: IEEE 754 floating point number, where fraction size is N and exponent size is M.
 The resulting type size is N + M +1 bits, where 1 is an implicitly added bit for store the sign.
 Supported floating-point formats include:
 
@@ -299,35 +299,43 @@ nML allows declaring aliases for data types. Here is a simple type declaration:
 type DWORD = card(32)
 \end{lstlisting}
 
-In this example, type is a reserved word, DWORD is the declared alias type name, the card(32) is
-the actual data type.
+In this example, type is a reserved word, DWORD is the declared alias type name,
+the card(32) is the actual data type.
 
 \subsection{Converting Data Types}
 
-In nML, type conversion is performed explicitly using the following functions:
+In nML, type conversion is performed explicitly using special functions.
+Implicit type conversion is not supported. Type conversion functions:
 
 \begin{itemize}
-\item sign{\_}extend(type, value).
+\item \textbf{\textit{sign{\_}extend(type, value)}}:
 Sign-extends the value to the specified type. Applied to any types. Requires
 the new type to be larger or equal to the original type.
 
-\item zero{\_}extend(type, value).
-Zero-extends the value to the specified type. Applied to any types. Requires the new type to be larger or equal to the original type.
+\item \textbf{\textit{zero{\_}extend(type, value)}}:
+Zero-extends the value to the specified type. Applied to any types. Requires
+the new type to be larger or equal to the original type.
 
-\item coerce(type, value).
-Converts an integer value to another integer type. For smaller types the value is truncated, for larger types it is extended. If the original type is a signed integer, sign extension is performed. Otherwise, zero-extension is performed.
+\item \textbf{\textit{coerce(type, value)}}:
+Converts an integer value to another integer type. For smaller types the value
+is truncated, for larger types it is extended. If the original type is a signed
+integer, sign extension is performed. Otherwise, zero-extension is performed.
 
-\item cast(type, value).
-Reinterprets the value as the specified type. Applied to any types. The new type must be of the same size as the original type.
+\item \textbf{\textit{cast(type, value)}}:
+Reinterprets the value as the specified type. Applied to any types. The new type
+must be of the same size as the original type.
 
-\item int{\_}to{\_}float(type, value).
-Converts 32 and 64-bit integers into 32, 64, 80 and 128-bit floating-point values (IEEE 754).
+\item \textbf{\textit{int{\_}to{\_}float(type, value)}}:
+Converts 32 and 64-bit integers into 32, 64, 80 and 128-bit floating-point
+values (IEEE 754).
 
-\item float{\_}to{\_}int(type, value).
-Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into 32 and 64-bit integers.
+\item \textbf{\textit{float{\_}to{\_}int(type, value)}}:
+Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into 32 and
+64-bit integers.
 
-\item float{\_}to{\_}float(type, value).
-Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each other.
+\item \textbf{\textit{float{\_}to{\_}float(type, value)}}:
+Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each
+other.
 
 \end{itemize}
 
