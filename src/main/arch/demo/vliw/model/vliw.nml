@@ -27,8 +27,7 @@ let PC = "CIA"
 ////////////////////////////////////////////////////////////////////////////////
 // Types
 
-type  LONG = int(32)
-type  WORD = card(32)
+type  WORD = int(32)
 type SHORT = int(16)
 type HWORD = card(16)
 type SBYTE = int(8)
@@ -44,12 +43,12 @@ type COND_CODE = card(3)
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
 
-reg GPR[2 ** REG_INDEX_SIZE, LONG]
+reg GPR[2 ** REG_INDEX_SIZE, WORD]
 reg FPR[2 ** REG_INDEX_SIZE, SINGLE]
 mem   M[2 ** 31, BYTE]
 
 reg  CIA[WORD] // Current instruction address
-reg FCCR[1, LONG] // FP Condition Codes register
+reg FCCR[1, WORD] // FP Condition Codes register
 
 ////////////////////////////////////////////////////////////////////////////////
 // Temporary Variables (Branch-Related)
@@ -105,7 +104,7 @@ op ADD (rd : R, rs : R, rt : R)
   }
 
 op ADDI (rt : R, rs : R, imm : SHORT)
-  syntax = format("ADDI %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("ADDI %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image  = format("001000%s%s%s", rs.image, rt.image, imm)
   action = { 
     temp = rs<31>::rs + coerce(int(33), imm);
@@ -212,17 +211,17 @@ op SLT (rd : R, rs : R, rt : R)
   }
 
 op SLTI (rt : R, rs : R, imm : SHORT)
-  syntax = format("SLTI %s, %s, %d", rt.syntax, rs.syntax, imm)
+  syntax = format("SLTI %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
   image  = format("001010%s%s%s", rs.image, rt.image, imm)
   action = {
-    rt = if rs < sign_extend(LONG, imm) then 1 else 0 endif;
+    rt = if rs < sign_extend(WORD, imm) then 1 else 0 endif;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load Store Instructions
 
 op LUI (rt : R, offset : SHORT)
-  syntax = format("LUI %s, %d", rt.syntax, offset)
+  syntax = format("LUI %s, 0x%x", rt.syntax, offset)
   image  = format("00111100000%s%s", rt.image, offset)
   action = {
     rt = coerce(WORD, offset) << 16;
@@ -232,20 +231,20 @@ op LW (base : R, rt : R, offset : SHORT)
   syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
-    rt = M[base + sign_extend(LONG, offset) + 3]
-       ::M[base + sign_extend(LONG, offset) + 2]
-       ::M[base + sign_extend(LONG, offset) + 1]
-       ::M[base + sign_extend(LONG, offset)];
+    rt = M[base + sign_extend(WORD, offset) + 3]
+       ::M[base + sign_extend(WORD, offset) + 2]
+       ::M[base + sign_extend(WORD, offset) + 1]
+       ::M[base + sign_extend(WORD, offset)];
   }
 
 op SW (base : R, rt : R, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
-    M[base + sign_extend(LONG, offset) + 3]::
-    M[base + sign_extend(LONG, offset) + 2]::
-    M[base + sign_extend(LONG, offset) + 1]::
-    M[base + sign_extend(LONG, offset)] = rt;
+    M[base + sign_extend(WORD, offset) + 3]::
+    M[base + sign_extend(WORD, offset) + 2]::
+    M[base + sign_extend(WORD, offset) + 1]::
+    M[base + sign_extend(WORD, offset)] = rt;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +257,7 @@ op B (offset : SHORT)
     // Informs that control transfer is to be performed
     BRANCH = 1;
     // Calculates the jump address and saves it to a temporary variable
-    JMPADDR = NIA + (sign_extend(LONG, offset) << 3);
+    JMPADDR = NIA + (sign_extend(WORD, offset) << 3);
   }
 
 op BEQ (rs : R, rt : R, offset : SHORT)
@@ -269,7 +268,7 @@ op BEQ (rs : R, rt : R, offset : SHORT)
       // Informs that control transfer is to be performed
       BRANCH = 1;
       // Calculates the jump address and saves it to a temporary variable
-      JMPADDR = NIA + (sign_extend(LONG, offset) << 3);
+      JMPADDR = NIA + (sign_extend(WORD, offset) << 3);
     endif;
   }
 
@@ -281,7 +280,7 @@ op BNE (rs : R, rt : R, offset : SHORT)
       // Informs that control transfer is to be performed
       BRANCH = 1;
       // Calculates the jump address and saves it to a temporary variable
-      JMPADDR = NIA + (sign_extend(LONG, offset) << 3);
+      JMPADDR = NIA + (sign_extend(WORD, offset) << 3);
     endif;
   }
 
@@ -434,7 +433,7 @@ op BFF (cc : COND_CODE, offset : SHORT)
       // Informs that control transfer is to be performed
       BRANCH = 1;
       // Calculates the jump address and saves it to a temporary variable
-      JMPADDR = NIA + (sign_extend(LONG, offset) << 3);
+      JMPADDR = NIA + (sign_extend(WORD, offset) << 3);
     endif;
   }
 
@@ -446,7 +445,7 @@ op BFT (cc : COND_CODE, offset : SHORT)
       // Informs that control transfer is to be performed
       BRANCH = 1;
       // Calculates the jump address and saves it to a temporary variable
-      JMPADDR = NIA + (sign_extend(LONG, offset) << 3);
+      JMPADDR = NIA + (sign_extend(WORD, offset) << 3);
     endif;
   }
 
