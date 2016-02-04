@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -37,7 +37,7 @@ import ru.ispras.microtesk.model.api.state.IModelStateObserver;
  * <li>Format arguments. Pieces of information to be inserted into the printed text.</li>
  * </ol>
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
 public final class Output {
@@ -45,7 +45,7 @@ public final class Output {
    * The Argument interface is a base interface to be implemented by all objects that store format
    * arguments.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
   interface Argument {
@@ -87,7 +87,7 @@ public final class Output {
 
     @Override
     public String toString() {
-      return evaluate(null).toString();
+      return value.toString();
     }
   }
 
@@ -195,8 +195,8 @@ public final class Output {
 
     checkNotNull(observer);
 
-    final List<Object> values = new ArrayList<Object>(args.size());
-    for (Argument argument : args) {
+    final List<Object> values = new ArrayList<>(args.size());
+    for (final Argument argument : args) {
       final Object value = argument.evaluate(observer);
       values.add(value);
     }
@@ -209,7 +209,7 @@ public final class Output {
     final StringBuilder sb = new StringBuilder(
        String.format("Output (runtime: %b): \"%s\"", isRuntime, format.trim()));
 
-    for (Argument arg : args) {
+    for (final Argument arg : args) {
       sb.append(", ");
       sb.append(arg.toString());
     }
