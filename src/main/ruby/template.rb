@@ -479,6 +479,15 @@ class Template
     target = get_attribute attrs, :target
     builder = @template.beginPreparator target.to_s, is_comparator
 
+    offset = attrs[:offset]
+    if !offset.nil?
+      if offset.is_a?(Integer)
+        builder.setDataOffset offset
+      else
+        raise MTRubyError, "#{offset} is not an Integer."
+      end
+    end
+
     mask = attrs[:mask]
     if !mask.nil?
       if mask.is_a?(String)
