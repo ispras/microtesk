@@ -110,11 +110,11 @@ public final class Preparator {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(data);
 
-    if (this.dataOffset != dataOffset) {
+    if (!target.getName().equals(getTargetName())) {
       return false;
     }
 
-    if (!target.getName().equals(getTargetName())) {
+    if (this.dataOffset != dataOffset) {
       return false;
     }
 
