@@ -543,41 +543,18 @@ class Template
     end
   end
 
-  # prepare target, value, [offset], [variant]
-  def prepare(*args)
-    if args.count < 2 or args.count > 4
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be from 2 to 4."
+  def prepare(target_mode, value_object, attrs = {})
+    preparator_name = attrs[:name]
+    if !preparator_name.nil?
+      preparator_name = preparator_name.to_s
     end
 
-    target_mode = args.at(0)
-    value_object = args.at(1)
-    value_offset = 0
-    variant_name = nil
-
-    if args.count == 3
-      optional_arg = args.at(2)
-      if optional_arg.is_a?(Integer)
-        value_offset = optional_arg
-      elsif optional_arg.is_a?(String)
-        variant_name = optional_arg
-      else
-        raise MTRubyError, "#{optional_arg} must be an Integer or String."
-      end
+    variant_name = attrs[:variant]
+    if !variant_name.nil?
+      variant_name = variant_name.to_s
     end
 
-    if args.count == 4
-      value_offset = args.at(2)
-      if !value_offset.is_a?(Integer)
-        raise MTRubyError, "Value offset (#{value_offset}) must be an Integer."
-      end
-
-      variant_name = args.at(3)
-      if !variant_name.is_a?(String)
-        raise MTRubyError, "Variant name (#{variant_name}) must be a String."
-      end
-    end
-
-    @template.addPreparatorCall target_mode, value_object, value_offset, variant_name
+    @template.addPreparatorCall target_mode, value_object, preparator_name, variant_name
   end
 
   # -------------------------------------------------------------------------- #
