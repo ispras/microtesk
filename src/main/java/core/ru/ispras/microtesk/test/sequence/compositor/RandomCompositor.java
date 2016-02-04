@@ -55,8 +55,12 @@ public final class RandomCompositor<T> extends Compositor<T> {
       // the iterator choice probability is proportional to the sequence size.
       // If there are unbounded iterators (i.e., iterators with unknown size),
       // the uniform probability distribution is used for choosing iterators.
-      values.add(i);
-      biases.add(bounded ? ((BoundedIterator<T>) iterator).size() : 1);
+      final int bias = bounded ? ((BoundedIterator<T>) iterator).size() : 1;
+
+      if (bias > 0) {
+        values.add(i);
+        biases.add(bias);
+      }
     }
 
     distribution = new VariateBiased<>(values, biases);
