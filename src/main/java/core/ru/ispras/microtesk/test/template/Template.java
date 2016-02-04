@@ -526,8 +526,8 @@ public final class Template {
   public void addPreparatorCall(
       final Primitive targetMode,
       final BigInteger value,
-      final int valueOffset,
-      final String preferedVariantName) {
+      final String preparatorName,
+      final String variantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
 
@@ -544,7 +544,7 @@ public final class Template {
         BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
 
     final Preparator preparator =
-        preparators.getPreparator(targetMode, data, valueOffset);
+        preparators.getPreparator(targetMode, data, preparatorName);
 
     if (null == preparator) {
       throw new GenerationAbortedException(
@@ -552,7 +552,7 @@ public final class Template {
     }
 
     final List<Call> initializer =
-        preparator.makeInitializer(preparators, targetMode, data, preferedVariantName);
+        preparator.makeInitializer(preparators, targetMode, data, variantName);
 
     for (final Call call : initializer) {
       addCall(call);
@@ -562,18 +562,18 @@ public final class Template {
   public void addPreparatorCall(
       final Primitive targetMode,
       final RandomValue value,
-      final int valueOffset,
-      final String preferredVariantName) {
+      final String preparatorName,
+      final String variantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
-    addPreparatorCall(targetMode, value.getValue(), valueOffset, preferredVariantName);
+    addPreparatorCall(targetMode, value.getValue(), preparatorName, variantName);
   }
 
   public void addPreparatorCall(
       final Primitive targetMode,
       final LazyValue value,
-      final int valueOffset,
-      final String preferredVariantName) {
+      final String preparatorName,
+      final String variantName) {
     if (null == preparatorBuilder && null == bufferPreparatorBuilder) {
       throw new IllegalStateException(
           "A preparator with a lazy value can be invoked only inside " + 
@@ -587,7 +587,7 @@ public final class Template {
     Logger.debug("Preparator reference: %s", targetMode.getName());
 
     callBuilder.setPreparatorReference(
-        new PreparatorReference(targetMode, value, valueOffset, preferredVariantName));
+        new PreparatorReference(targetMode, value, preparatorName, variantName));
 
     endBuildingCall();
   }
