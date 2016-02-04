@@ -36,7 +36,7 @@ public final class Preparator {
   private final LazyPrimitive targetHolder;
   private final LazyData dataHolder;
 
-  private final int dataOffset;
+  private final String name;
   private final Mask mask;
   private final List<Argument> arguments;
 
@@ -47,7 +47,7 @@ public final class Preparator {
       final boolean isComparator,
       final LazyPrimitive targetHolder,
       final LazyData dataHolder,
-      final int dataOffset,
+      final String name,
       final Mask mask,
       final List<Argument> arguments,
       final List<Call> calls,
@@ -64,7 +64,7 @@ public final class Preparator {
     this.targetHolder = targetHolder;
     this.dataHolder = dataHolder;
 
-    this.dataOffset = dataOffset;
+    this.name = name;
     this.mask = mask;
     this.arguments = arguments;
 
@@ -106,7 +106,7 @@ public final class Preparator {
   public boolean isMatch(
       final Primitive target,
       final BitVector data,
-      final int dataOffset) {
+      final String preparatorName) {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(data);
 
@@ -114,7 +114,7 @@ public final class Preparator {
       return false;
     }
 
-    if (this.dataOffset != dataOffset) {
+    if (null == name ? name != preparatorName : !name.equals(preparatorName)) {
       return false;
     }
 
@@ -163,11 +163,11 @@ public final class Preparator {
 
         final Primitive target = reference.getTarget();
         final BitVector data = reference.getValue().asBitVector();
-        final int dataOffset = reference.getValueOffset();
+        final String preparatorName = reference.getPreparatorName();
         final String variantName = reference.getVariantName();
 
         final Preparator preparator =
-            preparators.getPreparator(target, data, dataOffset);
+            preparators.getPreparator(target, data, preparatorName);
 
         if (null == preparator) {
           throw new GenerationAbortedException(String.format(
