@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.combinator.DiagonalCombinator;
 import ru.ispras.microtesk.test.sequence.combinator.ProductCombinator;
@@ -79,7 +80,12 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Combinator<List<T>> getCombinator(final String name) {
     InvariantChecks.checkNotNull(name);
+
     final Class<?> combinatorClass = combinators.get(name.toLowerCase());
+    if (null == combinatorClass) {
+      throw new GenerationAbortedException("Combinator is not defined: " + name);
+    }
+
     return createInstance((Class<Combinator<List<T>>>) combinatorClass);
   }
 
@@ -92,7 +98,12 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Compositor<T> getCompositor(final String name) {
     InvariantChecks.checkNotNull(name);
+
     final Class<?> compositorClass = compositors.get(name.toLowerCase());
+    if (null == compositorClass) {
+      throw new GenerationAbortedException("Compositor is not defined: " + name);
+    }
+
     return createInstance((Class<Compositor<T>>) compositorClass);
   }
 
@@ -105,7 +116,12 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Permutator<T> getPermutator(final String name) {
     InvariantChecks.checkNotNull(name);
+
     final Class<?> permutatorClass = permutators.get(name.toLowerCase());
+    if (null == permutatorClass) {
+      throw new GenerationAbortedException("Permutator is not defined: " + name);
+    }
+
     return createInstance((Class<Permutator<T>>) permutatorClass);
   }
 
