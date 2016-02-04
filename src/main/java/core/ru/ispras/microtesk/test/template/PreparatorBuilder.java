@@ -31,7 +31,7 @@ public final class PreparatorBuilder {
   private final LazyPrimitive target;
   private final LazyData data;
 
-  private int dataOffset; 
+  private String name;
   private Preparator.Mask mask;
   private final List<Preparator.Argument> arguments;
 
@@ -52,7 +52,7 @@ public final class PreparatorBuilder {
     this.target = new LazyPrimitive(Primitive.Kind.MODE, targetName, targetName);
     this.data = new LazyData();
 
-    this.dataOffset = 0;
+    this.name = null;
     this.mask = null;
     this.arguments = new ArrayList<>();
 
@@ -61,8 +61,9 @@ public final class PreparatorBuilder {
     this.currentVariant = null;
   }
 
-  public void setDataOffset(final int dataOffset) {
-    this.dataOffset = dataOffset;
+  public void setName(final String name) {
+    InvariantChecks.checkNotNull(name);
+    this.name = name;
   }
 
   public void setMaskValue(final String mask) {
@@ -164,7 +165,7 @@ public final class PreparatorBuilder {
         isComparator,
         target,
         data,
-        dataOffset,
+        name,
         mask,
         arguments,
         calls,
