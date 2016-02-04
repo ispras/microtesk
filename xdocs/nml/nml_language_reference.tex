@@ -241,7 +241,7 @@ does not have significant programming skills.
 
 \section{Constants}
 
-A declaration like
+In nML, constants are declared by using the A declaration like
 
 \begin{lstlisting}
 let A = 100
@@ -294,14 +294,12 @@ is an implicitly added bit for store the sign. Supported floating-point formats 
 
 \end{itemize}
 
-nML allows declaring aliases for data types. Here is a simple type declaration:
+nML allows declaring aliases for data types using the \textbf{\textit{type}} keyword.
+For example, in the code below, DWORD is the declared as an alias for card(32):
 
 \begin{lstlisting}
 type DWORD = card(32)
 \end{lstlisting}
-
-In this example, type is a reserved word, DWORD is the declared alias type name,
-the card(32) is the actual data type.
 
 \subsection{Converting Data Types}
 
@@ -339,6 +337,10 @@ Converts 32, 64, 80 and 128-bit floating-point values (IEEE 754) into each
 other.
 
 \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Memory, Registers and Variables}
 
 
 \lstinputlisting{examples/test.nml}
