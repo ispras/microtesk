@@ -177,7 +177,7 @@ class Template
     @template.endBlock
   end
 
-  def atomic(attributes = {}, &contents)
+  def sequence(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
     blockBuilder.setAtomic true
     blockBuilder.setWhere get_caller_location

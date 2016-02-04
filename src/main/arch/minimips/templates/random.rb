@@ -54,7 +54,7 @@ class RandomTemplate < MiniMipsBaseTemplate
                       range(:value => 1..2,                   :bias => 25),  # Small
                       range(:value => 0xffffFFFE..0xffffFFFF, :bias => 50))  # Large
 
-    atomic {
+    sequence {
       # ADD instruction with biased operand values.
       add t0, t1, t2 do situation('random_biased',
         :dist => dist(range(:value=> int32_dist,              :bias => 80),  # Simple

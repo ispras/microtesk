@@ -25,7 +25,7 @@ class BlockTemplate < MiniMipsBaseTemplate
 
   def run
     # Produces a single test case that consists of three instructions
-    atomic {
+    sequence {
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)

@@ -29,7 +29,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     block(:combinator => 'product', :compositor => 'random') {
       block {
         add t0, t1, t2 do situation('normal') end
-        atomic {
+        sequence {
           add t0, t1, t2 do situation('IntegerOverflow') end
           nop
         }
@@ -37,7 +37,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
 
       block {
         sub t3, t4, t5 do situation('normal') end
-        atomic {
+        sequence {
           sub t3, t4, t5 do situation('IntegerOverflow') end
           nop
         }

@@ -25,7 +25,7 @@ class PermutatorTemplate < MiniMipsBaseTemplate
 
   def run
     # Ordered as is:
-    atomic(:permutator => 'trivial') {
+    sequence(:permutator => 'trivial') {
       Add reg(_), reg(_), reg(_)
       Sub reg(_), reg(_), reg(_)
       And reg(_), reg(_), reg(_)
@@ -35,7 +35,7 @@ class PermutatorTemplate < MiniMipsBaseTemplate
     }.run 5
 
     # Random ordering:
-    atomic(:permutator => 'random') {
+    sequence(:permutator => 'random') {
       # Needed as a place to return from an exception
       epilogue {
         nop

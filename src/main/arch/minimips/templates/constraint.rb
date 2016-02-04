@@ -25,7 +25,7 @@ require_relative 'minimips_base'
 class ConstraintTemplate < MiniMipsBaseTemplate
 
   def run
-    atomic {
+    sequence {
       # ADD instruction with biased operand values.
       add t0, t1, t2 do situation('constraint_int_overflow', :size => 32) end
     }.run(100)

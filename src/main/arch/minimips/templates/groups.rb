@@ -33,7 +33,7 @@ class GroupsTemplate < MiniMipsBaseTemplate
   def run
     # Using groups defined in the specification
 
-    atomic {
+    sequence {
       # Selects from {add, addu, sub, subu}
       arithm t0, t1, t2
 
@@ -55,7 +55,7 @@ class GroupsTemplate < MiniMipsBaseTemplate
                     range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
 
     define_op_group('xxx', xxx_dist)
-    atomic {
+    sequence {
       # Selects an instruction according to the 'xxx_dist' distribution
       xxx t0, t1, t2
       xxx t3, t4, t5
