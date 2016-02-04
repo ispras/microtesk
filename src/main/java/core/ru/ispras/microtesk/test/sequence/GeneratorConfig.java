@@ -79,7 +79,8 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Combinator<List<T>> getCombinator(final String name) {
     InvariantChecks.checkNotNull(name);
-    return createInstance((Class<Combinator<List<T>>>) combinators.get(name.toLowerCase()));
+    final Class<?> combinatorClass = combinators.get(name.toLowerCase());
+    return createInstance((Class<Combinator<List<T>>>) combinatorClass);
   }
 
   /**
@@ -91,7 +92,8 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Compositor<T> getCompositor(final String name) {
     InvariantChecks.checkNotNull(name);
-    return createInstance((Class<Compositor<T>>) compositors.get(name.toLowerCase()));
+    final Class<?> compositorClass = compositors.get(name.toLowerCase());
+    return createInstance((Class<Compositor<T>>) compositorClass);
   }
 
   /**
@@ -103,7 +105,8 @@ public final class GeneratorConfig<T> {
   @SuppressWarnings("unchecked")
   public Permutator<T> getPermutator(final String name) {
     InvariantChecks.checkNotNull(name);
-    return createInstance((Class<Permutator<T>>) permutators.get(name.toLowerCase()));
+    final Class<?> permutatorClass = permutators.get(name.toLowerCase());
+    return createInstance((Class<Permutator<T>>) permutatorClass);
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {
