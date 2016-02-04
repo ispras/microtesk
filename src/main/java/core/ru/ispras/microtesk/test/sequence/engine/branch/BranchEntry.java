@@ -36,7 +36,7 @@ public final class BranchEntry {
   /** Entry type. */
   private Type type;
 
-  /** Group identifier the entry. */
+  /** Group identifier of the entry. */
   private int groupId;
 
   /** Branch label (index of the target instruction in the branch structure). */
