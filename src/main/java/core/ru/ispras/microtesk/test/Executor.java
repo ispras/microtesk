@@ -101,6 +101,10 @@ final class Executor {
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
+    if (calls.isEmpty()) {
+      return;
+    }
+
     final int startIndex = 0;
     final int endIndex = calls.size() - 1;
 

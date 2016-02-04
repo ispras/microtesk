@@ -203,7 +203,7 @@ public final class Template {
   }
 
   private void beginNewSection() {
-    final BlockBuilder rootBlockBuilder = new BlockBuilder();
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(false);
     rootBlockBuilder.setAtomic(true);
 
     this.blockBuilders = new LinkedList<>();
@@ -246,15 +246,13 @@ public final class Template {
     final BlockBuilder current;
 
     if (isMainSection && isRoot) {
-      if (parent.isEmpty()) {
-        current = parent;
-      } else {
+      if (!parent.isEmpty()) {
         processBlock(Section.MAIN, parent.build(globalPrologue, globalEpilogue));
-        blockBuilders.pop();
-
-        current = new BlockBuilder();
-        blockBuilders.push(current);
       }
+
+      blockBuilders.pop();
+      current = new BlockBuilder(true);
+      blockBuilders.push(current);
     } else {
       current = new BlockBuilder(parent);
       blockBuilders.push(current);
@@ -284,7 +282,7 @@ public final class Template {
       // Then a new root block builder is created and pushed to the stack.
       block = builder.build(globalPrologue, globalEpilogue);
 
-      final BlockBuilder newBuilder = new BlockBuilder();
+      final BlockBuilder newBuilder = new BlockBuilder(false);
       newBuilder.setAtomic(true);
       blockBuilders.push(newBuilder);
     } else {

@@ -29,6 +29,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
   private final BlockId blockId;
+  private final boolean isExplicit;
   private Where where;
 
   private List<Block> nestedBlocks;
@@ -43,16 +44,17 @@ public final class BlockBuilder {
   private List<Call> prologue;
   private List<Call> epilogue;
 
-  protected BlockBuilder() {
-    this(new BlockId());
+  protected BlockBuilder(final boolean isExplicit) {
+    this(new BlockId(), isExplicit);
   }
 
   protected BlockBuilder(final BlockBuilder parent) {
-    this(parent.getBlockId().nextChildId());
+    this(parent.getBlockId().nextChildId(), true);
   }
 
-  private BlockBuilder(final BlockId blockId) {
+  private BlockBuilder(final BlockId blockId, final boolean isExplicit) {
     this.blockId = blockId;
+    this.isExplicit = isExplicit;
     this.where = null;
 
     this.nestedBlocks = new ArrayList<>();
@@ -177,6 +179,11 @@ public final class BlockBuilder {
 
     for (final Block block : nestedBlocks) {
       generatorBuilder.addIterator(block.getIterator());
+    }
+
+    // For an empty atomic block (explicitly specified), an single empty sequence is inserted.
+    if (isEmpty() && isAtomic && isExplicit) {
+      generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
     }
 
     final Generator<Call> generator =
