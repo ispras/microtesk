@@ -69,15 +69,15 @@ public final class PreparatorStore {
   public Preparator getPreparator(
       final Primitive targetMode,
       final BitVector data,
-      final int dataOffset) {
-    return getPreparator(preparatorGroups, targetMode, data, dataOffset);
+      final String preparatorName) {
+    return getPreparator(preparatorGroups, targetMode, data, preparatorName);
   }
 
   public Preparator getComparator(
       final Primitive targetMode,
       final BitVector data,
-      final int dataOffset) {
-    return getPreparator(comparatorGroups, targetMode, data, dataOffset);
+      final String preparatorName) {
+    return getPreparator(comparatorGroups, targetMode, data, preparatorName);
   }
 
   private static void addPrerator(
@@ -102,7 +102,7 @@ public final class PreparatorStore {
       final Map<String, PreparatorGroup> preparatorGroups,
       final Primitive targetMode,
       final BitVector data,
-      final int dataOffset) {
+      final String preparatorName) {
     InvariantChecks.checkNotNull(targetMode);
     InvariantChecks.checkNotNull(data);
 
@@ -114,7 +114,7 @@ public final class PreparatorStore {
     }
 
     for (final Preparator preparator : group.getPreparators()) {
-      if (preparator.isMatch(targetMode, data, dataOffset)) {
+      if (preparator.isMatch(targetMode, data, preparatorName)) {
         return preparator; 
       }
     }
