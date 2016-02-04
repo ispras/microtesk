@@ -206,7 +206,7 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = new BlockBuilder();
     rootBlockBuilder.setAtomic(true);
 
-    this.blockBuilders = new LinkedList<BlockBuilder>();
+    this.blockBuilders = new LinkedList<>();
     this.blockBuilders.push(rootBlockBuilder);
     this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
