@@ -28,13 +28,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class PreparatorReference {
   private final Primitive target;
   private final LazyValue value;
-  private final int valueOffset;
+  private final String preparatorName;
   private final String variantName;
 
   protected PreparatorReference(
       final Primitive target,
       final LazyValue value,
-      final int valueOffset,
+      final String preparatorName,
       final String variantName) {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(value);
@@ -46,7 +46,7 @@ public final class PreparatorReference {
 
     this.target = target;
     this.value = value;
-    this.valueOffset = valueOffset;
+    this.preparatorName = preparatorName;
     this.variantName = variantName;
   }
 
@@ -55,7 +55,7 @@ public final class PreparatorReference {
 
     this.target = other.target.newCopy();
     this.value = new LazyValue(other.value);
-    this.valueOffset = other.valueOffset;
+    this.preparatorName = other.preparatorName;
     this.variantName = other.variantName;
   }
 
@@ -67,8 +67,8 @@ public final class PreparatorReference {
     return value;
   }
 
-  public int getValueOffset() {
-    return valueOffset;
+  public String getPreparatorName() {
+    return preparatorName;
   }
 
   public String getVariantName() {
@@ -78,9 +78,9 @@ public final class PreparatorReference {
   @Override
   public String toString() {
     return String.format(
-        "%s[valueOffset=%s, variantName=%s]",
+        "%s[preparator=%s, variant=%s]",
         target.getName(),
-        valueOffset,
+        preparatorName,
         variantName
         );
   }
