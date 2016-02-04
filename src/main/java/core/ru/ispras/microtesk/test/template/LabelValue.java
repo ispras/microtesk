@@ -86,4 +86,9 @@ public final class LabelValue implements Value {
   public BigInteger getValue() {
     return getAddress();
   }
+
+  @Override
+  public String toString() {
+    return String.format("LabelValue [label=%s, address=%s]", getName(), getAddress());
+  }
 }

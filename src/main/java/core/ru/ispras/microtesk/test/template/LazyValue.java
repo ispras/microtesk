@@ -70,6 +70,11 @@ public final class LazyValue implements Value {
 
   @Override
   public BigInteger getValue() {
-    return asBitVector().bigIntegerValue();
+    return asBitVector().bigIntegerValue(false);
+  }
+
+  @Override
+  public String toString() {
+    return null != data.getValue() ? getValue().toString() : "LazyValue";
   }
 }

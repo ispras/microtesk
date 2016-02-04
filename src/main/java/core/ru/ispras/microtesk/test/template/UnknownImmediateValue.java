@@ -60,4 +60,9 @@ public final class UnknownImmediateValue implements Value {
     }
     this.value = value;
   }
+
+  @Override
+  public String toString() {
+    return null != value ? value.toString() : "UnknownImmediateValue";
+  }
 }

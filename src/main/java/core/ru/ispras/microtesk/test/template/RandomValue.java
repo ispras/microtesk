@@ -57,4 +57,9 @@ public final class RandomValue implements Value {
     }
     return value;
   }
+
+  @Override
+  public String toString() {
+    return null != value ? value.toString() : String.format("RandomValue[%d..%d]", min, max);
+  }
 }
