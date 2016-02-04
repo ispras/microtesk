@@ -526,6 +526,7 @@ public final class Template {
   public void addPreparatorCall(
       final Primitive targetMode,
       final BigInteger value,
+      final int valueOffset,
       final String preferedVariantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
@@ -543,7 +544,7 @@ public final class Template {
         BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
 
     final Preparator preparator =
-        preparators.getPreparator(targetMode, data, 0);
+        preparators.getPreparator(targetMode, data, valueOffset);
 
     if (null == preparator) {
       throw new GenerationAbortedException(
@@ -561,15 +562,17 @@ public final class Template {
   public void addPreparatorCall(
       final Primitive targetMode,
       final RandomValue value,
+      final int valueOffset,
       final String preferredVariantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
-    addPreparatorCall(targetMode, value.getValue(), preferredVariantName);
+    addPreparatorCall(targetMode, value.getValue(), valueOffset, preferredVariantName);
   }
 
   public void addPreparatorCall(
       final Primitive targetMode,
       final LazyValue value,
+      final int valueOffset,
       final String preferredVariantName) {
     if (null == preparatorBuilder && null == bufferPreparatorBuilder) {
       throw new IllegalStateException(
@@ -584,7 +587,7 @@ public final class Template {
     Logger.debug("Preparator reference: %s", targetMode.getName());
 
     callBuilder.setPreparatorReference(
-        new PreparatorReference(targetMode, value, 0, preferredVariantName));
+        new PreparatorReference(targetMode, value, valueOffset, preferredVariantName));
 
     endBuildingCall();
   }
