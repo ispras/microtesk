@@ -1,5 +1,5 @@
 #
-# Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,23 +60,15 @@ class MiniMipsBaseTemplate < Template
     # The code below specifies an instruction sequence that writes a value
     # to the specified register (target) via the REG addressing mode.
     #
-    # Default preparator: It is used when no special case previded below
+    # Default preparator: It is used when no special case provided below
     # is applicable.
     #
     preparator(:target => 'REG') {
-      # Defines two equally probable variants of default preparator.
-      # A specific variant is selected on random basis.
+      # Inserts a named preparator that initializes the high part.
+      prepare target, value(16, 31), :name => 'XXXX0000'
 
-      variant {
-        lui  target, value(16, 31)
-        ori  target, target, value(0, 15)
-      }
-
-      variant {
-        ori  target, zero,   value(16, 31)
-        sll  target, target, 16
-        addi target, target, value(0, 15)
-      }
+      # Inserts a named preparator that initializes the low part leaving the high part unchanged.
+      prepare target, value(0, 15),  :name => '----XXXX'
     }
 
     #
@@ -92,6 +84,9 @@ class MiniMipsBaseTemplate < Template
     # more convenient to use $zero register to reset the target.
     #
     preparator(:target => 'REG', :mask => "00000000") {
+      # There are three ways (variants) to reset the target register,
+      # which are chosen at random with equal probabilities. 
+
       variant {
         OR target, zero, zero
       }
@@ -115,9 +110,58 @@ class MiniMipsBaseTemplate < Template
 
     #
     # Special case: Higher half of value is filled with zeros. In this case,
-    # only one initializing instruction is enough.
+    # it is enough to initialize only the low part.
     #
     preparator(:target => 'REG', :mask => "0000XXXX") {
+      # Inserts a named preparator that initializes the low part.
+      prepare target, value(0, 15), :name => '0000XXXX'
+    }
+
+    #
+    # Special case: Lower half of value is filled with zeros. In this case,
+    # it is enough to initialize only the high part.
+    #
+    preparator(:target => 'REG', :mask => "XXXX0000") {
+      # Inserts a named preparator that initializes the high part.
+      prepare target, value(16, 31), :name => 'XXXX0000'
+    }
+
+    #
+    # The code below describes named halfword preparators that are used
+    # by other preparators to initialize registers.
+    #
+    # All of them have the same mask, but have different purposes which
+    # are identified by their names. Names serve as an additional key to
+    # search for a preparator. Such preparators are called only from other
+    # preparators and cannot be not used by generation engines directly since
+    # engines do not use names. 
+    #
+    # "XXXX0000": Preparator for initializing the high halfword that resets
+    # the low part.
+    #
+    preparator(:target => 'REG', :name => 'XXXX0000', :mask => 'XXXX') {
+      # There are two ways (variants) to set the target register,
+      # which are have probabilities 25 and 75. 
+
+      variant(:bias => 25) {
+        lui target, value
+      }
+
+      variant(:bias => 75) {
+        # Inserts a named preparator that initializes the low part.
+        prepare target, value, :name => '0000XXXX'
+        sll target, target, 16
+      }
+    }
+
+    #
+    # "0000XXXX": Preparator for initializing the low halfword that resets
+    # the high part.
+    #
+    preparator(:target => 'REG', :name => '0000XXXX', :mask => "XXXX") {
+      # There are three ways (variants) to initialize the target register,
+      # which are chosen at random with equal probabilities.
+
       variant {
         ori target, zero, value(0, 15)
       }
@@ -129,24 +173,26 @@ class MiniMipsBaseTemplate < Template
       variant {
         addi target, zero, value(0, 15)
       }
-
-      variant {
-        addiu target, zero, value(0, 15)
-      }
     }
 
     #
-    # Special case: Lower half of value is filled with zeros. In this case,
-    # it is enough to initialize only the high part.
+    # "----XXXX": Preparator for initializing the low halfword that preserves
+    # the high part. It assumes that the initial value of the low halfword is 0.
     #
-    preparator(:target => 'REG', :mask => "XXXX0000") {
+    preparator(:target => 'REG', :name => '----XXXX', :mask => "XXXX") {
+      # There are three ways (variants) to initialize the target register,
+      # which are chosen at random with equal probabilities.
+
       variant {
-        lui target, value(16, 31)
+        ori target, target, value(0, 15)
       }
 
       variant {
-        ori target, zero, value(16, 31)
-        sll target, target, 16
+        xori target, target, value(0, 15)
+      }
+
+      variant {
+        addi target, target, value(0, 15)
       }
     }
 
