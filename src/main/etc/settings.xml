@@ -4,7 +4,7 @@
   <setting name="branch-exec-limit" value="200"/>
   <setting name="code-file-extension" value="s"/>
   <setting name="code-file-prefix" value="test"/>
-  <setting name="data-file-extension" value="dat"/>
+  <setting name="data-file-extension" value="s"/>
   <setting name="data-file-prefix" value="data"/>
   <setting name="exception-file-prefix" value="boot"/>
   <setting name="program-length-limit" value="10000"/>
@@ -13,6 +13,6 @@
   <setting name="comments-debug" value=""/>
   <setting
     name="arch-dirs"
-    value="cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
+    value="k64=arch/k64/settings.xml:cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
   />
 </settings>

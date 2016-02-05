@@ -15,6 +15,7 @@
    of execution traces was introduced
  - Test templates: support for named preparators was implemented
  - Test templates: 'atomic' was renamed to 'sequence'
+ - nML translator: some general improvements were made
 
 2016/01/29 MicroTESK 2.3.20 beta
 
