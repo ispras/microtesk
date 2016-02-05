@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -24,27 +21,6 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.Pair;
 
 public final class Utility {
-  static <T> List<T> appendList(List<T> lhs, List<T> rhs) {
-    if (rhs.isEmpty())
-      return lhs;
-
-    if (lhs.isEmpty())
-      return new ArrayList<>(rhs);
-
-    lhs.addAll(rhs);
-
-    return lhs;
-  }
-
-  static <T> List<T> appendElement(List<T> lhs, T elem) {
-    if (lhs.isEmpty())
-      lhs = new ArrayList<>();
-
-    lhs.add(elem);
-
-    return lhs;
-  }
-
   public static Pair<String, String> splitOnLast(String name, char c) {
     final int index = name.lastIndexOf(c);
     if (index < 0) {
