@@ -140,8 +140,10 @@ public final class BranchExecution implements Iterator<Boolean> {
     final StringBuilder builder = new StringBuilder();
 
     builder.append(value());
-    builder.append(postBlocks.isEmpty() ? "" : " ");
-    builder.append(postBlocks);
+    builder.append(", ");
+    builder.append(String.format("pre=%s", preBlocks));
+    builder.append(", ");
+    builder.append(String.format("post=%s", postBlocks));
 
     return builder.toString();
   }

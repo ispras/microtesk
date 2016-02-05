@@ -79,7 +79,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final BranchStructure branchStructure = solution.getBranchStructure();
     InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
 
-    Logger.debug("Branch Structure: %s", branchStructure);
+    Logger.debug("Branch structure: %s", branchStructure);
 
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 
@@ -345,6 +345,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
         // Count defines how many times the control code is executed before calling the branch.
         final int count = getCount(controlCodeInBasicBlock, branchEntry, execution);
+        Logger.debug(String.format(
+            "Branch execution: i=%d, condition=%b, count=%d", i, branchCondition, count));
 
         if(i == 0 && count > 0) {
           initNeeded = false;
@@ -438,8 +440,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     for (final int item : coverage) {
       final Integer count = segment.get(item);
-      result += count != null ? count : 0;
+      result += (count != null ? count : 0);
     }
+
+    Logger.debug(String.format(
+        "Control code count: count=%d, coverage=%s, segment=%s", result, coverage, segment));
 
     return result;
   }

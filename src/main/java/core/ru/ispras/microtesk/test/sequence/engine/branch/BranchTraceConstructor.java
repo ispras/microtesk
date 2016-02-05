@@ -61,14 +61,14 @@ final class BranchTraceConstructor {
 
       // Previous basic blocks.
       if (!postBlocks.containsKey(index)) {
-        execution.setPreBlocks(preBlocks);
+        execution.setPreBlocks(new LinkedHashMap<>(preBlocks));
       } else {
         execution.setPreBlocks(postBlocks.get(index));
       }
 
       // Previous delay slots.
       if (!postSlots.containsKey(index)) {
-        execution.setPreSlots(preSlots);
+        execution.setPreSlots(new LinkedHashMap<>(preSlots));
       } else {
         execution.setPreSlots(postSlots.get(index));
       }
