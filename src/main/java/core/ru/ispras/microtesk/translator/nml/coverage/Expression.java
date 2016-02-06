@@ -14,17 +14,16 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import java.util.Collection;
+import java.util.List;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 
 final class Expression {
-  public static final Node TRUE = new NodeValue(Data.newBoolean(true));
-  public static final Node FALSE = new NodeValue(Data.newBoolean(false));
+  public static final Node TRUE = NodeValue.newBoolean(true);
+  public static final Node FALSE = NodeValue.newBoolean(false);
 
   public static NodeOperation EQ(Node lhs, Node rhs) {
     return new NodeOperation(StandardOperation.EQ, lhs, rhs);
@@ -59,18 +58,16 @@ final class Expression {
     return new NodeOperation(StandardOperation.AND, args);
   }
 
-  public static NodeOperation AND(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.AND,
-                             args.toArray(new Node[args.size()]));
+  public static NodeOperation AND(List<? extends Node> args) {
+    return new NodeOperation(StandardOperation.AND, args);
   }
 
   public static NodeOperation OR(Node... args) {
     return new NodeOperation(StandardOperation.OR, args);
   }
 
-  public static NodeOperation OR(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.OR,
-                             args.toArray(new Node[args.size()]));
+  public static NodeOperation OR(List<? extends Node> args) {
+    return new NodeOperation(StandardOperation.OR, args);
   }
 
   public static NodeOperation STORE(Node array, Node key, Node value) {
@@ -83,9 +80,5 @@ final class Expression {
 
   public static NodeOperation NOT(Node e) {
     return new NodeOperation(StandardOperation.NOT, e);
-  }
-
-  public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
-    return new NodeOperation(opId, args.toArray(new Node[args.size()]));
   }
 }

@@ -91,7 +91,7 @@ final class PathFilter {
       final List<Node> operands =
           this.operands.subList(this.operands.size() - header.numOperands,
                                 this.operands.size());
-      final Node op = Expression.newOperation(header.opId, operands);
+      final Node op = new NodeOperation(header.opId, operands);
       operands.clear();
       addOperand(op);
     }
