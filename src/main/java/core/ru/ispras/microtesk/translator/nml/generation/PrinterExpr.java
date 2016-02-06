@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.generation;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +27,6 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.expr.Coercion;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -121,7 +119,7 @@ public final class PrinterExpr {
     final Type source = coercionChain.get(coercionIndex + 1);
 
     return String.format(
-        CoercionFormatter.getFormat(coercion, target, source),
+        getFormat(coercion, target, source),
         printCoersion(++coercionIndex)
         );
   }
@@ -279,33 +277,8 @@ public final class PrinterExpr {
   private static String toOperatorString(Operator op, String arg1, String arg2) {
     return String.format(operators.get(op), arg1, arg2);
   }
-}
 
-final class CoercionFormatter {
-  private static final Map<Class<?>, String> modelToNativeMap = createModelToNative();
-  private static Map<Class<?>, String> createModelToNative() {
-    final Map<Class<?>, String> result = new HashMap<Class<?>, String>();
-
-    result.put(BigInteger.class, "intValue");
-    result.put(Integer.class, "intValue");
-    result.put(Long.class, "longValue");
-    result.put(Boolean.class, "booleanValue");
-
-    return result;
-  }
-
-  private static final String DATA_CLASS = Data.class.getSimpleName();
-
-  //private static final String COERCE_METHOD = "coerce";
-  private static final String VALUE_OF_METHOD = "valueOf";
-
-  private static final String TO_MODEL_FORMAT = "%s.%s(%s, %%s)";
-  private static final String TO_NATIVE_FORMAT = "%%s.%s()";
-
-  private static final String ERR_REDUNDANT_COERCION = "Redundant coercion. Equal types: %s.";
-  private static final String ERR_UNSUPPORTED_COERCION = "Cannot perform coercion from %s to %s.";
-
-  static String getFormat(
+  private static String getFormat(
       final Coercion coercionType,
       final Type target,
       final Type source) {
@@ -314,16 +287,16 @@ final class CoercionFormatter {
 
     // This invariant is protected by NodeInfo and ExprPrinter.
     if (target.equals(source)) {
-      throw new IllegalArgumentException(
-          String.format(ERR_REDUNDANT_COERCION, target.getTypeName()));
+      throw new IllegalArgumentException(String.format(
+          "Redundant coercion. Equal types: %s.", target.getTypeName()));
     }
 
     final String methodName = coercionType.getMethodName();
     return String.format(
-          TO_MODEL_FORMAT,
-          DATA_CLASS,
+          "%s.%s(%s, %%s)",
+          Data.class.getSimpleName(),
           methodName,
           target.getJavaText()
           );
-    }
+  }
 }
