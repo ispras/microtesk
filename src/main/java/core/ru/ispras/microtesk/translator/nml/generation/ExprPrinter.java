@@ -15,7 +15,10 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.EnumMap;
+import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -26,12 +29,28 @@ import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.translator.nml.ir.expr.Coercion;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-final class ExprPrinter extends MapBasedPrinter {
+public final class ExprPrinter extends MapBasedPrinter {
+
+  public static String toString(final Expr expr, final boolean asLocation) {
+    if (null == expr) {
+      return "";
+    }
+
+    return new ExprPrinter(asLocation).toString(expr.getNode());
+  }
+
+  public static String toString(final Expr expr) {
+    return toString(expr, false);
+  }
+
   private final boolean asLocation;
   private final EnumMap<Operator, OperationDescription> operatorMap;
 
@@ -150,12 +169,34 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   private final class Visitor extends ExprTreeVisitor {
+    private final Deque<Integer> coercionStack = new ArrayDeque<>();
+
+    @Override
+    public void onOperationBegin(final NodeOperation expr) {
+      InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
+
+      final int coercionCount = appendCoercions(nodeInfo);
+      coercionStack.push(coercionCount);
+
+      super.onOperationBegin(expr);
+    }
+
+    @Override
+    public void onOperationEnd(final NodeOperation expr) {
+      super.onOperationEnd(expr);
+
+      final int coercionCount = coercionStack.pop();
+      for (int index = 0; index < coercionCount; ++index) {
+        appendText(")");
+      }
+    }
 
     @Override
     public void onValue(final NodeValue value) {
       InvariantChecks.checkTrue(value.getUserData() instanceof NodeInfo);
-
       final NodeInfo nodeInfo = (NodeInfo) value.getUserData();
+
       final Type type = nodeInfo.getType();
 
       final String text;
@@ -177,7 +218,12 @@ final class ExprPrinter extends MapBasedPrinter {
               "Unsupported type: " + value.getDataTypeId());
       }
 
+      final int coercionCount = appendCoercions(nodeInfo);
       appendText(text);
+
+      for (int index = 0; index < coercionCount; ++index) {
+        appendText(")");
+      }
     }
 
     @Override
@@ -189,8 +235,43 @@ final class ExprPrinter extends MapBasedPrinter {
       InvariantChecks.checkTrue(nodeInfo.getSource() instanceof Location);
       final Location source = (Location) nodeInfo.getSource();
 
+      final int coercionCount = appendCoercions(nodeInfo);
+
       final String text = PrinterLocation.toString(source);
       appendText(asLocation ? text : text + ".load()");
+
+      for (int index = 0; index < coercionCount; ++index) {
+        appendText(")");
+      }
+    }
+
+    private int appendCoercions(final NodeInfo nodeInfo) {
+      if (!nodeInfo.isCoersionApplied()) {
+        return 0;
+      }
+
+      final List<Type> coercionChain = nodeInfo.getCoercionChain();
+      int coercionIndex = 0;
+      for (; coercionIndex < coercionChain.size() - 1; ++coercionIndex) {
+        final Coercion coercion = nodeInfo.getCoercions().get(coercionIndex);
+
+        final Type target = coercionChain.get(coercionIndex);
+        final Type source = coercionChain.get(coercionIndex + 1);
+
+        InvariantChecks.checkFalse(target.equals(source), "Redundant coercion.");
+
+        final String methodName = coercion.getMethodName();
+        final String text = String.format(
+              "%s.%s(%s, ",
+              Data.class.getSimpleName(),
+              methodName,
+              target.getJavaText()
+              );
+
+        appendText(text);
+      }
+
+      return coercionIndex;
     }
   }
 }

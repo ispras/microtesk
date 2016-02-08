@@ -162,7 +162,7 @@ final class STBShared implements STBuilder {
       tMemory.add("type", tNewType);
     }
 
-    tMemory.add("size", PrinterExpr.bigIntegerToString(memory.getSize(), 16));
+    tMemory.add("size", ExprPrinter.bigIntegerToString(memory.getSize(), 16));
 
     final Alias alias = memory.getAlias();
     if (null == alias) {

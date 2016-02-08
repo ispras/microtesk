@@ -22,7 +22,7 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.translator.nml.generation.PrinterExpr;
+import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.generation.PrinterInstance;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.utils.FormatMarker;
@@ -86,7 +86,7 @@ public final class Format {
 
     private String convertModelTo(final FormatMarker marker) {
       if (expr.getNodeInfo().getType() == null) {
-        return new PrinterExpr(expr).toString();
+        return ExprPrinter.toString(expr);
       }
 
       final String methodName;
@@ -101,7 +101,7 @@ public final class Format {
       }
 
       return String.format(
-          "%s.%s", new PrinterExpr(expr), methodName);
+          "%s.%s", ExprPrinter.toString(expr), methodName);
     }
   }
 
@@ -191,7 +191,7 @@ public final class Format {
     public String convertTo(final FormatMarker kind) {
       assert isConvertibleTo(kind);
       return String.format("%s ? %s : %s",
-          new PrinterExpr(expr), left.convertTo(kind), right.convertTo(kind));
+          ExprPrinter.toString(expr), left.convertTo(kind), right.convertTo(kind));
     }
   }
 

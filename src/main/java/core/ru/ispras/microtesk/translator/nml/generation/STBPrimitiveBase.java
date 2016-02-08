@@ -136,8 +136,10 @@ final class StatementBuilder {
   }
 
   private void addStatement(StatementAssignment stmt) {
-    addStatement(String.format("%s.store(%s);", PrinterLocation.toString(stmt.getLeft()),
-        new PrinterExpr(stmt.getRight())));
+    addStatement(
+        String.format("%s.store(%s);", PrinterLocation.toString(stmt.getLeft()),
+        ExprPrinter.toString(stmt.getRight()))
+        );
   }
 
   private void addStatement(StatementCondition stmt) {
@@ -148,11 +150,11 @@ final class StatementBuilder {
       final StatementCondition.Block block = stmt.getBlock(index);
 
       if (FIRST == index) {
-        addStatement(String.format("if (%s) {", new PrinterExpr(block.getCondition())));
+        addStatement(String.format("if (%s) {", ExprPrinter.toString(block.getCondition())));
       } else if (LAST == index && block.isElseBlock()) {
         addStatement("} else {");
       } else {
-        addStatement(String.format("} else if (%s) {", new PrinterExpr(block.getCondition())));
+        addStatement(String.format("} else if (%s) {", ExprPrinter.toString(block.getCondition())));
       }
 
       increaseIndent();

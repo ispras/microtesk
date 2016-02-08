@@ -38,15 +38,15 @@ public final class PrinterLocation {
     sb.append(location.getName());
 
     if (!needsAccessCall(location)) {
-      final String indexText = new PrinterExpr(location.getIndex()).toString();
+      final String indexText = ExprPrinter.toString(location.getIndex());
       sb.append(String.format(ACCESS_FORMAT, indexText));
     }
 
     if (null != location.getBitfield()) {
       final LocationAtom.Bitfield bitfield = location.getBitfield();
       sb.append(String.format(BITFIELD_FORMAT,
-        new PrinterExpr(bitfield.getFrom()),
-        new PrinterExpr(bitfield.getTo()))
+          ExprPrinter.toString(bitfield.getFrom()),
+          ExprPrinter.toString(bitfield.getTo()))
       );
     }
 
