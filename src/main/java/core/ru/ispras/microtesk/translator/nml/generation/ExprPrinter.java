@@ -15,31 +15,30 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import java.math.BigInteger;
+import java.util.EnumMap;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
+import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.location.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class ExprPrinter extends MapBasedPrinter {
-  private static ExprPrinter instance = null;
+  private final boolean asLocation;
+  private final EnumMap<Operator, OperationDescription> operatorMap;
 
-  public static ExprPrinter get() {
-    if (null == instance) {
-      instance = new ExprPrinter();
-    }
-    return instance;
-  }
+  protected ExprPrinter(final boolean asLocation) {
+    this.asLocation = asLocation;
+    this.operatorMap = new EnumMap<>(Operator.class);
 
-  public boolean asLocation = false;
-
-  private ExprPrinter() {
     addMapping(StandardOperation.EQ,     "", ".equals(", ")");
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
 
@@ -84,6 +83,8 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVASHL, "", ".shiftLeft(", ")");
     addMapping(StandardOperation.BVLSHR, "", ".shiftRight(", ")");
     addMapping(StandardOperation.BVASHR, "", ".shiftRight(", ")");
+    addMapping(StandardOperation.BVROL,  "", ".rotateLeft(", ")");
+    addMapping(StandardOperation.BVROR,  "", ".rotateRight(", ")");
 
     addMapping(StandardOperation.BVULE, "(", ".compareTo(", ") <= 0)");
     addMapping(StandardOperation.BVULT, "(", ".compareTo(", ") < 0)");
@@ -94,7 +95,30 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVSGE, "(", ".compareTo(", ") >= 0)");
     addMapping(StandardOperation.BVSGT, "(", ".compareTo(", ") > 0)");
 
+    addMapping(Operator.SQRT,        "", "", ".sqrt()");
+    addMapping(Operator.IS_NAN,      "", "", ".isNan()");
+    addMapping(Operator.IS_SIGN_NAN, "", "", ".isSignalingNan()");
+
     setVisitor(new Visitor());
+  }
+
+  protected final void addMapping(
+      final Operator op,
+      final String prefix,
+      final String infix,
+      final String suffix) {
+    operatorMap.put(op, new OperationDescription(prefix, infix, suffix));
+  }
+
+  @Override
+  protected OperationDescription getOperationDescription(final NodeOperation expr) {
+    final Enum<?> operationId = expr.getOperationId();
+
+    if (operationId instanceof Operator) {
+      return operatorMap.get(operationId);
+    }
+
+    return super.getOperationDescription(expr);
   }
 
   private static String bigIntegerToString(final BigInteger value, final int radix) {
@@ -126,9 +150,6 @@ final class ExprPrinter extends MapBasedPrinter {
   }
 
   private final class Visitor extends ExprTreeVisitor {
-
-    public Visitor() {
-    }
 
     @Override
     public void onValue(final NodeValue value) {
@@ -169,11 +190,7 @@ final class ExprPrinter extends MapBasedPrinter {
       final Location source = (Location) nodeInfo.getSource();
 
       final String text = PrinterLocation.toString(source);
-      appendText(text);
-
-      if (!asLocation) {
-        appendText(".load()");
-      }
+      appendText(asLocation ? text : text + ".load()");
     }
   }
 }
