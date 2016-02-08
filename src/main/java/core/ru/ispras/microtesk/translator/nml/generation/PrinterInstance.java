@@ -41,8 +41,9 @@ public final class PrinterInstance {
 
       switch(arg.getKind()) {
         case EXPR: {
-          String text = new PrinterExpr(arg.getExpr(), true).toString();
-          if (arg.getExpr().getNodeInfo().getKind() != NodeInfo.Kind.LOCATION) {
+          final boolean isLocation = arg.getExpr().getNodeInfo().getKind() == NodeInfo.Kind.LOCATION;
+          String text = new PrinterExpr(arg.getExpr(), isLocation).toString();
+          if (!isLocation) {
             text = String.format("%s.newLocationForConst(%s)", Location.class.getSimpleName(), text);
           }
           sb.append(text);
