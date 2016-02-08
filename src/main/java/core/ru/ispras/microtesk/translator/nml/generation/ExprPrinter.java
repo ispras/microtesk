@@ -121,7 +121,7 @@ final class ExprPrinter extends MapBasedPrinter {
     return super.getOperationDescription(expr);
   }
 
-  private static String bigIntegerToString(final BigInteger value, final int radix) {
+  public static String bigIntegerToString(final BigInteger value, final int radix) {
     InvariantChecks.checkNotNull(value);
 
     final String result;
