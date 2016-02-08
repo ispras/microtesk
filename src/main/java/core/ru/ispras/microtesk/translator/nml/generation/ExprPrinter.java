@@ -159,9 +159,16 @@ public final class ExprPrinter extends MapBasedPrinter {
   }
 
   private static String valueToString(final Type type, final BigInteger value) {
-    return type != null ?
-        String.format("Data.valueOf(%s, %s)", type.getJavaText(), bigIntegerToString(value, 16)) :
-        bigIntegerToString(value, 10);
+    if (type == null) {
+      return bigIntegerToString(value, 10);
+    }
+
+    return String.format(
+        "%s.valueOf(%s, %s)",
+        Data.class.getSimpleName(),
+        type.getJavaText(),
+        bigIntegerToString(value, 16)
+        );
   }
 
   private static String valueToString(final Type type, final BitVector value) {
@@ -187,9 +194,7 @@ public final class ExprPrinter extends MapBasedPrinter {
       super.onOperationEnd(expr);
 
       final int coercionCount = coercionStack.pop();
-      for (int index = 0; index < coercionCount; ++index) {
-        appendText(")");
-      }
+      appendCloseBrackets(coercionCount);
     }
 
     @Override
@@ -220,10 +225,7 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       final int coercionCount = appendCoercions(nodeInfo);
       appendText(text);
-
-      for (int index = 0; index < coercionCount; ++index) {
-        appendText(")");
-      }
+      appendCloseBrackets(coercionCount);
     }
 
     @Override
@@ -236,13 +238,10 @@ public final class ExprPrinter extends MapBasedPrinter {
       final Location source = (Location) nodeInfo.getSource();
 
       final int coercionCount = appendCoercions(nodeInfo);
-
       final String text = PrinterLocation.toString(source);
-      appendText(asLocation ? text : text + ".load()");
 
-      for (int index = 0; index < coercionCount; ++index) {
-        appendText(")");
-      }
+      appendText(asLocation ? text : text + ".load()");
+      appendCloseBrackets(coercionCount);
     }
 
     private int appendCoercions(final NodeInfo nodeInfo) {
@@ -272,6 +271,12 @@ public final class ExprPrinter extends MapBasedPrinter {
       }
 
       return coercionIndex;
+    }
+
+    private void appendCloseBrackets(final int count) {
+      for (int index = 0; index < count; ++index) {
+        appendText(")");
+      }
     }
   }
 }
