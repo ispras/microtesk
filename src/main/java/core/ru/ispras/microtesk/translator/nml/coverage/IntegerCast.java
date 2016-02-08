@@ -295,7 +295,7 @@ final class DependentOperandRule implements TransformerRule {
     for (int index : indices) {
       operands.set(index, IntegerCast.cast(operands.get(index), type));
     }
-    return new NodeOperation(op.getOperationId(), operands);
+    return Expression.newOperation(op.getOperationId(), operands);
   }
 }
 

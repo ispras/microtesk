@@ -76,7 +76,7 @@ public final class PathConstraintBuilder {
     return new Paths(this, Collections.singletonList(conditionExpr));
   }
 
-  public List<NodeVariable> getSpecialMarks() {
+  public Collection<NodeVariable> getSpecialMarks() {
     return Collections.unmodifiableList(specialMarks);
   }
 
