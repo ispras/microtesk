@@ -153,13 +153,18 @@ public enum Operator {
   // Synthetic operators
   ITE(null,         3, Kind.COMMON  /* No rules. These operator must be handled separately. */),
   SQRT(null,        1, Kind.COMMON  /* No rules. These operator must be handled separately. */),
+
   IS_NAN(null,      1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */),
-  IS_SIGN_NAN(null, 1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */);
+  IS_SIGN_NAN(null, 1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */),
+
+  SIGN_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */),
+  ZERO_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */);
 
   private static enum Kind {
     COMMON,  // Means operands and operation result have the same type.
     BOOLEAN, // Means result type is boolean
-    SHIFT    // Means result type equals the type of the first argument
+    SHIFT,   // Means result type equals the type of the first argument
+    CAST     // Cast operator: first operand is target type, second is source value.
   }
 
   private static final Map<String, Operator> operators;
