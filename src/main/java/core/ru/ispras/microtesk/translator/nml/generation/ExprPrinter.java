@@ -18,7 +18,9 @@ import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -53,11 +55,13 @@ public final class ExprPrinter extends MapBasedPrinter {
   }
 
   private final boolean asLocation;
-  private final EnumMap<Operator, OperationDescription> operatorMap;
+  private final Map<Operator, OperationDescription> operatorMap;
+  private final Map<Enum<?>, String> castOperatorMap;
 
   protected ExprPrinter(final boolean asLocation) {
     this.asLocation = asLocation;
     this.operatorMap = new EnumMap<>(Operator.class);
+    this.castOperatorMap = new HashMap<>();
 
     addMapping(StandardOperation.EQ,     "", ".equals(", ")");
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
@@ -119,6 +123,12 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(Operator.IS_NAN,      "", "", ".isNan()");
     addMapping(Operator.IS_SIGN_NAN, "", "", ".isSignalingNan()");
 
+    addMappingForCast(StandardOperation.BVSIGNEXT, "signExtend"); 
+    addMappingForCast(StandardOperation.BVZEROEXT, "zeroExtend");
+    addMappingForCast(Operator.INT_TO_FLOAT, "intToFloat"); 
+    addMappingForCast(Operator.FLOAT_TO_INT, "floatToInt");
+    addMappingForCast(Operator.FLOAT_TO_FLOAT, "floatToFloat");
+
     setVisitor(new Visitor());
   }
 
@@ -130,28 +140,29 @@ public final class ExprPrinter extends MapBasedPrinter {
     operatorMap.put(op, new OperationDescription(prefix, infix, suffix));
   }
 
+  private void addMappingForCast(final Enum<?> op, final String text) {
+    castOperatorMap.put(op, text);
+  }
+
   @Override
   protected OperationDescription getOperationDescription(final NodeOperation expr) {
     final Enum<?> opId = expr.getOperationId();
 
-    if (opId instanceof Operator) {
-      return operatorMap.get(opId);
-    }
-
-    if (opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) {
+    if (castOperatorMap.containsKey(opId)) {
       InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
       final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
 
       final Type type = nodeInfo.getType();
       InvariantChecks.checkNotNull(type);
 
-      final String operationText = String.format(".%sTo(%s)",
-          opId == StandardOperation.BVSIGNEXT ? "signExtend" : "zeroExtend", type.getJavaText()); 
+      final String operationText = String.format("%s.%s(%s, ",
+          Data.class.getSimpleName(), castOperatorMap.get(opId), type.getJavaText());
 
-      return new OperationDescription("", "", operationText);
+      return new OperationDescription(operationText, "", ")");
     }
 
-    return super.getOperationDescription(expr);
+    return opId instanceof Operator ?
+        operatorMap.get(opId) : super.getOperationDescription(expr);
   }
 
   public static String bigIntegerToString(final BigInteger value, final int radix) {
@@ -217,7 +228,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Node operand,
         final int index) {
       final Enum<?> opId = operation.getOperationId();
-      if ((opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) && index == 0) {
+      if (castOperatorMap.containsKey(opId) && index == 0) {
         // Skips the first operand of BVSIGNEXT and BVZEROEXT
         setStatus(Status.SKIP);
       }
@@ -231,7 +242,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Node operand,
         final int index) {
       final Enum<?> opId = operation.getOperationId();
-      if ((opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) && index == 0) {
+      if (castOperatorMap.containsKey(opId) && index == 0) {
         // Restores status
         setStatus(Status.OK);
       }
