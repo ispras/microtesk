@@ -228,8 +228,10 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Node operand,
         final int index) {
       final Enum<?> opId = operation.getOperationId();
-      if (castOperatorMap.containsKey(opId) && index == 0) {
-        // Skips the first operand of BVSIGNEXT and BVZEROEXT
+      final boolean isLast = (operation.getOperandCount() - 1) == index;
+
+      if (castOperatorMap.containsKey(opId) && !isLast) {
+        // Skips all operands but the last
         setStatus(Status.SKIP);
       }
 
@@ -242,7 +244,9 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Node operand,
         final int index) {
       final Enum<?> opId = operation.getOperationId();
-      if (castOperatorMap.containsKey(opId) && index == 0) {
+      final boolean isLast = (operation.getOperandCount() - 1) == index;
+
+      if (castOperatorMap.containsKey(opId) && !isLast) {
         // Restores status
         setStatus(Status.OK);
       }
