@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.expression.Node;
@@ -59,8 +60,7 @@ final class Expression {
   }
 
   public static NodeOperation AND(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.AND,
-                             args.toArray(new Node[args.size()]));
+    return new NodeOperation(StandardOperation.AND, new ArrayList<>(args));
   }
 
   public static NodeOperation OR(Node... args) {
@@ -68,8 +68,7 @@ final class Expression {
   }
 
   public static NodeOperation OR(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.OR,
-                             args.toArray(new Node[args.size()]));
+    return new NodeOperation(StandardOperation.OR, new ArrayList<>(args));
   }
 
   public static NodeOperation STORE(Node array, Node key, Node value) {
@@ -85,6 +84,6 @@ final class Expression {
   }
 
   public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
-    return new NodeOperation(opId, args.toArray(new Node[args.size()]));
+    return new NodeOperation(opId, new ArrayList<>(args));
   }
 }
