@@ -90,8 +90,10 @@ public final class Format {
       }
 
       final String methodName;
-      if (FormatMarker.BIN == marker || FormatMarker.STR == marker) {
+      if (FormatMarker.BIN == marker) {
         methodName = "toBinString()";
+      } else if (FormatMarker.STR == marker) {
+        methodName = "toString()";
       } else if (FormatMarker.HEX == marker) {
         methodName = "bigIntegerValue(false)";
       } else if (FormatMarker.DEC == marker) {

@@ -160,7 +160,7 @@ final class IntegerOperations implements Operations {
 
   @Override
   public String toString(final Data arg) {
-    return arg.bigIntegerValue().toString();
+    return arg.getRawData().toString();
   }
 
   @Override
