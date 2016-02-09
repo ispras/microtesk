@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 
 public final class Alias {
   public enum Kind {

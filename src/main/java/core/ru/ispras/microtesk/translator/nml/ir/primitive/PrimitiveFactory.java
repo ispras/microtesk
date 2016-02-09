@@ -37,9 +37,9 @@ import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveFactory extends WalkerFactoryBase {

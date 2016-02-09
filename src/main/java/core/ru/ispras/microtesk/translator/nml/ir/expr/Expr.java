@@ -25,7 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
 
 public final class Expr {
   private final Node node;

@@ -83,7 +83,6 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 
 import ru.ispras.microtesk.translator.nml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.nml.ir.expr.*;
-import ru.ispras.microtesk.translator.nml.ir.location.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
 }

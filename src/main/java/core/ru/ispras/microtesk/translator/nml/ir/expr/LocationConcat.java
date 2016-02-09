@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.location;
+package ru.ispras.microtesk.translator.nml.ir.expr;
 
 import java.util.Collections;
 import java.util.Iterator;

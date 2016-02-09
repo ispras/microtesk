@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationFactory;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationFactory;
 
 public final class PCAnalyzer {
   private final LocationFactory locationFactory;

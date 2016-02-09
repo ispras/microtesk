@@ -36,7 +36,7 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class ExprPrinter extends MapBasedPrinter {

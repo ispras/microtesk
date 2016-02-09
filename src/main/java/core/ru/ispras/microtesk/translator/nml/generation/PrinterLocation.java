@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.microtesk.translator.nml.ir.location.Location;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.location.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
