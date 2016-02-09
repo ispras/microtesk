@@ -33,7 +33,6 @@ import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.translator.nml.ir.expr.Coercion;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
@@ -309,7 +308,7 @@ public final class ExprPrinter extends MapBasedPrinter {
       final List<Type> coercionChain = nodeInfo.getCoercionChain();
       int coercionIndex = 0;
       for (; coercionIndex < coercionChain.size() - 1; ++coercionIndex) {
-        final Coercion coercion = nodeInfo.getCoercions().get(coercionIndex);
+        final NodeInfo.Coercion coercion = nodeInfo.getCoercions().get(coercionIndex);
 
         final Type target = coercionChain.get(coercionIndex);
         final Type source = coercionChain.get(coercionIndex + 1);

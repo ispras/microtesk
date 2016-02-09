@@ -319,7 +319,7 @@ public final class ExprFactory extends WalkerFactoryBase {
           src.getNodeInfo().getType().getTypeName()));
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.COERCE);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, NodeInfo.Coercion.COERCE);
     src.setNodeInfo(newNodeInfo);
 
     return src;
@@ -345,7 +345,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "cast does not allow changing data size.");
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.CAST);
+    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, NodeInfo.Coercion.CAST);
     src.setNodeInfo(newNodeInfo);
 
     return src;

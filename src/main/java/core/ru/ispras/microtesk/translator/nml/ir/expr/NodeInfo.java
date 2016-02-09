@@ -30,6 +30,23 @@ public final class NodeInfo {
     OPERATOR;
   }
 
+  public static enum Coercion {
+    IMPLICIT("valueOf"),
+
+    COERCE("coerce"),
+    CAST("cast");
+
+    private final String methodName;
+
+    private Coercion(final String methodName) {
+      this.methodName = methodName;
+    }
+
+    public String getMethodName() {
+      return methodName;
+    }
+  }
+
   public static NodeInfo newConst(final Type type) {
     return new NodeInfo(NodeInfo.Kind.CONST, null, type);
   }
