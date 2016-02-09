@@ -235,14 +235,24 @@ public final class ExprFactory extends WalkerFactoryBase {
       return TypeCast.castConstantTo(src, type);
     }
 
-    if (type.getBitSize() < src.getNodeInfo().getType().getBitSize()) {
-      raiseError(w, "Size of result type must be >= size of original type.");
+    final int sourceBitSize = src.getNodeInfo().getType().getBitSize();
+    final int resultBitSize = type.getBitSize();
+
+    if (resultBitSize <= sourceBitSize) {
+      raiseError(w, "Size of result type must be > size of original type.");
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.SIGN_EXTEND);
-    src.setNodeInfo(newNodeInfo);
+    final int extensionBitSize = resultBitSize - sourceBitSize;
+    final Node extensionNode = NodeValue.newInteger(extensionBitSize);
+    extensionNode.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node node = new NodeOperation(
+        StandardOperation.BVSIGNEXT, extensionNode, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.SIGN_EXTEND, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr zeroExtend(
@@ -261,14 +271,24 @@ public final class ExprFactory extends WalkerFactoryBase {
       return TypeCast.castConstantTo(src, type);
     }
 
-    if (type.getBitSize() < src.getNodeInfo().getType().getBitSize()) {
-      raiseError(w, "Size of result type must be >= size of original type.");
+    final int sourceBitSize = src.getNodeInfo().getType().getBitSize();
+    final int resultBitSize = type.getBitSize();
+
+    if (resultBitSize <= sourceBitSize) {
+      raiseError(w, "Size of result type must be > size of original type.");
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.ZERO_EXTEND);
-    src.setNodeInfo(newNodeInfo);
+    final int extensionBitSize = resultBitSize - sourceBitSize;
+    final Node extensionNode = NodeValue.newInteger(extensionBitSize);
+    extensionNode.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node node = new NodeOperation(
+        StandardOperation.BVZEROEXT, extensionNode, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.ZERO_EXTEND, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr coerce(

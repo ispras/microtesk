@@ -24,9 +24,6 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 public enum Coercion {
   IMPLICIT("valueOf"),
 
-  SIGN_EXTEND("signExtend"),
-  ZERO_EXTEND("zeroExtend"),
-
   COERCE("coerce"),
   CAST("cast"),
 

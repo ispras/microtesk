@@ -21,6 +21,7 @@ import java.util.EnumMap;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -131,10 +132,23 @@ public final class ExprPrinter extends MapBasedPrinter {
 
   @Override
   protected OperationDescription getOperationDescription(final NodeOperation expr) {
-    final Enum<?> operationId = expr.getOperationId();
+    final Enum<?> opId = expr.getOperationId();
 
-    if (operationId instanceof Operator) {
-      return operatorMap.get(operationId);
+    if (opId instanceof Operator) {
+      return operatorMap.get(opId);
+    }
+
+    if (opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) {
+      InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
+
+      final Type type = nodeInfo.getType();
+      InvariantChecks.checkNotNull(type);
+
+      final String operationText = String.format(".%sTo(%s)",
+          opId == StandardOperation.BVSIGNEXT ? "signExtend" : "zeroExtend", type.getJavaText()); 
+
+      return new OperationDescription("", "", operationText);
     }
 
     return super.getOperationDescription(expr);
@@ -195,6 +209,34 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       final int coercionCount = coercionStack.pop();
       appendCloseBrackets(coercionCount);
+    }
+
+    @Override
+    public void onOperandBegin(
+        final NodeOperation operation,
+        final Node operand,
+        final int index) {
+      final Enum<?> opId = operation.getOperationId();
+      if ((opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) && index == 0) {
+        // Skips the first operand of BVSIGNEXT and BVZEROEXT
+        setStatus(Status.SKIP);
+      }
+
+      super.onOperandBegin(operation, operand, index);
+    }
+
+    @Override
+    public void onOperandEnd(
+        final NodeOperation operation,
+        final Node operand,
+        final int index) {
+      final Enum<?> opId = operation.getOperationId();
+      if ((opId == StandardOperation.BVSIGNEXT || opId == StandardOperation.BVZEROEXT) && index == 0) {
+        // Restores status
+        setStatus(Status.OK);
+      }
+
+      super.onOperandEnd(operation, operand, index);
     }
 
     @Override
