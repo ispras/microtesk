@@ -384,10 +384,16 @@ public final class ExprFactory extends WalkerFactoryBase {
           type.getTypeName()));
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.INT_TO_FLOAT);
-    src.setNodeInfo(newNodeInfo);
+    final Node resultSize = NodeValue.newInteger(type.getBitSize());
+    resultSize.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node node = new NodeOperation(
+        Operator.INT_TO_FLOAT, resultSize, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.INT_TO_FLOAT, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr float_to_int(
@@ -422,10 +428,16 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "Only 32 and 64-bit integers are supported.");
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.FLOAT_TO_INT);
-    src.setNodeInfo(newNodeInfo);
+    final Node resultSize = NodeValue.newInteger(type.getBitSize());
+    resultSize.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node node = new NodeOperation(
+        Operator.FLOAT_TO_INT, resultSize, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.FLOAT_TO_INT, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr float_to_float(
@@ -456,10 +468,16 @@ public final class ExprFactory extends WalkerFactoryBase {
           type.getTypeName()));
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, Coercion.FLOAT_TO_FLOAT);
-    src.setNodeInfo(newNodeInfo);
+    final Node resultSize = NodeValue.newInteger(type.getBitSize());
+    resultSize.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node node = new NodeOperation(
+        Operator.FLOAT_TO_FLOAT, resultSize, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.FLOAT_TO_FLOAT, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr condition(final Where w, final List<Pair<Expr, Expr>> blocks) throws SemanticException {

@@ -25,11 +25,7 @@ public enum Coercion {
   IMPLICIT("valueOf"),
 
   COERCE("coerce"),
-  CAST("cast"),
-
-  INT_TO_FLOAT("intToFloat"),
-  FLOAT_TO_INT("floatToInt"),
-  FLOAT_TO_FLOAT("floatToFloat");
+  CAST("cast");
 
   private final String methodName;
 
