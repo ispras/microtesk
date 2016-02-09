@@ -158,7 +158,11 @@ public enum Operator {
   IS_SIGN_NAN(null, 1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */),
 
   SIGN_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */),
-  ZERO_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */);
+  ZERO_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */),
+
+  INT_TO_FLOAT(null,   2, Kind.CAST /* No rules. These operator must be handled separately. */),
+  FLOAT_TO_INT(null,   2, Kind.CAST /* No rules. These operator must be handled separately. */),
+  FLOAT_TO_FLOAT(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */);
 
   private static enum Kind {
     COMMON,  // Means operands and operation result have the same type.
