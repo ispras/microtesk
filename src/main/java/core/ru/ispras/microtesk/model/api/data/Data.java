@@ -59,8 +59,45 @@ public final class Data implements Comparable<Data> {
     return type.getTypeId() == typeId;
   }
 
+  public int getBitSize() {
+    return getRawData().getBitSize();
+  }
+
   public BitVector getRawData() {
     return rawData;
+  }
+
+  public Data bitField(final int start, final int end) {
+    InvariantChecks.checkBounds(start, getBitSize());
+    InvariantChecks.checkBounds(end, getBitSize());
+
+    if (start > end) {
+      return bitField(end, start);
+    }
+
+    if ((start == 0) && (end == (getBitSize() - 1))) {
+      return this;
+    }
+
+    final BitVector fieldRawData = rawData.field(start, end);
+    final int fieldBitSize = fieldRawData.getBitSize();
+
+    final Type fieldType = type.isInteger() ?
+        type.resize(fieldBitSize) : Type.CARD(fieldBitSize);
+
+    return new Data(fieldRawData, fieldType);
+  }
+
+  public Data bitField(final Data start, final Data end) {
+    InvariantChecks.checkNotNull(start);
+    InvariantChecks.checkTrue(start.getType().isInteger());
+    InvariantChecks.checkTrue(start.getBitSize() <= Integer.SIZE);
+
+    InvariantChecks.checkNotNull(end);
+    InvariantChecks.checkTrue(end.getType().isInteger());
+    InvariantChecks.checkTrue(end.getBitSize() <= Integer.SIZE);
+
+    return bitField(start.getRawData().intValue(), end.getRawData().intValue());
   }
 
   public Data signExtendTo(final Type newType) {
