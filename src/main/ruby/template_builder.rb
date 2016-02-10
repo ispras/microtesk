@@ -83,6 +83,11 @@ def define_operation(op)
 
     if situations != nil
       builder.setSituation self.instance_eval &situations
+    else
+      default_situation = @template.getDefaultSituation name
+      if default_situation != nil
+        builder.setSituation default_situation
+      end
     end
 
     if is_root
@@ -119,6 +124,16 @@ def define_operation_group(group_name)
 
     if situations != nil
       builder.setSituation self.instance_eval &situations
+    else
+      default_situation = @template.getDefaultSituation group_name.to_s
+
+      if default_situation == nil
+        default_situation = @template.getDefaultSituation name
+      end
+
+      if default_situation != nil
+        builder.setSituation default_situation
+      end
     end
 
     if is_root

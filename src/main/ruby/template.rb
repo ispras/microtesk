@@ -220,6 +220,21 @@ class Template
     dist.java_object
   end
 
+  def set_default_situation(names, &situations)
+    if !names.is_a?(String) and !names.is_a?(Array)
+      raise MTRubyError, "#{names} must be String or Array."
+    end
+
+    default_situation = self.instance_eval &situations
+    if names.is_a?(Array)
+      names.each do |name|
+        @template.setDefaultSituation name, default_situation
+      end
+    else
+      @template.setDefaultSituation names, default_situation
+    end
+  end
+
   #
   # Creates an object for generating a random integer within
   # the specified range (to be used as an argument of a mode or op).

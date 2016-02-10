@@ -31,6 +31,7 @@ import java.util.Set;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
+import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -66,6 +67,9 @@ public final class Template {
 
   // Variates for mode and operation groups 
   private final Map<String, Variate<String>> groupVariates;
+
+  // Default situations for instructions and groups
+  private final Map<String, Variate<Situation>> defaultSituations;
 
   private PreparatorBuilder preparatorBuilder;
   private BufferPreparatorBuilder bufferPreparatorBuilder;
@@ -129,6 +133,7 @@ public final class Template {
     this.openBlockCount = 0;
 
     this.groupVariates = newVariatesForGroups(metaModel);
+    this.defaultSituations = new HashMap<>();
 
     this.prologueBuilder = null;
     this.epilogueBuilder = null;
@@ -447,6 +452,22 @@ public final class Template {
 
   public Situation.Builder newSituation(String name) {
     return new Situation.Builder(name);
+  }
+
+  public void setDefaultSituation(final String name, final Situation situation) {
+    checkNotNull(situation);
+    setDefaultSituation(name, new VariateSingleValue<>(situation));
+  }
+
+  public void setDefaultSituation(final String name, final Variate<Situation> situation) {
+    checkNotNull(name);
+    checkNotNull(situation);
+    defaultSituations.put(name, situation);
+  }
+
+  public Variate<Situation> getDefaultSituation(final String name) {
+    checkNotNull(name);
+    return defaultSituations.get(name);
   }
 
   public PreparatorBuilder beginPreparator(
