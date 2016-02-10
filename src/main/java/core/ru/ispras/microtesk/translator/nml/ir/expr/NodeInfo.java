@@ -31,8 +31,6 @@ public final class NodeInfo {
 
   public static enum Coercion {
     IMPLICIT("valueOf"),
-
-    COERCE("coerce"),
     CAST("cast");
 
     private final String methodName;

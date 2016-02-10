@@ -130,6 +130,7 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMappingForCast(Operator.INT_TO_FLOAT, "intToFloat"); 
     addMappingForCast(Operator.FLOAT_TO_INT, "floatToInt");
     addMappingForCast(Operator.FLOAT_TO_FLOAT, "floatToFloat");
+    addMappingForCast(Operator.COERCE, "coerce");
 
     setVisitor(new Visitor());
   }
@@ -148,7 +149,17 @@ public final class ExprPrinter extends MapBasedPrinter {
 
   @Override
   protected OperationDescription getOperationDescription(final NodeOperation expr) {
-    final Enum<?> opId = expr.getOperationId();
+    Enum<?> opId = expr.getOperationId();
+
+    if (opId == StandardOperation.BVEXTRACT) {
+      InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
+
+      final Operator innerOpId = (Operator) nodeInfo.getSource();
+      if (innerOpId == Operator.COERCE) {
+        opId = Operator.COERCE;
+      }
+    }
 
     if (castOperatorMap.containsKey(opId)) {
       InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
@@ -229,10 +240,15 @@ public final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
+      InvariantChecks.checkTrue(operation.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
+
       final Enum<?> opId = operation.getOperationId();
+      final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
       final boolean isLast = (operation.getOperandCount() - 1) == index;
 
-      if (castOperatorMap.containsKey(opId) && !isLast) {
+      if ((castOperatorMap.containsKey(opId) ||
+          castOperatorMap.containsKey(innerOpId)) && !isLast) {
         // Skips all operands but the last
         setStatus(Status.SKIP);
       }
@@ -245,10 +261,15 @@ public final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
+      InvariantChecks.checkTrue(operation.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
+
       final Enum<?> opId = operation.getOperationId();
+      final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
       final boolean isLast = (operation.getOperandCount() - 1) == index;
 
-      if (castOperatorMap.containsKey(opId) && !isLast) {
+      if ((castOperatorMap.containsKey(opId) ||
+           castOperatorMap.containsKey(innerOpId)) && !isLast) {
         // Restores status
         setStatus(Status.OK);
       }

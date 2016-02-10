@@ -318,10 +318,31 @@ public final class ExprFactory extends WalkerFactoryBase {
           src.getNodeInfo().getType().getTypeName()));
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, NodeInfo.Coercion.COERCE);
-    src.setNodeInfo(newNodeInfo);
+    final int oldBitSize = src.getNodeInfo().getType().getBitSize();
+    final int newBitSize = type.getBitSize();
 
-    return src;
+    if (newBitSize == oldBitSize) {
+      return cast(w, src, type);
+    }
+
+    if (newBitSize > oldBitSize) {
+      final boolean isSigned = src.isTypeOf(TypeId.INT); 
+      return isSigned ? signExtend(w, src, type) : zeroExtend(w, src, type);
+    }
+
+    final Node from = NodeValue.newInteger(0);
+    from.setUserData(NodeInfo.newConst(null));
+
+    final Node to = NodeValue.newInteger(newBitSize - 1);
+    to.setUserData(NodeInfo.newConst(null));
+
+    final Node node = new NodeOperation(
+        StandardOperation.BVEXTRACT, from, to, src.getNode());
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.COERCE, type);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
   }
 
   public Expr cast(
