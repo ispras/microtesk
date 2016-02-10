@@ -55,6 +55,16 @@ class GroupsTemplate < MiniMipsBaseTemplate
                     range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
 
     define_op_group('xxx', xxx_dist)
+
+    # Probability distribution for random values
+    int32_dist = dist(range(:value => 0,                         :bias => 25),
+                      range(:value => 1..2,                      :bias => 25),
+                      range(:value => 0xffffFFFE..0xffffFFFF,    :bias => 50))
+
+    # All instructions of the 'xxx' group will be linked with the 'random_situation'
+    # situation unless another situation is explicitly specified. 
+    set_default_situation 'xxx' do situation('random_biased', :dist => int32_dist) end
+
     sequence {
       # Selects an instruction according to the 'xxx_dist' distribution
       xxx t0, t1, t2
