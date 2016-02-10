@@ -43,8 +43,12 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
       range(:value => situation('zero'),         :bias => 25),
       range(:value => situation('random_biased', :dist => int32_dist), :bias => 35))
 
+    # All 'add' instructions will be linked with the 'random_situation' situation
+    # unless another situation is explicitly specified. 
+    set_default_situation 'add' do random_situation(sit_dist) end
+
     sequence {
-      add t1, t2, t3 do random_situation(sit_dist) end
+      add t1, t2, t3
       nop # Place holder to return from exception 
     }.run(10)
   end
