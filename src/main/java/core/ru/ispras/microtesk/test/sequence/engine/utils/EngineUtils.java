@@ -136,7 +136,7 @@ public final class EngineUtils {
     final TestBaseQueryCreator queryCreator =
         new TestBaseQueryCreator(engineContext, situation, primitive);
 
-    final TestData testData = getTestData(engineContext, primitive, queryCreator);
+    final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
 
     setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
@@ -222,14 +222,13 @@ public final class EngineUtils {
   public static TestData getTestData(
       final EngineContext engineContext,
       final Primitive primitive,
+      final Situation situation,
       final TestBaseQueryCreator queryCreator) {
     checkNotNull(engineContext);
     checkNotNull(primitive);
     checkNotNull(queryCreator);
 
-    final Situation situation = primitive.getSituation();
     Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
-
     if (situation == null) {
       return getDefaultTestData(engineContext, primitive, queryCreator);
     }

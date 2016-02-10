@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
@@ -38,6 +40,7 @@ public interface PrimitiveBuilder {
 
   void setContext(String contextName);
   void setSituation(Situation situation);
+  void setSituation(Variate<Situation> situation);
 
   void addArgument(BigInteger value);
   void addArgument(String value);
@@ -60,7 +63,7 @@ public interface PrimitiveBuilder {
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private final String name;
   private String contextName;
-  private Situation situation;
+  private Variate<Situation> situation;
   
   private final MetaModel metaModel;
   private final CallBuilder callBuilder;
@@ -131,6 +134,10 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   }
 
   public void setSituation(Situation situation) {
+    this.situation = new VariateSingleValue<>(situation);
+  }
+
+  public void setSituation(Variate<Situation> situation) {
     this.situation = situation;
   }
 
@@ -462,7 +469,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   private final Kind kind;
   private final Map<String, Argument> args;
   private String contextName;
-  private Situation situation;
+  private Variate<Situation> situation;
 
   private final LazyPrimitive lazyPrimitive; // Needed for label references.
 
@@ -661,6 +668,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   public void setSituation(final Situation situation) {
+    this.situation = new VariateSingleValue<>(situation);
+  }
+
+  public void setSituation(final Variate<Situation> situation) {
     this.situation = situation;
   }
 

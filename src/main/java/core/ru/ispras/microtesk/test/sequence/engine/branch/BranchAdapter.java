@@ -265,7 +265,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final TestBaseQueryCreator queryCreator =
         new TestBaseQueryCreator(engineContext, newSituation, primitive);
 
-    final TestData testData = getTestData(engineContext, primitive, queryCreator);
+    final TestData testData = getTestData(engineContext, primitive, newSituation, queryCreator);
     Logger.debug(testData.toString());
 
     // Set unknown immediate values (if there are any).

@@ -217,7 +217,7 @@ class Template
   end
 
   def random_situation(dist)
-    dist.next_value
+    dist.java_object
   end
 
   #

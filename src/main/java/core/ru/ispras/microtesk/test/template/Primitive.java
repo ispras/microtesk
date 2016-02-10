@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.randomizer.Variate;
+
 public interface Primitive {
   public static enum Kind {
     OP("op"),
@@ -64,7 +66,7 @@ final class ConcretePrimitive implements Primitive {
   private final boolean isRoot;
   private final Map<String, Argument> args;
   private final String contextName;
-  private final Situation situation;
+  private final Variate<Situation> situation;
 
   private final boolean branch;
   private final boolean conditionalBranch;
@@ -81,7 +83,7 @@ final class ConcretePrimitive implements Primitive {
       final boolean isRoot,
       final Map<String, Argument> args,
       final String contextName,
-      final Situation situation,
+      final Variate<Situation> situation,
       final boolean branch,
       final boolean conditionalBranch,
       final boolean exception,
@@ -177,7 +179,7 @@ final class ConcretePrimitive implements Primitive {
   }
 
   public Situation getSituation() {
-    return situation;
+    return null != situation ? situation.value() : null;
   }
 
   public String getSignature() {
