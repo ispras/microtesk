@@ -342,25 +342,29 @@ public final class TestEngine {
       }
     }
 
+    private void finishCurrentFile() {
+      printer.printToFile("");
+      printer.printHeaderToFile("Epilogue");
+      printer.printToFile("");
+
+      if (!postBlock.isEmpty()) {
+        try {
+          processPreOrPostBlock(postBlock, "Epilogue");
+        } catch (ConfigurationException e) {
+          Logger.error(e.getMessage());
+        }
+      } else {
+        printer.printCommentToFile("Empty");
+      }
+
+      printer.close();
+      Tarmac.closeFile();
+    }
+
     @Override
     public void finish() {
       if (!needCreateNewFile) {
-        printer.printToFile("");
-        printer.printHeaderToFile("Epilogue");
-        printer.printToFile("");
-
-        if (!postBlock.isEmpty()) {
-          try {
-            processPreOrPostBlock(postBlock, "Epilogue");
-          } catch (ConfigurationException e) {
-            Logger.error(e.getMessage());
-          }
-        } else {
-          printer.printCommentToFile("Empty");
-        }
-
-        printer.close();
-        Tarmac.closeFile();
+        finishCurrentFile();
 
         // No instruction was added to the newly created file, it must be deleted
         if (STATISTICS.instructionCount == before.instructionCount) {
@@ -513,21 +517,7 @@ public final class TestEngine {
 
           needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
           if (needCreateNewFile) {
-            printer.printToFile("");
-            printer.printHeaderToFile("Epilogue");
-            printer.printToFile("");
-
-            if (!postBlock.isEmpty()) {
-              try {
-                processPreOrPostBlock(postBlock, "Epilogue");
-              } catch (ConfigurationException e) {
-                Logger.error(e.getMessage());
-              }
-            } else {
-              printer.printCommentToFile("Empty");
-            }
-
-            printer.close();
+            finishCurrentFile();
 
             if (!preBlockTestSequences.isEmpty()) {
               final TestSequence sequences =
