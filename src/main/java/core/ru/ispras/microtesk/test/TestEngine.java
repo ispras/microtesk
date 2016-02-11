@@ -241,7 +241,7 @@ public final class TestEngine {
         );
 
     if (TestSettings.isTarmacLog()) {
-      Tarmac.initialize(TestSettings.getCodeFilePrefix());
+      Tarmac.initialize(TestSettings.getOutDir(), TestSettings.getCodeFilePrefix());
     }
 
     final Executor executor = new Executor(context, observer);

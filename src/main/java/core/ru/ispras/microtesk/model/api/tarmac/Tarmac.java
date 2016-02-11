@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.tarmac;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,17 +25,19 @@ public final class Tarmac {
   private static final String FILE_PREFIX = "tarmac";
   private static final String FILE_EXTENSION = "log";
 
+  private final String filePath;
   private final String filePrefix;
   private final String fileExtension;
+
   private int fileCount;
   private PrintWriter fileWritter;
 
   private static Tarmac instance = null;
   private static boolean enabled = false;
 
-  public static void initialize(final String filePrefix) {
+  public static void initialize(final String filePath, final String filePrefix) {
     InvariantChecks.checkTrue(null == instance);
-    instance = new Tarmac(null != filePrefix ? filePrefix : FILE_PREFIX);
+    instance = new Tarmac(filePath, null != filePrefix ? filePrefix : FILE_PREFIX);
   }
 
   public static void shutdown() {
@@ -68,9 +71,11 @@ public final class Tarmac {
     }
   }
 
-  private Tarmac(final String filePrefix) {
+  private Tarmac(final String filePath, final String filePrefix) {
+    InvariantChecks.checkNotNull(filePath);
     InvariantChecks.checkNotNull(filePrefix);
 
+    this.filePath = filePath;
     this.filePrefix = filePrefix;
     this.fileExtension = FILE_EXTENSION;
     this.fileCount = 0;
@@ -88,7 +93,15 @@ public final class Tarmac {
         fileExtension
         );
 
-    fileWritter = new PrintWriter(new FileWriter(fileName));
+    final File file = new File(filePath, fileName);
+    final String fileFullName = file.getAbsolutePath();
+
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
+    }
+
+    fileWritter = new PrintWriter(new FileWriter(fileFullName));
     return fileName;
   }
 
