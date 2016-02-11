@@ -36,12 +36,23 @@ public final class PreparatorStore {
       return defaultPreparator;
     }
 
-    public void setDefault(final Preparator preparator) {
+    public Preparator setDefault(final Preparator preparator) {
+      final Preparator oldPreparator = this.defaultPreparator;
       this.defaultPreparator = preparator;
+      return oldPreparator;
     }
 
-    public void addPreparator(final Preparator preparator) {
+    public Preparator addPreparator(final Preparator preparator) {
+      for (int index = 0; index < preparators.size(); ++index) {
+        final Preparator oldPreparator = preparators.get(index);
+        if (oldPreparator.equals(preparator)) {
+          preparators.set(index, preparator);
+          return oldPreparator;
+        }
+      }
+
       this.preparators.add(preparator);
+      return null;
     }
 
     public List<Preparator> getPreparators() {
@@ -57,13 +68,12 @@ public final class PreparatorStore {
     this.comparatorGroups = new HashMap<>();
   }
 
-  public void addPreparator(final Preparator preparator) {
+  public Preparator addPreparator(final Preparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-    if (preparator.isComparator()) {
-      addPrerator(comparatorGroups, preparator);
-    } else {
-      addPrerator(preparatorGroups, preparator);
-    }
+    return addPrerator(
+        preparator.isComparator() ? comparatorGroups : preparatorGroups,
+        preparator
+        );
   }
 
   public Preparator getPreparator(
@@ -80,7 +90,7 @@ public final class PreparatorStore {
     return getPreparator(comparatorGroups, targetMode, data, preparatorName);
   }
 
-  private static void addPrerator(
+  private static Preparator addPrerator(
       final Map<String, PreparatorGroup> preparatorGroups,
       final Preparator preparator) {
     final String name = preparator.getTargetName();
@@ -91,11 +101,8 @@ public final class PreparatorStore {
       preparatorGroups.put(name, group);
     }
 
-    if (preparator.isDefault()) {
-      group.setDefault(preparator);
-    } else {
-      group.addPreparator(preparator);
-    }
+    return preparator.isDefault() ?
+        group.setDefault(preparator) : group.addPreparator(preparator);
   }
 
   private static Preparator getPreparator(

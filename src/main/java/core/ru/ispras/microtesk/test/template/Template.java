@@ -503,9 +503,12 @@ public final class Template {
     Logger.debug("End preparator: %s", preparatorBuilder.getTargetName());
 
     final Preparator preparator = preparatorBuilder.build();
-
     Logger.debug("Registering preparator: %s", preparator);
-    preparators.addPreparator(preparator);
+
+    final Preparator oldPreparator = preparators.addPreparator(preparator);
+    if (null != oldPreparator) {
+      Logger.warning("Preparator was redefined: %s", oldPreparator);
+    }
 
     preparatorBuilder = null;
   }
