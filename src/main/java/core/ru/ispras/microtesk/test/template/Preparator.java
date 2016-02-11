@@ -203,6 +203,41 @@ public final class Preparator {
   }
 
   @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final Preparator other = (Preparator) obj;
+
+    if (this.isComparator != other.isComparator) {
+      return false;
+    }
+
+    if (!this.getTargetName().equals(other.getTargetName())) {
+      return false;
+    }
+
+    if (!(this.name == null ? other.name == null : this.name.equals(other.name))) {
+      return false;
+    }
+
+    if (!(this.mask == null ? other.mask == null : this.mask.equals(other.mask))) {
+      return false;
+    }
+
+    return this.arguments.equals(other.arguments);
+  }
+
+  @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
 
@@ -278,7 +313,7 @@ public final class Preparator {
   }
 
   protected static final class Mask {
-    private final Collection<String> masks;
+    private final List<String> masks;
 
     public Mask(final String mask) {
       InvariantChecks.checkNotNull(mask);
@@ -287,7 +322,7 @@ public final class Preparator {
 
     public Mask(final Collection<String> masks) {
       InvariantChecks.checkNotEmpty(masks);
-      this.masks = masks;
+      this.masks = new ArrayList<>(masks);
     }
 
     public boolean isMatch(final BitVector value) {
@@ -319,6 +354,24 @@ public final class Preparator {
       }
 
       return true;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (obj == null) {
+        return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+
+      final Mask other = (Mask) obj;
+      return masks.equals(other.masks);
     }
 
     @Override
