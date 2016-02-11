@@ -503,6 +503,8 @@ public final class Template {
     Logger.debug("End preparator: %s", preparatorBuilder.getTargetName());
 
     final Preparator preparator = preparatorBuilder.build();
+
+    Logger.debug("Registering preparator: %s", preparator);
     preparators.addPreparator(preparator);
 
     preparatorBuilder = null;

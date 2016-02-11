@@ -202,6 +202,39 @@ public final class Preparator {
     return calls.value();
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append(isComparator ? "comparator" : "preparator");
+    sb.append(String.format("(:target => '%s'", getTargetName()));
+
+    if (null != name) {
+      sb.append(String.format(", :name => '%s'", name));
+    }
+
+    if (null != mask) {
+      sb.append(String.format(", :mask => %s", mask));
+    }
+
+    if (!arguments.isEmpty()) {
+      sb.append(", :arguments => {");
+      boolean isFirst = true;
+      for (final Argument argument : arguments) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append(", ");
+        }
+        sb.append(argument.toString());
+      }
+      sb.append('}');
+    }
+
+    sb.append(')');
+    return sb.toString();
+  }
+
   protected static final class Variant {
     private final String name;
     private final boolean biased;
@@ -287,6 +320,35 @@ public final class Preparator {
 
       return true;
     }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder();
+      final boolean isSingle = masks.size() == 1;
+
+      if (!isSingle) {
+        sb.append('[');
+      }
+
+      boolean isFirst = true;
+      for (final String mask : masks) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append(", ");
+        }
+
+        sb.append('\'');
+        sb.append(mask);
+        sb.append('\'');
+      }
+
+      if (!isSingle) {
+        sb.append(']');
+      }
+
+      return sb.toString();
+    }
   }
 
   protected static abstract class Argument {
@@ -294,13 +356,13 @@ public final class Preparator {
         final String name,
         final BigInteger value) {
       InvariantChecks.checkNotNull(value);
-      return newCollection(name, Collections.singletonList(value));
+      return  new ArgumentList(name, Collections.singletonList(value));
     }
 
     public static Argument newCollection(
         final String name,
         final Collection<BigInteger> values) {
-      return new ArgumentCollection(name, values);
+      return new ArgumentList(name, new ArrayList<>(values));
     }
 
     public static Argument newRange(
@@ -324,12 +386,12 @@ public final class Preparator {
     public abstract boolean isMatch(BigInteger value);
   }
 
-  private static final class ArgumentCollection extends Argument {
+  private static final class ArgumentList extends Argument {
     private final Collection<BigInteger> values;
 
-    protected ArgumentCollection(
+    protected ArgumentList(
         final String name,
-        final Collection<BigInteger> values) {
+        final List<BigInteger> values) {
       super(name);
       InvariantChecks.checkNotEmpty(values);
       this.values = values;
@@ -343,6 +405,56 @@ public final class Preparator {
         }
       }
       return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (obj == null) {
+        return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+
+      final ArgumentList other = (ArgumentList) obj;
+      if (!this.getName().equals(other.getName())) {
+        return false;
+      }
+
+      return this.values.equals(other.values);
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(String.format(":%s => ", getName()));
+
+      final boolean isSingle = values.size() == 1;
+      if (!isSingle) {
+        sb.append('[');
+      }
+
+      boolean isFirst = true;
+      for (final BigInteger value : values) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append(", ");
+        }
+
+        sb.append(value);
+      }
+
+      if (!isSingle) {
+        sb.append(']');
+      }
+
+      return sb.toString();
     }
   }
 
@@ -367,6 +479,33 @@ public final class Preparator {
     public boolean isMatch(final BigInteger value) {
       InvariantChecks.checkNotNull(value);
       return value.compareTo(from) >=0 && value.compareTo(to) <= 0;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (obj == null) {
+        return false;
+      }
+
+      if (getClass() != obj.getClass()) {
+        return false;
+      }
+
+      final ArgumentRange other = (ArgumentRange) obj;
+      if (!this.getName().equals(other.getName())) {
+        return false;
+      }
+
+      return this.from.equals(other.from) && this.to.equals(other.to);
+    }
+
+    @Override
+    public String toString() {
+      return String.format(":%s => %d..%d", getName(), from, to);
     }
   }
 }
