@@ -31,6 +31,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public final class Preparator {
+  private final Where where;
   private final boolean isComparator;
 
   private final LazyPrimitive targetHolder;
@@ -44,6 +45,7 @@ public final class Preparator {
   private final Map<String, Variant> variants;
 
   protected Preparator(
+      final Where where,
       final boolean isComparator,
       final LazyPrimitive targetHolder,
       final LazyData dataHolder,
@@ -52,6 +54,7 @@ public final class Preparator {
       final List<Argument> arguments,
       final List<Call> calls,
       final List<Variant> variants) {
+    InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(targetHolder);
     InvariantChecks.checkNotNull(dataHolder);
     InvariantChecks.checkNotNull(arguments);
@@ -59,6 +62,7 @@ public final class Preparator {
     InvariantChecks.checkNotNull(variants);
     InvariantChecks.checkTrue(calls.isEmpty() || variants.isEmpty());
 
+    this.where = where; 
     this.isComparator = isComparator;
 
     this.targetHolder = targetHolder;
@@ -89,6 +93,10 @@ public final class Preparator {
       this.calls = new VariateSingleValue<>(calls);
       this.variants = Collections.emptyMap();
     }
+  }
+
+  public Where getWhere() {
+    return where;
   }
 
   public boolean isComparator() {

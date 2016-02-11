@@ -25,6 +25,8 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 
 public final class PreparatorBuilder {
+  private Where where;
+
   private final MetaAddressingMode targetMetaData;
   private final boolean isComparator;
 
@@ -44,6 +46,8 @@ public final class PreparatorBuilder {
       final boolean isComparator) {
     InvariantChecks.checkNotNull(targetMetaData);
 
+    this.where = null;
+
     this.targetMetaData = targetMetaData;
     this.isComparator = isComparator;
 
@@ -59,6 +63,11 @@ public final class PreparatorBuilder {
     this.calls = new ArrayList<>();
     this.variants = new ArrayList<>();
     this.currentVariant = null;
+  }
+
+  public void setWhere(final Where where) {
+    InvariantChecks.checkNotNull(where);
+    this.where = where;
   }
 
   public void setName(final String name) {
@@ -162,6 +171,7 @@ public final class PreparatorBuilder {
 
   public Preparator build() {
     return new Preparator(
+        where,
         isComparator,
         target,
         data,

@@ -122,9 +122,9 @@ class Template
     end
   end
 
-  def get_caller_location
-    # Parses the caller of this method's caller, so the index is 1
-    caller_info = Template.parse_caller(caller[1])
+  def get_caller_location(caller_index = 1)
+    # Parses the caller of this method's caller, so the default index is 1
+    caller_info = Template.parse_caller(caller[caller_index])
     @template.where File.basename(caller_info[0]), caller_info[1]
   end
 
@@ -492,7 +492,9 @@ class Template
 
   def create_preparator(is_comparator, attrs, &contents)
     target = get_attribute attrs, :target
+
     builder = @template.beginPreparator target.to_s, is_comparator
+    builder.setWhere get_caller_location 2
 
     name = attrs[:name]
     if !name.nil?

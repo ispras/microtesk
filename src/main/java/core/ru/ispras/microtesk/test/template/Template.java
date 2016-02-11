@@ -507,7 +507,8 @@ public final class Template {
 
     final Preparator oldPreparator = preparators.addPreparator(preparator);
     if (null != oldPreparator) {
-      Logger.warning("Preparator was redefined: %s", oldPreparator);
+      Logger.warning("%s defined at %s is redefined at %s", 
+          oldPreparator, oldPreparator.getWhere(), preparator.getWhere());
     }
 
     preparatorBuilder = null;
