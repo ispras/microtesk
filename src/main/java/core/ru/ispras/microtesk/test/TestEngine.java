@@ -357,6 +357,13 @@ public final class TestEngine {
         printer.printCommentToFile("Empty");
       }
 
+      if (dataManager.containsDecls()) {
+        printer.printToFile("");
+        printSectionHeader("Data Declarations");
+        printer.printToFile("");
+        printer.printText(dataManager.getDeclText());
+      }
+
       printer.close();
       Tarmac.closeFile();
     }
@@ -400,13 +407,6 @@ public final class TestEngine {
               Tarmac.createFile();
             } catch (IOException e) {
               Logger.error(e.getMessage());
-            }
-
-            if (dataManager.containsDecls()) {
-              printer.printToFile("");
-              printSectionHeader("Data Declaration");
-              printer.printToFile("");
-              printer.printText(dataManager.getDeclText());
             }
 
             printer.printToFile("");
