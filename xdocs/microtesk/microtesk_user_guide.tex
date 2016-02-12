@@ -297,7 +297,94 @@ class MyTemplate < Template
 end
 \end{lstlisting}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Data Definitions}
+
+Describing data requires the use of assembler-specific directives. Information on
+these directives in not included in ISA specifications and should be provided in test
+templates. It includes textual format of data directives and mappings between nML and
+assembler data types used by these directives. Configuration information on data
+directives is specified in the data{\_}config block, which is usually placed in the
+pre method. Only one such block per template is allowed. Here is an example:
+
+\begin{lstlisting}[language=ruby]
+data_config(:text => '.data', :target => 'M', :addressableSize => 8) {
+  define_type :id => :byte, :text => '.byte', :type => type('card', 8)
+  define_type :id => :half, :text => '.half', :type => type('card', 16)
+  define_type :id => :word, :text => '.word', :type => type('card', 32)
+
+  define_space :id => :space, :text => '.space', :fillWith => 0
+  define_ascii_string :id => :ascii, :text => '.ascii', :zeroTerm => false
+  define_ascii_string :id => :asciiz, :text => '.asciiz', :zeroTerm => true
+}
+\end{lstlisting}
+
+The block takes the following parameters (compulsory):
+
+\begin{enumerate}
+  \item text - specifies the keyword that marks the beginning of the data section
+        of the generated test program;
+
+  \item target - specifies the memory array defined in the nML specification to
+        which data will be placed during simulation;
+
+  \item addressableSize - specifies the size (in bits) of addressable memory locations.
+\end{enumerate}
+
+To set up particular directives, the language provides special methods that must
+be called inside the block. All the methods share two common parameters: id and text.
+The first specifies the keyword to be used in a test template to address the
+directive and the second specifies how it will be printed in the test program. The
+current version of MicroTESK provides the following methods:
+
+\begin{enumerate}
+  \item define{\_}type - defines a directive to allocate memory for a data element
+        of an nML data type specified by the type parameter;
+
+  \item define{\_}space - defines a directive to allocate memory (one or more
+        addressable locations) filled with a default value specified by the
+        fillWith parameter;
+
+  \item define{\_}ascii{\_}string - defines a directive to allocate memory for an
+        ASCII string terminated or not terminated with zero depending on the
+        zeroTerm parameter.
+\end{enumerate}
+
+The above example defines the directives byte, half, word, ascii (non-zero terminated
+string) and asciiz (zero terminated string) that place data in the memory array M
+(specified in nML using the mem keyword). The size of an addressable memory location
+is 8 bits (or 1 byte).
+
+After all data directives are configured, data can be defined using the data block:
+
+\begin{lstlisting}[language=ruby]
+data {
+  label :data1
+  byte 1, 2, 3, 4
+
+  label :data2
+  half 0xDEAD, 0xBEEF
+
+  label :data3
+  word 0xDEADBEEF
+
+  label :hello
+  ascii  'Hello'
+
+  label :world
+  asciiz 'World'
+
+  space 6
+}
+\end{lstlisting}
+
+In this example, data is placed into memory. Data items are aligned by their size
+(1 byte, 2 bytes, 4 bytes). Strings are allocated at the byte border (addressable
+unit). For simplicity, in the current version of MicroTESK, memory is allocated
+starting from the address 0 (in the memory array of the executable model).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Appendixes}
 
@@ -305,7 +392,7 @@ end
 
 % Related nML publications/documents
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \addcontentsline{toc}{section}{\numberline{}Bibliography}
 \begin{thebibliography}{1}
