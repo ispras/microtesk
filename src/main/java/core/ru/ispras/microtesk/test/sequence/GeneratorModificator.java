@@ -16,18 +16,18 @@ package ru.ispras.microtesk.test.sequence;
 
 import java.util.List;
 
-import ru.ispras.microtesk.test.sequence.permutator.Permutator;
+import ru.ispras.microtesk.test.sequence.modificator.Modificator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-public final class GeneratorPermutator<T> implements Generator<T> {
+public final class GeneratorModificator<T> implements Generator<T> {
   private final Generator<T> generator;
-  private final Permutator<T> permutator;
+  private final Modificator<T> modificator;
 
   private boolean hasValue;
 
-  public GeneratorPermutator(final Generator<T> generator, final Permutator<T> permutator) {
+  public GeneratorModificator(final Generator<T> generator, final Modificator<T> modificator) {
     this.generator = generator;
-    this.permutator = permutator;
+    this.modificator = modificator;
   }
 
   private void initGenerator() {
@@ -35,8 +35,8 @@ public final class GeneratorPermutator<T> implements Generator<T> {
   }
 
   private void initPermutator() {
-    permutator.setSequence(generator.value());
-    permutator.init();
+    modificator.setSequence(generator.value());
+    modificator.init();
   }
 
   @Override
@@ -47,7 +47,7 @@ public final class GeneratorPermutator<T> implements Generator<T> {
       initPermutator();
     }
 
-    hasValue = generator.hasValue() && permutator.hasValue();
+    hasValue = generator.hasValue() && modificator.hasValue();
   }
 
   @Override
@@ -57,13 +57,13 @@ public final class GeneratorPermutator<T> implements Generator<T> {
 
   @Override
   public List<T> value() {
-    return permutator.value();
+    return modificator.value();
   }
 
   @Override
   public void next() {
-    permutator.next();
-    if (permutator.hasValue()) {
+    modificator.next();
+    if (modificator.hasValue()) {
       return;
     }
 

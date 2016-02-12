@@ -32,9 +32,9 @@ import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
 import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
-import ru.ispras.microtesk.test.sequence.permutator.Permutator;
-import ru.ispras.microtesk.test.sequence.permutator.RandomPermutator;
-import ru.ispras.microtesk.test.sequence.permutator.TrivialPermutator;
+import ru.ispras.microtesk.test.sequence.modificator.Modificator;
+import ru.ispras.microtesk.test.sequence.modificator.RandomModificator;
+import ru.ispras.microtesk.test.sequence.modificator.TrivialModificator;
 
 /**
  * {@link GeneratorConfig} implements a test generator configuration.
@@ -67,8 +67,8 @@ public final class GeneratorConfig<T> {
     compositors.put("nesting", NestingCompositor.class);
     compositors.put("random", RandomCompositor.class);
 
-    permutators.put("trivial", TrivialPermutator.class);
-    permutators.put("random", RandomPermutator.class);
+    permutators.put("trivial", TrivialModificator.class);
+    permutators.put("random", RandomModificator.class);
   }
 
   /**
@@ -114,7 +114,7 @@ public final class GeneratorConfig<T> {
    * @return a permutator instance.
    */
   @SuppressWarnings("unchecked")
-  public Permutator<T> getPermutator(final String name) {
+  public Modificator<T> getPermutator(final String name) {
     InvariantChecks.checkNotNull(name);
 
     final Class<?> permutatorClass = permutators.get(name.toLowerCase());
@@ -122,7 +122,7 @@ public final class GeneratorConfig<T> {
       throw new GenerationAbortedException("Permutator is not defined: " + name);
     }
 
-    return createInstance((Class<Permutator<T>>) permutatorClass);
+    return createInstance((Class<Modificator<T>>) permutatorClass);
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {

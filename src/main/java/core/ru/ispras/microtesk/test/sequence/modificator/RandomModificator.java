@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.permutator;
+package ru.ispras.microtesk.test.sequence.modificator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,11 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link RandomPermutator} implements a random permutator.
+ * {@link RandomModificator} implements a random modificator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RandomPermutator<T> extends Permutator<T> {
+public final class RandomModificator<T> extends Modificator<T> {
   private static final float PERMUTATION_RATE = 1.0f;
 
   @Override
