@@ -522,7 +522,7 @@ public final class DataManager {
           "The %s type is not defined.", typeId));
     }
 
-    final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
+    final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
     final BigInteger oldAddress = allocator.getCurrentAddress();
     try {
@@ -588,7 +588,7 @@ public final class DataManager {
     final int unitsInRow = blockSize / unitSize;
 
     final TypeInfo typeInfo = getTypeInfoForSize(unitSize);
-    final DataGenerator dataGenerator = newDataGenerator(method, typeInfo);
+    final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
     final BigInteger oldAddress = allocator.getCurrentAddress();
     try {
@@ -677,52 +677,4 @@ public final class DataManager {
           "Failed to generate data file %s. Reason: %s", e.getMessage()));
     }
   }
-
-  private static DataGenerator newDataGenerator(
-      final String name, final TypeInfo typeInfo) {
-
-    if ("zero".equalsIgnoreCase(name)) {
-      return new DataGeneratorZero(typeInfo);
-    }
-
-    if ("random".equalsIgnoreCase(name)) {
-      return new DataGeneratorRandom(typeInfo);
-    }
-
-    throw new IllegalArgumentException(
-        "Unknown data generation method: " + name);
-  }
-
-  private interface DataGenerator {
-    BitVector nextData();
-  }
-
-  private static final class DataGeneratorZero implements DataGenerator {
-    private final BitVector data; 
-
-    public DataGeneratorZero(final TypeInfo typeInfo) {
-      this.data = BitVector.newEmpty(typeInfo.type.getBitSize());
-    }
-
-    @Override
-    public BitVector nextData() {
-      return data;
-    }
-  }
-
-  private static final class DataGeneratorRandom implements DataGenerator {
-    private final Type type; 
-
-    public DataGeneratorRandom(final TypeInfo typeInfo) {
-      this.type = typeInfo.type;
-    }
-
-    @Override
-    public BitVector nextData() {
-      final BitVector data = BitVector.newEmpty(type.getBitSize());
-      Randomizer.get().fill(data);
-      return data;
-    }
-  }
 }
-
