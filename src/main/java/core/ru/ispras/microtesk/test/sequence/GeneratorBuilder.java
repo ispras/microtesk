@@ -34,8 +34,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   public static final String DEFAULT_PERMUTATOR = "trivial";
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "catenation";
-  /** The default modificator. */
-  public static final String DEFAULT_MODIFICATOR = "trivial";
+  /** The default obfuscator. */
+  public static final String DEFAULT_OBFUSCATOR = "trivial";
 
   /** The combinator used in the generator. */
   private String combinator = null;
@@ -44,7 +44,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The compositor used in the generator. */
   private String compositor = null;
   /** The modificator used in the generator. */
-  private String modificator = null;
+  private String obfuscator = null;
 
   /**
    * Specifies whether a single sequence must be generated 
@@ -88,13 +88,13 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
-   * Sets the modificator used in the generator.
+   * Sets the obfuscator used in the generator.
    * 
-   * @param modificator the modificator name.
+   * @param obfuscator the obfuscator name.
    */
 
-  public void setModificator(final String modificator) {
-    this.modificator = modificator;
+  public void setObfuscator(final String obfuscator) {
+    this.obfuscator = obfuscator;
   }
 
   /**
@@ -116,16 +116,16 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   public Generator<T> getGenerator() {
     final GeneratorConfig<T> config = GeneratorConfig.get();
 
-    final Permutator<T> modificatorEngine =
-        config.getModificator(modificator != null ? modificator : DEFAULT_MODIFICATOR);
+    final Permutator<T> obfuscatorEngine =
+        config.getModificator(obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
 
     // If the isSingle flag is set, the single sequence generator is returned.
     if (isSingle) {
-      return new GeneratorModificator<>(new GeneratorSingle<>(getIterators()), modificatorEngine);
+      return new GeneratorObfuscator<>(new GeneratorSingle<>(getIterators()), obfuscatorEngine);
     }
 
     if ((null == combinator) && (null == compositor)) {
-      return new GeneratorModificator<>(new GeneratorSequence<>(getIterators()), modificatorEngine);
+      return new GeneratorObfuscator<>(new GeneratorSequence<>(getIterators()), obfuscatorEngine);
     }
 
     if (null == combinator) { 
@@ -144,10 +144,10 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     final Permutator<List<T>> permutatorEngine = config.getPermutator(permutator);
     final Compositor<T> compositorEngine = config.getCompositor(compositor);
 
-    return new GeneratorModificator<>(new GeneratorMerge<T>(
+    return new GeneratorObfuscator<>(new GeneratorCompositor<T>(
         new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
         compositorEngine,
         getIterators()),
-        modificatorEngine);
+        obfuscatorEngine);
   }
 }

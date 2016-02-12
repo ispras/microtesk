@@ -20,18 +20,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-public final class GeneratorModificator<T> implements Generator<T> {
+public final class GeneratorObfuscator<T> implements Generator<T> {
   private final Generator<T> generator;
-  private final Permutator<T> modificator;
+  private final Permutator<T> obfuscator;
 
   private boolean hasValue;
 
-  public GeneratorModificator(final Generator<T> generator, final Permutator<T> modificator) {
+  public GeneratorObfuscator(final Generator<T> generator, final Permutator<T> obfuscator) {
     InvariantChecks.checkNotNull(generator);
-    InvariantChecks.checkNotNull(modificator);
+    InvariantChecks.checkNotNull(obfuscator);
 
     this.generator = generator;
-    this.modificator = modificator;
+    this.obfuscator = obfuscator;
   }
 
   private void initGenerator() {
@@ -39,8 +39,8 @@ public final class GeneratorModificator<T> implements Generator<T> {
   }
 
   private void initModificator() {
-    modificator.initialize(generator.value());
-    modificator.init();
+    obfuscator.initialize(generator.value());
+    obfuscator.init();
   }
 
   @Override
@@ -51,7 +51,7 @@ public final class GeneratorModificator<T> implements Generator<T> {
       initModificator();
     }
 
-    hasValue = generator.hasValue() && modificator.hasValue();
+    hasValue = generator.hasValue() && obfuscator.hasValue();
   }
 
   @Override
@@ -61,13 +61,13 @@ public final class GeneratorModificator<T> implements Generator<T> {
 
   @Override
   public List<T> value() {
-    return modificator.value();
+    return obfuscator.value();
   }
 
   @Override
   public void next() {
-    modificator.next();
-    if (modificator.hasValue()) {
+    obfuscator.next();
+    if (obfuscator.hasValue()) {
       return;
     }
 

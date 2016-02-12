@@ -36,8 +36,9 @@ public final class BlockBuilder {
   private Map<String, Object> attributes;
 
   private String combinatorName;
+  private String permutatorName;
   private String compositorName;
-  private String modificatorName;
+  private String obfuscatorName;
 
   private boolean isAtomic;
 
@@ -61,8 +62,9 @@ public final class BlockBuilder {
     this.attributes = new HashMap<>();
 
     this.combinatorName = null;
+    this.permutatorName = null;
     this.compositorName = null;
-    this.modificatorName = null;
+    this.obfuscatorName = null;
 
     this.isAtomic = false;
 
@@ -92,14 +94,19 @@ public final class BlockBuilder {
     compositorName = name;
   }
 
+  public void setPermutator(final String name) {
+    InvariantChecks.checkTrue(null == permutatorName);
+    permutatorName = name;
+  }
+
   public void setCombinator(final String name) {
     InvariantChecks.checkTrue(null == combinatorName);
     combinatorName = name;
   }
 
-  public void setPermutator(final String name) {
-    InvariantChecks.checkTrue(null == modificatorName);
-    modificatorName = name;
+  public void setObfuscator(final String name) {
+    InvariantChecks.checkTrue(null == obfuscatorName);
+    obfuscatorName = name;
   }
 
   public void setAtomic(final boolean value) {
@@ -169,12 +176,16 @@ public final class BlockBuilder {
       generatorBuilder.setCombinator(combinatorName);
     }
 
+    if (null != permutatorName) {
+      generatorBuilder.setCombinator(permutatorName);
+    }
+
     if (null != compositorName) {
       generatorBuilder.setCompositor(compositorName);
     }
 
-    if (null != modificatorName) {
-      generatorBuilder.setModificator(modificatorName);
+    if (null != obfuscatorName) {
+      generatorBuilder.setObfuscator(obfuscatorName);
     }
 
     for (final Block block : nestedBlocks) {

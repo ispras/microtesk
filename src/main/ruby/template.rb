@@ -160,12 +160,16 @@ class Template
       blockBuilder.setCombinator(attributes[:combinator])
     end
 
+    if attributes.has_key? :permutator
+      blockBuilder.setPermutator(attributes[:permutator])
+    end
+
     if attributes.has_key? :compositor
       blockBuilder.setCompositor(attributes[:compositor])
     end
 
-    if attributes.has_key? :permutator
-      blockBuilder.setPermutator(attributes[:permutator])
+    if attributes.has_key? :obfuscator
+      blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
     attributes.each_pair do |key, value|

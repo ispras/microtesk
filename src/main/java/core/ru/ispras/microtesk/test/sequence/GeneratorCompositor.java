@@ -24,11 +24,11 @@ import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link GeneratorMerge} implements the test sequence generator.
+ * {@link GeneratorCompositor} implements the test sequence generator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class GeneratorMerge<T> implements Generator<T> {
+public final class GeneratorCompositor<T> implements Generator<T> {
   /** Produces different combinations of sequences. */
   private final Combinator<List<T>> combinator;
   /** Merges several sequences into one. */
@@ -37,7 +37,7 @@ public final class GeneratorMerge<T> implements Generator<T> {
   /** The list of iterators. */
   private final List<Iterator<List<T>>> iterators;
 
-  public GeneratorMerge(
+  public GeneratorCompositor(
       final Combinator<List<T>> combinator,
       final Compositor<T> compositor,
       final List<Iterator<List<T>>> iterators) {
