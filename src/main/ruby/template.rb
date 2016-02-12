@@ -974,6 +974,10 @@ class DataManager
     @manager.addText value
   end
 
+  def comment(value)
+    @manager.addComment value
+  end
+
 end # DataManager
 
 # Methods init, read, write are defined in a separate class to
