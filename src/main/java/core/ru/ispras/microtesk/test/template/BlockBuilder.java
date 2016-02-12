@@ -177,7 +177,7 @@ public final class BlockBuilder {
     }
 
     if (null != permutatorName) {
-      generatorBuilder.setCombinator(permutatorName);
+      generatorBuilder.setPermutator(permutatorName);
     }
 
     if (null != compositorName) {
