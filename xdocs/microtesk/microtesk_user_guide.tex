@@ -74,10 +74,82 @@ installed. To build MicroTESK from source code or to build the generated
 Java models, \textbf{\textit{Apache Ant version 1.8 or later}} is required.
 To generate test data based on constraints, MicroTESK needs
 the \textbf{\textit{Microsoft Research Z3}} or \textbf{\textit{CVC4}} solver that
-can work under the corresponding operating system.
+can work on the corresponding operating system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Running MicroTESK}
+\section{Installation Steps}
+
+To install MicroTESK, the following steps should be performed:
+
+\begin{enumerate}
+  \item Download from http://forge.ispras.ru/projects/microtesk/files and unpack
+        the MicroTESK installation package (the .tar.gz file, latest release) to your
+        computer. The folder to which it was unpacked will be further referred to as
+        the installation directory (<installation dir>).
+
+  \item Declare the MICROTESK{\_}HOME environment variable and set its value to the path to
+        the installation directory (see the Setting Environment Variables section).
+
+  \item Set the <installation dir>/bin folder as the working directory (add the path to
+        the PATH environment variable) to be able to run MicroTESK utilities from any path.
+
+  \item Note: Required for constraint-based generation. Download and install constraint
+        solver tools to the <installation dir>/tools directory (see the Installing
+        Constraint Solvers section).
+\end{enumerate}
+
+% Now you can run the @compile.sh@ (or @.bat@) script to create a microprocessor
+% model and the @generate.sh@ (or @.bat@) script to generate test for this model.
+
+\subsection{Setting Environment Variables}
+
+\paragraph{Windows}
+
+\begin{enumerate}
+  \item Open the "System Properties" window.
+  \item Switch to the "Advanced" tab.
+  \item Click on Environment Variables.
+  \item Click "New.." under "System Variables".
+  \item In the "New System Variable" dialog specify variable name as
+        MICROTESK{\_}HOME and variable value as <installation dir>.
+  \item Click "OK" on all open windows.
+  \item Reopen the command prompt window.
+\end{enumerate}
+
+\paragraph{Linux and OS X}
+
+Add the command below to the ~.bash{\_}profile file (Linux) or the ~/.profile
+file (OS X):
+
+\begin{lstlisting}[language=bash]
+export MICROTESK_HOME=<installation dir>
+\end{lstlisting}
+
+To start editing the file, type vi ~/.bash{\_}profile (or vi ~/.profile). Changes
+will be applied after restarting the command-line terminal or reboot. You can also
+execute the command in your command-line terminal to make temporary changes.
+
+\subsection{Installing Constraint Solvers}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Installation Directory Structure}
+
+The MicroTESK installation directory contains the following subdirectories:
+
+\begin{tabular}{ | l | p{12.5cm} |}
+  \hline
+  \textbf{arch} & Microprocessor specifications and test templates \\ \hline
+  \textbf{bin}  & Scripts to run modeling and test generation tasks \\ \hline
+  \textbf{doc}  & Documentation \\ \hline
+  \textbf{etc}  & Configuration files \\ \hline
+  \textbf{gen}  & Generated code of microprocessor models \\ \hline
+  \textbf{lib}  & JAR files and Ruby scripts to perform modeling and test generation 
+                  tasks \\ \hline
+  \textbf{src}  & Source code of MicroTESK \\ \hline
+\end{tabular}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Running}
 
 To generate a Java model of a microprocessor from its nML specification, a user
 needs to run the compile.sh script (Unix, Linux, OS X) or the compile.bat script
@@ -162,10 +234,6 @@ Here is the list of options:
   --comments-enabled & -ce & Enables printing comments; if not specified no comments are printed & --generate \\ \hline
   --comments-debug & -cd & Enables printing detailed comments; must be used together with --comments-enabled  & --generate \\ \hline
 \end{tabular}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Overview}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
