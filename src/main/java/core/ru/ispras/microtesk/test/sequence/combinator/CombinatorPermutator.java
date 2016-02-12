@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence;
+package ru.ispras.microtesk.test.sequence.combinator;
 
 import java.util.List;
 
@@ -20,38 +20,44 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-public final class GeneratorModificator<T> implements Generator<T> {
-  private final Generator<T> generator;
-  private final Permutator<T> modificator;
+public final class CombinatorPermutator<T> implements Combinator<T> {
+  private final Combinator<T> combinator;
+  private final Permutator<T> permutator;
 
   private boolean hasValue;
 
-  public GeneratorModificator(final Generator<T> generator, final Permutator<T> modificator) {
-    InvariantChecks.checkNotNull(generator);
-    InvariantChecks.checkNotNull(modificator);
+  public CombinatorPermutator(final Combinator<T> combinator, final Permutator<T> permutator) {
+    InvariantChecks.checkNotNull(combinator);
+    InvariantChecks.checkNotNull(permutator);
 
-    this.generator = generator;
-    this.modificator = modificator;
+    this.combinator = combinator;
+    this.permutator = permutator;
   }
 
-  private void initGenerator() {
-    generator.init();
+  private void initCombinator() {
+    combinator.init();
   }
 
-  private void initModificator() {
-    modificator.initialize(generator.value());
-    modificator.init();
+  private void initPermutator() {
+    permutator.initialize(combinator.value());
+    permutator.init();
   }
 
   @Override
-  public void init() {
-    initGenerator();
+  public void initialize(final List<Iterator<T>> iterators) {
+    combinator.initialize(iterators);
+  }
 
-    if (generator.hasValue()) {
-      initModificator();
+
+  @Override
+  public void init() {
+    initCombinator();
+
+    if (combinator.hasValue()) {
+      initPermutator();
     }
 
-    hasValue = generator.hasValue() && modificator.hasValue();
+    hasValue = combinator.hasValue() && permutator.hasValue();
   }
 
   @Override
@@ -61,19 +67,19 @@ public final class GeneratorModificator<T> implements Generator<T> {
 
   @Override
   public List<T> value() {
-    return modificator.value();
+    return permutator.value();
   }
 
   @Override
   public void next() {
-    modificator.next();
-    if (modificator.hasValue()) {
+    permutator.next();
+    if (permutator.hasValue()) {
       return;
     }
 
-    generator.next();
-    if (generator.hasValue()) {
-      initModificator();
+    permutator.next();
+    if (permutator.hasValue()) {
+      initPermutator();
       return;
     }
 

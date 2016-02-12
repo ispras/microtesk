@@ -24,11 +24,11 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link RandomCombinator} implements the random combinator of iterators.
+ * {@link CombinatorRandom} implements the random combinator of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RandomCombinator<T> extends Combinator<T> {
+public final class CombinatorRandom<T> extends CombinatorBase<T> {
   /** Maps an iterator to the list of previous values. */
   private final Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
   /** Maps an iterator to the current value. */

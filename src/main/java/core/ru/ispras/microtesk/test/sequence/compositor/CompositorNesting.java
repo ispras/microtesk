@@ -14,32 +14,52 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
+import java.util.Stack;
+
+import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link CatenationCompositor} implements the concatenation (catenation) of iterators.
+ * {@link CompositorNesting} implements the nesting composition of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CatenationCompositor<T> extends Compositor<T> {
-  /** The current iterator index. */
-  private int i;
+public final class CompositorNesting<T> extends CompositorBase<T> {
+  /** The stack of iterators. */
+  private Stack<IteratorEntry<T>> stack = new Stack<IteratorEntry<T>>();
 
   @Override
   protected void onInit() {
-    i = 0;
+    stack.clear();
+
+    if (iterators.size() > 0) {
+      stack.push(new IteratorEntry<T>(iterators.get(0)));
+    }
   }
 
   @Override
-  protected void onNext() {
-    // Do nothing.
+  public void onNext() {
+    stack.peek().index++;
   }
 
   @Override
   protected Iterator<T> choose() {
-    for (; i < iterators.size(); i++) {
-      if (iterators.get(i).hasValue()) {
-        return iterators.get(i);
+    while (!stack.isEmpty()) {
+      IteratorEntry<T> entry = stack.peek();
+
+      if (entry.index == entry.point && !entry.done) {
+        if (stack.size() < iterators.size()) {
+          entry.done = true;
+          stack.push(new IteratorEntry<T>(iterators.get(stack.size())));
+
+          continue;
+        }
+      }
+
+      if (entry.iterator.hasValue()) {
+        return entry.iterator;
+      } else {
+        stack.pop();
       }
     }
 

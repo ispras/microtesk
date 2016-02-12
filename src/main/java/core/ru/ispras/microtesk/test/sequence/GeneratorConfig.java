@@ -21,20 +21,20 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
-import ru.ispras.microtesk.test.sequence.combinator.DiagonalCombinator;
-import ru.ispras.microtesk.test.sequence.combinator.ProductCombinator;
-import ru.ispras.microtesk.test.sequence.combinator.RandomCombinator;
-import ru.ispras.microtesk.test.sequence.compositor.CatenationCompositor;
+import ru.ispras.microtesk.test.sequence.combinator.CombinatorDiagonal;
+import ru.ispras.microtesk.test.sequence.combinator.CombinatorProduct;
+import ru.ispras.microtesk.test.sequence.combinator.CombinatorRandom;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
-import ru.ispras.microtesk.test.sequence.compositor.NestingCompositor;
-import ru.ispras.microtesk.test.sequence.compositor.OverlappingCompositor;
-import ru.ispras.microtesk.test.sequence.compositor.RandomCompositor;
-import ru.ispras.microtesk.test.sequence.compositor.RotationCompositor;
+import ru.ispras.microtesk.test.sequence.compositor.CompositorCatenation;
+import ru.ispras.microtesk.test.sequence.compositor.CompositorNesting;
+import ru.ispras.microtesk.test.sequence.compositor.CompositorOverlapping;
+import ru.ispras.microtesk.test.sequence.compositor.CompositorRandom;
+import ru.ispras.microtesk.test.sequence.compositor.CompositorRotation;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
-import ru.ispras.microtesk.test.sequence.modificator.Modificator;
-import ru.ispras.microtesk.test.sequence.modificator.RandomModificator;
-import ru.ispras.microtesk.test.sequence.modificator.TrivialModificator;
+import ru.ispras.microtesk.test.sequence.permutator.Permutator;
+import ru.ispras.microtesk.test.sequence.permutator.PermutatorRandom;
+import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
 
 /**
  * {@link GeneratorConfig} implements a test generator configuration.
@@ -57,18 +57,18 @@ public final class GeneratorConfig<T> {
   }
 
   private GeneratorConfig() {
-    combinators.put("product", ProductCombinator.class);
-    combinators.put("diagonal", DiagonalCombinator.class);
-    combinators.put("random", RandomCombinator.class);
+    combinators.put("product", CombinatorProduct.class);
+    combinators.put("diagonal", CombinatorDiagonal.class);
+    combinators.put("random", CombinatorRandom.class);
 
-    compositors.put("catenation", CatenationCompositor.class);
-    compositors.put("rotation", RotationCompositor.class);
-    compositors.put("overlap", OverlappingCompositor.class);
-    compositors.put("nesting", NestingCompositor.class);
-    compositors.put("random", RandomCompositor.class);
+    compositors.put("catenation", CompositorCatenation.class);
+    compositors.put("rotation", CompositorRotation.class);
+    compositors.put("overlap", CompositorOverlapping.class);
+    compositors.put("nesting", CompositorNesting.class);
+    compositors.put("random", CompositorRandom.class);
 
-    permutators.put("trivial", TrivialModificator.class);
-    permutators.put("random", RandomModificator.class);
+    permutators.put("trivial", PermutatorTrivial.class);
+    permutators.put("random", PermutatorRandom.class);
   }
 
   /**
@@ -114,7 +114,7 @@ public final class GeneratorConfig<T> {
    * @return a permutator instance.
    */
   @SuppressWarnings("unchecked")
-  public Modificator<T> getPermutator(final String name) {
+  public Permutator<List<T>> getPermutator(final String name) {
     InvariantChecks.checkNotNull(name);
 
     final Class<?> permutatorClass = permutators.get(name.toLowerCase());
@@ -122,7 +122,25 @@ public final class GeneratorConfig<T> {
       throw new GenerationAbortedException("Permutator is not defined: " + name);
     }
 
-    return createInstance((Class<Modificator<T>>) permutatorClass);
+    return createInstance((Class<Permutator<List<T>>>) permutatorClass);
+  }
+
+  /**
+   * Creates an instance of the modificator with the given name.
+   * 
+   * @param name the modificator name.
+   * @return a modificator instance.
+   */
+  @SuppressWarnings("unchecked")
+  public Permutator<T> getModificator(final String name) {
+    InvariantChecks.checkNotNull(name);
+
+    final Class<?> permutatorClass = permutators.get(name.toLowerCase());
+    if (null == permutatorClass) {
+      throw new GenerationAbortedException("Permutator is not defined: " + name);
+    }
+
+    return createInstance((Class<Permutator<T>>) permutatorClass);
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {

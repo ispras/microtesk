@@ -12,31 +12,41 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.modificator;
+package ru.ispras.microtesk.test.sequence.permutator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link Modificator} is a basic modificator. It takes a list of items and returns an iterator of
- * modified lists.
+ * {@link PermutatorTrivial} implements a trivial permutator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Modificator<T> implements Iterator<List<T>> {
-  protected ArrayList<T> original;
-  protected ArrayList<T> sequence; 
-
-  public final void setSequence(final List<T> original) {
+public final class PermutatorTrivial<T> extends PermutatorBase<T> {
+  @Override
+  public void init() {
     InvariantChecks.checkNotNull(original);
-    this.original = new ArrayList<>(original);
+    sequence = original;
   }
 
   @Override
-  public Modificator<T> clone() {
-    throw new UnsupportedOperationException();
+  public boolean hasValue() {
+    return sequence != null;
+  }
+
+  @Override
+  public List<T> value() {
+    return sequence;
+  }
+
+  @Override
+  public void next() {
+    sequence = null;
+  }
+
+  @Override
+  public void stop() {
+    sequence = null;
   }
 }

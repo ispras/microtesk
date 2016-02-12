@@ -12,17 +12,31 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.compositor;
+package ru.ispras.microtesk.test.sequence.permutator;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link Compositor} is a compositor interface.
+ * {@link PermutatorBase} is a basic permutator. It takes a list of items and returns an iterator of
+ * permuted lists.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Compositor<T> extends Iterator<T> {
-  void initialize(final List<Iterator<T>> iterators);
+abstract class PermutatorBase<T> implements Permutator<T> {
+  protected ArrayList<T> original;
+  protected ArrayList<T> sequence; 
+
+  @Override
+  public final void initialize(final List<T> original) {
+    InvariantChecks.checkNotNull(original);
+    this.original = new ArrayList<>(original);
+  }
+
+  @Override
+  public PermutatorBase<T> clone() {
+    throw new UnsupportedOperationException();
+  }
 }

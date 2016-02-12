@@ -29,7 +29,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class GeneratorMerge<T> implements Generator<T> {
-  /** Produces different combinations of the sequences. */
+  /** Produces different combinations of sequences. */
   private final Combinator<List<T>> combinator;
   /** Merges several sequences into one. */
   private final Compositor<T> compositor;
@@ -52,7 +52,7 @@ public final class GeneratorMerge<T> implements Generator<T> {
 
   @Override
   public void init() {
-    combinator.setIterators(iterators);
+    combinator.initialize(iterators);
     combinator.init();
   }
 
@@ -65,10 +65,12 @@ public final class GeneratorMerge<T> implements Generator<T> {
   public List<T> value() {
     final List<List<T>> combination = combinator.value();
 
-    compositor.removeIterators();
+    final List<Iterator<T>> iterators = new ArrayList<>();
     for (final List<T> sequence : combination) {
-      compositor.addIterator(new CollectionIterator<T>(sequence));
+      iterators.add(new CollectionIterator<T>(sequence));
     }
+
+    compositor.initialize(iterators);
 
     final List<T> sequence = new ArrayList<T>();
     for (compositor.init(); compositor.hasValue(); compositor.next()) {

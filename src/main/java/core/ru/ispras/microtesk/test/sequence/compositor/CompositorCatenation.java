@@ -17,11 +17,11 @@ package ru.ispras.microtesk.test.sequence.compositor;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link RotationCompositor} implements the rotation (interleaving) composition of iterators.
+ * {@link CompositorCatenation} implements the concatenation (catenation) of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RotationCompositor<T> extends Compositor<T> {
+public final class CompositorCatenation<T> extends CompositorBase<T> {
   /** The current iterator index. */
   private int i;
 
@@ -37,14 +37,9 @@ public final class RotationCompositor<T> extends Compositor<T> {
 
   @Override
   protected Iterator<T> choose() {
-    for (int j = 0; j < iterators.size(); j++) {
-      final int k = (i + j) % iterators.size();
-
-      if (iterators.get(k).hasValue()) {
-        // The next choice will start from the next iterator.
-        i = k + 1;
-
-        return iterators.get(k);
+    for (; i < iterators.size(); i++) {
+      if (iterators.get(i).hasValue()) {
+        return iterators.get(i);
       }
     }
 

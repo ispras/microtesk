@@ -20,11 +20,11 @@ import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link OverlappingCompositor} implements the overlapping (shift) composition of iterators.
+ * {@link CompositorOverlapping} implements the overlapping (shift) composition of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class OverlappingCompositor<T> extends Compositor<T> {
+public final class CompositorOverlapping<T> extends CompositorBase<T> {
   /** The index of the recently used iterator from the compositor's list. */
   private int n;
   /** The index of the recently selected iterator from <code>overlap</code>. */

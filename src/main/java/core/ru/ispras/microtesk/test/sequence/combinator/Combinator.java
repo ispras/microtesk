@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,114 +14,15 @@
 
 package ru.ispras.microtesk.test.sequence.combinator;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link Combinator} is a basic combinator of iterators. It takes several iterators and produces
- * different combinations of their results.
+ * {@link Combinator} is a combinator interface.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Combinator<T> extends CompositeIterator<T> implements Iterator<List<T>> {
-  /** Availability of the value. */
-  private boolean hasValue;
-
-  /**
-   * Constructs a compositor with the empty list of iterators.
-   */
-  public Combinator() {}
-
-  /**
-   * Constructs a compositor with the given list of iterators.
-   * 
-   * @param iterators the list of iterators to be composed.
-   */
-  public Combinator(final List<Iterator<T>> iterators) {
-    addIterators(iterators);
-  }
-
-  //------------------------------------------------------------------------------------------------
-  // Callbacks that should be overloaded in subclasses
-  //------------------------------------------------------------------------------------------------
-
-  /**
-   * The callback method called in the {@code init} method.
-   */
-  protected abstract void onInit();
-
-  /**
-   * The callback method called in the {@code value} method.
-   * 
-   * @param i the iterator index.
-   * @return the value of the i-th iterator ({@code null} if the iterator has been exhausted,
-   *         i.e., no value is available).
-   */
-  protected abstract T getValue(int i);
-
-  /**
-   * The callback method called in the {@code next} method.
-   * 
-   * @return {@code false} iff it the combinator has been exhausted.
-   */
-  protected abstract boolean doNext();
-
-  //------------------------------------------------------------------------------------------------
-  // Callback-based implementation of the iterator method
-  //------------------------------------------------------------------------------------------------
-
-  @Override
-  public void init() {
-    for (Iterator<T> iterator : iterators) {
-      iterator.init();
-    }
-
-    onInit();
-
-    hasValue = true;
-  }
-
-  @Override
-  public boolean hasValue() {
-    if (!hasValue || iterators.isEmpty()) {
-      return false;
-    }
-
-    for (int i = 0; i < iterators.size(); i++) {
-      if (getValue(i) == null) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  @Override
-  public List<T> value() {
-    final List<T> result = new ArrayList<T>(iterators.size());
-
-    for (int i = 0; i < iterators.size(); i++) {
-      result.add(getValue(i));
-    }
-
-    return result;
-  }
-
-  @Override
-  public void next() {
-    hasValue = doNext();
-  }
-
-  @Override
-  public void stop() {
-    hasValue = false;
-  }
-
-  @Override
-  public Combinator<T> clone() {
-    throw new UnsupportedOperationException();
-  }
+public interface Combinator<T> extends Iterator<List<T>> {
+  void initialize(final List<Iterator<T>> iterators);
 }

@@ -30,30 +30,30 @@ public final class CompositorTestCase {
 
   @Test
   public void runCatenationTest() {
-    runTest(new CatenationCompositor<Integer>());
+    runTest(new CompositorCatenation<Integer>());
   }
 
   @Test
   public void runRotationTest() {
-    runTest(new RotationCompositor<Integer>());
+    runTest(new CompositorRotation<Integer>());
   }
 
   @Test
   public void runRandomTest() {
-    runTest(new RandomCompositor<Integer>());
+    runTest(new CompositorRandom<Integer>());
   }
 
   @Test
   public void runNestingTest() {
-    runTest(new NestingCompositor<Integer>());
+    runTest(new CompositorNesting<Integer>());
   }
 
   @Test
   public void runOverlappingTest() {
-    runTest(new OverlappingCompositor<Integer>());
+    runTest(new CompositorOverlapping<Integer>());
   }
 
-  private void runTest(Compositor<Integer> compositor) {
+  private void runTest(CompositorBase<Integer> compositor) {
     final int N = 10;
     final int L = 10;
 

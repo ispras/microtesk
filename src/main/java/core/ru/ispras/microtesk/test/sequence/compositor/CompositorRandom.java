@@ -23,11 +23,11 @@ import ru.ispras.testbase.knowledge.iterator.BoundedIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link RandomCompositor} implements the random composition (merging) of iterators.
+ * {@link CompositorRandom} implements the random composition (merging) of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RandomCompositor<T> extends Compositor<T> {
+public final class CompositorRandom<T> extends CompositorBase<T> {
   /** Random distribution for choosing iterators. */
   private Variate<Integer> distribution;
 

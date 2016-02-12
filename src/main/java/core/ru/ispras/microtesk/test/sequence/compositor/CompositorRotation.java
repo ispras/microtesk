@@ -14,52 +14,37 @@
 
 package ru.ispras.microtesk.test.sequence.compositor;
 
-import java.util.Stack;
-
-import ru.ispras.microtesk.test.sequence.internal.IteratorEntry;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link NestingCompositor} implements the nesting composition of iterators.
+ * {@link CompositorRotation} implements the rotation (interleaving) composition of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class NestingCompositor<T> extends Compositor<T> {
-  /** The stack of iterators. */
-  private Stack<IteratorEntry<T>> stack = new Stack<IteratorEntry<T>>();
+public final class CompositorRotation<T> extends CompositorBase<T> {
+  /** The current iterator index. */
+  private int i;
 
   @Override
   protected void onInit() {
-    stack.clear();
-
-    if (iterators.size() > 0) {
-      stack.push(new IteratorEntry<T>(iterators.get(0)));
-    }
+    i = 0;
   }
 
   @Override
-  public void onNext() {
-    stack.peek().index++;
+  protected void onNext() {
+    // Do nothing.
   }
 
   @Override
   protected Iterator<T> choose() {
-    while (!stack.isEmpty()) {
-      IteratorEntry<T> entry = stack.peek();
+    for (int j = 0; j < iterators.size(); j++) {
+      final int k = (i + j) % iterators.size();
 
-      if (entry.index == entry.point && !entry.done) {
-        if (stack.size() < iterators.size()) {
-          entry.done = true;
-          stack.push(new IteratorEntry<T>(iterators.get(stack.size())));
+      if (iterators.get(k).hasValue()) {
+        // The next choice will start from the next iterator.
+        i = k + 1;
 
-          continue;
-        }
-      }
-
-      if (entry.iterator.hasValue()) {
-        return entry.iterator;
-      } else {
-        stack.pop();
+        return iterators.get(k);
       }
     }
 

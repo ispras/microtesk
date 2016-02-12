@@ -12,41 +12,17 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.modificator;
+package ru.ispras.microtesk.test.sequence.permutator;
 
 import java.util.List;
 
-import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link TrivialModificator} implements a trivial modificator.
+ * {@link Permutator} is a permutator interface.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class TrivialModificator<T> extends Modificator<T> {
-  @Override
-  public void init() {
-    InvariantChecks.checkNotNull(original);
-    sequence = original;
-  }
-
-  @Override
-  public boolean hasValue() {
-    return sequence != null;
-  }
-
-  @Override
-  public List<T> value() {
-    return sequence;
-  }
-
-  @Override
-  public void next() {
-    sequence = null;
-  }
-
-  @Override
-  public void stop() {
-    sequence = null;
-  }
+public interface Permutator<T> extends Iterator<List<T>> {
+  void initialize(final List<T> original);
 }

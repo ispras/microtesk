@@ -16,8 +16,11 @@ package ru.ispras.microtesk.test.sequence;
 
 import java.util.List;
 
+import ru.ispras.microtesk.test.sequence.combinator.Combinator;
+import ru.ispras.microtesk.test.sequence.combinator.CombinatorPermutator;
+import ru.ispras.microtesk.test.sequence.compositor.Compositor;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
-import ru.ispras.microtesk.test.sequence.modificator.Modificator;
+import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 
 /**
  * {@link GeneratorBuilder} implements the test sequence generator.
@@ -27,6 +30,8 @@ import ru.ispras.microtesk.test.sequence.modificator.Modificator;
 public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default combinator. */
   public static final String DEFAULT_COMBINATOR = "diagonal";
+  /** The default permutator. */
+  public static final String DEFAULT_PERMUTATOR = "trivial";
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "catenation";
   /** The default modificator. */
@@ -34,6 +39,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
 
   /** The combinator used in the generator. */
   private String combinator = null;
+  /** The permutator used in the generator. */
+  private String permutator = null;
   /** The compositor used in the generator. */
   private String compositor = null;
   /** The modificator used in the generator. */
@@ -58,6 +65,16 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
 
   public void setCombinator(final String combinator) {
     this.combinator = combinator;
+  }
+
+  /**
+   * Sets the permutator used in the generator.
+   * 
+   * @param permutator the permutator name.
+   */
+
+  public void setPermutator(final String permutator) {
+    this.permutator = permutator;
   }
 
   /**
@@ -99,8 +116,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   public Generator<T> getGenerator() {
     final GeneratorConfig<T> config = GeneratorConfig.get();
 
-    final Modificator<T> modificatorEngine =
-        config.getPermutator(modificator != null ? modificator : DEFAULT_MODIFICATOR);
+    final Permutator<T> modificatorEngine =
+        config.getModificator(modificator != null ? modificator : DEFAULT_MODIFICATOR);
 
     // If the isSingle flag is set, the single sequence generator is returned.
     if (isSingle) {
@@ -115,11 +132,22 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       combinator = DEFAULT_COMBINATOR;
     }
 
+    if (null == permutator) {
+      permutator = DEFAULT_PERMUTATOR;
+    }
+
     if (null == compositor) {
       compositor = DEFAULT_COMPOSITOR;
     }
 
-    return new GeneratorModificator<>(new GeneratorMerge<T>(config.getCombinator(combinator),
-        config.getCompositor(compositor), getIterators()), modificatorEngine);
+    final Combinator<List<T>> combinatorEngine = config.getCombinator(combinator);
+    final Permutator<List<T>> permutatorEngine = config.getPermutator(permutator);
+    final Compositor<T> compositorEngine = config.getCompositor(compositor);
+
+    return new GeneratorModificator<>(new GeneratorMerge<T>(
+        new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
+        compositorEngine,
+        getIterators()),
+        modificatorEngine);
   }
 }

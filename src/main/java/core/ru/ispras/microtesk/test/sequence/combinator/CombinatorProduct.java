@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2008-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,50 +14,39 @@
 
 package ru.ispras.microtesk.test.sequence.combinator;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link DiagonalCombinator} implements the diagonal combinator of iterators.
+ * {@link CombinatorProduct} implements the product combinator of iterators.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class DiagonalCombinator<T> extends Combinator<T> {
-  /** The set of exhausted iterators. */
-  private final Set<Integer> exhausted = new HashSet<Integer>();
-
+public final class CombinatorProduct<T> extends CombinatorBase<T> {
   @Override
-  public void onInit() {
-    exhausted.clear();
-  }
+  public void onInit() {}
 
   @Override
   public T getValue(final int i) {
-    Iterator<T> iterator = iterators.get(i);
-
+    final Iterator<T> iterator = iterators.get(i);
     return iterator.hasValue() ? iterator.value() : null;
   }
 
   @Override
   public boolean doNext() {
-    for (int i = 0; i < iterators.size(); i++) {
-      Iterator<T> iterator = iterators.get(i);
+    for (int j = iterators.size() - 1; j >= 0; j--) {
+      final Iterator<T> iterator = iterators.get(j);
 
-      iterator.next();
+      if (iterator.hasValue()) {
+        iterator.next();
 
-      if (!iterator.hasValue()) {
-        exhausted.add(i);
-
-        if (exhausted.size() < iterators.size()) {
-          iterator.init();
-        } else {
-          return false;
+        if (iterator.hasValue()) {
+          return true;
         }
       }
+
+      iterator.init();
     }
 
-    return true;
+    return false;
   }
 }
