@@ -39,6 +39,7 @@ public final class MemoryAllocator {
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
+  private final BigInteger baseAddress; // in addressable units
   private BigInteger currentAddress; // in addressable units
 
   private static String ERROR_INVALID_SIZE =
@@ -74,6 +75,7 @@ public final class MemoryAllocator {
     this.addressableUnitBitSize = addressableUnitBitSize;
     this.addressableUnitsInRegion = regionBitSize / addressableUnitBitSize;
 
+    this.baseAddress = baseAddress;
     this.currentAddress = baseAddress;
   }
 
@@ -88,6 +90,10 @@ public final class MemoryAllocator {
 
   public void setCurrentAddress(final BigInteger value) {
     currentAddress = value;
+  }
+
+  public void setOrigin(final BigInteger value) {
+    setCurrentAddress(baseAddress.add(value));
   }
 
   public void align(final BigInteger value) {
