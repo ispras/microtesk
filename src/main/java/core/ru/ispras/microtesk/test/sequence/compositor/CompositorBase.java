@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.sequence.compositor;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -73,6 +74,7 @@ abstract class CompositorBase<T> extends CompositeIterator<T> implements Composi
 
   @Override
   public void initialize(final List<Iterator<T>> iterators) {
+    InvariantChecks.checkNotNull(iterators);
     setIterators(iterators);
   }
 

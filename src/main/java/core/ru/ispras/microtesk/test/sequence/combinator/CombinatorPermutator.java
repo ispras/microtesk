@@ -45,9 +45,9 @@ public final class CombinatorPermutator<T> implements Combinator<T> {
 
   @Override
   public void initialize(final List<Iterator<T>> iterators) {
+    InvariantChecks.checkNotNull(iterators);
     combinator.initialize(iterators);
   }
-
 
   @Override
   public void init() {
@@ -77,8 +77,8 @@ public final class CombinatorPermutator<T> implements Combinator<T> {
       return;
     }
 
-    permutator.next();
-    if (permutator.hasValue()) {
+    combinator.next();
+    if (combinator.hasValue()) {
       initPermutator();
       return;
     }
