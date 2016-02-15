@@ -77,7 +77,7 @@ public final class DataDirectiveFactory {
     this.preceedingLabels = Collections.emptyList();
   }
 
-  protected final class Builder {
+  protected static final class Builder {
     private final MemoryMap memoryMap;
     private final MemoryAllocator allocator;
     private final AddressTranslator addressTranslator;
@@ -89,7 +89,7 @@ public final class DataDirectiveFactory {
     private String ztermStrText;
     private String nztermStrText;
 
-    private Builder(
+    protected Builder(
         final MemoryMap memoryMap,
         final MemoryAllocator allocator,
         final AddressTranslator addressTranslator) {
@@ -177,8 +177,8 @@ public final class DataDirectiveFactory {
   }
 
   public final static class TypeInfo {
-    private final Type type;
-    private final String text;
+    public final Type type;
+    public final String text;
 
     private TypeInfo(final Type type, final String text) {
       InvariantChecks.checkNotNull(type);
