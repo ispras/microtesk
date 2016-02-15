@@ -492,8 +492,7 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newAsciiStrings(final boolean zeroTerm, final String[] strings) {
-    InvariantChecks.checkTrue(zeroTerm && ztermStrText != null);
-    InvariantChecks.checkNotNull(!zeroTerm && nztermStrText != null);
+    InvariantChecks.checkTrue(zeroTerm ? ztermStrText != null : nztermStrText != null);
 
     final DataDirective result = new AsciiStrings(zeroTerm, strings, preceedingLabels);
     preceedingLabels = Collections.emptyList();
