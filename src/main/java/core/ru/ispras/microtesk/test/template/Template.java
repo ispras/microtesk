@@ -904,6 +904,7 @@ public final class Template {
     Logger.debug("Begin Data (isSeparateFile=%b)", isSeparateFile);
     Memory.setUseTempCopies(false);
 
+    dataManager.setSeparateFile(isSeparateFile);
     if (isSeparateFile) {
       dataManager.pushScope();
     }

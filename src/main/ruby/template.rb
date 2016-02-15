@@ -692,16 +692,13 @@ class Template
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
-    @data_manager = DataManager.new(
-      self,
-      @template.getDataManager,
-      text,
-      target,
-      addressableSize,
-      baseVirtAddr
-      )
+    manager = @template.getDataManager;
+    manager.beginInit text, target, addressableSize, baseVirtAddr
 
+    @data_manager = DataManager.new(self, manager)
     @data_manager.instance_eval &contents
+
+    manager.endInit
   end
 
   def data(attrs = {}, &contents)
@@ -898,10 +895,9 @@ class DataManager
     end
   end
 
-  def initialize(template, manager, text, target, addressableSize, baseVirtAddr)
+  def initialize(template, manager)
     @template = template
     @manager = manager
-    @manager.init text, target, addressableSize, baseVirtAddr
   end
 
   def align(value)

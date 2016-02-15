@@ -103,7 +103,7 @@ public final class DataDirectiveFactory {
       this.allocator = allocator;
       this.addressTranslator = addressTranslator;
 
-      this.headerText = null;
+      this.headerText = headerText;
       this.types = new HashMap<>();
       this.spaceText = null;
       this.spaceData = null;
@@ -469,7 +469,7 @@ public final class DataDirectiveFactory {
 
   public DataDirective newLabel(final String name, final boolean isGlobal) {
     InvariantChecks.checkNotNull(name);
-    CollectionUtils.appendToList(preceedingLabels, name);
+    preceedingLabels = CollectionUtils.appendToList(preceedingLabels, name);
     return new Label(name, isGlobal);
   }
 
