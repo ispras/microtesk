@@ -35,25 +35,37 @@ public final class DataDirectiveFactory {
   private final MemoryAllocator allocator;
   private final AddressTranslator addressTranslator;
 
-  private String spaceText;
-  private BitVector spaceData;
-  private String ztermStrText;
-  private String nztermStrText;
-  private Map<String, Type> types;
+  private final String spaceText;
+  private final BitVector spaceData;
+  private final String ztermStrText;
+  private final String nztermStrText;
+  private final Map<String, Type> types;
 
   private List<String> preceedingLabels;
 
   private DataDirectiveFactory(
       final MemoryMap memoryMap,
       final MemoryAllocator allocator,
-      final AddressTranslator addressTranslator) {
+      final AddressTranslator addressTranslator,
+      final Map<String, Type> types,
+      final String spaceText,
+      final BitVector spaceData,
+      final String ztermStrText,
+      final String nztermStrText) {
     InvariantChecks.checkNotNull(memoryMap);
     InvariantChecks.checkNotNull(allocator);
     InvariantChecks.checkNotNull(addressTranslator);
+    InvariantChecks.checkNotNull(types);
 
     this.memoryMap = memoryMap;
     this.allocator = allocator;
     this.addressTranslator = addressTranslator;
+
+    this.types = types;
+    this.spaceText = spaceText;
+    this.spaceData = spaceData;
+    this.ztermStrText = ztermStrText;
+    this.nztermStrText = nztermStrText;
 
     this.preceedingLabels = Collections.emptyList();
   }
