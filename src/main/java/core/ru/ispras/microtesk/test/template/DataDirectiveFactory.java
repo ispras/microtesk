@@ -38,6 +38,7 @@ public final class DataDirectiveFactory {
   private final MemoryAllocator allocator;
   private final AddressTranslator addressTranslator;
 
+  private final DataDirective header;
   private final Map<String, TypeInfo> types;
   private final String spaceText;
   private final BitVector spaceData;
@@ -50,6 +51,7 @@ public final class DataDirectiveFactory {
       final MemoryMap memoryMap,
       final MemoryAllocator allocator,
       final AddressTranslator addressTranslator,
+      final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
       final BitVector spaceData,
@@ -58,12 +60,14 @@ public final class DataDirectiveFactory {
     InvariantChecks.checkNotNull(memoryMap);
     InvariantChecks.checkNotNull(allocator);
     InvariantChecks.checkNotNull(addressTranslator);
+    InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
     this.memoryMap = memoryMap;
     this.allocator = allocator;
     this.addressTranslator = addressTranslator;
 
+    this.header = new Text(headerText);
     this.types = types;
     this.spaceText = spaceText;
     this.spaceData = spaceData;
@@ -77,8 +81,9 @@ public final class DataDirectiveFactory {
     private final MemoryMap memoryMap;
     private final MemoryAllocator allocator;
     private final AddressTranslator addressTranslator;
-    private final Map<String, TypeInfo> types;
 
+    private String headerText;
+    private final Map<String, TypeInfo> types;
     private String spaceText;
     private BitVector spaceData;
     private String ztermStrText;
@@ -96,11 +101,17 @@ public final class DataDirectiveFactory {
       this.allocator = allocator;
       this.addressTranslator = addressTranslator;
 
+      this.headerText = null;
       this.types = new HashMap<>();
       this.spaceText = null;
       this.spaceData = null;
       this.ztermStrText = null;
       this.nztermStrText = null;
+    }
+
+    public void setHeaderText(final String text) {
+      InvariantChecks.checkNotNull(text);
+      this.headerText = text;
     }
 
     public void defineType(
@@ -155,6 +166,7 @@ public final class DataDirectiveFactory {
           memoryMap,
           allocator,
           addressTranslator,
+          headerText,
           types,
           spaceText,
           spaceData,
@@ -440,6 +452,10 @@ public final class DataDirectiveFactory {
     public String toString() {
       return getText();
     }
+  }
+
+  public DataDirective getHeader() {
+    return header;
   }
 
   public DataDirective newText(final String text) {
