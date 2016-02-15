@@ -505,16 +505,11 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newData(final String typeName, final BigInteger[] values) {
-    InvariantChecks.checkNotNull(typeName);
     InvariantChecks.checkNotEmpty(values);
 
-    final TypeInfo typeInfo = types.get(typeName);
-    if (null == typeInfo) {
-      throw new GenerationAbortedException(
-          String.format("The %s data type is not defined.", typeName));
-    }
-
+    final TypeInfo typeInfo = findTypeInfo(typeName);
     final List<BitVector> valueList = new ArrayList<>(values.length);
+
     for (final BigInteger value : values) {
       final BitVector data = BitVector.valueOf(value, typeInfo.type.getBitSize());
       valueList.add(data);
@@ -524,6 +519,38 @@ public final class DataDirectiveFactory {
     preceedingLabels = Collections.emptyList();
 
     return result;
+  }
+
+  public DataDirective newData(
+      final String typeName,
+      final DataGenerator generator,
+      final int count) {
+    InvariantChecks.checkNotNull(generator);
+    InvariantChecks.checkGreaterThanZero(count);
+
+    final TypeInfo typeInfo = findTypeInfo(typeName);
+    final List<BitVector> values = new ArrayList<>(count);
+
+    for (int index = 0; index < count; index++) {
+      values.add(generator.nextData());
+    }
+
+    final DataDirective result = new Data(typeInfo.text, values, preceedingLabels);
+    preceedingLabels = Collections.emptyList();
+
+    return result;
+  }
+
+  private TypeInfo findTypeInfo(final String typeName) {
+    InvariantChecks.checkNotNull(typeName);
+    final TypeInfo typeInfo = types.get(typeName);
+
+    if (null == typeInfo) {
+      throw new GenerationAbortedException(
+          String.format("The %s data type is not defined.", typeName));
+    }
+
+    return typeInfo;
   }
 
   private void linkLabelsToAddress(
