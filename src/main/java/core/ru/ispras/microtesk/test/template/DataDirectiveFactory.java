@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +25,11 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSettings;
 
@@ -35,11 +38,11 @@ public final class DataDirectiveFactory {
   private final MemoryAllocator allocator;
   private final AddressTranslator addressTranslator;
 
+  private final Map<String, TypeInfo> types;
   private final String spaceText;
   private final BitVector spaceData;
   private final String ztermStrText;
   private final String nztermStrText;
-  private final Map<String, Type> types;
 
   private List<String> preceedingLabels;
 
@@ -47,7 +50,7 @@ public final class DataDirectiveFactory {
       final MemoryMap memoryMap,
       final MemoryAllocator allocator,
       final AddressTranslator addressTranslator,
-      final Map<String, Type> types,
+      final Map<String, TypeInfo> types,
       final String spaceText,
       final BitVector spaceData,
       final String ztermStrText,
@@ -71,7 +74,107 @@ public final class DataDirectiveFactory {
   }
 
   protected final class Builder {
-    
+    private final MemoryMap memoryMap;
+    private final MemoryAllocator allocator;
+    private final AddressTranslator addressTranslator;
+    private final Map<String, TypeInfo> types;
+
+    private String spaceText;
+    private BitVector spaceData;
+    private String ztermStrText;
+    private String nztermStrText;
+
+    private Builder(
+        final MemoryMap memoryMap,
+        final MemoryAllocator allocator,
+        final AddressTranslator addressTranslator) {
+      InvariantChecks.checkNotNull(memoryMap);
+      InvariantChecks.checkNotNull(allocator);
+      InvariantChecks.checkNotNull(addressTranslator);
+
+      this.memoryMap = memoryMap;
+      this.allocator = allocator;
+      this.addressTranslator = addressTranslator;
+
+      this.types = new HashMap<>();
+      this.spaceText = null;
+      this.spaceData = null;
+      this.ztermStrText = null;
+      this.nztermStrText = null;
+    }
+
+    public void defineType(
+        final String id,
+        final String text,
+        final String typeName,
+        final int[] typeArgs) {
+      InvariantChecks.checkNotNull(id);
+      InvariantChecks.checkNotNull(text);
+      InvariantChecks.checkNotNull(typeName);
+      InvariantChecks.checkNotNull(typeArgs);
+
+      final Type type = Type.typeOf(typeName, typeArgs);
+      Logger.debug("Defining %s as %s ('%s')...", type, id, text);
+
+      types.put(id, new TypeInfo(type, text));
+    }
+
+    public void defineSpace(
+        final String id,
+        final String text,
+        final BigInteger fillWith) {
+      InvariantChecks.checkNotNull(id);
+      InvariantChecks.checkNotNull(text);
+      InvariantChecks.checkNotNull(fillWith);
+
+      Logger.debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
+
+      spaceText = text;
+      spaceData = BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize());
+    }
+
+    public void defineAsciiString(
+        final String id,
+        final String text,
+        final boolean zeroTerm) {
+      InvariantChecks.checkNotNull(id);
+      InvariantChecks.checkNotNull(text);
+
+      Logger.debug("Defining %snull-terminated ASCII string as %s ('%s')...",
+          zeroTerm ? "" : "not ", id, text);
+
+      if (zeroTerm) {
+        ztermStrText = text;
+      } else {
+        nztermStrText = text;
+      }
+    }
+
+    public DataDirectiveFactory build() {
+      return new DataDirectiveFactory(
+          memoryMap,
+          allocator,
+          addressTranslator,
+          types,
+          spaceText,
+          spaceData,
+          ztermStrText,
+          nztermStrText
+          );
+    }
+  }
+
+  private final static class TypeInfo {
+    private final Type type;
+    private final String text;
+
+    private TypeInfo(final Type type, final String text) {
+      InvariantChecks.checkNotNull(type);
+      InvariantChecks.checkNotNull(text);
+
+      this.type = type;
+      this.text = text;
+    }
   }
 
   private static class Text implements DataDirective {
@@ -280,26 +383,26 @@ public final class DataDirectiveFactory {
   }
 
   private final class Data implements DataDirective {
-    private final String typeName;
+    private final String typeText;
     private final List<BitVector> values;
     private final List<String> labels;
 
     private Data(
-        final String typeName,
+        final String typeText,
         final List<BitVector> values,
         final List<String> labels) {
-      InvariantChecks.checkNotNull(typeName);
+      InvariantChecks.checkNotNull(typeText);
       InvariantChecks.checkNotEmpty(values);
       InvariantChecks.checkNotNull(labels);
 
-      this.typeName = typeName;
+      this.typeText = typeText;
       this.values = values;
       this.labels = labels;
     }
 
     @Override
     public String getText() {
-      final StringBuilder sb = new StringBuilder(typeName);
+      final StringBuilder sb = new StringBuilder(typeText);
 
       boolean isFirst = true;
       for (final BitVector value : values) {
@@ -331,6 +434,11 @@ public final class DataDirectiveFactory {
           isFirst = false;
         }
       }
+    }
+
+    @Override
+    public String toString() {
+      return getText();
     }
   }
 
@@ -380,19 +488,19 @@ public final class DataDirectiveFactory {
     InvariantChecks.checkNotNull(typeName);
     InvariantChecks.checkNotEmpty(values);
 
-    final Type type = types.get(typeName);
-    if (null == type) {
+    final TypeInfo typeInfo = types.get(typeName);
+    if (null == typeInfo) {
       throw new GenerationAbortedException(
           String.format("The %s data type is not defined.", typeName));
     }
 
     final List<BitVector> valueList = new ArrayList<>(values.length);
     for (final BigInteger value : values) {
-      final BitVector data = BitVector.valueOf(value, type.getBitSize());
+      final BitVector data = BitVector.valueOf(value, typeInfo.type.getBitSize());
       valueList.add(data);
     }
 
-    final DataDirective result = new Data(typeName, valueList, preceedingLabels);
+    final DataDirective result = new Data(typeInfo.text, valueList, preceedingLabels);
     preceedingLabels = Collections.emptyList();
 
     return result;
