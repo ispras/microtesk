@@ -176,7 +176,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private final static class TypeInfo {
+  public final static class TypeInfo {
     private final Type type;
     private final String text;
 
@@ -505,11 +505,15 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newData(final String typeName, final BigInteger[] values) {
+    final TypeInfo typeInfo = findTypeInfo(typeName);
+    return newData(typeInfo, values);
+  }
+
+  public DataDirective newData(final TypeInfo typeInfo, final BigInteger[] values) {
+    InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
-    final TypeInfo typeInfo = findTypeInfo(typeName);
     final List<BitVector> valueList = new ArrayList<>(values.length);
-
     for (final BigInteger value : values) {
       final BitVector data = BitVector.valueOf(value, typeInfo.type.getBitSize());
       valueList.add(data);
@@ -522,15 +526,18 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newData(
-      final String typeName,
-      final DataGenerator generator,
-      final int count) {
+      final String typeName, final DataGenerator generator, final int count) {
+    final TypeInfo typeInfo = findTypeInfo(typeName);
+    return newData(typeInfo, generator, count);
+  }
+
+  public DataDirective newData(
+      final TypeInfo typeInfo, final DataGenerator generator, final int count) {
+    InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotNull(generator);
     InvariantChecks.checkGreaterThanZero(count);
 
-    final TypeInfo typeInfo = findTypeInfo(typeName);
     final List<BitVector> values = new ArrayList<>(count);
-
     for (int index = 0; index < count; index++) {
       values.add(generator.nextData());
     }
@@ -541,7 +548,7 @@ public final class DataDirectiveFactory {
     return result;
   }
 
-  private TypeInfo findTypeInfo(final String typeName) {
+  public TypeInfo findTypeInfo(final String typeName) {
     InvariantChecks.checkNotNull(typeName);
     final TypeInfo typeInfo = types.get(typeName);
 
@@ -551,6 +558,20 @@ public final class DataDirectiveFactory {
     }
 
     return typeInfo;
+  }
+
+  public TypeInfo findTypeInfo(final int typeSizeInBytes) {
+    InvariantChecks.checkGreaterThanZero(typeSizeInBytes);
+
+    final int bitSize = typeSizeInBytes * 8;
+    for (final TypeInfo typeInfo : types.values()) {
+      if (bitSize == typeInfo.type.getBitSize()) {
+        return typeInfo;
+      }
+    }
+
+    throw new GenerationAbortedException(
+        String.format("No %d-byte type is defined.", typeSizeInBytes));
   }
 
   private void linkLabelsToAddress(
