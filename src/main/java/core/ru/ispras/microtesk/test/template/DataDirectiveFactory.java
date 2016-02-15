@@ -15,14 +15,19 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataDirectiveFactory {
@@ -34,6 +39,7 @@ public final class DataDirectiveFactory {
   private BitVector spaceData;
   private String ztermStrText;
   private String nztermStrText;
+  private Map<String, Type> types;
 
   private List<String> preceedingLabels;
 
@@ -229,13 +235,70 @@ public final class DataDirectiveFactory {
     @Override
     public String getText() {
       final StringBuilder sb = new StringBuilder(zeroTerm ? ztermStrText : nztermStrText);
+      for (int index = 0; index < strings.length; index++) {
+        if (index > 0) {
+          sb.append(',');
+        }
+        sb.append(String.format(" \"%s\"", strings[index]));
+      }
+      return sb.toString();
+    }
 
-      for (int i = 0; i < strings.length; i++) {
-        if (i > 0) {
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply() {
+      for (int index = 0; index < strings.length; index++) {
+        final BigInteger address =
+            allocator.allocateAsciiString(strings[index], zeroTerm);
+
+        if (0 == index) {
+          linkLabelsToAddress(labels, address);
+        }
+      }
+    }
+
+    @Override
+    public String toString() {
+      return getText();
+    }
+  }
+
+  private final class Data implements DataDirective {
+    private final String typeName;
+    private final List<BitVector> values;
+    private final List<String> labels;
+
+    private Data(
+        final String typeName,
+        final List<BitVector> values,
+        final List<String> labels) {
+      InvariantChecks.checkNotNull(typeName);
+      InvariantChecks.checkNotEmpty(values);
+      InvariantChecks.checkNotNull(labels);
+
+      this.typeName = typeName;
+      this.values = values;
+      this.labels = labels;
+    }
+
+    @Override
+    public String getText() {
+      final StringBuilder sb = new StringBuilder(typeName);
+
+      boolean isFirst = true;
+      for (final BitVector value : values) {
+        if (isFirst) { 
+          isFirst = false;
+        } else {
           sb.append(',');
         }
 
-        sb.append(String.format(" \"%s\"", strings[i]));
+        sb.append(" 0x");
+        sb.append(value.toHexString());
       }
 
       return sb.toString();
@@ -248,11 +311,14 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply() {
-      final BigInteger address = allocator.allocateAsciiString(strings[0], zeroTerm);
-      for (int index = 1; index < strings.length; index++) {
-        allocator.allocateAsciiString(strings[index], zeroTerm);
+      boolean isFirst = true;
+      for (final BitVector value : values) {
+        final BigInteger address = allocator.allocate(value);
+        if (isFirst) {
+          linkLabelsToAddress(labels, address);
+          isFirst = false;
+        }
       }
-      linkLabelsToAddress(labels, address);
     }
   }
 
@@ -293,6 +359,28 @@ public final class DataDirectiveFactory {
     InvariantChecks.checkNotNull(!zeroTerm && nztermStrText != null);
 
     final DataDirective result = new AsciiStrings(zeroTerm, strings, preceedingLabels);
+    preceedingLabels = Collections.emptyList();
+
+    return result;
+  }
+
+  public DataDirective newData(final String typeName, final BigInteger[] values) {
+    InvariantChecks.checkNotNull(typeName);
+    InvariantChecks.checkNotEmpty(values);
+
+    final Type type = types.get(typeName);
+    if (null == type) {
+      throw new GenerationAbortedException(
+          String.format("The %s data type is not defined.", typeName));
+    }
+
+    final List<BitVector> valueList = new ArrayList<>(values.length);
+    for (final BigInteger value : values) {
+      final BitVector data = BitVector.valueOf(value, type.getBitSize());
+      valueList.add(data);
+    }
+
+    final DataDirective result = new Data(typeName, valueList, preceedingLabels);
     preceedingLabels = Collections.emptyList();
 
     return result;
