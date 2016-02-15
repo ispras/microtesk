@@ -32,6 +32,8 @@ public final class DataDirectiveFactory {
 
   private String spaceText;
   private BitVector spaceData;
+  private String ztermStrText;
+  private String nztermStrText;
 
   private List<String> preceedingLabels;
 
@@ -207,6 +209,53 @@ public final class DataDirectiveFactory {
     }
   }
 
+  private final class AsciiStrings implements DataDirective {
+    private final boolean zeroTerm;
+    private final String[] strings;
+    private final List<String> labels;
+
+    private AsciiStrings(
+        final boolean zeroTerm,
+        final String[] strings,
+        final List<String> labels) {
+      InvariantChecks.checkNotEmpty(strings);
+      InvariantChecks.checkNotNull(labels);
+
+      this.zeroTerm = zeroTerm;
+      this.strings = strings;
+      this.labels = labels;
+    }
+
+    @Override
+    public String getText() {
+      final StringBuilder sb = new StringBuilder(zeroTerm ? ztermStrText : nztermStrText);
+
+      for (int i = 0; i < strings.length; i++) {
+        if (i > 0) {
+          sb.append(',');
+        }
+
+        sb.append(String.format(" \"%s\"", strings[i]));
+      }
+
+      return sb.toString();
+    }
+
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply() {
+      final BigInteger address = allocator.allocateAsciiString(strings[0], zeroTerm);
+      for (int index = 1; index < strings.length; index++) {
+        allocator.allocateAsciiString(strings[index], zeroTerm);
+      }
+      linkLabelsToAddress(labels, address);
+    }
+  }
+
   public DataDirective newText(final String text) {
     return new Text(text);
   }
@@ -234,6 +283,16 @@ public final class DataDirectiveFactory {
     InvariantChecks.checkNotNull(spaceData);
 
     final DataDirective result = new Space(length, preceedingLabels);
+    preceedingLabels = Collections.emptyList();
+
+    return result;
+  }
+
+  public DataDirective newAsciiStrings(final boolean zeroTerm, final String[] strings) {
+    InvariantChecks.checkTrue(zeroTerm && ztermStrText != null);
+    InvariantChecks.checkNotNull(!zeroTerm && nztermStrText != null);
+
+    final DataDirective result = new AsciiStrings(zeroTerm, strings, preceedingLabels);
     preceedingLabels = Collections.emptyList();
 
     return result;
