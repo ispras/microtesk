@@ -81,8 +81,8 @@ public final class DataDirectiveFactory {
     private final MemoryMap memoryMap;
     private final MemoryAllocator allocator;
     private final AddressTranslator addressTranslator;
+    private final String headerText;
 
-    private String headerText;
     private final Map<String, TypeInfo> types;
     private String spaceText;
     private BitVector spaceData;
@@ -92,10 +92,12 @@ public final class DataDirectiveFactory {
     protected Builder(
         final MemoryMap memoryMap,
         final MemoryAllocator allocator,
-        final AddressTranslator addressTranslator) {
+        final AddressTranslator addressTranslator,
+        final String headerText) {
       InvariantChecks.checkNotNull(memoryMap);
       InvariantChecks.checkNotNull(allocator);
       InvariantChecks.checkNotNull(addressTranslator);
+      InvariantChecks.checkNotNull(headerText);
 
       this.memoryMap = memoryMap;
       this.allocator = allocator;
@@ -107,11 +109,6 @@ public final class DataDirectiveFactory {
       this.spaceData = null;
       this.ztermStrText = null;
       this.nztermStrText = null;
-    }
-
-    public void setHeaderText(final String text) {
-      InvariantChecks.checkNotNull(text);
-      this.headerText = text;
     }
 
     public void defineType(
