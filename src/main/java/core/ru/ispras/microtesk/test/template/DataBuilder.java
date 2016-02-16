@@ -39,7 +39,8 @@ public class DataBuilder {
     return separateFile;
   }
 
-  private void addDirective(final DataDirective directive) {
+  public void addDirective(final DataDirective directive) {
+    InvariantChecks.checkNotNull(directive);
     directive.apply();
     directives.add(directive);
   }
