@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 public class DataBuilder {
   private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
-  private final boolean isSeparateFile;
+  private final boolean separateFile;
 
   protected DataBuilder(
       final DataDirectiveFactory directiveFactory,
@@ -32,7 +32,11 @@ public class DataBuilder {
 
     this.directives = new ArrayList<>();
     this.directiveFactory = directiveFactory;
-    this.isSeparateFile = isSeparateFile;
+    this.separateFile = isSeparateFile;
+  }
+
+  public boolean isSeparateFile() {
+    return separateFile;
   }
 
   private void addDirective(final DataDirective directive) {
@@ -55,7 +59,7 @@ public class DataBuilder {
   }
 
   public void addLabel(final String id) {
-    addDirective(directiveFactory.newLabel(id, isSeparateFile));
+    addDirective(directiveFactory.newLabel(id, separateFile));
   }
 
   public void addText(final String text) {
