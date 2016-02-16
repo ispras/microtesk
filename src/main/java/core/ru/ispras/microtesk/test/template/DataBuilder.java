@@ -35,7 +35,7 @@ public class DataBuilder {
     this.isSeparateFile = isSeparateFile;
   }
 
-  private void registerDirective(final DataDirective directive) {
+  private void addDirective(final DataDirective directive) {
     directive.apply();
     directives.add(directive);
   }
@@ -44,38 +44,38 @@ public class DataBuilder {
    * Sets allocation origin. Inserts the ".org" directive in the test program.
    */
   public void setOrigin(final BigInteger origin) {
-    registerDirective(directiveFactory.newOrigin(origin));
+    addDirective(directiveFactory.newOrigin(origin));
   }
 
   /**
    * @param value Alignment amount in addressable units.
    */
   public void align(final BigInteger value, final BigInteger valueInBytes) {
-    registerDirective(directiveFactory.newAlign(value, valueInBytes));
+    addDirective(directiveFactory.newAlign(value, valueInBytes));
   }
 
   public void addLabel(final String id) {
-    registerDirective(directiveFactory.newLabel(id, isSeparateFile));
+    addDirective(directiveFactory.newLabel(id, isSeparateFile));
   }
 
   public void addText(final String text) {
-    registerDirective(directiveFactory.newText(text));
+    addDirective(directiveFactory.newText(text));
   }
 
   public void addComment(final String text) {
-    registerDirective(directiveFactory.newComment(text));
+    addDirective(directiveFactory.newComment(text));
   }
 
   public void addData(final String id, final BigInteger[] values) {
-    registerDirective(directiveFactory.newData(id, values));
+    addDirective(directiveFactory.newData(id, values));
   }
 
   public void addSpace(final int length) {
-    registerDirective(directiveFactory.newSpace(length));
+    addDirective(directiveFactory.newSpace(length));
   }
 
   public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
-    registerDirective(directiveFactory.newAsciiStrings(zeroTerm, strings));
+    addDirective(directiveFactory.newAsciiStrings(zeroTerm, strings));
   }
 
   public List<DataDirective> build() {
