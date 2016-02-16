@@ -697,8 +697,7 @@ class Template
 
     @data_manager = DataManager.new(self, manager, configurer)
     @data_manager.instance_eval &contents
-
-    manager.endInit
+    @data_manager.endInit
   end
 
   def data(attrs = {}, &contents)
@@ -899,6 +898,11 @@ class DataManager
     @template = template
     @manager = manager
     @configurer = configurer
+  end
+
+  def endInit
+    @configurer = nil
+    @manager.endInit
   end
 
   def align(value)
