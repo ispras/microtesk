@@ -31,6 +31,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -49,7 +50,6 @@ public final class DataManager {
   private MemoryAllocator allocator;
 
   private DataDirectiveFactory factory;
-  private DataDirectiveFactory.Builder factoryBuilder;
 
   private boolean isSeparateFile;
   private int dataFileIndex;
@@ -63,7 +63,6 @@ public final class DataManager {
     this.dataDeclsStack.push(this.globalDataDecls);
 
     this.factory = null;
-    this.factoryBuilder = null;
 
     this.dataFileIndex = 0;
     this.isSeparateFile = false;
@@ -98,16 +97,19 @@ public final class DataManager {
     allocator = memory.newAllocator(
         addressableSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(
+    final DataDirectiveFactory.Builder factoryBuilder = new DataDirectiveFactory.Builder(
         memoryMap, allocator, addressTranslator, text);
 
     return factoryBuilder;
   }
 
-  public void endConfig() {
+  public void endConfig(final DataDirectiveFactory.Builder factoryBuilder) {
+    InvariantChecks.checkNotNull(factoryBuilder);
+
     if (isInitialized()) {
       throw new IllegalStateException("DataManager is already initialized!");
     }
+
     factory = factoryBuilder.build();
   }
 

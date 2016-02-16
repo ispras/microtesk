@@ -901,8 +901,8 @@ class DataManager
   end
 
   def endConfig
+    @manager.endConfig @configurer
     @configurer = nil
-    @manager.endConfig
   end
 
   def align(value)
