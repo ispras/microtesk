@@ -21,7 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
-public class DataBuilder {
+public final class DataBuilder {
   private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
   private final boolean separateFile;
@@ -76,7 +76,8 @@ public class DataBuilder {
     addDirective(directiveFactory.newData(id, values));
   }
 
-  protected void addData(final TypeInfo typeInfo, final DataGenerator generator, final int count) {
+  protected void addGeneratedData(
+      final TypeInfo typeInfo, final DataGenerator generator, final int count) {
     addDirective(directiveFactory.newData(typeInfo, generator, count));
   }
 

@@ -900,24 +900,16 @@ public final class Template {
     isExceptionHandlerDefined = true;
   }
 
-  public void beginData(final boolean isSeparateFile) {
+  public DataBuilder beginData(final boolean isSeparateFile) {
     Logger.debug("Begin Data (isSeparateFile=%b)", isSeparateFile);
     Memory.setUseTempCopies(false);
-
-    dataManager.setSeparateFile(isSeparateFile);
-    if (isSeparateFile) {
-      dataManager.pushScope();
-    }
+    return dataManager.beginData(isSeparateFile);
   }
 
-  public void endData(final boolean isSeparateFile) {
-    Logger.debug("End Data (isSeparateFile=%b)", isSeparateFile);
+  public void endData() {
+    Logger.debug("End Data");
+    dataManager.endData();
     context.setAddress(dataManager.getAddress().longValue());
-
-    if (isSeparateFile) {
-      dataManager.saveDeclsToFile();
-      dataManager.popScope();
-    }
   }
 
   public void setOrigin(final BigInteger origin) {

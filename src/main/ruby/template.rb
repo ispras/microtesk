@@ -711,9 +711,18 @@ class Template
       separate_file = false
     end
 
-    @template.beginData separate_file
+    @data_manager.beginData separate_file
     @data_manager.instance_eval &contents
-    @template.endData separate_file
+    @data_manager.endData
+  end
+
+  def beginData(separate_file)
+    @template.beginData separate_file
+  end
+
+  def endData
+    @template.endData
+    @builder = nil
   end
 
   # -------------------------------------------------------------------------- #
@@ -901,17 +910,26 @@ class DataManager
   end
 
   def endConfig
-    @manager.endConfig @configurer
+    @manager.endConfig
     @configurer = nil
+  end
+
+  def beginData(separate_file)
+    @builder = @template.beginData separate_file
+  end
+
+  def endData
+    @template.endData
+    @builder = nil
   end
 
   def align(value)
     value_in_bytes = @template.alignment_in_bytes(value)
-    @manager.align value, value_in_bytes
+    @builder.align value, value_in_bytes
   end
 
   def org(origin)
-    @manager.setOrigin origin
+    @builder.setOrigin origin
   end
 
   def type(*args)
@@ -919,7 +937,7 @@ class DataManager
   end
 
   def label(id)
-    @manager.addLabel id
+    @builder.addLabel id
   end
 
   def rand(from, to)
@@ -937,7 +955,7 @@ class DataManager
     @configurer.defineType id, text, type.name, type.args
 
     p = lambda do |*arguments|
-      @manager.addData id, arguments 
+      @builder.addData id, arguments
     end
 
     define_method_for DataManager, id, 'type', p
@@ -951,7 +969,7 @@ class DataManager
     @configurer.defineSpace id, text, fillWith
 
     p = lambda do |length|
-      @manager.addSpace length
+      @builder.addSpace length
     end
 
     define_method_for DataManager, id, 'space', p
@@ -965,7 +983,7 @@ class DataManager
     @configurer.defineAsciiString id, text, zeroTerm
 
     p = lambda do |*strings|
-      @manager.addAsciiStrings zeroTerm, strings
+      @builder.addAsciiStrings zeroTerm, strings
     end
 
     define_method_for DataManager, id, 'string', p

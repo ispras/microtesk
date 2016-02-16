@@ -14,19 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -43,33 +37,30 @@ import ru.ispras.microtesk.test.TestSettings;
 public final class DataManager {
   private final Printer printer;
   private final MemoryMap memoryMap;
-  private final List<DataDirective> globalDataDecls;
-  private final Deque<List<DataDirective>> dataDeclsStack;
+  private final List<DataDirective> globalData;
 
   private AddressTranslator addressTranslator;
   private MemoryAllocator allocator;
 
   private DataDirectiveFactory factory;
-
-  private boolean isSeparateFile;
   private int dataFileIndex;
+  
+  private DataDirectiveFactory.Builder factoryBuilder;
+  private DataBuilder dataBuilder;
 
   public DataManager(final Printer printer) {
     this.printer = printer;
     this.memoryMap = new MemoryMap();
+    this.globalData = new ArrayList<>();
 
-    this.globalDataDecls = new ArrayList<>();
-    this.dataDeclsStack = new ArrayDeque<>();
-    this.dataDeclsStack.push(this.globalDataDecls);
+    this.addressTranslator = null;
+    this.allocator = null;
 
     this.factory = null;
-
     this.dataFileIndex = 0;
-    this.isSeparateFile = false;
-  }
 
-  public void setSeparateFile(final boolean isSeparateFile) {
-    this.isSeparateFile = isSeparateFile;
+    this.factoryBuilder = null;
+    this.dataBuilder = null;
   }
 
   public DataDirectiveFactory.Builder beginConfig(
@@ -77,12 +68,11 @@ public final class DataManager {
       final String target,
       final int addressableSize,
       final BigInteger baseVirtualAddress) {
-    checkNotNull(text);
-    checkNotNull(target);
+    InvariantChecks.checkNotNull(text);
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkGreaterThanZero(addressableSize);
 
-    if (isInitialized()) {
-      throw new IllegalStateException("DataManager is already initialized!");
-    }
+    checkReinitialized();
 
     final Memory memory = Memory.get(target);
 
@@ -97,57 +87,45 @@ public final class DataManager {
     allocator = memory.newAllocator(
         addressableSize, basePhysicalAddressForAllocation);
 
-    final DataDirectiveFactory.Builder factoryBuilder = new DataDirectiveFactory.Builder(
+    factoryBuilder = new DataDirectiveFactory.Builder(
         memoryMap, allocator, addressTranslator, text);
 
     return factoryBuilder;
   }
 
-  public void endConfig(final DataDirectiveFactory.Builder factoryBuilder) {
+  public void endConfig() {
+    checkReinitialized();
+
     InvariantChecks.checkNotNull(factoryBuilder);
-
-    if (isInitialized()) {
-      throw new IllegalStateException("DataManager is already initialized!");
-    }
-
     factory = factoryBuilder.build();
+  }
+
+  public DataBuilder beginData(final boolean isSeparateFile) {
+    dataBuilder = new DataBuilder(factory, isSeparateFile);
+    return dataBuilder; 
+  }
+
+  public void endData() {
+    processData(dataBuilder);
+  }
+
+  private void processData(final DataBuilder dataBuilder) {
+    InvariantChecks.checkNotNull(dataBuilder);
+
+    final List<DataDirective> data = dataBuilder.build();
+    if (dataBuilder.isSeparateFile()) {
+      saveToFile(data);
+    } else {
+      globalData.addAll(data);
+    }
   }
 
   public boolean isInitialized() {
     return factory != null;
   }
 
-  /**
-   * Returns a collection of data declaration in the current scope.
-   * There can be two scopes: (1) global that holds declarations
-   * to be placed to all generated source code files, or
-   * (2) local that contains declarations to be placed in a separate
-   * data file.
-   * 
-   * @return List of data declaration used in the current scope.
-   */
-  private List<DataDirective> getDataDecls() {
-    return dataDeclsStack.peek();
-  }
-
-  private void registerDirective(final DataDirective directive) {
-    directive.apply();
-    getDataDecls().add(directive);
-  }
-
-  public void pushScope() {
-    dataDeclsStack.push(new ArrayList<DataDirective>());
-  }
-
-  public void popScope() {
-    if (dataDeclsStack.size() <= 1) {
-      throw new IllegalStateException();
-    }
-    dataDeclsStack.pop();
-  }
-
   public boolean containsDecls() {
-    return !getDataDecls().isEmpty();
+    return !globalData.isEmpty();
   }
 
   public MemoryMap getMemoryMap() {
@@ -155,21 +133,10 @@ public final class DataManager {
   }
 
   public String getDeclText() {
-    if (!isInitialized()) {
-      return null;
-    }
-
-    return getDeclText(false);
-  }
-
-  private String getDeclText(final boolean isSeparateFile) {
     final StringBuilder sb = new StringBuilder();
+    sb.append(factory.getHeader().getText());
 
-    if (!isSeparateFile) {
-      sb.append(factory.getHeader().getText());
-    }
-
-    for (final DataDirective item : getDataDecls()) {
+    for (final DataDirective item : globalData) {
       if (item.needsIndent()) {
         sb.append(String.format("%n%s%s", TestSettings.getIndentToken(), item.getText()));
       } else {
@@ -187,60 +154,8 @@ public final class DataManager {
     return virtualAddress;
   }
 
-  /**
-   * Sets allocation origin. Inserts the ".org" directive in the test program.
-   */
-  public void setOrigin(final BigInteger origin) {
-    checkInitialized();
-    registerDirective(factory.newOrigin(origin));
-  }
-
-  /**
-   * @param value Alignment amount in addressable units.
-   */
-  public void align(final BigInteger value, final BigInteger valueInBytes) {
-    checkInitialized();
-    registerDirective(factory.newAlign(value, valueInBytes));
-  }
-
-  public void addLabel(final String id) {
-    checkInitialized();
-    registerDirective(factory.newLabel(id, isSeparateFile));
-  }
-
-  public void addText(final String text) {
-    checkInitialized();
-    registerDirective(factory.newText(text));
-  }
-
-  public void addComment(final String text) {
-    checkInitialized();
-    registerDirective(factory.newComment(text));
-  }
-
-  public void addData(final String id, final BigInteger[] values) {
-    checkInitialized();
-    registerDirective(factory.newData(id, values));
-  }
-
-  public void addSpace(final int length) {
-    checkInitialized();
-    registerDirective(factory.newSpace(length));
-  }
-
-  public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
-    checkInitialized();
-    registerDirective(factory.newAsciiStrings(zeroTerm, strings));
-  }
-
   public int newRandom(final int min, final int max) {
     return Randomizer.get().nextIntRange(min, max);
-  }
-
-  private void checkInitialized() {
-    if (!isInitialized()) {
-      throw new IllegalStateException("DataManager is not initialized!");
-    }
   }
 
   public void generateData(
@@ -250,11 +165,11 @@ public final class DataManager {
       final int length,
       final String method,
       final boolean isSeparateFile) {
-    checkNotNull(address);
-    checkNotNull(label);
-    checkNotNull(typeId);
-    checkGreaterThanZero(length);
-    checkNotNull(method);
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(label);
+    InvariantChecks.checkNotNull(typeId);
+    InvariantChecks.checkGreaterThanZero(length);
+    InvariantChecks.checkNotNull(method);
 
     checkInitialized();
     Memory.setUseTempCopies(false);
@@ -262,6 +177,8 @@ public final class DataManager {
     if (memoryMap.isDefined(label)) {
       throw new IllegalStateException(String.format("Label %s is redefined", label));
     }
+
+    final DataBuilder dataBuilder = new DataBuilder(factory, isSeparateFile);
 
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
@@ -273,27 +190,18 @@ public final class DataManager {
       final BitVector bvAddress =
           BitVector.valueOf(address, allocator.getAddressBitSize());
 
-      if (isSeparateFile) {
-        pushScope();
-      }
-
       memoryMap.addLabel(label, address);
 
-      registerDirective(factory.newLabel(label, isSeparateFile));
-      registerDirective(factory.newComment(String.format(" Address: 0x%s", bvAddress.toHexString())));
+      dataBuilder.addLabel(label);
+      dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
 
       for (int index = 0; index < length; index += 4) {
         final int count = Math.min(length - index, 4);
-        registerDirective(factory.newData(typeInfo, dataGenerator, count));
+        dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
       }
 
-      if (isSeparateFile) {
-        saveDeclsToFile();
-      }
+      processData(dataBuilder);
     } finally {
-      if (isSeparateFile) {
-        popScope();
-      }
       allocator.setCurrentAddress(oldAddress);
     }
   }
@@ -305,12 +213,14 @@ public final class DataManager {
       final boolean printAbsoluteOrg,
       final String method,
       final boolean isSeparateFile) {
-    checkNotNull(startAddress);
-    checkNotNull(addresses);
-    checkNotNull(method);
+    InvariantChecks.checkNotNull(startAddress);
+    InvariantChecks.checkNotNull(addresses);
+    InvariantChecks.checkNotNull(method);
 
     checkInitialized();
     Memory.setUseTempCopies(false);
+
+    final DataBuilder dataBuilder = new DataBuilder(factory, isSeparateFile);
 
     final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
     Collections.sort(sortedAddresses);
@@ -325,16 +235,11 @@ public final class DataManager {
     final BigInteger oldAddress = allocator.getCurrentAddress();
     try {
       allocator.setCurrentAddress(startAddress);
-
-      if (isSeparateFile) {
-        pushScope();
-      }
-
-      addComment(String.format(" Address: 0x%x", startAddress));
+      dataBuilder.addComment(String.format(" Address: 0x%x", startAddress));
 
       BigInteger nextAddress = BigInteger.ZERO.not();
       for (final BigInteger address : sortedAddresses) {
-        checkTrue(address.compareTo(startAddress) >= 0);
+        InvariantChecks.checkTrue(address.compareTo(startAddress) >= 0);
 
         if (address.compareTo(nextAddress) != 0) {
           allocator.setCurrentAddress(address);
@@ -342,30 +247,25 @@ public final class DataManager {
           final BigInteger printedAddress =
               printAbsoluteOrg ? address : address.subtract(startAddress);
 
-          addText("");
-          addText(String.format(TestSettings.getOriginFormat(), printedAddress));
+          dataBuilder.addText("");
+          dataBuilder.addText(String.format(TestSettings.getOriginFormat(), printedAddress));
         }
 
         for (int i = 0; i < unitsInRow; i += 4) {
           final int count = Math.min(unitsInRow - i, 4);
-          registerDirective(factory.newData(typeInfo, dataGenerator, count));
+          dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
         }
 
         nextAddress = allocator.getCurrentAddress();
       }
 
-      if (isSeparateFile) {
-        saveDeclsToFile();
-      }
+      processData(dataBuilder);
     } finally {
-      if (isSeparateFile) {
-        popScope();
-      }
       allocator.setCurrentAddress(oldAddress);
     }
   }
 
-  public void saveDeclsToFile() {
+  private void saveToFile(final List<DataDirective> data) {
     final String fileName = String.format("%s_%04d.%s",
         TestSettings.getDataFilePrefix(), dataFileIndex, TestSettings.getDataFileExtension());
 
@@ -375,7 +275,13 @@ public final class DataManager {
     try {
       try {
         writer = printer.newFileWriter(fileName);
-        writer.println(getDeclText(true));
+        for (final DataDirective item : data) {
+          if (item.needsIndent()) {
+            writer.println(TestSettings.getIndentToken() + item.getText());
+          } else {
+            writer.println(item.getText());
+          }
+        }
       } finally {
         writer.close();
       }
@@ -384,6 +290,18 @@ public final class DataManager {
       new File(fileName).delete();
       throw new GenerationAbortedException(String.format(
           "Failed to generate data file %s. Reason: %s", e.getMessage()));
+    }
+  }
+
+  private void checkInitialized() {
+    if (!isInitialized()) {
+      throw new IllegalStateException("DataManager is not initialized!");
+    }
+  }
+
+  private void checkReinitialized() {
+    if (isInitialized()) {
+      throw new IllegalStateException("DataManager is already initialized!");
     }
   }
 }
