@@ -185,29 +185,6 @@ public final class DataManager {
     return virtualAddress;
   }
 
-  public void defineType(
-      final String id,
-      final String text,
-      final String typeName,
-      final int[] typeArgs) {
-    factoryBuilder.defineType(id, text, typeName, typeArgs);
-  }
-
-  public void defineSpace(
-      final String id,
-      final String text,
-      final BigInteger fillWith) {
-    factoryBuilder.defineSpace(id, text, fillWith);
-  }
-
-  public void defineAsciiString(
-      final String id,
-      final String text,
-      final boolean zeroTerm) {
-    factoryBuilder.defineAsciiString(id, text, zeroTerm);
-  }
-
-  
   /**
    * Sets allocation origin. Inserts the ".org" directive in the test program.
    */

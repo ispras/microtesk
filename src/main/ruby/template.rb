@@ -693,9 +693,9 @@ class Template
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     manager = @template.getDataManager;
-    manager.beginInit text, target, addressableSize, baseVirtAddr
+    configurer = manager.beginInit text, target, addressableSize, baseVirtAddr
 
-    @data_manager = DataManager.new(self, manager)
+    @data_manager = DataManager.new(self, manager, configurer)
     @data_manager.instance_eval &contents
 
     manager.endInit
@@ -895,9 +895,10 @@ class DataManager
     end
   end
 
-  def initialize(template, manager)
+  def initialize(template, manager, configurer)
     @template = template
     @manager = manager
+    @configurer = configurer
   end
 
   def align(value)
@@ -929,7 +930,7 @@ class DataManager
     text = get_attribute attrs, :text
     type = get_attribute attrs, :type
 
-    @manager.defineType id, text, type.name, type.args
+    @configurer.defineType id, text, type.name, type.args
 
     p = lambda do |*arguments|
       @manager.addData id, arguments 
@@ -943,7 +944,7 @@ class DataManager
     text     = get_attribute attrs, :text
     fillWith = get_attribute attrs, :fill_with
 
-    @manager.defineSpace id, text, fillWith
+    @configurer.defineSpace id, text, fillWith
 
     p = lambda do |length|
       @manager.addSpace length
@@ -957,7 +958,7 @@ class DataManager
     text     = get_attribute attrs, :text
     zeroTerm = get_attribute attrs, :zero_term
 
-    @manager.defineAsciiString id, text, zeroTerm
+    @configurer.defineAsciiString id, text, zeroTerm
 
     p = lambda do |*strings|
       @manager.addAsciiStrings zeroTerm, strings

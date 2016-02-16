@@ -77,7 +77,7 @@ public final class DataDirectiveFactory {
     this.preceedingLabels = Collections.emptyList();
   }
 
-  protected static final class Builder {
+  public static final class Builder {
     private final MemoryMap memoryMap;
     private final MemoryAllocator allocator;
     private final AddressTranslator addressTranslator;
