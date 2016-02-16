@@ -73,7 +73,7 @@ public final class DataManager {
     this.isSeparateFile = isSeparateFile;
   }
 
-  public DataDirectiveFactory.Builder beginInit(
+  public DataDirectiveFactory.Builder beginConfig(
       final String text,
       final String target,
       final int addressableSize,
@@ -104,7 +104,7 @@ public final class DataManager {
     return factoryBuilder;
   }
 
-  public void endInit() {
+  public void endConfig() {
     if (isInitialized()) {
       throw new IllegalStateException("DataManager is already initialized!");
     }

@@ -693,11 +693,11 @@ class Template
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     manager = @template.getDataManager;
-    configurer = manager.beginInit text, target, addressableSize, baseVirtAddr
+    configurer = manager.beginConfig text, target, addressableSize, baseVirtAddr
 
     @data_manager = DataManager.new(self, manager, configurer)
     @data_manager.instance_eval &contents
-    @data_manager.endInit
+    @data_manager.endConfig
   end
 
   def data(attrs = {}, &contents)
@@ -900,9 +900,9 @@ class DataManager
     @configurer = configurer
   end
 
-  def endInit
+  def endConfig
     @configurer = nil
-    @manager.endInit
+    @manager.endConfig
   end
 
   def align(value)
