@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
 public class DataBuilder {
   private final List<DataDirective> directives;
@@ -39,7 +40,7 @@ public class DataBuilder {
     return separateFile;
   }
 
-  public void addDirective(final DataDirective directive) {
+  private void addDirective(final DataDirective directive) {
     InvariantChecks.checkNotNull(directive);
     directive.apply();
     directives.add(directive);
@@ -73,6 +74,10 @@ public class DataBuilder {
 
   public void addData(final String id, final BigInteger[] values) {
     addDirective(directiveFactory.newData(id, values));
+  }
+
+  protected void addData(final TypeInfo typeInfo, final DataGenerator generator, final int count) {
+    addDirective(directiveFactory.newData(typeInfo, generator, count));
   }
 
   public void addSpace(final int length) {
