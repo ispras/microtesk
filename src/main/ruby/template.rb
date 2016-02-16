@@ -823,12 +823,12 @@ class Template
       separate_file = false
     end
 
-    @template.beginData separate_file
+    @data_manager.beginData separate_file
 
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
 
-    @template.endData separate_file
+    @data_manager.endData
   end
 
   # -------------------------------------------------------------------------- #
