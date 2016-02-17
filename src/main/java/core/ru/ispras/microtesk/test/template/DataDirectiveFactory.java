@@ -227,17 +227,14 @@ public final class DataDirectiveFactory {
   }
 
   private static final class Label extends Text {
-    private final boolean isGlobal;
 
-    private Label(final String name, final boolean isGlobal) {
+    private Label(final String name) {
       super(name);
-      this.isGlobal = isGlobal;
     }
 
     @Override
     public String getText() {
-      return String.format(
-          "%s%s:", isGlobal ? ".globl " : "", super.getText());
+      return super.getText() + ":";
     }
 
     @Override
@@ -467,10 +464,10 @@ public final class DataDirectiveFactory {
     return new Comment(text);
   }
 
-  public DataDirective newLabel(final String name, final boolean isGlobal) {
+  public DataDirective newLabel(final String name) {
     InvariantChecks.checkNotNull(name);
     preceedingLabels = CollectionUtils.appendToList(preceedingLabels, name);
-    return new Label(name, isGlobal);
+    return new Label(name);
   }
 
   public DataDirective newOrigin(final BigInteger origin) {

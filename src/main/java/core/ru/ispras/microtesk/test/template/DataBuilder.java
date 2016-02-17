@@ -61,7 +61,11 @@ public final class DataBuilder {
   }
 
   public void addLabel(final String id) {
-    addDirective(directiveFactory.newLabel(id, separateFile));
+    if (separateFile) {
+      addDirective(directiveFactory.newText(String.format(".globl %s", id)));
+    }
+
+    addDirective(directiveFactory.newLabel(id));
   }
 
   public void addText(final String text) {
