@@ -43,6 +43,23 @@ public final class Call {
   private final BigInteger alignmentInBytes;
 
   private final PreparatorReference preparatorReference;
+  private final DataSection data;
+
+  public static Call newData(final DataSection data) {
+    InvariantChecks.checkNotNull(data);
+
+    return new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        null,
+        null,
+        null,
+        null,
+        data);
+  }
 
   // TODO:
   public static Call newText(final String text) {
@@ -54,6 +71,7 @@ public final class Call {
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
+        null,
         null,
         null,
         null,
@@ -78,6 +96,7 @@ public final class Call {
         null,
         null,
         null,
+        null,
         null);
   }
 
@@ -90,7 +109,8 @@ public final class Call {
       final BigInteger origin,
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
-      final PreparatorReference preparatorReference) {
+      final PreparatorReference preparatorReference,
+      final DataSection data) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -128,6 +148,7 @@ public final class Call {
     this.alignmentInBytes = alignmentInBytes;
 
     this.preparatorReference = preparatorReference;
+    this.data = data;
   }
 
   public Call(final Call other) {
@@ -155,6 +176,7 @@ public final class Call {
 
     this.preparatorReference = null != other.preparatorReference ?
         new PreparatorReference(other.preparatorReference) : null;
+    this.data = null != other.data ? new DataSection(other.data) : null;
   }
 
   public static List<Call> newCopy(final List<Call> calls) {
@@ -198,6 +220,7 @@ public final class Call {
     return null == text        &&
            !isExecutable()     &&
            !isPreparatorCall() &&
+           !hasData()          &&
            labels.isEmpty()    &&
            outputs.isEmpty()   &&
            null == origin      &&
@@ -273,12 +296,20 @@ public final class Call {
     return preparatorReference;
   }
 
+  public boolean hasData() {
+    return null != data;
+  }
+
+  public DataSection getData() {
+    return data;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "instruction call %s" + 
         "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d, " +
-        "preparator: %s)",
+        "preparator: %s, data: %b)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
         isBranch(),
@@ -287,7 +318,8 @@ public final class Call {
         isLoad(),
         isStore(),
         getBlockSize(),
-        isPreparatorCall() ? preparatorReference : "null"
+        isPreparatorCall() ? preparatorReference : "null",
+        hasData()
         );
   }
 }

@@ -124,6 +124,10 @@ public final class DataManager {
   public void processData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
 
+    for (final DataDirective directive : data.getDirectives()) {
+      directive.apply();
+    }
+
     if (data.isSeparateFile()) {
       saveToFile(data.getDirectives());
     } else {

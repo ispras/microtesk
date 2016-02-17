@@ -50,7 +50,6 @@ public final class DataSectionBuilder {
 
   private void addDirective(final DataDirective directive) {
     InvariantChecks.checkNotNull(directive);
-    directive.apply();
     directives.add(directive);
   }
 

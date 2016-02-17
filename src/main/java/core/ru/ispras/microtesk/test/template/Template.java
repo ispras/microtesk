@@ -921,8 +921,8 @@ public final class Template {
       dataManager.processData(data);
       context.setAddress(dataManager.getAddress().longValue());
     } else {
-      throw new GenerationAbortedException(
-          "Local data sections are not currently supported.");
+      endBuildingCall();
+      addCall(Call.newData(data));
     }
   }
 

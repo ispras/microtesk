@@ -35,6 +35,13 @@ public class DataSection {
     this.separateFile = separateFile;
   }
 
+  protected DataSection(final DataSection other) {
+    InvariantChecks.checkNotNull(other);
+    this.directives = other.directives;
+    this.global = other.global;
+    this.separateFile = other.separateFile;
+  }
+
   public List<DataDirective> getDirectives() {
     return directives;
   }
