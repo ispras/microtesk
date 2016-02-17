@@ -919,12 +919,11 @@ public final class Template {
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
       dataManager.processData(data);
+      context.setAddress(dataManager.getAddress().longValue());
     } else {
       throw new GenerationAbortedException(
           "Local data sections are not currently supported.");
     }
-
-    context.setAddress(dataManager.getAddress().longValue());
   }
 
   public void setOrigin(final BigInteger origin) {
