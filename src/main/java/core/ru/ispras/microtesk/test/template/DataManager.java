@@ -102,6 +102,7 @@ public final class DataManager {
 
   public DataBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
     checkInitialized();
+    InvariantChecks.checkTrue(null == dataBuilder);
 
     Memory.setUseTempCopies(false);
     dataBuilder = new DataBuilder(factory, isGlobal, isSeparateFile);
