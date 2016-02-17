@@ -98,6 +98,8 @@ public final class DataManager {
 
     InvariantChecks.checkNotNull(factoryBuilder);
     factory = factoryBuilder.build();
+
+    factoryBuilder = null;
   }
 
   public DataSectionBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
@@ -112,13 +114,17 @@ public final class DataManager {
 
   public DataSection endData() {
     InvariantChecks.checkNotNull(dataBuilder);
-    return dataBuilder.build();
+
+    final DataSection data = dataBuilder.build();
+    dataBuilder = null;
+
+    return data;
   }
 
   public void processData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
 
-    if (dataBuilder.isSeparateFile()) {
+    if (data.isSeparateFile()) {
       saveToFile(data.getDirectives());
     } else {
       globalData.addAll(data.getDirectives());

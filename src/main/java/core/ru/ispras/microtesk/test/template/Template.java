@@ -917,7 +917,12 @@ public final class Template {
     Logger.debug("End Data");
 
     final DataSection data = dataManager.endData();
-    dataManager.processData(data);
+    if (data.isGlobal()) {
+      dataManager.processData(data);
+    } else {
+      throw new GenerationAbortedException(
+          "Local data sections are not currently supported.");
+    }
 
     context.setAddress(dataManager.getAddress().longValue());
   }
