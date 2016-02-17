@@ -101,12 +101,16 @@ public final class DataManager {
   }
 
   public DataBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
+    checkInitialized();
+
     Memory.setUseTempCopies(false);
     dataBuilder = new DataBuilder(factory, isGlobal, isSeparateFile);
+
     return dataBuilder; 
   }
 
   public void endData() {
+    checkInitialized();
     processData(dataBuilder);
   }
 
