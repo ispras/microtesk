@@ -24,16 +24,24 @@ import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 public final class DataBuilder {
   private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
+  private final boolean global;
   private final boolean separateFile;
 
   protected DataBuilder(
       final DataDirectiveFactory directiveFactory,
+      final boolean isGlobal,
       final boolean isSeparateFile) {
     InvariantChecks.checkNotNull(directiveFactory);
 
     this.directives = new ArrayList<>();
     this.directiveFactory = directiveFactory;
+
+    this.global = isGlobal;
     this.separateFile = isSeparateFile;
+  }
+
+  public boolean isGlobal() {
+    return global;
   }
 
   public boolean isSeparateFile() {

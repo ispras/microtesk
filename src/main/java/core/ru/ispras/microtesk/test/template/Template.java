@@ -33,7 +33,6 @@ import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
@@ -911,9 +910,7 @@ public final class Template {
         exceptionHandlerBuilder == null;
 
     Logger.debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
-
-    Memory.setUseTempCopies(false);
-    return dataManager.beginData(isSeparateFile);
+    return dataManager.beginData(isGlobal, isSeparateFile);
   }
 
   public void endData() {
