@@ -899,7 +899,7 @@ public final class Template {
     isExceptionHandlerDefined = true;
   }
 
-  public DataBuilder beginData(final boolean isSeparateFile) {
+  public DataSectionBuilder beginData(final boolean isSeparateFile) {
     endBuildingCall();
 
     final boolean isGlobal =
@@ -915,7 +915,10 @@ public final class Template {
 
   public void endData() {
     Logger.debug("End Data");
-    dataManager.endData();
+
+    final DataSection data = dataManager.endData();
+    dataManager.processData(data);
+
     context.setAddress(dataManager.getAddress().longValue());
   }
 

@@ -21,13 +21,13 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
-public final class DataBuilder {
+public final class DataSectionBuilder {
   private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
   private final boolean global;
   private final boolean separateFile;
 
-  protected DataBuilder(
+  protected DataSectionBuilder(
       final DataDirectiveFactory directiveFactory,
       final boolean isGlobal,
       final boolean isSeparateFile) {
@@ -101,7 +101,7 @@ public final class DataBuilder {
     addDirective(directiveFactory.newAsciiStrings(zeroTerm, strings));
   }
 
-  public List<DataDirective> build() {
-    return directives;
+  public DataSection build() {
+    return new DataSection(directives, global, separateFile);
   }
 }

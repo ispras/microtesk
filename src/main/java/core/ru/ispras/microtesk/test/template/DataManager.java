@@ -46,7 +46,7 @@ public final class DataManager {
   private int dataFileIndex;
 
   private DataDirectiveFactory.Builder factoryBuilder;
-  private DataBuilder dataBuilder;
+  private DataSectionBuilder dataBuilder;
 
   public DataManager(final Printer printer) {
     this.printer = printer;
@@ -100,29 +100,28 @@ public final class DataManager {
     factory = factoryBuilder.build();
   }
 
-  public DataBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
+  public DataSectionBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
     Memory.setUseTempCopies(false);
-    dataBuilder = new DataBuilder(factory, isGlobal, isSeparateFile);
+    dataBuilder = new DataSectionBuilder(factory, isGlobal, isSeparateFile);
 
     return dataBuilder; 
   }
 
-  public void endData() {
-    checkInitialized();
-    processData(dataBuilder);
+  public DataSection endData() {
+    InvariantChecks.checkNotNull(dataBuilder);
+    return dataBuilder.build();
   }
 
-  private void processData(final DataBuilder dataBuilder) {
-    InvariantChecks.checkNotNull(dataBuilder);
+  public void processData(final DataSection data) {
+    InvariantChecks.checkNotNull(data);
 
-    final List<DataDirective> data = dataBuilder.build();
     if (dataBuilder.isSeparateFile()) {
-      saveToFile(data);
+      saveToFile(data.getDirectives());
     } else {
-      globalData.addAll(data);
+      globalData.addAll(data.getDirectives());
     }
   }
 
@@ -184,7 +183,7 @@ public final class DataManager {
       throw new IllegalStateException(String.format("Label %s is redefined", label));
     }
 
-    final DataBuilder dataBuilder = new DataBuilder(factory, true, isSeparateFile);
+    final DataSectionBuilder dataBuilder = new DataSectionBuilder(factory, true, isSeparateFile);
 
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
@@ -206,7 +205,7 @@ public final class DataManager {
         dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
       }
 
-      processData(dataBuilder);
+      processData(dataBuilder.build());
     } finally {
       allocator.setCurrentAddress(oldAddress);
     }
@@ -226,7 +225,7 @@ public final class DataManager {
     checkInitialized();
     Memory.setUseTempCopies(false);
 
-    final DataBuilder dataBuilder = new DataBuilder(factory, true, isSeparateFile);
+    final DataSectionBuilder dataBuilder = new DataSectionBuilder(factory, true, isSeparateFile);
 
     final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
     Collections.sort(sortedAddresses);
@@ -265,7 +264,7 @@ public final class DataManager {
         nextAddress = allocator.getCurrentAddress();
       }
 
-      processData(dataBuilder);
+      processData(dataBuilder.build());
     } finally {
       allocator.setCurrentAddress(oldAddress);
     }
