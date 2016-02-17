@@ -44,7 +44,7 @@ public final class DataManager {
 
   private DataDirectiveFactory factory;
   private int dataFileIndex;
-  
+
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataBuilder dataBuilder;
 

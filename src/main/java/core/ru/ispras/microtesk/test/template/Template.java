@@ -901,7 +901,17 @@ public final class Template {
   }
 
   public DataBuilder beginData(final boolean isSeparateFile) {
-    Logger.debug("Begin Data (isSeparateFile=%b)", isSeparateFile);
+    endBuildingCall();
+
+    final boolean isGlobal =
+        openBlockCount == 0 &&
+        preparatorBuilder == null &&
+        bufferPreparatorBuilder == null &&
+        streamPreparatorBuilder == null &&
+        exceptionHandlerBuilder == null;
+
+    Logger.debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
+
     Memory.setUseTempCopies(false);
     return dataManager.beginData(isSeparateFile);
   }

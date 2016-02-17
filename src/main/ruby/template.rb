@@ -84,6 +84,8 @@ class Template
   include Settings
   include MmuPlugin
 
+  attr_reader :template
+
   @@template_classes = Hash.new
 
   def initialize
@@ -679,8 +681,6 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def data_config(attrs, &contents)
-    #puts "Defining data configuration..."
-
     if nil != @data_manager
       raise MTRubyError, "Data configuration is already defined"
     end
@@ -692,10 +692,9 @@ class Template
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
-    manager = @template.getDataManager;
-    configurer = manager.beginConfig text, target, addressableSize, baseVirtAddr
+    @data_manager = DataManager.new(self, @template.getDataManager)
+    @data_manager.beginConfig text, target, addressableSize, baseVirtAddr
 
-    @data_manager = DataManager.new(self, manager, configurer)
     @data_manager.instance_eval &contents
     @data_manager.endConfig
   end
@@ -714,15 +713,6 @@ class Template
     @data_manager.beginData separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
-  end
-
-  def beginData(separate_file)
-    @template.beginData separate_file
-  end
-
-  def endData
-    @template.endData
-    @builder = nil
   end
 
   # -------------------------------------------------------------------------- #
@@ -903,10 +893,13 @@ class DataManager
     end
   end
 
-  def initialize(template, manager, configurer)
+  def initialize(template, manager)
     @template = template
     @manager = manager
-    @configurer = configurer
+  end
+
+  def beginConfig(text, target, addressableSize, baseVirtAddr)
+    @configurer = @manager.beginConfig text, target, addressableSize, baseVirtAddr
   end
 
   def endConfig
@@ -915,11 +908,11 @@ class DataManager
   end
 
   def beginData(separate_file)
-    @builder = @template.beginData separate_file
+    @builder = @template.template.beginData separate_file
   end
 
   def endData
-    @template.endData
+    @template.template.endData
     @builder = nil
   end
 
