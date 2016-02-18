@@ -36,7 +36,6 @@ import ru.ispras.microtesk.test.TestSettings;
 public final class DataDirectiveFactory {
   private final MemoryMap memoryMap;
   private final MemoryAllocator allocator;
-  private final AddressTranslator addressTranslator;
 
   private final DataDirective header;
   private final Map<String, TypeInfo> types;
@@ -50,7 +49,6 @@ public final class DataDirectiveFactory {
   private DataDirectiveFactory(
       final MemoryMap memoryMap,
       final MemoryAllocator allocator,
-      final AddressTranslator addressTranslator,
       final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
@@ -59,13 +57,11 @@ public final class DataDirectiveFactory {
       final String nztermStrText) {
     InvariantChecks.checkNotNull(memoryMap);
     InvariantChecks.checkNotNull(allocator);
-    InvariantChecks.checkNotNull(addressTranslator);
     InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
     this.memoryMap = memoryMap;
     this.allocator = allocator;
-    this.addressTranslator = addressTranslator;
 
     this.header = new Text(headerText);
     this.types = types;
@@ -80,7 +76,6 @@ public final class DataDirectiveFactory {
   public static final class Builder {
     private final MemoryMap memoryMap;
     private final MemoryAllocator allocator;
-    private final AddressTranslator addressTranslator;
     private final String headerText;
 
     private final Map<String, TypeInfo> types;
@@ -92,16 +87,13 @@ public final class DataDirectiveFactory {
     protected Builder(
         final MemoryMap memoryMap,
         final MemoryAllocator allocator,
-        final AddressTranslator addressTranslator,
         final String headerText) {
       InvariantChecks.checkNotNull(memoryMap);
       InvariantChecks.checkNotNull(allocator);
-      InvariantChecks.checkNotNull(addressTranslator);
       InvariantChecks.checkNotNull(headerText);
 
       this.memoryMap = memoryMap;
       this.allocator = allocator;
-      this.addressTranslator = addressTranslator;
 
       this.headerText = headerText;
       this.types = new HashMap<>();
@@ -162,7 +154,6 @@ public final class DataDirectiveFactory {
       return new DataDirectiveFactory(
           memoryMap,
           allocator,
-          addressTranslator,
           headerText,
           types,
           spaceText,
@@ -571,7 +562,7 @@ public final class DataDirectiveFactory {
       final List<String> labels,
       final BigInteger physicalAddress) {
     for (final String label : labels) {
-      final BigInteger virtuaAddress = addressTranslator.physicalToVirtual(physicalAddress);
+      final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
       memoryMap.addLabel(label, virtuaAddress);
     }
   }

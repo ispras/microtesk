@@ -39,7 +39,6 @@ public final class DataManager {
   private final MemoryMap memoryMap;
   private final List<DataDirective> globalData;
 
-  private AddressTranslator addressTranslator;
   private MemoryAllocator allocator;
 
   private DataDirectiveFactory factory;
@@ -53,7 +52,6 @@ public final class DataManager {
     this.memoryMap = new MemoryMap();
     this.globalData = new ArrayList<>();
 
-    this.addressTranslator = null;
     this.allocator = null;
 
     this.factory = null;
@@ -76,20 +74,15 @@ public final class DataManager {
 
     final Memory memory = Memory.get(target);
 
-    addressTranslator = new AddressTranslator(
-        TestSettings.getBaseVirtualAddress(), TestSettings.getBasePhysicalAddress());
-
     final BigInteger basePhysicalAddressForAllocation =
         null != baseVirtualAddress ?
-        addressTranslator.virtualToPhysical(baseVirtualAddress) :
+        AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
         TestSettings.getBasePhysicalAddress();
 
     allocator = memory.newAllocator(
         addressableSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(
-        memoryMap, allocator, addressTranslator, text);
-
+    factoryBuilder = new DataDirectiveFactory.Builder(memoryMap, allocator, text);
     return factoryBuilder;
   }
 
@@ -165,7 +158,7 @@ public final class DataManager {
   public BigInteger getAddress() {
     checkInitialized();
     final BigInteger physicalAddress = allocator.getCurrentAddress();
-    final BigInteger virtualAddress = addressTranslator.virtualToPhysical(physicalAddress);
+    final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
     return virtualAddress;
   }
 

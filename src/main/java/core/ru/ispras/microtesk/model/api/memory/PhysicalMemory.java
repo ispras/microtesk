@@ -22,7 +22,6 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
-import ru.ispras.microtesk.test.TestSettings;
 
 final class PhysicalMemory extends Memory {
   private final MemoryDevice storage;
@@ -30,7 +29,6 @@ final class PhysicalMemory extends Memory {
   private boolean usingTempStorage;
 
   private final boolean isLogical;
-  private AddressTranslator addressTranslator;
   private final BigInteger addressableUnitsInData;
 
   public PhysicalMemory(
@@ -44,7 +42,6 @@ final class PhysicalMemory extends Memory {
     this.storage = storage;
     this.handler = null;
     this.usingTempStorage = false;
-    this.addressTranslator = null;
 
     // A memory array that corresponds to a real physical memory must satisfy the following
     // precondition: (1) element size is a multiple of 8 bits (byte), (2) element count is
@@ -128,17 +125,6 @@ final class PhysicalMemory extends Memory {
         new PhysicalMemoryAtom(index, getType().getBitSize(), 0);
 
     return Location.newLocationForAtom(getType(), atom);
-  }
-
-  private AddressTranslator getAddressTranslator() {
-    if (null == addressTranslator) {
-      addressTranslator = new AddressTranslator(
-          TestSettings.getBaseVirtualAddress(),
-          TestSettings.getBasePhysicalAddress()
-          );
-    }
-
-    return addressTranslator;
   }
 
   private final class PhysicalMemoryAtom implements Location.Atom {
@@ -275,7 +261,7 @@ final class PhysicalMemory extends Memory {
 
     private BitVector virtualIndexToPhysicalIndex(final BitVector index) {
       final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
-      final BigInteger physicalAddress = getAddressTranslator().virtualToPhysical(virtualAddress);
+      final BigInteger physicalAddress = AddressTranslator.get().virtualToPhysical(virtualAddress);
 
       final BigInteger physicalIndex = addressToIndex(physicalAddress);
       return BitVector.valueOf(physicalIndex, storage.getAddressBitSize());
