@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,6 +42,10 @@ import ru.ispras.microtesk.test.template.Label;
  * blocks.</li>
  * <li>Choose a label defined in the closest sibling.</li>
  * </ol>
+ * Note: Labels that have different reference numbers are considered different. A reference number
+ * is a way to distinguish labels with same names. This happens when some subsequences are created
+ * using the same template representation (e.g. by instantiating the same preparator).
+ * 
  * For more implementation details, see the {@link LabelManager.TargetDistance} class.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
@@ -305,8 +309,15 @@ public final class LabelManager {
       final Target target = targets.get(index);
       final Label targetLabel = target.getLabel();
 
-      final Distance distance = referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
-      distances.add(new TargetDistance(target, distance));
+      // If reference numbers do not match, it is a different label that cannot be chosen.
+      if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber()) {
+        final Distance distance = referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
+        distances.add(new TargetDistance(target, distance));
+      }
+    }
+
+    if (distances.isEmpty()) {
+      return null;
     }
 
     Collections.sort(distances);
