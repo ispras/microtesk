@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -64,6 +68,30 @@ public final class Label {
     this.blockId = other.blockId;
     this.referenceNumber = other.referenceNumber;
     this.sequenceIndex = other.sequenceIndex;
+  }
+
+  /**
+   * Creates a deep copy of the specified label list.
+   * 
+   * @param labels List of labels to be copied.
+   * @return Copy of the list.
+   * 
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   */
+
+  public static List<Label> copyAll(final List<Label> labels) {
+    InvariantChecks.checkNotNull(labels);
+
+    if (labels.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Label> result = new ArrayList<>(labels.size());
+    for (final Label label : labels) {
+      result.add(new Label(label));
+    }
+
+    return result;
   }
 
   /**
