@@ -87,7 +87,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final EngineContext engineContext,
       final List<Call> abstractSequence) {
     // Solver may modify the abstract sequence.
-    final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+    final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
 
     Memory.setUseTempCopies(true);
 
@@ -116,7 +116,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         final Class<T> solutionClass = adapter.getSolutionClass();
 
         // Adapter may modify the abstract sequence.
-        final List<Call> abstractSequenceCopy = Call.newCopy(abstractSequence);
+        final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
         // Allocate uninitialized addressing modes.
         allocateModes(abstractSequenceCopy);
 
