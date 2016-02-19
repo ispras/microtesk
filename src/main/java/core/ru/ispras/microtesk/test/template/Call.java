@@ -158,8 +158,8 @@ public final class Call {
     this.rootOperation = null != other.rootOperation ? 
         other.rootOperation.newCopy() : null;
 
-    this.labels = other.labels;
-    this.labelRefs = copyLabelReferences(other.labelRefs);
+    this.labels = Label.copyAll(other.labels);
+    this.labelRefs = LabelReference.copyAll(other.labelRefs);
     this.outputs = other.outputs;
 
     this.exception = other.exception;
@@ -179,7 +179,7 @@ public final class Call {
     this.data = null != other.data ? new DataSection(other.data) : null;
   }
 
-  public static List<Call> newCopy(final List<Call> calls) {
+  public static List<Call> copyAll(final List<Call> calls) {
     InvariantChecks.checkNotNull(calls);
 
     if (calls.isEmpty()) {
@@ -189,20 +189,6 @@ public final class Call {
     final List<Call> result = new ArrayList<>(calls.size());
     for (final Call call : calls) {
       result.add(new Call(call));
-    }
-
-    return result;
-  }
-
-  private static List<LabelReference> copyLabelReferences(
-      final List<LabelReference> labelRefs) {
-    if (labelRefs.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<LabelReference> result = new ArrayList<>();
-    for (final LabelReference labelRef : labelRefs) {
-      result.add(new LabelReference(labelRef));
     }
 
     return result;
