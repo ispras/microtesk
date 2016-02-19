@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,6 +26,9 @@ public final class Label {
   private final String name;
   private final BlockId blockId;
 
+  public static final int NO_REFERENCE_NUMBER = -1;
+  private int referenceNumber;
+
   public static final int NO_SEQUENCE_INDEX = -1;
   private int sequenceIndex;
 
@@ -44,6 +47,7 @@ public final class Label {
 
     this.name = name;
     this.blockId = blockId;
+    this.referenceNumber = NO_REFERENCE_NUMBER;
     this.sequenceIndex = NO_SEQUENCE_INDEX;
   }
 
@@ -58,13 +62,28 @@ public final class Label {
 
     this.name = other.name;
     this.blockId = other.blockId;
+    this.referenceNumber = other.referenceNumber;
     this.sequenceIndex = other.sequenceIndex;
   }
 
   /**
-   * Assigns index that identifies the instruction sequence where the label is defined.
-   * This is required to avoid situations when different sequences produced by the same 
-   * block refer to the same labels.
+   * Assigns a number that uniquely identifies the label which is duplicated within an
+   * instruction sequence. This is required to resolve name conflicts that occur when
+   * a subsequence containing labels (e.g. a preparator) is inserted multiple times
+   * into the same sequence.
+   * 
+   * @param value Number that uniquely identifies a label which is duplicated within a sequence.
+   */
+
+  public void setReferenceNumber(final int value) {
+    InvariantChecks.checkGreaterOrEqZero(value);
+    this.referenceNumber = value;
+  }
+
+  /**
+   * Assigns an index that identifies the instruction sequence where the label is defined.
+   * This is required to resolve name conflicts that occur when different sequences
+   * produced by the same block use the same labels.
    * 
    * @param value Index that identifies the instruction sequence where the label is defined.
    */
@@ -85,25 +104,33 @@ public final class Label {
   }
 
   /**
-   * Returns a unique name for the label based on its name, the identifier of
-   * the block where it was defined and the sequence index if it has been set up.
+   * Returns a unique name for the label based on:
+   * <ol>
+   * <li>Label name</li>
+   * <li>Block identifier if it is not a root (no parent) block</li>
+   * <li>Reference number if it set</li>
+   * <li>Sequence index if it set</li>
+   * </ol>
    * 
-   * @return Unique name based on the label name, the block identifier and the
-   *         sequence index.
+   * @return Unique name based on the label name and the context in which it is defined.
    */
 
   public String getUniqueName() {
-    // For root blocks (that have no parent), we do not add the block
-    // identifier as a suffix to the label name. 
+    final StringBuilder sb = new StringBuilder(name);
 
-    final String blockSuffix = blockId.parentId() != null ?
-        blockId.toString() : "";
-
-    if (sequenceIndex == NO_SEQUENCE_INDEX) {
-      return String.format("%s%s", name, blockSuffix);
+    if (blockId.parentId() != null) {
+      sb.append(blockId.toString());
     }
 
-    return String.format("%s%s_%04d", name, blockSuffix, sequenceIndex);
+    if (referenceNumber != NO_REFERENCE_NUMBER) {
+      sb.append(String.format("_n%02d", referenceNumber));
+    }
+
+    if (sequenceIndex != NO_SEQUENCE_INDEX) {
+      sb.append(String.format("_%04d", sequenceIndex));
+    }
+
+    return sb.toString();
   }
 
   /**
@@ -134,12 +161,13 @@ public final class Label {
 
     result = prime * result + name.hashCode();
     result = prime * result + blockId.hashCode();
+    result = prime * result + referenceNumber;
 
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -153,6 +181,8 @@ public final class Label {
     }
 
     final Label other = (Label) obj;
-    return name.equals(other.name) && blockId.equals(other.blockId);
+    return this.name.equals(other.name) && 
+           this.blockId.equals(other.blockId) &&
+           this.referenceNumber == other.referenceNumber;
   }
 }
