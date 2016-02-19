@@ -44,6 +44,8 @@ public final class Preparator {
   private final Variate<List<Call>> calls;
   private final Map<String, Variant> variants;
 
+  private final LabelUniqualizer.SeriesId labelSeriesId;
+
   protected Preparator(
       final Where where,
       final boolean isComparator,
@@ -93,6 +95,8 @@ public final class Preparator {
       this.calls = new VariateSingleValue<>(calls);
       this.variants = Collections.emptyMap();
     }
+
+    this.labelSeriesId = LabelUniqualizer.get().newSeries();
   }
 
   public Where getWhere() {
@@ -155,14 +159,19 @@ public final class Preparator {
     dataHolder.setValue(data);
 
     final List<Call> chosenCalls = chooseCalls(preferedVariantName);
-    return expandCalls(preparators, chosenCalls);
+    return expandCalls(labelSeriesId, preparators, chosenCalls);
   }
 
   public static List<Call> expandCalls(
+      final LabelUniqualizer.SeriesId labelSeriesId,
       final PreparatorStore preparators,
       final List<Call> calls) {
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(calls);
+
+    if (null != labelSeriesId) {
+      LabelUniqualizer.get().pushLabelScope(labelSeriesId);
+    }
 
     final List<Call> expandedCalls = new ArrayList<>();
     for (final Call call : calls) {
@@ -187,8 +196,16 @@ public final class Preparator {
 
         expandedCalls.addAll(expanded);
       } else {
-        expandedCalls.add(new Call(call));
+        final Call callCopy = new Call(call);
+        if (null != labelSeriesId) {
+          LabelUniqualizer.get().makeLabelsUnique(callCopy);
+        }
+        expandedCalls.add(callCopy);
       }
+    }
+
+    if (null != labelSeriesId) {
+      LabelUniqualizer.get().popLabelScope();
     }
 
     return expandedCalls;

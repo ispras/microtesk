@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,6 +29,7 @@ public final class BufferPreparator {
   private final Map<String, LazyData> entry;
   private final LazyData entryData;
   private final List<Call> calls;
+  private final LabelUniqualizer.SeriesId labelSeriesId;
 
   protected BufferPreparator(
       final String bufferId,
@@ -46,6 +47,7 @@ public final class BufferPreparator {
     this.entry = Collections.unmodifiableMap(entry);
     this.entryData = entryData;
     this.calls = Collections.unmodifiableList(calls);
+    this.labelSeriesId = LabelUniqualizer.get().newSeries();
   }
 
   public String getBufferId() {
@@ -91,6 +93,6 @@ public final class BufferPreparator {
       Logger.debug("Entry data: %s", entryValue);
     }
 
-    return Preparator.expandCalls(preparators, calls);
+    return Preparator.expandCalls(labelSeriesId, preparators, calls);
   }
 }
