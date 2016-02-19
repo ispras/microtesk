@@ -64,11 +64,11 @@ public final class DataManager {
   public DataDirectiveFactory.Builder beginConfig(
       final String text,
       final String target,
-      final int addressableSize,
+      final int addressableUnitBitSize,
       final BigInteger baseVirtualAddress) {
     InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(target);
-    InvariantChecks.checkGreaterThanZero(addressableSize);
+    InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
     checkReinitialized();
 
@@ -80,9 +80,11 @@ public final class DataManager {
         TestSettings.getBasePhysicalAddress();
 
     allocator = memory.newAllocator(
-        addressableSize, basePhysicalAddressForAllocation);
+        addressableUnitBitSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(memoryMap, allocator, text);
+    factoryBuilder = new DataDirectiveFactory.Builder(
+        memoryMap, addressableUnitBitSize, text);
+
     return factoryBuilder;
   }
 
@@ -118,7 +120,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(data);
 
     for (final DataDirective directive : data.getDirectives()) {
-      directive.apply();
+      directive.apply(allocator);
     }
 
     if (data.isSeparateFile()) {

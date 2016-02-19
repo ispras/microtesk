@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
-public interface DataDirective {
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+
+interface DataDirective {
   String getText();
   boolean needsIndent();
-  void apply();
+  void apply(MemoryAllocator allocator);
 }

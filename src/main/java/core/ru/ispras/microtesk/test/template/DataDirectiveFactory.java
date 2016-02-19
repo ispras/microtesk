@@ -35,7 +35,6 @@ import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataDirectiveFactory {
   private final MemoryMap memoryMap;
-  private final MemoryAllocator allocator;
 
   private final DataDirective header;
   private final Map<String, TypeInfo> types;
@@ -48,7 +47,6 @@ public final class DataDirectiveFactory {
 
   private DataDirectiveFactory(
       final MemoryMap memoryMap,
-      final MemoryAllocator allocator,
       final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
@@ -56,13 +54,10 @@ public final class DataDirectiveFactory {
       final String ztermStrText,
       final String nztermStrText) {
     InvariantChecks.checkNotNull(memoryMap);
-    InvariantChecks.checkNotNull(allocator);
     InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
     this.memoryMap = memoryMap;
-    this.allocator = allocator;
-
     this.header = new Text(headerText);
     this.types = types;
     this.spaceText = spaceText;
@@ -75,7 +70,7 @@ public final class DataDirectiveFactory {
 
   public static final class Builder {
     private final MemoryMap memoryMap;
-    private final MemoryAllocator allocator;
+    private final int addressableUnitBitSize;
     private final String headerText;
 
     private final Map<String, TypeInfo> types;
@@ -86,14 +81,14 @@ public final class DataDirectiveFactory {
 
     protected Builder(
         final MemoryMap memoryMap,
-        final MemoryAllocator allocator,
+        final int addressableUnitBitSize,
         final String headerText) {
       InvariantChecks.checkNotNull(memoryMap);
-      InvariantChecks.checkNotNull(allocator);
+      InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
       InvariantChecks.checkNotNull(headerText);
 
       this.memoryMap = memoryMap;
-      this.allocator = allocator;
+      this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.headerText = headerText;
       this.types = new HashMap<>();
@@ -130,7 +125,7 @@ public final class DataDirectiveFactory {
       Logger.debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
 
       spaceText = text;
-      spaceData = BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize());
+      spaceData = BitVector.valueOf(fillWith, addressableUnitBitSize);
     }
 
     public void defineAsciiString(
@@ -153,7 +148,6 @@ public final class DataDirectiveFactory {
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
           memoryMap,
-          allocator,
           headerText,
           types,
           spaceText,
@@ -196,7 +190,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       // Nothing
     }
 
@@ -253,7 +247,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       allocator.setOrigin(origin);
     }
 
@@ -286,7 +280,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       allocator.align(alignmentInBytes);
     }
 
@@ -320,7 +314,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       final BigInteger address = allocator.allocate(spaceData, length);
       linkLabelsToAddress(labels, address);
     }
@@ -366,7 +360,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       for (int index = 0; index < strings.length; index++) {
         final BigInteger address =
             allocator.allocateAsciiString(strings[index], zeroTerm);
@@ -426,7 +420,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply() {
+    public void apply(final MemoryAllocator allocator) {
       boolean isFirst = true;
       for (final BitVector value : values) {
         final BigInteger address = allocator.allocate(value);
