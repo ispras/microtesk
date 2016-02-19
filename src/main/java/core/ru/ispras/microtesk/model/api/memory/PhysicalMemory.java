@@ -65,12 +65,12 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public final MemoryAllocator newAllocator(
-      final int addressableSize,
+      final int addressableUnitBitSize,
       final BigInteger baseAddress) {
-    InvariantChecks.checkGreaterThanZero(addressableSize);
+    InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
     InvariantChecks.checkNotNull(baseAddress);
 
-    return new MemoryAllocator(storage, addressableSize, baseAddress);
+    return new MemoryAllocator(storage, addressableUnitBitSize, baseAddress);
   }
 
   @Override

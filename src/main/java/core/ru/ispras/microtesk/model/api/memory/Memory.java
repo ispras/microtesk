@@ -159,12 +159,13 @@ public abstract class Memory {
     this.addressBitSize = MemoryStorage.calculateAddressSize(length);
   }
 
-  public MemoryAllocator newAllocator(int addressableSize, BigInteger baseAddress) {
+  public MemoryAllocator newAllocator(
+      final int addressableUnitBitSize, final BigInteger baseAddress) {
     throw new UnsupportedOperationException(
         "newAllocator is not supported for " + toString());
   }
 
-  public MemoryDevice setHandler(MemoryDevice handler) {
+  public MemoryDevice setHandler(final MemoryDevice handler) {
     throw new UnsupportedOperationException(
         "setHandler is not supported for " + toString());
   }
