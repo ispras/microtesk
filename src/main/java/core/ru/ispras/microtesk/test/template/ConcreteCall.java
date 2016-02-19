@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(executable);
 
     this.text = abstractCall.getText();
-    this.labels = copyLabels(abstractCall.getLabels());
+    this.labels = Label.copyAll(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
@@ -77,7 +76,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(labelRefs);
 
     this.text = abstractCall.getText();
-    this.labels = copyLabels(abstractCall.getLabels());
+    this.labels = Label.copyAll(abstractCall.getLabels());
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
@@ -90,7 +89,7 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(abstractCall);
 
     this.text = abstractCall.getText();
-    this.labels = copyLabels(abstractCall.getLabels());
+    this.labels = Label.copyAll(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
@@ -110,19 +109,6 @@ public final class ConcreteCall {
     this.origin = null;
     this.alignment = null;
     this.alignmentInBytes = null;
-  }
-
-  private static List<Label> copyLabels(final List<Label> labels) {
-    if (labels.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<Label> result = new ArrayList<>(labels.size());
-    for (final Label label : labels) {
-      result.add(new Label(label));
-    }
-
-    return result;
   }
 
   public boolean isExecutable() {
