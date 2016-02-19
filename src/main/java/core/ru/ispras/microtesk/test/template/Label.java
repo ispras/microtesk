@@ -109,6 +109,16 @@ public final class Label {
   }
 
   /**
+   * Returns a number that uniquely identifies the label among labels that have the same name.
+   * 
+   * @return Number that uniquely identifies the label among labels that have the same name.
+   */
+
+  public int getReferenceNumber() {
+    return referenceNumber;
+  }
+
+  /**
    * Assigns an index that identifies the instruction sequence where the label is defined.
    * This is required to resolve name conflicts that occur when different sequences
    * produced by the same block use the same labels.
