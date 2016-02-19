@@ -18,7 +18,11 @@ import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 /**
@@ -80,6 +84,21 @@ public final class LabelReference {
     this.reference = new LabelValue(other.reference);
     this.target = other.target;
     this.patcher = other.patcher;
+  }
+
+  public static List<LabelReference> copyAll(final List<LabelReference> labelRefs) {
+    InvariantChecks.checkNotNull(labelRefs);
+
+    if (labelRefs.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<LabelReference> result = new ArrayList<>();
+    for (final LabelReference labelRef : labelRefs) {
+      result.add(new LabelReference(labelRef));
+    }
+
+    return result;
   }
 
   /**
