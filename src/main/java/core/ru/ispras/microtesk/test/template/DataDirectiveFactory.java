@@ -228,7 +228,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private final class Origin implements DataDirective {
+  private static final class Origin implements DataDirective {
     private final BigInteger origin;
 
     private Origin(final BigInteger origin) {
@@ -257,7 +257,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private final class Align implements DataDirective {
+  private static final class Align implements DataDirective {
     private final BigInteger alignment;
     private final BigInteger alignmentInBytes;
 
