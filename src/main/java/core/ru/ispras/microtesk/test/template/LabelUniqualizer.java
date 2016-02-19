@@ -53,7 +53,7 @@ public final class LabelUniqualizer {
 
   public SeriesId newSeries() {
     numbers.add(0);
-    return new SeriesId(numbers.size() + 1);
+    return new SeriesId(numbers.size() - 1);
   }
 
   public void resetNumbers() {
