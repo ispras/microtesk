@@ -34,8 +34,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataDirectiveFactory {
-  private final MemoryMap memoryMap;
-
   private final DataDirective header;
   private final Map<String, TypeInfo> types;
   private final String spaceText;
@@ -46,18 +44,15 @@ public final class DataDirectiveFactory {
   private List<String> preceedingLabels;
 
   private DataDirectiveFactory(
-      final MemoryMap memoryMap,
       final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
       final BitVector spaceData,
       final String ztermStrText,
       final String nztermStrText) {
-    InvariantChecks.checkNotNull(memoryMap);
     InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
-    this.memoryMap = memoryMap;
     this.header = new Text(headerText);
     this.types = types;
     this.spaceText = spaceText;
@@ -69,7 +64,6 @@ public final class DataDirectiveFactory {
   }
 
   public static final class Builder {
-    private final MemoryMap memoryMap;
     private final int addressableUnitBitSize;
     private final String headerText;
 
@@ -80,14 +74,11 @@ public final class DataDirectiveFactory {
     private String nztermStrText;
 
     protected Builder(
-        final MemoryMap memoryMap,
         final int addressableUnitBitSize,
         final String headerText) {
-      InvariantChecks.checkNotNull(memoryMap);
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
       InvariantChecks.checkNotNull(headerText);
 
-      this.memoryMap = memoryMap;
       this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.headerText = headerText;
@@ -147,7 +138,6 @@ public final class DataDirectiveFactory {
 
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
-          memoryMap,
           headerText,
           types,
           spaceText,
@@ -190,7 +180,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       // Nothing
     }
 
@@ -247,7 +237,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       allocator.setOrigin(origin);
     }
 
@@ -280,7 +270,7 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       allocator.align(alignmentInBytes);
     }
 
@@ -314,9 +304,9 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       final BigInteger address = allocator.allocate(spaceData, length);
-      linkLabelsToAddress(labels, address);
+      linkLabelsToAddress(memoryMap, labels, address);
     }
 
     @Override
@@ -360,13 +350,13 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       for (int index = 0; index < strings.length; index++) {
         final BigInteger address =
             allocator.allocateAsciiString(strings[index], zeroTerm);
 
         if (0 == index) {
-          linkLabelsToAddress(labels, address);
+          linkLabelsToAddress(memoryMap, labels, address);
         }
       }
     }
@@ -377,7 +367,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private final class Data implements DataDirective {
+  private static final class Data implements DataDirective {
     private final String typeText;
     private final List<BitVector> values;
     private final List<String> labels;
@@ -420,12 +410,12 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator) {
+    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
       boolean isFirst = true;
       for (final BitVector value : values) {
         final BigInteger address = allocator.allocate(value);
         if (isFirst) {
-          linkLabelsToAddress(labels, address);
+          linkLabelsToAddress(memoryMap, labels, address);
           isFirst = false;
         }
       }
@@ -552,7 +542,8 @@ public final class DataDirectiveFactory {
         String.format("No %d-byte type is defined.", typeSizeInBytes));
   }
 
-  private void linkLabelsToAddress(
+  private static void linkLabelsToAddress(
+      final MemoryMap memoryMap,
       final List<String> labels,
       final BigInteger physicalAddress) {
     for (final String label : labels) {

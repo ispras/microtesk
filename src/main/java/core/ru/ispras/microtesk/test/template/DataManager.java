@@ -82,9 +82,7 @@ public final class DataManager {
     allocator = memory.newAllocator(
         addressableUnitBitSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(
-        memoryMap, addressableUnitBitSize, text);
-
+    factoryBuilder = new DataDirectiveFactory.Builder(addressableUnitBitSize, text);
     return factoryBuilder;
   }
 
@@ -123,7 +121,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(data);
 
     for (final DataDirective directive : data.getDirectives()) {
-      directive.apply(allocator);
+      directive.apply(allocator, memoryMap);
     }
 
     if (data.isSeparateFile()) {
