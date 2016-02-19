@@ -33,7 +33,7 @@ public final class Label {
   private int sequenceIndex;
 
   /**
-   * Constructs a label object.  
+   * Constructs a label object.
    * 
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
