@@ -80,9 +80,9 @@ public final class StreamPreparator {
 
     return new Stream(
         label.getName(),
-        Call.newCopy(init),
-        Call.newCopy(read),
-        Call.newCopy(write),
+        Call.copyAll(init),
+        Call.copyAll(read),
+        Call.copyAll(write),
         length
         );
   }
