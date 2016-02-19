@@ -97,12 +97,15 @@ public final class DataManager {
     factoryBuilder = null;
   }
 
-  public DataSectionBuilder beginData(final boolean isGlobal, final boolean isSeparateFile) {
+  public DataSectionBuilder beginData(
+      final BlockId blockId,
+      final boolean isGlobal,
+      final boolean isSeparateFile) {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
     Memory.setUseTempCopies(false);
-    dataBuilder = new DataSectionBuilder(factory, isGlobal, isSeparateFile);
+    dataBuilder = new DataSectionBuilder(blockId, factory, isGlobal, isSeparateFile);
 
     return dataBuilder; 
   }
@@ -188,7 +191,8 @@ public final class DataManager {
       throw new IllegalStateException(String.format("Label %s is redefined", label));
     }
 
-    final DataSectionBuilder dataBuilder = new DataSectionBuilder(factory, true, isSeparateFile);
+    final DataSectionBuilder dataBuilder = new DataSectionBuilder(
+        new BlockId(), factory, true, isSeparateFile);
 
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
@@ -230,7 +234,8 @@ public final class DataManager {
     checkInitialized();
     Memory.setUseTempCopies(false);
 
-    final DataSectionBuilder dataBuilder = new DataSectionBuilder(factory, true, isSeparateFile);
+    final DataSectionBuilder dataBuilder = new DataSectionBuilder(
+        new BlockId(), factory, true, isSeparateFile);
 
     final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
     Collections.sort(sortedAddresses);

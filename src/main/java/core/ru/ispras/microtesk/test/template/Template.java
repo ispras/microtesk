@@ -910,7 +910,7 @@ public final class Template {
         exceptionHandlerBuilder == null;
 
     Logger.debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
-    return dataManager.beginData(isGlobal, isSeparateFile);
+    return dataManager.beginData(getCurrentBlockId(), isGlobal, isSeparateFile);
   }
 
   public void endData() {

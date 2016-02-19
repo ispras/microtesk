@@ -22,17 +22,21 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
 public final class DataSectionBuilder {
+  private final BlockId blockId;
   private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
   private final boolean global;
   private final boolean separateFile;
 
   protected DataSectionBuilder(
+      final BlockId blockId,
       final DataDirectiveFactory directiveFactory,
       final boolean isGlobal,
       final boolean isSeparateFile) {
+    InvariantChecks.checkNotNull(blockId);
     InvariantChecks.checkNotNull(directiveFactory);
 
+    this.blockId = blockId;
     this.directives = new ArrayList<>();
     this.directiveFactory = directiveFactory;
 
