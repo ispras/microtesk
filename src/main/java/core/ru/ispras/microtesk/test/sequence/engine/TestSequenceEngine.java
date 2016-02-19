@@ -23,6 +23,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -70,6 +71,9 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
   public Iterator<AdapterResult> process(
       final EngineContext engineContext, final List<Call> abstractSequence) {
+    // Labels in repeated parts of a sequence have to be unique only on sequence level.
+    LabelUniqualizer.get().resetNumbers();
+
     final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
 
     if (result.getStatus() != EngineResult.Status.OK) {
