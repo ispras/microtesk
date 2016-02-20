@@ -81,7 +81,7 @@ public final class LabelReference {
   protected LabelReference(final LabelReference other) {
     checkNotNull(other);
 
-    this.reference = new LabelValue(other.reference);
+    this.reference = other.reference.sharedCopy();
     this.target = other.target;
     this.patcher = other.patcher;
   }

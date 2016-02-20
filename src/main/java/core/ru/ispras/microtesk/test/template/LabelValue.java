@@ -16,8 +16,9 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.SharedObject;
 
-public final class LabelValue implements Value {
+public final class LabelValue extends SharedObject<LabelValue> implements Value {
 
   protected static LabelValue newLazy() {
     return new LabelValue(null, null);
@@ -38,8 +39,9 @@ public final class LabelValue implements Value {
   private BigInteger address;
 
   public LabelValue(final LabelValue other) {
-    InvariantChecks.checkNotNull(other);
-    this.label = other.label;
+    super(other);
+
+    this.label = new Label(other.label);
     this.address = other.address;
   }
 
