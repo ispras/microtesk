@@ -84,18 +84,28 @@ public final class LabelUniqualizer {
     final int referenceNumber = labelScopes.peek().first;
     final Set<String> labelNames = labelScopes.peek().second;
 
-    for (final Label label : call.getLabels()) {
-      label.setReferenceNumber(referenceNumber);
-      if (!labelNames.add(label.getName())) {
-        throw new GenerationAbortedException(String.format(
-            "The %s label is redefined.", label.getName()));
-      }
+    if (null != call.getData()) {
+      setReferenceNumber(call.getData().getLabels(), referenceNumber, labelNames);
     }
+    setReferenceNumber(call.getLabels(), referenceNumber, labelNames);
 
     for (final LabelReference labelRef : call.getLabelReferences()) {
       final Label label = labelRef.getReference();
       if (labelNames.contains(label.getName())) {
         label.setReferenceNumber(referenceNumber);
+      }
+    }
+  }
+
+  private static void setReferenceNumber(
+      final List<Label> labels,
+      final int referenceNumber,
+      final Set<String> labelNames) {
+    for (final Label label : labels) {
+      label.setReferenceNumber(referenceNumber);
+      if (!labelNames.add(label.getName())) {
+        throw new GenerationAbortedException(String.format(
+            "The %s label is redefined.", label.getName()));
       }
     }
   }
