@@ -260,16 +260,10 @@ public final class LabelManager {
    */
 
   public void addAllLabels(
-      final Collection<?> labels, final long address, final int sequenceIndex) {
-
+      final Collection<Label> labels, final long address, final int sequenceIndex) {
     InvariantChecks.checkNotNull(labels);
 
-    for (final Object item : labels) {
-      if (!(item instanceof Label)) {
-        throw new IllegalArgumentException(item + " is not a Label object!");
-      }
-
-      final Label label = (Label) item;
+    for (final Label label : labels) {
       if (sequenceIndex != Label.NO_SEQUENCE_INDEX) {
         label.setSequenceIndex(sequenceIndex);
       }
