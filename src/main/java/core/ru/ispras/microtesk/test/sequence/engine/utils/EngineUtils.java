@@ -55,7 +55,6 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
@@ -342,11 +341,6 @@ public final class EngineUtils {
 
     // A preparator call must be expanded when the preparator containing this call is instantiated.
     checkFalse(abstractCall.isPreparatorCall() , "Unexpanded preparator invocation.");
-
-    if (abstractCall.hasData()) {
-      final DataSection data = abstractCall.getData();
-      engineContext.getDataManager().processData(data);
-    }
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);

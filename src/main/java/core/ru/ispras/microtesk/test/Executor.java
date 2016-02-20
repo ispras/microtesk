@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -97,7 +98,7 @@ final class Executor {
     final List<ConcreteCall> calls = new ArrayList<>();
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
-
+ 
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
@@ -257,13 +258,27 @@ final class Executor {
     }
   }
 
-  private static void registerCalls(
+  private void registerCalls(
       final List<ConcreteCall> calls,
       final Map<Long, Integer> addressMap,
       final LabelManager labelManager,
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
     for (final ConcreteCall call : sequence) {
+
+      if (call.getData() != null) {
+        for (final Pair<Label, BigInteger> labelInfo : call.getData().getLabelsWithAddresses()) {
+          final Label label = labelInfo.first;
+          final long address = labelInfo.second.longValue();
+
+          label.setSequenceIndex(sequenceIndex);
+          labelManager.addLabel(label, address);
+        }
+
+        context.getDataManager().processData(call.getData());
+        continue;
+      }
+
       calls.add(call);
 
       final long address = call.getAddress();
@@ -310,7 +325,7 @@ final class Executor {
     }
   }
 
-  private static void registerExceptionHandlers(
+  private void registerExceptionHandlers(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
       final Map<Long, Integer> addressMap,
