@@ -67,7 +67,6 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   
   private final MetaModel metaModel;
   private final CallBuilder callBuilder;
-  private final MemoryMap memoryMap;
 
   private final List<Argument> argumentList;
   private final Map<String, Argument> argumentMap;
@@ -77,16 +76,16 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
       "addArgument or setArgument methods, but not both.";
 
   PrimitiveBuilderOperation(
-      String name, MetaModel metaModel, CallBuilder callBuilder, MemoryMap memoryMap) {
+      final String name,
+      final MetaModel metaModel,
+      final CallBuilder callBuilder) {
 
     checkNotNull(name);
     checkNotNull(metaModel);
     checkNotNull(callBuilder);
-    checkNotNull(memoryMap);
 
     this.metaModel = metaModel;
     this.callBuilder = callBuilder;
-    this.memoryMap = memoryMap;
 
     this.name = name;
     this.contextName = null;
@@ -107,11 +106,11 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     final PrimitiveBuilder builder;
     if (null != metaShortcut) {
       builder = new PrimitiveBuilderCommon(
-          metaModel, callBuilder, memoryMap, metaShortcut.getOperation(), contextName);
+          metaModel, callBuilder, metaShortcut.getOperation(), contextName);
     } else {
       // If there is no shortcut for the given context, the operation is used as it is.
       builder = new PrimitiveBuilderCommon(
-          metaModel, callBuilder, memoryMap, metaData, null);
+          metaModel, callBuilder, metaData, null);
     }
 
     builder.setSituation(situation);
@@ -463,7 +462,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   private final MetaModel metaModel; 
   private final CallBuilder callBuilder;
-  private final MemoryMap memoryMap;
 
   private final Strategy strategy;
   private final Kind kind;
@@ -476,13 +474,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   PrimitiveBuilderCommon(
       final MetaModel metaModel,
       final CallBuilder callBuilder,
-      final MemoryMap memoryMap,
       final MetaOperation metaData,
       final String contextName) {
     this(
         metaModel,
         callBuilder,
-        memoryMap,
         new StrategyOperation(metaData, contextName),
         Kind.OP,
         contextName
@@ -492,12 +488,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   PrimitiveBuilderCommon(
       final MetaModel metaModel,
       final CallBuilder callBuilder,
-      final MemoryMap memoryMap,
       final MetaAddressingMode metaData) {
     this(
         metaModel,
         callBuilder,
-        memoryMap,
         new StrategyAddressingMode(metaData),
         Kind.MODE,
         null
@@ -507,17 +501,14 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   private PrimitiveBuilderCommon(
       final MetaModel metaModel,
       final CallBuilder callBuilder,
-      final MemoryMap memoryMap,
       final Strategy strategy,
       final Kind kind,
       final String contextName) {
     checkNotNull(metaModel);
     checkNotNull(callBuilder);
-    checkNotNull(memoryMap);
 
     this.metaModel = metaModel;
     this.callBuilder = callBuilder;
-    this.memoryMap = memoryMap;
 
     this.strategy = strategy;
     this.kind = kind;
@@ -746,18 +737,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(value);
 
     final Label label = new Label(value, callBuilder.getBlockId()); 
-    final LabelValue labelValue;
-
-    // Address of labels in the data section are known when an abstract sequence is being created.
-    // Addresses of labels in code are unknown will be resolved later (in concrete sequences,
-    // immediately before simulation).
-
-    if (memoryMap.isDefined(label.getName())) {
-      final BigInteger address = memoryMap.resolve(label.getName());
-      labelValue = LabelValue.newKnown(label, address);
-    } else {
-      labelValue = LabelValue.newUnknown(label);
-    }
+    final LabelValue labelValue = LabelValue.newUnknown(label);
 
     setArgument(name, labelValue);
   }

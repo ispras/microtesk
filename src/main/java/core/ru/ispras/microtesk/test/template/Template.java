@@ -39,6 +39,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 
 public final class Template {
@@ -160,7 +161,15 @@ public final class Template {
   }
 
   public BigInteger getAddressForLabel(final String label) {
-    return dataManager.getMemoryMap().resolve(label);
+    final LabelManager.Target target =
+        dataManager.getGlobalLabels().resolve(new Label(label, getCurrentBlockId()));
+
+    if (null == target) {
+      throw new GenerationAbortedException(
+          String.format("The %s label is not defined.", label));
+    }
+
+    return BigInteger.valueOf(target.getAddress());
   }
 
   public void beginPreSection() {
@@ -416,8 +425,7 @@ public final class Template {
     Logger.debug("Operation: " + name);
     checkNotNull(name);
 
-    return new PrimitiveBuilderOperation(
-        name, metaModel, callBuilder, dataManager.getMemoryMap());
+    return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(final String name) {
@@ -429,8 +437,7 @@ public final class Template {
       throw new IllegalArgumentException("No such addressing mode: " + name);
     }
 
-    return new PrimitiveBuilderCommon(
-        metaModel, callBuilder, dataManager.getMemoryMap(), metaData);
+    return new PrimitiveBuilderCommon(metaModel, callBuilder, metaData);
   }
 
   public RandomValue newRandom(final BigInteger from, final BigInteger to) {
@@ -644,7 +651,7 @@ public final class Template {
     }
 
     streamPreparatorBuilder = new StreamPreparatorBuilder(
-        dataManager.getMemoryMap(), dataMode, indexMode);
+        dataManager.getGlobalLabels(), dataMode, indexMode);
 
     return streamPreparatorBuilder;
   }
@@ -997,7 +1004,7 @@ public final class Template {
   public MemoryObjectBuilder newMemoryObjectBuilder(final int size) {
     return new MemoryObjectBuilder(
         size,
-        dataManager.getMemoryMap(),
+        dataManager.getGlobalLabels(),
         context.getSettings()
         );
   }

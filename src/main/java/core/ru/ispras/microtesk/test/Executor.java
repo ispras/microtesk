@@ -96,7 +96,7 @@ final class Executor {
 
     final List<ConcreteCall> calls = new ArrayList<>();
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
-    final LabelManager labelManager = new LabelManager();
+    final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
 
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
@@ -360,8 +360,10 @@ final class Executor {
           uniqueName = target.getLabel().getUniqueName();
           final long address = target.getAddress();
 
-          final int index = addressMap.get(address);
-          labelRef.setTarget(target.getLabel(), index);
+          if (addressMap.containsKey(address)) {
+            final int index = addressMap.get(address);
+            labelRef.setTarget(target.getLabel(), index);
+          }
 
           searchPattern = "<label>0";
           patchedText = call.getText().replace(searchPattern, uniqueName);

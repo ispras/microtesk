@@ -26,17 +26,19 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
   private final Printer printer;
-  private final MemoryMap memoryMap;
+  private final LabelManager globalLabels;
   private final List<DataDirective> globalData;
 
   private MemoryAllocator allocator;
@@ -49,7 +51,7 @@ public final class DataManager {
 
   public DataManager(final Printer printer) {
     this.printer = printer;
-    this.memoryMap = new MemoryMap();
+    this.globalLabels = new LabelManager();
     this.globalData = new ArrayList<>();
 
     this.allocator = null;
@@ -124,6 +126,14 @@ public final class DataManager {
       directive.apply(allocator);
     }
 
+    if (data.isGlobal()) {
+      for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
+        final Label label = labelInfo.first;
+        final long address = labelInfo.second.longValue();
+        globalLabels.addLabel(label, address);
+      }
+    }
+
     if (data.isSeparateFile()) {
       saveToFile(data.getDirectives());
     } else {
@@ -139,8 +149,8 @@ public final class DataManager {
     return !globalData.isEmpty();
   }
 
-  public MemoryMap getMemoryMap() {
-    return memoryMap;
+  public LabelManager getGlobalLabels() {
+    return globalLabels;
   }
 
   public String getDeclText() {
@@ -171,23 +181,19 @@ public final class DataManager {
 
   public void generateData(
       final BigInteger address,
-      final String label,
+      final String labelName,
       final String typeId,
       final int length,
       final String method,
       final boolean isSeparateFile) {
     InvariantChecks.checkNotNull(address);
-    InvariantChecks.checkNotNull(label);
+    InvariantChecks.checkNotNull(labelName);
     InvariantChecks.checkNotNull(typeId);
     InvariantChecks.checkGreaterThanZero(length);
     InvariantChecks.checkNotNull(method);
 
     checkInitialized();
     Memory.setUseTempCopies(false);
-
-    if (memoryMap.isDefined(label)) {
-      throw new IllegalStateException(String.format("Label %s is redefined", label));
-    }
 
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(), factory, true, isSeparateFile);
@@ -202,9 +208,7 @@ public final class DataManager {
       final BitVector bvAddress =
           BitVector.valueOf(address, allocator.getAddressBitSize());
 
-      memoryMap.addLabel(label, address);
-
-      dataBuilder.addLabel(label);
+      dataBuilder.addLabel(labelName);
       dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
 
       for (int index = 0; index < length; index += 4) {

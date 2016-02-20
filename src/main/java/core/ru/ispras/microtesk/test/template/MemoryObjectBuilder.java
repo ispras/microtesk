@@ -23,9 +23,11 @@ import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.LabelManager;
 
 public final class MemoryObjectBuilder {
-  private final MemoryMap memoryMap;
+  private final LabelManager memoryMap;
   private final GeneratorSettings settings;
   private final int size;
 
@@ -39,7 +41,7 @@ public final class MemoryObjectBuilder {
 
   protected MemoryObjectBuilder(
       final int size,
-      final MemoryMap memoryMap,
+      final LabelManager memoryMap,
       final GeneratorSettings settings) {
     InvariantChecks.checkGreaterThanZero(size);
     InvariantChecks.checkNotNull(memoryMap);
@@ -83,7 +85,16 @@ public final class MemoryObjectBuilder {
 
   public void setVa(final String labelName) {
     InvariantChecks.checkNotNull(labelName);
-    this.va = memoryMap.resolve(labelName);
+
+    final LabelManager.Target target =
+        memoryMap.resolve(new Label(labelName, new BlockId()));
+
+    if (null == target) {
+      throw new GenerationAbortedException(
+          String.format("The %s label is not defined.", labelName));
+    }
+
+    this.va = BigInteger.valueOf(target.getAddress());
     this.isVaLabel = true;
   }
 

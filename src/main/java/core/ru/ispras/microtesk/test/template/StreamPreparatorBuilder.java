@@ -21,9 +21,10 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.test.LabelManager;
 
 public final class StreamPreparatorBuilder {
-  private final MemoryMap memoryMap;
+  private final LabelManager memoryMap;
   private final LazyPrimitive data;
   private final LazyPrimitive index;
   private final LabelValue startLabel;
@@ -34,7 +35,7 @@ public final class StreamPreparatorBuilder {
   private List<Call> currentMethod;
 
   protected StreamPreparatorBuilder(
-      final MemoryMap memoryMap,
+      final LabelManager memoryMap,
       final MetaAddressingMode metaData,
       final MetaAddressingMode metaIndex) {
 

@@ -19,9 +19,11 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.LabelManager;
 
 public final class StreamPreparator {
-  private final MemoryMap memoryMap;
+  private final LabelManager memoryMap;
 
   private final List<Call> init;
   private final List<Call> read;
@@ -32,7 +34,7 @@ public final class StreamPreparator {
   private final LabelValue startLabel;
 
   protected StreamPreparator(
-      final MemoryMap memoryMap,
+      final LabelManager memoryMap,
       final List<Call> init,
       final List<Call> read,
       final List<Call> write,
@@ -70,7 +72,13 @@ public final class StreamPreparator {
     InvariantChecks.checkNotNull(indexSource);
     InvariantChecks.checkGreaterThanZero(length);
 
-    final BigInteger address = memoryMap.resolve(label.getName());
+    final LabelManager.Target target = memoryMap.resolve(label);
+    if (null == target) {
+      throw new GenerationAbortedException(
+          String.format("The %s label is not defined.", label.getName()));
+    }
+
+    final BigInteger address = BigInteger.valueOf(target.getAddress());
 
     startLabel.setLabel(label);
     startLabel.setAddress(address);
