@@ -23,10 +23,13 @@ import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
 public final class DataSectionBuilder {
   private final BlockId blockId;
-  private final List<DataDirective> directives;
   private final DataDirectiveFactory directiveFactory;
+
   private final boolean global;
   private final boolean separateFile;
+
+  private final List<LabelValue> labelValues;
+  private final List<DataDirective> directives;
 
   protected DataSectionBuilder(
       final BlockId blockId,
@@ -37,11 +40,13 @@ public final class DataSectionBuilder {
     InvariantChecks.checkNotNull(directiveFactory);
 
     this.blockId = blockId;
-    this.directives = new ArrayList<>();
     this.directiveFactory = directiveFactory;
 
     this.global = isGlobal;
     this.separateFile = isSeparateFile;
+
+    this.labelValues = new ArrayList<>();
+    this.directives = new ArrayList<>();
   }
 
   public boolean isGlobal() {
@@ -72,11 +77,15 @@ public final class DataSectionBuilder {
   }
 
   public void addLabel(final String id) {
+    final Label label = new Label(id, blockId);
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+
     if (separateFile) {
-      addDirective(directiveFactory.newText(String.format(".globl %s", id)));
+      addDirective(directiveFactory.newGlobalLabel(labelValue));
     }
 
-    addDirective(directiveFactory.newLabel(id));
+    addDirective(directiveFactory.newLabel(labelValue));
+    labelValues.add(labelValue);
   }
 
   public void addText(final String text) {
@@ -105,6 +114,6 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
-    return new DataSection(directives, global, separateFile);
+    return new DataSection(labelValues, directives, global, separateFile);
   }
 }
