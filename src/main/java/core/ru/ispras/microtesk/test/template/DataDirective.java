@@ -19,5 +19,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 interface DataDirective {
   String getText();
   boolean needsIndent();
+
   void apply(MemoryAllocator allocator, MemoryMap memoryMap);
+  DataDirective copy();
 }
