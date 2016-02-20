@@ -14,32 +14,101 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 public class DataSection {
+  private final List<LabelValue> labelValues;
   private final List<DataDirective> directives;
+
   private final boolean global;
   private final boolean separateFile;
 
   protected DataSection(
+      final List<LabelValue> labelValues,
       final List<DataDirective> directives,
       final boolean global,
       final boolean separateFile) {
     InvariantChecks.checkNotNull(directives);
 
+    this.labelValues = Collections.unmodifiableList(labelValues);
     this.directives = Collections.unmodifiableList(directives);
+
     this.global = global;
     this.separateFile = separateFile;
   }
 
   protected DataSection(final DataSection other) {
     InvariantChecks.checkNotNull(other);
-    this.directives = other.directives;
+
+    this.labelValues = copyAllLabelValues(other.labelValues);
+    this.directives = copyAllDirectives(other.directives);
+
     this.global = other.global;
     this.separateFile = other.separateFile;
+  }
+
+  private static List<LabelValue> copyAllLabelValues(final List<LabelValue> labelValues) {
+    InvariantChecks.checkNotNull(labelValues);
+
+    if (labelValues.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<LabelValue> result = new ArrayList<>(labelValues.size());
+    for (final LabelValue labelValue : labelValues) {
+      result.add(new LabelValue(labelValue));
+    }
+
+    return result;
+  }
+
+  private static List<DataDirective> copyAllDirectives(final List<DataDirective> directives) {
+    InvariantChecks.checkNotNull(directives);
+
+    if (directives.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<DataDirective> result = new ArrayList<>(directives.size());
+    for (final DataDirective directive : directives) {
+      result.add(directive.copy());
+    }
+
+    return result;
+  }
+
+  public List<Label> getLabels() {
+    final List<Label> result = new ArrayList<>(labelValues.size());
+
+    for (final LabelValue labelValue : labelValues) {
+      final Label label = labelValue.getLabel();
+      InvariantChecks.checkNotNull(label);
+      result.add(label);
+    }
+
+    return result;
+  }
+
+  public List<Pair<Label, BigInteger>> getLabelAddresses() {
+    final List<Pair<Label, BigInteger>> result = new ArrayList<>(labelValues.size());
+
+    for (final LabelValue labelValue : labelValues) {
+      final Label label = labelValue.getLabel();
+      InvariantChecks.checkNotNull(label);
+
+      final BigInteger address = labelValue.getAddress();
+      InvariantChecks.checkNotNull(address);
+
+      result.add(new Pair<>(label, address));
+    }
+
+    return result;
   }
 
   public List<DataDirective> getDirectives() {
