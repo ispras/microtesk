@@ -214,6 +214,15 @@ public final class LabelManager {
     this.table = new HashMap<>();
   }
 
+  public LabelManager(final LabelManager other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.table = new HashMap<>();
+    for (final Map.Entry<String, List<Target>> e : other.table.entrySet()) {
+      this.table.put(e.getKey(), new ArrayList<>(e.getValue()));
+    }
+  }
+
   /**
    * Adds information about a label to the table of label targets.
    * 
