@@ -80,7 +80,7 @@ public class DataSection {
     return result;
   }
 
-  public List<Pair<Label, BigInteger>> getLabelAddresses() {
+  public List<Pair<Label, BigInteger>> getLabelsWithAddresses() {
     final List<Pair<Label, BigInteger>> result = new ArrayList<>(labelValues.size());
 
     for (final LabelValue labelValue : labelValues) {
