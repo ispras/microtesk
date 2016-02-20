@@ -15,6 +15,10 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
@@ -43,6 +47,21 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
 
     this.label = new Label(other.label);
     this.address = other.address;
+  }
+
+  public static List<LabelValue> copyAll(final List<LabelValue> labelValues) {
+    InvariantChecks.checkNotNull(labelValues);
+
+    if (labelValues.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<LabelValue> result = new ArrayList<>(labelValues.size());
+    for (final LabelValue labelValue : labelValues) {
+      result.add(new LabelValue(labelValue));
+    }
+
+    return result;
   }
 
   private LabelValue(final Label label, final BigInteger address) {
