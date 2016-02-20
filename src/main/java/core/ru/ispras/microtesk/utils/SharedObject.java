@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -93,5 +97,29 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   public final T sharedCopy() {
     InvariantChecks.checkNotNull(copy, "Shared copy is unavailable.");
     return copy;
+  }
+
+  /**
+   * Returns a list that stores shared copies of objects in the specified list.
+   * 
+   * @param objects List of objects to be copied.
+   * @return List that stores shared copies of the specified objects.
+   * 
+   * @throws IllegalArgumentException if any of the objects has not been copied yet.
+   */
+
+  public static <T extends SharedObject<T>> List<T> sharedCopyAll(final List<T> objects) {
+    InvariantChecks.checkNotNull(objects);
+
+    if (objects.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<T> result = new ArrayList<>(objects.size());
+    for (final T object : objects) {
+      result.add(object.sharedCopy());
+    }
+
+    return result;
   }
 }
