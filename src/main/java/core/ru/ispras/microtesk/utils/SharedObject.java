@@ -24,8 +24,8 @@ import ru.ispras.fortress.util.InvariantChecks;
  * When these objects are copied, the shared object must be copied only
  * once and all objects must use a reference to the same new copy.
  *
- * <p>The protocol is implemented in the following way: The owned of the
- * shared object creates a new copy using a copy constructor. A reference
+ * <p>The protocol is implemented in the following way: The owner of the
+ * shared object creates a new copy using the copy constructor. A reference
  * to the new copy is saved in the copied object. Other clients must use
  * the {@code sharedCopy} method to get the reference to the new copy.
  * It is important what all clients get the shared copy before a newer
