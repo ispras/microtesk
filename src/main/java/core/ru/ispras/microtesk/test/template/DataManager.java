@@ -121,7 +121,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(data);
 
     for (final DataDirective directive : data.getDirectives()) {
-      directive.apply(allocator, memoryMap);
+      directive.apply(allocator);
     }
 
     if (data.isSeparateFile()) {

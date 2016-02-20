@@ -41,7 +41,7 @@ public final class DataDirectiveFactory {
   private final String ztermStrText;
   private final String nztermStrText;
 
-  private List<String> preceedingLabels;
+  private List<LabelValue> preceedingLabels;
 
   private DataDirectiveFactory(
       final String headerText,
@@ -180,8 +180,13 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       // Nothing
+    }
+
+    @Override
+    public DataDirective copy() {
+      return this;
     }
 
     @Override
@@ -201,20 +206,75 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class Label extends Text {
+  private static final class Label implements DataDirective {
+    private final LabelValue label;
 
-    private Label(final String name) {
-      super(name);
+    private Label(final LabelValue label) {
+      InvariantChecks.checkNotNull(label);
+      InvariantChecks.checkNotNull(label.getLabel());
+
+      this.label = label;
     }
 
     @Override
     public String getText() {
-      return super.getText() + ":";
+      return label.getLabel().getUniqueName() + ":";
     }
 
     @Override
     public boolean needsIndent() {
       return false;
+    }
+
+    @Override
+    public void apply(final MemoryAllocator allocator) {
+      // Nothing
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new Label(label.sharedCopy());
+    }
+
+    @Override
+    public String toString() {
+      return getText();
+    }
+  }
+
+  private static final class GlobalLabel implements DataDirective {
+    private final LabelValue label;
+
+    private GlobalLabel(final LabelValue label) {
+      InvariantChecks.checkNotNull(label);
+      InvariantChecks.checkNotNull(label.getLabel());
+
+      this.label = label;
+    }
+
+    @Override
+    public String getText() {
+      return String.format(".globl %s", label.getLabel().getUniqueName());
+    }
+
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply(final MemoryAllocator allocator) {
+      // Nothing
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new GlobalLabel(label.sharedCopy());
+    }
+
+    @Override
+    public String toString() {
+      return getText();
     }
   }
 
@@ -237,8 +297,13 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       allocator.setOrigin(origin);
+    }
+
+    @Override
+    public DataDirective copy() {
+      return this;
     }
 
     @Override
@@ -270,8 +335,13 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       allocator.align(alignmentInBytes);
+    }
+
+    @Override
+    public DataDirective copy() {
+      return this;
     }
 
     @Override
@@ -283,9 +353,9 @@ public final class DataDirectiveFactory {
 
   private final class Space implements DataDirective {
     private final int length;
-    private final List<String> labels;
+    private final List<LabelValue> labels;
 
-    private Space(final int length, final List<String> labels) {
+    private Space(final int length, final List<LabelValue> labels) {
       InvariantChecks.checkGreaterThanZero(length);
       InvariantChecks.checkNotNull(labels);
 
@@ -304,9 +374,14 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       final BigInteger address = allocator.allocate(spaceData, length);
-      linkLabelsToAddress(memoryMap, labels, address);
+      linkLabelsToAddress(labels, address);
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new Space(length, LabelValue.sharedCopyAll(labels));
     }
 
     @Override
@@ -318,12 +393,12 @@ public final class DataDirectiveFactory {
   private final class AsciiStrings implements DataDirective {
     private final boolean zeroTerm;
     private final String[] strings;
-    private final List<String> labels;
+    private final List<LabelValue> labels;
 
     private AsciiStrings(
         final boolean zeroTerm,
         final String[] strings,
-        final List<String> labels) {
+        final List<LabelValue> labels) {
       InvariantChecks.checkNotEmpty(strings);
       InvariantChecks.checkNotNull(labels);
 
@@ -350,15 +425,20 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       for (int index = 0; index < strings.length; index++) {
         final BigInteger address =
             allocator.allocateAsciiString(strings[index], zeroTerm);
 
         if (0 == index) {
-          linkLabelsToAddress(memoryMap, labels, address);
+          linkLabelsToAddress(labels, address);
         }
       }
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new AsciiStrings(zeroTerm, strings, LabelValue.sharedCopyAll(labels));
     }
 
     @Override
@@ -370,12 +450,12 @@ public final class DataDirectiveFactory {
   private static final class Data implements DataDirective {
     private final String typeText;
     private final List<BitVector> values;
-    private final List<String> labels;
+    private final List<LabelValue> labels;
 
     private Data(
         final String typeText,
         final List<BitVector> values,
-        final List<String> labels) {
+        final List<LabelValue> labels) {
       InvariantChecks.checkNotNull(typeText);
       InvariantChecks.checkNotEmpty(values);
       InvariantChecks.checkNotNull(labels);
@@ -410,15 +490,20 @@ public final class DataDirectiveFactory {
     }
 
     @Override
-    public void apply(final MemoryAllocator allocator, final MemoryMap memoryMap) {
+    public void apply(final MemoryAllocator allocator) {
       boolean isFirst = true;
       for (final BitVector value : values) {
         final BigInteger address = allocator.allocate(value);
         if (isFirst) {
-          linkLabelsToAddress(memoryMap, labels, address);
+          linkLabelsToAddress(labels, address);
           isFirst = false;
         }
       }
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new Data(typeText, values, LabelValue.sharedCopyAll(labels));
     }
 
     @Override
@@ -439,10 +524,15 @@ public final class DataDirectiveFactory {
     return new Comment(text);
   }
 
-  public DataDirective newLabel(final String name) {
-    InvariantChecks.checkNotNull(name);
-    preceedingLabels = CollectionUtils.appendToList(preceedingLabels, name);
-    return new Label(name);
+  public DataDirective newLabel(final LabelValue label) {
+    InvariantChecks.checkNotNull(label);
+    preceedingLabels = CollectionUtils.appendToList(preceedingLabels, label);
+    return new Label(label);
+  }
+
+  public DataDirective newGlobalLabel(final LabelValue label) {
+    InvariantChecks.checkNotNull(label);
+    return new GlobalLabel(label);
   }
 
   public DataDirective newOrigin(final BigInteger origin) {
@@ -543,12 +633,12 @@ public final class DataDirectiveFactory {
   }
 
   private static void linkLabelsToAddress(
-      final MemoryMap memoryMap,
-      final List<String> labels,
+      final List<LabelValue> labels,
       final BigInteger physicalAddress) {
-    for (final String label : labels) {
+    for (final LabelValue label : labels) {
       final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
-      memoryMap.addLabel(label, virtuaAddress);
+      InvariantChecks.checkFalse(label.hasAddress(), "Address is already assigned.");
+      label.setAddress(virtuaAddress);
     }
   }
 }

@@ -20,6 +20,6 @@ interface DataDirective {
   String getText();
   boolean needsIndent();
 
-  void apply(MemoryAllocator allocator, MemoryMap memoryMap);
+  void apply(MemoryAllocator allocator);
   DataDirective copy();
 }
