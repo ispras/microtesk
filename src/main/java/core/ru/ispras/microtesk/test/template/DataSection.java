@@ -46,26 +46,11 @@ public class DataSection {
   protected DataSection(final DataSection other) {
     InvariantChecks.checkNotNull(other);
 
-    this.labelValues = copyAllLabelValues(other.labelValues);
+    this.labelValues = LabelValue.copyAll(other.labelValues);
     this.directives = copyAllDirectives(other.directives);
 
     this.global = other.global;
     this.separateFile = other.separateFile;
-  }
-
-  private static List<LabelValue> copyAllLabelValues(final List<LabelValue> labelValues) {
-    InvariantChecks.checkNotNull(labelValues);
-
-    if (labelValues.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<LabelValue> result = new ArrayList<>(labelValues.size());
-    for (final LabelValue labelValue : labelValues) {
-      result.add(new LabelValue(labelValue));
-    }
-
-    return result;
   }
 
   private static List<DataDirective> copyAllDirectives(final List<DataDirective> directives) {
