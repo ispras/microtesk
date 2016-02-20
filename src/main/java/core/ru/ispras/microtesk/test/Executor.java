@@ -365,9 +365,13 @@ final class Executor {
             labelRef.setTarget(target.getLabel(), index);
           }
 
-          searchPattern = "<label>0";
-          patchedText = call.getText().replace(searchPattern, uniqueName);
+          if (null != labelRef.getArgumentValue()) {
+            searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+          } else {
+            searchPattern = "<label>0";
+          }
 
+          patchedText = call.getText().replace(searchPattern, uniqueName);
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
         } else {
           if (null != labelRef.getArgumentValue()) {
