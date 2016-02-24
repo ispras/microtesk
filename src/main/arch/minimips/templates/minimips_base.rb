@@ -64,11 +64,30 @@ class MiniMipsBaseTemplate < Template
     # is applicable.
     #
     preparator(:target => 'REG') {
-      # Inserts a named preparator that initializes the high part.
-      prepare target, value(16, 31), :name => 'XXXX0000'
+      # There are two ways (variants) to set the target register:
+      # (1) by reading a constant value from memory and
+      # (2) by using ALU instructions.
+      # The variants have probabilities 25 and 75.
 
-      # Inserts a named preparator that initializes the low part leaving the high part unchanged.
-      prepare target, value(0, 15),  :name => '----XXXX'
+      variant(:bias => 25) {
+        data {
+          # Defines a test-case level constant
+          label :preparator_data
+          word value
+        }
+
+        # Loads the constant to the target register
+        la at, :preparator_data
+        lw target, 0, at
+      }
+
+      variant(:bias => 75) {
+        # Inserts a named preparator that initializes the high part.
+        prepare target, value(16, 31), :name => 'XXXX0000'
+
+        # Inserts a named preparator that initializes the low part leaving the high part unchanged.
+        prepare target, value(0, 15),  :name => '----XXXX'
+      }
     }
 
     #
