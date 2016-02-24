@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -512,6 +513,80 @@ public final class DataDirectiveFactory {
     }
   }
 
+  private static final class DataValue implements DataDirective {
+    private final TypeInfo typeInfo;
+    private final List<Value> values;
+    private final List<LabelValue> labels;
+
+    private DataValue(
+        final TypeInfo typeInfo,
+        final List<Value> values,
+        final List<LabelValue> labels) {
+      InvariantChecks.checkNotNull(typeInfo);
+      InvariantChecks.checkNotEmpty(values);
+      InvariantChecks.checkNotNull(labels);
+
+      this.typeInfo = typeInfo;
+      this.values = values;
+      this.labels = labels;
+    }
+
+    private BitVector toBitVector(final Value value) {
+      return BitVector.valueOf(value.getValue(), typeInfo.type.getBitSize());
+    }
+
+    @Override
+    public String getText() {
+      final StringBuilder sb = new StringBuilder(typeInfo.text);
+
+      boolean isFirst = true;
+      for (final Value value : values) {
+        if (isFirst) { 
+          isFirst = false;
+        } else {
+          sb.append(',');
+        }
+
+        sb.append(" 0x");
+        sb.append(toBitVector(value).toHexString());
+      }
+
+      return sb.toString();
+    }
+
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply(final MemoryAllocator allocator) {
+      boolean isFirst = true;
+      for (final Value value : values) {
+        final BigInteger address = allocator.allocate(toBitVector(value));
+
+        if (isFirst) {
+          linkLabelsToAddress(labels, address);
+          isFirst = false;
+        }
+      }
+    }
+
+    @Override
+    public DataDirective copy() {
+      final List<Value> newValues = new ArrayList<>(values.size());
+      for (final Value value : values) {
+        newValues.add(value.copy());
+      }
+      return new DataValue(typeInfo, newValues, LabelValue.sharedCopyAll(labels));
+    }
+
+    @Override
+    public String toString() {
+      return getText();
+    }
+  }
+
   public DataDirective getHeader() {
     return header;
   }
@@ -601,6 +676,21 @@ public final class DataDirectiveFactory {
     }
 
     final DataDirective result = new Data(typeInfo.text, values, preceedingLabels);
+    preceedingLabels = Collections.emptyList();
+
+    return result;
+  }
+
+  public DataDirective newDataValues(final String typeName, final Value[] values) {
+    final TypeInfo typeInfo = findTypeInfo(typeName);
+    return newDataValues(typeInfo, values);
+  }
+
+  public DataDirective newDataValues(final TypeInfo typeInfo, final Value[] values) {
+    InvariantChecks.checkNotNull(typeInfo);
+    InvariantChecks.checkNotEmpty(values);
+
+    final DataDirective result = new DataValue(typeInfo, Arrays.asList(values), preceedingLabels);
     preceedingLabels = Collections.emptyList();
 
     return result;
