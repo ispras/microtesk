@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
@@ -173,10 +172,6 @@ public final class DataManager {
     final BigInteger physicalAddress = allocator.getCurrentAddress();
     final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
     return virtualAddress;
-  }
-
-  public int newRandom(final int min, final int max) {
-    return Randomizer.get().nextIntRange(min, max);
   }
 
   public void generateData(

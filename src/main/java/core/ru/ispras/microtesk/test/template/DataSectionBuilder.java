@@ -96,8 +96,8 @@ public final class DataSectionBuilder {
     addDirective(directiveFactory.newComment(text));
   }
 
-  public void addData(final String id, final BigInteger[] values) {
-    addDirective(directiveFactory.newData(id, values));
+  public DataValueBuilder addDataValues(final String typeName) {
+    return new DataValueBuilder(typeName);
   }
 
   protected void addGeneratedData(
@@ -115,5 +115,31 @@ public final class DataSectionBuilder {
 
   public DataSection build() {
     return new DataSection(labelValues, directives, global, separateFile);
+  }
+
+  public final class DataValueBuilder {
+    private final String typeName;
+    private final List<Value> values;
+
+    private DataValueBuilder(final String typeName) {
+      InvariantChecks.checkNotNull(typeName);
+
+      this.typeName = typeName;
+      this.values = new ArrayList<>();
+    }
+
+    public void add(final BigInteger value) {
+      InvariantChecks.checkNotNull(value);
+      values.add(new FixedValue(value));
+    }
+
+    public void add(final Value value) {
+      InvariantChecks.checkNotNull(value);
+      values.add(value);
+    }
+
+    public void build() {
+      addDirective(directiveFactory.newDataValues(typeName, values));
+    }
   }
 }

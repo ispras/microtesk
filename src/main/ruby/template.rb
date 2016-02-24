@@ -934,10 +934,7 @@ class DataManager
   end
 
   def rand(from, to)
-    if !from.is_a?(Integer) or !to.is_a?(Integer)
-      raise MTRubyError, "from #{from} and to #{to} must be integers." 
-    end
-    @manager.newRandom from, to
+    @template.rand from, to
   end
 
   def define_type(attrs)
@@ -948,7 +945,11 @@ class DataManager
     @configurer.defineType id, text, type.name, type.args
 
     p = lambda do |*arguments|
-      @builder.addData id, arguments
+      dataBuilder = @builder.addDataValues id
+      arguments.each do |value|
+        dataBuilder.add value
+      end
+      dataBuilder.build
     end
 
     define_method_for DataManager, id, 'type', p
@@ -988,6 +989,10 @@ class DataManager
 
   def comment(value)
     @manager.addComment value
+  end
+  
+  def value(*args)
+    @template.value *args 
   end
 
 end # DataManager

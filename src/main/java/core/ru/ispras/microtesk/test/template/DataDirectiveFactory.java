@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -681,16 +680,16 @@ public final class DataDirectiveFactory {
     return result;
   }
 
-  public DataDirective newDataValues(final String typeName, final Value[] values) {
+  public DataDirective newDataValues(final String typeName, final List<Value> values) {
     final TypeInfo typeInfo = findTypeInfo(typeName);
     return newDataValues(typeInfo, values);
   }
 
-  public DataDirective newDataValues(final TypeInfo typeInfo, final Value[] values) {
+  public DataDirective newDataValues(final TypeInfo typeInfo, final List<Value> values) {
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
-    final DataDirective result = new DataValue(typeInfo, Arrays.asList(values), preceedingLabels);
+    final DataDirective result = new DataValue(typeInfo, values, preceedingLabels);
     preceedingLabels = Collections.emptyList();
 
     return result;

@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class FixedValue implements Value {
   private final BigInteger value;
 
-  private FixedValue(final BigInteger value) {
+  protected FixedValue(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
     this.value = value;
   }
