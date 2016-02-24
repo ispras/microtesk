@@ -359,7 +359,7 @@ public final class TestEngine {
 
       if (dataManager.containsDecls()) {
         printer.printToFile("");
-        printSectionHeader("Data Declarations");
+        printSectionHeader("Data");
         printer.printToFile("");
         printer.printText(dataManager.getDeclText());
       }
