@@ -42,6 +42,11 @@ public final class UnknownImmediateValue implements Value {
     this.value = other.value;
   }
 
+  @Override
+  public Value copy() {
+    return new UnknownImmediateValue(this);
+  }
+
   public boolean isValueSet() {
     return value != null;
   }
