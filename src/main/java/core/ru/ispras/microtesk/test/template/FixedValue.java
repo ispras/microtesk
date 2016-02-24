@@ -27,6 +27,11 @@ public final class FixedValue implements Value {
   }
 
   @Override
+  public Value copy() {
+    return this;
+  }
+
+  @Override
   public BigInteger getValue() {
     return value;
   }
