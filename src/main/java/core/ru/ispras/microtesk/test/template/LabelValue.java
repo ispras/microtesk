@@ -49,6 +49,11 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
     this.address = other.address;
   }
 
+  @Override
+  public Value copy() {
+    return new LabelValue(this);
+  }
+
   public static List<LabelValue> copyAll(final List<LabelValue> labelValues) {
     InvariantChecks.checkNotNull(labelValues);
 
