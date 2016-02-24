@@ -42,6 +42,11 @@ public final class RandomValue implements Value {
     this.value = other.value;
   }
 
+  @Override
+  public Value copy() {
+    return new RandomValue(this);
+  }
+
   public BigInteger getMin() {
     return min;
   }
