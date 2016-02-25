@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,11 +13,6 @@
  */
 
 package ru.ispras.microtesk.model.api.memory;
-
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.BitSet;
@@ -138,7 +133,7 @@ public final class MemoryStorage implements MemoryDevice {
     }
 
     private BitVector getRegionMapping(final int index) {
-      checkBounds(index, REGIONS_IN_BLOCK);
+      InvariantChecks.checkBounds(index, REGIONS_IN_BLOCK);
       final int regionBitPos = index * regionBitSize;
       return BitVector.newMapping(storage, regionBitPos, regionBitSize);
     }
@@ -149,9 +144,9 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   public MemoryStorage(final BigInteger regionCount, final int regionBitSize) {
-    checkNotNull(regionCount);
-    checkGreaterThan(regionCount, BigInteger.ZERO);
-    checkGreaterThanZero(regionBitSize);
+    InvariantChecks.checkNotNull(regionCount);
+    InvariantChecks.checkGreaterThan(regionCount, BigInteger.ZERO);
+    InvariantChecks.checkGreaterThanZero(regionBitSize);
 
     this.id = "";
     this.isReadOnly = false;
@@ -228,7 +223,7 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   MemoryStorage setId(final String id) {
-    checkNotNull(id);
+    InvariantChecks.checkNotNull(id);
     this.id = id;
     return this;
   }
@@ -269,7 +264,7 @@ public final class MemoryStorage implements MemoryDevice {
 
   @Override
   public boolean isInitialized(final BitVector address) {
-    checkNotNull(address);
+    InvariantChecks.checkNotNull(address);
     final Index index = new Index(address, addressBitSize);
 
     final Map<Integer, Block> area = getAddressMap().get(index.area);
@@ -298,7 +293,7 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   public BitVector read(final BitVector address) {
-    checkNotNull(address);
+    InvariantChecks.checkNotNull(address);
     checkAddress(address, false);
 
     final Index index = new Index(address, addressBitSize);
@@ -328,8 +323,8 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   public void write(final BitVector address, final BitVector data) {
-    checkNotNull(address);
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(data);
 
     checkAddress(address, true);
 
