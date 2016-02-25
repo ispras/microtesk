@@ -37,11 +37,12 @@ import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
   private final Printer printer;
+
   private final LabelManager globalLabels;
   private final List<DataDirective> globalData;
+  private final List<DataDirective> localData;
 
   private MemoryAllocator allocator;
-
   private DataDirectiveFactory factory;
   private int dataFileIndex;
 
@@ -50,8 +51,10 @@ public final class DataManager {
 
   public DataManager(final Printer printer) {
     this.printer = printer;
+
     this.globalLabels = new LabelManager();
     this.globalData = new ArrayList<>();
+    this.localData = new ArrayList<>();
 
     this.allocator = null;
 
@@ -145,26 +148,34 @@ public final class DataManager {
   }
 
   public boolean containsDecls() {
-    return !globalData.isEmpty();
+    return !globalData.isEmpty() || !localData.isEmpty();
   }
 
   public LabelManager getGlobalLabels() {
     return globalLabels;
   }
 
-  public String getDeclText() {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(factory.getHeader().getText());
+  public void printData(final Printer printer) {
+    InvariantChecks.checkNotNull(printer);
+
+    Logger.debugHeader("Data");
+    printer.printToFile("");
+    printer.printHeaderToFile("Data");
+    printer.printToFile("");
+
+    final String headerText = factory.getHeader().getText();
+    printer.printToScreen(TestSettings.getIndentToken() + headerText);
+    printer.printToFile(headerText);
 
     for (final DataDirective item : globalData) {
+      final String text = item.getText();
       if (item.needsIndent()) {
-        sb.append(String.format("%n%s%s", TestSettings.getIndentToken(), item.getText()));
+        printer.printToScreen(TestSettings.getIndentToken() + text);
+        printer.printToFile(text);
       } else {
-        sb.append(String.format("%n%s", item.getText()));
+        printer.printTextNoIndent(text);
       }
     }
-
-    return sb.toString();
   }
 
   public BigInteger getAddress() {

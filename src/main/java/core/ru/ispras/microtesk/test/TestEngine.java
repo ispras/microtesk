@@ -358,10 +358,7 @@ public final class TestEngine {
       }
 
       if (dataManager.containsDecls()) {
-        printer.printToFile("");
-        printSectionHeader("Data");
-        printer.printToFile("");
-        printer.printText(dataManager.getDeclText());
+        dataManager.printData(printer);
       }
 
       printer.close();
@@ -651,11 +648,6 @@ public final class TestEngine {
         return fallback;
       }
       return value.toString();
-    }
-
-    private void printSectionHeader(String title) {
-      Logger.debugHeader(title);
-      printer.printHeaderToFile(title);
     }
 
     @Override
