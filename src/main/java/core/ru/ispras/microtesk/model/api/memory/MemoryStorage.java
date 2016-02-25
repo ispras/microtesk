@@ -394,7 +394,7 @@ public final class MemoryStorage implements MemoryDevice {
 
     if (!memorySettings.checkDataAddress(addressValue)) {
       throw new GenerationAbortedException(String.format(
-          "Address 0x%x does not match any memory region.", addressValue));
+          "Address 0x%x does not match any data region.", addressValue));
     }
   }
 }
