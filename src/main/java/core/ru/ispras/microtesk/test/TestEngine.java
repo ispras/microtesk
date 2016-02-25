@@ -359,6 +359,7 @@ public final class TestEngine {
 
       if (dataManager.containsDecls()) {
         dataManager.printData(printer);
+        dataManager.clearLocalData();
       }
 
       printer.close();

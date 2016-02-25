@@ -138,8 +138,13 @@ public final class DataManager {
 
     if (data.isSeparateFile()) {
       saveToFile(data.getDirectives());
-    } else {
+      return;
+    }
+
+    if (data.isGlobal()) {
       globalData.addAll(data.getDirectives());
+    } else {
+      localData.addAll(data.getDirectives());
     }
   }
 
@@ -158,7 +163,7 @@ public final class DataManager {
   public void printData(final Printer printer) {
     InvariantChecks.checkNotNull(printer);
 
-    Logger.debugHeader("Data");
+    Logger.debugHeader("Printing Data to %s", Printer.getLastFileName());
     printer.printToFile("");
     printer.printHeaderToFile("Data");
     printer.printToFile("");
@@ -166,6 +171,12 @@ public final class DataManager {
     final String headerText = factory.getHeader().getText();
     printer.printToScreen(TestSettings.getIndentToken() + headerText);
     printer.printToFile(headerText);
+
+    if (!globalData.isEmpty()) {
+      printer.printToFile("");
+      printer.printSubheaderToFile("Global Data");
+      printer.printToFile("");
+    }
 
     for (final DataDirective item : globalData) {
       final String text = item.getText();
@@ -176,6 +187,26 @@ public final class DataManager {
         printer.printTextNoIndent(text);
       }
     }
+
+    if (!localData.isEmpty()) {
+      printer.printToFile("");
+      printer.printSubheaderToFile("Test Case Data");
+      printer.printToFile("");
+    }
+
+    for (final DataDirective item : localData) {
+      final String text = item.getText();
+      if (item.needsIndent()) {
+        printer.printToScreen(TestSettings.getIndentToken() + text);
+        printer.printToFile(text);
+      } else {
+        printer.printTextNoIndent(text);
+      }
+    }
+  }
+
+  public void clearLocalData() {
+    localData.clear();
   }
 
   public BigInteger getAddress() {
