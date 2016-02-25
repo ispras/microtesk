@@ -54,8 +54,7 @@ final class PhysicalMemory extends Memory {
     if (storage.getDataBitSize() % 8 == 0 && length.compareTo(BigInteger.ONE) >= 0) {
       this.addressableUnitsInData = BigInteger.valueOf(storage.getDataBitSize() / 8);
       this.isLogical = false;
-    }
-    else {
+    } else {
       this.addressableUnitsInData = null;
       this.isLogical = true;
     }
