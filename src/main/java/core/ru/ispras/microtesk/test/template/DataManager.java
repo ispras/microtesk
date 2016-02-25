@@ -40,11 +40,12 @@ public final class DataManager {
 
   private final LabelManager globalLabels;
   private final List<DataDirective> globalData;
-  private final List<DataDirective> localData;
+  private final List<Pair<List<DataDirective>, Integer>> localData;
 
   private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
   private int dataFileIndex;
+  private int testCaseIndex;
 
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
@@ -60,6 +61,7 @@ public final class DataManager {
 
     this.factory = null;
     this.dataFileIndex = 0;
+    this.testCaseIndex = 0;
 
     this.factoryBuilder = null;
     this.dataBuilder = null;
@@ -144,7 +146,7 @@ public final class DataManager {
     if (data.isGlobal()) {
       globalData.addAll(data.getDirectives());
     } else {
-      localData.addAll(data.getDirectives());
+      localData.add(new Pair<>(data.getDirectives(), testCaseIndex));
     }
   }
 
@@ -174,8 +176,7 @@ public final class DataManager {
 
     if (!globalData.isEmpty()) {
       printer.printToFile("");
-      printer.printSubheaderToFile("Global Data");
-      printer.printToFile("");
+      printer.printSeparatorToFile("Global Data");
     }
 
     for (final DataDirective item : globalData) {
@@ -190,23 +191,39 @@ public final class DataManager {
 
     if (!localData.isEmpty()) {
       printer.printToFile("");
-      printer.printSubheaderToFile("Test Case Data");
-      printer.printToFile("");
+      printer.printSeparatorToFile("Test Case Data");
     }
 
-    for (final DataDirective item : localData) {
-      final String text = item.getText();
-      if (item.needsIndent()) {
-        printer.printToScreen(TestSettings.getIndentToken() + text);
-        printer.printToFile(text);
-      } else {
-        printer.printTextNoIndent(text);
+    int currentTestCaseIndex = -1;
+    for (final Pair<List<DataDirective>, Integer> pair : localData) {
+      final List<DataDirective> data = pair.first;
+      final int index = pair.second;
+
+      if (index != currentTestCaseIndex) {
+        currentTestCaseIndex = index;
+        printer.printToFile("");
+        printer.printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
+        printer.printToFile("");
+      }
+
+      for (final DataDirective item : data) {
+        final String text = item.getText();
+        if (item.needsIndent()) {
+          printer.printToScreen(TestSettings.getIndentToken() + text);
+          printer.printToFile(text);
+        } else {
+          printer.printTextNoIndent(text);
+        }
       }
     }
   }
 
   public void clearLocalData() {
     localData.clear();
+  }
+
+  public void setTestCaseIndex(final int value) {
+    testCaseIndex = value;
   }
 
   public BigInteger getAddress() {

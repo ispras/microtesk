@@ -450,6 +450,8 @@ public final class TestEngine {
           }
 
           final int testCaseIndex = STATISTICS.testCaseNumber;
+          dataManager.setTestCaseIndex(testCaseIndex);
+
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
           Logger.debugHeader("Generating Data for %s", sequenceId);
 
