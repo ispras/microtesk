@@ -25,60 +25,40 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 
 public final class MemoryRegion {
-  private final BigInteger base;
-  private BigInteger from;
+  private final BigInteger from;
   private BigInteger to;
 
   public MemoryRegion(
-      final BigInteger base,
       final BigInteger from,
       final BigInteger to) {
-    InvariantChecks.checkNotNull(base);
-    InvariantChecks.checkGreaterOrEq(base, BigInteger.ZERO);
-
     InvariantChecks.checkNotNull(from);
-    InvariantChecks.checkGreaterOrEq(from, base);
+    InvariantChecks.checkGreaterOrEq(from, BigInteger.ZERO);
 
     InvariantChecks.checkNotNull(to);
-    InvariantChecks.checkGreaterOrEq(to, base);
-
     InvariantChecks.checkGreaterOrEq(to, from);
 
-    this.base = base;
     this.from = from;
     this.to = to;
-  }
-
-  public BigInteger getBase() {
-    return base;
   }
 
   public BigInteger getFrom() {
     return from;
   }
 
-  public void setFrom(final BigInteger value) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkGreaterOrEq(value, base);
-    InvariantChecks.checkGreaterOrEq(from, value);
-
-    this.from = value;
-  }
-
   public BigInteger getTo() {
     return to;
   }
 
-  public void setTo(final BigInteger value) {
+  public void growTo(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkGreaterOrEq(value, to);
+    InvariantChecks.checkTrue(isGreaterThanTo(value));
 
     this.to = value;
   }
 
-  public boolean isMatch(final BigInteger value) {
-    InvariantChecks.checkNotNull(value);
-    return from.compareTo(value) <= 0 && value.compareTo(to) <= 0;
+  public boolean isGreaterThanTo(final BigInteger address) {
+    InvariantChecks.checkNotNull(address);
+    return address.compareTo(to) > 0;
   }
 
   public boolean isOverlap(final MemoryRegion other) {
@@ -88,6 +68,6 @@ public final class MemoryRegion {
 
   @Override
   public String toString() {
-    return String.format("Region: [0x%x..0x%x], Base: 0x%x", from, to, base);
+    return String.format("[0x%x..0x%x]", from, to);
   }
 }
