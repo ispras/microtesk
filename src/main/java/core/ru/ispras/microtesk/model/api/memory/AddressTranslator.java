@@ -87,6 +87,11 @@ public final class AddressTranslator {
     return baseVirtualAddress.add(origin);
   }
 
+  public BigInteger virtualToOrigin(final BigInteger va) {
+    InvariantChecks.checkNotNull(va);
+    return va.subtract(baseVirtualAddress);
+  }
+
   public BigInteger physicalToVirtual(final BigInteger pa) {
     InvariantChecks.checkNotNull(pa);
 
