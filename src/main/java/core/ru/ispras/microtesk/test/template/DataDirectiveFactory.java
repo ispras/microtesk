@@ -312,6 +312,52 @@ public final class DataDirectiveFactory {
     }
   }
 
+  private static final class OriginRelative implements DataDirective {
+    private final BigInteger delta;
+    private BigInteger origin;
+
+    private OriginRelative(final BigInteger delta) {
+      this(delta, null);
+    }
+
+    private OriginRelative(final BigInteger delta, final BigInteger origin) {
+      InvariantChecks.checkNotNull(delta);
+      this.delta = delta;
+      this.origin = origin;
+    }
+
+    @Override
+    public String getText() {
+      InvariantChecks.checkNotNull(origin, "Origin is not initialized.");
+      return String.format(TestSettings.getOriginFormat(), origin);
+    }
+
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply(final MemoryAllocator allocator) {
+      InvariantChecks.checkTrue(null == origin, "Directive is already applied.");
+      final BigInteger physicalAddress = allocator.getCurrentAddress().add(delta);
+      allocator.setCurrentAddress(physicalAddress);
+      origin = AddressTranslator.get().physicalToOrigin(physicalAddress);
+    }
+
+    @Override
+    public DataDirective copy() {
+      return new OriginRelative(delta, origin);
+    }
+
+    @Override
+    public String toString() {
+      return origin != null ?
+          getText() :
+          String.format(TestSettings.getOriginFormat() + " (relative)", delta);
+    }
+  }
+
   private static final class Align implements DataDirective {
     private final BigInteger alignment;
     private final BigInteger alignmentInBytes;
@@ -611,6 +657,10 @@ public final class DataDirectiveFactory {
 
   public DataDirective newOrigin(final BigInteger origin) {
     return new Origin(origin);
+  }
+
+  public DataDirective newOriginRelative(final BigInteger delta) {
+    return new OriginRelative(delta);
   }
 
   public DataDirective newAlign(final BigInteger alignment, final BigInteger alignmentInBytes) {
