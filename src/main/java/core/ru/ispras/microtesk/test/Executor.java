@@ -389,10 +389,18 @@ final class Executor {
           patchedText = call.getText().replace(searchPattern, uniqueName);
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
         } else {
+          /*
           throw new GenerationAbortedException(String.format(
               "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
               "is not accessible in the scope of the current test sequence.",
               source.getName(), call.getText(), call.getAddress()));
+          */
+
+          // For unrecognized labels
+          uniqueName = source.getName();
+          searchPattern = "<label>0";
+
+          patchedText = call.getText().replace(searchPattern, uniqueName);
         }
 
         call.setText(patchedText);
