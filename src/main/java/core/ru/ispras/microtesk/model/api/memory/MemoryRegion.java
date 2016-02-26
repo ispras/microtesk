@@ -51,14 +51,14 @@ public final class MemoryRegion {
 
   public void growTo(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(isGreaterThanTo(value));
+    InvariantChecks.checkTrue(isGreater(value));
 
     this.to = value;
   }
 
-  public boolean isGreaterThanTo(final BigInteger address) {
+  public boolean isGreater(final BigInteger address) {
     InvariantChecks.checkNotNull(address);
-    return address.compareTo(to) > 0;
+    return address.compareTo(to) >= 0;
   }
 
   public boolean isOverlap(final MemoryRegion other) {
