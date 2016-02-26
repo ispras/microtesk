@@ -935,7 +935,12 @@ public final class Template {
 
   public void setOrigin(final BigInteger origin) {
     Logger.debug("Set Origin to 0x%x", origin);
-    callBuilder.setOrigin(origin);
+    callBuilder.setOrigin(origin, false);
+  }
+
+  public void setRelativeOrigin(final BigInteger delta) {
+    Logger.debug("Set Relative Origin to 0x%x", delta);
+    callBuilder.setOrigin(delta, true);
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {

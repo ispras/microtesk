@@ -28,6 +28,7 @@ public final class ConcreteCall {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
   private final InstructionCall executable;
+  private final boolean relativeOrigin; 
   private final BigInteger origin;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
@@ -63,6 +64,7 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
+    this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
@@ -82,6 +84,7 @@ public final class ConcreteCall {
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
+    this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
@@ -96,6 +99,7 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
+    this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
@@ -111,6 +115,7 @@ public final class ConcreteCall {
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
+    this.relativeOrigin = false;
     this.origin = null;
     this.alignment = null;
     this.alignmentInBytes = null;
@@ -190,7 +195,9 @@ public final class ConcreteCall {
     long thisAddress = value;
 
     if (origin != null) {
-      thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
+      thisAddress = relativeOrigin ?
+          value + origin.longValue() :
+          AddressTranslator.get().virtualFromOrigin(origin).longValue();
     }
 
     if (alignmentInBytes != null) {
@@ -206,7 +213,15 @@ public final class ConcreteCall {
   }
 
   public BigInteger getOrigin() {
-    return origin;
+    if (null == origin) {
+      return null;
+    }
+
+    if (!relativeOrigin) {
+      return origin;
+    }
+
+    return AddressTranslator.get().virtualToOrigin(BigInteger.valueOf(address));
   }
 
   public BigInteger getAlignment() {

@@ -38,6 +38,7 @@ public final class Call {
   private final boolean store;
   private final int blockSize;
 
+  private final boolean relativeOrigin;
   private final BigInteger origin;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
@@ -54,11 +55,13 @@ public final class Call {
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
+        false,
         null,
         null,
         null,
         null,
-        data);
+        data
+        );
   }
 
   // TODO:
@@ -71,6 +74,7 @@ public final class Call {
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
+        false,
         null,
         null,
         null,
@@ -93,11 +97,13 @@ public final class Call {
         Collections.singletonList(
             new Output(false, true,
                 String.format("%s %s", TestSettings.getCommentToken(), comment))),
+        false,
         null,
         null,
         null,
         null,
-        null);
+        null
+        );
   }
 
   public Call(
@@ -106,6 +112,7 @@ public final class Call {
       final List<Label> labels,
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
+      final boolean relativeOrigin,
       final BigInteger origin,
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
@@ -143,6 +150,7 @@ public final class Call {
       this.blockSize = 0;
     }
 
+    this.relativeOrigin = relativeOrigin;
     this.origin = origin;
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
@@ -170,6 +178,7 @@ public final class Call {
     this.store = other.store;
     this.blockSize = other.blockSize;
 
+    this.relativeOrigin = other.relativeOrigin;
     this.origin = other.origin;
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
@@ -264,6 +273,10 @@ public final class Call {
     }
 
     return reference.getReference();
+  }
+
+  public boolean isRelativeOrigin() {
+    return relativeOrigin;
   }
 
   public BigInteger getOrigin() {

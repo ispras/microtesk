@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -30,6 +30,7 @@ public final class CallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
+  private boolean relativeOrigin;
   private BigInteger origin;
   private BigInteger alignment;
   private BigInteger alignmentInBytes;
@@ -87,9 +88,10 @@ public final class CallBuilder {
     outputs.add(output);
   }
 
-  public void setOrigin(final BigInteger address) {
-    checkNotNull(address);
-    origin = address;
+  public void setOrigin(final BigInteger value, final boolean isRelative) {
+    checkNotNull(value);
+    origin = value;
+    relativeOrigin = isRelative;
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
@@ -112,10 +114,12 @@ public final class CallBuilder {
         labels,
         labelRefs,
         outputs,
+        relativeOrigin,
         origin,
         alignment,
         alignmentInBytes,
         preparatorReference,
-        null);
+        null
+        );
   }
 }
