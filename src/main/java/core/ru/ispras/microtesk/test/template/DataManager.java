@@ -42,6 +42,7 @@ public final class DataManager {
   private final List<DataDirective> globalData;
   private final List<Pair<List<DataDirective>, Integer>> localData;
 
+  private BigInteger baseVirtualAddress;
   private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
   private int dataFileIndex;
@@ -57,6 +58,7 @@ public final class DataManager {
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
 
+    this.baseVirtualAddress = null;
     this.allocator = null;
 
     this.factory = null;
@@ -65,6 +67,11 @@ public final class DataManager {
 
     this.factoryBuilder = null;
     this.dataBuilder = null;
+  }
+
+  public BigInteger getBaseVirtualAddress() {
+    InvariantChecks.checkNotNull(baseVirtualAddress, "Data is not configured");
+    return baseVirtualAddress;
   }
 
   public DataDirectiveFactory.Builder beginConfig(
@@ -78,13 +85,15 @@ public final class DataManager {
 
     checkReinitialized();
 
-    final Memory memory = Memory.get(target);
+    this.baseVirtualAddress = baseVirtualAddress != null ?
+        baseVirtualAddress : TestSettings.getBaseVirtualAddress();
 
     final BigInteger basePhysicalAddressForAllocation =
         null != baseVirtualAddress ?
         AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
         TestSettings.getBasePhysicalAddress();
 
+    final Memory memory = Memory.get(target);
     allocator = memory.newAllocator(
         addressableUnitBitSize, basePhysicalAddressForAllocation);
 
