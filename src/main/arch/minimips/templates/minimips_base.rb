@@ -70,13 +70,15 @@ class MiniMipsBaseTemplate < Template
       # The variants have probabilities 25 and 75.
 
       variant(:bias => 25) {
+        # Defines a test-case level constant.
         data {
-          # Defines a test-case level constant
+          # Sets relative origin: 0x10 bytes from the latest allocation.
+          org :delta => 0x10
           label :preparator_data
           word value
         }
 
-        # Loads the constant to the target register
+        # Loads the constant to the target register.
         la at, :preparator_data
         lw target, 0, at
       }
