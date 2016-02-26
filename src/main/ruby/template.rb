@@ -922,7 +922,17 @@ class DataManager
   end
 
   def org(origin)
-    @builder.setOrigin origin
+    if origin.is_a?(Integer)
+      @builder.setOrigin origin
+    elsif origin.is_a?(Hash)
+      delta = get_attribute origin, :delta
+      if !delta.is_a?(Integer)
+        raise MTRubyError, "delta (#{delta}) must be an Integer."
+      end
+      @builder.setRelativeOrigin delta
+    else
+      raise MTRubyError, "origin (#{origin}) must be an Integer or a Hash."
+    end
   end
 
   def type(*args)
