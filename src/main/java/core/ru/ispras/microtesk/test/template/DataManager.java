@@ -69,11 +69,6 @@ public final class DataManager {
     this.dataBuilder = null;
   }
 
-  public BigInteger getBaseVirtualAddress() {
-    InvariantChecks.checkNotNull(baseVirtualAddress, "Data is not configured");
-    return baseVirtualAddress;
-  }
-
   public DataDirectiveFactory.Builder beginConfig(
       final String text,
       final String target,
@@ -240,6 +235,12 @@ public final class DataManager {
     final BigInteger physicalAddress = allocator.getCurrentAddress();
     final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
     return virtualAddress;
+  }
+
+  public BigInteger getBaseAddress() {
+    checkInitialized();
+    InvariantChecks.checkNotNull(baseVirtualAddress);
+    return baseVirtualAddress;
   }
 
   public void generateData(
