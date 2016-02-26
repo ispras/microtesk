@@ -70,6 +70,15 @@ public final class DataSectionBuilder {
   }
 
   /**
+   * Sets allocation origin related to the current address. The origin
+   * value is calculated depending on the context. Inserts the ".org"
+   * directive in the test program.
+   */
+  public void setRelativeOrigin(final BigInteger delta) {
+    addDirective(directiveFactory.newOriginRelative(delta));
+  }
+
+  /**
    * @param value Alignment amount in addressable units.
    */
   public void align(final BigInteger value, final BigInteger valueInBytes) {
