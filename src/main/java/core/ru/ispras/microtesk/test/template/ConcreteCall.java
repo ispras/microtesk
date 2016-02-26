@@ -21,7 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ExecutionException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.test.TestSettings;
+import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 
 public final class ConcreteCall {
   private final List<Label> labels;
@@ -190,7 +190,7 @@ public final class ConcreteCall {
     long thisAddress = value;
 
     if (origin != null) {
-      thisAddress = TestSettings.getBaseVirtualAddress().longValue() + origin.longValue();
+      thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
     }
 
     if (alignmentInBytes != null) {
