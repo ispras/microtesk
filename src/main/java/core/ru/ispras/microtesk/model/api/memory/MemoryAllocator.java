@@ -79,6 +79,10 @@ public final class MemoryAllocator {
     this.currentAddress = baseAddress;
   }
 
+  public BigInteger getBaseAddress() {
+    return baseAddress;
+  }
+
   /**
    * Returns the current address.
    * 
