@@ -6,11 +6,18 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/02/26 MicroTESK 2.3.24 beta
+
+ The new build contains the following changes:
+
+ - Test Templates: support for test case level data sections
+ - Test Templates: support for relative origins (.org :delta => 0xXXXX)
+
 2016/02/20 MicroTESK 2.3.23 beta
 
  The new build contains the following changes:
 
-- Several bug fixes and general improvements
+ - Several bug fixes and general improvements
 
 2016/02/12 MicroTESK 2.3.22 beta
 
