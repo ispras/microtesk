@@ -340,9 +340,17 @@ public final class DataDirectiveFactory {
     @Override
     public void apply(final MemoryAllocator allocator) {
       InvariantChecks.checkTrue(null == origin, "Directive is already applied.");
+
       final BigInteger physicalAddress = allocator.getCurrentAddress().add(delta);
       allocator.setCurrentAddress(physicalAddress);
-      origin = AddressTranslator.get().physicalToOrigin(physicalAddress);
+
+      final BigInteger currentOrigin =
+          AddressTranslator.get().physicalToOrigin(physicalAddress);
+
+      final BigInteger baseOrigin = 
+          AddressTranslator.get().physicalToOrigin(allocator.getBaseAddress());
+
+      origin = currentOrigin.subtract(baseOrigin);
     }
 
     @Override
