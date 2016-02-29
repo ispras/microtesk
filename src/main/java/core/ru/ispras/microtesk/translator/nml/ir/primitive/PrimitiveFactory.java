@@ -63,6 +63,10 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
     }
 
+    if (null != retExpr && null == retExpr.getNodeInfo().getType()) {
+      raiseError(where, "Return value is untyped. Use casts to enforce a certain type.");
+    }
+
     final MemoryAccessStatus memoryAccessStatus =
         new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
 
