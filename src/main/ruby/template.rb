@@ -704,13 +704,19 @@ class Template
       raise MTRubyError, "Data configuration is not defined"
     end
 
+    if attrs.has_key?(:global)
+      global = attrs[:global]
+    else
+      global = false
+    end
+
     if attrs.has_key?(:separate_file)
       separate_file = attrs[:separate_file]
     else
       separate_file = false
     end
 
-    @data_manager.beginData separate_file
+    @data_manager.beginData global, separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
   end
@@ -917,8 +923,8 @@ class DataManager
     @configurer = nil
   end
 
-  def beginData(separate_file)
-    @builder = @template.template.beginData separate_file
+  def beginData(global, separate_file)
+    @builder = @template.template.beginData global, separate_file
   end
 
   def endData

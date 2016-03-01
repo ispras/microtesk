@@ -906,16 +906,17 @@ public final class Template {
     isExceptionHandlerDefined = true;
   }
 
-  public DataSectionBuilder beginData(final boolean isSeparateFile) {
+  public DataSectionBuilder beginData(final boolean isGlobalArgument, final boolean isSeparateFile) {
     endBuildingCall();
 
-    final boolean isGlobal =
+    final boolean isGlobalContext =
         openBlockCount == 0 &&
         preparatorBuilder == null &&
         bufferPreparatorBuilder == null &&
         streamPreparatorBuilder == null &&
         exceptionHandlerBuilder == null;
 
+    final boolean isGlobal = isGlobalContext || isGlobalArgument;
     Logger.debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
     return dataManager.beginData(getCurrentBlockId(), isGlobal, isSeparateFile);
   }
