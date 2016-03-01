@@ -6,12 +6,12 @@
 \usepackage[T2A]{fontenc}
 \usepackage[english]{babel}
 \usepackage{vmargin}
-\usepackage{listings}
 \setpapersize{A4}
 \usepackage{indentfirst}
 \usepackage{graphicx}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page Headers
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -20,6 +20,10 @@
 \rfoot{\thepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Listing Style
+
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
 
 \lstset{
  language=C,
@@ -32,7 +36,18 @@
        var, hit, path, transition, guard},
  emphstyle={\bfseries}}
 
+\usepackage{listings}
+\lstloadlanguages{Ruby}
+\lstset{
+basicstyle=\ttfamily\footnotesize\color{black},
+commentstyle = \ttfamily\color{green},
+keywordstyle=\bfseries\color{blue},
+stringstyle=\color{blue},
+basewidth = {.48em}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Links and References
 
 \usepackage{hyperref}
 
@@ -247,26 +262,35 @@ Here is the list of options:
 
 \section{Introduction}
 
-MicroTESK generates test programs on the basis of \textbf{\textit{test templates} that provide
-an abstract description of scenarios to be reproduced by the generated programs.
-Test templates are created using the test template description language. It is
-a Ruby-based domain-specific language that provides facilities to describe test
-cases using symbolic names (that refer to a set of data satisfying certain
-conditions) instead of concrete input data and to manage the structure of the
-generated test programs. The language is implemented as a library that includes
-functionality for describing test templates and for further processing these test
-templates to produce a test program. MicroTESK uses the JRuby interpreter to process
-Ruby files. This allows Ruby libraries to interact with other components of MicroTESK
-written in Java.
+MicroTESK generates test programs on the basis of \emph{test templates} that describe
+test programs to be generated in an abstract way. Test templates are created using
+special Ruby-based test template description language. The language is implemented as
+a library that includes provides facilities for describing test cases.
+
+MicroTESK uses the JRuby interpreter to process test templates. This allows Ruby libraries
+to interact with other components of MicroTESK written in Java.
+
+Test templates are processed in two stages:
+\begin{itemize}
+\item Ruby code is executed to build the internal representation (a hierarchy of Java objects)
+      of the test template.
+\item The internal representation is processed with various engines to generate test cases which
+      are then simulated on the reference model and printed to files.
+\end{itemize}
+
+This chapter describes facilities of the test template description language and supported test
+generation engines.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\hyphenation{Template}
+
 \section{Test Template Structure}
 
-A test template is implemented as a class inherited from the Template library class
+A test template is implemented as a class inherited from the \texttt{Template} library class
 that provides access to all features of the library. Information on the location of
-the Template class is stored in the TEMPLATE environment variable. So, the definition
-of a test template class looks like this:
+the \texttt{Template} class is stored in the \texttt{TEMPLATE} environment variable.
+Thus, the definition of a test template class looks like this:
 
 \begin{lstlisting}[language=ruby]
 require ENV['TEMPLATE']
@@ -277,16 +301,16 @@ class MyTemplate < Template
 Test template classes should contain implementations of the following methods:
 
 \begin{enumerate}
-  \item initialize (optional) - specifies settings for the given test template;
-  \item pre (optional) - specifies the initialization code for the test program;
-  \item post (optional) - specifies the finalization code for the test program;
-  \item run - specifies the main code of the test program (test cases).
+  \item \textbf{initialize} (optional) - specifies settings for the given test template;
+  \item \textbf{pre} (optional) - specifies the initialization code for test programs;
+  \item \textbf{post} (optional) - specifies the finalization code for test programs;
+  \item \textbf{run} - specifies the main code of test programs (test cases).
 \end{enumerate}
 
 The definitions of optional methods can be skipped. In this case, the default
 implementations provided by the parent class will be used. The default implementation
-of the initialize method initializes the settings with default values. The default
-implementations of the pre and post methods do nothing.
+of the \texttt{initialize} method initializes the settings with default values. The default
+implementations of the \texttt{pre} and \texttt{post} methods do nothing.
 
 The full interface of a test template looks as follows:
 
@@ -321,8 +345,8 @@ end
 
 It is possible to reuse code of existing test templates in other test templates.
 To do this, you need to subclass the template you want to reuse instead of the
-Template class. For example, the MyTemplate class below reuses code from the
-MyPrepost class that provides initialization and finalization code for similar
+\texttt{Template} class. For example, the \texttt{MyTemplate} class below reuses code from
+the \texttt{MyPrepost} class that provides initialization and finalization code for similar
 test templates.
 
 \begin{lstlisting}[language=ruby]
@@ -332,7 +356,50 @@ require_relative 'MyPrepost'
 class MyTemplate < MyPrepost
 
   def run
-  ... 
+    ... 
+  end
+
+end
+\end{lstlisting}
+
+Another way to reuse code is creating code libraries with methods that can be called
+by test templates. A code library is defined as a Ruby module file and has the following
+structure:
+
+\begin{lstlisting}[language=ruby]
+module MyLibrary
+
+  def method1
+    ...
+  end
+
+  def method2(arg1, arg2)
+    ...
+  end
+
+  def method3(arg1, arg2, arg3)
+    ...
+  end
+
+end
+\end{lstlisting}
+
+To be able to use utility methods \texttt{method1}, \texttt{method2} and \texttt{method3}
+in a test template, the \texttt{MyLibrary} module must be included in that test template as a mixin.
+Once this is done, all methods of the library are available in the test template.
+Here is an example:
+
+\begin{lstlisting}[language=ruby]
+require ENV['TEMPLATE']
+require_relative 'my_library'
+
+class MyTemplate < Template
+  include MyLibrary
+
+  def run
+    method1
+    method2 arg1, arg2
+    method3 arg1, arg2, arg3
   end
 
 end
@@ -345,14 +412,15 @@ end
 Test templates use the following settings:
 
 \begin{enumerate}
-  \item Starting characters for single-line comments in the test program;
-  \item Starting characters for multi-line comments in the test program;
-  \item Terminating characters for multi-line comments in the test program;
+  \item Starting characters for single-line comments;
+  \item Starting characters for multi-line comments;
+  \item Terminating characters for multi-line comments;
   \item Indentation token;
   \item Token used in separator lines.
 \end{enumerate}
 
-Here is how these settings are initialized with default values in the Template class:
+Here is how these settings are initialized with default values in
+the \texttt{Template} class:
 
 \begin{lstlisting}[language=ruby]
 @sl_comment_starts_with = "//"
@@ -363,18 +431,20 @@ Here is how these settings are initialized with default values in the Template c
 @separator_token = "="
 \end{lstlisting}
 
-The settings can be overridden in the initialize method of a test template. For example:
+The settings can be overridden in the \texttt{initialize} method of a test template.
+For example:
 
 \begin{lstlisting}[language=ruby]
 class MyTemplate < Template
 
   def initialize
     super
+
     @sl_comment_starts_with = ";" 
     @ml_comment_starts_with = "/="
-    @ml_comment_ends_with   = "=/"
+    @ml_comment_ends_with = "=/"
 
-    @indent_token    = "  "
+    @indent_token = "  "
     @separator_token = "*" 
   end
   ...
@@ -386,14 +456,15 @@ end
 \section{Data Definitions}
 
 Describing data requires the use of assembler-specific directives. Information on
-these directives in not included in ISA specifications and should be provided in test
+these directives is not included in ISA specifications and should be provided in test
 templates. It includes textual format of data directives and mappings between nML and
 assembler data types used by these directives. Configuration information on data
-directives is specified in the data{\_}config block, which is usually placed in the
-pre method. Only one such block per template is allowed. Here is an example:
+directives is specified in the \texttt{data{\_}config} block, which is usually placed
+in the \texttt{pre} method. Only one such block per a template is allowed.
+Here is an example:
 
 \begin{lstlisting}[language=ruby]
-data_config(:text => '.data', :target => 'M', :addressableSize => 8) {
+data_config(:text => '.data', :target => 'M') {
   define_type :id => :byte, :text => '.byte', :type => type('card', 8)
   define_type :id => :half, :text => '.half', :type => type('card', 16)
   define_type :id => :word, :text => '.word', :type => type('card', 32)
@@ -404,43 +475,55 @@ data_config(:text => '.data', :target => 'M', :addressableSize => 8) {
 }
 \end{lstlisting}
 
-The block takes the following parameters (compulsory):
+The block takes the following parameters:
 
-\begin{enumerate}
-  \item text - specifies the keyword that marks the beginning of the data section
-        of the generated test program;
+\begin{itemize}
+  \item \texttt{text} (compulsory) - specifies the keyword that marks the beginning of
+        the data section in the generated test program;
 
-  \item target - specifies the memory array defined in the nML specification to
-        which data will be placed during simulation;
+  \item \texttt{target} (compulsory) - specifies the memory array defined in the nML
+        specification to which data will be placed during simulation;
 
-  \item addressableSize - specifies the size (in bits) of addressable memory locations.
-\end{enumerate}
+  \item \texttt{base{\_}virtual{\_}address} (optional) - specifies the base virtual
+        address where data allocation starts. Default value is 0;
+
+  \item \texttt{item{\_}size} (optional) - specifies the size of a memory location unit
+        pointed by address. Default value is 8 bits (or 1 byte).
+\end{itemize}
 
 To set up particular directives, the language provides special methods that must
-be called inside the block. All the methods share two common parameters: id and text.
-The first specifies the keyword to be used in a test template to address the
-directive and the second specifies how it will be printed in the test program. The
-current version of MicroTESK provides the following methods:
+be called inside the block. All the methods share two common parameters:
+\texttt{id} and \texttt{text}. The first specifies the keyword to be used in a
+test template to address the directive and the second specifies how it will be
+printed in the test program. The current version of MicroTESK provides the following methods:
 
 \begin{enumerate}
-  \item define{\_}type - defines a directive to allocate memory for a data element
+  \item \texttt{define{\_}type} - defines a directive to allocate memory for a data element
         of an nML data type specified by the type parameter;
 
-  \item define{\_}space - defines a directive to allocate memory (one or more
+  \item \texttt{define{\_}space} - defines a directive to allocate memory (one or more
         addressable locations) filled with a default value specified by the
         fillWith parameter;
 
-  \item define{\_}ascii{\_}string - defines a directive to allocate memory for an
+  \item \texttt{define{\_}ascii{\_}string} - defines a directive to allocate memory for an
         ASCII string terminated or not terminated with zero depending on the
-        zeroTerm parameter.
+        \texttt{zeroTerm} parameter.
 \end{enumerate}
 
-The above example defines the directives byte, half, word, ascii (non-zero terminated
-string) and asciiz (zero terminated string) that place data in the memory array M
-(specified in nML using the mem keyword). The size of an addressable memory location
-is 8 bits (or 1 byte).
+The above example defines the directives \texttt{byte}, \texttt{half}, \texttt{word},
+\texttt{ascii} (non-zero terminated string) and \texttt{asciiz} (zero terminated string)
+that place data in the memory array \texttt{M} (specified in nML using the \texttt{mem} keyword).
+The size of an addressable memory location is 1 byte.
 
-After all data directives are configured, data can be defined using the data block:
+After all data directives are configured, data can be defined using the \texttt{data} block,
+which has two optional parameters:
+
+\begin{itemize}
+\item \texttt{global} - a boolean value that states that the data definition should be
+      treated as global.
+\item \texttt{separate{\_}file} - a boolean value that states that the generated data
+      definitions should be placed in a separate source code file.
+\end{itemize}
 
 \begin{lstlisting}[language=ruby]
 data {
