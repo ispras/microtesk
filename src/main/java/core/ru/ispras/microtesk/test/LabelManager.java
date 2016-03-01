@@ -353,4 +353,9 @@ public final class LabelManager {
         chosenItem.target, sb
         );
   }
+
+  @Override
+  public String toString() {
+    return String.format("LabelManager [table=%s]", table);
+  }
 }
