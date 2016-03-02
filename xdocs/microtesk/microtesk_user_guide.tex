@@ -292,7 +292,7 @@ Here is the list of options:\\
 
 \begin{tabular}{ | p{4cm} | p{1cm} | p{5cm} | p{2.5cm} |}
   \hline
-  Full name & Short name & Description & Requires \\ \hline
+  \textbf{Full name} & \textbf{Short name} & \textbf{Description} & \textbf{Requires} \\ \hline
   --help & -h & Shows help message & \\ \hline
   --verbose & -v & Enables printing diagnostic messages & \\ \hline
   --translate & -t & Translates formal specifications & \\ \hline
@@ -326,6 +326,9 @@ Here is the list of options:\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Settings File}
 
+Default values of options are stored in the \texttt{<MICROTESK{\_}HOME>/etc/settings.xml}
+configururation file that has the following format:
+
 \begin{lstlisting}[language=ruby]
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
@@ -342,10 +345,10 @@ Here is the list of options:\\
   <setting name="comments-debug" value=""/>
   <setting
     name="arch-dirs" 
-    value="cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml:arm=arch/arm/settings.xml"
+    value="cpu=arch/demo/cpu/settings.xml:minimips=arch/minimips/settings.xml"
   />
 </settings>
-\begin{end}
+\end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
