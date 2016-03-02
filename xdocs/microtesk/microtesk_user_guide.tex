@@ -638,11 +638,23 @@ The \texttt{data} construct has two optional parameters:
 \item \texttt{global} - a boolean value that states that the data definition should be
       treated as global regardless of where it is defined.
 \item \texttt{separate{\_}file} - a boolean value that states that the generated data
-      definitions should be placed in a separate source code file.
+      definitions should be placed into a separate source code file.
 \end{itemize}
+
+Here is the list of methods that can be used in \texttt{data} sections:
+
+\begin{itemize}
+\item \texttt{align}
+\item \texttt{org}
+\item \texttt{space}
+\end{itemize}
+
+Here is an example:
 
 \begin{lstlisting}[language=ruby]
 data {
+  org 0x00001000
+
   label :data1
   byte 1, 2, 3, 4
 
@@ -666,6 +678,40 @@ In this example, data is placed into memory. Data items are aligned by their siz
 (1 byte, 2 bytes, 4 bytes). Strings are allocated at the byte border (addressable
 unit). For simplicity, in the current version of MicroTESK, memory is allocated
 starting from the address 0 (in the memory array of the executable model).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Preparators}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Test Engine Branch}
+
+\section{Parameters}
+
+\begin{itemize}
+\item \emph{branch{\_}exec{\_}limit} is an upper bound for the number of executions of a single branch instruction;
+\item \emph{trace{\_}count{\_}limit} is an upper bound for the number of execution traces to be returned.
+\end{itemize}
+
+More information on the parameters is given in the “Execution Traces Enumeration” section.
+
+\section{Description}
+
+Functioning of the \emph{branch} test engine includes the following steps:
+
+\begin{enumerate}
+  \item construction of a \emph{branch structure} of an abstract test sequence;
+  \item enumeration of \emph{execution traces} of the branch structure;
+  \item concretization of the test sequence for each execution trace:
+  \begin{enumerate}
+    \item construction of a \emph{control} code;
+    \item construction of an \emph{initialization} code.
+  \end{enumerate}
+\end{enumerate}
+
+Let \emph{D} be the size of the delay slot for an architecture under scrutiny (e.g., \emph{D}=1
+for MIPS, and \emph{D}=0 for ARM).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
