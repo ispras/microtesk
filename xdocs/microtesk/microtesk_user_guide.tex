@@ -81,6 +81,10 @@ Moscow 2016
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\chapter{Overview}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \chapter{Installation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,11 +163,17 @@ The current version supports the \href{https://github.com/z3prover}{Z3} and
 \href{http://cvc4.cs.nyu.edu}{CVC4} constraint solvers. Constraint executables should be
 downloaded and placed to the \texttt{<installation dir>/tools} directory.
 
+\paragraph{Using Environment Variables} ~\\
+
+If solvers are already installed in another directory, to let MicroTESK find them, the following
+environment variables can be used: \texttt{Z3{\_}PATH} and \texttt{CVC4{\_}PATH}. They specify
+the paths to the Z3 and CVC4 excutables correspondingly.
+
 \paragraph{Installing Z3}
 
 \begin{itemize}
-\item \textbf{\textit{Windows}} users should download Z3 (32 or 64-bit version) from the following page:
-      \url{http://z3.codeplex.com/releases} and unpack the archive to the
+\item \textbf{\textit{Windows}} users should download Z3 (32 or 64-bit version) from the following
+       page:\url{http://z3.codeplex.com/releases} and unpack the archive to the
       \texttt{<installation dir>/tools/z3/windows} directory. Note: the executable file path
       is \texttt{<windows>/z3/bin/z3.exe}.
 
@@ -242,9 +252,9 @@ To generate a test program, a user needs to use the \texttt{generate.sh} script
 require the following parameters:
 
 \begin{itemize}
-\item \texttt{model name};
-\item \texttt{test template file};
-\item \texttt{target test program source code file}.
+\item model name;
+\item test template file;
+\item target test program source code file.
 \end{itemize}
 
 For example, the command below runs the \texttt{euclid.rb} test template for
@@ -292,10 +302,6 @@ Here is the list of options:\\
   --extension-dir <arg> & -ed & Sets directory that stores user-defined Java code & --translate \\ \hline
   --random-seed <arg> & -rs & Sets seed for randomizer & --generate \\ \hline
   --solver <arg> & -s & Sets constraint solver engine to be used & --generate \\ \hline
-\end{tabular}
-
-\begin{tabular}{ | p{4cm} | p{1cm} | p{5cm} | p{2.5cm} |}
-  \hline
   --branch-exec-limit <arg> & -bel & Sets the limit on control transfers to detect endless loops & --generate \\ \hline
   --solver-debug & -sd & Enables debug mode for SMT solvers & --generate \\ \hline
   --tarmac-log & -tl & Saves simulator log in Tarmac format & --generate \\ \hline
@@ -303,6 +309,10 @@ Here is the list of options:\\
   --arch-dirs <arg> & -ad & Home directories for tested architectures & --generate \\ \hline
   --rate-limit <arg> & -rl & Generation rate limit, causes error when broken & --generate \\ \hline
   --code-file-extension <arg> & -cfe & The output file extension & --generate \\ \hline
+\end{tabular}
+
+\begin{tabular}{ | p{4cm} | p{1cm} | p{5cm} | p{2.5cm} |}
+  \hline
   --code-file-prefix <arg> & -cfp & The output file prefix (file names are as follows prefix{\_}xxxx.ext, where xxxx is a 4-digit decimal number) & --generate \\ \hline
   --data-file-extension <arg> & -dfe & The data file extension & --generate \\ \hline
   --data-file-prefix <arg> & -dfp & The data file prefix & --generate \\ \hline
