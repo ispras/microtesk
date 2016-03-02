@@ -823,13 +823,19 @@ class Template
       raise MTRubyError, "Data configuration is not defined"
     end
 
+    if attrs.has_key?(:global)
+      global = attrs[:global]
+    else
+      global = false
+    end
+
     if attrs.has_key?(:separate_file)
       separate_file = attrs[:separate_file]
     else
       separate_file = false
     end
 
-    @data_manager.beginData separate_file
+    @data_manager.beginData global, separate_file
 
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
