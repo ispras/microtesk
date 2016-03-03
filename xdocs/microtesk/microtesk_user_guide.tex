@@ -607,7 +607,68 @@ Locations: dec=3735928559, hex=0xDEADBEEF, str=11011110101011011011111011101111
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Data Definitions}
+\section{Describing Instruction Calls}
+
+The \texttt{pre}, \texttt{post} and \texttt{run} methods of a test template contain
+descriptions of instruction call sequences. Instructions are operations defined
+in ISA specifications which represent target assembler instructions. Operations can
+have arguments of three kinds:
+
+\begin{itemize}
+\item immediate value;
+\item addressing mode;
+\item operation.
+\end{itemize}
+
+Addressing modes encapsulate logic of reading or writing values to memory resources.
+For example, an addressing mode can refer to a register, a memory location or hold
+an immediate value. Operations are used to describe complex instructions that are
+composed of several operations (e.g. VLIW instructions). What arguments are suitable
+for specific instructions is specified in ISA specifications.
+
+Arguments are passed to instructions and addressing modes in two ways:
+\begin{itemize}
+\item As \emph{arrays}. This format is based on methods with a variable number of arguments.
+      Values are expected to come in the same order as corresponding parameter definitions
+      in specifications. 
+
+\item As \emph{hash maps}. This format implies that operations and addressing modes are
+      parameterized with hash tables where the key is in the name of the parameter
+      and the value is the value to be assigned to this parameter.
+\end{itemize}
+
+The first way is more preferable as it is simpler and closer to the assembly code syntax.
+The code below demonstrates both ways (miniMIPS):
+
+\begin{lstlisting}[language=ruby]
+# Arrays
+add reg(11), reg(9), reg(0)
+# Hash maps
+add :rd=>reg(:i=>11), :rs=>reg(:i=>9), :rt=>reg(:i=>0)
+\end{lstlisting}
+
+\paragraph{Aliases} ~\\
+
+Sometimes it is required to define \emph{aliases} for addressing modes or operations
+invoked with certain arguments. This is needed to make a test template more 
+human-readable. This can be done by defining in a test template Ruby functions that
+create instances with specific arguments. For example, the following code makes it
+possible to address registers \texttt{reg(0)} and \texttt{reg(1)} as
+\texttt{zero} and \texttt{at}:
+
+\begin{lstlisting}[language=ruby]
+def zero
+  reg(0)
+end
+
+def at
+  reg(1)
+end
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Defining Data}
 
 \subsection{Configuration}
 
