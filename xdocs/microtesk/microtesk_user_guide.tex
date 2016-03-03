@@ -666,6 +666,17 @@ def at
 end
 \end{lstlisting}
 
+\paragraph{Pseudo Instructions} ~\\
+
+It is possible to specifify \emph{pseudo instructions} that do not have correspondent
+operation in specifications. Such instructions print user-specified text and do not
+change the state of the reference model. The can be described using the following
+function: \texttt{pseudo(text)}. For example:
+
+\begin{lstlisting}[language=ruby]
+pseudo 'syscall'
+\end{lstlisting}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Defining Data}
