@@ -43,7 +43,7 @@ basicstyle=\ttfamily\footnotesize\color{black},
 commentstyle = \ttfamily\color{green},
 keywordstyle=\bfseries\color{blue},
 stringstyle=\color{blue},
-basewidth = {.48em}
+basewidth={.48em}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -397,10 +397,10 @@ class MyTemplate < Template
 Test template classes should contain implementations of the following methods:
 
 \begin{enumerate}
-  \item \textbf{initialize} (optional) - specifies settings for the given test template;
-  \item \textbf{pre} (optional) - specifies the initialization code for test programs;
-  \item \textbf{post} (optional) - specifies the finalization code for test programs;
-  \item \textbf{run} - specifies the main code of test programs (test cases).
+  \item \texttt{initialize} (optional) - specifies settings for the given test template;
+  \item \texttt{pre} (optional) - specifies the initialization code for test programs;
+  \item \texttt{post} (optional) - specifies the finalization code for test programs;
+  \item \texttt{run} - specifies the main code of test programs (test cases).
 \end{enumerate}
 
 The definitions of optional methods can be skipped. In this case, the default
@@ -505,15 +505,16 @@ end
 
 \section{Test Template Settings}
 
-Test templates use the following settings:
+Test templates use the following settings that set up the format of generated 
+test programs:
 
-\begin{enumerate}
-  \item Starting characters for single-line comments;
-  \item Starting characters for multi-line comments;
-  \item Terminating characters for multi-line comments;
-  \item Indentation token;
-  \item Token used in separator lines.
-\end{enumerate}
+\begin{itemize}
+\item \texttt{sl{\_}comment{\_}starts{\_}with} - starting characters for single-line comments;
+\item \texttt{ml{\_}comment{\_}starts{\_}with} - starting characters for multi-line comments;
+\item \texttt{ml{\_}comment{\_}ends{\_}with} - terminating characters for multi-line comments;
+\item \texttt{indent{\_}token} - indentation token;
+\item \texttt{separator{\_}token} - token used in separator lines.
+\end{itemize}
 
 Here is how these settings are initialized with default values in
 the \texttt{Template} class:
@@ -545,6 +546,63 @@ class MyTemplate < Template
   end
   ...
 end
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Text Printing}
+
+The test template description language provides facilities for printing text messages.
+Text messages are printed either into the generated source code or into the simulator log.
+Here is the list of functions that print text:
+
+\begin{itemize}
+\item \texttt{newline} - adds the new line character into the test program;
+\item \texttt{text(format, *args)} - adds text into the test program;
+\item \texttt{trace(format, *args)} - prints text into the simulator execution log;
+\item \texttt{comment(format, *args)} - adds a comment into the test program;
+\item \texttt{start{\_}comment} - starts a multi-line comment;
+\item \texttt{end{\_}comment} - ends a multi-line comment.
+\end{itemize}
+
+\paragraph{Formatted Printing} ~\\
+
+Functions \texttt{text}, \texttt{trace} and \texttt{comment} print formatted text.
+They take a format string and a variable list of arguments that provide data to be
+printed.
+
+Supported argument types:
+\begin{itemize}
+\item constants;
+\item locations.
+\end{itemize}
+
+To specify locations to be printed (registers, memory), the \texttt{location(name, index)}
+function should be used. It takes the name of the memory array and the index of the selected
+element.
+
+Supported format characters:
+\begin{itemize}
+\item \texttt{d} - decimal format;
+\item \texttt{x} or \texttt{X} - hexadecimal format (lowercase or uppercase letters);
+\item \texttt{s} - decimal format for constants and binary format for locations.
+\end{itemize}
+
+For example, the code below prints the \texttt{0xDEADBEEF} value as a constant and as
+a value stored in a register using different format characters:
+
+\begin{lstlisting}[language=ruby]
+prepare reg(1), 0xDEADBEEF
+reg1 = location('GPR', 1)
+text 'Constants: dec=%d, hex=0x%X, str=%s', 0xDEADBEEF, 0xDEADBEEF, 0xDEADBEEF
+text 'Locations: dec=%d, hex=0x%X, str=%s', reg1, reg1, reg1
+\end{lstlisting}
+
+Here is how it will be printed:
+
+\begin{lstlisting}
+Constants: dec=3735928559, hex=0xDEADBEEF, str=3735928559
+Locations: dec=3735928559, hex=0xDEADBEEF, str=11011110101011011011111011101111
 \end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
