@@ -34,6 +34,7 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
@@ -265,9 +266,11 @@ final class Executor {
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
     for (final ConcreteCall call : sequence) {
-
       if (call.getData() != null) {
-        for (final Pair<Label, BigInteger> labelInfo : call.getData().getLabelsWithAddresses()) {
+        final DataSection data = call.getData();
+        context.getDataManager().processData(data);
+
+        for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
           final Label label = labelInfo.first;
           final long address = labelInfo.second.longValue();
 
@@ -275,7 +278,6 @@ final class Executor {
           labelManager.addLabel(label, address);
         }
 
-        context.getDataManager().processData(call.getData());
         continue;
       }
 
