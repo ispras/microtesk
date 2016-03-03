@@ -107,4 +107,15 @@ public class DataSection {
   public boolean isSeparateFile() {
     return separateFile;
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "DataSection [global=%s, separateFile=%s, labelValues=%s, directives=%s]",
+        global,
+        separateFile,
+        labelValues,
+        directives
+        );
+  }
 }
