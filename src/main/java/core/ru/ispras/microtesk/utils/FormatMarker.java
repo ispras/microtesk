@@ -36,7 +36,7 @@ public final class FormatMarker {
   public static final FormatMarker BIN = new FormatMarker("b");
 
   /** Token for %x. Used for hexadecimal numbers. */
-  public static final FormatMarker HEX = new FormatMarker("x");
+  public static final FormatMarker HEX = new FormatMarker("x|X");
 
   /** Token for %s. Used for string values. */
   public static final FormatMarker STR = new FormatMarker("s");
