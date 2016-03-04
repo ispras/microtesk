@@ -188,8 +188,8 @@ class Template
     blockBuilder.setAtomic true
     blockBuilder.setWhere get_caller_location
 
-    if attributes.has_key? :permutator
-      blockBuilder.setPermutator(attributes[:permutator])
+    if attributes.has_key? :obfuscator
+      blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
     attributes.each_pair do |key, value|
