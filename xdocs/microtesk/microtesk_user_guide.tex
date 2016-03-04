@@ -43,6 +43,7 @@ basicstyle=\ttfamily\footnotesize\color{black},
 commentstyle = \ttfamily\color{green},
 keywordstyle=\bfseries\color{blue},
 stringstyle=\color{blue},
+showstringspaces=false,
 basewidth={.48em}
 }
 
@@ -608,6 +609,7 @@ Locations: dec=3735928559, hex=0xDEADBEEF, str=11011110101011011011111011101111
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Random Distributions}
+\label{Random_Distributions}
 
 Many tasks involve selection based on \emph{random distribution}. The test template
 language includes constructs to describe ranges of possible values and their weights.
@@ -724,7 +726,34 @@ pseudo 'syscall'
 
 \subsection{Groups}
 
-TODO
+Addressing modes and operations can be organized into \emph{groups}. Groups are
+used when it is required to randomly select an addressing mode or an operation
+from the specified set.
+
+Groups can be defined in specifications or in test templates. To define them in
+test templates, the following functions are used: 
+
+\begin{itemize}
+\item \texttt{define{\_}mode{\_}group(name, distribution)} - defines an addressing mode\\group;
+\item \texttt{define{\_}op{\_}group(name, distribution)} - defined operation group.
+\end{itemize}
+
+Both function take the \texttt{name} and \texttt{distribution} arguments that specify
+the group name and the distribution used to select its items.
+
+For example, the code below creates an instruction group called \texttt{alu} that contains
+instructions \texttt{add}, \texttt{sub}, \texttt{and}, \texttt{or}, \texttt{nor}, and \texttt{xor}
+selected randomly according to the specified distribution. More information on
+distributions is in the \hyperref[Random_Distribution]{Random Distribution} section.
+
+\begin{lstlisting}[language=ruby]
+alu_dist = dist(
+  range(:value => 'add',                       :bias => 40),
+  range(:value => 'sub',                       :bias => 30),
+  range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
+
+define_op_group('alu', alu_dist)
+\end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
