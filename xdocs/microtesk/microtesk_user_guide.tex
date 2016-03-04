@@ -607,7 +607,52 @@ Locations: dec=3735928559, hex=0xDEADBEEF, str=11011110101011011011111011101111
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Describing Instruction Calls}
+\section{Random Distributions}
+
+Many tasks involve selection based on \emph{random distribution}. The test template
+language includes constructs to describe ranges of possible values and their weights.
+To accomplish this task, the following functions are provided:
+
+\begin{itemize}
+\item \texttt{range(attrs)} - creates a range of values and its weight, which are 
+      described by the \texttt{:value} and \texttt{:bias} attribures. Values can be
+      one of the following types:
+
+      \begin{itemize}
+      \item \emph{Single} value;
+      \item \emph{Range} of values;
+      \item \emph{Array} of values;
+      \item \emph{Distribution} of values.
+      \end{itemize}
+
+      The \texttt{:bias} attribute can be skipped which means default weight. Default weight
+      is used to describe an even distribution based on ranges with equal weights.
+
+\item \texttt{dist(*ranges)} - creates a random distribution from a collection of
+       ranges.
+\end{itemize}
+
+The code below illustrates how to create weighted distributions for integer numbers:
+
+\begin{lstlisting}[language=ruby]
+simple_dist = dist(
+  range(:value => 0,          :bias => 25), # Value
+  range(:value => 1..2,       :bias => 25), # Range
+  range(:value => [3, 5, 7],  :bias => 50)  # Array
+  )
+
+composite_dist = dist(
+  range(:value=> simple_dist, :bias => 80), # Distribution
+  range(:value=> [4, 6, 8],   :bias => 20)  # Array
+  )
+\end{lstlisting} 
+
+Distributions are used in a number of test template features that will be described
+further in this chapter.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Instruction Calls}
 
 The \texttt{pre}, \texttt{post} and \texttt{run} methods of a test template contain
 descriptions of instruction call sequences. Instructions are operations defined
@@ -677,9 +722,13 @@ function: \texttt{pseudo(text)}. For example:
 pseudo 'syscall'
 \end{lstlisting}
 
+\subsection{Groups}
+
+TODO
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Defining Data}
+\section{Data}
 
 \subsection{Configuration}
 
