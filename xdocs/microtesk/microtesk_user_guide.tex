@@ -361,8 +361,10 @@ configururation file that has the following format:
 
 MicroTESK generates test programs on the basis of \emph{test templates} that describe
 test programs to be generated in an abstract way. Test templates are created using
-special Ruby-based test template description language. The language is implemented as
-a library that includes provides facilities for describing test cases.
+special Ruby-based test template description language that derives all Ruby features
+and provides special facilities. The language is implemented as a library that
+implements facilities for describing test cases. Detailed information on Ruby
+features can be found in official documentation \cite{ruby-site, ruby-matz}.
 
 MicroTESK uses the JRuby interpreter to process test templates. This allows Ruby libraries
 to interact with other components of MicroTESK written in Java.
@@ -950,6 +952,14 @@ for MIPS, and \emph{D}=0 for ARM).
 M.~Freericks.
 \emph{The nML Machine Description Formalism}.
 Technical Report TR SM-IMP/DIST/08, TU Berlin CS Department, 1993.
+
+\bibitem{ruby-site}
+\emph{Ruby site} -- http://www.ruby-lang.org
+
+\bibitem{ruby-matz}
+Flanagan D., Matsumoto Y.
+\emph{The Ruby Programming Language}.
+O’Reilly Media, Sebastopol, 2008.
 
 \end{thebibliography}
 
