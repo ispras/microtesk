@@ -739,13 +739,15 @@ test templates, the following functions are used:
 \end{itemize}
 
 Both function take the \texttt{name} and \texttt{distribution} arguments that specify
-the group name and the distribution used to select its items. \emph{Note}: it is not
-allowed to redefine existing groups.
+the group name and the distribution used to select its items.
+More information on distributions is in the
+\hyperref[Random_Distribution]{Random Distribution} section.
+\emph{Notes}: (1) distribution items can be names of addressing modes and operations, by not
+names of groups; (2) it is not allowed to redefine existing groups.
 
 For example, the code below creates an instruction group called \texttt{alu} that contains
 instructions \texttt{add}, \texttt{sub}, \texttt{and}, \texttt{or}, \texttt{nor}, and \texttt{xor}
-selected randomly according to the specified distribution. More information on
-distributions is in the \hyperref[Random_Distribution]{Random Distribution} section.
+selected randomly according to the specified distribution.
 
 \begin{lstlisting}[language=ruby]
 alu_dist = dist(
@@ -768,9 +770,6 @@ alu t6, t7, t8
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Data}
-
-This section describes how to describe data definitions to be included into test
-programs.
 
 \subsection{Configuration}
 
