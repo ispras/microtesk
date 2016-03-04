@@ -739,7 +739,8 @@ test templates, the following functions are used:
 \end{itemize}
 
 Both function take the \texttt{name} and \texttt{distribution} arguments that specify
-the group name and the distribution used to select its items.
+the group name and the distribution used to select its items. \emph{Note}: it is not
+allowed to redefine existing groups.
 
 For example, the code below creates an instruction group called \texttt{alu} that contains
 instructions \texttt{add}, \texttt{sub}, \texttt{and}, \texttt{or}, \texttt{nor}, and \texttt{xor}
@@ -753,6 +754,15 @@ alu_dist = dist(
   range(:value => ['and', 'or', 'nor', 'xor'], :bias => 30))
 
 define_op_group('alu', alu_dist)
+\end{lstlisting}
+
+The following code specifies three calls that use instructions randomly selected
+from the \texttt{alu} group:
+ 
+\begin{lstlisting}[language=ruby]
+alu t0, t1, t2
+alu t3, t4, t5
+alu t6, t7, t8
 \end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
