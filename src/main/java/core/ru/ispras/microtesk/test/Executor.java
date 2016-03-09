@@ -117,8 +117,10 @@ final class Executor {
 
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
-
     int index = startIndex;
+
+    // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
+    int nonExecutableCount = 0; 
 
     final long startAdress = calls.get(startIndex).getAddress();
     observer.accessLocation("PC").setValue(BigInteger.valueOf(startAdress));
@@ -152,20 +154,24 @@ final class Executor {
       if (!call.isExecutable()) {
         if (index == endIndex) break;
         index++;
+        nonExecutableCount++;
         continue;
       }
 
       if (labelRefs != null) {
-        final int delta = index - labelRefsIndex;
+        // nonExecutableCount is excluded from number of instructions presumably in delay slot
+        final int delta = index - labelRefsIndex - nonExecutableCount;
         if ((delta < 0) || (delta > context.getDelaySlotSize())) {
           labelRefs = null;
           labelRefsIndex = 0;
+          nonExecutableCount = 0;
         }
       }
 
       if (!call.getLabelReferences().isEmpty()) {
         labelRefs = call.getLabelReferences();
         labelRefsIndex = index;
+        nonExecutableCount = 0;
       }
 
       Tarmac.setEnabled(true);
