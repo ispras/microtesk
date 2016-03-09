@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
@@ -124,6 +125,11 @@ public final class BlockBuilder {
 
   public void addBlock(final Block block) {
     InvariantChecks.checkNotNull(block);
+
+    if (isSequence) {
+      throw new GenerationAbortedException(String.format(
+          "Block sequence cannot contain nested blocks. At: %s", block.getWhere()));
+    }
 
     if (block.isEmpty()) {
       return;
