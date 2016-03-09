@@ -19,8 +19,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.microtesk.utils.SharedObject;
 
-public final class LazyValue implements Value {
+public final class LazyValue extends SharedObject<LazyValue> implements Value {
   private final LazyData data;
   private final int start;
   private final int size;
