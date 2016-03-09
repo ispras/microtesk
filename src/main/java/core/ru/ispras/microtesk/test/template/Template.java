@@ -217,7 +217,7 @@ public final class Template {
 
   private void beginNewSection() {
     final BlockBuilder rootBlockBuilder = new BlockBuilder(false);
-    rootBlockBuilder.setAtomic(true);
+    rootBlockBuilder.setSequence(true);
 
     this.blockBuilders = new LinkedList<>();
     this.blockBuilders.push(rootBlockBuilder);
@@ -296,7 +296,7 @@ public final class Template {
       block = builder.build(globalPrologue, globalEpilogue);
 
       final BlockBuilder newBuilder = new BlockBuilder(false);
-      newBuilder.setAtomic(true);
+      newBuilder.setSequence(true);
       blockBuilders.push(newBuilder);
     } else {
       // A non-root block is added to its parent.
