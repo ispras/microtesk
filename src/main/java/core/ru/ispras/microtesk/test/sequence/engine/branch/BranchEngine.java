@@ -56,10 +56,14 @@ public final class BranchEngine implements Engine<BranchSolution> {
     final String situationName = getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
 
+    /*
+    // FIXME: The check is temporary disabled
     final boolean result = abstractCall.isBranch() && abstractCall.isConditionalBranch();
     InvariantChecks.checkTrue(result == flag);
 
-    return result;
+    return result;*/
+
+    return flag;
   }
 
   public static boolean isGoto(final Call abstractCall) {
@@ -69,10 +73,15 @@ public final class BranchEngine implements Engine<BranchSolution> {
     final String situationName = getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
 
+    /*
+    // FIXME: The check is temporary disabled
     final boolean result = abstractCall.isBranch() && !abstractCall.isConditionalBranch();
     InvariantChecks.checkTrue(result == flag);
 
     return result;
+    */
+
+    return flag;
   }
 
   /** Branch execution limit: default value is 1. */
