@@ -155,7 +155,7 @@ class Template
 
   def block(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
-    blockBuilder.setAtomic false
+    blockBuilder.setSequence false
     blockBuilder.setWhere get_caller_location
 
     if attributes.has_key? :combinator
@@ -185,7 +185,7 @@ class Template
 
   def sequence(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
-    blockBuilder.setAtomic true
+    blockBuilder.setSequence true
     blockBuilder.setWhere get_caller_location
 
     if attributes.has_key? :obfuscator

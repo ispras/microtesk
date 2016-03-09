@@ -40,7 +40,7 @@ public final class BlockBuilder {
   private String compositorName;
   private String obfuscatorName;
 
-  private boolean isAtomic;
+  private boolean isSequence;
 
   private List<Call> prologue;
   private List<Call> epilogue;
@@ -66,7 +66,7 @@ public final class BlockBuilder {
     this.compositorName = null;
     this.obfuscatorName = null;
 
-    this.isAtomic = false;
+    this.isSequence = false;
 
     this.prologue = null;
     this.epilogue = null;
@@ -109,8 +109,12 @@ public final class BlockBuilder {
     obfuscatorName = name;
   }
 
-  public void setAtomic(final boolean value) {
-    this.isAtomic = value;
+  public void setSequence(final boolean value) {
+    this.isSequence = value;
+  }
+
+  public boolean isSequence() {
+    return isSequence;
   }
 
   public void setAttribute(final String name, final Object value) {
@@ -170,7 +174,7 @@ public final class BlockBuilder {
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
     final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<>();
-    generatorBuilder.setSingle(isAtomic);
+    generatorBuilder.setSingle(isSequence);
 
     if (null != combinatorName) {
       generatorBuilder.setCombinator(combinatorName);
@@ -192,8 +196,8 @@ public final class BlockBuilder {
       generatorBuilder.addIterator(block.getIterator());
     }
 
-    // For an empty atomic block (explicitly specified), an single empty sequence is inserted.
-    if (isEmpty() && isAtomic && isExplicit) {
+    // For an empty sequence block (explicitly specified), a single empty sequence is inserted.
+    if (isEmpty() && isSequence && isExplicit) {
       generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
     }
 
