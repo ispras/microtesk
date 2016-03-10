@@ -37,6 +37,9 @@ public final class CombinatorRandom<T> extends CombinatorBase<T> {
 
   @Override
   public void onInit() {
+    sequences.clear();
+    iterationNum = 0;
+
     for (final Iterator<T> it : iterators) {
       final List<T> sequence = new ArrayList<>();
       for (; it.hasValue(); it.next()) {
@@ -46,7 +49,6 @@ public final class CombinatorRandom<T> extends CombinatorBase<T> {
 
       sequences.add(sequence);
     }
-    iterationNum = 0;
   }
 
   @Override
