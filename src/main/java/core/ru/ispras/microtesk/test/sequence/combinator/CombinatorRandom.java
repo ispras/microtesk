@@ -30,12 +30,12 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class CombinatorRandom<T> extends CombinatorBase<T> {
   /** Maps an iterator to the list of previous values. */
-  private final Map<Integer, ArrayList<T>> caches = new HashMap<Integer, ArrayList<T>>();
+  private final Map<Integer, ArrayList<T>> caches = new HashMap<>();
   /** Maps an iterator to the current value. */
-  private final Map<Integer, T> values = new HashMap<Integer, T>();
+  private final Map<Integer, T> values = new HashMap<>();
 
   /** Contains exhausted iterators. */
-  private final Set<Integer> exhausted = new HashSet<Integer>();
+  private final Set<Integer> exhausted = new HashSet<>();
 
   @Override
   public void onInit() {
