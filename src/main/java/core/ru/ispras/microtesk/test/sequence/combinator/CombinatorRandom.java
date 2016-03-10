@@ -46,6 +46,7 @@ public final class CombinatorRandom<T> extends CombinatorBase<T> {
 
       sequences.add(sequence);
     }
+    iterationNum = 0;
   }
 
   @Override
