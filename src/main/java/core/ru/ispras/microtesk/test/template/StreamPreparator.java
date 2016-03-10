@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
@@ -78,7 +79,8 @@ public final class StreamPreparator {
           String.format("The %s label is not defined.", label.getName()));
     }
 
-    final BigInteger address = BigInteger.valueOf(target.getAddress());
+    final BigInteger address =
+        BitVector.valueOf(target.getAddress(), Long.SIZE).bigIntegerValue(false);
 
     startLabel.setLabel(label);
     startLabel.setAddress(address);
