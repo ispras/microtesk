@@ -15,8 +15,10 @@
 package ru.ispras.microtesk.test.sequence.combinator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,77 +31,41 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CombinatorRandom<T> extends CombinatorBase<T> {
-  /** Maps an iterator to the list of previous values. */
-  private final Map<Integer, ArrayList<T>> caches = new HashMap<>();
-  /** Maps an iterator to the current value. */
-  private final Map<Integer, T> values = new HashMap<>();
-
-  /** Contains exhausted iterators. */
-  private final Set<Integer> exhausted = new HashSet<>();
+  private final List<List<T>> sequences = new ArrayList<>();
+  private final int iterationLimit = 1;
+  private int iterationNum = 0;
 
   @Override
   public void onInit() {
-    caches.clear();
-    values.clear();
-
-    exhausted.clear();
-
-    for (int i = 0; i < iterators.size(); i++) {
-      Iterator<T> iterator = iterators.get(i);
-
-      if (iterator.hasValue()) {
-        addValue(i, iterator.value());
-        iterator.next();
+    for (final Iterator<T> it : iterators) {
+      final List<T> sequence = new ArrayList<>();
+      for (; it.hasValue(); it.next()) {
+        sequence.add(it.value());
       }
+      shuffle(sequence);
 
-      if (!iterator.hasValue()) {
-        exhausted.add(i);
-      }
+      sequences.add(sequence);
     }
   }
 
   @Override
   public T getValue(final int i) {
-    return values.get(i);
+    final List<T> s = sequences.get(i);
+    return s.get(iterationNum % s.size());
   }
 
   @Override
   public boolean doNext() {
-    if (exhausted.size() == iterators.size()) {
-      return false;
-    }
-
-    for (int i = 0; i < iterators.size(); i++) {
-      final Iterator<T> iterator = iterators.get(i);
-
-      // If the iterator is not exhausted, with probability 0.5 use new value
-      if (iterator.hasValue() && Randomizer.get().nextBoolean()) {
-        addValue(i, iterator.value());
-        iterator.next();
-
-        if (!iterator.hasValue()) {
-          exhausted.add(i);
-        }
-      } else {
-        // Randomly choose one of the previous values.
-        values.put(i, Randomizer.get().choose(caches.get(i)));
-      }
-    }
-
-    return true;
+    return ++iterationNum < iterationLimit;
   }
 
   /**
-   * Adds the iterator value into the cache.
-   *
-   * @param i the iterator index.
-   * @param value the value to be added into the cache.
+   * Randomize list elements order using internal RNG.
    */
-  private void addValue(final int i, final T value) {
-    final ArrayList<T> trace = caches.containsKey(i) ? caches.get(i) : new ArrayList<T>();
-    trace.add(value);
-
-    caches.put(i, trace);
-    values.put(i, value);
+  private static <U> void shuffle(final List<U> list) {
+    for (int i = 0; i < list.size(); ++i) {
+      final int j = Randomizer.get().nextIntRange(i, list.size() - 1);
+      Collections.swap(list, i, j);
+    }
   }
 }
