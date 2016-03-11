@@ -16,11 +16,7 @@ package ru.ispras.microtesk.test.sequence.combinator;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
