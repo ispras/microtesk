@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.sequence;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.combinator.CombinatorPermutator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
@@ -46,16 +47,28 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The modificator used in the generator. */
   private String obfuscator = null;
 
-  /**
-   * Specifies whether a single sequence must be generated 
-   * (all sequences returned by all iterators are united into a single sequence).
-   */
-  private boolean isSingle = false;
+  /** Specifies whether a single sequence must be generated. */
+  private final boolean isSequence;
+  /** Specifies whether a collection of sequences returned by nested iterators must be generated.*/
+  private final boolean isIterate;
 
   /**
    * Constructs a test sequence generator.
+   * 
+   * @param isSequence Specifies whether a single sequence must be generated.
+   * @param isIterate Specifies whether a collection of sequences returned by nested
+   *        iterators must be generated.
+   * 
+   * @throws IllegalArgumentException if both {@code isSequence} and {@code isIterate}
+   *         are {@code true}.
    */
-  public GeneratorBuilder() {}
+
+  public GeneratorBuilder(final boolean isSequence, final boolean isIterate) {
+    InvariantChecks.checkFalse(isSequence && isIterate);
+
+    this.isSequence = isSequence;
+    this.isIterate = isIterate;
+  }
 
   /**
    * Sets the combinator used in the generator.
@@ -98,16 +111,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
-   * Sets the isSingle flag (whether a single sequence must be generated).
-   * 
-   * @param isSingle {@code true} to generate a single sequence or {@code false} to prevent this.
-   */
-
-  public void setSingle(boolean isSingle) {
-    this.isSingle = isSingle;
-  }
-
-  /**
    * Returns the test sequence generator for the template block.
    * 
    * @return the test sequence generator.
@@ -119,13 +122,15 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     final Permutator<T> obfuscatorEngine =
         config.getModificator(obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
 
-    // If the isSingle flag is set, the single sequence generator is returned.
-    if (isSingle) {
-      return new GeneratorObfuscator<>(new GeneratorSingle<>(getIterators()), obfuscatorEngine);
+    // If the isSequence flag is set, the single sequence generator is returned.
+    if (isSequence) {
+      return new GeneratorObfuscator<>(
+          new GeneratorSingle<>(getIterators()), obfuscatorEngine);
     }
 
-    if ((null == combinator) && (null == compositor)) {
-      return new GeneratorObfuscator<>(new GeneratorSequence<>(getIterators()), obfuscatorEngine);
+    if (isIterate || (null == combinator) && (null == compositor)) {
+      return new GeneratorObfuscator<>(
+          new GeneratorIterate<>(getIterators()), obfuscatorEngine);
     }
 
     if (null == combinator) { 
