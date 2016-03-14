@@ -76,7 +76,7 @@ public final class GeneratorPrologueEpilogue<T> implements Generator<T> {
   }
 
   @Override
-  public GeneratorSequence<T> clone() {
+  public GeneratorPrologueEpilogue<T> clone() {
     throw new UnsupportedOperationException();
   }
 }

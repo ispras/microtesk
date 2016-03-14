@@ -14,35 +14,38 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class GeneratorSequence<T> implements Generator<T> {
-  private final CollectionIterator<List<T>> collectionIterator; 
+  private final List<T> sequence;
+  private boolean hasValue;
 
-  public GeneratorSequence(final List<Iterator<List<T>>> iterators) {
-    InvariantChecks.checkNotNull(iterators);
+  public GeneratorSequence(List<Iterator<List<T>>> iterators) {
+    checkNotNull(iterators);
 
-    final List<List<T>> sequences = new ArrayList<>();
-    for (final Iterator<List<T>> sequenceIterator : iterators) {
-      final List<T> sequence = createSingleSequence(sequenceIterator);
-      sequences.add(sequence);
-    }
-
-    this.collectionIterator = new CollectionIterator<>(sequences);
+    this.sequence = createSingleSequence(iterators);
+    this.hasValue = false;
   }
 
-  private static <T> List<T> createSingleSequence(final Iterator<List<T>> sequenceIterator) {
-    final List<T> result = new ArrayList<>();
+  private static <T> List<T> createSingleSequence(List<Iterator<List<T>>> iterators) {
+    if (iterators.isEmpty()) {
+      return null;
+    }
 
-    sequenceIterator.init();
-    while (sequenceIterator.hasValue()) {
-      result.addAll(sequenceIterator.value());
-      sequenceIterator.next();
+    final List<T> result = new ArrayList<T>();
+
+    for (final Iterator<List<T>> sequenceIterator : iterators) {
+      sequenceIterator.init();
+      while (sequenceIterator.hasValue()) {
+        result.addAll(sequenceIterator.value());
+        sequenceIterator.next();
+      }
     }
 
     return result;
@@ -50,27 +53,31 @@ public final class GeneratorSequence<T> implements Generator<T> {
 
   @Override
   public void init() {
-    collectionIterator.init();
+    hasValue = (sequence != null);
   }
 
   @Override
   public boolean hasValue() {
-    return collectionIterator.hasValue();
+    return hasValue;
   }
 
   @Override
   public List<T> value() {
-    return collectionIterator.value();
+    if (!hasValue) {
+      throw new NoSuchElementException();
+    }
+
+    return sequence;
   }
 
   @Override
   public void next() {
-    collectionIterator.next();
+    hasValue = false;
   }
 
   @Override
   public void stop() {
-    collectionIterator.stop();
+    hasValue = false;
   }
 
   @Override
