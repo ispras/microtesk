@@ -1,5 +1,5 @@
 #
-# Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,13 +32,25 @@ class BlockTemplate < MiniMipsBaseTemplate
     }.run
 
     # Produces three test cases each consisting of one instruction
-    my_block = block {
+    iterate {
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)
-    }
+    }.run
 
-    my_block.run
+    # Produces four test cases consisting of two instructions
+    # (Cartesian product composed in a random order)
+    block(:combinator => 'product', :compositor => 'random') {
+      iterate {
+        Add t0, t1, t2
+        Sub t3, t4, t5
+      }
+
+      iterate {
+        And reg(_), reg(_), reg(_)
+        nop
+      }
+    }.run
   end
 
 end
