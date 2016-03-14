@@ -28,7 +28,7 @@ class CombinationTemplate < VliwBaseTemplate
   def run
     # Randomized sequence
     block(:combinator => 'product', :compositor => 'random') {
-      block {
+      iterate {
         vliw(
           (add r(1), r(3), r(5) do situation('add', :case => 'normal',   :size => 32) end),
           (add r(2), r(4), r(6) do situation('add', :case => 'overflow', :size => 32) end)
@@ -40,7 +40,7 @@ class CombinationTemplate < VliwBaseTemplate
         )
       }
 
-      block {
+      iterate {
         vliw(
           (add_s f(5), f(5), f(6) do situation('fp.add', :case => 'underflow', :exp => 8, :frac => 23) end),
           (add_s f(7), f(7), f(8) do situation('fp.add', :case => 'inexact',   :exp => 8, :frac => 23) end)
