@@ -158,13 +158,13 @@ class ExampleTemplate < CpuBaseTemplate
 
     # Randomized sequences of 2 instuctions
     block(:compositor => 'random', :combinator => 'product') {
-      block {
+      iterate {
         # add reg(5), imm(_) do situation('imm_random', :min => 0, :max => 15) end
         sub reg(6), reg(5)
         mov reg(7), reg(6)
       }
 
-      block {
+      iterate {
         add reg(3), reg(4) do situation('add', :case => 'overflow', :size => 8) end
         sub reg(3), reg(4) do situation('sub', :case => 'overflow', :size => 8) end
         mov reg(4), reg(3)
