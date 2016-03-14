@@ -42,6 +42,7 @@ public final class BlockBuilder {
   private String obfuscatorName;
 
   private boolean isSequence;
+  private boolean isIterate;
 
   private List<Call> prologue;
   private List<Call> epilogue;
@@ -68,6 +69,7 @@ public final class BlockBuilder {
     this.obfuscatorName = null;
 
     this.isSequence = false;
+    this.isIterate = false;
 
     this.prologue = null;
     this.epilogue = null;
@@ -111,11 +113,21 @@ public final class BlockBuilder {
   }
 
   public void setSequence(final boolean value) {
+    InvariantChecks.checkFalse(value && isIterate);
     this.isSequence = value;
   }
 
   public boolean isSequence() {
     return isSequence;
+  }
+
+  public void setIterate(final boolean value) {
+    InvariantChecks.checkFalse(value && isSequence);
+    this.isIterate = value;
+  }
+
+  public boolean isIterate() {
+    return isIterate;
   }
 
   public void setAttribute(final String name, final Object value) {
@@ -179,8 +191,8 @@ public final class BlockBuilder {
   }
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
-    final GeneratorBuilder<Call> generatorBuilder = new GeneratorBuilder<>();
-    generatorBuilder.setSingle(isSequence);
+    final GeneratorBuilder<Call> generatorBuilder =
+        new GeneratorBuilder<>(isSequence, isIterate);
 
     if (null != combinatorName) {
       generatorBuilder.setCombinator(combinatorName);
