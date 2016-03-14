@@ -1,5 +1,5 @@
 #
-# Copyright 2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,22 +27,16 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
 
   def run
     block(:combinator => 'product', :compositor => 'random') {
-      block {
+      iterate {
         add t0, t1, t2 do situation('normal') end
-        sequence {
-          add t0, t1, t2 do situation('IntegerOverflow') end
-          nop
-        }
+        sequence { add t0, t1, t2 do situation('IntegerOverflow') end; nop }
       }
 
-      block {
+      iterate {
         sub t3, t4, t5 do situation('normal') end
-        sequence {
-          sub t3, t4, t5 do situation('IntegerOverflow') end
-          nop
-        }
+        sequence { sub t3, t4, t5 do situation('IntegerOverflow') end; nop }
       }
-    }.run()
+    }.run
   end
 
 end
