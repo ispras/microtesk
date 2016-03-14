@@ -155,8 +155,10 @@ class Template
 
   def block(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
-    blockBuilder.setSequence false
     blockBuilder.setWhere get_caller_location
+
+    blockBuilder.setSequence false
+    blockBuilder.setIterate false
 
     if attributes.has_key? :combinator
       blockBuilder.setCombinator(attributes[:combinator])
@@ -185,8 +187,29 @@ class Template
 
   def sequence(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
-    blockBuilder.setSequence true
     blockBuilder.setWhere get_caller_location
+
+    blockBuilder.setSequence true
+    blockBuilder.setIterate false
+
+    if attributes.has_key? :obfuscator
+      blockBuilder.setObfuscator(attributes[:obfuscator])
+    end
+
+    attributes.each_pair do |key, value|
+      blockBuilder.setAttribute(key.to_s, value)
+    end
+
+    self.instance_eval &contents
+    @template.endBlock
+  end
+
+  def iterate(attributes = {}, &contents)
+    blockBuilder = @template.beginBlock
+    blockBuilder.setWhere get_caller_location
+
+    blockBuilder.setSequence false
+    blockBuilder.setIterate true
 
     if attributes.has_key? :obfuscator
       blockBuilder.setObfuscator(attributes[:obfuscator])
