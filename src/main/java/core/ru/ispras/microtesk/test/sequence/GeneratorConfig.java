@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,9 +42,9 @@ import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class GeneratorConfig<T> {
-  private final Map<String, Class<?>> combinators = new HashMap<String, Class<?>>();
-  private final Map<String, Class<?>> compositors = new HashMap<String, Class<?>>();
-  private final Map<String, Class<?>> permutators = new HashMap<String, Class<?>>();
+  private final Map<String, Class<?>> combinators = new HashMap<>();
+  private final Map<String, Class<?>> compositors = new HashMap<>();
+  private final Map<String, Class<?>> permutators = new HashMap<>();
 
   private final Map<String, Engine<?>> engines = new HashMap<>();
   private final Map<String, Adapter<?>> adapters = new HashMap<>();
