@@ -26,14 +26,14 @@ public final class GeneratorSequence<T> implements Generator<T> {
   private final List<T> sequence;
   private boolean hasValue;
 
-  public GeneratorSequence(List<Iterator<List<T>>> iterators) {
+  public GeneratorSequence(final List<Iterator<List<T>>> iterators) {
     checkNotNull(iterators);
 
-    this.sequence = createSingleSequence(iterators);
+    this.sequence = createSequence(iterators);
     this.hasValue = false;
   }
 
-  private static <T> List<T> createSingleSequence(List<Iterator<List<T>>> iterators) {
+  private static <T> List<T> createSequence(final List<Iterator<List<T>>> iterators) {
     if (iterators.isEmpty()) {
       return null;
     }
