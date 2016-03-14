@@ -128,7 +128,7 @@ public final class BlockBuilder {
 
     if (isSequence) {
       throw new GenerationAbortedException(String.format(
-          "Block sequence cannot contain nested blocks. At: %s", block.getWhere()));
+          "Nested blocks are not allowed in 'sequence' structures. At: %s", block.getWhere()));
     }
 
     if (block.isEmpty()) {
