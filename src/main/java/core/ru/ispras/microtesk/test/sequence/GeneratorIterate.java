@@ -86,7 +86,7 @@ public final class GeneratorIterate<T> implements Generator<T> {
   }
 
   @Override
-  public GeneratorIterate<T> clone() {
+  public Generator<T> clone() {
     throw new UnsupportedOperationException();
   }
 }
