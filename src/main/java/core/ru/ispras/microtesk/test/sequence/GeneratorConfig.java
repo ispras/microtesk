@@ -35,6 +35,9 @@ import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorRandom;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
+import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
+import ru.ispras.microtesk.test.sequence.rearranger.RearrangerExpand;
+import ru.ispras.microtesk.test.sequence.rearranger.RearrangerTrivial;
 
 /**
  * {@link GeneratorConfig} implements a test generator configuration.
@@ -45,6 +48,7 @@ public final class GeneratorConfig<T> {
   private final Map<String, Class<?>> combinators = new HashMap<>();
   private final Map<String, Class<?>> compositors = new HashMap<>();
   private final Map<String, Class<?>> permutators = new HashMap<>();
+  private final Map<String, Class<?>> rearrangers = new HashMap<>();
 
   private final Map<String, Engine<?>> engines = new HashMap<>();
   private final Map<String, Adapter<?>> adapters = new HashMap<>();
@@ -69,6 +73,9 @@ public final class GeneratorConfig<T> {
 
     permutators.put("trivial", PermutatorTrivial.class);
     permutators.put("random", PermutatorRandom.class);
+
+    rearrangers.put("trivial", RearrangerTrivial.class);
+    rearrangers.put("expand", RearrangerExpand.class);
   }
 
   /**
@@ -141,6 +148,24 @@ public final class GeneratorConfig<T> {
     }
 
     return createInstance((Class<Permutator<T>>) permutatorClass);
+  }
+
+  /**
+   * Creates an instance of the rearranger with the given name.
+   * 
+   * @param name the rearranger name.
+   * @return a rearranger instance.
+   */
+  @SuppressWarnings("unchecked")
+  public Rearranger<T> getRearranger(final String name) {
+    InvariantChecks.checkNotNull(name);
+
+    final Class<?> rearrangerClass = rearrangers.get(name.toLowerCase());
+    if (null == rearrangerClass) {
+      throw new GenerationAbortedException("Rearranger is not defined: " + name);
+    }
+
+    return createInstance((Class<Rearranger<T>>) rearrangerClass);
   }
 
   public Engine<?> registerEngine(final String name, final Engine<?> engine) {
