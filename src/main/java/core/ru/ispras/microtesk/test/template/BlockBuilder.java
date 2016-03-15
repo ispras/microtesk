@@ -198,6 +198,18 @@ public final class BlockBuilder {
   }
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
+    if (!isSequence && !isIterate &&
+        combinatorName == null &&
+        permutatorName == null &&
+        compositorName == null &&
+        rearrangerName == null &&
+        obfuscatorName == null) {
+      throw new GenerationAbortedException(String.format(
+          "Using blocks with no arguments is currently forbidden " + 
+          "due to compatibility issues. At: %s", where)
+          );
+    }
+
     final GeneratorBuilder<Call> generatorBuilder =
         new GeneratorBuilder<>(isSequence, isIterate);
 
