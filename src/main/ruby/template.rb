@@ -172,6 +172,10 @@ class Template
       blockBuilder.setCompositor(attributes[:compositor])
     end
 
+    if attributes.has_key? :rearranger
+      blockBuilder.setRearranger(attributes[:rearranger])
+    end
+
     if attributes.has_key? :obfuscator
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
@@ -213,6 +217,10 @@ class Template
 
     if attributes.has_key? :obfuscator
       blockBuilder.setObfuscator(attributes[:obfuscator])
+    end
+
+    if attributes.has_key? :rearranger
+      blockBuilder.setRearranger(attributes[:rearranger])
     end
 
     attributes.each_pair do |key, value|
