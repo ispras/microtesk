@@ -39,6 +39,7 @@ public final class BlockBuilder {
   private String combinatorName;
   private String permutatorName;
   private String compositorName;
+  private String rearrangerName;
   private String obfuscatorName;
 
   private boolean isSequence;
@@ -66,6 +67,7 @@ public final class BlockBuilder {
     this.combinatorName = null;
     this.permutatorName = null;
     this.compositorName = null;
+    this.rearrangerName = null;
     this.obfuscatorName = null;
 
     this.isSequence = false;
@@ -105,6 +107,11 @@ public final class BlockBuilder {
   public void setCombinator(final String name) {
     InvariantChecks.checkTrue(null == combinatorName);
     combinatorName = name;
+  }
+
+  public void setRearranger(final String name) {
+    InvariantChecks.checkTrue(null == rearrangerName);
+    rearrangerName = name;
   }
 
   public void setObfuscator(final String name) {
@@ -204,6 +211,10 @@ public final class BlockBuilder {
 
     if (null != compositorName) {
       generatorBuilder.setCompositor(compositorName);
+    }
+
+    if (null != rearrangerName) {
+      generatorBuilder.setRearranger(rearrangerName);
     }
 
     if (null != obfuscatorName) {
