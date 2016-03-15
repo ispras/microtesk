@@ -22,11 +22,15 @@ import ru.ispras.microtesk.test.sequence.combinator.CombinatorPermutator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
 import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
+import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
 
 /**
  * {@link GeneratorBuilder} implements the test sequence generator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * 
+ * @param <T> Sequence element type.
  */
 public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   /** The default combinator. */
@@ -35,6 +39,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   public static final String DEFAULT_PERMUTATOR = "trivial";
   /** The default compositor. */
   public static final String DEFAULT_COMPOSITOR = "catenation";
+  /** The default rearranger. */
+  public static final String DEFAULT_REARRANGER  = "trivial";
   /** The default obfuscator. */
   public static final String DEFAULT_OBFUSCATOR = "trivial";
 
@@ -44,6 +50,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   private String permutator = null;
   /** The compositor used in the generator. */
   private String compositor = null;
+  /** The rearranger used in the generator. */
+  private String rearranger = null;
   /** The modificator used in the generator. */
   private String obfuscator = null;
 
@@ -101,6 +109,16 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
+   * Sets the rearranger used in the generator.
+   * 
+   * @param rearranger the rearranger name.
+   */
+
+  public void setRearranger(final String rearranger) {
+    this.rearranger = rearranger;
+  }
+
+  /**
    * Sets the obfuscator used in the generator.
    * 
    * @param obfuscator the obfuscator name.
@@ -125,34 +143,39 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     // If the isSequence flag is set, the single sequence generator is returned.
     if (isSequence) {
       return new GeneratorObfuscator<>(
-          new GeneratorSequence<>(getIterators()), obfuscatorEngine);
+          new GeneratorSequence<>(getIterators()),
+          obfuscatorEngine
+          );
     }
 
-    if (isIterate || (null == combinator) && (null == compositor)) {
+    final Rearranger<T> rearrangerEngine =
+        config.getRearranger(rearranger != null ? rearranger : DEFAULT_REARRANGER);
+
+    // If the isIterate flag is set, the generator will iterate over sequences of nested iterators.
+    if (isIterate) {
       return new GeneratorObfuscator<>(
-          new GeneratorIterate<>(getIterators()), obfuscatorEngine);
+          new GeneratorRearranger<>(new GeneratorIterate<>(getIterators()), rearrangerEngine),
+          obfuscatorEngine
+          );
     }
 
-    if (null == combinator) { 
-      combinator = DEFAULT_COMBINATOR;
-    }
+    final Combinator<List<T>> combinatorEngine =
+        config.getCombinator(combinator != null ? combinator : DEFAULT_COMBINATOR);
 
-    if (null == permutator) {
-      permutator = DEFAULT_PERMUTATOR;
-    }
+    final Permutator<List<T>> permutatorEngine =
+        config.getPermutator(permutator != null ? permutator : DEFAULT_PERMUTATOR);
 
-    if (null == compositor) {
-      compositor = DEFAULT_COMPOSITOR;
-    }
+    final Compositor<T> compositorEngine = 
+        config.getCompositor(compositor != null ? compositor : DEFAULT_COMPOSITOR);
 
-    final Combinator<List<T>> combinatorEngine = config.getCombinator(combinator);
-    final Permutator<List<T>> permutatorEngine = config.getPermutator(permutator);
-    final Compositor<T> compositorEngine = config.getCompositor(compositor);
-
-    return new GeneratorObfuscator<>(new GeneratorCompositor<T>(
-        new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
-        compositorEngine,
-        getIterators()),
-        obfuscatorEngine);
+    return new GeneratorObfuscator<>(
+        new GeneratorRearranger<>(
+            new GeneratorCompositor<T>(
+                new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
+                compositorEngine,
+                getIterators()),
+             rearrangerEngine),
+        obfuscatorEngine
+        );
   }
 }
