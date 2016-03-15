@@ -32,7 +32,8 @@ public final class GeneratorIterate<T> implements Generator<T> {
     InvariantChecks.checkNotNull(iterators);
 
     this.iterators = iterators;
-    init();
+    this.valueIterator = null;
+    this.hasValue = false;
   }
 
   @Override
