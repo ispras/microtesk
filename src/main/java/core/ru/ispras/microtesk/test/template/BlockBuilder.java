@@ -204,7 +204,7 @@ public final class BlockBuilder {
   }
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
-    if (!isSequence && !isIterate &&
+    if (!isAtomic && !isSequence && !isIterate &&
         combinatorName == null &&
         permutatorName == null &&
         compositorName == null &&
@@ -217,7 +217,7 @@ public final class BlockBuilder {
     }
 
     final GeneratorBuilder<Call> generatorBuilder =
-        new GeneratorBuilder<>(isSequence, isIterate);
+        new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
 
     if (null != combinatorName) {
       generatorBuilder.setCombinator(combinatorName);
@@ -244,7 +244,7 @@ public final class BlockBuilder {
     }
 
     // For an empty sequence block (explicitly specified), a single empty sequence is inserted.
-    if (isEmpty() && isSequence && isExplicit) {
+    if (isEmpty() && isExplicit && (isAtomic || isSequence)) {
       generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
     }
 
