@@ -27,11 +27,24 @@ public final class GeneratorUtils {
     InvariantChecks.checkNotNull(iterator);
 
     final List<T> result = new ArrayList<T>();
-    iterator.init();
 
+    iterator.init();
     while (iterator.hasValue()) {
       result.addAll(iterator.value());
       iterator.next();
+    }
+
+    return result;
+  }
+
+  public static <T> List<T> expandAll(final List<Iterator<List<T>>> iterators) {
+    InvariantChecks.checkNotNull(iterators);
+
+    final List<T> result = new ArrayList<T>();
+
+    for (final Iterator<List<T>> sequenceIterator : iterators) {
+      final List<T> sequence = GeneratorUtils.expand(sequenceIterator);
+      result.addAll(sequence);
     }
 
     return result;
