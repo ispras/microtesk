@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.sequence;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,26 +28,8 @@ public final class GeneratorSequence<T> implements Generator<T> {
   public GeneratorSequence(final List<Iterator<List<T>>> iterators) {
     checkNotNull(iterators);
 
-    this.sequence = createSequence(iterators);
+    this.sequence = GeneratorUtils.expandAll(iterators);
     this.hasValue = false;
-  }
-
-  private static <T> List<T> createSequence(final List<Iterator<List<T>>> iterators) {
-    if (iterators.isEmpty()) {
-      return null;
-    }
-
-    final List<T> result = new ArrayList<T>();
-
-    for (final Iterator<List<T>> sequenceIterator : iterators) {
-      sequenceIterator.init();
-      while (sequenceIterator.hasValue()) {
-        result.addAll(sequenceIterator.value());
-        sequenceIterator.next();
-      }
-    }
-
-    return result;
   }
 
   @Override
