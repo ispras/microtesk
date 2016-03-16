@@ -157,6 +157,7 @@ class Template
     blockBuilder = @template.beginBlock
     blockBuilder.setWhere get_caller_location
 
+    blockBuilder.setAtomic false
     blockBuilder.setSequence false
     blockBuilder.setIterate false
 
@@ -193,6 +194,7 @@ class Template
     blockBuilder = @template.beginBlock
     blockBuilder.setWhere get_caller_location
 
+    blockBuilder.setAtomic false
     blockBuilder.setSequence true
     blockBuilder.setIterate false
 
@@ -208,10 +210,27 @@ class Template
     @template.endBlock
   end
 
+  def atomic(attributes = {}, &contents)
+    blockBuilder = @template.beginBlock
+    blockBuilder.setWhere get_caller_location
+
+    blockBuilder.setAtomic true
+    blockBuilder.setSequence false
+    blockBuilder.setIterate false
+
+    attributes.each_pair do |key, value|
+      blockBuilder.setAttribute(key.to_s, value)
+    end
+
+    self.instance_eval &contents
+    @template.endBlock
+  end
+
   def iterate(attributes = {}, &contents)
     blockBuilder = @template.beginBlock
     blockBuilder.setWhere get_caller_location
 
+    blockBuilder.setAtomic false
     blockBuilder.setSequence false
     blockBuilder.setIterate true
 
