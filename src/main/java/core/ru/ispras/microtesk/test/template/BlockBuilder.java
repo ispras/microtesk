@@ -22,9 +22,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
+
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -119,22 +121,18 @@ public final class BlockBuilder {
     obfuscatorName = name;
   }
 
+  public void setAtomic(final boolean value) {
+    // TODO
+  }
+
   public void setSequence(final boolean value) {
     InvariantChecks.checkFalse(value && isIterate);
     this.isSequence = value;
   }
 
-  public boolean isSequence() {
-    return isSequence;
-  }
-
   public void setIterate(final boolean value) {
     InvariantChecks.checkFalse(value && isSequence);
     this.isIterate = value;
-  }
-
-  public boolean isIterate() {
-    return isIterate;
   }
 
   public void setAttribute(final String name, final Object value) {
@@ -164,11 +162,10 @@ public final class BlockBuilder {
       return;
     }
 
-    final List<Call> sequence = new ArrayList<>();
-    sequence.add(call);
+    final Iterator<List<Call>> iterator =
+        new SingleValueIterator<>(Collections.singletonList(call));
 
-    final Iterator<List<Call>> iterator = new SingleValueIterator<>(sequence);
-    nestedBlocks.add(new Block(blockId, where, iterator));
+    nestedBlocks.add(new Block(blockId, where, true, iterator));
   }
 
   public void setPrologue(final List<Call> value) {
@@ -251,7 +248,7 @@ public final class BlockBuilder {
     final Generator<Call> generatorGlobalPrologueEpilogue =
         wrapWithPrologueAndEpilogue(generatorPrologueEpilogue, globalPrologue, globalEpilogue);
 
-    return new Block(blockId, where, generatorGlobalPrologueEpilogue, attributes);
+    return new Block(blockId, where, false, generatorGlobalPrologueEpilogue, attributes);
   }
 
   private static Generator<Call> wrapWithPrologueAndEpilogue(
