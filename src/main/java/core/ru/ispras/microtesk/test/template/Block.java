@@ -14,17 +14,18 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;
   private final Where where;
+  private final boolean isAtomic;
+
   private final Iterator<List<Call>> iterator;
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
@@ -32,14 +33,17 @@ public final class Block {
   protected Block(
       final BlockId blockId,
       final Where where,
+      final boolean isAtomic,
       final Iterator<List<Call>> iterator,
       final Map<String, Object> attributes) {
-    checkNotNull(blockId);
-    checkNotNull(iterator);
-    checkNotNull(attributes);
+    InvariantChecks.checkNotNull(blockId);
+    InvariantChecks.checkNotNull(iterator);
+    InvariantChecks.checkNotNull(attributes);
 
     this.blockId = blockId;
     this.where = where;
+    this.isAtomic = isAtomic;
+
     this.iterator = iterator;
     this.attributes = attributes;
 
@@ -54,10 +58,12 @@ public final class Block {
   protected Block(
       final BlockId blockId,
       final Where where,
+      final boolean isAtomic,
       final Iterator<List<Call>> iterator) {
     this(
         blockId,
         where,
+        isAtomic,
         iterator,
         Collections.<String, Object>emptyMap()
         );
@@ -69,6 +75,10 @@ public final class Block {
 
   public Where getWhere() {
     return where;
+  }
+
+  public boolean isAtomic() {
+    return isAtomic;
   }
 
   public Iterator<List<Call>> getIterator() {
