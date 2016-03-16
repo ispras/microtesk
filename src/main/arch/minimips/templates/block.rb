@@ -31,6 +31,13 @@ class BlockTemplate < MiniMipsBaseTemplate
       And reg(_), reg(_), reg(_)
     }.run
 
+    # Atomic sequence. Works as sequence in this context.
+    atomic {
+      Add t0, t1, t2
+      Sub t3, t4, t5
+      And reg(_), reg(_), reg(_)
+    }.run
+
     # Produces three test cases each consisting of one instruction
     iterate {
       Add t0, t1, t2
@@ -47,6 +54,19 @@ class BlockTemplate < MiniMipsBaseTemplate
       }
 
       iterate {
+        And reg(_), reg(_), reg(_)
+        nop
+      }
+    }.run
+
+    # Merges two sequnces in random fashion. Atomic sequences are unmodifiable.
+    block(:combinator => 'diagonal', :compositor => 'random', :obfuscator => 'random') {
+      sequence {
+        Add t0, t1, t2
+        Sub t3, t4, t5
+      }
+
+      atomic { 
         And reg(_), reg(_), reg(_)
         nop
       }
