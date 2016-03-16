@@ -149,9 +149,12 @@ public final class BlockBuilder {
   public void addBlock(final Block block) {
     InvariantChecks.checkNotNull(block);
 
-    if (isSequence) {
+    if (isAtomic || isSequence) {
       throw new GenerationAbortedException(String.format(
-          "Nested blocks are not allowed in 'sequence' structures. At: %s", block.getWhere()));
+          "Nested blocks are not allowed in '%s' structures. At: %s", 
+          isAtomic ? "atomic" : "sequence",
+          block.getWhere()
+          ));
     }
 
     if (block.isEmpty()) {
