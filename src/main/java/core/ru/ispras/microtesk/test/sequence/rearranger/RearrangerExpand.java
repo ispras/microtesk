@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.sequence.rearranger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -36,19 +36,7 @@ public final class RearrangerExpand<T> implements Rearranger<T> {
   @Override
   public void initialize(final Iterator<List<T>> original) {
     InvariantChecks.checkNotNull(original);
-    this.sequence = expand(original);
-  }
-
-  private static <T> List<T> expand(final Iterator<List<T>> iterator) {
-    final List<T> result = new ArrayList<T>();
-
-    iterator.init();
-    while (iterator.hasValue()) {
-      result.addAll(iterator.value());
-      iterator.next();
-    }
-
-    return result;
+    this.sequence = GeneratorUtils.expand(original);
   }
 
   @Override
