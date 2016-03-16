@@ -209,8 +209,12 @@ public final class Template {
   }
 
   public void endMainSection() {
-    final Block rootBlock = endCurrentSection().build(globalPrologue, globalEpilogue);
-    processBlock(Section.MAIN, rootBlock);
+    final BlockBuilder rootBlockBuilder = endCurrentSection();
+    if (!rootBlockBuilder.isEmpty()) {
+      final Block rootBlock = rootBlockBuilder.build(globalPrologue, globalEpilogue);
+      processBlock(Section.MAIN, rootBlock);
+    }
+
     Logger.debugHeader("Ended Processing Main Section");
     isMainSection = false;
   }
