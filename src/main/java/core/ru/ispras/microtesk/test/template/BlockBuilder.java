@@ -44,6 +44,7 @@ public final class BlockBuilder {
   private String rearrangerName;
   private String obfuscatorName;
 
+  private boolean isAtomic;
   private boolean isSequence;
   private boolean isIterate;
 
@@ -72,6 +73,7 @@ public final class BlockBuilder {
     this.rearrangerName = null;
     this.obfuscatorName = null;
 
+    this.isAtomic = false;
     this.isSequence = false;
     this.isIterate = false;
 
@@ -122,17 +124,21 @@ public final class BlockBuilder {
   }
 
   public void setAtomic(final boolean value) {
-    // TODO
+    InvariantChecks.checkFalse(value && isIterate);
+    InvariantChecks.checkFalse(value && isSequence);
+    isAtomic = value;
   }
 
   public void setSequence(final boolean value) {
+    InvariantChecks.checkFalse(value && isAtomic);
     InvariantChecks.checkFalse(value && isIterate);
-    this.isSequence = value;
+    isSequence = value;
   }
 
   public void setIterate(final boolean value) {
+    InvariantChecks.checkFalse(value && isAtomic);
     InvariantChecks.checkFalse(value && isSequence);
-    this.isIterate = value;
+    isIterate = value;
   }
 
   public void setAttribute(final String name, final Object value) {
