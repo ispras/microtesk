@@ -64,9 +64,13 @@ class BlockTemplate < MiniMipsBaseTemplate
       sequence {
         Add t0, t1, t2
         Sub t3, t4, t5
+        Or  t7, t8, t9
       }
 
-      atomic { 
+      atomic {
+        prologue { comment 'Atomic starts' }
+        epilogue { comment 'Atomic ends' }
+
         And reg(_), reg(_), reg(_)
         nop
       }
