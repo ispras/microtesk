@@ -45,6 +45,7 @@ public final class Call {
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
+  private final List<Call> atomicSequence;
 
   public static Call newData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
@@ -60,7 +61,8 @@ public final class Call {
         null,
         null,
         null,
-        data
+        data,
+        null
         );
   }
 
@@ -79,7 +81,9 @@ public final class Call {
         null,
         null,
         null,
-        null);
+        null,
+        null
+        );
   }
 
   public static Call newLine() {
@@ -102,8 +106,43 @@ public final class Call {
         null,
         null,
         null,
+        null,
         null
         );
+  }
+
+  public static Call newAtomicSequence(final List<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    return new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        expandAtomic(sequence)
+        );
+  }
+
+  public static List<Call> expandAtomic(final List<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    final List<Call> result = new ArrayList<>();
+    for (final Call call : sequence) {
+      if (call.isAtomicSequence()) {
+        result.addAll(call.getAtomicSequence());
+      } else {
+        result.add(call);
+      }
+    }
+
+    return result;
   }
 
   public Call(
@@ -117,7 +156,8 @@ public final class Call {
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
-      final DataSection data) {
+      final DataSection data,
+      final List<Call> atomicSequence) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -157,6 +197,7 @@ public final class Call {
 
     this.preparatorReference = preparatorReference;
     this.data = data;
+    this.atomicSequence = atomicSequence;
   }
 
   public Call(final Call other) {
@@ -185,7 +226,12 @@ public final class Call {
 
     this.preparatorReference = null != other.preparatorReference ?
         new PreparatorReference(other.preparatorReference) : null;
-    this.data = null != other.data ? new DataSection(other.data) : null;
+
+    this.data = null != other.data ?
+        new DataSection(other.data) : null;
+
+    this.atomicSequence = null != other.atomicSequence ?
+        copyAll(other.atomicSequence) : null;
   }
 
   public static List<Call> copyAll(final List<Call> calls) {
@@ -216,6 +262,7 @@ public final class Call {
            !isExecutable()     &&
            !isPreparatorCall() &&
            !hasData()          &&
+           !isAtomicSequence() &&
            labels.isEmpty()    &&
            outputs.isEmpty()   &&
            null == origin      &&
@@ -303,12 +350,20 @@ public final class Call {
     return data;
   }
 
+  public boolean isAtomicSequence() {
+    return null != atomicSequence;
+  }
+
+  public List<Call> getAtomicSequence() {
+    return atomicSequence;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "instruction call %s" + 
         "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d, " +
-        "preparator: %s, data: %b)",
+        "preparator: %s, data: %b, atomic: %b)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
         isBranch(),
@@ -318,7 +373,8 @@ public final class Call {
         isStore(),
         getBlockSize(),
         isPreparatorCall() ? preparatorReference : "null",
-        hasData()
+        hasData(),
+        isAtomicSequence()
         );
   }
 }

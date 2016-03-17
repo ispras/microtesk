@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
+import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
@@ -161,7 +162,12 @@ public final class BlockBuilder {
       return;
     }
 
-    nestedBlocks.add(block);
+    if (block.isAtomic()) {
+      final List<Call> sequence = GeneratorUtils.expand(block.getIterator());
+      addCall(Call.newAtomicSequence(sequence));
+    } else {
+      nestedBlocks.add(block);
+    }
   }
 
   public void addCall(final Call call) {
@@ -257,7 +263,7 @@ public final class BlockBuilder {
     final Generator<Call> generatorGlobalPrologueEpilogue =
         wrapWithPrologueAndEpilogue(generatorPrologueEpilogue, globalPrologue, globalEpilogue);
 
-    return new Block(blockId, where, false, generatorGlobalPrologueEpilogue, attributes);
+    return new Block(blockId, where, isAtomic, generatorGlobalPrologueEpilogue, attributes);
   }
 
   private static Generator<Call> wrapWithPrologueAndEpilogue(

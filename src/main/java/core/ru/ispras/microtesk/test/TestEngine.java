@@ -389,7 +389,7 @@ public final class TestEngine {
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
-        final List<Call> abstractSequence = sequenceIt.value();
+        final List<Call> abstractSequence = Call.expandAtomic(sequenceIt.value());
         InvariantChecks.checkNotNull(abstractSequence);
 
         final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
@@ -579,7 +579,7 @@ public final class TestEngine {
         return Collections.emptyList();
       }
 
-      final List<Call> abstractSequence = sequenceIt.value();
+      final List<Call> abstractSequence = Call.expandAtomic(sequenceIt.value());
 
       sequenceIt.next();
       InvariantChecks.checkFalse(
