@@ -218,6 +218,10 @@ class Template
     blockBuilder.setSequence false
     blockBuilder.setIterate false
 
+    if attributes.has_key? :obfuscator
+      blockBuilder.setObfuscator(attributes[:obfuscator])
+    end
+
     attributes.each_pair do |key, value|
       blockBuilder.setAttribute(key.to_s, value)
     end
