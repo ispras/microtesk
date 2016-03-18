@@ -6,6 +6,15 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/03/18 MicroTESK 2.3.27 beta
+
+ The new build contains the following changes:
+
+  - Test Templates: The "atomic" and "iterate" block types were established;
+  - Test Templates: The "block" structure now can be used only to combine
+    sequences returned by nested blocks;
+  - Test Templates: The "rearranger" parameter was supported by blocks;
+
 2016/03/11 MicroTESK 2.3.26 beta
 
  The new build contains the following changes:
