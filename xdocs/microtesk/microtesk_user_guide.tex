@@ -831,6 +831,7 @@ The block takes the following parameters:
   \item \texttt{target} (compulsory) - specifies the memory array defined in the nML
         specification to which data will be placed during simulation;
 
+  \label{base_virtual_address}
   \item \texttt{base{\_}virtual{\_}address} (optional) - specifies the base virtual
         address where data allocation starts. Default value is 0;
 
@@ -848,6 +849,7 @@ printed in the test program. The current version of MicroTESK provides the follo
   \item \texttt{define{\_}type} - defines a directive to allocate memory for a data element
         of an nML data type specified by the type parameter;
 
+  \label{define_space}
   \item \texttt{define{\_}space} - defines a directive to allocate memory (one or more
         addressable locations) filled with a default value specified by the
         \texttt{fillWith} parameter;
@@ -893,11 +895,22 @@ The \texttt{data} construct has two optional parameters:
 Here is the list of methods that can be used in \texttt{data} sections:
 
 \begin{itemize}
-\item \texttt{align} - aligns data by the amount n passed as an argument. How n is interpreted
-       see \hyperref[managing_address_alignment]{here}.
- 
-\item \texttt{org} -
-\item \texttt{space} - 
+\item \texttt{align} - aligns data by the amount n passed as an argument. By default, n means
+      $2^n$ bytes. How to change this behaviour see \hyperref[managing_address_alignment]{here}.
+
+\item \texttt{org} - sets data allocation origin. Can be used to increase the allocation address,
+      but not to descrease it. Its parameter specifies the origin and can be used in two ways:
+      \begin{enumerate}
+      \item As \textbf{obsolute} origin. In this case, it is specified as a constant value
+            (\texttt{org 0x00001000}) and means an offset from the
+            \hyperref[base_virtual_address]{base virtual address}.
+      \item As \textbf{relative} origin. In this case, it is specified using a hash map
+            (\texttt{org :delta => 0x10}) and means an offset from the latest data allocation.
+      \end{enumerate}
+
+\item \texttt{space} - increases the allocation address by the number of bytes specified by
+      its argument. The allocated space is filled with the value which has been set up by
+      the \hyperref[define_space]{\texttt{define{\_}space}} method.
 \end{itemize}
 
 Here is an example:
