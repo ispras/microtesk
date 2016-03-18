@@ -908,6 +908,13 @@ Here is the list of methods that can be used in \texttt{data} sections:
             (\texttt{org :delta => 0x10}) and means an offset from the latest data allocation.
       \end{enumerate}
 
+\item \texttt{label} - associates the specified label with the current address.  
+\end{itemize}
+
+Also, here is the list of runtime methods what has been defined by the \texttt{define{\_}type},
+\texttt{define{\_}space} and \texttt{define{\_}ascii{\_}string} methods in the previous example:
+
+\begin{itemize}
 \item \texttt{space} - increases the allocation address by the number of bytes specified by
       its argument. The allocated space is filled with the value which has been set up by
       the \hyperref[define_space]{\texttt{define{\_}space}} method.
