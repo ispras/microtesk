@@ -559,6 +559,7 @@ end
 \end{lstlisting}
 
 \subsection{Managing Address Alignment}
+\label{managing_address_alignment}
 
 The \texttt{.align n} directive may have different interpretation for different assemblers.
 By default, MicroTESK assumes that it aligns an address to the next $2^n$ byte boundary.
@@ -892,7 +893,9 @@ The \texttt{data} construct has two optional parameters:
 Here is the list of methods that can be used in \texttt{data} sections:
 
 \begin{itemize}
-\item \texttt{align} -
+\item \texttt{align} - aligns data by the amount n passed as an argument. How n is interpreted
+       see \hyperref[managing_address_alignment]{here}.
+ 
 \item \texttt{org} -
 \item \texttt{space} - 
 \end{itemize}
