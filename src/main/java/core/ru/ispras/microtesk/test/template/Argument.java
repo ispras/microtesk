@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,60 +14,23 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeImm;
+import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Argument {
   public static enum Kind {
-
-    IMM (BigInteger.class, true) {
-      @Override protected Object copy(Object value) {
-        return value;
-      }
-    },
-
-    IMM_RANDOM (RandomValue.class, true) {
-      @Override protected Object copy(final Object value) {
-        return new RandomValue((RandomValue) value);
-      }
-    },
-
-    IMM_UNKNOWN (UnknownImmediateValue.class, true) {
-      @Override protected Object copy(final Object value) {
-        return new UnknownImmediateValue((UnknownImmediateValue) value);
-      }
-    },
-
-    IMM_LAZY (LazyValue.class, true) {
-      @Override protected Object copy(final Object value) {
-        return new LazyValue((LazyValue) value);
-      }
-    },
-
-    LABEL (LabelValue.class, true) {
-      @Override protected Object copy(Object value) {
-        return new LabelValue((LabelValue) value);
-      }
-    },
-
-    MODE (Primitive.class, false) {
-      @Override protected Object copy(final Object value) {
-        return ((Primitive) value).newCopy();
-      }
-    },
-
-    OP (Primitive.class, false) {
-      @Override protected Object copy(final Object value) {
-        return ((Primitive) value).newCopy();
-      }
-    };
-
-    private static final String ILLEGAL_CLASS = "%s is illegal value class, %s is expected.";
+    IMM         (BigInteger.class, true),
+    IMM_RANDOM  (RandomValue.class, true),
+    IMM_UNKNOWN (UnknownImmediateValue.class, true),
+    IMM_LAZY    (LazyValue.class, true),
+    LABEL       (LabelValue.class, true),
+    MODE        (Primitive.class, false),
+    OP          (Primitive.class, false);
 
     private final Class<?> vc;
     private final boolean isImmediate;
@@ -88,15 +51,13 @@ public final class Argument {
     protected void checkClass(final Class<?> c) {
       if (!vc.isAssignableFrom(c)) {
         throw new IllegalArgumentException(String.format(
-          ILLEGAL_CLASS, c.getSimpleName(),vc.getSimpleName()));
+            "%s is illegal value class, %s is expected.", c.getSimpleName(),vc.getSimpleName()));
       }
     }
 
     private final boolean isImmediate() {
       return isImmediate;
     }
-
-    protected abstract Object copy(Object value);
   }
 
   private final String name;
@@ -111,10 +72,10 @@ public final class Argument {
       final Object value,
       final ArgumentMode mode,
       final Type type) {
-    checkNotNull(name);
-    checkNotNull(kind);
-    checkNotNull(value);
-    checkNotNull(mode);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkNotNull(mode);
 
     kind.checkClass(value.getClass());
 
@@ -126,13 +87,19 @@ public final class Argument {
   }
 
   protected Argument(final Argument other) {
-    checkNotNull(other);
+    InvariantChecks.checkNotNull(other);
 
     this.name = other.name;
     this.kind = other.kind;
-    this.value = kind.copy(other.value);
     this.mode = other.mode;
     this.type = other.type;
+
+    if (other.value instanceof SharedObject) {
+      this.value = ((SharedObject<?>) other.value).copy(other);
+    } else {
+      InvariantChecks.checkTrue(other.value instanceof BigInteger);
+      this.value = other.value;
+    }
   }
 
   public boolean isImmediate() {
@@ -165,7 +132,8 @@ public final class Argument {
   }
 
   public String getTypeName() {
-    return isImmediate() ? AddressingModeImm.NAME : ((Primitive) value).getTypeName();
+    return isImmediate() ?
+        AddressingModeImm.NAME : ((Primitive) value).getTypeName();
   }
 
   public ArgumentMode getMode() {
@@ -178,7 +146,13 @@ public final class Argument {
 
   @Override
   public String toString() {
-    return String.format("Argument [name=%s, kind=%s, value=%s, mode=%s, type=%s]",
-        name, kind, value, mode, type);
+    return String.format(
+        "Argument [name=%s, kind=%s, value=%s, mode=%s, type=%s]",
+        name,
+        kind,
+        value,
+        mode,
+        type
+        );
   }
 }
