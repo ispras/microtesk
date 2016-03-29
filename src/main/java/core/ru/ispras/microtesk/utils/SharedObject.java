@@ -31,9 +31,18 @@ import ru.ispras.fortress.util.InvariantChecks;
  * <p>The protocol is implemented in the following way: The owner of the
  * shared object creates a new copy using the copy constructor. A reference
  * to the new copy is saved in the copied object. Other clients must use
- * the {@code sharedCopy} method to get the reference to the new copy.
+ * the {@link #sharedCopy} method to get the reference to the new copy.
  * It is important what all clients get the shared copy before a newer
  * copy is created otherwise they will refer to different instances.
+ * 
+ * <p> In situations when it is not obvious which object is the owner,
+ * the {@link #copy(Object)} method must be called. It takes a reference
+ * to the client object that requests copying. If the client is the owner,
+ * a new copy is created. Otherwise, a shared copy is returned. 
+ * Objects which have not been previously copied do not have an owner.
+ * Ownership is assigned to the client which first requested copying.
+ * The reference to the owner is stored in the copied object and is
+ * updated when a new copy is created.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
@@ -51,14 +60,26 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   private T copy;
 
   /**
+   * Reference to the owner, the object that can create new copies.
+   * This information is needed to decide whether to create a new copy
+   * or to return a shared copy.
+   */
+
+  private Object owner;
+
+  /**
    * Constructs a new shared object.
    * 
    * <p>The object has no shared copies until it is copied by the owner
    * using the copy constructor.
+   * 
+   * <p> The object has no owner until it is copied for the first time.
+   * The client which requested copying first becomes the owner.
    */
 
   protected SharedObject() {
     this.copy = null;
+    this.owner = null;
   }
 
   /**
@@ -80,6 +101,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
 
     this.copy = null;
     other.copy = (T) this;
+    this.owner = null;
   }
 
   /**
@@ -122,4 +144,33 @@ public abstract class SharedObject<T extends SharedObject<T>> {
 
     return result;
   }
+
+  /**
+   * Creates a shared copy of the object if the client is its owner.
+   * If the object has no owner, the client becomes its owner.
+   * If the client is not its owner, a shared copy is returned.
+   * 
+   * @param client Object that request a copy.
+   * @return Copy of the object.
+   */
+
+  public final T copy(final Object client) {
+    InvariantChecks.checkNotNull(client);
+
+    if (copy != null && owner != client) {
+      return sharedCopy();
+    }
+
+    this.owner = client;
+    return copy();
+  }
+
+  /**
+   * Creates a new full copy of the object.
+   * This method must call the {@link #SharedObject(SharedObject)}
+   * copy constructor in order to publish a shared copy.
+   * 
+   * @return New full copy of the object.
+   */
+  public abstract T copy();
 }
