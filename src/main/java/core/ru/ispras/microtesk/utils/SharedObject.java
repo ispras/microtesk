@@ -159,7 +159,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
 
   public final T copy(final Object client) {
     InvariantChecks.checkNotNull(client);
-    InvariantChecks.checkTrue((copy == null) == (owner == null));
 
     if (copy != null && owner != client) {
       return sharedCopy();
