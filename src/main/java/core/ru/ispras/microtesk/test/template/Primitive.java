@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.microtesk.utils.SharedObject;
 
 public interface Primitive {
   public static enum Kind {
@@ -59,7 +60,8 @@ public interface Primitive {
   int getBlockSize();
 }
 
-final class ConcretePrimitive implements Primitive {
+final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
+                              implements Primitive {
   private final Kind kind;
   private final String name;
   private final String typeName;
@@ -113,6 +115,8 @@ final class ConcretePrimitive implements Primitive {
   }
 
   private ConcretePrimitive(final ConcretePrimitive other) {
+    super(other);
+
     this.kind = other.kind;
     this.name = other.name;
     this.typeName = other.typeName;
@@ -146,7 +150,7 @@ final class ConcretePrimitive implements Primitive {
   }
 
   @Override
-  public Primitive newCopy() {
+  public ConcretePrimitive newCopy() {
     return new ConcretePrimitive(this);
   }
 
@@ -233,6 +237,11 @@ final class ConcretePrimitive implements Primitive {
   public String toString() {
     return null == situation ?
        getSignature() : String.format("%s, situation=%s", getSignature(), situation);
+  }
+
+  @Override
+  public ConcretePrimitive copy() {
+    return newCopy();
   }
 }
 
