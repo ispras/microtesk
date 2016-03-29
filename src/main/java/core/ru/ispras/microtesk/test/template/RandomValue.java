@@ -18,8 +18,9 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.SharedObject;
 
-public final class RandomValue implements Value {
+public final class RandomValue extends SharedObject<RandomValue> implements Value {
   private final BigInteger min;
   private final BigInteger max;
   private BigInteger value;
@@ -43,7 +44,7 @@ public final class RandomValue implements Value {
   }
 
   @Override
-  public Value copy() {
+  public RandomValue copy() {
     return new RandomValue(this);
   }
 
