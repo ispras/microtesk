@@ -14,10 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.utils.SharedObject;
 
@@ -27,7 +26,7 @@ public final class LazyValue extends SharedObject<LazyValue> implements Value {
   private final int size;
 
   protected LazyValue(final LazyData data) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
 
     this.data = data;
     this.start = 0;
@@ -35,7 +34,7 @@ public final class LazyValue extends SharedObject<LazyValue> implements Value {
   }
 
   protected LazyValue(final LazyData data, final int start, final int end) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
 
     if ((start < 0) || (end < 0)) {
       throw new IllegalArgumentException();
@@ -47,7 +46,7 @@ public final class LazyValue extends SharedObject<LazyValue> implements Value {
   }
 
   protected LazyValue(final LazyValue other) {
-    checkNotNull(other);
+    super(other);
 
     this.data = new LazyData(other.data);
     this.start = other.start;
