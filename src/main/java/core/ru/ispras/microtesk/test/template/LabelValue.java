@@ -50,7 +50,7 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
   }
 
   @Override
-  public Value copy() {
+  public LabelValue copy() {
     return new LabelValue(this);
   }
 

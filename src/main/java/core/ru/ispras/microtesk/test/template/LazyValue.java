@@ -55,7 +55,7 @@ public final class LazyValue extends SharedObject<LazyValue> implements Value {
   }
 
   @Override
-  public Value copy() {
+  public LazyValue copy() {
     return new LazyValue(this);
   }
 
