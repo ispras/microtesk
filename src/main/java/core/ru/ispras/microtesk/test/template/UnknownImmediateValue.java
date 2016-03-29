@@ -16,6 +16,8 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 
+import ru.ispras.microtesk.utils.SharedObject;
+
 /**
  * The UnknownValue class describes an unknown immediate value to be specified as an argument of an
  * addressing mode or operation. A corresponding concrete value must be produced as a result of test
@@ -31,7 +33,8 @@ import java.math.BigInteger;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class UnknownImmediateValue implements Value {
+public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
+                                         implements Value {
   private BigInteger value;
 
   protected UnknownImmediateValue() {
@@ -43,7 +46,7 @@ public final class UnknownImmediateValue implements Value {
   }
 
   @Override
-  public Value copy() {
+  public UnknownImmediateValue copy() {
     return new UnknownImmediateValue(this);
   }
 
