@@ -152,17 +152,24 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @param client Object that request a copy.
    * @return Copy of the object.
+   * 
+   * @throws IllegalArgumentException if the {@code client} argument is {@code null};
+   *         if a shared copy is not published for the newly created instance.
    */
 
   public final T copy(final Object client) {
     InvariantChecks.checkNotNull(client);
+    InvariantChecks.checkTrue((copy == null) == (owner == null));
 
     if (copy != null && owner != client) {
       return sharedCopy();
     }
 
     this.owner = client;
-    return copy();
+    final T newCopy = copy();
+
+    InvariantChecks.checkNotNull(this.copy, "Shared copy is not published.");
+    return newCopy;
   }
 
   /**
