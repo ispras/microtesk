@@ -245,7 +245,8 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
   }
 }
 
-final class LazyPrimitive implements Primitive {
+final class LazyPrimitive extends SharedObject<LazyPrimitive> 
+                          implements Primitive {
   private Primitive source;
   private final Kind kind;
   private final String name;
@@ -266,6 +267,8 @@ final class LazyPrimitive implements Primitive {
   }
 
   private LazyPrimitive(final LazyPrimitive other) {
+    super(other);
+
     this.source = null != other.source ? other.source.newCopy() : null;
     this.kind = other.kind;
     this.name = other.name;
@@ -303,7 +306,7 @@ final class LazyPrimitive implements Primitive {
   }
 
   @Override
-  public Primitive newCopy() {
+  public LazyPrimitive newCopy() {
     return new LazyPrimitive(this);
   }
 
@@ -409,5 +412,10 @@ final class LazyPrimitive implements Primitive {
       throw new IllegalStateException(String.format(
         "Source for %s is not assigned.", name));
     }
+  }
+
+  @Override
+  public LazyPrimitive copy() {
+    return newCopy();
   }
 }
