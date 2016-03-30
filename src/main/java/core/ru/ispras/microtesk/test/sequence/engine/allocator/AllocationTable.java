@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2007-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,11 +33,8 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AllocationTable<T, V> {
-  /** The strategy for object allocation. */
-  private final AllocationStrategy strategy;
-
-  /** The strategy parameters. */
-  private final Map<String, String> attributes;
+  /** The object that performs allocation. */
+  private final Allocator allocator;
 
   /** The set of all available objects. */
   private final Set<T> objects;
@@ -65,8 +62,7 @@ public final class AllocationTable<T, V> {
     InvariantChecks.checkNotNull(objects);
     InvariantChecks.checkNotEmpty(objects);
 
-    this.strategy = strategy;
-    this.attributes = attributes;
+    this.allocator = new Allocator(strategy, attributes);
     this.objects = new LinkedHashSet<>(objects);
 
     reset();
@@ -260,7 +256,7 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
-    final T object = strategy.next(free, used, attributes);
+    final T object = allocator.next(free, used);
 
     if (object == null) {
       throw new IllegalStateException("Cannot peek an object");
@@ -283,7 +279,7 @@ public final class AllocationTable<T, V> {
     final Set<T> domain = new HashSet<>(free);
     domain.removeAll(exclude);
 
-    final T object = strategy.next(domain, used, attributes);
+    final T object = allocator.next(domain, used);
 
     if (object == null) {
       throw new IllegalStateException(
