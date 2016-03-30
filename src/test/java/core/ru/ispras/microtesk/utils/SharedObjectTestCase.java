@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -93,11 +94,24 @@ public class SharedObjectTestCase {
       original.add(new SharedObjectHolder<>(value));
     }
 
-    final List<SharedObjectHolder<RandomValue>> copy = SharedObjectHolder.copyAll(original);
+    final List<SharedObjectHolder<RandomValue>> copy = 
+        SharedObjectHolder.copyAll(original);
+
     checkUseSharedObjects(copy);
 
+    final List<SharedObjectHolder<RandomValue>> shuffled = new ArrayList<>(original);
+    Collections.shuffle(shuffled);
+
+    final List<SharedObjectHolder<RandomValue>> shuffledCopy =
+        SharedObjectHolder.copyAll(shuffled);
+
+    checkUseSharedObjects(shuffledCopy);
+
     System.out.println(original);
+    System.out.println(shuffled);
+
     System.out.println(copy);
+    System.out.println(shuffledCopy);
   }
 
   public static <U extends SharedObject<U>> void checkUseSharedObjects(
