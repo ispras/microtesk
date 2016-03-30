@@ -47,8 +47,13 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
   }
 
   @Override
-  public UnknownImmediateValue copy() {
+  public UnknownImmediateValue newCopy() {
     return new UnknownImmediateValue(this);
+  }
+
+  @Override
+  public Value copy() {
+    return newCopy();
   }
 
   public boolean isValueSet() {

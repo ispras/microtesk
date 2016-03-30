@@ -24,6 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
+import ru.ispras.microtesk.utils.SharedObject;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -93,6 +94,10 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     // Solver may modify the abstract sequence.
     final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
 
+    // Clears copies of shared objects, which might be created during sequence copying.
+    SharedObject.freeSharedCopies();
+
+    // Sets temporary context.
     Memory.setUseTempCopies(true);
 
     return engine.solve(engineContext, abstractSequenceCopy);

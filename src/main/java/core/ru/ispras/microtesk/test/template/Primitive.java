@@ -238,11 +238,6 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
     return null == situation ?
        getSignature() : String.format("%s, situation=%s", getSignature(), situation);
   }
-
-  @Override
-  public ConcretePrimitive copy() {
-    return newCopy();
-  }
 }
 
 final class LazyPrimitive extends SharedObject<LazyPrimitive> 
@@ -412,10 +407,5 @@ final class LazyPrimitive extends SharedObject<LazyPrimitive>
       throw new IllegalStateException(String.format(
         "Source for %s is not assigned.", name));
     }
-  }
-
-  @Override
-  public LazyPrimitive copy() {
-    return newCopy();
   }
 }

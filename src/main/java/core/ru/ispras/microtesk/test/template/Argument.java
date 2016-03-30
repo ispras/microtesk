@@ -95,7 +95,7 @@ public final class Argument {
     this.type = other.type;
 
     if (other.value instanceof SharedObject) {
-      this.value = ((SharedObject<?>) other.value).copy(other);
+      this.value = ((SharedObject<?>) other.value).getCopy();
     } else {
       InvariantChecks.checkTrue(other.value instanceof BigInteger);
       this.value = other.value;

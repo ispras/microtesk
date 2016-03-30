@@ -54,8 +54,13 @@ public final class LazyValue extends SharedObject<LazyValue> implements Value {
   }
 
   @Override
-  public LazyValue copy() {
+  public LazyValue newCopy() {
     return new LazyValue(this);
+  }
+
+  @Override
+  public Value copy() {
+    return newCopy();
   }
 
   public BitVector asBitVector() {

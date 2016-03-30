@@ -44,8 +44,13 @@ public final class RandomValue extends SharedObject<RandomValue> implements Valu
   }
 
   @Override
-  public RandomValue copy() {
+  public RandomValue newCopy() {
     return new RandomValue(this);
+  }
+
+  @Override
+  public Value copy() {
+    return newCopy();
   }
 
   public BigInteger getMin() {
