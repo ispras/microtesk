@@ -198,8 +198,11 @@ public abstract class SharedObject<T extends SharedObject<T>> {
     }
 
     final Object copy = sharedObjects.get(original);
-    InvariantChecks.checkTrue(original.getClass().equals(copy.getClass()));
+    if (null == copy) {
+      return null;
+    }
 
+    InvariantChecks.checkTrue(original.getClass().equals(copy.getClass()));
     return (U) copy;
   }
 }
