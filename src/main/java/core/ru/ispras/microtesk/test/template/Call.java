@@ -21,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.TestSettings;
+import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Call {
   private final String text;
@@ -246,6 +247,7 @@ public final class Call {
       result.add(new Call(call));
     }
 
+    SharedObject.freeSharedCopies();
     return result;
   }
 

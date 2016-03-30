@@ -94,9 +94,6 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     // Solver may modify the abstract sequence.
     final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
 
-    // Clears copies of shared objects, which might be created during sequence copying.
-    SharedObject.freeSharedCopies();
-
     // Sets temporary context.
     Memory.setUseTempCopies(true);
 

@@ -29,6 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Preparator {
   private final Where where;
@@ -208,6 +209,7 @@ public final class Preparator {
       LabelUniqualizer.get().popLabelScope();
     }
 
+    SharedObject.freeSharedCopies();
     return expandedCalls;
   }
 
