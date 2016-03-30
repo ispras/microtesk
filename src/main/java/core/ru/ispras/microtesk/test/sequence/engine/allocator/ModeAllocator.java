@@ -60,7 +60,7 @@ public final class ModeAllocator {
             strategy != null ? strategy.getStrategy() : AllocationStrategyId.RANDOM;
         final Map<String, String> allocationAttributes =
             strategy != null ? strategy.getAttributes() : null;
-  
+
         final RangeSettings range = mode.getRange();
         if (range != null) {
           final AllocationTable<Integer, ?> allocationTable =
@@ -133,7 +133,7 @@ public final class ModeAllocator {
             use(primitive.getName(), labelValue.getValue());
           }
           break;
-          
+
         default:
           useInitializedModes((Primitive) arg.getValue());
           break;
