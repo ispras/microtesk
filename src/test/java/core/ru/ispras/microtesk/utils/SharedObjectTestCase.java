@@ -38,7 +38,7 @@ public class SharedObjectTestCase {
     }
 
     @Override
-    public RandomValue copy() {
+    public RandomValue newCopy() {
       return new RandomValue(this);
     }
 
@@ -56,17 +56,17 @@ public class SharedObjectTestCase {
   }
 
   public static final class SharedObjectHolder<T extends SharedObject<T>> {
-    private final SharedObject<T> object;
+    private final T object;
 
-    public SharedObjectHolder(final SharedObject<T> object) {
+    public SharedObjectHolder(final T object) {
       this.object = object;
     }
 
     public SharedObjectHolder(final SharedObjectHolder<T> other) {
-      this.object = other.object.copy(other);
+      this.object = other.object.getCopy();
     }
 
-    public SharedObject<T> getObject() {
+    public T getObject() {
       return object;
     }
 
@@ -98,14 +98,18 @@ public class SharedObjectTestCase {
         SharedObjectHolder.copyAll(original);
 
     checkUseSharedObjects(copy);
+    Assert.assertFalse(copy.get(0).getObject() == original.get(0).getObject());
 
     final List<SharedObjectHolder<RandomValue>> shuffled = new ArrayList<>(original);
     Collections.shuffle(shuffled);
 
+    SharedObject.freeSharedCopies();
     final List<SharedObjectHolder<RandomValue>> shuffledCopy =
         SharedObjectHolder.copyAll(shuffled);
 
     checkUseSharedObjects(shuffledCopy);
+    Assert.assertFalse(shuffledCopy.get(0).getObject() == original.get(0).getObject());
+    Assert.assertFalse(shuffledCopy.get(0).getObject() == copy.get(0).getObject());
 
     System.out.println(original);
     System.out.println(shuffled);

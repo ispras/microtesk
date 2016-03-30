@@ -16,7 +16,9 @@ package ru.ispras.microtesk.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -30,19 +32,15 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * <p>The protocol is implemented in the following way: The owner of the
  * shared object creates a new copy using the copy constructor. A reference
- * to the new copy is saved in the copied object. Other clients must use
- * the {@link #sharedCopy} method to get the reference to the new copy.
+ * to the new copy is saved in the table of shared objects. Other clients
+ * must use the {@link #sharedCopy} method to get the reference to the new copy.
  * It is important what all clients get the shared copy before a newer
  * copy is created otherwise they will refer to different instances.
  * 
  * <p> In situations when it is not obvious which object is the owner,
- * the {@link #copy(Object)} method must be called. It takes a reference
- * to the client object that requests copying. If the client is the owner,
- * a new copy is created. Otherwise, a shared copy is returned. 
- * Objects which have not been previously copied do not have an owner.
- * Ownership is assigned to the client which first requested copying.
- * The reference to the owner is stored in the copied object and is
- * updated when a new copy is created.
+ * the {@link #getCopy} method can be used. It returns an existing shared
+ * copy if it is available or creates a new shared copy otherwise. To free
+ * existing shared copies, the {@link #freeSharedCopies} must be used.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
@@ -51,72 +49,57 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public abstract class SharedObject<T extends SharedObject<T>> {
   /**
-   * A fresh copy of this object created by the owner using the
-   * copy constructor. This copy is shared with objects that refer
-   * to the current object and is used when referencing objects are
-   * copied and need to update the reference to the shared object.
+   * Table shared copies. Key is original object, value is its shared copy.
    */
-
-  private T copy;
-
-  /**
-   * Reference to the owner, the object that can create new copies.
-   * This information is needed to decide whether to create a new copy
-   * or to return a shared copy.
-   */
-
-  private Object owner;
+  private static Map<Object, Object> sharedObjects = null;
 
   /**
    * Constructs a new shared object.
    * 
-   * <p>The object has no shared copies until it is copied by the owner
-   * using the copy constructor.
-   * 
-   * <p> The object has no owner until it is copied for the first time.
-   * The client which requested copying first becomes the owner.
+   * <p>No shared copies a published until an object is copied.
    */
 
   protected SharedObject() {
-    this.copy = null;
-    this.owner = null;
   }
 
   /**
    * Constructs a copy of a shared object.
    * 
-   * <p> This constructor must be called by the owner to make a new
-   * copy of the object. The created copy will be shared among the objects
-   * that refer to the current object to update the reference when they are
-   * copied.
+   * <p> This constructor must be called by the owner in order to publish
+   * a shared copy of the object.
    * 
    * @param other Object to be copied.
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
 
-  @SuppressWarnings("unchecked")
   protected SharedObject(final SharedObject<T> other) {
     InvariantChecks.checkNotNull(other);
-
-    this.copy = null;
-    other.copy = (T) this;
-    this.owner = null;
+    publishSharedCopy(other, this);
   }
 
   /**
-   * Returns a copy of the object made by its owner.
+   * Frees all shared objects.
+   */
+
+  public static void freeSharedCopies() {
+    sharedObjects = null;
+  }
+
+  /**
+   * Returns a shared copy of the object made by its owner.
    * 
    * <p>This method must be used by objects that keep a reference
    * to the object and do not own it to update the reference when they
    * are copied.
    * 
-   * @return Copy made by the owner.
+   * @return Shared copy of the object.
    * 
-   * @throws IllegalArgumentException if the object has not been copied yet.
+   * @throws IllegalArgumentException if no shared copy is available yet.
    */
 
   public final T sharedCopy() {
+    final T copy = getSharedCopyFor(this);
     InvariantChecks.checkNotNull(copy, "Shared copy is unavailable.");
     return copy;
   }
@@ -127,7 +110,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * @param objects List of objects to be copied.
    * @return List that stores shared copies of the specified objects.
    * 
-   * @throws IllegalArgumentException if any of the objects has not been copied yet.
+   * @throws IllegalArgumentException if any of the objects has no shared copy.
    */
 
   public static <T extends SharedObject<T>> List<T> sharedCopyAll(final List<T> objects) {
@@ -146,28 +129,24 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   }
 
   /**
-   * Creates a shared copy of the object if the client is its owner.
-   * If the object has no owner, the client becomes its owner.
-   * If the client is not its owner, a shared copy is returned.
+   * Returns a shared copy of the object if it is available. Otherwise,
+   * creates and returns a new shared copy.
    * 
-   * @param client Object that request a copy.
    * @return Copy of the object.
    * 
-   * @throws IllegalArgumentException if the {@code client} argument is {@code null};
-   *         if a shared copy is not published for the newly created instance.
+   * @throws IllegalArgumentException if the newly created shared copy was not published.
    */
 
-  public final T copy(final Object client) {
-    InvariantChecks.checkNotNull(client);
+  public final T getCopy() {
+    final T sharedCopy = getSharedCopyFor(this);
 
-    if (copy != null && owner != client) {
-      return sharedCopy();
+    if (null != sharedCopy) {
+      return sharedCopy;
     }
 
-    this.owner = client;
-    final T newCopy = copy();
+    final T newCopy = newCopy();
+    InvariantChecks.checkNotNull(getSharedCopyFor(this), "Shared copy is not published.");
 
-    InvariantChecks.checkNotNull(this.copy, "Shared copy is not published.");
     return newCopy;
   }
 
@@ -178,5 +157,49 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @return New full copy of the object.
    */
-  public abstract T copy();
+  public abstract T newCopy();
+
+  /**
+   * Publishes a shared copy of an object. If a shared copy of the object
+   * has already been published, it is replaced with the new one.
+   * 
+   * @param original Original object.
+   * @param copy Copy of the original object to be shared.
+   * 
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   */
+
+  private static void publishSharedCopy(final Object original, final Object copy) {
+    InvariantChecks.checkNotNull(original);
+    InvariantChecks.checkNotNull(copy);
+
+    if (null == sharedObjects) {
+      sharedObjects = new IdentityHashMap<>();
+    }
+
+    sharedObjects.put(original, copy);
+  }
+
+  /**
+   * Returns the most recent shared copy for the specified object or {@null}
+   * if no shared copy is available.
+   * 
+   * @param original Original object associated with the shared copy.
+   * @return Shared copy of the given object or {@code null} if no shared copy
+   *         is available.
+   */
+
+  @SuppressWarnings("unchecked")
+  private static <U> U getSharedCopyFor(final Object original) {
+    InvariantChecks.checkNotNull(original);
+
+    if (null == sharedObjects) {
+      return null;
+    }
+
+    final Object copy = sharedObjects.get(original);
+    InvariantChecks.checkTrue(original.getClass().equals(copy.getClass()));
+
+    return (U) copy;
+  }
 }
