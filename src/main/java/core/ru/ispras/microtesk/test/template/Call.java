@@ -146,6 +146,14 @@ public final class Call {
     return result;
   }
 
+  public static Call newFreeAllocatedMode(final Primitive mode) {
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkTrue(mode.getKind() == Primitive.Kind.MODE);
+
+    // TODO Auto-generated method stub
+    return newComment("free_allocated_register");
+  }
+
   public Call(
       final String text,
       final Primitive rootOperation,

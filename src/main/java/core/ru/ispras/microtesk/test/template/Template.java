@@ -467,8 +467,7 @@ public final class Template {
           mode.getName() + " is not an addressing mode.");
     }
 
-    Logger.message("Freeing allocated mode: " + mode.getName() + "...");
-    // addCall(Call.newFreeMode(mode));
+    addCall(Call.newFreeAllocatedMode(mode));
   }
 
   public UnknownImmediateValue newUnknownImmediate(final Allocator allocator) {
