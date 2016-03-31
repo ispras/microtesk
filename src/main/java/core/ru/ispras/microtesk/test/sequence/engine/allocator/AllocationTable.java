@@ -34,7 +34,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class AllocationTable<T, V> {
   /** The object that performs allocation. */
-  private final Allocator allocator;
+  private Allocator allocator;
 
   /** The set of all available objects. */
   private final Set<T> objects;
@@ -86,6 +86,27 @@ public final class AllocationTable<T, V> {
    */
   public AllocationTable(final Collection<T> objects) {
     this(AllocationStrategyId.FREE, objects);
+  }
+
+  /**
+   * Returns the currently used allocator.
+   * 
+   * @return Current allocator.
+   */
+  public Allocator getAllocator() {
+    return allocator;
+  }
+
+  /**
+   * Replaces the current allocator with a new one.
+   * 
+   * @param allocator New allocator.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
+  public void setAllocator(final Allocator allocator) {
+    InvariantChecks.checkNotNull(allocator);
+    this.allocator = allocator;
   }
 
   /**
