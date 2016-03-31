@@ -436,6 +436,10 @@ class Template
     builder.build
   end
 
+  def free_allocated_mode(mode) 
+    @template.freeAllocatedMode mode
+  end
+
   # -------------------------------------------------------------------------- #
   # Defining Groups                                                            #
   # -------------------------------------------------------------------------- #
