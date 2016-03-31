@@ -56,6 +56,10 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     this.value = other.value;
   }
 
+  public Allocator getAllocator() {
+    return allocator;
+  }
+
   @Override
   public UnknownImmediateValue newCopy() {
     return new UnknownImmediateValue(this);

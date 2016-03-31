@@ -152,7 +152,8 @@ public final class ModeAllocator {
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
-            unknownValue.setValue(BigInteger.valueOf(allocate(primitive.getName())));
+            final int value = allocate(primitive.getName(), unknownValue.getAllocator());
+            unknownValue.setValue(BigInteger.valueOf(value));
           }
           break;
         default:
@@ -170,10 +171,20 @@ public final class ModeAllocator {
     }
   }
 
-  private int allocate(final String mode) {
+  private int allocate(final String mode, final Allocator allocator) {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
-    return allocationTable.allocate();
+    if (null == allocator) {
+      return allocationTable.allocate();
+    }
+
+    final Allocator defaultAllocator = allocationTable.getAllocator();
+    try {
+      allocationTable.setAllocator(allocator);
+      return allocationTable.allocate();
+    } finally {
+      allocationTable.setAllocator(defaultAllocator);
+    }
   }
 }
