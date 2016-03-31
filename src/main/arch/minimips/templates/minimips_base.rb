@@ -447,4 +447,16 @@ class MiniMipsBaseTemplate < Template
     }
     trace ""
   end
+
+  #
+  # Utility method to specify a random register that is not used
+  # in the current test case.
+  #
+  def get_register
+    if nil == @free_register_allocator
+      @free_register_allocator = mode_allocator('FREE')
+    end
+
+    reg(_ @free_register_allocator)
+  end
 end
