@@ -426,6 +426,16 @@ class Template
   #   NoValue.new(aug_value)
   # end
 
+  def mode_allocator(name, attrs = {})
+    builder = @template.newAllocatorBuilder name
+
+    attrs.each_pair do |key, value|
+      builder.setAttribute key.to_s, value.to_s
+    end
+
+    builder.build
+  end
+
   # -------------------------------------------------------------------------- #
   # Defining Groups                                                            #
   # -------------------------------------------------------------------------- #
