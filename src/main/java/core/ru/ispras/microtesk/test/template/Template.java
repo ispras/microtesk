@@ -457,6 +457,11 @@ public final class Template {
     return new AllocatorBuilder(strategy);
   }
 
+  public void freeAllocatedMode(final Primitive mode) {
+    // TODO
+    Logger.message("Freeing allocated mode: " + mode.getName() + "...");
+  }
+
   public UnknownImmediateValue newUnknownImmediate(final Allocator allocator) {
     return new UnknownImmediateValue(allocator);
   }
