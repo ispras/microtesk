@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 
+import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
@@ -35,14 +36,23 @@ import ru.ispras.microtesk.utils.SharedObject;
 
 public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
                                          implements Value {
+  private final Allocator allocator;
   private BigInteger value;
 
   protected UnknownImmediateValue() {
+    this.allocator = null;
+    this.value = null;
+  }
+
+  protected UnknownImmediateValue(final Allocator allocator) {
+    this.allocator = allocator;
     this.value = null;
   }
 
   protected UnknownImmediateValue(final UnknownImmediateValue other) {
     super(other);
+
+    this.allocator = other.allocator;
     this.value = other.value;
   }
 
