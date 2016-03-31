@@ -459,4 +459,12 @@ class MiniMipsBaseTemplate < Template
 
     reg(_ @free_register_allocator)
   end
+
+  #
+  # Utility method to remove the specified addressing mode from
+  # the list of used registers.
+  #
+  def free_register(mode)
+    free_allocated_mode mode
+  end
 end
