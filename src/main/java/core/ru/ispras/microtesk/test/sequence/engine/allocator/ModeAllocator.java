@@ -31,6 +31,7 @@ import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.test.template.Value;
 
 /**
  * {@code ModeAllocator} allocates addressing modes for a given abstract sequence.
@@ -92,10 +93,15 @@ public final class ModeAllocator {
 
     // Phase 2: allocate the uninitialized addressing modes.
     for (final Call call : sequence) {
+      if (call.isModeToFree()) {
+        final Primitive primitive = call.getModeToFree();
+        freeInitializedMode(primitive);
+      }
+
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
         allocateUninitializedModes(primitive);
-      }
+      } 
     }
   }
 
@@ -185,6 +191,25 @@ public final class ModeAllocator {
       return allocationTable.allocate();
     } finally {
       allocationTable.setAllocator(defaultAllocator);
+    }
+  }
+
+  private void freeInitializedMode(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.MODE);
+
+    final String mode = primitive.getName();
+    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
+    InvariantChecks.checkNotNull(allocationTable);
+
+    for (final Argument arg : primitive.getArguments().values()) {
+      if (arg.getValue() instanceof BigInteger) {
+        final BigInteger value = (BigInteger) arg.getValue();
+        allocationTable.free(value.intValue());
+      } else if (arg.getValue() instanceof Value) {
+        final BigInteger value = ((Value) arg.getValue()).getValue();
+        allocationTable.free(value.intValue());
+      }
     }
   }
 }
