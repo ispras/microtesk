@@ -32,13 +32,6 @@ public final class Allocator {
   /** The strategy parameters. */
   private final Map<String, String> attributes;
 
-  public static Allocator valueOf(final String name, final Map<String, String> attributes) {
-    InvariantChecks.checkNotNull(name);
-
-    final AllocationStrategy strategy = AllocationStrategyId.valueOf(name.toUpperCase());
-    return new Allocator(strategy, attributes);
-  }
-
   public Allocator(final AllocationStrategy strategy, final Map<String, String> attributes) {
     InvariantChecks.checkNotNull(strategy);
 
