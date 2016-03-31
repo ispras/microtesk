@@ -458,8 +458,17 @@ public final class Template {
   }
 
   public void freeAllocatedMode(final Primitive mode) {
-    // TODO
+    if (null == mode) {
+      return;
+    }
+
+    if (mode.getKind() != Primitive.Kind.MODE) {
+      throw new GenerationAbortedException(
+          mode.getName() + " is not an addressing mode.");
+    }
+
     Logger.message("Freeing allocated mode: " + mode.getName() + "...");
+    // addCall(Call.newFreeMode(mode));
   }
 
   public UnknownImmediateValue newUnknownImmediate(final Allocator allocator) {
