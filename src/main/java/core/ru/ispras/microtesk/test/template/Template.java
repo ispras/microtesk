@@ -452,6 +452,10 @@ public final class Template {
     return new VariateBuilder<>();
   }
 
+  public AllocatorBuilder newAllocatorBuilder(final String strategy) {
+    return new AllocatorBuilder(strategy);
+  }
+
   public UnknownImmediateValue newUnknownImmediate() {
     return new UnknownImmediateValue();
   }
