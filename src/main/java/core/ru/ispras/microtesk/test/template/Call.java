@@ -47,6 +47,7 @@ public final class Call {
   private final PreparatorReference preparatorReference;
   private final DataSection data;
   private final List<Call> atomicSequence;
+  private final Primitive modeToFree;
 
   public static Call newData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
@@ -63,6 +64,7 @@ public final class Call {
         null,
         null,
         data,
+        null,
         null
         );
   }
@@ -78,6 +80,7 @@ public final class Call {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -108,6 +111,7 @@ public final class Call {
         null,
         null,
         null,
+        null,
         null
         );
   }
@@ -127,7 +131,8 @@ public final class Call {
         null,
         null,
         null,
-        expandAtomic(sequence)
+        expandAtomic(sequence),
+        null
         );
   }
 
@@ -150,7 +155,6 @@ public final class Call {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkTrue(mode.getKind() == Primitive.Kind.MODE);
 
-    // TODO
     return new Call(
         null,
         null,
@@ -163,7 +167,8 @@ public final class Call {
         null,
         null,
         null,
-        null
+        null,
+        mode
         );
   }
 
@@ -179,7 +184,8 @@ public final class Call {
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
       final DataSection data,
-      final List<Call> atomicSequence) {
+      final List<Call> atomicSequence,
+      final Primitive modeToFree) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -220,6 +226,7 @@ public final class Call {
     this.preparatorReference = preparatorReference;
     this.data = data;
     this.atomicSequence = atomicSequence;
+    this.modeToFree = modeToFree;
   }
 
   public Call(final Call other) {
@@ -254,6 +261,9 @@ public final class Call {
 
     this.atomicSequence = null != other.atomicSequence ?
         copyAll(other.atomicSequence) : null;
+
+    this.modeToFree = null != other.modeToFree ?
+       (Primitive)((SharedObject<?>) other.modeToFree).getCopy() : null;
   }
 
   public static List<Call> copyAll(final List<Call> calls) {
@@ -286,6 +296,7 @@ public final class Call {
            !isPreparatorCall() &&
            !hasData()          &&
            !isAtomicSequence() &&
+           !isModeToFree()     &&
            labels.isEmpty()    &&
            outputs.isEmpty()   &&
            null == origin      &&
@@ -381,12 +392,20 @@ public final class Call {
     return atomicSequence;
   }
 
+  public boolean isModeToFree() {
+    return null != modeToFree;
+  }
+
+  public Primitive getModeToFree() {
+    return modeToFree;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "instruction call %s" + 
         "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d, " +
-        "preparator: %s, data: %b, atomic: %b)",
+        "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
         isBranch(),
@@ -397,7 +416,8 @@ public final class Call {
         getBlockSize(),
         isPreparatorCall() ? preparatorReference : "null",
         hasData(),
-        isAtomicSequence()
+        isAtomicSequence(),
+        isModeToFree() ? modeToFree.getName() : "null"
         );
   }
 }
