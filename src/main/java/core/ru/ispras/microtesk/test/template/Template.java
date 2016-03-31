@@ -41,6 +41,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 
 public final class Template {
 
@@ -456,8 +457,8 @@ public final class Template {
     return new AllocatorBuilder(strategy);
   }
 
-  public UnknownImmediateValue newUnknownImmediate() {
-    return new UnknownImmediateValue();
+  public UnknownImmediateValue newUnknownImmediate(final Allocator allocator) {
+    return new UnknownImmediateValue(allocator);
   }
 
   public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {

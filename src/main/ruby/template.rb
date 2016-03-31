@@ -412,8 +412,8 @@ class Template
   # as an argument of a mode or op. A corresponding concrete value must be
   # produced as a result of test data generation for some test situation.
   #
-  def _
-    @template.newUnknownImmediate
+  def _(allocator = nil)
+    @template.newUnknownImmediate allocator
   end
 
   # --- Special "no value" method ---
