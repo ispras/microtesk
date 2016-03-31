@@ -150,8 +150,21 @@ public final class Call {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkTrue(mode.getKind() == Primitive.Kind.MODE);
 
-    // TODO Auto-generated method stub
-    return newComment("free_allocated_register");
+    // TODO
+    return new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+        );
   }
 
   public Call(
