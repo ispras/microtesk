@@ -20,7 +20,7 @@ require_relative 'minimips_base'
 # Description:
 #
 # This test template demonstrates how to randomly allocate registers so
-# that do not conflict with other registers used in a test case. 
+# that they do not conflict with other registers used in the test case.
 #
 class RegisterAllocationTemplate < MiniMipsBaseTemplate
 
@@ -43,12 +43,24 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
   def run
     # Destination of all instructions is a random register that
     # is not used in this sequence.
-
     sequence {
-      add get_register, t1, t2
-      sub get_register, t3, t4
-      slt get_register, t5, t6
-      xor get_register, t7, t8
+      # Randomly selects destination registers from free registers
+      add reg1=get_register, t0, t1
+      sub reg2=get_register, t2, t3
+      slt reg3=get_register, t4, t5
+      newline
+
+      # Frees the previously reserved registers
+      free_register reg1
+      free_register reg2
+      free_register reg3
+
+      # Randomly selects destination registers from free registers including
+      # those that were previosly freed
+      add get_register, s0, s1
+      sub get_register, s2, s3
+      slt get_register, s4, s5
+      newline
     }.run 3
   end
 end
