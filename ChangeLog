@@ -6,6 +6,13 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/04/01 MicroTESK 2.3.28 beta
+
+ The new build contains the following changes:
+
+ - Test Templates: Possibility to specify strategy for register allocation
+   was implemented
+
 2016/03/18 MicroTESK 2.3.27 beta
 
  The new build contains the following changes:
