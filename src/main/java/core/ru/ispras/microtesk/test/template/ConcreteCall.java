@@ -137,12 +137,12 @@ public final class ConcreteCall {
     }
 
     try {
+      ++executionCount;
       executable.execute();
     } catch (final ExecutionException e) {
       return e.getMessage();
     }
 
-    ++executionCount;
     return null;
   }
 
