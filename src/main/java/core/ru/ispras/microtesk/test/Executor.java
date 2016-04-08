@@ -33,6 +33,7 @@ import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
@@ -50,7 +51,6 @@ import ru.ispras.microtesk.test.template.Output;
 final class Executor {
   private final EngineContext context;
   private final IModelStateObserver observer;
-
   private Map<String, List<ConcreteCall>> exceptionHandlers;
 
   /**
@@ -70,7 +70,6 @@ final class Executor {
 
     this.context = context;
     this.observer = observer;
-
     this.exceptionHandlers = null;
   }
 
@@ -126,8 +125,15 @@ final class Executor {
     observer.accessLocation("PC").setValue(BigInteger.valueOf(startAdress));
 
     final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
-    while (index >= 0 && index < calls.size()) {
-      final ConcreteCall call = calls.get(index);
+
+    final ConcreteCall invalidCall =
+        EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
+
+    while (index >= 0 && index < calls.size() || 
+           null != invalidCall && invalidCall.getExecutionCount() == 0) {
+
+      final ConcreteCall call =
+          index >= 0 && index < calls.size() ? calls.get(index) : invalidCall;
 
       if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
         throw new GenerationAbortedException(String.format(
@@ -147,7 +153,7 @@ final class Executor {
       logOutputs(call.getOutputs());
       logLabels(call.getLabels());
 
-      if (null != call.getText()) {
+      if (invalidCall != call && null != call.getText()) {
         logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
       }
 
@@ -175,7 +181,9 @@ final class Executor {
       }
 
       Tarmac.setEnabled(true);
-      logCall(call);
+      if (invalidCall != call) {
+        logCall(call);
+      }
 
       final String exception = call.execute();
       Tarmac.setEnabled(false);
@@ -214,15 +222,16 @@ final class Executor {
 
         // If no label references are found within the delay slot we try to use PC to jump
         final long nextAddress = observer.accessLocation("PC").getValue().longValue();
-        if (!addressMap.containsKey(nextAddress)) {
+        if (addressMap.containsKey(nextAddress)) {
+          logText(String.format("Jump to address: 0x%x", nextAddress));
+          final int nextIndex = addressMap.get(nextAddress);
+          index = nextIndex;
+        } else if (null != invalidCall) {
+          index = -1;
+        } else {
           throw new GenerationAbortedException(String.format(
               "Simulation error. There is no executable code at 0x%x", nextAddress));
         }
-
-        logText(String.format("Jump to address: 0x%x", nextAddress));
-
-        final int nextIndex = addressMap.get(nextAddress);
-        index = nextIndex;
       } else {
         // EXCEPTION IS DETECTED
 
