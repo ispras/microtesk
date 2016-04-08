@@ -129,7 +129,7 @@ final class Executor {
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
 
-    while (index >= 0 && index < calls.size() || 
+    while (index >= 0 && index < calls.size() ||
            null != invalidCall && invalidCall.getExecutionCount() == 0) {
 
       final ConcreteCall call =
@@ -196,6 +196,17 @@ final class Executor {
           // If there are no transfers, continue to the next instruction if there is such.
           if (index == endIndex) break;
           index++;
+
+          final long nextAddress = call.getAddress() + call.getByteSize();
+          if (!addressMap.containsKey(nextAddress)) {
+            if (null != invalidCall) {
+              index = -1;
+            } else {
+              throw new GenerationAbortedException(String.format(
+                  "Simulation error. There is no executable code at 0x%x", nextAddress));
+            }
+          }
+
           continue;
         }
 
