@@ -362,6 +362,26 @@ public final class EngineUtils {
     }
   }
 
+  public static ConcreteCall makeSpecialConcreteCall(
+      final EngineContext engineContext,
+      final String instructionName) {
+    checkNotNull(engineContext);
+    checkNotNull(instructionName);
+
+    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+
+    final IOperation operation;
+    try {
+      final OperationBuilder operationBuilder = callFactory.newOp(instructionName, null);
+      operation = operationBuilder.build();
+    } catch (final ConfigurationException e) {
+      return null;
+    }
+
+    final InstructionCall executable = callFactory.newCall(operation);
+    return new ConcreteCall(executable);
+  }
+
   public static BigInteger makeImm(final Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM);
     return (BigInteger) argument.getValue();
