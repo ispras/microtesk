@@ -6,6 +6,13 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/04/08 MicroTESK 2.3.29 beta
+
+ The new build contains the following changes:
+
+ - Support for handling control transfers to invalid addresses was implemented
+ - Some bug fixes were made
+
 2016/04/01 MicroTESK 2.3.28 beta
 
  The new build contains the following changes:
