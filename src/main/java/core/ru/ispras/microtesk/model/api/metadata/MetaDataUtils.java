@@ -132,4 +132,28 @@ public final class MetaDataUtils {
 
     return sb.toString();
   }
+  
+  public static String toNameListStringRecursive(
+      final Collection<? extends MetaData> c, final String sep) {
+    InvariantChecks.checkNotNull(c);
+
+    if (c.isEmpty()) {
+      return "";
+    }
+
+    final StringBuilder sb = new StringBuilder();
+    for (final MetaData item : c) {
+      if (sb.length() != 0) {
+        sb.append(sep);
+      }
+
+      if (item instanceof MetaGroup) {
+        sb.append(toNameListStringFull(((MetaGroup) item).getItems(), sep));
+      } else {
+        sb.append(item.getName());
+      }
+    }
+
+    return sb.toString();
+  }
 }
