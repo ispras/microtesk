@@ -148,7 +148,7 @@ public final class MetaDataUtils {
       }
 
       if (item instanceof MetaGroup) {
-        sb.append(toNameListStringFull(((MetaGroup) item).getItems(), sep));
+        sb.append(toNameListStringRecursive(((MetaGroup) item).getItems(), sep));
       } else {
         sb.append(item.getName());
       }
