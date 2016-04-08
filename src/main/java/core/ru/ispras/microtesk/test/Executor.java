@@ -182,11 +182,11 @@ final class Executor {
 
       if (null == exception) {
         // NORMAL EXECUTION
-        if (index == endIndex) break;
 
         final int transferStatus = observer.getControlTransferStatus();
         if (0 == transferStatus) {
-          // If there are no transfers, continue to the next instruction.
+          // If there are no transfers, continue to the next instruction if there is such.
+          if (index == endIndex) break;
           index++;
           continue;
         }
