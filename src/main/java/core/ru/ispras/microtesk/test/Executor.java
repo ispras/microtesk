@@ -199,6 +199,12 @@ final class Executor {
 
           final long nextAddress = call.getAddress() + call.getByteSize();
           if (!addressMap.containsKey(nextAddress)) {
+            final ConcreteCall nextCall = calls.get(index);
+            if (null != nextCall.getAlignment() && null == nextCall.getOrigin()) {
+              // If the next call is aligned, it is not a problem.
+              continue;
+            }
+
             if (null != invalidCall) {
               index = -1;
             } else {
