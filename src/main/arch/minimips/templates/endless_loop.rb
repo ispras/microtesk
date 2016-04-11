@@ -32,6 +32,7 @@ class EndlessLoopTemplate < MiniMipsBaseTemplate
 
     add  t0, zero, zero
     addi t1, zero, 99
+    add  t2, zero, zero
 
     label :repeat
     trace "Iteration: %d", gpr_observer(8)
