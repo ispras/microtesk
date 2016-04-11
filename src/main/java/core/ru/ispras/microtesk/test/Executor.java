@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
@@ -65,8 +64,8 @@ final class Executor {
   public Executor(
       final EngineContext context,
       final IModelStateObserver observer) {
-    checkNotNull(context);
-    checkNotNull(observer);
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(observer);
 
     this.context = context;
     this.observer = observer;
@@ -74,7 +73,7 @@ final class Executor {
   }
 
   public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
-    checkNotNull(handlers);
+    InvariantChecks.checkNotNull(handlers);
     this.exceptionHandlers = handlers;
   }
 
@@ -197,24 +196,7 @@ final class Executor {
         if (0 == transferStatus) {
           // If there are no transfers, continue to the next instruction if there is such.
           if (index == endIndex) break;
-          index++;
-
-          final long nextAddress = call.getAddress() + call.getByteSize();
-          if (!addressMap.containsKey(nextAddress)) {
-            final ConcreteCall nextCall = calls.get(index);
-            if (null != nextCall.getAlignment() && null == nextCall.getOrigin()) {
-              // If the next call is aligned, it is not a problem.
-              continue;
-            }
-
-            if (null != invalidCall) {
-              index = -1;
-            } else {
-              throw new GenerationAbortedException(String.format(
-                  "Simulation error. There is no executable code at 0x%x", nextAddress));
-            }
-          }
-
+          index = getNextCallIndex(index, calls, null != invalidCall); 
           continue;
         }
 
@@ -265,20 +247,40 @@ final class Executor {
         } else {
           Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
           if (index == endIndex) break;
-          index++;
+          index = getNextCallIndex(index, calls, null != invalidCall);
         }
       }
     }
+  }
 
-/*
-    final List<ConcreteCall> prologue = sequence.getPrologue();
-    if (!prologue.isEmpty()) {
-      logText("Initialization:\r\n");
-      executeSequence(sequence.getPrologue(), Label.NO_SEQUENCE_INDEX);
-      logText("\r\nMain Code:\r\n");
+  private static int getNextCallIndex(
+      final int currentIndex,
+      final List<ConcreteCall> calls,
+      final boolean isInvalidCallHandled) {
+    InvariantChecks.checkGreaterOrEqZero(currentIndex);
+    InvariantChecks.checkNotNull(calls);
+
+    final ConcreteCall currentCall = calls.get(currentIndex);
+    final long nextAddress = currentCall.getAddress() + currentCall.getByteSize();
+
+    final int nextIndex = currentIndex + 1;
+    final ConcreteCall nextCall = calls.get(nextIndex);
+
+    if (nextCall.getAddress() == nextAddress) {
+      return nextIndex;
     }
 
-    executeSequence(sequence.getBody(), sequenceIndex);*/
+    // If the next call is aligned, it is not a problem.
+    if (null != nextCall.getAlignment() && null == nextCall.getOrigin()) {
+      return nextIndex;
+    }
+
+    if (!isInvalidCallHandled) {
+      throw new GenerationAbortedException(String.format(
+          "Simulation error. There is no executable code at 0x%x", nextAddress));
+    }
+
+    return -1;
   }
 
   private void logCall(final ConcreteCall call) {
@@ -460,7 +462,7 @@ final class Executor {
 
   private void logOutputs(
       final List<Output> outputs) throws ConfigurationException {
-    checkNotNull(outputs);
+    InvariantChecks.checkNotNull(outputs);
 
     for (final Output output : outputs) {
       if (output.isRuntime()) {
@@ -470,7 +472,7 @@ final class Executor {
   }
   
   private void logLabels(final List<Label> labels) {
-    checkNotNull(labels);
+    InvariantChecks.checkNotNull(labels);
     for (final Label label : labels) {
       logText(label.getUniqueName() + ":");
     }
