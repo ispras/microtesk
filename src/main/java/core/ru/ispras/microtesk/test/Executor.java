@@ -121,9 +121,6 @@ final class Executor {
     // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
     int nonExecutableCount = 0; 
 
-    final long startAdress = calls.get(startIndex).getAddress();
-    observer.accessLocation("PC").setValue(BigInteger.valueOf(startAdress));
-
     final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
 
     final ConcreteCall invalidCall =
@@ -134,6 +131,11 @@ final class Executor {
 
       final ConcreteCall call =
           index >= 0 && index < calls.size() ? calls.get(index) : invalidCall;
+
+      if (call != invalidCall) {
+        final long address = call.getAddress();
+        observer.accessLocation("PC").setValue(BigInteger.valueOf(address));
+      }
 
       if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
         throw new GenerationAbortedException(String.format(
@@ -227,7 +229,6 @@ final class Executor {
             index = target.getPosition();
             final long nextAddress = calls.get(index).getAddress();
             logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
-            observer.accessLocation("PC").setValue(BigInteger.valueOf(nextAddress));
             continue;
           }
 
