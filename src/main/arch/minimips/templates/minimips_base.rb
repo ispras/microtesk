@@ -452,12 +452,12 @@ class MiniMipsBaseTemplate < Template
   # Utility method to specify a random register that is not reserved
   # in the current test case.
   #
-  def get_register
+  def get_register(attrs = {})
     if nil == @free_register_allocator
       @free_register_allocator = mode_allocator('FREE')
     end
 
-    reg(_ @free_register_allocator)
+    reg(_ @free_register_allocator, attrs)
   end
 
   #

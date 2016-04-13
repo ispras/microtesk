@@ -468,7 +468,18 @@ public final class Template {
     addCall(Call.newFreeAllocatedMode(mode, freeAll));
   }
 
-  public UnknownImmediateValue newUnknownImmediate(final Allocator allocator) {
+  public UnknownImmediateValue newUnknownImmediate(
+      final Allocator allocator,
+      final Primitive exclude) {
+    return newUnknownImmediate(
+        allocator,
+        null != exclude ? Collections.singletonList(exclude) : null);
+  }
+
+  public UnknownImmediateValue newUnknownImmediate(
+      final Allocator allocator,
+      final List<Primitive> exclude) {
+    // TODO
     return new UnknownImmediateValue(allocator);
   }
 

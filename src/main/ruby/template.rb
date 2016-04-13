@@ -412,8 +412,18 @@ class Template
   # as an argument of a mode or op. A corresponding concrete value must be
   # produced as a result of test data generation for some test situation.
   #
-  def _(allocator = nil)
-    @template.newUnknownImmediate allocator
+  def _(allocator = nil, attrs = {})
+    if allocator.is_a? Hash and attrs.empty? then
+      attrs = allocator
+      allocator = nil
+    end
+
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "#{attrs} is not a Hash."
+    end
+
+    exclude = attrs[:exclude]
+    @template.newUnknownImmediate allocator, exclude
   end
 
   # --- Special "no value" method ---
