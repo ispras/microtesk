@@ -48,6 +48,7 @@ public final class Call {
   private final DataSection data;
   private final List<Call> atomicSequence;
   private final Primitive modeToFree;
+  private final boolean freeAllModes;
 
   public static Call newData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
@@ -65,7 +66,8 @@ public final class Call {
         null,
         data,
         null,
-        null
+        null,
+        false
         );
   }
 
@@ -86,7 +88,8 @@ public final class Call {
         null,
         null,
         null,
-        null
+        null,
+        false
         );
   }
 
@@ -112,7 +115,8 @@ public final class Call {
         null,
         null,
         null,
-        null
+        null,
+        false
         );
   }
 
@@ -132,7 +136,8 @@ public final class Call {
         null,
         null,
         expandAtomic(sequence),
-        null
+        null,
+        false
         );
   }
 
@@ -151,7 +156,7 @@ public final class Call {
     return result;
   }
 
-  public static Call newFreeAllocatedMode(final Primitive mode) {
+  public static Call newFreeAllocatedMode(final Primitive mode, final boolean freeAll) {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkTrue(mode.getKind() == Primitive.Kind.MODE);
 
@@ -168,7 +173,8 @@ public final class Call {
         null,
         null,
         null,
-        mode
+        mode,
+        freeAll
         );
   }
 
@@ -185,7 +191,8 @@ public final class Call {
       final PreparatorReference preparatorReference,
       final DataSection data,
       final List<Call> atomicSequence,
-      final Primitive modeToFree) {
+      final Primitive modeToFree,
+      final boolean freeAllModes) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -227,6 +234,7 @@ public final class Call {
     this.data = data;
     this.atomicSequence = atomicSequence;
     this.modeToFree = modeToFree;
+    this.freeAllModes = freeAllModes;
   }
 
   public Call(final Call other) {
@@ -264,6 +272,8 @@ public final class Call {
 
     this.modeToFree = null != other.modeToFree ?
        (Primitive)((SharedObject<?>) other.modeToFree).getCopy() : null;
+
+    this.freeAllModes = other.freeAllModes;
   }
 
   public static List<Call> copyAll(final List<Call> calls) {
@@ -394,6 +404,10 @@ public final class Call {
 
   public boolean isModeToFree() {
     return null != modeToFree;
+  }
+
+  public boolean isFreeAllModes() {
+    return freeAllModes;
   }
 
   public Primitive getModeToFree() {

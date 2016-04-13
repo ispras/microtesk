@@ -95,13 +95,13 @@ public final class ModeAllocator {
     for (final Call call : sequence) {
       if (call.isModeToFree()) {
         final Primitive primitive = call.getModeToFree();
-        freeInitializedMode(primitive);
+        freeInitializedMode(primitive, call.isFreeAllModes());
       }
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
         allocateUninitializedModes(primitive);
-      } 
+      }
     }
   }
 
@@ -194,13 +194,18 @@ public final class ModeAllocator {
     }
   }
 
-  private void freeInitializedMode(final Primitive primitive) {
+  private void freeInitializedMode(final Primitive primitive, final boolean isFreeAll) {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.MODE);
 
     final String mode = primitive.getName();
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
+
+    if (isFreeAll) {
+      allocationTable.reset();
+      return;
+    }
 
     for (final Argument arg : primitive.getArguments().values()) {
       if (arg.getValue() instanceof BigInteger) {
