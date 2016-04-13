@@ -16,8 +16,10 @@ package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -158,7 +160,8 @@ public final class ModeAllocator {
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
-            final int value = allocate(primitive.getName(), unknownValue.getAllocator());
+            final int value = allocate(
+                primitive.getName(), unknownValue.getAllocator(), unknownValue.getExclude());
             unknownValue.setValue(BigInteger.valueOf(value));
           }
           break;
@@ -177,7 +180,7 @@ public final class ModeAllocator {
     }
   }
 
-  private int allocate(final String mode, final Allocator allocator) {
+  private int allocate(final String mode, final Allocator allocator, final List<Value> exclude) {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
@@ -188,7 +191,8 @@ public final class ModeAllocator {
     final Allocator defaultAllocator = allocationTable.getAllocator();
     try {
       allocationTable.setAllocator(allocator);
-      return allocationTable.allocate();
+      return null == exclude ? allocationTable.allocate() :
+                               allocationTable.allocate(toValueSet(exclude));
     } finally {
       allocationTable.setAllocator(defaultAllocator);
     }
@@ -216,5 +220,16 @@ public final class ModeAllocator {
         allocationTable.free(value.intValue());
       }
     }
+  }
+
+  private static Set<Integer> toValueSet(final List<Value> values) {
+    InvariantChecks.checkNotNull(values);
+
+    final Set<Integer> result = new LinkedHashSet<>();
+    for (final Value value : values) {
+      result.add(value.getValue().intValue());
+    }
+
+    return result;
   }
 }
