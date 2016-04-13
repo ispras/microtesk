@@ -57,9 +57,9 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
 
       # Randomly selects destination registers from free registers including
       # those that were previosly freed
-      add get_register, s0, s1
-      sub get_register, s2, s3
-      slt get_register, s4, s5
+      add get_register(:exclude => [at, v0, v1]), s0, s1
+      sub get_register(:exclude => [at, v0, v1]), s2, s3
+      slt get_register(:exclude => [at, v0, v1]), s4, s5
       newline
     }.run 3
   end
