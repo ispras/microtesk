@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
@@ -37,15 +40,18 @@ import ru.ispras.microtesk.utils.SharedObject;
 public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
                                          implements Value {
   private final Allocator allocator;
+  private final List<Value> exclude;
   private BigInteger value;
 
   protected UnknownImmediateValue() {
     this.allocator = null;
+    this.exclude = null;
     this.value = null;
   }
 
-  protected UnknownImmediateValue(final Allocator allocator) {
+  protected UnknownImmediateValue(final Allocator allocator, final List<Value> exclude) {
     this.allocator = allocator;
+    this.exclude = exclude;
     this.value = null;
   }
 
@@ -53,11 +59,36 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     super(other);
 
     this.allocator = other.allocator;
+    this.exclude = copyValues(other.exclude);
     this.value = other.value;
+  }
+
+  private static List<Value> copyValues(final List<Value> values) {
+    if (null == values) {
+      return null;
+    }
+
+    if (values.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Value> result = new ArrayList<>(values.size());
+    for (final Value value : values) {
+      if (value instanceof SharedObject) {
+        values.add((Value)((SharedObject<?>) value).getCopy());
+      } else {
+        values.add(value);
+      }
+    }
+    return result;
   }
 
   public Allocator getAllocator() {
     return allocator;
+  }
+
+  public List<Value> getExclude() {
+    return exclude;
   }
 
   @Override

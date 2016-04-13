@@ -480,7 +480,7 @@ public final class Template {
       final Allocator allocator,
       final List<Primitive> exclude) {
     // TODO
-    return new UnknownImmediateValue(allocator);
+    return new UnknownImmediateValue(allocator, null);
   }
 
   public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {
