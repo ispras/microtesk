@@ -32,6 +32,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
@@ -469,18 +470,52 @@ public final class Template {
   }
 
   public UnknownImmediateValue newUnknownImmediate(
+      final Where where,
       final Allocator allocator,
       final Primitive exclude) {
     return newUnknownImmediate(
+        where,
         allocator,
         null != exclude ? Collections.singletonList(exclude) : null);
   }
 
   public UnknownImmediateValue newUnknownImmediate(
+      final Where where,
       final Allocator allocator,
       final List<Primitive> exclude) {
-    // TODO
-    return new UnknownImmediateValue(allocator, null);
+
+    if (null == exclude) {
+      return new UnknownImmediateValue(allocator, null);
+    }
+
+    final List<Value> excludeValues = new ArrayList<>();
+    String modeName = null;
+
+    for (final Primitive primitive : exclude) {
+      if (primitive.getKind() != Primitive.Kind.MODE) {
+        throw new GenerationAbortedException(String.format(
+            "%s: %s is not an addressing mode.", where, primitive.getName()));
+      }
+
+      if (modeName == null) {
+        modeName = primitive.getName();
+      } else if (!modeName.equals(primitive.getName())){
+        throw new GenerationAbortedException(String.format(
+            "Mismatch: all addressing modes must be %s.", modeName));
+      }
+
+      for (final Argument arg : primitive.getArguments().values()) {
+        if (arg.getValue() instanceof BigInteger) {
+          excludeValues.add(new FixedValue((BigInteger) arg.getValue()));
+        } else if (arg.getValue() instanceof Value) {
+          excludeValues.add((Value) arg.getValue());
+        } else {
+          InvariantChecks.checkTrue(false, "Unknown argument type: " + arg);
+        }
+      }
+    }
+
+    return new UnknownImmediateValue(allocator, excludeValues);
   }
 
   public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {

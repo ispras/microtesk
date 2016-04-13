@@ -75,9 +75,9 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     final List<Value> result = new ArrayList<>(values.size());
     for (final Value value : values) {
       if (value instanceof SharedObject) {
-        values.add((Value)((SharedObject<?>) value).getCopy());
+        result.add((Value)((SharedObject<?>) value).getCopy());
       } else {
-        values.add(value);
+        result.add(value);
       }
     }
     return result;

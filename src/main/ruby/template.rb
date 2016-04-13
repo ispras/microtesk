@@ -423,7 +423,7 @@ class Template
     end
 
     exclude = attrs[:exclude]
-    @template.newUnknownImmediate allocator, exclude
+    @template.newUnknownImmediate get_caller_location, allocator, exclude
   end
 
   # --- Special "no value" method ---
