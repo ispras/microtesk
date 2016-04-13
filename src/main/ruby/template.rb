@@ -436,8 +436,12 @@ class Template
     builder.build
   end
 
-  def free_allocated_mode(mode) 
-    @template.freeAllocatedMode mode
+  def free_allocated_mode(mode)
+    @template.freeAllocatedMode mode, false
+  end
+
+  def free_all_allocated_modes(mode)
+    @template.freeAllocatedMode mode, true
   end
 
   # -------------------------------------------------------------------------- #
