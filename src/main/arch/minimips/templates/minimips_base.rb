@@ -449,7 +449,7 @@ class MiniMipsBaseTemplate < Template
   end
 
   #
-  # Utility method to specify a random register that is not used
+  # Utility method to specify a random register that is not reserved
   # in the current test case.
   #
   def get_register
@@ -462,9 +462,16 @@ class MiniMipsBaseTemplate < Template
 
   #
   # Utility method to remove the specified addressing mode from
-  # the list of used registers.
+  # the list of reserved registers.
   #
   def free_register(mode)
     free_allocated_mode mode
+  end
+
+  #
+  # Utility method to clear the list of reserved registers.
+  #
+  def free_all_registers
+    free_all_allocated_modes reg(_)
   end
 end
