@@ -6,6 +6,15 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/04/16 MicroTESK 2.3.31 beta
+
+ The new build contains the following changes:
+
+ - Possibility to specify exclusions for random register allocation
+   was implemented
+ - Possibility to free reserved registers was implemented
+ - A bug in sign_extend and zero_extend nML functions was fixed
+
 2016/04/11 MicroTESK 2.3.30 beta
 
  The new build contains the following changes:
