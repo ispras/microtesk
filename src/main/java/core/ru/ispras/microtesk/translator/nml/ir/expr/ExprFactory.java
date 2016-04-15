@@ -231,7 +231,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return TypeCast.castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type, true);
     }
 
     final int sourceBitSize = src.getNodeInfo().getType().getBitSize();
@@ -267,7 +267,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (src.isConstant()) {
-      return TypeCast.castConstantTo(src, type);
+      return TypeCast.castConstantTo(src, type, false);
     }
 
     final int sourceBitSize = src.getNodeInfo().getType().getBitSize();

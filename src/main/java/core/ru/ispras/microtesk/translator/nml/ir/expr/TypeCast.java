@@ -128,6 +128,14 @@ public final class TypeCast {
   public static Expr castConstantTo(final Expr value, final Type type) {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(value.isConstant());
+
+    final boolean signExtend = value.isTypeOf(TypeId.INT);
+    return castConstantTo(value, type, signExtend);
+  }
+
+  public static Expr castConstantTo(final Expr value, final Type type, final boolean signExtend) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(value.isConstant());
     InvariantChecks.checkNotNull(type);
 
     if (value.isTypeOf(type)) {
@@ -135,8 +143,6 @@ public final class TypeCast {
     }
 
     final int bitSize = type.getBitSize();
-    final boolean signExtend = value.isTypeOf(TypeId.INT);
-
     final BitVector data = getBitVector(value, bitSize, signExtend);
     final NodeValue node = type.getTypeId() == TypeId.BOOL ?
         NodeValue.newBoolean(!data.isAllReset()) :
