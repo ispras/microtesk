@@ -134,10 +134,13 @@ public final class TypeCast {
       return value;
     }
 
-    final BitVector data = getBitVector(value, type);
-    final NodeValue node = type.getTypeId() == TypeId.BOOL ? 
+    final int bitSize = type.getBitSize();
+    final boolean signExtend = value.isTypeOf(TypeId.INT);
+
+    final BitVector data = getBitVector(value, bitSize, signExtend);
+    final NodeValue node = type.getTypeId() == TypeId.BOOL ?
         NodeValue.newBoolean(!data.isAllReset()) :
-        NodeValue.newBitVector(data); 
+        NodeValue.newBitVector(data);
 
     final Expr expr = new Expr(node);
     expr.setNodeInfo(NodeInfo.newConst(type));
@@ -145,13 +148,10 @@ public final class TypeCast {
     return expr;
   }
 
-  private static BitVector getBitVector(final Expr value, final Type type) {
+  private static BitVector getBitVector(
+      final Expr value, final int bitSize, final boolean signExtend) {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(value.isConstant());
-    InvariantChecks.checkNotNull(type);
-
-    final int bitSize = type.getBitSize();
-    final boolean signExtend = value.isTypeOf(TypeId.INT);
 
     final NodeValue node = (NodeValue) value.getNode();
     switch (node.getDataTypeId()) {
@@ -162,7 +162,7 @@ public final class TypeCast {
         return BitVector.valueOf(node.getInteger(), bitSize);
 
       case LOGIC_BOOLEAN:
-        return BitVector.valueOf(node.getBoolean()).resize(bitSize, false);
+        return BitVector.valueOf(node.getBoolean()).resize(bitSize, signExtend);
 
       default:
         throw new IllegalArgumentException(
