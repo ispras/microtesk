@@ -91,7 +91,10 @@ public final class IntegerCast {
   }
 
   public static Node cast(Node origin, DataType type) {
-    final DataType nodeType = origin.getDataType();
+    return cast(origin, origin.getDataType(), type);
+  }
+
+  public static Node cast(Node origin, DataType nodeType, DataType type) {
     if (nodeType.equals(type)) {
       return origin;
     }
@@ -99,7 +102,7 @@ public final class IntegerCast {
       return castInteger(origin, type);
     }
     if (nodeType.getSize() < type.getSize()) {
-      return extendBitVector(origin, type);
+      return extendBitVector(origin, nodeType, type);
     }
     return origin;
   }
@@ -109,8 +112,8 @@ public final class IntegerCast {
     return NodeValue.newBitVector(BitVector.valueOf(integer, type.getSize()));
   }
 
-  private static Node extendBitVector(Node origin, DataType type) {
-    final int extsize = type.getSize() - origin.getDataType().getSize();
+  private static Node extendBitVector(Node origin, DataType typeOf, DataType type) {
+    final int extsize = type.getSize() - typeOf.getSize();
     return new NodeOperation(StandardOperation.BVZEROEXT,
                              NodeValue.newInteger(extsize),
                              origin);

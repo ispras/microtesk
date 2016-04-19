@@ -744,8 +744,8 @@ final class SsaBuilder {
       public Node apply(Node in) {
         final Location loc = locationFromNodeVariable(in);
         if (loc instanceof LocationAtom) {
-          final Node rval = createRValue(createLValue((LocationAtom) loc));
-          return IntegerCast.cast(rval, getCastType(in));
+          final LValue lval = createLValue((LocationAtom) loc);
+          return IntegerCast.cast(createRValue(lval), lval.targetType, getCastType(in));
         } else if (loc instanceof LocationConcat)
           return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc)));
         else
