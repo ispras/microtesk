@@ -94,7 +94,7 @@ with registers and memory represented by bit vectors of arbitrary size.
 A specification in nML starts with definitions of types and global constants.
 For example, a type definition for a 32-bit unsigned integer looks as follows:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=C]
 let WORD_SIZE = 32
 type WORD = card(WORD_SIZE)
 \end{lstlisting}
@@ -200,37 +200,42 @@ The syntax of nML resembles the syntax of the pseudocode used in microprocessor
 architecture manuals to describe instruction semantics. For example, here is the
 description of instruction ADD from the MIPS64 manual:
 
-%\begin{lstlisting}
-%if NotWordValue(GPR[rs]) or NotWordValue(GPR[rt]) then
-%    UNPREDICTABLE
-%endif
-%temp ← GPR[rs]31||GPR[rs]31..0) + (GPR[rt]31||GPR[rt]31..0)
-%if temp32 ≠ temp31 then
-%    SignalException(IntegerOverflow)
-%else
-%    GPR[rd] ← sign_extend(temp31..0)
-%endif
-%\end{lstlisting}
+\begin{lstlisting}[mathescape=true]
+if NotWordValue(GPR[rs]) or NotWordValue(GPR[rt]) then
+  UNPREDICTABLE
+endif
+temp $\leftarrow$ GPR[rs]$_{31}$||GPR[rs]$_{31..0}$) + (GPR[rt]$_{31}$||GPR[rt]$_{31..0}$)
+if temp$_{32}$ $\neq$ temp$_{31}$ then
+  SignalException(IntegerOverflow)
+else
+  GPR[rd] $\leftarrow$ sign_extend(temp$_{31..0}$)
+endif
+\end{lstlisting}
 
 Such a description can be translated to nML with minimal effort. Providing that
 all needed data types, resources and operations describing common functionality
 of instructions have already been specified, the specification of the ADD
-instruction (or, to be more precise, the terminal operation that distinguishes 
+instruction (or, to be more precise, the terminal operation that distinguishes
 it from other similar instructions) will look as follows:
 
 \begin{lstlisting}
-op ADD(rd: GPR, rs: GPR, rt: GPR)
-action = {
-  if (NotWordValue(rs) || NotWordValue(rt)) then
-    UNPREDICTABLE();
-  endif;
-  tmp_word = rs<31>::rs<31..0> + rs<31>::rt<31..0>;
-  if(tmp_word<32> != tmp_word<31>) then
-    SignalException("IntegerOverflow");
-  else
-    rd = sign_extend(tmp_word<31..0>);
-  endif;
-}
+op add (rd: R, rs: R, rt: R)
+  syntax = format("add %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
+  image  = format("000000%5s%5s%5s00000100000", rs.image, rt.image, rd.image)
+  action = {
+    if sign_extend(WORD, rs<31>) != rs<63..32> ||
+       sign_extend(WORD, rt<31>) != rt<63..32> then
+      unpredicted;
+    endif;
+
+    temp33 = rs<31>::rs<31..0> + rt<31>::rt<31..0>;
+    if temp33<32> != temp33<31> then
+      C0_EPC = CIA;
+      exception("IntegerOverflow");
+    else
+      rd = sign_extend(DWORD, temp33<31..0>);
+    endif;
+  }
 \end{lstlisting}
 
 As we can see, describing an instruction based on an instruction set manual is
