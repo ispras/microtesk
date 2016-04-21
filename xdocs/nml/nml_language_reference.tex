@@ -9,16 +9,21 @@
 \usepackage{indentfirst}
 \usepackage{graphicx}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \lstset{
  language=C,
  frame=single,
- basicstyle=\ttfamily\scriptsize,
+ basicstyle=\ttfamily\footnotesize,
  commentstyle=\itshape,
  emph={op, mode, reg, alias, mem, type, let, card, int, syntax, image, format, action,
        if, then, else, elif, endif, coerce, exception, address, segment, buffer, register,
        memory, mmu, range, ways, sets, match, tag, index, entry, policy, read, write,
        var, hit, path, transition, guard},
- emphstyle={\bfseries}}
+ emphstyle={\bfseries},
+ showstringspaces=false,
+ basewidth={.48em}
+ }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
