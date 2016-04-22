@@ -6,6 +6,12 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/04/22 MicroTESK 2.3.32 beta
+
+ The new build contains the following changes:
+
+  - A bug in coverage extractor for nML was fixed
+
 2016/04/16 MicroTESK 2.3.31 beta
 
  The new build contains the following changes:
