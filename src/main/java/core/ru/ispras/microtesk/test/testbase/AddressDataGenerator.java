@@ -33,7 +33,7 @@ import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
-import ru.ispras.testbase.stub.Utils;
+import ru.ispras.testbase.generator.Utils;
 
 /**
  * {@link AddressDataGenerator} randomly generates an address from a given memory region.

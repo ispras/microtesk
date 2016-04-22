@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.testbase;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
-import ru.ispras.testbase.stub.Utils;
+import ru.ispras.testbase.generator.Utils;
 
 /**
  * {@link BranchDataGenerator} is a base class for test data generators for conditional branch
