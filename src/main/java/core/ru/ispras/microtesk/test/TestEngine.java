@@ -456,7 +456,7 @@ public final class TestEngine {
           Logger.debugHeader("Generating Data for %s", sequenceId);
 
           Logger.debugHeader("Executing %s", sequenceId);
-          sandboxExecution(executor, concreteSequence, testCaseIndex);
+          sandboxExecution(executor, concreteSequence, testCaseIndex, true);
 
           final TestSequence selfCheckSequence;
           if (TestSettings.isSelfChecks()) {
@@ -464,7 +464,7 @@ public final class TestEngine {
             selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
 
             Logger.debugHeader("Executing Self-Checks for %s", sequenceId);
-            sandboxExecution(executor, selfCheckSequence, testCaseIndex);
+            sandboxExecution(executor, selfCheckSequence, testCaseIndex, false);
           } else {
             selfCheckSequence = null;
           }
@@ -533,9 +533,13 @@ public final class TestEngine {
       } // Abstract sequence iterator
     }
 
-    private void sandboxExecution(final Executor exe, final TestSequence s, final int index) {
+    private void sandboxExecution(
+        final Executor exe,
+        final TestSequence s,
+        final int index,
+        final boolean abortOnUndefinedLabel) {
       try {
-        exe.executeSequence(s, index);
+        exe.executeSequence(s, index, abortOnUndefinedLabel);
       } catch (final ConfigurationException e) {
         final java.io.StringWriter writer = new java.io.StringWriter();
         e.printStackTrace(new java.io.PrintWriter(writer));
@@ -634,7 +638,7 @@ public final class TestEngine {
 
       for (final TestSequence concreteSequence : concreteSequences) {
         Logger.debugHeader("Executing %s", headerText);
-        executor.executeSequence(concreteSequence, Label.NO_SEQUENCE_INDEX);
+        sandboxExecution(executor, concreteSequence, Label.NO_SEQUENCE_INDEX, true);
 
         Logger.debugHeader("Printing %s to %s", headerText, fileName);
         printer.printSequence(concreteSequence);

@@ -82,6 +82,10 @@ final class Executor {
    * about important events to the simulator log.
    * 
    * @param sequence Sequence of executable (concrete) instruction calls.
+   * @param sequenceIndex
+   * @param abortOnUndefinedLabel Aborts generation when a reference to an undefined label is
+   *        detected. This is the default behavior, which can changed in special cases (e.g.
+   *        self-checks that contain references to labels defined in epilogue).
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    * @throws ConfigurationException if during the interaction with the microprocessor model an error
@@ -91,7 +95,9 @@ final class Executor {
    */
 
   public void executeSequence(
-      final TestSequence sequence, final int sequenceIndex) throws ConfigurationException {
+      final TestSequence sequence,
+      final int sequenceIndex,
+      final boolean abortOnUndefinedLabel) throws ConfigurationException {
     Memory.setUseTempCopies(false);
 
     final List<ConcreteCall> calls = new ArrayList<>();
@@ -111,7 +117,7 @@ final class Executor {
     final Map<String, Long> exceptionHandlerAddresses = new HashMap<>();
     registerExceptionHandlers(calls, labelManager, addressMap, exceptionHandlers, exceptionHandlerAddresses);
 
-    patchLabels(calls, labelManager, addressMap);
+    patchLabels(calls, labelManager, addressMap, abortOnUndefinedLabel);
 
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
@@ -394,7 +400,8 @@ final class Executor {
   private static void patchLabels(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
-      final Map<Long, Integer> addressMap) {
+      final Map<Long, Integer> addressMap,
+      final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
     for (final ConcreteCall call : calls) {
       for (final LabelReference labelRef : call.getLabelReferences()) {
@@ -407,11 +414,11 @@ final class Executor {
         final String searchPattern;
         final String patchedText;
 
-        if (null != target) {
-          // For code labels
+        if (null != target) { // Label is found
           uniqueName = target.getLabel().getUniqueName();
           final long address = target.getAddress();
 
+          // For code labels
           if (addressMap.containsKey(address)) {
             final int index = addressMap.get(address);
             labelRef.setTarget(target.getLabel(), index);
@@ -425,15 +432,14 @@ final class Executor {
 
           patchedText = call.getText().replace(searchPattern, uniqueName);
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
-        } else {
-          /*
-          throw new GenerationAbortedException(String.format(
-              "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
-              "is not accessible in the scope of the current test sequence.",
-              source.getName(), call.getText(), call.getAddress()));
-          */
+        } else { // Label is not found
+          if (abortOnUndefined) {
+            throw new GenerationAbortedException(String.format(
+                "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
+                "is not accessible in the scope of the current test sequence.",
+                source.getName(), call.getText(), call.getAddress()));
+          }
 
-          // For unrecognized labels
           uniqueName = source.getName();
           searchPattern = "<label>0";
 
