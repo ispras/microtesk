@@ -19,22 +19,24 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases 
-# for integer arithmetics. This includes situations  'Normal' and 'Overflow'
-# extracted from specifications for integer addition and subtraction.
+# This test template demonstrates how to generate test cases for integer arithmetics.
+# It uses predefined situations 'add' and 'sub' that can cause an overflow for addition
+# and substraction depending on the specified case ('normal' or 'overflow').
 #
 class IntExceptionTemplate < MiniMipsBaseTemplate
 
   def run
     block(:combinator => 'product', :compositor => 'random') {
+      epilogue { nop }
+
       iterate {
-        add t0, t1, t2 do situation('normal') end
-        sequence { add t0, t1, t2 do situation('IntegerOverflow') end; nop }
+        add t0, t1, t2 do situation('add', :case => 'normal', :size => 32) end
+        add t0, t1, t2 do situation('add', :case => 'overflow', :size => 32) end
       }
 
       iterate {
-        sub t3, t4, t5 do situation('normal') end
-        sequence { sub t3, t4, t5 do situation('IntegerOverflow') end; nop }
+        sub t3, t4, t5 do situation('sub', :case => 'normal', :size => 32) end
+        sub t3, t4, t5 do situation('sub', :case => 'overflow', :size => 32) end
       }
     }.run
   end
