@@ -159,9 +159,9 @@ parent. Here is an example of an AND rule:
 op arith_inst(act: Add, op1: OPRND, op2: OPRND)
 \end{lstlisting}
 
-This is the header of the "arith{\_}inst" operation that states that the
-"arith{\_}inst" operation node has three child nodes: the "act" operation and the
-"op1" and "op2" addressing modes. The syntax of an operation header is similar
+This is the header of the {\tt arith{\_}inst} operation that states that the
+{\tt arith{\_}inst} operation node has three child nodes: the {\tt act} operation and the
+{\tt op1} and {\tt op2} addressing modes. The syntax of an operation header is similar
 to a function where parameter types specify the primitives the rule refers to.
 Parameter can be, in turn, parameterized with other primitives (they will be
 encapsulated behind attributes). For this reason child nodes represent
@@ -174,23 +174,23 @@ an AND rule. An OR rule looks as follows:
 op Add_Sub_Mov = Add | Sub | Mov
 \end{lstlisting}
 
-Figure 1 displays a tree path describing the "mov" instruction from an
+Figure 1 displays a tree path describing the {\tt mov} instruction from an
 imaginary instruction set. This instruction copies data from one register to
-another. The root operation of the instruction is called "instruction".
-According to nML conventions, the root operation is always called "instruction"
+another. The root operation of the instruction is called {\tt instruction}.
+According to nML conventions, the root operation is always called {\tt instruction}
 and it specifies the point from which all paths describing specific
-instructions start. The "instruction" operation can be defined either as AND or
+instructions start. The {\tt instruction} operation can be defined either as AND or
 OR rule. In the latter case, there are several starting points. Usually root
 operations holds some common properties and perform common actions (such as
 increment of the program counter). In the given example, the root operation is
-linked to the "Arithm" operation with the help of an AND rule. This operation
+linked to the {\tt Arithm} operation with the help of an AND rule. This operation
 describes a group of arithmetic operations. It is parameterized with the
-"Add{\_}Mov{\_}Sub" and "OPRND" primitives. Both of them are specified as OR rules.
+{\tt Add{\_}Mov{\_}Sub} and {\tt OPRND} primitives. Both of them are specified as OR rules.
 The first one describes arithmetic operations that can be performed by the
-"Arithm" primitive while the second one specifies supported addressing modes.
+{\tt Arithm} primitive while the second one specifies supported addressing modes.
 Dashed lines that connect OR-rules with their child primitives specify possible
 alternative paths. Instructions are identified by the terminal operation node of
-the path (in this example, it is the "Mov" node). An important note is that, to
+the path (in this example, it is the {\tt Mov} node). An important note is that, to
 avoid ambiguity, nodes can have only one child operation.
 
 \begin{figure}
@@ -251,29 +251,24 @@ does not have significant programming skills.
 
 \section{Constants}
 
-In nML, constants are declared by using the A declaration like
+In nML, constants are declared using the \textbf{\textit{let}} keyword. For example,
+the following line of code declares a constant called {\tt A} that has the value {\tt 100}:
 
 \begin{lstlisting}
 let A = 100
 \end{lstlisting}
 
-declares a global constant A to have the value 100. Such a constant might be used in every
-context its value could stand. Any constant may be defined only once. Constants may be used
-to extend nML: Any information about a machine that can be given with a single number
-or string can easily be defined as a constant (with a default value, so that standard
-nML descriptions still work).
+Constants are global. They can be defined only once and can be used in any context
+their values could stand.
 
-In core nML, there is just one such constant (or global parameter).
-This is the pipeline factor. On machines with an instruction pipeline visible to the programmer,
-there are delay slots whenever a jump occurs. Usually, there is one such slot, but two are not
-unheard of. A declaration
+Constants can help extend nML. Any information about a machine that can be given with
+a single number or string can easily be defined as a constant.
 
-\begin{lstlisting}
-let pipeline_factor=1
-\end{lstlisting}
+\subsection{Constant Types}
 
-introduces one delay slot after each instruction that changes the program counter.
-The default value is 0.
+Constants can be represented by integer numbers of inifinite precision and strings.
+Integer constants are cast to specific nML data types depending on the context in
+which they are used.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
