@@ -1,5 +1,5 @@
 #
-# Copyright 2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases by using 
+# This test template demonstrates how to generate test cases on the basis of
 # constraints.
 #
 class ConstraintTemplate < MiniMipsBaseTemplate
 
   def run
     sequence {
-      # ADD instruction with biased operand values.
-      add t0, t1, t2 do situation('constraint_int_overflow', :size => 32) end
+      add t0, t1, t2 do situation('constraint_int_overflow') end
+      nop
+      nop
     }.run(100)
   end
 
