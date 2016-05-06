@@ -960,6 +960,110 @@ starting from the address 0 (in the memory array of the executable model).
 
 \section{Preparators}
 
+Preparators describe instruction sequences that place data into registers or memory
+accessed via the specified addressing mode. These sequences are inserted into test programs to
+set up the initial state of the microprocessor required by test situations. It is possible to
+overload preparators for specific cases (value masks, register numbers, etc).
+Preparators are defined in the {\tt pre} method using the {\tt preparator} construct, which uses
+the following parameters describing conditions under which it is applied:
+
+\begin{itemize}
+\item {\tt target} - the name of the target addressing mode;
+\item {\tt mask} (optional) - the mask that should be matched by the value in order for the
+       preparator to be selected;
+\item {\tt arguments} (optional) - values of the target addressing mode arguments that should
+      be matched in order for the preparator to be selected;
+\item {\tt name} (optional) - the name that identifies the current preparator to resolve ambiguity
+      when there are several different preparators that have the same target, mask and arguments.
+\end{itemize}
+
+It is possible to define several variants of a preparator which are selected at random according to
+the specified distribution. They are described using the {\tt variant} construct. It has two
+optional parameters:
+
+\begin{itemize}
+\item {\tt name} (optional) - identifies the variant to make it possible to explicitly select
+      a specific variant;
+\item {\tt bias} - specifies the weight of the variant, can be skipped to set up an even
+      distribution.
+\end{itemize}
+
+Here is an example of a preparator what places a value into a 32-bit register described by
+the {\tt REG} addressing mode and two its special cases for values equal to {\tt 0x00000000}
+and {\tt 0xFFFFFFFF}:
+
+\begin{lstlisting}[language=ruby, emph={preparator, variant, data}]
+preparator(:target => 'REG') {
+  variant(:bias => 25) {
+    data {
+      label :preparator_data
+      word value
+    }
+
+    la at, :preparator_data
+    lw target, 0, at
+  }
+
+  variant(:bias => 75) {
+    lui target, value(16, 31)
+    ori target, target, value(0, 15)
+  }
+}
+
+preparator(:target => 'REG', :mask => '00000000') {
+  xor target, zero, zero
+}
+
+preparator(:target => 'REG', :mask => 'FFFFFFFF') {
+  nor target, zero, zero
+}
+\end{lstlisting}
+
+Code inside the {\tt preparator} block uses the {\tt target} and {\tt value} functions to
+access the target addressing mode and the value passed to the preparator.
+
+Also, the {\tt prepare} function can be used to explicitly insert preparators into test programs.
+It can be used to create composite preparators. The function has the following arguments:
+
+\begin{itemize}
+\item {\tt target} - specifies the target addressing mode;
+\item {\tt value} - specifies the value to be written;
+\item {\tt attrs} (optional) - specifies the preparator name and the variant name to select
+      a specific preparator.
+\end{itemize}
+
+For example, the following line of code places value {\tt 0xDEADBEEF} into the {\tt t0} register:
+
+\begin{lstlisting}[language=ruby, emph={prepare}]
+prepare t0, 0xDEADBEEF
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Comparators}
+
+Test programs can include self-checks that check validity of the microprocessor state after
+a test case has been executed. These checks are instruction sequences inserted in the end of
+test cases which compare values stored in registers with expected values. If the values do not
+match control is transferred to a handler that reports an error. Expected values are produced by
+the MicroTESK simulator. Self-check are described using the  {\tt comparator} construct which has
+the same features as the {\tt preparator} construct, but serves a different purpose. Here is
+an example of a comparator for 32-bit registers and its special case for value equal to
+{\tt 0x00000000}:
+
+\begin{lstlisting}[language=ruby, emph={comparator, prepare}]
+comparator(:target => 'REG') {
+  prepare target, value
+  bne at, target, :check_failed
+  nop
+}
+
+comparator(:target => 'REG', :mask => "00000000") {
+  bne zero, target, :check_failed
+  nop
+}
+\end{lstlisting}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Test Engine Branch}
