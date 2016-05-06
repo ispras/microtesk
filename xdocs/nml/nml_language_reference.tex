@@ -300,10 +300,10 @@ is an implicitly added bit for store the sign. Supported floating-point formats 
 \end{itemize}
 
 nML allows declaring aliases for data types using the \textbf{\textit{type}} keyword.
-For example, in the code below, DWORD is the declared as an alias for card(32):
+For example, in the code below, WORD is declared as an alias for card(32):
 
 \begin{lstlisting}
-type DWORD = card(32)
+type WORD = card(32)
 \end{lstlisting}
 
 \subsection{Converting Data Types}
@@ -346,6 +346,36 @@ other.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Memory, Registers and Variables}
+
+Memory and registers represent the visible state of a microprocessor. Only this state is carried
+across execution of instruction calls. Both entities are modeled as arrays of the specified
+data type. Although memory is external to the microprocessor while registers are internal, they
+are described in nML in the same way. Differences are related to intergration with the MMU model
+and are transparent to users.
+In addition to memory and registers, nML supports defining temporary variables, which can be used
+to exchange data between primitives that constitute a microprocessor instruction. Such variables
+do not represent any externally visible state and do not save their values across instruction
+calls.
+
+\subsection{Memory}
+
+Memory is described as a data array that represents the state of physical memory. Virtual memory
+issues such as address translation, caching, etc. are not covered by nML specifications.
+
+A memory array is defined using the \textbf{\textit{mem}} keyword. For example, the code below
+defines a memory array called {\tt MEM} that consists of 2$^{30}$ words:
+
+\begin{lstlisting}
+mem MEM [2 ** 30, WORD]
+\end{lstlisting}
+
+The array lenght must be specified as a contant expression. In the initial state, the array is
+filled with zeros.
+
+\subsection{Registers}
+
+
+\subsection{Variables}
 
 
 \lstinputlisting{examples/test.nml}
