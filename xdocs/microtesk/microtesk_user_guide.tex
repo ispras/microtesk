@@ -871,6 +871,89 @@ the  {\tt free{\_}all{\_}allocated{\_}modes} function can be used.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Instruction Call Sequences}
+
+Instruction call sequences are described using block-like structures. Each block specifies
+a sequence or a collection of sequences. Blocks can be nested to construct complex sequences.
+The algorithm used for sequence construction depends on the type and the attributes of a block.
+
+An individual instruction call is considered a primitive block describing a single sequence
+that consists of a single instruction call. A single sequence that consists of multiple calls
+can be described using the {\tt sequence} or the {\tt atomic} construct. The difference between
+the two is that an atomic sequence is never mixed with other instruction calls when sequences
+are merged. The code below demonstrates how to specify a sequence of three instruction calls:
+
+\begin{lstlisting}[language=ruby, emph={sequence}, deletekeywords={or}]
+sequence {
+  add t0, t1, t2
+  sub t3, t4, t5
+  or  t6, t7, t8
+}
+\end{lstlisting}
+
+A collection of sequences that are processed one by one can be specified using the {\tt iterate}
+construct. For example, the code below describes three sequences consisting of one instruction call:
+
+\begin{lstlisting}[language=ruby, emph={iterate}, deletekeywords={or}]
+iterate {
+  add t0, t1, t2
+  sub t3, t4, t5
+  or  t6, t7, t8
+}
+\end{lstlisting}
+
+Sequences can be combined using the {\tt block} construct. The resulting sequences are
+constructed by sequentially applying the following engines to sequences returned by
+nested blocks:
+
+\begin{itemize}
+\item {\tt combinator} - builds combinations of sequences returned by nested blocks.
+      Each combination is a tuple of length equal to the number of nested blocks.
+\item {\tt permutator} - modifies combinations returned by combinator by rearranging
+      some sequences.
+\item {\tt compositor} - merges (multiplexes) sequences in a combination into a single
+      sequence preserving the initial order of instructions calls in each sequence.
+\item {\tt rearranger} - rearranges sequences constructed by compositor.
+\item {\tt obfuscator} - modifies sequences returned by rearranger by permuting some
+      instruction calls.
+\end{itemize}
+
+Each engine has several implementations based on different methods. It is possible
+to extend the list of supported methods with new implementations. Specific methods
+are selected by specifying corresponding block attributes. When they are not specified,
+default methods are applied. The format of a block structure for combining sequences
+looks as follows:
+
+\begin{lstlisting}[language=ruby, emph={block, iterate, sequence}]
+block(
+  :combinator => 'combinator-name',
+  :permutator => 'permutator-name',
+  :compositor => 'compositor-name',
+  :rearranger => 'rearranger-name',
+  :obfuscator => 'obfuscator-name') {
+
+  # Block A. 3 sequences of length 1: {A11}, {A21}, {A31}
+  iterate { A11; A21; A31 }
+
+  # Block B. 2 sequences of length 2: {B11, B12}, {B21, B22}
+  iterate { sequence { B11, B12 }; sequence { B21, B22 } }
+
+  # Block C. 1 sequence of length 3: {C11, C12, C13}
+  iterate { sequence { C11; C12; C13 } }
+}
+\end{lstlisting}
+
+The default method names are: {\tt diagonal} for combinator, {\tt catenation} for compositor,
+and {\tt trivial} for permutator, rearranger and obfuscator. Such a combination of engines
+describes a collection of sequences constructed as a concatenation of sequences returned
+by nested blocks. For example, sequences constructed for the block in the above example
+will be as follows: \{{\tt A11}, {\tt B11}, {\tt B12}, {\tt C11}, {\tt C12}, {\tt C13}\},
+\{{\tt A21}, {\tt B21}, {\tt B22}, {\tt C11}, {\tt C12}, {\tt C13}\} and
+\{{\tt A31}, {\tt B11}, {\tt B12}, {\tt C11}, {\tt C12}, {\tt C13}\}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Data}
 
 \subsection{Configuration}
