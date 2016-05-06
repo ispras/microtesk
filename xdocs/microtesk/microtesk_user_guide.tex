@@ -796,6 +796,79 @@ alu t3, t4, t5
 alu t6, t7, t8
 \end{lstlisting}
 
+\subsection{Test Situations}
+
+Test situations are associated with specific instruction calls and specify methods
+used to generate their input data. There is a wide range of data generation methods
+implemented by various data generation engines. Test situations are specified using the
+{\tt situation} construct. It takes the situation name and a map of optional attributes
+that specify situation-specific parameters. For example, the following line of code
+causes input registers of the {\tt add} instruction to be filled with zeros:
+
+\begin{lstlisting}[language=ruby, emph={situation}]
+add t1, t2, t3 do situation('zero') end
+\end{lstlisting}
+
+When no situation is specified, a default situation is used. This situation places random
+values into input registers. It is possible to assign a custom default situation for
+individual instructions and instruction groups with the {\tt set{\_}default{\_}situation} function.
+For example:
+
+\begin{lstlisting}[language=ruby, emph={situation, set_default_situation}]
+set_default_situation 'add' do situation('zero') end
+\end{lstlisting}
+
+Situations can be selected at random. The selection is based on a distribution. This
+can be done by using the {\tt random{\_}situation} construct. For example:
+
+\begin{lstlisting}[language=ruby, emph={situation, random_situation, dist, range}]
+sit_dist = dist(
+  range(:value => situation('add.overflow')),
+  range(:value => situation('add.normal')),
+  range(:value => situation('zero')),
+  range(:value => situation('random', :dist => int_dist))
+  )
+
+add t1, t2, t3 do random_situation(sit_dist) end
+\end{lstlisting}
+
+Unknown immediate arguments that should have their va-lues generated are specified using
+the "{\tt \_}" symbol. For example, the code below states that a random value should be added
+to a value stored in a random register and the result should be placed to another random register:
+
+\begin{lstlisting}[language=ruby, emph={situation}]
+addi reg(_), reg(_), _ do situation('random') end
+\end{lstlisting}
+
+\subsection{Registers Selection}
+
+Unknown immediate arguments of addressing modes are a special case and their values are
+generated in a slightly different way. Typically, they specify register indexes and are bounded
+by the lenght of register arrays. Often such indexes must be selected from a specific range
+taking into account previous selections. For example, registers are allocated at random and they
+must not overlap. To be able to solve such tasks, all values passed to addressing modes are tracked.
+The allowed value range and the method of value selection are specified in configuration files.
+Values are selected using the specified method before the instruction call is processed by the
+engine that generates data for the test situation. The selection method can be customized by using
+the  {\tt mode{\_}allocator} function. It takes the allocation method name and a map of
+method-specific parameters. For example, the following code states that the output register
+of the {\tt add} instruction must be a random register which is not used in the current test case:
+
+\begin{lstlisting}[language=ruby, emph={situation, mode_allocator}]
+add reg(_ mode_allocator('free')), t0, t1
+\end{lstlisting}
+
+Also, it is possible to exclude some elements from the range by using the {\tt exclude}
+attribute. For example:
+
+\begin{lstlisting}[language=ruby, emph={situation, mode_allocator}]
+add reg(_ :exclude=>[1, 5, 7]), t0, t1
+\end{lstlisting}
+
+Addressing modes with specific argument values can be marked as free using the
+{\tt free{\_}allocated{\_}mode} function. To free all allocated addressing modes,
+the  {\tt free{\_}all{\_}allocated{\_}modes} function can be used.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Data}
@@ -1120,6 +1193,12 @@ Functioning of the \emph{branch} test engine includes the following steps:
 
 Let \emph{D} be the size of the delay slot for an architecture under scrutiny (e.g., \emph{D}=1
 for MIPS, and \emph{D}=0 for ARM).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Customization}
+
+\section{Data Generators}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
