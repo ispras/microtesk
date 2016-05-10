@@ -249,6 +249,10 @@ does not have significant programming skills.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\chapter{Language Facilities}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Constants}
 
 In nML, constants are declared using the \textbf{\textit{let}} keyword. For example,
@@ -374,11 +378,34 @@ filled with zeros.
 
 \subsection{Registers}
 
+Registers are defined using the \textbf{\textit{reg}} keyword. Like memory, they are described
+as an array of the specified type. For example, the following code defines a register array that
+includes 32 registers storing a word:
+
+\begin{lstlisting}
+mem GPR[32, WORD]
+\end{lstlisting}
+
+The array length must be specified as a constant expression. Uninitialized registers hold
+zeros. When the array contains only a single element, the length expression can be skipped:
+
+\begin{lstlisting}
+reg HI[WORD]
+\end{lstlisting}
 
 \subsection{Variables}
 
+Variables are defined using the \textbf{\textit{var}} keyword. Their role is to store
+temporary values used by instructions. They are similar to registers, but they do not represent
+any visible state and do not save their values across instruction calls. Variables are initialized
+with zeros and reset their values after the execution of an instruction call. For example, the code
+below defines a variable for storing a 33-bit signed integer value:
 
-\lstinputlisting{examples/test.nml}
+\begin{lstlisting}
+var temp[int(33)]
+\end{lstlisting}
+
+% \lstinputlisting{examples/test.nml}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
