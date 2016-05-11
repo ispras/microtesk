@@ -209,9 +209,7 @@ atom
     |  letConst
     |  location
     |  typeCast
-    |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  IS_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  mathFunc
     ;
 
 constant
@@ -232,6 +230,12 @@ typeCast
     |  INT_TO_FLOAT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_INT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    ;
+
+mathFunc
+    :  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  IS_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
