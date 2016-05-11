@@ -427,6 +427,7 @@ final class Executor {
           if (null != labelRef.getArgumentValue()) {
             searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
           } else {
+            labelRef.getPatcher().setValue(BigInteger.ZERO);
             searchPattern = "<label>0";
           }
 

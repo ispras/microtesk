@@ -20,6 +20,7 @@ import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.checkRo
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.TestSettings;
@@ -36,6 +38,8 @@ import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -116,24 +120,42 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
-  private void registerCall(final ConcreteCall call) {
+  private void registerCall(final ConcreteCall call, final LabelManager labelManager) {
     checkNotNull(call);
 
+    patchLabels(call, labelManager);
     call.execute();
+
     sequenceBuilder.add(call);
   }
 
-  private void registerPrologueCall(final ConcreteCall call) {
+  private void registerPrologueCall(final ConcreteCall call, final LabelManager labelManager) {
     checkNotNull(call);
 
+    patchLabels(call, labelManager);
     call.execute();
+
     sequenceBuilder.addToPrologue(call);
   }
 
+  private static void patchLabels(final ConcreteCall call, final LabelManager labelManager) {
+    for (final LabelReference labelRef : call.getLabelReferences()) {
+      labelRef.resetTarget();
+
+      final Label source = labelRef.getReference();
+      final LabelManager.Target target = labelManager.resolve(source);
+
+      if (null != target) {
+        final long address = target.getAddress();
+        labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+      }
+    }
+  }
+
   private void processAbstractCall(
-      final EngineContext engineContext,
+      final EngineContext context,
       final Call abstractCall) throws ConfigurationException {
-    checkNotNull(engineContext);
+    checkNotNull(context);
     checkNotNull(abstractCall);
 
     // Only executable calls are worth printing.
@@ -143,13 +165,13 @@ public final class DefaultEngine implements Engine<TestSequence> {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      if (engineContext.isGenerateData()) {
-        processSituations(engineContext, rootOp);
+      if (context.isGenerateData()) {
+        processSituations(context, rootOp);
       }
     }
 
-    final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
-    registerCall(concreteCall);
+    final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
+    registerCall(concreteCall, context.getDataManager().getGlobalLabels());
   }
 
   private void processSituations(
@@ -225,14 +247,14 @@ public final class DefaultEngine implements Engine<TestSequence> {
 */
 
   private void addCallsToPrologue(
-      final EngineContext engineContext,
+      final EngineContext context,
       final List<Call> abstractCalls) throws ConfigurationException {
-    checkNotNull(engineContext);
+    checkNotNull(context);
     checkNotNull(abstractCalls);
 
     for (final Call abstractCall : abstractCalls) {
-      final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
-      registerPrologueCall(concreteCall);
+      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
+      registerPrologueCall(concreteCall, context.getDataManager().getGlobalLabels());
     }
   }
 }
