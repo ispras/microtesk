@@ -171,7 +171,7 @@ public final class Template {
           String.format("The %s label is not defined.", label));
     }
 
-    return BigInteger.valueOf(target.getAddress());
+    return BitVector.valueOf(target.getAddress(), 64).bigIntegerValue(false);
   }
 
   public void beginPreSection() {
