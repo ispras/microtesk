@@ -205,15 +205,19 @@ unaryExpr
 
 atom
     :  LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  constant
     |  letConst
     |  location
-    |  CARD_CONST
-    |  BINARY_CONST
-    |  HEX_CONST
     |  typeCast
     |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    ;
+
+constant
+    :  CARD_CONST
+    |  BINARY_CONST
+    |  HEX_CONST
     ;
 
 letConst
