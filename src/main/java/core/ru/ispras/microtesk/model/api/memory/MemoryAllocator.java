@@ -156,10 +156,10 @@ public final class MemoryAllocator {
     BigInteger regionIndex = regionIndexForAddress(address);
     int regionBitOffset = regionBitOffsetForAddress(address);
 
-    final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
-
     int bitPos = 0;
     while (bitPos < dataBitSize) {
+      final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
+
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
 
