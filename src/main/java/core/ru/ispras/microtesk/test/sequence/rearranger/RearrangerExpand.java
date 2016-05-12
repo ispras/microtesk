@@ -30,8 +30,18 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @param <T> Sequence item type.
  */
 public final class RearrangerExpand<T> implements Rearranger<T> {
-  private List<T> sequence = null;
-  private boolean hasValue = false;
+  private List<T> sequence;
+  private boolean hasValue;
+
+  public RearrangerExpand() {
+    this.sequence = null;
+    this.hasValue = false;
+  }
+
+  private RearrangerExpand(final RearrangerExpand<T> other) {
+    this.sequence = other.sequence;
+    this.hasValue = other.hasValue;
+  }
 
   @Override
   public void initialize(final Iterator<List<T>> original) {
@@ -70,7 +80,7 @@ public final class RearrangerExpand<T> implements Rearranger<T> {
   }
 
   @Override
-  public Iterator<List<T>> clone() {
-    throw new UnsupportedOperationException();
+  public RearrangerExpand<T> clone() {
+    return new RearrangerExpand<>(this);
   }
 }
