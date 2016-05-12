@@ -28,7 +28,15 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @param <T> Sequence item type.
  */
 public final class RearrangerTrivial<T> implements Rearranger<T> {
-  private Iterator<List<T>> original = null;
+  private Iterator<List<T>> original;
+
+  public RearrangerTrivial() {
+    this.original = null;
+  }
+
+  private RearrangerTrivial(final RearrangerTrivial<T> other) {
+    this.original = other.original;
+  }
 
   @Override
   public void initialize(final Iterator<List<T>> original) {
@@ -67,7 +75,7 @@ public final class RearrangerTrivial<T> implements Rearranger<T> {
   }
 
   @Override
-  public Iterator<List<T>> clone() {
-    throw new UnsupportedOperationException();
+  public RearrangerTrivial<T> clone() {
+    return new RearrangerTrivial<>(this);
   }
 }
