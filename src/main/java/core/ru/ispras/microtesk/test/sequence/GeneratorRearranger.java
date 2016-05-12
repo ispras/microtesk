@@ -30,6 +30,10 @@ public final class GeneratorRearranger<T> implements Generator<T> {
     this.rearranger.initialize(original);
   }
 
+  private GeneratorRearranger(final GeneratorRearranger<T> other) {
+    this.rearranger = (Rearranger<T>) other.rearranger.clone();
+  }
+
   @Override
   public void init() {
     rearranger.init();
@@ -56,7 +60,7 @@ public final class GeneratorRearranger<T> implements Generator<T> {
   }
 
   @Override
-  public Generator<T> clone() {
-    throw new UnsupportedOperationException();
+  public GeneratorRearranger<T> clone() {
+    return new GeneratorRearranger<>(this);
   }
 }
