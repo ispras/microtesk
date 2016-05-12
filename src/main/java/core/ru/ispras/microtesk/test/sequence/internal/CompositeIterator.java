@@ -26,7 +26,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public abstract class CompositeIterator<T> {
   /** The sub-iterators (i.e., iterators to be combined or composed). */
-  protected List<Iterator<T>> iterators = new ArrayList<Iterator<T>>();
+  protected List<Iterator<T>> iterators = new ArrayList<>();
 
   /**
    * Returns the list of sub-iterators.
