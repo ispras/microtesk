@@ -27,7 +27,17 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 abstract class PermutatorBase<T> implements Permutator<T> {
   protected ArrayList<T> original;
-  protected ArrayList<T> sequence; 
+  protected ArrayList<T> sequence;
+
+  public PermutatorBase() {
+    this.original = null;
+    this.sequence = null;
+  }
+
+  protected PermutatorBase(final PermutatorBase<T> other) {
+    this.original = other.original;
+    this.sequence = other.sequence;
+  }
 
   @Override
   public final void initialize(final List<T> original) {

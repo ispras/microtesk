@@ -24,6 +24,10 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class PermutatorTrivial<T> extends PermutatorBase<T> {
+  private PermutatorTrivial(final PermutatorTrivial<T> other) {
+    super(other);
+  }
+
   @Override
   public void init() {
     InvariantChecks.checkNotNull(original);
@@ -48,5 +52,10 @@ public final class PermutatorTrivial<T> extends PermutatorBase<T> {
   @Override
   public void stop() {
     sequence = null;
+  }
+
+  @Override
+  public PermutatorTrivial<T> clone() {
+    return new PermutatorTrivial<>(this);
   }
 }
