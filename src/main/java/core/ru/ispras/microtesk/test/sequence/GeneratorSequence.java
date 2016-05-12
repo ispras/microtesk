@@ -28,6 +28,11 @@ public final class GeneratorSequence<T> implements Generator<T> {
     this.hasValue = false;
   }
 
+  private GeneratorSequence(final GeneratorSequence<T> other) {
+    this.sequence = other.sequence;
+    this.hasValue = other.hasValue;
+  }
+
   @Override
   public void init() {
     hasValue = (sequence != null);
@@ -58,7 +63,7 @@ public final class GeneratorSequence<T> implements Generator<T> {
   }
 
   @Override
-  public Generator<T> clone() {
-    throw new UnsupportedOperationException();
+  public GeneratorSequence<T> clone() {
+    return new GeneratorSequence<>(this);
   }
 }

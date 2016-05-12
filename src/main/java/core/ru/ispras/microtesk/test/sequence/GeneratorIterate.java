@@ -32,8 +32,16 @@ public final class GeneratorIterate<T> implements Generator<T> {
     InvariantChecks.checkNotNull(iterators);
 
     this.iterators = iterators;
+    this.listIterator = null;
     this.valueIterator = null;
     this.hasValue = false;
+  }
+
+  private GeneratorIterate(final GeneratorIterate<T> other) {
+    this.iterators = other.iterators;
+    this.listIterator = other.listIterator;
+    this.valueIterator = other.valueIterator;
+    this.hasValue = other.hasValue;
   }
 
   @Override
@@ -87,7 +95,7 @@ public final class GeneratorIterate<T> implements Generator<T> {
   }
 
   @Override
-  public Generator<T> clone() {
-    throw new UnsupportedOperationException();
+  public GeneratorIterate<T> clone() {
+    return new GeneratorIterate<>(this);
   }
 }
