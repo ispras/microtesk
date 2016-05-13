@@ -35,7 +35,7 @@ public final class RearrangerTrivial<T> implements Rearranger<T> {
   }
 
   private RearrangerTrivial(final RearrangerTrivial<T> other) {
-    this.original = other.original;
+    this.original = other.original.clone();
   }
 
   @Override
