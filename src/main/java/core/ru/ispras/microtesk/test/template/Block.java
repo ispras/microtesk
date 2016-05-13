@@ -30,6 +30,9 @@ public final class Block {
   private final Map<String, Object> attributes;
   private final boolean isEmpty;
 
+  // Number of times the block was nested into other blocks.
+  private int refCount;
+
   protected Block(
       final BlockId blockId,
       final Where where,
@@ -53,6 +56,8 @@ public final class Block {
 
     iterator.init();
     this.isEmpty = !iterator.hasValue();
+
+    this.refCount = 0;
   }
 
   protected Block(
@@ -95,5 +100,13 @@ public final class Block {
 
   public boolean isEmpty() {
     return isEmpty;
+  }
+
+  protected int getRefCount() {
+    return refCount;
+  }
+
+  protected void incRefCount() {
+    refCount++;
   }
 }
