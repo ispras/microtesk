@@ -202,7 +202,7 @@ public final class GeneratorConfig<T> {
     try {
       return type.newInstance();
     } catch (final Exception e) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Cannot instantiate " + type.getName());
     }
   }
 }
