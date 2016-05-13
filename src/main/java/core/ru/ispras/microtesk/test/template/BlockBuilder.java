@@ -168,6 +168,8 @@ public final class BlockBuilder {
     } else {
       nestedBlocks.add(block);
     }
+
+    block.incRefCount();
   }
 
   public void addCall(final Call call) {
@@ -246,7 +248,12 @@ public final class BlockBuilder {
     }
 
     for (final Block block : nestedBlocks) {
-      generatorBuilder.addIterator(block.getIterator());
+      final Iterator<List<Call>> iterator = block.getIterator();
+      if (block.getRefCount() > 1) {
+        generatorBuilder.addIterator(iterator.clone());
+      } else {
+        generatorBuilder.addIterator(iterator);
+      }
     }
 
     // For an empty sequence block (explicitly specified), a single empty sequence is inserted.
