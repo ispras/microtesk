@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -35,6 +35,12 @@ public final class GeneratorPrologueEpilogue<T> implements Generator<T> {
     this.generator = generator;
     this.prologue = prologue;
     this.epilogue = epilogue;
+  }
+
+  private GeneratorPrologueEpilogue(final GeneratorPrologueEpilogue<T> other) {
+    this.generator = (Generator<T>) other.generator.clone();
+    this.prologue = other.prologue;
+    this.epilogue = other.epilogue;
   }
 
   @Override
@@ -76,7 +82,7 @@ public final class GeneratorPrologueEpilogue<T> implements Generator<T> {
   }
 
   @Override
-  public Generator<T> clone() {
-    throw new UnsupportedOperationException();
+  public GeneratorPrologueEpilogue<T> clone() {
+    return new GeneratorPrologueEpilogue<>(this);
   }
 }
