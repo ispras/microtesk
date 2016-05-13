@@ -24,6 +24,10 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class PermutatorTrivial<T> extends PermutatorBase<T> {
+  public PermutatorTrivial() {
+    super();
+  }
+
   private PermutatorTrivial(final PermutatorTrivial<T> other) {
     super(other);
   }

@@ -28,6 +28,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class PermutatorRandom<T> extends PermutatorBase<T> {
   private static final float PERMUTATION_RATE = 1.0f;
 
+  public PermutatorRandom() {
+    super();
+  }
+
   private PermutatorRandom(final PermutatorRandom<T> other) {
     super(other);
   }
