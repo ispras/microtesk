@@ -18,7 +18,6 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
-import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class GeneratorObfuscator<T> implements Generator<T> {
   private final Generator<T> generator;
@@ -32,6 +31,12 @@ public final class GeneratorObfuscator<T> implements Generator<T> {
 
     this.generator = generator;
     this.obfuscator = obfuscator;
+  }
+
+  private GeneratorObfuscator(final GeneratorObfuscator<T> other) {
+    this.generator = (Generator<T>) other.generator.clone();
+    this.obfuscator = (Permutator<T>) other.obfuscator.clone();
+    this.hasValue = other.hasValue;
   }
 
   private void initGenerator() {
@@ -86,7 +91,7 @@ public final class GeneratorObfuscator<T> implements Generator<T> {
   }
 
   @Override
-  public Iterator<List<T>> clone() {
-    throw new UnsupportedOperationException();
+  public GeneratorObfuscator<T> clone() {
+    return new GeneratorObfuscator<>(this);
   }
 }
