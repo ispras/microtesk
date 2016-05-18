@@ -107,12 +107,15 @@ public final class TestBase {
       final Constraint constraint = builder.build(bindings);
       result = solverId.getSolver().solve(constraint);
     } catch (Throwable e) {
-      final StringWriter sw = new StringWriter();
-      final PrintWriter pw = new PrintWriter(sw);
-      e.printStackTrace(pw);
+      final List<String> errors = new ArrayList<>(rc.getErrors().size() + 1);
 
-      return TestBaseQueryResult.reportErrors(
-          Collections.singletonList(sw.getBuffer().toString()));
+      final StringWriter sw = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+
+      errors.add(sw.getBuffer().toString());
+      errors.addAll(rc.getErrors());
+
+      return TestBaseQueryResult.reportErrors(errors);
     }
 
     return fromSolverResult(query, result);
