@@ -66,7 +66,7 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
 
     addMapping(StandardOperation.AND, "", " && ", "");
-    addMapping(StandardOperation.OR,  "", " || ", "");
+    addMapping(StandardOperation.OR,  "(", " || ", ")");
     addMapping(StandardOperation.NOT, "!(", "", ")");
 
     addMapping(StandardOperation.ITE, "(", new String[] {" ? ", " : "}, ")");
