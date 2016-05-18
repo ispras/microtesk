@@ -82,7 +82,7 @@ public final class Expr {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -99,7 +99,7 @@ public final class Expr {
     return compareNodes(this.node, other.node);
   }
 
-  private static boolean compareNodes(Node node1, Node node2) {
+  private static boolean compareNodes(final Node node1, final Node node2) {
     if (node1 == node2) {
       return true;
     }
@@ -108,20 +108,18 @@ public final class Expr {
       return false;
     }
 
-    if (node1.getKind() == Node.Kind.VALUE &&
-        node2.getKind() == Node.Kind.VALUE &&
-        node1.equals(node2)) {
-      return true;
+    if (node1.getKind() != node2.getKind()) {
+      return false;
+    }
+
+    if (Node.Kind.VALUE == node1.getKind()) {
+      return node1.equals(node2);
     }
 
     final NodeInfo ni1 = (NodeInfo) node1.getUserData();
     final NodeInfo ni2 = (NodeInfo) node2.getUserData();
 
     if (!ni1.getType().equals(ni2.getType())) {
-      return false;
-    }
-
-    if (node1.getKind() != node2.getKind()) {
       return false;
     }
 
@@ -156,10 +154,6 @@ public final class Expr {
       return true;
     }
 
-    // NoveValue1 != NodeValue2 because, otherwise, vi1.equals(vi2)
-    // in the beginning of the method would have returned true.
-
-    assert (Node.Kind.VALUE == node1.getKind());
     return false;
   }
 
