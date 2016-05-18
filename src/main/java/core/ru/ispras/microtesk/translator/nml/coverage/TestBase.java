@@ -99,7 +99,10 @@ public final class TestBase {
 
       final String testCase = query.getContext().get(TestBaseContext.TESTCASE);
       if (testCase.equals("normal")) {
-        bindings.add(NOT(OR(builder.getSpecialMarks())));
+        final List<NodeVariable> marks = builder.getSpecialMarks();
+        if (!marks.isEmpty()) {
+          bindings.add(NOT(OR(marks)));
+        }
       } else {
         bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
       }
