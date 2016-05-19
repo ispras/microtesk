@@ -15,17 +15,20 @@
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LabelValue;
@@ -52,6 +55,7 @@ public final class ModeAllocator {
   }
 
   private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
+  private final Map<String, Set<Integer>> excluded = new HashMap<>();
 
   private ModeAllocator(final AllocationSettings allocation) {
     InvariantChecks.checkNotNull(allocation);
@@ -77,6 +81,35 @@ public final class ModeAllocator {
   public void reset() {
     for (final AllocationTable<Integer, ?> allocationTable : allocationTables.values()) {
       allocationTable.reset();
+    }
+  }
+
+  public void exclude(final Primitive mode) {
+    InvariantChecks.checkNotNull(mode);
+
+    final String name = mode.getName();
+    if (mode.getKind() != Primitive.Kind.MODE) {
+      throw new GenerationAbortedException(name + " is not an addressing mode.");
+    }
+
+    final Set<Integer> excludedValues;
+    if (excluded.containsKey(name)) {
+      excludedValues = excluded.get(name);
+    } else {
+      excludedValues = new LinkedHashSet<>();
+      excluded.put(name, excludedValues);
+    }
+
+    for (final Argument arg : mode.getArguments().values()) {
+      final BigInteger value;
+      if (arg.getValue() instanceof BigInteger) {
+        value = (BigInteger) arg.getValue();
+      } else if (arg.getValue() instanceof Value) {
+        value = ((Value) arg.getValue()).getValue();
+      } else {
+        throw new IllegalArgumentException("Illegal argument type: " + arg);
+      }
+      excludedValues.add(value.intValue());
     }
   }
 
@@ -184,15 +217,24 @@ public final class ModeAllocator {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
-    if (null == allocator) {
-      return allocationTable.allocate();
-    }
-
     final Allocator defaultAllocator = allocationTable.getAllocator();
     try {
-      allocationTable.setAllocator(allocator);
-      return null == exclude ? allocationTable.allocate() :
-                               allocationTable.allocate(toValueSet(exclude));
+      if (null != allocator) {
+        allocationTable.setAllocator(allocator);
+      }
+
+      final Set<Integer> globalExclude =
+          excluded.containsKey(mode) ? excluded.get(mode) : Collections.<Integer>emptySet();
+
+      final Set<Integer> localExclude =
+          null != exclude ? toValueSet(exclude) : Collections.<Integer>emptySet();
+
+      final Set<Integer> unitedExclude =
+          CollectionUtils.uniteSets(globalExclude, localExclude);
+
+      return unitedExclude.isEmpty() ?
+          allocationTable.allocate() :
+          allocationTable.allocate(unitedExclude);
     } finally {
       allocationTable.setAllocator(defaultAllocator);
     }

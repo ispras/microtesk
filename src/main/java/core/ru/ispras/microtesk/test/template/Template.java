@@ -43,6 +43,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
+import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 
 public final class Template {
 
@@ -784,6 +785,10 @@ public final class Template {
 
     Logger.debug("Stream: label=%s, data=%s, source=%s, length=%s",
         startLabelName, dataSource.getName(), indexSource.getName(), length);
+
+    // Stream registers are excluded from random selection.
+    ModeAllocator.get().exclude(dataSource);
+    ModeAllocator.get().exclude(indexSource);
 
     streams.addStream(
         new Label(startLabelName, getCurrentBlockId()),
