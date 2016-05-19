@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -141,7 +139,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Primitive mode = getIR().getModes().get(orName);
 
       if (!orModes.isEmpty()) {
-        new CompatibilityChecker(this, where, name, mode, orModes.get(0)).check();
+        new PrimitiveCompatibilityChecker(
+            this, where, name, mode, orModes.get(0)).check();
       }
 
       orModes.add(mode);
@@ -163,7 +162,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       final Primitive op = getIR().getOps().get(orName);
       if (!orOps.isEmpty()) {
-        new CompatibilityChecker(this, where, name, op, orOps.get(0)).check();
+        new PrimitiveCompatibilityChecker(
+            this, where, name, op, orOps.get(0)).check();
       }
 
       orOps.add(op);
@@ -475,102 +475,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       return result;
     }
-  }
-}
-
-final class CompatibilityChecker extends WalkerFactoryBase {
-  private static final String COMMON_ERROR =
-      "The %s primitive cannot be a part of the %s OR-rule.";
-
-  private static final String TYPE_MISMATCH_ERROR =
-      COMMON_ERROR + " Reason: return type mismatch.";
-
-  private static final String SIZE_MISMATCH_ERROR =
-      COMMON_ERROR + " Reason: return type size mismatch.";
-
-  private static final String ATTRIBUTE_MISMATCH_ERROR =
-      COMMON_ERROR + " Reason: sets of attributes do not match (expected: %s, current: %s).";
-
-  private final Where where;
-  private final String name;
-  private final Primitive current;
-  private final Primitive expected;
-
-  public CompatibilityChecker(
-      final WalkerContext context,
-      final Where where,
-      final String name,
-      final Primitive current,
-      final Primitive expected) {
-    super(context);
-
-    this.where = where;
-    this.name = name;
-    this.current = current;
-    this.expected = expected;
-  }
-
-  public void check() throws SemanticException {
-    checkReturnTypes();
-    checkAttributes();
-  }
-
-  private void checkReturnTypes() throws SemanticException {
-    final Type currentType = current.getReturnType();
-    final Type expectedType = expected.getReturnType();
-
-    if (currentType == expectedType) {
-      return;
-    }
-
-    checkType(currentType, expectedType);
-    checkSize(currentType, expectedType);
-  }
-
-  private void checkType(final Type currentType, final Type expectedType) throws SemanticException {
-    if ((null != expectedType) && (null != currentType)) {
-      if (expectedType.getTypeId() == currentType.getTypeId()) {
-        return;
-      }
-
-      if (isInteger(currentType.getTypeId()) && isInteger(expectedType.getTypeId())) {
-        return;
-      }
-    }
-
-    raiseError(where, String.format(TYPE_MISMATCH_ERROR, current.getName(), name));
-  }
-
-  private void checkSize(final Type currentType, final Type expectedType) throws SemanticException {
-    if ((null != expectedType) && (null != currentType)) {
-      if (currentType.getBitSize() == expectedType.getBitSize()) {
-        return;
-      }
-    }
-
-    raiseError(where, String.format(SIZE_MISMATCH_ERROR, current.getName(), name));
-  }
-
-  private boolean isInteger(final TypeId typeID) {
-    return (typeID == TypeId.CARD) || (typeID == TypeId.INT);
-  }
-
-  private void checkAttributes() throws SemanticException {
-    final Set<String> expectedAttrs = expected.getAttrNames();
-    final Set<String> currentAttrs = current.getAttrNames();
-
-    if (expectedAttrs == currentAttrs) {
-      return;
-    }
-
-    if ((null != expectedAttrs) && (null != currentAttrs)) {
-      if (expectedAttrs.equals(currentAttrs)) {
-        return;
-      }
-    }
-
-    raiseError(where, String.format(
-        ATTRIBUTE_MISMATCH_ERROR, current.getName(), name, expectedAttrs, currentAttrs));
   }
 }
 
