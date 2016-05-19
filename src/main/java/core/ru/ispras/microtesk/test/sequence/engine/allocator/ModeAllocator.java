@@ -51,7 +51,7 @@ public final class ModeAllocator {
     return instance;
   }
 
-  private Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
+  private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
 
   private ModeAllocator(final AllocationSettings allocation) {
     InvariantChecks.checkNotNull(allocation);
