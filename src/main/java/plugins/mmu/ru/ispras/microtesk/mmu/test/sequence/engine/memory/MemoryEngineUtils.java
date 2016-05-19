@@ -171,7 +171,15 @@ public final class MemoryEngineUtils {
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formula, initializer);
 
-    return solver.solve(mode);
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+    if (result.getStatus() != SolverResult.Status.SAT) {
+      Logger.debug("Formula: %s", formula);
+      Logger.debug(stringOf(transition));
+      for (final String msg : result.getErrors()) {
+        Logger.debug("Error: %s", msg);
+      }
+    }
+    return result;
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
@@ -213,7 +221,40 @@ public final class MemoryEngineUtils {
     final IntegerFieldFormulaSolver solver =
         new IntegerFieldFormulaSolver(variables, formulae, initializer);
 
-    return solver.solve(mode);
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+    if (result.getStatus() != SolverResult.Status.SAT) {
+      Logger.debug(stringOf(path));
+      for (final String msg : result.getErrors()) {
+        Logger.debug("Error: %s", msg);
+      }
+    }
+    return result;
+  }
+
+  private static String stringOf(final MemoryAccessPath path) {
+    final StringBuilder builder = new StringBuilder();
+    for (final MmuTransition transition : path.getTransitions()) {
+      builder.append(transition.getSource());
+      if (transition.getGuard() != null) {
+        builder.append(String.format(" -> [%s]", transition.getGuard()));
+      }
+      builder.append(" -> ");
+    }
+    builder.append(path.getLastTransition().getTarget());
+
+    return builder.toString();
+  }
+
+  private static String stringOf(final MmuTransition transition) {
+    final StringBuilder builder = new StringBuilder();
+    builder.append(transition.getSource());
+    if (transition.getGuard() != null) {
+      builder.append(String.format(" -> [%s]", transition.getGuard()));
+    }
+    builder.append(" -> ");
+    builder.append(transition.getTarget());
+
+    return builder.toString();
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
