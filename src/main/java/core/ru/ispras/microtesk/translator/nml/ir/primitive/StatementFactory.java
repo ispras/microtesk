@@ -57,9 +57,11 @@ public final class StatementFactory extends WalkerFactoryBase {
 
   public Statement createAssignment(
       final Where where,
-      final Location left,
+      final Expr leftExpr,
       final Expr right) throws SemanticException {
+    InvariantChecks.checkTrue(leftExpr.getNodeInfo().isLocation());
 
+    final Location left = (Location) leftExpr.getNodeInfo().getSource();
     if (left instanceof LocationAtom) {
       final LocationAtom atom = (LocationAtom) left;
       if (atom.getSource() instanceof LocationAtom.PrimitiveSource) {

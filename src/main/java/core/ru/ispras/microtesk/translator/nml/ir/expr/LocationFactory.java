@@ -24,6 +24,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -100,7 +104,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     isRhs = false;
   }
 
-  public LocationAtom location(Where where, String name) throws SemanticException {
+  public Expr location(Where where, String name) throws SemanticException {
     final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
@@ -119,10 +123,10 @@ public final class LocationFactory extends WalkerFactoryBase {
     final LocationAtom result = creator.create();
     addToLog(result);
 
-    return result;
+    return newLocationExpr(result);
   }
 
-  public LocationAtom location(Where where, String name, Expr index) throws SemanticException {
+  public Expr location(Where where, String name, Expr index) throws SemanticException {
     checkNotNull(index);
 
     final Symbol symbol = findSymbol(where, name);
@@ -136,28 +140,33 @@ public final class LocationFactory extends WalkerFactoryBase {
     final LocationAtom result = creator.create();
 
     addToLog(result);
-    return result;
+    return newLocationExpr(result);
   }
 
-  public LocationAtom bitfield(Where where, LocationAtom location, Expr pos)
-      throws SemanticException {
-    checkNotNull(location);
+  public Expr bitfield(
+      final Where where, final Expr variable, final Expr pos) throws SemanticException {
+    checkNotNull(variable);
     checkNotNull(pos);
 
+    final LocationAtom location = extractLocationAtom(variable);
     if (pos.isConstant()) {
       checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
     }
 
     final Type bitfieldType = location.getType().resize(1);
-    return LocationAtom.createBitfield(location, pos, pos, bitfieldType);
+    final Location result = LocationAtom.createBitfield(location, pos, pos, bitfieldType);
+
+    return newLocationExpr(result);
   }
 
-  public LocationAtom bitfield(Where where, LocationAtom location, Expr from, Expr to)
+  public Expr bitfield(
+      final Where where, final Expr variable, final Expr from, final Expr to)
       throws SemanticException {
-    checkNotNull(location);
+    checkNotNull(variable);
     checkNotNull(from);
     checkNotNull(to);
 
+    final LocationAtom location = extractLocationAtom(variable);
     if (from.isConstant() != to.isConstant()) {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
     }
@@ -173,7 +182,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(toPos - fromPos) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return LocationAtom.createBitfield(location, from, to, bitfieldType);
+      return newLocationExpr(LocationAtom.createBitfield(location, from, to, bitfieldType));
     }
 
     final Expr.Reduced reducedFrom = from.reduce();
@@ -190,7 +199,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return LocationAtom.createBitfield(location, from, to, bitfieldType);
+      return newLocationExpr(LocationAtom.createBitfield(location, from, to, bitfieldType));
     }
 
     raiseError(where, FAILED_TO_CALCULATE_SIZE);
@@ -203,9 +212,12 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
   }
 
-  public LocationConcat concat(Where w, LocationAtom left, Location right) {
-    checkNotNull(left);
-    checkNotNull(right);
+  public Expr concat(final Where w, final Expr leftExpr, final Expr rightExpr) {
+    checkNotNull(leftExpr);
+    checkNotNull(rightExpr);
+
+    final LocationAtom left = extractLocationAtom(leftExpr);
+    final Location right = extractLocation(rightExpr);
 
     final int leftSize = left.getType().getBitSize();
     final int rightSize = right.getType().getBitSize();
@@ -214,18 +226,18 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Type concatType = left.getType().resize(concatSize);
 
     if (right instanceof LocationAtom) {
-      return new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left));
+      return newLocationExpr(new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left)));
     }
 
-    final List<LocationAtom> concatenated =
-      new ArrayList<LocationAtom>(((LocationConcat) right).getLocations());
+    final List<LocationAtom> concatenated = new ArrayList<>(((LocationConcat) right).getLocations());
     concatenated.add(left);
 
-    return new LocationConcat(concatType, concatenated);
+    return newLocationExpr(new LocationConcat(concatType, concatenated));
   }
 
-  public LocationAtom repeat(Where w, Expr count, LocationAtom value) {
-    return value.repeat(count.integerValue());
+  public Expr repeat(final Where w, final Expr count, final Expr valueExpr) {
+    final LocationAtom value = extractLocationAtom(valueExpr);
+    return newLocationExpr(value.repeat(count.integerValue()));
   }
 
   private Symbol findSymbol(Where where, String name) throws SemanticException {
@@ -267,6 +279,30 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   public Set<String> getInvolvedArgs() {
     return involvedArgs;
+  }
+
+  private static Expr newLocationExpr(final Location source) {
+    InvariantChecks.checkNotNull(source);
+
+    final NodeInfo nodeInfo = NodeInfo.newLocation(source);
+
+    final String name = source.toString();
+    final DataType dataType = TypeCast.getFortressDataType(nodeInfo.getType());
+
+    final Node node = new NodeVariable(name, dataType);
+    node.setUserData(nodeInfo);
+
+    return new Expr(node);
+  }
+
+  private static LocationAtom extractLocationAtom(final Expr expr) {
+    InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
+    return (LocationAtom) expr.getNodeInfo().getSource();
+  }
+
+  private static Location extractLocation(final Expr expr) {
+    InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
+    return (Location) expr.getNodeInfo().getSource();
   }
 }
 

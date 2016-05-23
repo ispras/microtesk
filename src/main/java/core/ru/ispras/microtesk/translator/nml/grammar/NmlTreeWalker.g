@@ -828,7 +828,7 @@ atom returns [Expr res]
     |  ^(token=LOCATION le=locationExpr[0]
 {
 checkNotNull($le.start, $le.res, $le.text);
-$res = getExprFactory().location($le.res);
+$res = $le.res;
 })
     |  token=CARD_CONST   {$res = getExprFactory().constant(where($token), $token.text,10);}
     |  token=BINARY_CONST {$res = getExprFactory().constant(where($token), $token.text, 2);}
@@ -908,14 +908,14 @@ $res = getExprFactory().float_to_float(where($token), $e.res, $te.res);
 /* Location rules (rules for accessing model memory)                                    */
 /*======================================================================================*/
 
-location returns [Location res]
+location returns [Expr res]
     :  ^(LOCATION le=locationExpr[0] {checkNotNull($le.start, $le.res, $le.text);})
 {
 $res = $le.res;
 }
     ;
 
-locationExpr [int depth] returns [Location res]
+locationExpr [int depth] returns [Expr res]
     :  ^(node=DOUBLE_COLON left=locationVal right=locationExpr[depth+1]
 {
 checkNotNull($left.start,  $left.res,  $left.text);
@@ -929,7 +929,7 @@ $res = $value.res;
 }
     ;
 
-locationVal returns [LocationAtom res]
+locationVal returns [Expr res]
     :  ^(node=LOCATION_BITFIELD la=locationAtom je1=indexExpr (je2=indexExpr)?)
 {
 checkNotNull($la.start, $la.res, $la.text);
@@ -950,7 +950,7 @@ $res = getLocationFactory().repeat(where($count.start), $count.res, $value.res);
 }
     ;
 
-locationAtom returns [LocationAtom res]
+locationAtom returns [Expr res]
     :  ^(LOCATION_INDEX id=ID e=indexExpr)
 {
 checkNotNull($e.start, $e.res, $e.text);

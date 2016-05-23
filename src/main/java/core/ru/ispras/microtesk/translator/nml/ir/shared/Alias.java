@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 
 public final class Alias {
@@ -30,8 +31,11 @@ public final class Alias {
   private final int min;
   private final int max;
 
-  public static Alias forLocation(final Location location) {
-    InvariantChecks.checkNotNull(location);
+  public static Alias forLocation(final Expr locationExpr) {
+    InvariantChecks.checkNotNull(locationExpr);
+    InvariantChecks.checkNotNull(locationExpr.getNodeInfo().isLocation());
+
+    final Location location = (Location) locationExpr.getNodeInfo().getSource();
     return new Alias(Kind.LOCATION, location, null, null, 0, 0);
   }
 
