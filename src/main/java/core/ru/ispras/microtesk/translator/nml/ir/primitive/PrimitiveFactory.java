@@ -33,6 +33,8 @@ import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -301,10 +303,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     private static boolean isMemoryReference(final LocationAtom locationAtom) {
-      if ((locationAtom.getSource() instanceof LocationAtom.MemorySource)) {
-        final LocationAtom.MemorySource source =
-            (LocationAtom.MemorySource) locationAtom.getSource();
-
+      if ((locationAtom.getSource() instanceof LocationSourceMemory)) {
+        final LocationSourceMemory source = (LocationSourceMemory) locationAtom.getSource();
         final BigInteger memorySize = source.getMemory().getSize();
 
         // MEMs of length 1 are often used as global variables.
@@ -313,9 +313,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             memorySize.compareTo(BigInteger.ONE) > 0;
       }
 
-      if ((locationAtom.getSource() instanceof LocationAtom.PrimitiveSource)) {
-        final LocationAtom.PrimitiveSource source =
-            (LocationAtom.PrimitiveSource) locationAtom.getSource();
+      if ((locationAtom.getSource() instanceof LocationSourcePrimitive)) {
+        final LocationSourcePrimitive source =
+            (LocationSourcePrimitive) locationAtom.getSource();
 
         if (source.getPrimitive() instanceof PrimitiveAND) {
           return ((PrimitiveAND) source.getPrimitive()).isMemoryReference();

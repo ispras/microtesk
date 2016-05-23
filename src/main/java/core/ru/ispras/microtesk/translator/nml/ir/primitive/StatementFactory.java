@@ -27,6 +27,7 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -64,9 +65,9 @@ public final class StatementFactory extends WalkerFactoryBase {
     final Location left = (Location) leftExpr.getNodeInfo().getSource();
     if (left instanceof LocationAtom) {
       final LocationAtom atom = (LocationAtom) left;
-      if (atom.getSource() instanceof LocationAtom.PrimitiveSource) {
-        final LocationAtom.PrimitiveSource source =
-            (LocationAtom.PrimitiveSource) atom.getSource();
+      if (atom.getSource() instanceof LocationSourcePrimitive) {
+        final LocationSourcePrimitive source =
+            (LocationSourcePrimitive) atom.getSource();
 
         if (source.getPrimitive().getKind() == Primitive.Kind.IMM) {
           raiseError(where, String.format(

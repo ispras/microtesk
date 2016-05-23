@@ -19,6 +19,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
@@ -57,7 +58,7 @@ public final class IrInquirer {
     if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
       return null;
     }
-    return ((LocationAtom.MemorySource) location.getSource()).getMemory();
+    return ((LocationSourceMemory) location.getSource()).getMemory();
   }
 
   private static boolean isExplicitPC(LocationAtom location) {

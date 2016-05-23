@@ -15,99 +15,12 @@
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class LocationAtom implements Location {
-  public static interface Source {
-    public NmlSymbolKind getSymbolKind();
-    public Type getType();
-  }
-
-  public static final class MemorySource implements Source {
-    private final MemoryExpr memory;
-
-    private MemorySource(MemoryExpr memory) {
-      checkNotNull(memory);
-      this.memory = memory;
-    }
-
-    @Override
-    public NmlSymbolKind getSymbolKind() {
-      return NmlSymbolKind.MEMORY;
-    }
-
-    @Override
-    public Type getType() {
-      return memory.getType();
-    }
-
-    public MemoryExpr getMemory() {
-      return memory;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-
-      if (obj == null) {
-        return false;
-      }
-      
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-
-      final MemorySource other = (MemorySource) obj;
-      return memory == other.memory;
-    }
-  }
-
-  public static final class PrimitiveSource implements Source {
-    private final Primitive primitive;
-
-    private PrimitiveSource(Primitive primitive) {
-      checkNotNull(primitive);
-      this.primitive = primitive;
-    }
-
-    @Override
-    public NmlSymbolKind getSymbolKind() {
-      return NmlSymbolKind.ARGUMENT;
-    }
-
-    @Override
-    public Type getType() {
-      return primitive.getReturnType();
-    }
-
-    public Primitive getPrimitive() {
-      return primitive;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-
-      if (obj == null) {
-        return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-
-      final PrimitiveSource other = (PrimitiveSource) obj;
-      return primitive == other.primitive;
-    }
-  }
 
   public static final class Bitfield {
     private final Expr from;
@@ -160,14 +73,14 @@ public final class LocationAtom implements Location {
   }
 
   private final String name;
-  private final Source source;
+  private final LocationSource source;
   private final Type type;
   private final Expr index;
   private final Bitfield bitfield;
 
   private LocationAtom(
       final String name,
-      final Source source,
+      final LocationSource source,
       final Expr index,
       final Bitfield bitfield) {
     checkNotNull(name);
@@ -185,7 +98,7 @@ public final class LocationAtom implements Location {
   public static LocationAtom createMemoryBased(String name, MemoryExpr memory, Expr index) {
     return new LocationAtom(
       name,
-      new MemorySource(memory),
+      new LocationSourceMemory(memory),
       index,
       null
     );
@@ -194,7 +107,7 @@ public final class LocationAtom implements Location {
   public static LocationAtom createPrimitiveBased(String name, Primitive primitive) {
     return new LocationAtom(
       name,
-      new PrimitiveSource(primitive),
+      new LocationSourcePrimitive(primitive),
       null,
       null
     );
@@ -213,7 +126,7 @@ public final class LocationAtom implements Location {
     return name;
   }
 
-  public Source getSource() {
+  public LocationSource getSource() {
     return source;
   }
 

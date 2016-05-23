@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.generation;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
@@ -67,12 +68,12 @@ public final class PrinterLocation {
   }
 
   private static boolean needsAccessCall(LocationAtom location) {
-    if (!(location.getSource() instanceof LocationAtom.PrimitiveSource)) {
+    if (!(location.getSource() instanceof LocationSourcePrimitive)) {
       return false;
     }
 
     final Primitive primitive =
-      ((LocationAtom.PrimitiveSource) location.getSource()).getPrimitive();
+        ((LocationSourcePrimitive) location.getSource()).getPrimitive();
 
     if (Primitive.Kind.IMM == primitive.getKind()) {
       return true;

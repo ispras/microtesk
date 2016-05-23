@@ -48,6 +48,8 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -674,8 +676,7 @@ final class SsaBuilder {
       break;
 
     case MEMORY: // FIXME recursive processing required
-      final MemoryExpr memory =
-          ((LocationAtom.MemorySource) atom.getSource()).getMemory();
+      final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
       final Alias alias = memory.getAlias();
       if (alias != null) {
         return createLValue((LocationAtom) alias.getLocation());
@@ -695,8 +696,7 @@ final class SsaBuilder {
 
     if (atom.getIndex() != null) {
       // only ESymbolKind.MEMORY can be indexed
-      final MemoryExpr memory =
-          ((LocationAtom.MemorySource) atom.getSource()).getMemory();
+      final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
 
       // get required bitsize of index
       final int size = memory.getSize().subtract(BigInteger.ONE).bitLength();
@@ -718,9 +718,8 @@ final class SsaBuilder {
   }
 
   private static boolean isModeArgument(LocationAtom atom) {
-    if (atom.getSource() instanceof LocationAtom.PrimitiveSource) {
-      final LocationAtom.PrimitiveSource source =
-        (LocationAtom.PrimitiveSource) atom.getSource();
+    if (atom.getSource() instanceof LocationSourcePrimitive) {
+      final LocationSourcePrimitive source = (LocationSourcePrimitive) atom.getSource();
       return source.getPrimitive().getKind() == Primitive.Kind.MODE;
     }
     return false;
