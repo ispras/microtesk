@@ -285,7 +285,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
 
       final NodeInfo nodeInfo = expr.getNodeInfo();
-      if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+      if (!nodeInfo.isLocation()) {
         return false;
       }
 
@@ -352,7 +352,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     private boolean isLoadTarget(final Expr expr) {
       final NodeInfo nodeInfo = expr.getNodeInfo();
-      if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+      if (!nodeInfo.isLocation()) {
         return false;
       }
 

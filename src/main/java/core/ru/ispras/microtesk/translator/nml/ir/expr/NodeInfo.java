@@ -130,4 +130,8 @@ public final class NodeInfo {
   public List<Coercion> getCoercions() {
     return coercions;
   }
+
+  public boolean isLocation() {
+    return Kind.LOCATION == kind;
+  }
 }
