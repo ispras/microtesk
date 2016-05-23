@@ -151,6 +151,8 @@ public enum Operator {
                                  rule(TypeId.BOOL,              StandardOperation.NOT)),
 
   // Synthetic operators
+  REPEAT(null,      2, Kind.COMMON  /* No rules. These operator must be handled separately. */),
+
   ITE(null,         3, Kind.COMMON  /* No rules. These operator must be handled separately. */),
   SQRT(null,        1, Kind.COMMON  /* No rules. These operator must be handled separately. */),
 

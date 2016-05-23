@@ -171,6 +171,34 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr repeat(final Where w, final Expr count, final Expr expr) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(count);
+    InvariantChecks.checkNotNull(expr);
+
+    if (!count.isConstant()) {
+      raiseError(w, "Repeat count must be a constant expression.");
+    }
+
+    final Type exprType = expr.getNodeInfo().getType();
+    if (null == exprType) {
+      raiseError(w, "The type of the expression to be repeated is not defined.");
+    }
+
+    if (!expr.isTypeOf(TypeId.CARD) && expr.isTypeOf(TypeId.INT)) {
+      raiseError(w, "The type of the expression to be repeated must be card or int.");
+    }
+
+    final Type type = exprType.resize(exprType.getBitSize() * count.integerValue());
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.REPEAT, type);
+
+    final Node node = new NodeOperation(
+        StandardOperation.BVREPEAT, count.getNode(), expr.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
   public Expr sqrt(final Where w, final Expr operand) throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(operand);

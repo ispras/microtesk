@@ -100,6 +100,11 @@ public final class Data implements Comparable<Data> {
     return bitField(start.getRawData().intValue(), end.getRawData().intValue());
   }
 
+  public Data repeat(final int count) {
+    final BitVector newRawData = rawData.repeat(count);
+    return new Data(type.resize(newRawData.getBitSize()), newRawData);
+  }
+
   public Data signExtendTo(final Type newType) {
     InvariantChecks.checkNotNull(newType);
     InvariantChecks.checkTrue(type.isInteger() && newType.isInteger());

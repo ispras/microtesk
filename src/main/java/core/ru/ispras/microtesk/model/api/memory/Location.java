@@ -16,7 +16,6 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -333,19 +332,6 @@ public final class Location implements LocationAccessor {
 
     final Type newType = locations[0].getType().resize(newBitSize);
     return new Location(newType, newAtoms);
-  }
-
-  public Location repeat(final int count) {
-    InvariantChecks.checkGreaterThanZero(count);
-
-    if (count == 1) {
-      return this;
-    }
-
-    final Location[] array = new Location[count];
-    Arrays.fill(array, this);
-
-    return concat(array); 
   }
 
   @Override

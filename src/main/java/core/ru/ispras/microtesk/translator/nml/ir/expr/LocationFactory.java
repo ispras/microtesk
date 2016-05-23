@@ -235,11 +235,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     return newLocationExpr(new LocationConcat(concatType, concatenated));
   }
 
-  public Expr repeat(final Where w, final Expr count, final Expr valueExpr) {
-    final LocationAtom value = extractLocationAtom(valueExpr);
-    return newLocationExpr(value.repeat(count.integerValue()));
-  }
-
   private Symbol findSymbol(Where where, String name) throws SemanticException {
     final Symbol symbol = getSymbols().resolve(name);
 

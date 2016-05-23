@@ -164,22 +164,12 @@ public final class LocationAtom implements Location {
   private final Type type;
   private final Expr index;
   private final Bitfield bitfield;
-  private final int repeatCount;
 
   private LocationAtom(
       final String name,
       final Source source,
       final Expr index,
       final Bitfield bitfield) {
-    this(name, source, index, bitfield, 1);
-  }
-
-  private LocationAtom(
-      final String name,
-      final Source source,
-      final Expr index,
-      final Bitfield bitfield,
-      final int repeatCount) {
     checkNotNull(name);
     checkNotNull(source);
 
@@ -187,10 +177,9 @@ public final class LocationAtom implements Location {
     this.source = source;
     this.index = index;
     this.bitfield = bitfield;
-    this.repeatCount = repeatCount;
 
     final Type sourceType = null != bitfield ? bitfield.getType() : source.getType();
-    this.type = sourceType.resize(sourceType.getBitSize() * repeatCount);
+    this.type = sourceType;
   }
 
   public static LocationAtom createMemoryBased(String name, MemoryExpr memory, Expr index) {
@@ -220,16 +209,6 @@ public final class LocationAtom implements Location {
     );
   }
 
-  LocationAtom repeat(final int count) {
-    return new LocationAtom(
-        name,
-        source,
-        index,
-        bitfield,
-        repeatCount * count
-        );
-  }
-
   public String getName() {
     return name;
   }
@@ -249,10 +228,6 @@ public final class LocationAtom implements Location {
 
   public Bitfield getBitfield() {
     return bitfield;
-  }
-
-  public int getRepeatCount() {
-    return repeatCount;
   }
 
   @Override
@@ -286,10 +261,6 @@ public final class LocationAtom implements Location {
       return false;
     }
 
-    if (repeatCount != other.repeatCount) {
-      return false;
-    }
-
     return true;
   }
 
@@ -304,11 +275,6 @@ public final class LocationAtom implements Location {
 
     if (bitfield != null) {
       sb.append(String.format("<%s..%s>", bitfield.getFrom().getNode(), bitfield.getTo().getNode()));
-    }
-
-    if (repeatCount != 1) {
-      sb.append('.');
-      sb.append(repeatCount);
     }
 
     return sb.toString();

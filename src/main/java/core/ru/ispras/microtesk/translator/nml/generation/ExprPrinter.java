@@ -118,6 +118,9 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVSGE, "(", ".compareTo(", ") >= 0)");
     addMapping(StandardOperation.BVSGT, "(", ".compareTo(", ") > 0)");
 
+    addMapping(StandardOperation.BVREPEAT,
+        "", new String[] {".repeat("}, ")", new int[] {1, 0});
+
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
 
