@@ -228,6 +228,6 @@ final class StatementBuilder {
   }
 
   private void addStatement(StatementStatus stmt) {
-    addStatement(String.format("%s.set(%d);", stmt.getStatus().getName(), stmt.getNewValue()));
+    // Nothing
   }
 }
