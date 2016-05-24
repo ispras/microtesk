@@ -23,7 +23,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 
 /**
  * The Output class holds information to be printed to the simulation output to inserted into the
@@ -59,7 +59,7 @@ public final class Output {
      *         access to the model state.
      */
 
-    Object evaluate(IModelStateObserver observer) throws ConfigurationException;
+    Object evaluate(ModelStateObserver observer) throws ConfigurationException;
   }
 
   /**
@@ -77,7 +77,7 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final IModelStateObserver observer) {
+    public Object evaluate(final ModelStateObserver observer) {
       if (value instanceof Value) {
         return ((Value) value).getValue();
       }
@@ -110,7 +110,7 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final IModelStateObserver observer) throws ConfigurationException {
+    public Object evaluate(final ModelStateObserver observer) throws ConfigurationException {
       final LocationAccessor accessor = observer.accessLocation(name, index);
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
@@ -188,7 +188,7 @@ public final class Output {
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
 
-  public String evaluate(final IModelStateObserver observer) throws ConfigurationException {
+  public String evaluate(final ModelStateObserver observer) throws ConfigurationException {
     if (args.isEmpty()) {
       return format;
     }

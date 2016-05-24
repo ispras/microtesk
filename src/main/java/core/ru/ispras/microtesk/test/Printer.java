@@ -25,7 +25,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
@@ -40,7 +40,7 @@ import ru.ispras.microtesk.test.template.Output;
 public final class Printer {
   private final static int LINE_WIDTH = 100;
 
-  private final IModelStateObserver observer;
+  private final ModelStateObserver observer;
   private final String separator;
   private int codeFileCount;
 
@@ -61,7 +61,7 @@ public final class Printer {
    * @throws IOException if failed to open the specified file for writing.
    */
 
-  public Printer(final IModelStateObserver observer) {
+  public Printer(final ModelStateObserver observer) {
     checkNotNull(observer);
 
     final String commentToken = TestSettings.getCommentToken();

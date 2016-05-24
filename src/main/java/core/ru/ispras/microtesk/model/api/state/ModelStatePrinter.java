@@ -50,7 +50,7 @@ public final class ModelStatePrinter {
     Logger.message("REGISTER STATE:");
     Logger.message("");
 
-    final IModelStateObserver observer = model.getStateObserver();
+    final ModelStateObserver observer = model.getStateObserver();
     for (MetaLocationStore r : model.getMetaData().getRegisters()) {
       for (BigInteger index = BigInteger.ZERO; index.compareTo(r.getCount()) < 0; index = index.add(BigInteger.ONE)) {
         try {
@@ -75,7 +75,7 @@ public final class ModelStatePrinter {
     Logger.message("MEMORY STATE:");
     Logger.message("");
 
-    final IModelStateObserver observer = model.getStateObserver();
+    final ModelStateObserver observer = model.getStateObserver();
     for (final MetaLocationStore r : model.getMetaData().getMemoryStores()) {
       for (BigInteger index = BigInteger.ZERO; index.compareTo(r.getCount()) < 0; index = index.add(BigInteger.ONE)) {
         try {

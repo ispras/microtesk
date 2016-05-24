@@ -37,7 +37,7 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -226,7 +226,7 @@ public final class TestEngine {
     final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
     final StreamStore streams = new StreamStore();
 
-    final IModelStateObserver observer = model.getStateObserver();
+    final ModelStateObserver observer = model.getStateObserver();
     final Printer printer = new Printer(observer);
 
     final DataManager dataManager = new DataManager(printer);

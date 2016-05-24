@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 
 /**
  * The IModel interface is main interface that should be implemented by a model. It provides method
@@ -46,7 +46,7 @@ public interface IModel {
    * the microprocessor mode (current register values, value in memory locations, etc)
    */
 
-  IModelStateObserver getStateObserver();
+  ModelStateObserver getStateObserver();
 
   /**
    * Returns a factory for creating instances of operations, addressing modes and instruction calls

@@ -37,7 +37,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 
@@ -56,7 +55,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
   private final AddressingModeStore modes;
   private final OperationStore ops;
 
-  private final IModelStateObserver observer;
+  private final ModelStateObserver observer;
   private final Resetter resetter;
   private final MetaModel metaModel;
 
@@ -125,7 +124,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // IModel
   @Override
-  public final IModelStateObserver getStateObserver() {
+  public final ModelStateObserver getStateObserver() {
     return observer;
   }
 

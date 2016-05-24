@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.state.IModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -49,7 +49,7 @@ import ru.ispras.microtesk.test.template.Output;
 
 final class Executor {
   private final EngineContext context;
-  private final IModelStateObserver observer;
+  private final ModelStateObserver observer;
   private Map<String, List<ConcreteCall>> exceptionHandlers;
 
   /**
@@ -63,7 +63,7 @@ final class Executor {
 
   public Executor(
       final EngineContext context,
-      final IModelStateObserver observer) {
+      final ModelStateObserver observer) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(observer);
 

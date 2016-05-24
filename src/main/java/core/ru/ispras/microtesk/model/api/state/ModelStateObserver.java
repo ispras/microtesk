@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.exception.UndeclaredException;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
-public final class ModelStateObserver implements IModelStateObserver {
+public final class ModelStateObserver {
   private final static String ALREADY_ADDED_ERR_FRMT =
       "The %s item has already been added to the table.";
 
@@ -74,12 +74,10 @@ public final class ModelStateObserver implements IModelStateObserver {
     }
   }
 
-  @Override
   public LocationAccessor accessLocation(final String name) throws ConfigurationException {
     return accessLocation(name, BigInteger.ZERO);
   }
 
-  @Override
   public LocationAccessor accessLocation(
       final String name, final BigInteger index) throws ConfigurationException {
     if (labelMap.containsKey(name)) {
