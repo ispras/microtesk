@@ -18,7 +18,9 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -34,10 +36,31 @@ public final class IrInquirer {
     this.ir = ir;
   }
 
+  public boolean isPC(final Location location) {
+    checkNotNull(location);
+
+    if (location instanceof LocationAtom) {
+      return isPC((LocationAtom) location);
+    } else {
+      return isPC((LocationConcat) location);
+    }
+  }
+
   public boolean isPC(final LocationAtom location) {
     checkNotNull(location);
 
     return isRegister(location) && (isExplicitPC(location) || isLabelledAsPC(location));
+  }
+
+  public boolean isPC(final LocationConcat location) {
+    checkNotNull(location);
+
+    for (final LocationAtom atom : location.getLocations()) {
+      if (isPC(atom)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static boolean isRegister(final LocationAtom location) {
