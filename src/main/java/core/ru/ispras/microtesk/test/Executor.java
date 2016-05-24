@@ -198,8 +198,10 @@ final class Executor {
       if (null == exception) {
         // NORMAL EXECUTION
 
-        final int transferStatus = observer.getControlTransferStatus();
-        if (0 == transferStatus) {
+        final long address = observer.accessLocation("PC").getValue().longValue();
+        final boolean isJump = address != call.getAddress() + call.getByteSize();
+
+        if (!isJump) {
           // If there are no transfers, continue to the next instruction if there is such.
           if (index == endIndex) break;
           index = getNextCallIndex(index, calls, null != invalidCall); 
