@@ -14,14 +14,9 @@
 
 package ru.ispras.microtesk.model.api.state;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 public final class Status {
   // Prototypes for standard status flags
   public static final Status CTRL_TRANSFER = new Status("__CTRL_TRANSFER", 0);
-  public static final Map<String, Status> STANDARD_STATUSES = createStandardStatuses();
 
   private final String name;
   private final int defaultValue;
@@ -51,11 +46,5 @@ public final class Status {
 
   public int getDefault() {
     return defaultValue;
-  }
-
-  private static final Map<String, Status> createStandardStatuses() {
-    final Map<String, Status> result = new HashMap<>();
-    result.put(CTRL_TRANSFER.getName(), CTRL_TRANSFER);
-    return Collections.unmodifiableMap(result);
   }
 }
