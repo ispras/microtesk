@@ -36,8 +36,8 @@ options {
 
 @rulecatch {
 catch (final RecognitionException re) { // Default behavior
-    reportError(re);
-    recover(input,re);
+  reportError(re);
+  recover(input,re);
 }
 }
 
@@ -81,7 +81,6 @@ import ru.ispras.microtesk.translator.nml.antlrex.NmlTreeWalkerBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.model.api.memory.Memory;
 
-import ru.ispras.microtesk.translator.nml.ir.PCAnalyzer;
 import ru.ispras.microtesk.translator.nml.ir.expr.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
@@ -548,13 +547,11 @@ getLocationFactory().endCollectingArgs();
 assignmentStatement returns [List<Statement> res]
 @init
 {
-final PCAnalyzer analyzer = new PCAnalyzer(getLocationFactory(), getIR());
 getLocationFactory().beginLhs();
 }
     :  ^(ASSIGN le=location
 {
 checkNotNull($le.start, $le.res, $le.text);
-analyzer.startTrackingSource();
 getLocationFactory().beginRhs();
 }
     me=dataExpr)
@@ -567,7 +564,6 @@ $res = result;
     ;
 finally
 {
-analyzer.finalize();
 getLocationFactory().endAssignment();
 }
 
