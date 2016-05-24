@@ -21,6 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -185,7 +186,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "The type of the expression to be repeated is not defined.");
     }
 
-    if (!expr.isTypeOf(TypeId.CARD) && expr.isTypeOf(TypeId.INT)) {
+    if (!expr.isTypeOf(TypeId.CARD) && !expr.isTypeOf(TypeId.INT)) {
       raiseError(w, "The type of the expression to be repeated must be card or int.");
     }
 
@@ -194,6 +195,53 @@ public final class ExprFactory extends WalkerFactoryBase {
 
     final Node node = new NodeOperation(
         StandardOperation.BVREPEAT, count.getNode(), expr.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
+  public Expr concat(final Where w, final Expr left, final Expr right) throws SemanticException {
+    InvariantChecks.checkNotNull(left);
+    InvariantChecks.checkNotNull(right);
+
+    if (null == left.getNodeInfo().getType()) {
+      raiseError(w, "The type of the left operand is not defined.");
+    }
+
+    if (null == right.getNodeInfo().getType()) {
+      raiseError(w, "The type of the right operand is not defined.");
+    }
+
+    if (!left.isTypeOf(TypeId.CARD) && !left.isTypeOf(TypeId.INT) ||
+        !right.isTypeOf(TypeId.CARD) && !right.isTypeOf(TypeId.INT)) {
+      raiseError(w, "The type of an expression to be concatenated must be card or int.");
+    }
+
+    final TypeId typeId =
+        left.isTypeOf(TypeId.CARD) || right.isTypeOf(TypeId.CARD) ? TypeId.CARD : TypeId.INT;
+
+    final List<Node> operands = new ArrayList<>();
+
+    if (ExprUtils.isOperation(left.getNode(), StandardOperation.BVCONCAT)) {
+      operands.addAll(((NodeOperation) left.getNode()).getOperands());
+    } else {
+      operands.add(left.getNode());
+    }
+
+    if (ExprUtils.isOperation(right.getNode(), StandardOperation.BVCONCAT)) {
+      operands.addAll(((NodeOperation) right.getNode()).getOperands());
+    } else {
+      operands.add(right.getNode());
+    }
+
+    int bitSize = 0;
+    for (final Node operand : operands) {
+      bitSize += operand.getDataType().getSize();
+    }
+
+    final Type type = typeId == TypeId.CARD ? Type.CARD(bitSize) : Type.INT(bitSize);
+    final Node node = new NodeOperation(StandardOperation.BVCONCAT, operands);
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.CONCAT, type);
 
     node.setUserData(nodeInfo);
     return new Expr(node);
