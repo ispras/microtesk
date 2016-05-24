@@ -405,7 +405,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             break;
 
           case FORMAT:  // Ignored
-          case STATUS:  // Ignored
           case FUNCALL: // Ignored
             break;
 

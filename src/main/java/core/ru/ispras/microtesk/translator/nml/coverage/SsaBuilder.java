@@ -659,7 +659,6 @@ final class SsaBuilder {
 
         case FUNCALL: // FIXME
         case FORMAT:
-        case STATUS: // skip
           break;
 
         default:

@@ -20,7 +20,6 @@ public abstract class Statement {
     ASSIGN,
     COND,
     FORMAT,
-    STATUS,
     FUNCALL
   }
 

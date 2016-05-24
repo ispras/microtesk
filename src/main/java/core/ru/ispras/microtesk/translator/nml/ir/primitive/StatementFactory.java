@@ -18,7 +18,6 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
@@ -158,10 +157,6 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     return StatementAttributeCall.newInstanceCall(calleeInstance, attributeName);
-  }
-
-  public Statement createControlTransfer(int index) {
-    return new StatementStatus(Status.CTRL_TRANSFER, index);
   }
 
   public Statement createFormat(

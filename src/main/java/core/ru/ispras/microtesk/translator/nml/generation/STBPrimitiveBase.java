@@ -28,7 +28,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementStatus;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 abstract class STBPrimitiveBase implements STBuilder {
@@ -100,10 +99,6 @@ final class StatementBuilder {
 
       case CALL:
         addStatement((StatementAttributeCall) stmt);
-        break;
-
-      case STATUS:
-        addStatement((StatementStatus) stmt);
         break;
 
       case FORMAT:
@@ -225,9 +220,5 @@ final class StatementBuilder {
 
     addStatement(String.format(
         "Execution.%s(%s);", stmt.getName(), sb.toString()));
-  }
-
-  private void addStatement(StatementStatus stmt) {
-    // Nothing
   }
 }

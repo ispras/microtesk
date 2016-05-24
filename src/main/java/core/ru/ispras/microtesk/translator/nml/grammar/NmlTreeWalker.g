@@ -562,11 +562,6 @@ getLocationFactory().beginRhs();
 checkNotNull($me.start, $me.res, $me.text);
 final List<Statement> result = new ArrayList<>();
 result.add(getStatementFactory().createAssignment(where($le.start), $le.res, $me.res));
-
-final int ctIndex = analyzer.getControlTransferIndex();
-if (ctIndex > 0)
-    result.add(getStatementFactory().createControlTransfer(ctIndex));
-
 $res = result;
 }
     ;

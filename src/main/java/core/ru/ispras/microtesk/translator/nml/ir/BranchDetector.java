@@ -24,8 +24,6 @@ import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.state.Status;
-import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -38,7 +36,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementStatus;
 
 public final class BranchDetector {
   private final Ir ir;
@@ -75,10 +72,6 @@ public final class BranchDetector {
 
   private void onStatement(final Statement stmt) {
     switch(stmt.getKind()) {
-      case STATUS:
-        onStatus((StatementStatus) stmt);
-        break;
-
       case COND:
         onCondition((StatementCondition) stmt);
         break;
@@ -120,24 +113,6 @@ public final class BranchDetector {
       //System.out.printf("[Assign] %s - %sbranch%n",
       //     primitive.getName(), isConditional ? "conditional " : "");
     }
-  }
-
-  private void onStatus(final StatementStatus stmt) {
-    /*
-    if (stmt.getStatus() == Status.CTRL_TRANSFER) {
-      final boolean isConditional = !conditions.isEmpty();
-      final PrimitiveAND primitive =  primitives.getLast();
-
-      if (isConditional) {
-        primitive.setConditionalBranch(true);
-      } else {
-        primitive.setBranch(true);
-      }
-
-      //System.out.printf("[Status] %s - %sbranch%n",
-      //    primitive.getName(), isConditional ? "conditional " : "");
-    }
-    */
   }
 
   private void onAttributeCall(final StatementAttributeCall stmt) {

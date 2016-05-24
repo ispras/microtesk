@@ -29,7 +29,6 @@ import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.state.Resetter;
-import ru.ispras.microtesk.model.api.state.Status;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
@@ -66,7 +65,6 @@ final class STBShared implements STBuilder {
 
     t.add("imps", Memory.class.getName());
     t.add("imps", Label.class.getName());
-    t.add("imps", Status.class.getName());
     t.add("imps", Resetter.class.getName());
   }
 
