@@ -40,7 +40,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.state.IModelStateObserver;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
-import ru.ispras.microtesk.model.api.state.Status;
 
 /**
  * The ProcessorModel class is base class for all families of microprocessor model classes. It
@@ -70,7 +69,6 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       final Memory[] registers,
       final Memory[] memory,
       final Label[] labels,
-      final Status[] statuses,
       final Resetter resetter) {
 
     this.name = name;
@@ -78,7 +76,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     this.modes = new AddressingModeStore(modes);
     this.ops = new OperationStore(ops);
 
-    this.observer = new ModelStateObserver(registers, memory, labels, statuses);
+    this.observer = new ModelStateObserver(registers, memory, labels);
     this.resetter = resetter;
 
     final List<MetaGroup> modeGroupList = modeGroupsToList(modeGroups);

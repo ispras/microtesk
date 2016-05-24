@@ -208,27 +208,6 @@ final class STBShared implements STBuilder {
     t.add("members", tLabels);
   }
 
-  private void buildStatuses(STGroup group, ST t) {
-    insertEmptyLine(t);
-
-    final ST tStatuses = group.getInstanceOf("memory_array");
-
-    tStatuses.add("type", Status.class.getSimpleName() + "[]");
-    tStatuses.add("name", STBModel.SHARED_STATUSES);
-
-    for (Status status : Status.STANDARD_STATUSES.values()) {
-      final ST tStatus = group.getInstanceOf("status");
-
-      tStatus.add("name", status.getName());
-      tStatus.add("def_value", status.getDefault());
-      t.add("members", tStatus);
-
-      tStatuses.add("items", status.getName());
-    }
-
-    t.add("members", tStatuses);
-  }
-
   private void buildResetter(STGroup group, ST t) {
     insertEmptyLine(t);
 
@@ -236,9 +215,7 @@ final class STBShared implements STBuilder {
 
     tResetter.add("type", Resetter.class.getSimpleName());
     tResetter.add("name", STBModel.SHARED_RESETTER);
-
     tResetter.add("items", STBModel.SHARED_VARIABLES);
-    tResetter.add("items", STBModel.SHARED_STATUSES);
 
     t.add("members", tResetter);
   }
@@ -249,11 +226,9 @@ final class STBShared implements STBuilder {
 
     buildHeader(t);
     buildLetStrings(group, t);
-    //buildLetConstants(group, t);
     buildTypes(group, t);
     buildMemory(group, t);
     buildLabels(group, t);
-    buildStatuses(group, t);
     buildResetter(group, t);
 
     return t;

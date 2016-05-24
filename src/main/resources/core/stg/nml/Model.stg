@@ -55,7 +55,6 @@ public Model() {
       <reg>,
       <mem>,
       <lab>,
-      <stat>,
       <reset>
       );
 }

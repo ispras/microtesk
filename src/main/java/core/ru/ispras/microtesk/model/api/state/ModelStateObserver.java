@@ -41,12 +41,10 @@ public final class ModelStateObserver implements IModelStateObserver {
   public ModelStateObserver(
       final Memory[] registers,
       final Memory[] memory,
-      final Label[] labels,
-      final Status[] statuses) {
+      final Label[] labels) {
     checkNotNull(registers);
     checkNotNull(memory);
     checkNotNull(labels);
-    checkNotNull(statuses);
 
     memoryMap = new HashMap<String, Memory>();
     addToMemoryMap(memoryMap, registers);

@@ -18,20 +18,14 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 
 public final class Resetter {
   private final Memory[] variables;
-  private final Status[] statuses;
 
-  public Resetter(final Memory[] variables, final Status[] statuses) {
+  public Resetter(final Memory[] variables) {
     this.variables = variables;
-    this.statuses = statuses;
   }
 
   public void reset() {
     for (final Memory variable : variables) {
       variable.reset();
-    }
-
-    for (final Status status : statuses) {
-      status.reset();
     }
   }
 }
