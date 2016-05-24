@@ -15,28 +15,42 @@
 package ru.ispras.microtesk.translator.nml.ir;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.state.Status;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementStatus;
 
 public final class BranchDetector {
   private final Ir ir;
+  private final IrInquirer inquirer;
   private final Deque<PrimitiveAND> primitives;
   private final Deque<Pair<StatementCondition, Integer>> conditions; // Condition : Case Index
 
   public BranchDetector(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
+
     this.ir = ir;
+    this.inquirer = new IrInquirer(ir);
     this.primitives = new ArrayDeque<>();
     this.conditions = new ArrayDeque<>();
   }
@@ -73,7 +87,8 @@ public final class BranchDetector {
         onAttributeCall((StatementAttributeCall) stmt);
         break;
 
-      case ASSIGN: // Ignored
+      case ASSIGN:
+        onAssignment((StatementAssignment) stmt);
         break;
 
       case FUNCALL: // Ignored
@@ -88,7 +103,27 @@ public final class BranchDetector {
     }
   }
 
+  private void onAssignment(final StatementAssignment stmt) {
+    final Location left = stmt.getLeft();
+    final Expr right = stmt.getRight();
+
+    if (isPCAssignment(left, right)) {
+      final boolean isConditional = !conditions.isEmpty();
+      final PrimitiveAND primitive =  primitives.getLast();
+
+      if (isConditional) {
+        primitive.setConditionalBranch(true);
+      } else {
+        primitive.setBranch(true);
+      }
+
+      //System.out.printf("[Assign] %s - %sbranch%n",
+      //     primitive.getName(), isConditional ? "conditional " : "");
+    }
+  }
+
   private void onStatus(final StatementStatus stmt) {
+    /*
     if (stmt.getStatus() == Status.CTRL_TRANSFER) {
       final boolean isConditional = !conditions.isEmpty();
       final PrimitiveAND primitive =  primitives.getLast();
@@ -99,9 +134,10 @@ public final class BranchDetector {
         primitive.setBranch(true);
       }
 
-      // System.out.printf("%s - %sbranch%n",
+      //System.out.printf("[Status] %s - %sbranch%n",
       //    primitive.getName(), isConditional ? "conditional " : "");
     }
+    */
   }
 
   private void onAttributeCall(final StatementAttributeCall stmt) {
@@ -137,6 +173,46 @@ public final class BranchDetector {
       }
 
       conditions.pop();
+    }
+  }
+
+  private boolean isPCAssignment(final Location left, final Expr right) {
+    if (!inquirer.isPC(left)) {
+      return false;
+    }
+
+    final PCSourceExplorer visitor = new PCSourceExplorer();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+
+    walker.visit(right.getNode());
+    return visitor.isBasedOnExternalParameters();
+  }
+
+  private final class PCSourceExplorer extends ExprTreeVisitorDefault {
+    private boolean basedOnExternalParameters = false;
+
+    public boolean isBasedOnExternalParameters() {
+      return basedOnExternalParameters;
+    }
+
+    @Override
+    public void onVariable(final NodeVariable variable) {
+      final Expr node = new Expr(variable);
+      final NodeInfo nodeInfo = node.getNodeInfo();
+
+      InvariantChecks.checkNotNull(nodeInfo.isLocation());
+      final Location location = (Location) nodeInfo.getSource();
+
+      final List<LocationAtom> locations = location instanceof LocationAtom ?
+          Collections.singletonList((LocationAtom) location) :
+          ((LocationConcat) location).getLocations();
+
+      for (final LocationAtom atom : locations) {
+        if (!inquirer.isPC(atom)) {
+          basedOnExternalParameters = true;
+          setStatus(Status.ABORT);
+        }
+      }
     }
   }
 }
