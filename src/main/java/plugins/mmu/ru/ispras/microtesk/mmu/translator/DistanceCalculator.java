@@ -17,6 +17,9 @@ package ru.ispras.microtesk.mmu.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.ispras.fortress.expression.ExprUtils.isOperation;
+import static ru.ispras.fortress.expression.ExprUtils.isValue;
+
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -247,18 +250,5 @@ final class DistanceCalculator {
 
       return false;
     }
-  }
-
-  private static boolean isOperation(final Node node, final Enum<?> opId) {
-    if (Node.Kind.OPERATION != node.getKind()) {
-      return false;
-    }
-
-    final NodeOperation op = (NodeOperation) node;
-    return op.getOperationId() == opId;
-  }
-
-  private static boolean isValue(final Node node) {
-    return Node.Kind.VALUE == node.getKind();
   }
 }
