@@ -50,29 +50,11 @@ public final class LocationFactory extends WalkerFactoryBase {
   private static final String FAILED_TO_CALCULATE_SIZE =
     "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
 
-  private List<LocationAtom> log;
-
   private boolean isLhs;
   private boolean isRhs;
   private Set<String> lhsArgs;
 
-  public void setLog(List<LocationAtom> locations) {
-    log = locations;
-  }
-
-  public List<LocationAtom> getLog() {
-    return log;
-  }
-
-  public void resetLog() {
-    log = null;
-  }
-
   private void addToLog(LocationAtom location) {
-    if (null != log) {
-      log.add(location);
-    }
-
     if (location.getSource().getSymbolKind() != NmlSymbolKind.ARGUMENT) {
       return;
     }
@@ -98,7 +80,6 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   public LocationFactory(WalkerContext context) {
     super(context);
-    resetLog();
 
     isLhs = false;
     isRhs = false;
