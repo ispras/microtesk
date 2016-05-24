@@ -38,8 +38,6 @@ public final class ModelStateObserver implements IModelStateObserver {
   private final Map<String, Memory> memoryMap;
   private final Map<String, Label> labelMap;
 
-  private final Status controlTransfer;
-
   public ModelStateObserver(
       final Memory[] registers,
       final Memory[] memory,
@@ -56,8 +54,6 @@ public final class ModelStateObserver implements IModelStateObserver {
 
     labelMap = new HashMap<String, Label>();
     addToLabelMap(labelMap, labels);
-
-    controlTransfer = findStatus(Status.CTRL_TRANSFER.getName(), statuses);
   }
 
   private static void addToMemoryMap(final Map<String, Memory> map, final Memory[] items) {
@@ -78,17 +74,6 @@ public final class ModelStateObserver implements IModelStateObserver {
           ALREADY_ADDED_ERR_FRMT, l.getName()));
       }
     }
-  }
-
-  private static Status findStatus(final String name, final Status[] statuses) {
-    for (final Status status : statuses) {
-      if (name.equals(status.getName())) {
-        return status;
-      }
-    }
-
-    assert false : String.format("The %s status is not defined in the model.", name);
-    return null;
   }
 
   @Override
@@ -113,10 +98,5 @@ public final class ModelStateObserver implements IModelStateObserver {
 
     final Memory current = memoryMap.get(name);
     return current.access(index);
-  }
-
-  @Override
-  public int getControlTransferStatus() {
-    return controlTransfer.get();
   }
 }

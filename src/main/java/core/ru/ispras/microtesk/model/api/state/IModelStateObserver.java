@@ -21,5 +21,4 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 public interface IModelStateObserver {
   LocationAccessor accessLocation(String name) throws ConfigurationException;
   LocationAccessor accessLocation(String name, BigInteger index) throws ConfigurationException;
-  int getControlTransferStatus();
 }
