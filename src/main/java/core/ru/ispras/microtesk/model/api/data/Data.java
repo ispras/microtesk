@@ -441,21 +441,13 @@ public final class Data implements Comparable<Data> {
     }
 
     final BitVector whole = BitVector.valueOf(value, valueBitSize);
-    final BitVector truncated = BitVector.newMapping(
-        whole, type.getBitSize(), whole.getBitSize() - type.getBitSize());
+    final BitVector truncated = whole.field(type.getBitSize(), whole.getBitSize() - 1);
 
-    final long truncatedValue = truncated.longValue();
-    if (truncatedValue == 0) {
+    if (truncated.isAllReset()) {
       return false;
     }
 
     final boolean isNegative = whole.getBit(type.getBitSize() - 1);
-    final long allOnesPattern = (-1L >>> valueBitSize - truncated.getBitSize());
-
-    if (isNegative && (truncatedValue == allOnesPattern)) {
-      return false;
-    }
-
-    return true;
+    return !(isNegative && truncated.isAllSet());
   }
 }
