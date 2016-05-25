@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -114,11 +115,6 @@ public final class Utility {
     xform.reset();
 
     return result;
-  }
-
-  static boolean nodeIsOperation(Node node, Enum<?> opId) {
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId() == opId;
   }
 
   static String dotConc(final String lhs, final String rhs) {

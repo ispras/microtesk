@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -82,9 +83,9 @@ public final class BlockConverter {
         new ConstraintBuilder(ConstraintKind.FORMULA_BASED);
     final Formulas formulas = new Formulas();
     for (NodeOperation node : block.getStatements()) {
-      if (nodeIsOperation(node, SsaOperation.THIS_CALL)) {
+      if (ExprUtils.isOperation(node, SsaOperation.THIS_CALL)) {
         formulas.add(node);
-      } else if (nodeIsOperation(node, SsaOperation.CALL)) {
+      } else if (ExprUtils.isOperation(node, SsaOperation.CALL)) {
         formulas.add(convertCall(node, xform));
       } else {
         formulas.add(Utility.transform(node, xform));
@@ -105,7 +106,7 @@ public final class BlockConverter {
   static NodeOperation convertCall(final Node node, final NodeTransformer xform) {
     final NodeOperation call = (NodeOperation) node;
     final Node callee = call.getOperand(0);
-    if (nodeIsOperation(callee, SsaOperation.CLOSURE)) {
+    if (ExprUtils.isOperation(callee, SsaOperation.CLOSURE)) {
       final Node closure = convertClosure(callee, xform);
       return new NodeOperation(SsaOperation.CALL,
                                closure,
@@ -121,9 +122,9 @@ public final class BlockConverter {
 
     arguments.add(closure.getOriginRef());
     for (final Node arg : closure.getArguments()) {
-      if (nodeIsOperation(arg, SsaOperation.CLOSURE)) {
+      if (ExprUtils.isOperation(arg, SsaOperation.CLOSURE)) {
         arguments.add(convertClosure(arg, xform));
-      } else if (nodeIsOperation(arg, SsaOperation.ARGUMENT_LINK)) {
+      } else if (ExprUtils.isOperation(arg, SsaOperation.ARGUMENT_LINK)) {
         arguments.add(arg);
       } else {
         arguments.add(Utility.transform(arg, xform));
@@ -196,14 +197,14 @@ final class SsaConverter {
 
     for (Node node : formulas.exprs()) {
       final NodeOperation op = (NodeOperation) node;
-      if (nodeIsOperation(op, SsaOperation.THIS_CALL)) {
+      if (ExprUtils.isOperation(op, SsaOperation.THIS_CALL)) {
         block = BlockBuilder.createSingleton(op);
-      } else if (nodeIsOperation(op, SsaOperation.CALL)) {
+      } else if (ExprUtils.isOperation(op, SsaOperation.CALL)) {
         final NodeOperation call = BlockConverter.convertCall(op, this.xform);
         block = BlockBuilder.createSingleton(call);
-      } else if (nodeIsOperation(op, SsaOperation.PHI)) {
+      } else if (ExprUtils.isOperation(op, SsaOperation.PHI)) {
         block = BlockBuilder.createPhi();
-      } else if (!nodeIsOperation(op, SsaOperation.BLOCK)) {
+      } else if (!ExprUtils.isOperation(op, SsaOperation.BLOCK)) {
         builder.add((NodeOperation) Utility.transform(op, this.xform));
       }
     }
@@ -224,7 +225,7 @@ final class SsaConverter {
   private List<GuardedBlock> restoreChildren(Formulas formulas) {
     final List<GuardedBlock> children = new ArrayList<>();
     for (Node node : formulas.exprs()) {
-      if (nodeIsOperation(node, SsaOperation.BLOCK)) {
+      if (ExprUtils.isOperation(node, SsaOperation.BLOCK)) {
         final NodeOperation op = (NodeOperation) node;
         final String name = operandName(op, 0);
         final Node guard = Utility.transform(op.getOperand(1), this.xform);

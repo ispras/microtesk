@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
@@ -43,9 +44,9 @@ final class PathFilter {
   }
 
   private void processNode(Node node) {
-    if (Utility.nodeIsOperation(node, StandardOperation.AND)) {
+    if (ExprUtils.isOperation(node, StandardOperation.AND)) {
       processConjunction(node);
-    } else if (Utility.nodeIsOperation(node, StandardOperation.OR)) {
+    } else if (ExprUtils.isOperation(node, StandardOperation.OR)) {
       processDisjunction(node);
     }
   }

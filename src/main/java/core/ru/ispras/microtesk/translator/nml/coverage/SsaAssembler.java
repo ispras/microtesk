@@ -35,6 +35,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -78,7 +79,7 @@ final class Parameters {
   private final NodeOperation node;
 
   public Parameters(final Node node) {
-    InvariantChecks.checkTrue(nodeIsOperation(node, SsaOperation.PARAMETERS));
+    InvariantChecks.checkTrue(ExprUtils.isOperation(node, SsaOperation.PARAMETERS));
     this.node = (NodeOperation) node;
   }
 
@@ -105,7 +106,7 @@ final class Closure {
   private final NodeOperation node;
 
   public Closure(final Node node) {
-    InvariantChecks.checkTrue(nodeIsOperation(node, SsaOperation.CLOSURE));
+    InvariantChecks.checkTrue(ExprUtils.isOperation(node, SsaOperation.CLOSURE));
     this.node = (NodeOperation) node;
   }
 
@@ -234,7 +235,7 @@ public final class SsaAssembler {
     newBatch();
     for (Map.Entry<String, Node> entry : changes.getSummary().entrySet()) {
       final Node node = entry.getValue();
-      if (nodeIsOperation(node, StandardOperation.ITE)) {
+      if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
         addToBatch(EQ(changes.newLatest(entry.getKey()), node));
       }
     }
@@ -284,7 +285,7 @@ public final class SsaAssembler {
   private static boolean blockIsOp(Block block, Enum<?> id) {
     final List<NodeOperation> stmts = block.getStatements();
     return stmts.size() == 1 &&
-           nodeIsOperation(stmts.get(0), id);
+           ExprUtils.isOperation(stmts.get(0), id);
   }
 
   private final class ModeRule implements TransformerRule {
@@ -300,7 +301,7 @@ public final class SsaAssembler {
 
     @Override
     public boolean isApplicable(Node node) {
-      return nodeIsOperation(node, this.operation);
+      return ExprUtils.isOperation(node, this.operation);
     }
 
     @Override
@@ -338,11 +339,11 @@ public final class SsaAssembler {
       final Node operand = closure.getArgument(i);
       final Prefix inner = current.pushAll(parameters.getName(i));
 
-      if (nodeIsOperation(operand, SsaOperation.CLOSURE)) {
+      if (ExprUtils.isOperation(operand, SsaOperation.CLOSURE)) {
         final Closure arg = new Closure(operand);
         buildingContext.put(inner.context, arg.getOriginName());
         linkClosure(origin, inner, arg);
-      } else if (nodeIsOperation(operand, SsaOperation.ARGUMENT_LINK)) {
+      } else if (ExprUtils.isOperation(operand, SsaOperation.ARGUMENT_LINK)) {
         final String argName = literalOperand(0, operand);
         final Prefix srcPrefix = origin.pushAll(argName);
 
@@ -410,7 +411,7 @@ public final class SsaAssembler {
     final TransformerRule call = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
-        return nodeIsOperation(node, SsaOperation.CALL);
+        return ExprUtils.isOperation(node, SsaOperation.CALL);
       }
 
       @Override
@@ -444,7 +445,7 @@ public final class SsaAssembler {
     final TransformerRule thisCall = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
-        return nodeIsOperation(node, SsaOperation.THIS_CALL);
+        return ExprUtils.isOperation(node, SsaOperation.THIS_CALL);
       }
 
       @Override
@@ -456,7 +457,7 @@ public final class SsaAssembler {
     final TransformerRule substitute = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
-        return nodeIsOperation(node, SsaOperation.SUBSTITUTE);
+        return ExprUtils.isOperation(node, SsaOperation.SUBSTITUTE);
       }
 
       @Override
@@ -505,7 +506,7 @@ public final class SsaAssembler {
     final TransformerRule rotate = new TransformerRule() {
       @Override
       public boolean isApplicable(final Node node) {
-        return nodeIsOperation(node, StandardOperation.BVROR);
+        return ExprUtils.isOperation(node, StandardOperation.BVROR);
       }
 
       @Override
@@ -582,8 +583,8 @@ public final class SsaAssembler {
   }
 
   private void addToBatch(Node node) {
-    if (nodeIsOperation(node, SsaOperation.CALL) ||
-        nodeIsOperation(node, SsaOperation.PHI) ||
+    if (ExprUtils.isOperation(node, SsaOperation.CALL) ||
+        ExprUtils.isOperation(node, SsaOperation.PHI) ||
         nodeIsTrue(node)) {
       return;
     }
@@ -600,7 +601,7 @@ public final class SsaAssembler {
     if (node.equals(Expression.TRUE)) {
       return true;
     }
-    if (!nodeIsOperation(node, StandardOperation.AND)) {
+    if (!ExprUtils.isOperation(node, StandardOperation.AND)) {
       return false;
     }
     final NodeOperation op = (NodeOperation) node;

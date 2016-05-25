@@ -28,6 +28,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -225,7 +226,7 @@ final class CastOperationRule implements TransformerRule {
   @Override
   public boolean isApplicable(final Node node) {
     for (final Enum<?> id : operations.keySet()) {
-      if (nodeIsOperation(node, id)) {
+      if (ExprUtils.isOperation(node, id)) {
         return castRule.isApplicable(node);
       }
     }
@@ -305,7 +306,7 @@ final class DependentOperandRule implements TransformerRule {
 final class IteRule implements TransformerRule {
   @Override
   public boolean isApplicable(final Node node) {
-    if (nodeIsOperation(node, StandardOperation.ITE) &&
+    if (ExprUtils.isOperation(node, StandardOperation.ITE) &&
            IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
       final List<Node> operands = ((NodeOperation) node).getOperands();
       return IntegerCast.hasTypeMismatch(operands.subList(1, operands.size()));

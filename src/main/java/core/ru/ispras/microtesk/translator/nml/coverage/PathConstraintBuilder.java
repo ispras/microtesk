@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -52,7 +53,7 @@ public final class PathConstraintBuilder {
 
     this.conditionExpr = PathFilter.filter(instance);
 
-    if (Utility.nodeIsOperation(instance, StandardOperation.AND)) {
+    if (ExprUtils.isOperation(instance, StandardOperation.AND)) {
       for (Node node : ((NodeOperation) instance).getOperands()) {
         this.ssa.add(node);
       }
@@ -122,7 +123,7 @@ public final class PathConstraintBuilder {
     final TransformerRule collectMarks = new TransformerRule() {
       @Override
       public boolean isApplicable(final Node node) {
-        return Utility.nodeIsOperation(node, SsaOperation.MARK);
+        return ExprUtils.isOperation(node, SsaOperation.MARK);
       }
 
       @Override
