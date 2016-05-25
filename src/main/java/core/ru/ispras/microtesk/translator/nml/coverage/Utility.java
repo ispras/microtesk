@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
