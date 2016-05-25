@@ -432,6 +432,8 @@ public final class Data implements Comparable<Data> {
    */
 
   public static boolean isLossOfSignificantBits(final Type type, final BigInteger value) {
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(value);
 
     final int valueBitSize = value.bitLength() + 1; // Minimal two's complement + sign bit
     if (type.getBitSize() >= valueBitSize) {
