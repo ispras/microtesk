@@ -39,7 +39,6 @@ final class STBModel implements STBuilder {
   public static final String SHARED_MEMORY = "__MEMORY";
   public static final String SHARED_VARIABLES = "__VARIABLES";
   public static final String SHARED_LABELS = "__LABELS";
-  public static final String SHARED_RESETTER = "__RESETTER";
 
   private final String specFileName;
   private final String modelName;
@@ -76,8 +75,8 @@ final class STBModel implements STBuilder {
     tc.add("name", modelName);
     tc.add("reg", SHARED_REGISTERS);
     tc.add("mem", SHARED_MEMORY);
+    tc.add("var", SHARED_VARIABLES);
     tc.add("lab", SHARED_LABELS);
-    tc.add("reset", SHARED_RESETTER);
 
     addAddressingModes(t, tc);
     addOperations(t, tc);

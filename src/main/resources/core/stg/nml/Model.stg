@@ -26,7 +26,7 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(name, reg, mem, lab, stat, modes, mgs, ops, ogs, reset) ::= <<
+constructor(name, reg, mem, var, lab, stat, modes, mgs, ops, ogs) ::= <<
 <class_string_const("String", "NAME", name)>
 
 private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[] {
@@ -54,8 +54,8 @@ public Model() {
       __OP_GROUPS,
       <reg>,
       <mem>,
-      <lab>,
-      <reset>
+      <var>,
+      <lab>
       );
 }
 >>

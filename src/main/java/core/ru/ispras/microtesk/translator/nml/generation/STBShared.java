@@ -28,7 +28,6 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.state.Resetter;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
@@ -65,7 +64,6 @@ final class STBShared implements STBuilder {
 
     t.add("imps", Memory.class.getName());
     t.add("imps", Label.class.getName());
-    t.add("imps", Resetter.class.getName());
   }
 
   private void buildLetStrings(STGroup group, ST t) {
@@ -206,18 +204,6 @@ final class STBShared implements STBuilder {
     t.add("members", tLabels);
   }
 
-  private void buildResetter(STGroup group, ST t) {
-    insertEmptyLine(t);
-
-    final ST tResetter = group.getInstanceOf("resetter");
-
-    tResetter.add("type", Resetter.class.getSimpleName());
-    tResetter.add("name", STBModel.SHARED_RESETTER);
-    tResetter.add("items", STBModel.SHARED_VARIABLES);
-
-    t.add("members", tResetter);
-  }
-
   @Override
   public ST build(STGroup group) {
     final ST t = group.getInstanceOf("shared");
@@ -227,7 +213,6 @@ final class STBShared implements STBuilder {
     buildTypes(group, t);
     buildMemory(group, t);
     buildLabels(group, t);
-    buildResetter(group, t);
 
     return t;
   }

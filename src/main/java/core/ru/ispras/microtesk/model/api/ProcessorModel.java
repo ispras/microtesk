@@ -67,16 +67,15 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
       final IOperation.IInfo[] opGroups,
       final Memory[] registers,
       final Memory[] memory,
-      final Label[] labels,
-      final Resetter resetter) {
-
+      final Memory[] variables,
+      final Label[] labels) {
     this.name = name;
 
     this.modes = new AddressingModeStore(modes);
     this.ops = new OperationStore(ops);
 
     this.observer = new ModelStateObserver(registers, memory, labels);
-    this.resetter = resetter;
+    this.resetter = new Resetter(variables);
 
     final List<MetaGroup> modeGroupList = modeGroupsToList(modeGroups);
     final List<MetaGroup> opGroupList = opGroupsToList(opGroups);
