@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
 
 /**
  * The Shortcut class describes a shortcut (a short way) to address a group of operations within the
