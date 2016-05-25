@@ -443,11 +443,7 @@ public final class Data implements Comparable<Data> {
     final BitVector whole = BitVector.valueOf(value, valueBitSize);
     final BitVector truncated = whole.field(type.getBitSize(), whole.getBitSize() - 1);
 
-    if (truncated.isAllReset()) {
-      return false;
-    }
-
-    final boolean isNegative = whole.getBit(type.getBitSize() - 1);
-    return !(isNegative && truncated.isAllSet());
+    return !(truncated.isAllReset() ||
+             whole.getBit(type.getBitSize() - 1) && truncated.isAllSet());
   }
 }
