@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;

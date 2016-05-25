@@ -19,7 +19,6 @@ import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.dotConc;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.nodeIsOperation;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;
 
 import java.util.ArrayDeque;
