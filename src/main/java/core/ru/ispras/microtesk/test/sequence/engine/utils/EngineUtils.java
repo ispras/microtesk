@@ -40,7 +40,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.ICallFactory;
+import ru.ispras.microtesk.model.api.CallFactory;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
@@ -352,7 +352,7 @@ public final class EngineUtils {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+      final CallFactory callFactory = engineContext.getModel().getCallFactory();
       final IOperation op = makeOp(engineContext, rootOp);
       final InstructionCall executable = callFactory.newCall(op);
 
@@ -368,7 +368,7 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(instructionName);
 
-    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+    final CallFactory callFactory = engineContext.getModel().getCallFactory();
 
     final IOperation operation;
     try {
@@ -423,7 +423,7 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkMode(abstractMode);
 
-    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+    final CallFactory callFactory = engineContext.getModel().getCallFactory();
     final AddressingModeBuilder builder = callFactory.newMode(abstractMode.getName());
 
     for (Argument arg : abstractMode.getArguments().values()) {
@@ -474,7 +474,7 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkOp(abstractOp);
 
-    final ICallFactory callFactory = engineContext.getModel().getCallFactory();
+    final CallFactory callFactory = engineContext.getModel().getCallFactory();
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 

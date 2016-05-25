@@ -49,7 +49,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
  * @author Andrei Tatarnikov
  */
 
-public abstract class ProcessorModel implements IModel, ICallFactory {
+public abstract class ProcessorModel implements IModel, CallFactory {
   private final String name;
 
   private final AddressingModeStore modes;
@@ -129,11 +129,11 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
 
   // IModel
   @Override
-  public final ICallFactory getCallFactory() {
+  public final CallFactory getCallFactory() {
     return this;
   }
 
-  // ICallFactory
+  // CallFactory
   @Override
   public final AddressingModeBuilder newMode(final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
@@ -155,7 +155,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     return result;
   }
 
-  // ICallFactory
+  // CallFactory
   @Override
   public final OperationBuilder newOp(final String name, final String contextName)
       throws ConfigurationException {
@@ -183,7 +183,7 @@ public abstract class ProcessorModel implements IModel, ICallFactory {
     return result;
   }
 
-  // ICallFactory
+  // CallFactory
   @Override
   public InstructionCall newCall(final IOperation op) {
     InvariantChecks.checkNotNull(op);

@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
-import ru.ispras.microtesk.model.api.ICallFactory;
+import ru.ispras.microtesk.model.api.CallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
@@ -73,7 +73,7 @@ public final class Reader {
 
     final IAddressingMode mode;
     try {
-      final ICallFactory callFactory = model.getCallFactory();
+      final CallFactory callFactory = model.getCallFactory();
       final AddressingModeBuilder modeBuilder = callFactory.newMode(name);
 
       int argIndex = 0;

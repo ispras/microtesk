@@ -55,5 +55,5 @@ public interface IModel {
    * @return Call factory.
    */
 
-  ICallFactory getCallFactory();
+  CallFactory getCallFactory();
 }
