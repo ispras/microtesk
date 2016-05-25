@@ -12,11 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir;
+package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;

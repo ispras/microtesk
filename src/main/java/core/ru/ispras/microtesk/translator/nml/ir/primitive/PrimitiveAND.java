@@ -97,7 +97,7 @@ public final class PrimitiveAND extends Primitive {
     this.blockSize = other.blockSize;
   }
 
-  void addShortcut(final Shortcut shortcut) {
+  public void addShortcut(final Shortcut shortcut) {
     shortcuts.add(shortcut);
   }
 

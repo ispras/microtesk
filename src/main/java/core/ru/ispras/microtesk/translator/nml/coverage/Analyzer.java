@@ -30,7 +30,7 @@ import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
+import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;

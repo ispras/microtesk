@@ -46,7 +46,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
-import ru.ispras.microtesk.translator.nml.ir.IrInquirer;
+import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;

@@ -22,7 +22,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 public final class PrimitiveOR extends Primitive {
   private final List<Primitive> ors;
 
-  PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
+  public PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
     super(
       name,
       kind,
