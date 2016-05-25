@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.samples.simple;
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__LABELS;
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__MEMORY;
 import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__REGISTERS;
-import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__RESETTER;
+import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__VARIABLES;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
@@ -73,8 +73,8 @@ public final class Model extends ProcessorModel {
         __OP_GROUPS,
         __REGISTERS,
         __MEMORY,
-        __LABELS,
-        __RESETTER
+        __VARIABLES,
+        __LABELS
         );
   }
 

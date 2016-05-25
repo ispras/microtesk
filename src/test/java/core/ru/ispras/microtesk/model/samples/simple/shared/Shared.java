@@ -15,7 +15,6 @@ package ru.ispras.microtesk.model.samples.simple.shared;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.state.Resetter;
 
 public final class Shared {
   private Shared() {}
@@ -66,6 +65,4 @@ public final class Shared {
   public static final Memory[]    __MEMORY = new Memory[] { M };
   public static final Memory[] __VARIABLES = new Memory[] {};
   public static final Label[]     __LABELS = new Label[] {};
-
-  public static final Resetter __RESETTER = new Resetter(__VARIABLES);
 }
