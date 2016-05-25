@@ -53,6 +53,7 @@ public class SignificantBitsLostTestCase {
     assertFalse(check(Type.CARD(16), 0xFFFFFFFF));
     assertFalse(check(Type.CARD(16), 0xFFFF8000));
 
+    assertTrue(check(Type.CARD(16),  0x00010000));
     assertTrue(check(Type.CARD(16),  0xFFFF0000));
     assertTrue(check(Type.CARD(16),  0xF7FFFFFF));
     assertTrue(check(Type.CARD(16),  0xFFFF7000));
@@ -66,6 +67,7 @@ public class SignificantBitsLostTestCase {
     assertFalse(check(Type.CARD(11), 0xFFFFFFFF));
     assertFalse(check(Type.CARD(11), 0xFFFFFD00));
 
+    assertTrue(check(Type.CARD(11),  0x00000800));
     assertTrue(check(Type.CARD(11),  0xFFFFF800));
     assertTrue(check(Type.CARD(11),  0xFFF7FFFF));
     assertTrue(check(Type.CARD(11),  0x7FFFFFFF));
