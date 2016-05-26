@@ -205,7 +205,7 @@ public final class Shortcut {
   }
 
   private boolean canThrowException(final PrimitiveAND root, final boolean reachedTarget) {
-    if (root.canThrowException()) {
+    if (root.getInfo().canThrowException()) {
       return true;
     }
 
@@ -222,8 +222,8 @@ public final class Shortcut {
   }
 
   private Pair<Boolean, Boolean> getBranchInfo(final PrimitiveAND root, final boolean reachedTarget) {
-    if (root.isBranch()) {
-      return new Pair<>(root.isBranch(), root.isConditionalBranch());
+    if (root.getInfo().isBranch()) {
+      return new Pair<>(root.getInfo().isBranch(), root.getInfo().isConditionalBranch());
     }
 
     for (final Primitive arg : root.getArguments().values()) {
@@ -250,7 +250,7 @@ public final class Shortcut {
         notOrRuleCheck(arg);
         final PrimitiveAND primitive = (PrimitiveAND) arg;
         result = result.merge(new MemoryAccessStatus(
-            primitive.isLoad(), primitive.isStore(), primitive.getBlockSize()));
+            primitive.getInfo().isLoad(), primitive.getInfo().isStore(), primitive.getInfo().getBlockSize()));
         result = result.merge(
             getMemoryAccessStatus(primitive, primitive == target));
       }

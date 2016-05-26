@@ -74,7 +74,7 @@ public final class MemoryAccessDetector {
           (LocationSourcePrimitive) locationAtom.getSource();
 
       if (source.getPrimitive() instanceof PrimitiveAND) {
-        return ((PrimitiveAND) source.getPrimitive()).isMemoryReference();
+        return ((PrimitiveAND) source.getPrimitive()).getInfo().isMemoryReference();
       }
     }
 
@@ -199,7 +199,7 @@ public final class MemoryAccessDetector {
     if (stmt.getCalleeInstance() != null) {
       final PrimitiveAND primitive = stmt.getCalleeInstance().getPrimitive();
       return new MemoryAccessStatus(
-          primitive.isLoad(), primitive.isStore(), primitive.getBlockSize());
+          primitive.getInfo().isLoad(), primitive.getInfo().isStore(), primitive.getInfo().getBlockSize());
     }
 
     // Argument Attribute Call
@@ -212,7 +212,7 @@ public final class MemoryAccessDetector {
 
       final PrimitiveAND primitive = (PrimitiveAND) callee;
       return new MemoryAccessStatus(
-          primitive.isLoad(), primitive.isStore(), primitive.getBlockSize());
+          primitive.getInfo().isLoad(), primitive.getInfo().isStore(), primitive.getInfo().getBlockSize());
     }
 
     // This Object Attribute Call

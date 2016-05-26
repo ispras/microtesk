@@ -27,7 +27,7 @@ public final class PrimitiveInfo {
   private Boolean store;
   private Integer blockSize;
 
-  public boolean isException() {
+  public boolean canThrowException() {
     checkInitialized(exception, "exception");
     return exception;
   }
@@ -62,7 +62,7 @@ public final class PrimitiveInfo {
     return blockSize;
   }
 
-  public void setException(final boolean value) {
+  public void setCanThrowException(final boolean value) {
     checkReinitialized(exception, "exception");
     this.exception = value;
   }
@@ -70,11 +70,19 @@ public final class PrimitiveInfo {
   public void setBranch(final boolean value) {
     checkReinitialized(branch, "branch");
     this.branch = value;
+
+    if (!value) {
+      conditionalBranch = false;
+    }
   }
 
   public void setConditionalBranch(final boolean value) {
     checkReinitialized(conditionalBranch, "conditionalBranch");
     this.conditionalBranch = value;
+
+    if (value) {
+      branch = true;
+    }
   }
 
   public void setMemoryReference(final boolean value) {

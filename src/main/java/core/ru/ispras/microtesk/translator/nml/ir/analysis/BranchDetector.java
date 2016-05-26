@@ -106,9 +106,9 @@ public final class BranchDetector {
       final PrimitiveAND primitive =  primitives.getLast();
 
       if (isConditional) {
-        primitive.setConditionalBranch(true);
+        primitive.getInfo().setConditionalBranch(true);
       } else {
-        primitive.setBranch(true);
+        primitive.getInfo().setBranch(true);
       }
 
       //System.out.printf("[Assign] %s - %sbranch%n",

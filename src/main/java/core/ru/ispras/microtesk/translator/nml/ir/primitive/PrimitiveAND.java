@@ -30,27 +30,14 @@ public final class PrimitiveAND extends Primitive {
   private Map<String, ArgumentMode> argsUsage;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
-
-  private final boolean exception;
-  private boolean branch;
-  private boolean conditionalBranch;
-
-  private final boolean memoryReference;
-  private final boolean load;
-  private final boolean store;
-  private final int blockSize;
+  private final PrimitiveInfo info;
 
   protected PrimitiveAND(
       final String name,
       final Kind kind,
       final Expr retExpr,
       final Map<String, Primitive> args,
-      final Map<String, Attribute> attrs,
-      final boolean exception,
-      final boolean memoryReference,
-      final boolean load,
-      final boolean store,
-      final int blockSize) {
+      final Map<String, Attribute> attrs) {
     super(
         name,
         kind,
@@ -67,15 +54,10 @@ public final class PrimitiveAND extends Primitive {
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       final Primitive target = e.getValue();
       final String referenceName = e.getKey();
-
       target.addParentReference(this, referenceName);
     }
 
-    this.exception = exception;
-    this.memoryReference = memoryReference;
-    this.load = load;
-    this.store = store;
-    this.blockSize = blockSize;
+    this.info = new PrimitiveInfo();
   }
 
   private PrimitiveAND(final PrimitiveAND other) {
@@ -86,15 +68,7 @@ public final class PrimitiveAND extends Primitive {
     this.argsUsage = other.argsUsage;
     this.attrs = other.attrs;
     this.shortcuts = other.shortcuts;
-
-    this.exception = other.exception;
-    this.branch = other.branch;
-    this.conditionalBranch = other.conditionalBranch;
-
-    this.memoryReference = other.memoryReference;
-    this.load = other.load;
-    this.store = other.store;
-    this.blockSize = other.blockSize;
+    this.info = other.info; 
   }
 
   public void addShortcut(final Shortcut shortcut) {
@@ -134,45 +108,7 @@ public final class PrimitiveAND extends Primitive {
     this.argsUsage = argsUsage;
   }
 
-  public boolean canThrowException() {
-    return exception;
-  }
-
-  public boolean isBranch() {
-    return branch;
-  }
-
-  public void setBranch(final boolean value) {
-    this.branch = value;
-    if (!value) {
-      conditionalBranch = false;
-    }
-  }
-
-  public boolean isConditionalBranch() {
-    return conditionalBranch;
-  }
-
-  public void setConditionalBranch(final boolean value) {
-    this.conditionalBranch = value;
-    if (value) {
-      branch = true;
-    }
-  }
-
-  public boolean isMemoryReference() {
-    return memoryReference;
-  }
-
-  public boolean isLoad() {
-    return load;
-  }
-
-  public boolean isStore() {
-    return store;
-  }
-
-  public int getBlockSize() {
-    return blockSize;
+  public PrimitiveInfo getInfo() {
+    return info;
   }
 }

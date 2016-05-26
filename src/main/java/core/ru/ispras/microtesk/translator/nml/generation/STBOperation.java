@@ -90,12 +90,12 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("base", Operation.class.getSimpleName());
     t.add("is_root", op.isRoot());
 
-    t.add("branch", op.isBranch());
-    t.add("cond_branch", op.isConditionalBranch());
-    t.add("except", op.canThrowException());
-    t.add("load", op.isLoad());
-    t.add("store", op.isStore());
-    t.add("blocksize", op.getBlockSize());
+    t.add("branch", op.getInfo().isBranch());
+    t.add("cond_branch", op.getInfo().isConditionalBranch());
+    t.add("except", op.getInfo().canThrowException());
+    t.add("load", op.getInfo().isLoad());
+    t.add("store", op.getInfo().isStore());
+    t.add("blocksize", op.getInfo().getBlockSize());
   }
 
   private void buildArguments(final STGroup group, final ST t) {

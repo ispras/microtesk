@@ -64,18 +64,21 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     final MemoryAccessStatus memoryAccessStatus =
         new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
 
-    return new PrimitiveAND(
+    final PrimitiveAND result = new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
         retExpr,
         args,
-        attrs,
-        canThrowException(attrs),
-        MemoryAccessDetector.isMemoryReference(retExpr),
-        memoryAccessStatus.isLoad(),
-        memoryAccessStatus.isStore(),
-        memoryAccessStatus.getBlockSize()
+        attrs
         );
+
+    result.getInfo().setCanThrowException(canThrowException(attrs));
+    result.getInfo().setMemoryReference(MemoryAccessDetector.isMemoryReference(retExpr));
+    result.getInfo().setLoad(memoryAccessStatus.isLoad());
+    result.getInfo().setStore(memoryAccessStatus.isStore());
+    result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());
+
+    return result;
   }
 
   public Primitive createOp(
@@ -93,18 +96,21 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     //   System.out.printf("%-25s : %s%n", name, memoryAccessStatus);
     // }
 
-    return new PrimitiveAND(
+    final PrimitiveAND result = new PrimitiveAND(
         name,
         Primitive.Kind.OP,
         null,
         args,
-        attrs,
-        canThrowException(attrs),
-        false,
-        memoryAccessStatus.isLoad(),
-        memoryAccessStatus.isStore(),
-        memoryAccessStatus.getBlockSize()
+        attrs
         );
+
+    result.getInfo().setCanThrowException(canThrowException(attrs));
+    result.getInfo().setMemoryReference(false);
+    result.getInfo().setLoad(memoryAccessStatus.isLoad());
+    result.getInfo().setStore(memoryAccessStatus.isStore());
+    result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());
+
+    return result;
   }
 
   /*private void checkAttributeDefined(
