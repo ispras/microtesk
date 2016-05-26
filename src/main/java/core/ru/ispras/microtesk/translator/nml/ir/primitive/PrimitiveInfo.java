@@ -17,10 +17,10 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class PrimitiveInfo {
-  private Boolean exception;
+  private boolean exception = false;
 
-  private Boolean branch;
-  private Boolean conditionalBranch;
+  private boolean branch = false;
+  private boolean conditionalBranch = false;
 
   private Boolean memoryReference;
   private Boolean load;
@@ -28,17 +28,14 @@ public final class PrimitiveInfo {
   private Integer blockSize;
 
   public boolean canThrowException() {
-    checkInitialized(exception, "exception");
     return exception;
   }
 
   public boolean isBranch() {
-    checkInitialized(branch, "branch");
     return branch;
   }
 
   public boolean isConditionalBranch() {
-    checkInitialized(conditionalBranch, "conditionalBranch");
     return conditionalBranch;
   }
 
@@ -63,12 +60,10 @@ public final class PrimitiveInfo {
   }
 
   public void setCanThrowException(final boolean value) {
-    checkReinitialized(exception, "exception");
     this.exception = value;
   }
 
   public void setBranch(final boolean value) {
-    checkReinitialized(branch, "branch");
     this.branch = value;
 
     if (!value) {
@@ -77,7 +72,6 @@ public final class PrimitiveInfo {
   }
 
   public void setConditionalBranch(final boolean value) {
-    checkReinitialized(conditionalBranch, "conditionalBranch");
     this.conditionalBranch = value;
 
     if (value) {
