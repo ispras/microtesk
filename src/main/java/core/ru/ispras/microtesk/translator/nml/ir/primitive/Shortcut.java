@@ -112,14 +112,7 @@ public final class Shortcut {
   private final PrimitiveAND target;
   private final List<String> contextNames;
   private final Map<String, Argument> arguments;
-
-  private final boolean branch;
-  private final boolean conditionalBranch;
-  private final boolean exception;
-
-  private final boolean load;
-  private final boolean store;
-  private final int blockSize;
+  private final PrimitiveInfo info;
 
   /**
    * Constructs a shortcut object. The shortcut object describes how to create the target operation
@@ -155,16 +148,18 @@ public final class Shortcut {
     this.arguments = new LinkedHashMap<>();
     addArguments(entry, false);
 
-    final Pair<Boolean, Boolean> branchInfo = getBranchInfo(entry, false);
-    this.branch = branchInfo.first;
-    this.conditionalBranch = branchInfo.second;
+    this.info = new PrimitiveInfo();
 
-    this.exception = canThrowException(entry, false);
+    final Pair<Boolean, Boolean> branchInfo = getBranchInfo(entry, false);
+    this.info.setBranch(branchInfo.first);
+    this.info.setConditionalBranch(branchInfo.second);
+
+    this.info.setCanThrowException(canThrowException(entry, false));
     final MemoryAccessStatus memAccessStatus = getMemoryAccessStatus(entry, false);
 
-    this.load = memAccessStatus.isLoad();
-    this.store = memAccessStatus.isStore();
-    this.blockSize = memAccessStatus.getBlockSize();
+    this.info.setLoad(memAccessStatus.isLoad());
+    this.info.setStore(memAccessStatus.isStore());
+    this.info.setBlockSize(memAccessStatus.getBlockSize());
   }
 
   /**
@@ -331,30 +326,11 @@ public final class Shortcut {
     return arguments.values();
   }
 
-  public boolean isBranch() {
-    return branch;
+  public PrimitiveInfo getInfo() {
+    return info;
   }
 
-  public boolean isConditionalBranch() {
-    return conditionalBranch;
-  }
-
-  public boolean canThrowException() {
-    return exception;
-  }
-
-  public boolean isLoad() {
-    return load;
-  }
-
-  public boolean isStore() {
-    return store;
-  }
-
-  public int getBlockSize() {
-    return blockSize;
-  }
-
+  
   @Override
   public String toString() {
     final StringBuilder cnsb = new StringBuilder();
