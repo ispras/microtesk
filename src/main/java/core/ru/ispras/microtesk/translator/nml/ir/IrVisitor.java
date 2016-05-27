@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
+import ru.ispras.fortress.util.TreeVisitor;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -26,25 +27,21 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 /**
-* Interface to be implemented by all visitor objects applied to 
-* internal representation of a microprocessor specification.
+* The {@link IrVisitor} interface is to be implemented by all visitor objects
+* applied to the IR of an ISA specification.
 * 
-* @author Andrei Tatarnikov
+* @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
 */
-
-public interface IrVisitor {
-
+public interface IrVisitor extends TreeVisitor {
   /**
    * Notifies that traversing the resource section has been started.
    * The section includes constants, types and memory storages.
    */
-
   void onResourcesBegin();
 
   /**
    * Notifies that traversing the resource section has been finished.
    */
-
   void onResourcesEnd();
 
   /**
@@ -52,7 +49,6 @@ public interface IrVisitor {
    * 
    * @param let Object describing the constant.
    */
-
   void onLetConstant(LetConstant let);
 
   /**
@@ -61,7 +57,6 @@ public interface IrVisitor {
    * 
    * @param let Object describing the label associated with a memory location.
    */
-
   void onLetLabel(LetLabel let);
 
   /**
@@ -70,7 +65,6 @@ public interface IrVisitor {
    * @param name Type name.
    * @param type Type description.
    */
-
   void onType(String name, Type type);
 
   /**
@@ -79,27 +73,23 @@ public interface IrVisitor {
    * @param name Memory storage name.
    * @param memory Memory storage description.
    */
-
   void onMemory(String name, MemoryExpr memory);
 
   /**
    * Notifies that visiting primitives (objects describing MODEs and OPs) has been started.
    */
-
   void onPrimitivesBegin();
 
   /**
    * Notifies that visiting primitives (objects describing MODEs and OPs) has been finished.
    */
-
   void onPrimitivesEnd();
-  
+
   /**
    * Notifies that visiting a primitive (object describing a MODE or OP) has been started.
    * 
    * @param item Primitive object describing a MODE or OP.
    */
-
   void onPrimitiveBegin(Primitive item);
 
   /**
@@ -107,25 +97,22 @@ public interface IrVisitor {
    * 
    * @param item Primitive object.
    */
-
   void onPrimitiveEnd(Primitive item);
 
   /**
    * Notifies that visiting an item of an OR-rule has been started.
    * 
-   * @param orRule OR-rule description.   
+   * @param orRule OR-rule description.
    * @param item Item being visited.
    */
-
   void onAlternativeBegin(PrimitiveOR orRule, Primitive item);
 
   /**
    * Notifies that visiting an item of an OR-rule has been finished.
    * 
-   * @param orRule OR-rule description.   
+   * @param orRule OR-rule description.
    * @param item Item being visited.
    */
-
   void onAlternativeEnd(PrimitiveOR orRule, Primitive item);
 
   /**
@@ -135,7 +122,6 @@ public interface IrVisitor {
    * @param argName Argument name.
    * @param argType Argument type description.
    */
-
   void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType);
 
   /**
@@ -145,7 +131,6 @@ public interface IrVisitor {
    * @param argName Argument name.
    * @param argType Argument type description.
    */
-
   void onArgumentEnd(PrimitiveAND andRule, String argName, Primitive argType);
 
   /**
@@ -154,7 +139,6 @@ public interface IrVisitor {
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
-
   void onAttributeBegin(PrimitiveAND andRule, Attribute attr);
 
   /**
@@ -163,7 +147,6 @@ public interface IrVisitor {
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
-
   void onAttributeEnd(PrimitiveAND andRule, Attribute attr);
 
   /**
@@ -173,7 +156,6 @@ public interface IrVisitor {
    * @param attr Attribute that contains the statement. 
    * @param stmt Statement description.
    */
-
   void onStatement(PrimitiveAND andRule, Attribute attr, Statement stmt);
 
   /**
@@ -182,7 +164,6 @@ public interface IrVisitor {
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */
-
   void onShortcutBegin(PrimitiveAND andRule, Shortcut shortcut);
 
   /**
@@ -191,6 +172,5 @@ public interface IrVisitor {
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */
-
   void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collection;
 import java.util.Map;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.TreeVisitor;
 
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -31,11 +32,11 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 /**
- * The IrWalker class performs traversal of an IR using IrVisitor.
+ * The {@link IrWalker} class performs traversal of an IR using {@link IrVisitor}.
+ * The protocol used for traversal is explained {@linkplain TreeVisitor here}.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class IrWalker {
 
   public static enum Direction {
@@ -47,9 +48,9 @@ public final class IrWalker {
   private final Direction direction;
   private IrVisitor visitor;
 
-  public IrWalker(Ir ir, Direction direction) {
-    checkNotNull(ir);
-    checkNotNull(direction);
+  public IrWalker(final Ir ir, final Direction direction) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(direction);
 
     this.ir = ir;
     this.direction = direction;
@@ -57,7 +58,7 @@ public final class IrWalker {
   }
 
   public void traverse(IrVisitor visitor) {
-    checkNotNull(visitor);
+    InvariantChecks.checkNotNull(visitor);
     this.visitor = visitor;
 
     try {
