@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
@@ -50,32 +49,32 @@ public final class Ir {
   }
 
   public void add(final String name, final LetConstant value) {
-    checkNotNull(name);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
     consts.put(name, value);
   }
 
   public void add(final String name, final LetLabel value) {
-    checkNotNull(name);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
     labels.put(name, value);
   }
 
   public void add(final String name, final Type value) {
-    checkNotNull(name);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
     types.put(name, value);
   }
 
   public void add(final String name, final MemoryExpr value) {
-    checkNotNull(name);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
     memory.put(name, value);
   }
 
   public void add(final String name, final Primitive value) {
-    checkNotNull(name);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
 
     if (Primitive.Kind.MODE == value.getKind()) {
       modes.put(name, value);
@@ -118,10 +117,10 @@ public final class Ir {
   }
 
   public void setRoots(final List<Primitive> value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
 
     if (!roots.isEmpty()) {
-      throw new IllegalArgumentException("Root is already assigned.");
+      throw new IllegalStateException("Root is already assigned.");
     }
 
     roots = Collections.unmodifiableList(value);
