@@ -53,7 +53,7 @@ public class Primitive {
       assert null == this.value : "Aready assigned.";
 
       if (value instanceof PrimitiveAND) {
-        ((PrimitiveAND) value).setArgsUsage(argsUsage);
+        ((PrimitiveAND) value).getInfo().setArgsUsage(argsUsage);
       }
 
       this.value = value;

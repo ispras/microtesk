@@ -262,7 +262,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
         getThis().setArgsUsage(
             involvedArgName,
-            primitiveAND.getArgUsage(argNames[index]));
+            primitiveAND.getInfo().getArgUsage(argNames[index]));
       }
       index++;
     }

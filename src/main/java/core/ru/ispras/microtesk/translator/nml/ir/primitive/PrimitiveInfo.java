@@ -14,7 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.Collections;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.ArgumentMode;
 
 public final class PrimitiveInfo {
   private boolean exception = false;
@@ -26,6 +30,8 @@ public final class PrimitiveInfo {
   private Boolean load;
   private Boolean store;
   private Integer blockSize;
+
+  private Map<String, ArgumentMode> argsUsage = Collections.emptyMap();
 
   public boolean canThrowException() {
     return exception;
@@ -100,18 +106,29 @@ public final class PrimitiveInfo {
     blockSize = value;
   }
 
+  public ArgumentMode getArgUsage(final String name) {
+    final ArgumentMode result = argsUsage.get(name);
+    return result != null ? result : ArgumentMode.NA;
+  }
+
+  public void setArgsUsage(final Map<String, ArgumentMode> argsUsage) {
+    InvariantChecks.checkNotNull(argsUsage);
+    this.argsUsage = argsUsage;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, " +
-        "memoryReference=%s, load=%s, store=%s, blockSize=%s]",
+        "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s]",
         exception,
         branch,
         conditionalBranch,
         memoryReference,
         load,
         store,
-        blockSize
+        blockSize,
+        argsUsage
         );
   }
 
