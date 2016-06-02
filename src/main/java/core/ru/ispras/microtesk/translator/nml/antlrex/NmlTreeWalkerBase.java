@@ -25,7 +25,6 @@ import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.expr.ExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationFactory;
-import ru.ispras.microtesk.translator.nml.ir.primitive.AttributeFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFactory;
@@ -103,7 +102,6 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private TypeFactory typeFactory = null;
   private MemoryExprFactory memoryExprFactory = null;
   private PrimitiveFactory primitiveFactory = null;
-  private AttributeFactory attributeFactory = null;
   private StatementFactory statementFactory = null;
 
   protected final ExprFactory getExprFactory() {
@@ -146,13 +144,6 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
       primitiveFactory = new PrimitiveFactory(this);
     }
     return primitiveFactory;
-  }
-
-  protected final AttributeFactory getAttributeFactory() {
-    if (null == attributeFactory) {
-      attributeFactory = new AttributeFactory(this);
-    }
-    return attributeFactory;
   }
 
   protected final StatementFactory getStatementFactory() {

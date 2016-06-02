@@ -372,11 +372,11 @@ syntaxDef returns [Attribute res]
     :  ^(DOT id=ID name=SYNTAX)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
-$res = getAttributeFactory().createExpression("syntax", stmt);
+$res = getPrimitiveFactory().createExpression("syntax", stmt);
 }
     |  ae=attrExpr
 {
-$res = getAttributeFactory().createExpression("syntax", $ae.res);
+$res = getPrimitiveFactory().createExpression("syntax", $ae.res);
 }
     ;
 
@@ -384,16 +384,16 @@ imageDef returns [Attribute res]
     :  ^(DOT id=ID name=IMAGE)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
-$res = getAttributeFactory().createExpression("image", stmt);
+$res = getPrimitiveFactory().createExpression("image", stmt);
 }
     |  ae=attrExpr
 {
-$res = getAttributeFactory().createExpression("image", $ae.res);
+$res = getPrimitiveFactory().createExpression("image", $ae.res);
 }
     ;
 
 actionDef [String actionName] returns [Attribute res]
-@init  {final AttributeFactory factory = getAttributeFactory();}
+@init  {final PrimitiveFactory factory = getPrimitiveFactory();}
     :  ^(DOT id=ID name=ACTION)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);

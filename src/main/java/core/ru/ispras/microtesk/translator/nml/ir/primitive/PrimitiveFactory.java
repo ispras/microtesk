@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -276,6 +277,72 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         return true;
       }
     }
+    return false;
+  }
+
+  public Attribute createAction(final String name, final List<Statement> stmts) {
+    return new Attribute(
+        name, 
+        Attribute.Kind.ACTION,
+        stmts,
+        isException(stmts)
+        );
+  }
+
+  public Attribute createExpression(final String name, final Statement stmt) {
+
+    return new Attribute(
+        name,
+        Attribute.Kind.EXPRESSION,
+        Collections.singletonList(stmt),
+        isException(stmt)
+        );
+  }
+
+  private static boolean isException(final List<Statement> stmts) {
+    for (final Statement stmt : stmts) {
+      if (isException(stmt)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isException(final Statement stmt) {
+    if (stmt.getKind() == Statement.Kind.FUNCALL) {
+      final StatementFunctionCall funCallStmt = (StatementFunctionCall) stmt;
+      return "exception".equals(funCallStmt.getName());
+    }
+
+    if (stmt.getKind() == Statement.Kind.COND) {
+      final StatementCondition condStmt = (StatementCondition) stmt;
+      for (int index = 0; index < condStmt.getBlockCount(); index++) {
+        if (isException(condStmt.getBlock(index).getStatements())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (stmt.getKind() == Statement.Kind.CALL) {
+      final StatementAttributeCall attrCallStmt = (StatementAttributeCall) stmt;
+
+      if (null != attrCallStmt.getCalleeInstance()) {
+        final PrimitiveAND calleeObject =
+            attrCallStmt.getCalleeInstance().getPrimitive();
+
+        final Attribute calleeAttribute =
+            calleeObject.getAttributes().get(attrCallStmt.getAttributeName());
+
+        if (calleeAttribute.canThrowException()) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     return false;
   }
 }
