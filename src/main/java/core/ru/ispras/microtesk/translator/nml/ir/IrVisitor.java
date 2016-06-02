@@ -150,7 +150,7 @@ public interface IrVisitor extends TreeVisitor {
   void onAttributeEnd(PrimitiveAND andRule, Attribute attr);
 
   /**
-   * Notifies that a statement (in an attribute) has been visisted. 
+   * Notifies that a statement (in an attribute) has been visited.
    * 
    * @param andRule AND-rule that contains the statement.
    * @param attr Attribute that contains the statement. 

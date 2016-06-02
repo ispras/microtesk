@@ -19,6 +19,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.TreeVisitor;
+import ru.ispras.fortress.util.TreeVisitor.Status;
 
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -45,116 +46,228 @@ public final class IrWalker {
   }
 
   private final Ir ir;
-  private final Direction direction;
   private IrVisitor visitor;
 
-  public IrWalker(final Ir ir, final Direction direction) {
+  public IrWalker(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkNotNull(direction);
-
     this.ir = ir;
-    this.direction = direction;
-    this.visitor = null;
   }
 
-  public void traverse(IrVisitor visitor) {
-    InvariantChecks.checkNotNull(visitor);
-    this.visitor = visitor;
+  private boolean isStatus(final Status status) {
+    return visitor.getStatus() == status;
+  }
 
+  public void visit(final IrVisitor visitor, final Direction direction) {
+    InvariantChecks.checkNotNull(visitor);
+    InvariantChecks.checkNotNull(direction);
+
+    this.visitor = visitor;
     try {
-      traverseResources();
-      if (Direction.LINEAR == direction) {
-        visitor.onPrimitivesBegin();
-        traversePrimitives(ir.getModes().values(), false);
-        traversePrimitives(ir.getOps().values(), false);
-        visitor.onPrimitivesEnd();
-      } else if (Direction.TREE == direction) {
-        visitor.onPrimitivesBegin();
-        traversePrimitives(ir.getRoots(), true);
-        visitor.onPrimitivesEnd();
-      } else {
-        throw new IllegalStateException("Unknown direction: " + direction);
-      }
+      visit(direction);
     } finally {
       this.visitor = null;
     }
   }
 
-  private void traverseResources() {
+  private void visit(final Direction direction) {
+    visitor.onBegin();
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    if (isStatus(Status.OK)) {
+      visitResources();
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+
+      visitPrimitives(direction);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+    }
+
+    visitor.onEnd();
+  }
+
+  private void visitResources() {
     visitor.onResourcesBegin();
-
-    for (LetConstant let : ir.getConstants().values()) {
-      visitor.onLetConstant(let);
+    if (isStatus(Status.ABORT)) {
+      return;
     }
 
-    for (LetLabel let : ir.getLabels().values()) {
-      visitor.onLetLabel(let);
-    }
+    if (isStatus(Status.OK)) {
+      for (final LetConstant let : ir.getConstants().values()) {
+        visitor.onLetConstant(let);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
 
-    for (Map.Entry<String, Type> e : ir.getTypes().entrySet()) {
-      visitor.onType(e.getKey(), e.getValue());
-    }
+      for (final LetLabel let : ir.getLabels().values()) {
+        visitor.onLetLabel(let);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
 
-    for (Map.Entry<String, MemoryExpr> e : ir.getMemory().entrySet()) {
-      visitor.onMemory(e.getKey(), e.getValue());
+      for (final Map.Entry<String, Type> e : ir.getTypes().entrySet()) {
+        visitor.onType(e.getKey(), e.getValue());
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
+
+      for (final Map.Entry<String, MemoryExpr> e : ir.getMemory().entrySet()) {
+        visitor.onMemory(e.getKey(), e.getValue());
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
     }
 
     visitor.onResourcesEnd();
   }
 
-  private void traversePrimitives(Collection<Primitive> primitives, boolean isRecursive) {
-    for (Primitive primitive : primitives) {
-      traversePrimitive(primitive, isRecursive);
+  private void visitPrimitives(final Direction direction) {
+    visitor.onPrimitivesBegin();
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    if (isStatus(Status.OK)) {
+      if (Direction.LINEAR == direction) {
+        visitPrimitives(ir.getModes().values(), false);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+
+        visitPrimitives(ir.getOps().values(), false);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      } else if (Direction.TREE == direction) {
+        visitPrimitives(ir.getRoots(), true);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      } else {
+        InvariantChecks.checkTrue(false, "Unknown direction: " + direction);
+      }
+    }
+
+    visitor.onPrimitivesEnd();
+  }
+
+  private void visitPrimitives(final Collection<Primitive> primitives, final boolean isRecursive) {
+    for (final Primitive primitive : primitives) {
+      visitPrimitive(primitive, isRecursive);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
   }
 
-  private void traversePrimitive(Primitive primitive, boolean isRecursive) {
+  private void visitPrimitive(final Primitive primitive, final boolean isRecursive) {
     visitor.onPrimitiveBegin(primitive);
-
-    if (primitive instanceof PrimitiveOR) {
-      traverseOrRule((PrimitiveOR) primitive, isRecursive);
+    if (isStatus(Status.ABORT)) {
+      return;
     }
-    else if (primitive instanceof PrimitiveAND) {
-      traverseAndRule((PrimitiveAND) primitive, isRecursive);
+
+    if (isStatus(Status.OK)) {
+      if (primitive instanceof PrimitiveOR) {
+        visitOrRule((PrimitiveOR) primitive, isRecursive);
+      } else if (primitive instanceof PrimitiveAND) {
+        visitAndRule((PrimitiveAND) primitive, isRecursive);
+      }
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
 
     visitor.onPrimitiveEnd(primitive);
   }
 
-  private void traverseOrRule(PrimitiveOR orRule, boolean isRecursive) {
-    for (Primitive item : orRule.getORs()) {
+  private void visitOrRule(final PrimitiveOR orRule, final boolean isRecursive) {
+    for (final Primitive item : orRule.getORs()) {
       visitor.onAlternativeBegin(orRule, item);
-      if (isRecursive) {
-        traversePrimitive(item, isRecursive);
+      if (isStatus(Status.ABORT)) {
+        return;
       }
+
+      if (isStatus(Status.OK) && isRecursive) {
+        visitPrimitive(item, isRecursive);
+      }
+
       visitor.onAlternativeEnd(orRule, item);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
   }
 
-  private void traverseAndRule(PrimitiveAND andRule, boolean isRecursive) {
-    for (Map.Entry<String, Primitive> e : andRule.getArguments().entrySet()) {
+  private void visitAndRule(final PrimitiveAND andRule, final boolean isRecursive) {
+    for (final Map.Entry<String, Primitive> e : andRule.getArguments().entrySet()) {
       visitor.onArgumentBegin(andRule, e.getKey(), e.getValue());
-      if (isRecursive) {
-        traversePrimitive(e.getValue(), isRecursive);
+      if (isStatus(Status.ABORT)) {
+        return;
       }
+
+      if (isStatus(Status.OK) && isRecursive) {
+        visitPrimitive(e.getValue(), isRecursive);
+      }
+
       visitor.onArgumentEnd(andRule, e.getKey(), e.getValue());
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
 
-    for (Attribute attribute : andRule.getAttributes().values()) {
+    for (final Attribute attribute : andRule.getAttributes().values()) {
       visitor.onAttributeBegin(andRule, attribute);
-      for (Statement stmt : attribute.getStatements()) {
-        visitor.onStatement(andRule, attribute, stmt);
+      if (isStatus(Status.ABORT)) {
+        return;
       }
+
+      if (isStatus(Status.OK)) {
+        for (final Statement stmt : attribute.getStatements()) {
+          visitor.onStatement(andRule, attribute, stmt);
+          if (isStatus(Status.ABORT)) {
+            return;
+          }
+        }
+      }
+
       visitor.onAttributeEnd(andRule, attribute);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
 
-    for(Shortcut shortcut : andRule.getShortcuts()) {
+    for(final Shortcut shortcut : andRule.getShortcuts()) {
       visitor.onShortcutBegin(andRule, shortcut);
-      for (Shortcut.Argument argument : shortcut.getArguments()) {
-        visitor.onArgumentBegin(argument.getSource(), argument.getUniqueName(), argument.getType());
-        visitor.onArgumentEnd(argument.getSource(), argument.getUniqueName(), argument.getType());
+      if (isStatus(Status.ABORT)) {
+        return;
       }
+
+      if (isStatus(Status.OK)) {
+        for (final Shortcut.Argument argument : shortcut.getArguments()) {
+          visitor.onArgumentBegin(argument.getSource(), argument.getUniqueName(), argument.getType());
+          if (isStatus(Status.ABORT)) {
+            return;
+          }
+
+          visitor.onArgumentEnd(argument.getSource(), argument.getUniqueName(), argument.getType());
+          if (isStatus(Status.ABORT)) {
+            return;
+          }
+        }
+      }
+
       visitor.onShortcutEnd(andRule, shortcut);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
   }
 }
