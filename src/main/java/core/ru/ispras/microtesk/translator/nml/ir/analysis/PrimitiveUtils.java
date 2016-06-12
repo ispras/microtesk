@@ -33,7 +33,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
  * 
  * @author Andrei Tatarnikov
  */
-
 public final class PrimitiveUtils {
   private PrimitiveUtils() {}
 
@@ -47,8 +46,7 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-
-  public static void saveAllOrsToList(Primitive source, List<PrimitiveAND> destination) {
+  public static void saveAllOrsToList(final Primitive source, final List<PrimitiveAND> destination) {
     InvariantChecks.checkNotNull(source, "source");
     InvariantChecks.checkNotNull(destination, "destination");
 
@@ -57,7 +55,7 @@ public final class PrimitiveUtils {
       return;
     }
 
-    for (Primitive o : ((PrimitiveOR) source).getORs()) {
+    for (final Primitive o : ((PrimitiveOR) source).getORs()) {
       saveAllOrsToList(o, destination);
     }
   }
@@ -71,13 +69,12 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-
-  public static int getChildCount(PrimitiveAND root, Primitive.Kind kind) {
+  public static int getChildCount(final PrimitiveAND root, final Primitive.Kind kind) {
     InvariantChecks.checkNotNull(root, "root");
     InvariantChecks.checkNotNull(kind, "kind");
 
     int count = 0;
-    for (Primitive p : root.getArguments().values()) {
+    for (final Primitive p : root.getArguments().values()) {
       if (p.getKind() == kind) {
         count++;
       }
@@ -95,8 +92,7 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if the parameter equals null.
    */
-
-  public static boolean isLeaf(Primitive primitive) {
+  public static boolean isLeaf(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive, "primitive");
 
     if (primitive.isOrRule()) {
@@ -116,8 +112,7 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if the parameter equals null.
    */
-
-  public static boolean isJunction(Primitive primitive) {
+  public static boolean isJunction(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive, "primitive");
 
     if (primitive.isOrRule()) {
@@ -135,13 +130,12 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if the parameter equals null.
    */
-
-  public static int countNonJunctionParents(Primitive primitive) {
+  public static int countNonJunctionParents(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive, "primitive");
 
     int nonJunctionParents = 0;
 
-    for (Reference ref : primitive.getParents()) {
+    for (final Reference ref : primitive.getParents()) {
       if (!PrimitiveUtils.isJunction(ref.getSource())) {
         nonJunctionParents++;
       }
@@ -160,7 +154,6 @@ public final class PrimitiveUtils {
    * 
    * @author Andrei Tatarnikov
    */
-
   public static final class PathCounter {
     /**
      * Holds information on the number of possible paths from some source primitive to target
@@ -172,7 +165,7 @@ public final class PrimitiveUtils {
       /**
        * Key - target name; Value - number of paths from the source to the target.
        */
-      private final Map<String, Integer> targets = new HashMap<String, Integer>();
+      private final Map<String, Integer> targets = new HashMap<>();
     }
 
     /**
@@ -184,7 +177,7 @@ public final class PrimitiveUtils {
      * Constructs a path counter object.
      */
     public PathCounter() {
-      this.entries = new HashMap<String, Entry>();
+      this.entries = new HashMap<>();
     }
 
     /**
@@ -195,8 +188,7 @@ public final class PrimitiveUtils {
      * @param target Target (child) primitive name.
      * @param count Number of paths between the source and the target.
      */
-
-    private void remember(String source, String target, int count) {
+    private void remember(final String source, final String target, final int count) {
       final Entry entry;
       if (entries.containsKey(source)) {
         entry = entries.get(source);
@@ -228,8 +220,7 @@ public final class PrimitiveUtils {
      * 
      * @throws NullPointerException if any of the parameters equals null.
      */
-
-    public int getPathCount(Primitive source, String target) {
+    public int getPathCount(final Primitive source, final String target) {
       InvariantChecks.checkNotNull(source, "source");
       InvariantChecks.checkNotNull(target, "target");
 
@@ -254,8 +245,8 @@ public final class PrimitiveUtils {
 
       int count = 0;
 
-      final Set<String> visitedChilds = new HashSet<String>();
-      for (Primitive p : childs) {
+      final Set<String> visitedChilds = new HashSet<>();
+      for (final Primitive p : childs) {
         if (!visitedChilds.contains(p.getName())) {
           visitedChilds.add(p.getName());
           count += getPathCount(p, target);
