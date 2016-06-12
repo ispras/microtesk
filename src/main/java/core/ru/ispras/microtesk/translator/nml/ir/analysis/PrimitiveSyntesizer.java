@@ -49,32 +49,27 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
  * 
  * @author Andrei Tatarnikov
  */
-
 public final class PrimitiveSyntesizer extends LogWriter {
   /**
    * Name for the fake operation (OR rule) that unites all root operations described in the
    * specification (AND rules that have no parents). This identifier is used a context name when a
    * shortcut is addressed from the topmost level of operation nesting in test templates.
    */
-
   public static final String ROOT_ID = "#root";
 
   /**
    * The collection of operation primitives to be processed.
    */
-
   private final Collection<Primitive> operations;
 
   /**
    * The synthesized list of root primitives (all AND operations that have no parents).
    */
-
   private final List<Primitive> roots;
 
   /**
    * The flag that is set when all information has been successfully synthesized.
    */
-
   private boolean isSyntesized;
 
   /**
@@ -86,13 +81,12 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-
-  public PrimitiveSyntesizer(Collection<Primitive> operations, String fileName, LogStore log) {
+  public PrimitiveSyntesizer(final Collection<Primitive> operations, final String fileName, final LogStore log) {
     super(SenderKind.EMITTER, fileName, log);
     checkNotNull(operations);
 
     this.operations = operations;
-    this.roots = new ArrayList<Primitive>();
+    this.roots = new ArrayList<>();
     this.isSyntesized = false;
   }
 
@@ -104,7 +98,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * @return <code>true</code> if the information was successfully synthesized or <code>false</code>
    *         otherwise.
    */
-
   public boolean syntesize() {
     if (isSyntesized) {
       reportWarning(ALREADY_SYNTHESIZED);
@@ -132,7 +125,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * @return <code>true</code> if the information was successfully synthesized or <code>false</code>
    *         otherwise.
    */
-
   public boolean isSyntesized() {
     return isSyntesized;
   }
@@ -143,7 +135,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * 
    * @return List of root operations.
    */
-
   public List<Primitive> getRoots() {
     return roots;
   }
@@ -156,9 +147,8 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * @return <code>true</code> if the list of root operations was successfully synthesized or
    *         <code>false</code> otherwise.
    */
-
   private boolean syntesizeRoots() {
-    for (Primitive op : operations) {
+    for (final Primitive op : operations) {
       if (op.getKind() != Primitive.Kind.OP) {
         roots.clear();
         reportError(String.format(NOT_OPERATION, op.getName()));
@@ -186,7 +176,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * not a final point in an unambiguous path). See documentation on the ShortcutBuilder class for
    * more details.
    */
-
   private void syntesizeShortcuts() {
     // Fake primitive, root of all roots, needed to provide a common context.
     final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
@@ -195,7 +184,7 @@ public final class PrimitiveSyntesizer extends LogWriter {
     // redundant traversals.
     final PathCounter pathCounter = new PathCounter();
 
-    for (Primitive op : operations) {
+    for (final Primitive op : operations) {
       // Only leafs and junctions: shortcuts for other nodes are redundant.
       if (isLeaf(op) || isJunction(op)) {
         final PrimitiveAND target = (PrimitiveAND) op;
@@ -205,13 +194,13 @@ public final class PrimitiveSyntesizer extends LogWriter {
   }
 
   private static final String NO_OPERATIONS =
-    "The operation list is empty. No information to be analyzed.";
+      "The operation list is empty. No information to be analyzed.";
 
   private static final String ALREADY_SYNTHESIZED =
-    "Internal presentation has already been fully synthesized. No action was be performed.";
+      "Internal presentation has already been fully synthesized. No action was be performed.";
 
   private static final String NOT_OPERATION =
-    "Wring input data. The %s primitive is not an operation.";
+      "Wring input data. The %s primitive is not an operation.";
 }
 
 
@@ -221,27 +210,23 @@ public final class PrimitiveSyntesizer extends LogWriter {
  * 
  * @author Andrei Tatarnikov
  */
-
 final class ShortcutBuilder {
   /**
    * A synthetic (does not present in the specification) primitive that unites all root primitives
    * (AND-rule operations that have parents). It is needed to check if there are ambiguous paths
    * that start from the specification root (any of the root primitives).
    */
-
   private final PrimitiveOR root;
 
   /**
    * Target operation for a series of shortcuts.
    */
-
   private final PrimitiveAND target;
 
   /**
    * Path counter to find ambiguous paths. It caches the results of previous calculations and is
    * shared among all ShortcutBuilder objects to improve performance.
    */
-
   private final PathCounter pathCounter;
 
   /**
@@ -253,7 +238,6 @@ final class ShortcutBuilder {
    * to the target and there is only one path from them to the target (because, otherwise, the
    * traversal would stop and they would not be processed).
    */
-
   private final Set<String> opsWithMultipleParents;
 
   /**
@@ -266,8 +250,7 @@ final class ShortcutBuilder {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-
-  public ShortcutBuilder(PrimitiveOR root, PrimitiveAND target, PathCounter pathCounter) {
+  public ShortcutBuilder(final PrimitiveOR root, final PrimitiveAND target, final PathCounter pathCounter) {
     checkNotNull(root);
     checkNotNull(target);
     checkNotNull(pathCounter);
@@ -277,14 +260,13 @@ final class ShortcutBuilder {
     this.pathCounter = pathCounter;
 
     // Empty by default
-    this.opsWithMultipleParents = new HashSet<String>();
+    this.opsWithMultipleParents = new HashSet<>();
   }
 
   /**
    * Builds shortcuts for the target primitives and adds them to the list of shortcuts of this
    * primitive.
    */
-
   public void build() {
     build(target);
   }
@@ -310,15 +292,14 @@ final class ShortcutBuilder {
    * 
    * @param entry Entry point of the shortcuts to be created.
    */
-
-  private void build(PrimitiveAND entry) {
+  private void build(final PrimitiveAND entry) {
     final ShortcutCreator creator = new ShortcutCreator(entry);
 
     if (entry.isRoot() && isSinglePathToTarget(root)) {
       creator.addShortcutContext(root.getName());
     } else {
       checkForMultipleParents(entry);
-      for (Primitive.Reference ref : entry.getParents()) {
+      for (final Primitive.Reference ref : entry.getParents()) {
         if (!isSinglePathToTarget(ref.getSource())) {
           continue;
         }
@@ -348,8 +329,7 @@ final class ShortcutBuilder {
    * 
    * @param entry Primitive to be checked.
    */
-
-  private void checkForMultipleParents(PrimitiveAND entry) {
+  private void checkForMultipleParents(final PrimitiveAND entry) {
     if (entry.getParentCount() > 1)
       opsWithMultipleParents.add(entry.getName());
   }
@@ -364,8 +344,7 @@ final class ShortcutBuilder {
    * 
    * @param entry Primitive to be removed.
    */
-
-  private void checkForMultipleParentsFinalize(PrimitiveAND entry) {
+  private void checkForMultipleParentsFinalize(final PrimitiveAND entry) {
     if (!opsWithMultipleParents.isEmpty()) {
       opsWithMultipleParents.remove(entry.getName());
     }
@@ -388,9 +367,8 @@ final class ShortcutBuilder {
    *         less than 1. This is an invariant. At least one path always exists (because the build
    *         method passes it before checking that there is only one path).
    */
-
-  private boolean isSinglePathToTarget(Primitive source) {
-    for (String ambiguousTarget : opsWithMultipleParents) {
+  private boolean isSinglePathToTarget(final Primitive source) {
+    for (final String ambiguousTarget : opsWithMultipleParents) {
       final int count = pathCounter.getPathCount(source, ambiguousTarget);
 
       if (count > 1) {
@@ -433,7 +411,6 @@ final class ShortcutBuilder {
    * 
    * @author Andrei Tatarnikov
    */
-
   private final class ShortcutCreator {
     private final PrimitiveAND entry;
     private final List<String> contextNames;
@@ -443,10 +420,9 @@ final class ShortcutBuilder {
      * 
      * @param entry Entry primitive for the shortcut to be created.
      */
-
-    private ShortcutCreator(PrimitiveAND entry) {
+    private ShortcutCreator(final PrimitiveAND entry) {
       this.entry = entry;
-      this.contextNames = new ArrayList<String>();
+      this.contextNames = new ArrayList<>();
     }
 
     /**
@@ -456,8 +432,7 @@ final class ShortcutBuilder {
      * 
      * @param name Context name.
      */
-
-    private void addShortcutContext(String name) {
+    private void addShortcutContext(final String name) {
       if (entry != target) {
         contextNames.add(name);
       }
@@ -466,7 +441,6 @@ final class ShortcutBuilder {
     /**
      * Creates and registers a shortcut if there are contexts in which it can be used.
      */
-
     private void createAndRegisterShortcut() {
       if (!contextNames.isEmpty()) { 
         final Shortcut shortcut = new Shortcut(entry, target, contextNames);
