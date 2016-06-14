@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.TreeVisitor;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -21,6 +22,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -173,4 +179,15 @@ public interface IrVisitor extends TreeVisitor {
    * @param shortcut Shortcut description.
    */
   void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut);
+
+  void onAssignment(StatementAssignment stmt);
+  void onAttributeCall(StatementAttributeCall stmt);
+
+  void onConditionBegin(StatementCondition stmt);
+  void onConditionEnd(StatementCondition stmt);
+  void onConditionBlockBegin(Node condition);
+  void onConditionBlockEnd(Node condition);
+
+  void onFormat(StatementFormat stmt);
+  void onFunctionCall(StatementFunctionCall stmt);
 }

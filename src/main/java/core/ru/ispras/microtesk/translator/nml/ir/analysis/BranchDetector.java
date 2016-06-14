@@ -21,147 +21,87 @@ import java.util.List;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 
 public final class BranchDetector {
-  private final Ir ir;
-  private final IrInquirer inquirer;
-  private final Deque<PrimitiveAND> primitives;
-  private final Deque<Pair<StatementCondition, Integer>> conditions; // Condition : Case Index
+  private final class Visitor extends IrVisitorDefault {
+    private final Deque<PrimitiveAND> primitives;
+    private final Deque<Node> conditions;
 
-  public BranchDetector(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
+    public Visitor() {
+      this.primitives = new ArrayDeque<>();
+      this.conditions = new ArrayDeque<>();
+    }
 
-    this.ir = ir;
-    this.inquirer = new IrInquirer(ir);
-    this.primitives = new ArrayDeque<>();
-    this.conditions = new ArrayDeque<>();
-  }
-
-  public void start() {
-    for (final Primitive item : ir.getOps().values()) {
+    @Override
+    public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
-        final PrimitiveAND primitive = (PrimitiveAND) item; 
-        final Attribute actionAttribute = primitive.getAttributes().get(Attribute.ACTION_NAME);
-        traverse(primitive, actionAttribute.getStatements());
+        this.primitives.push((PrimitiveAND) item);
       }
     }
-  }
 
-  private void traverse(final PrimitiveAND primitive, final List<Statement> stmts) {
-    primitives.push(primitive);
-    for (final Statement stmt : stmts) {
-      onStatement(stmt);
-    }
-    primitives.pop();
-  }
-
-  private void onStatement(final Statement stmt) {
-    switch(stmt.getKind()) {
-      case COND:
-        onCondition((StatementCondition) stmt);
-        break;
-
-      case CALL:
-        onAttributeCall((StatementAttributeCall) stmt);
-        break;
-
-      case ASSIGN:
-        onAssignment((StatementAssignment) stmt);
-        break;
-
-      case FUNCALL: // Ignored
-        break;
-
-      case FORMAT: // Ignored
-        break;
-
-      default:
-        throw new IllegalArgumentException(
-            "Unknown statement kind: " + stmt.getKind());
-    }
-  }
-
-  private void onAssignment(final StatementAssignment stmt) {
-    final Location left = stmt.getLeft();
-    final Expr right = stmt.getRight();
-
-    if (isPCAssignment(left, right)) {
-      final boolean isConditional = !conditions.isEmpty();
-      final PrimitiveAND primitive =  primitives.getLast();
-
-      if (isConditional) {
-        primitive.getInfo().setConditionalBranch(true);
-      } else {
-        primitive.getInfo().setBranch(true);
-      }
-
-      //System.out.printf("[Assign] %s - %sbranch%n",
-      //     primitive.getName(), isConditional ? "conditional " : "");
-    }
-  }
-
-  private void onAttributeCall(final StatementAttributeCall stmt) {
-    if (stmt.getCalleeInstance() != null) {
-      final PrimitiveAND primitive = stmt.getCalleeInstance().getPrimitive();
-      final Attribute attribute = primitive.getAttributes().get(stmt.getAttributeName());
-      traverse(primitive, attribute.getStatements());
-    } else if (stmt.getCalleeName() != null) {
-      final PrimitiveAND primitive = primitives.peek();
-      final Primitive callee = primitive.getArguments().get(stmt.getCalleeName());
-      if (!callee.isOrRule()) {
-        final PrimitiveAND calleePrimitive = (PrimitiveAND) callee;
-        final Attribute calleeAttribute = calleePrimitive.getAttributes().get(stmt.getAttributeName());
-        traverse(calleePrimitive, calleeAttribute.getStatements());
-      }
-    } else {
-      final PrimitiveAND primitive = primitives.peek();
-      final Attribute attribute = primitive.getAttributes().get(stmt.getAttributeName());
-
-      for (final Statement attrStmt : attribute.getStatements()) {
-        onStatement(attrStmt);
+    @Override
+    public void onPrimitiveEnd(final Primitive item) {
+      if (!item.isOrRule()) {
+        this.primitives.pop();
       }
     }
-  }
 
-  private void onCondition(final StatementCondition stmt) {
-    for (int index = 0; index < stmt.getBlockCount(); index++) {
-      conditions.push(new Pair<>(stmt, index));
+    @Override
+    public void onConditionBlockBegin(final Node condition) {
+      this.conditions.push(condition != null ? condition : NodeValue.newBoolean(true));
+    }
 
-      final StatementCondition.Block block = stmt.getBlock(index);
-      for (final Statement blockStmt : block.getStatements()) {
-        onStatement(blockStmt);
+    @Override
+    public void onConditionBlockEnd(final Node condition) {
+      this.conditions.pop();
+    }
+
+    @Override
+    public void onAssignment(final StatementAssignment stmt) {
+      if (isPCAssignment(stmt)) {
+        final boolean isConditional = !conditions.isEmpty();
+        final PrimitiveAND primitive =  primitives.getLast();
+
+        if (isConditional) {
+          primitive.getInfo().setConditionalBranch(true);
+        } else {
+          primitive.getInfo().setBranch(true);
+        }
+
+        System.out.printf("[Assign] %s - %sbranch%n",
+             primitive.getName(), isConditional ? "conditional " : "");
+      }
+    }
+
+    private boolean isPCAssignment(final StatementAssignment stmt) {
+      final Location left = stmt.getLeft();
+      final Expr right = stmt.getRight();
+
+      if (!inquirer.isPC(left)) {
+        return false;
       }
 
-      conditions.pop();
+      final PCSourceExplorer visitor = new PCSourceExplorer();
+      final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+
+      walker.visit(right.getNode());
+      return visitor.isBasedOnExternalParameters();
     }
-  }
-
-  private boolean isPCAssignment(final Location left, final Expr right) {
-    if (!inquirer.isPC(left)) {
-      return false;
-    }
-
-    final PCSourceExplorer visitor = new PCSourceExplorer();
-    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
-
-    walker.visit(right.getNode());
-    return visitor.isBasedOnExternalParameters();
   }
 
   private final class PCSourceExplorer extends ExprTreeVisitorDefault {
@@ -190,5 +130,20 @@ public final class BranchDetector {
         }
       }
     }
+  }
+
+  private final Ir ir;
+  private final IrInquirer inquirer;
+
+  public BranchDetector(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+
+    this.ir = ir;
+    this.inquirer = new IrInquirer(ir);
+  }
+
+  public void start() {
+    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
+    walker.visitOperations();
   }
 }
