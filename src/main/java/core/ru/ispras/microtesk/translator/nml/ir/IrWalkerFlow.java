@@ -41,7 +41,7 @@ public final class IrWalkerFlow {
     this.visitor = visitor;
   }
 
-  public void visitOperations() {
+  public void visit() {
     visitor.onPrimitivesBegin();
 
     for (final Primitive item : ir.getOps().values()) {

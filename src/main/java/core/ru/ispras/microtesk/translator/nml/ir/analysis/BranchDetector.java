@@ -144,6 +144,6 @@ public final class BranchDetector {
 
   public void start() {
     final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
-    walker.visitOperations();
+    walker.visit();
   }
 }
