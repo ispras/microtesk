@@ -15,23 +15,49 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 
 public final class PrimitiveInfo {
-  private boolean exception = false;
+  private boolean exception;
 
-  private boolean branch = false;
-  private boolean conditionalBranch = false;
+  private boolean branch;
+  private boolean conditionalBranch;
 
   private Boolean memoryReference;
   private Boolean load;
   private Boolean store;
   private Integer blockSize;
 
-  private Map<String, ArgumentMode> argsUsage = Collections.emptyMap();
+  private Map<String, ArgumentMode> argsUsage;
+
+  public PrimitiveInfo() {
+    this.exception = false;
+    this.branch = false;
+    this.conditionalBranch = false;
+    this.memoryReference = null;
+    this.load = null;
+    this.store = null;
+    this.blockSize = null;
+    this.argsUsage = Collections.emptyMap();
+  }
+
+  public PrimitiveInfo(final PrimitiveInfo other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.exception = other.exception;
+    this.branch = other.branch;
+    this.conditionalBranch = other.conditionalBranch;
+    this.memoryReference = other.memoryReference;
+    this.load = other.load;
+    this.store = other.store;
+    this.blockSize = other.blockSize;
+    this.argsUsage = other.argsUsage.isEmpty() ?
+        other.argsUsage : new LinkedHashMap<>(other.argsUsage);
+  }
 
   public boolean canThrowException() {
     return exception;
