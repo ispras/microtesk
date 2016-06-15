@@ -258,11 +258,12 @@ public final class IrWalkerFlow {
         final Attribute attribute = primitive.getAttributes().get(stmt.getAttributeName());
         visitAttribute(primitive, attribute);
       }
+
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
     }
 
-    if (isStatus(Status.ABORT)) {
-      return;
-    }
     visitor.onAttributeCallEnd(stmt);
   }
 }
