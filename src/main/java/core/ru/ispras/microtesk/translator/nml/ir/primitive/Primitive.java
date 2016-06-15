@@ -43,12 +43,6 @@ public class Primitive {
       this.argsUsage = new HashMap<>();
     }
 
-    public Holder(Primitive value) {
-      assert value != null;
-      this.value = value;
-      this.argsUsage = new HashMap<>(); 
-    }
-
     public void setValue(Primitive value) {
       assert null == this.value : "Aready assigned.";
 
@@ -57,10 +51,6 @@ public class Primitive {
       }
 
       this.value = value;
-    }
-
-    public Primitive getValue() {
-      return value;
     }
 
     public void setArgsUsage(final String name, final ArgumentMode usage) {
