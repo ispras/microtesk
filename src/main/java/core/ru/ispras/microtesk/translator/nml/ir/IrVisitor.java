@@ -183,13 +183,14 @@ public interface IrVisitor extends TreeVisitor {
   void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut);
 
   void onAssignment(StatementAssignment stmt);
-  void onAttributeCall(StatementAttributeCall stmt);
+  void onFormat(StatementFormat stmt);
+  void onFunctionCall(StatementFunctionCall stmt);
+
+  void onAttributeCallBegin(StatementAttributeCall stmt);
+  void onAttributeCallEnd(StatementAttributeCall stmt);
 
   void onConditionBegin(StatementCondition stmt);
   void onConditionEnd(StatementCondition stmt);
   void onConditionBlockBegin(Node condition);
   void onConditionBlockEnd(Node condition);
-
-  void onFormat(StatementFormat stmt);
-  void onFunctionCall(StatementFunctionCall stmt);
 }

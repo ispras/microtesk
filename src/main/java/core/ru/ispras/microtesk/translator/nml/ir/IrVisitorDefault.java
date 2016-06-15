@@ -118,7 +118,10 @@ public class IrVisitorDefault implements IrVisitor {
   public void onAssignment(StatementAssignment stmt) {}
 
   @Override
-  public void onAttributeCall(StatementAttributeCall stmt) {}
+  public void onAttributeCallBegin(StatementAttributeCall stmt) {}
+
+  @Override
+  public void onAttributeCallEnd(StatementAttributeCall stmt) {}
 
   @Override
   public void onConditionBegin(StatementCondition stmt) {}

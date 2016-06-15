@@ -237,20 +237,32 @@ public final class IrWalkerFlow {
   private void visitAttributeCall(
       final PrimitiveAND primitive,
       final StatementAttributeCall stmt) {
-    if (stmt.getCalleeInstance() != null) { // Instance attribute
-      final PrimitiveAND callee = stmt.getCalleeInstance().getPrimitive();
-      final Attribute attribute = callee.getAttributes().get(stmt.getAttributeName());
-      visitAttribute(callee, attribute);
-    } else if (stmt.getCalleeName() != null) { // Current primitive's argument attribute
-      final Primitive callee = primitive.getArguments().get(stmt.getCalleeName());
-      if (!callee.isOrRule()) {
-        final PrimitiveAND calleePrimitive = (PrimitiveAND) callee;
-        final Attribute attribute = calleePrimitive.getAttributes().get(stmt.getAttributeName());
-        visitAttribute(calleePrimitive, attribute);
-      }
-    } else { // Current primitive attribute
-      final Attribute attribute = primitive.getAttributes().get(stmt.getAttributeName());
-      visitAttribute(primitive, attribute);
+    visitor.onAttributeCallBegin(stmt);
+    if (isStatus(Status.ABORT)) {
+      return;
     }
+
+    if (isStatus(Status.OK)) {
+      if (stmt.getCalleeInstance() != null) { // Instance attribute
+        final PrimitiveAND callee = stmt.getCalleeInstance().getPrimitive();
+        final Attribute attribute = callee.getAttributes().get(stmt.getAttributeName());
+        visitAttribute(callee, attribute);
+      } else if (stmt.getCalleeName() != null) { // Current primitive's argument attribute
+        final Primitive callee = primitive.getArguments().get(stmt.getCalleeName());
+        if (!callee.isOrRule()) {
+          final PrimitiveAND calleePrimitive = (PrimitiveAND) callee;
+          final Attribute attribute = calleePrimitive.getAttributes().get(stmt.getAttributeName());
+          visitAttribute(calleePrimitive, attribute);
+        }
+      } else { // Current primitive attribute
+        final Attribute attribute = primitive.getAttributes().get(stmt.getAttributeName());
+        visitAttribute(primitive, attribute);
+      }
+    }
+
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+    visitor.onAttributeCallEnd(stmt);
   }
 }
