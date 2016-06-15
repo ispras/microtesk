@@ -37,13 +37,11 @@ public final class Attribute {
   private final String name;
   private final Kind kind;
   private final List<Statement> stmts;
-  private final boolean exception;
 
   Attribute(
       final String name,
       final Kind kind,
-      final List<Statement> stmts,
-      final boolean exception) {
+      final List<Statement> stmts) {
     checkNotNull(name);
     checkNotNull(kind);
     checkNotNull(stmts);
@@ -51,7 +49,6 @@ public final class Attribute {
     this.name = name;
     this.kind = kind;
     this.stmts = Collections.unmodifiableList(stmts);
-    this.exception = exception;
   }
 
   public String getName() {
@@ -74,9 +71,5 @@ public final class Attribute {
     result.add(ACTION_NAME);
 
     return Collections.unmodifiableSet(result);
-  }
-
-  public boolean canThrowException() {
-    return exception;
   }
 }

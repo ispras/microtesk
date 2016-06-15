@@ -14,11 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.TreeVisitor.Status;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -42,41 +44,99 @@ public final class IrWalkerFlow {
     this.visitor = visitor;
   }
 
-  public void visit() {
-    visitor.onPrimitivesBegin();
+  private boolean isStatus(final Status status) {
+    return visitor.getStatus() == status;
+  }
 
-    for (final Primitive item : ir.getOps().values()) {
-      if (!item.isOrRule()) {
-        visitPrimitive((PrimitiveAND) item);
+  public void visit() {
+    visitor.onBegin();
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    visitor.onPrimitivesBegin();
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    if (isStatus(Status.OK)) {
+      visitPrimitives(ir.getModes().values());
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+
+      visitPrimitives(ir.getOps().values());
+      if (isStatus(Status.ABORT)) {
+        return;
       }
     }
 
     visitor.onPrimitivesEnd();
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    visitor.onEnd();
+  }
+
+  private void visitPrimitives(final Collection<Primitive> primitives) {
+    for (final Primitive item : ir.getOps().values()) {
+      if (isStatus(Status.OK) && !item.isOrRule()) {
+        visitPrimitive((PrimitiveAND) item);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
+    }
   }
 
   private void visitPrimitive(final PrimitiveAND primitive) {
     visitor.onPrimitiveBegin(primitive);
-    visitArguments(primitive);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
 
-    final Attribute action = primitive.getAttributes().get(Attribute.ACTION_NAME);
-    visitAttribute(primitive, action);
+    if (isStatus(Status.OK)) {
+      visitArguments(primitive);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
 
-    visitShortcuts(primitive);
+      final Attribute action = primitive.getAttributes().get(Attribute.ACTION_NAME);
+      visitAttribute(primitive, action);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+
+      visitShortcuts(primitive);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+    }
+
     visitor.onPrimitiveEnd(primitive);
-  }
-
-  private void visitShortcuts(final PrimitiveAND primitive) {
-    for (final Shortcut shortcut : primitive.getShortcuts()) {
-      visitor.onShortcutBegin(primitive, shortcut); 
-
-      visitor.onShortcutEnd(primitive, shortcut);
+    if (isStatus(Status.SKIP)) {
+      visitor.setStatus(Status.OK);
     }
   }
 
   private void visitArguments(final PrimitiveAND primitive) {
     for (final Map.Entry<String, Primitive> argument : primitive.getArguments().entrySet()) {
       visitor.onArgumentBegin(primitive, argument.getKey(), argument.getValue());
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
       visitor.onArgumentEnd(primitive, argument.getKey(), argument.getValue());
+    }
+  }
+
+  private void visitShortcuts(final PrimitiveAND primitive) {
+    for (final Shortcut shortcut : primitive.getShortcuts()) {
+      visitor.onShortcutBegin(primitive, shortcut); 
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+      visitor.onShortcutEnd(primitive, shortcut);
     }
   }
 
@@ -84,7 +144,15 @@ public final class IrWalkerFlow {
       final PrimitiveAND primitive,
       final Attribute attribute) {
     visitor.onAttributeBegin(primitive, attribute);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
     visitStatements(primitive, attribute, attribute.getStatements());
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
     visitor.onAttributeEnd(primitive, attribute);
   }
 
@@ -93,7 +161,12 @@ public final class IrWalkerFlow {
       final Attribute attribute,
       final List<Statement> stmts) {
     for (final Statement stmt : stmts) {
-      visitStatement(primitive, attribute, stmt);
+      if (isStatus(Status.OK)) {
+        visitStatement(primitive, attribute, stmt);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
     }
   }
 
@@ -133,14 +206,29 @@ public final class IrWalkerFlow {
       final Attribute attribute,
       final StatementCondition stmt) {
     visitor.onConditionBegin(stmt);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
 
-    for (int index = 0; index < stmt.getBlockCount(); ++index) {
-      final StatementCondition.Block block = stmt.getBlock(index);
-      final Node condition = block.getCondition() != null ? block.getCondition().getNode() : null;
+    if (isStatus(Status.OK)) {
+      for (int index = 0; index < stmt.getBlockCount(); ++index) {
+        final StatementCondition.Block block = stmt.getBlock(index);
+        final Node condition = block.getCondition() != null ? block.getCondition().getNode() : null;
 
-      visitor.onConditionBlockBegin(condition);
-      visitStatements(primitive, attribute, block.getStatements());
-      visitor.onConditionBlockEnd(condition);
+        visitor.onConditionBlockBegin(condition);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+
+        if (isStatus(Status.OK)) {
+          visitStatements(primitive, attribute, block.getStatements());
+        }
+
+        visitor.onConditionBlockEnd(condition);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
     }
 
     visitor.onConditionEnd(stmt);

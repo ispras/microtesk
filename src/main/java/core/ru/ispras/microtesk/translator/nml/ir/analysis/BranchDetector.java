@@ -83,8 +83,8 @@ public final class BranchDetector {
           primitive.getInfo().setBranch(true);
         }
 
-        System.out.printf("[Assign] %s - %sbranch%n",
-             primitive.getName(), isConditional ? "conditional " : "");
+        //System.out.printf("[Assign] %s - %sbranch%n",
+        //    primitive.getName(), isConditional ? "conditional " : "");
       }
     }
 

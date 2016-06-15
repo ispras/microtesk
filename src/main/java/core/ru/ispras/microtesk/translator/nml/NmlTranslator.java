@@ -43,6 +43,7 @@ import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
+import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
@@ -169,6 +170,9 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final BranchDetector branchDetector = new BranchDetector(ir);
     branchDetector.start();
+
+    final ExceptionDetector exceptionDetector = new ExceptionDetector(ir);
+    exceptionDetector.start();
 
     if (!primitiveSyntesizer.syntesize()) {
       Logger.error(FAILED_TO_SYNTH_PRIMITIVES);

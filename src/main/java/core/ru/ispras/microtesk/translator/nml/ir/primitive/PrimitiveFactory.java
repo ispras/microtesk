@@ -73,7 +73,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs
         );
 
-    result.getInfo().setCanThrowException(canThrowException(attrs));
     result.getInfo().setMemoryReference(MemoryAccessDetector.isMemoryReference(retExpr));
     result.getInfo().setLoad(memoryAccessStatus.isLoad());
     result.getInfo().setStore(memoryAccessStatus.isStore());
@@ -105,7 +104,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs
         );
 
-    result.getInfo().setCanThrowException(canThrowException(attrs));
     result.getInfo().setMemoryReference(false);
     result.getInfo().setLoad(memoryAccessStatus.isLoad());
     result.getInfo().setStore(memoryAccessStatus.isStore());
@@ -270,79 +268,20 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     final Instance result = new Instance(primitiveAND, args);
     return result;
   }
-  
-  private boolean canThrowException(final Map<String, Attribute> attrs) {
-    for (final Attribute attr : attrs.values()) {
-      if (attr.canThrowException()) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   public Attribute createAction(final String name, final List<Statement> stmts) {
     return new Attribute(
         name, 
         Attribute.Kind.ACTION,
-        stmts,
-        isException(stmts)
+        stmts
         );
   }
 
   public Attribute createExpression(final String name, final Statement stmt) {
-
     return new Attribute(
         name,
         Attribute.Kind.EXPRESSION,
-        Collections.singletonList(stmt),
-        isException(stmt)
+        Collections.singletonList(stmt)
         );
-  }
-
-  private static boolean isException(final List<Statement> stmts) {
-    for (final Statement stmt : stmts) {
-      if (isException(stmt)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean isException(final Statement stmt) {
-    if (stmt.getKind() == Statement.Kind.FUNCALL) {
-      final StatementFunctionCall funCallStmt = (StatementFunctionCall) stmt;
-      return "exception".equals(funCallStmt.getName());
-    }
-
-    if (stmt.getKind() == Statement.Kind.COND) {
-      final StatementCondition condStmt = (StatementCondition) stmt;
-      for (int index = 0; index < condStmt.getBlockCount(); index++) {
-        if (isException(condStmt.getBlock(index).getStatements())) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    if (stmt.getKind() == Statement.Kind.CALL) {
-      final StatementAttributeCall attrCallStmt = (StatementAttributeCall) stmt;
-
-      if (null != attrCallStmt.getCalleeInstance()) {
-        final PrimitiveAND calleeObject =
-            attrCallStmt.getCalleeInstance().getPrimitive();
-
-        final Attribute calleeAttribute =
-            calleeObject.getAttributes().get(attrCallStmt.getAttributeName());
-
-        if (calleeAttribute.canThrowException()) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    return false;
   }
 }
