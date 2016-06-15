@@ -22,6 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -60,7 +61,16 @@ public final class IrWalkerFlow {
     final Attribute action = primitive.getAttributes().get(Attribute.ACTION_NAME);
     visitAttribute(primitive, action);
 
+    visitShortcuts(primitive);
     visitor.onPrimitiveEnd(primitive);
+  }
+
+  private void visitShortcuts(final PrimitiveAND primitive) {
+    for (final Shortcut shortcut : primitive.getShortcuts()) {
+      visitor.onShortcutBegin(primitive, shortcut); 
+
+      visitor.onShortcutEnd(primitive, shortcut);
+    }
   }
 
   private void visitArguments(final PrimitiveAND primitive) {
