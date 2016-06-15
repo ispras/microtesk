@@ -39,6 +39,8 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
 */
 public interface IrVisitor extends TreeVisitor {
+  void setStatus(final Status status);
+
   /**
    * Notifies that traversing the resource section has been started.
    * The section includes constants, types and memory storages.

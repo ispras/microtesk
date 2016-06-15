@@ -45,6 +45,7 @@ public class IrVisitorDefault implements IrVisitor {
     return status;
   }
 
+  @Override
   public final void setStatus(final Status status) {
     InvariantChecks.checkNotNull(status);
     this.status = status;
