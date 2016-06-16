@@ -14,11 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
-import java.util.Collections;
-import java.util.Set;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class InstanceArgument {
@@ -29,31 +25,30 @@ public final class InstanceArgument {
     PRIMITIVE (Primitive.class);
 
     private final Class<?> valueClass;
-    private Kind(Class<?> valueClass) {
+    private Kind(final Class<?> valueClass) {
       this.valueClass = valueClass;
     }
   }
 
-  public static InstanceArgument newInstance(Instance instance) {
-    return new InstanceArgument(Kind.INSTANCE, instance, null, Collections.<String>emptySet());
+  public static InstanceArgument newInstance(final Instance instance) {
+    return new InstanceArgument(Kind.INSTANCE, instance, null);
   }
 
-  public static InstanceArgument newExpr(Expr expr, Set<String> involvedArgs) {
-    return new InstanceArgument(Kind.EXPR, expr, null, involvedArgs);
+  public static InstanceArgument newExpr(final Expr expr) {
+    return new InstanceArgument(Kind.EXPR, expr, null);
   }
 
-  public static InstanceArgument newPrimitive(String name, Primitive type) {
-    return new InstanceArgument(Kind.PRIMITIVE, type, name, Collections.singleton(name));
+  public static InstanceArgument newPrimitive(final String name, final Primitive type) {
+    return new InstanceArgument(Kind.PRIMITIVE, type, name);
   }
 
   private final Kind kind;
   private final Object value;
   private final String name;
-  private final Set<String> involvedArgs;
 
-  private InstanceArgument(Kind kind, Object value, String name, Set<String> involvedArgs) {
-    checkNotNull(kind);
-    checkNotNull(value);
+  private InstanceArgument(final Kind kind, final Object value, final String name) {
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(value);
 
     if (!kind.valueClass.isAssignableFrom(value.getClass())) {
       throw new IllegalArgumentException();
@@ -62,7 +57,6 @@ public final class InstanceArgument {
     this.kind = kind;
     this.value = value;
     this.name = name;
-    this.involvedArgs = involvedArgs;
   }
 
   public Kind getKind() {
@@ -85,15 +79,11 @@ public final class InstanceArgument {
     return name;
   }
 
-  private Object getValueIfAssignable(Class<?> targetClass) {
+  private Object getValueIfAssignable(final Class<?> targetClass) {
     if (!targetClass.isAssignableFrom(value.getClass())) {
       throw new IllegalStateException();
     }
 
     return value;
-  }
-
-  public Set<String> getInvolvedArgs() {
-    return involvedArgs;
   }
 }

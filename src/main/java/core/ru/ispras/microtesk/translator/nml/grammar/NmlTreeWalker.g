@@ -517,17 +517,13 @@ $res = getPrimitiveFactory().newInstance(where($id), $id.text, args);
     ;
 
 instance_arg returns [InstanceArgument res]
-@init
-{
-getLocationFactory().beginCollectingArgs();
-}
     :  i=instance
 {
 $res = InstanceArgument.newInstance($i.res);
 }
     |  e=dataExpr
 {
-$res = InstanceArgument.newExpr($e.res, getLocationFactory().getInvolvedArgs());
+$res = InstanceArgument.newExpr($e.res);
 }
     |  ^(ARGUMENT id=ID)
 {
@@ -535,10 +531,6 @@ $res = InstanceArgument.newPrimitive(
     $id.text, getPrimitiveFactory().getArgument(where($id), $id.text));
 }
     ;
-finally
-{
-getLocationFactory().endCollectingArgs();
-}
 
 assignmentStatement returns [List<Statement> res]
     :  ^(ASSIGN le=location

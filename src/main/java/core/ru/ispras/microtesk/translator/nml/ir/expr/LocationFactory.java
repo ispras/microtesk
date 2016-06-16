@@ -19,9 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
@@ -48,18 +46,6 @@ public final class LocationFactory extends WalkerFactoryBase {
   private static final String FAILED_TO_CALCULATE_SIZE =
       "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
 
-  private void addToLog(LocationAtom location) {
-    if (location.getSource().getSymbolKind() != NmlSymbolKind.ARGUMENT) {
-      return;
-    }
-
-    final String name = location.getName();
-
-    if (null != involvedArgs) {
-      involvedArgs.add(name);
-    }
-  }
-
   public LocationFactory(WalkerContext context) {
     super(context);
   }
@@ -81,8 +67,6 @@ public final class LocationFactory extends WalkerFactoryBase {
         new ArgumentBasedLocationCreator(this, where, name);
 
     final LocationAtom result = creator.create();
-    addToLog(result);
-
     return newLocationExpr(result);
   }
 
@@ -98,8 +82,6 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
     final LocationAtom result = creator.create();
-
-    addToLog(result);
     return newLocationExpr(result);
   }
 
@@ -203,20 +185,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     return symbol;
-  }
-
-  private Set<String> involvedArgs = null; 
-
-  public void beginCollectingArgs() {
-    involvedArgs = new LinkedHashSet<>();
-  }
-
-  public void endCollectingArgs() {
-    involvedArgs = null;
-  }
-
-  public Set<String> getInvolvedArgs() {
-    return involvedArgs;
   }
 
   private static Expr newLocationExpr(final Location source) {

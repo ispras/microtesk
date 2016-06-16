@@ -245,7 +245,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         final Type argumentType = argument.getReturnType();
 
         final Expr newExpr = TypeCast.castConstantTo(ie.getExpr(), argumentType);
-        final InstanceArgument newIe = InstanceArgument.newExpr(newExpr, ie.getInvolvedArgs());
+        final InstanceArgument newIe = InstanceArgument.newExpr(newExpr);
 
         args.set(index, newIe);
       }
