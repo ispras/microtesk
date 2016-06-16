@@ -21,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ArgumentMode;
@@ -94,6 +95,13 @@ public final class ArgumentModeDetector {
     public void onAttributeCallEnd(final StatementAttributeCall stmt) {
       if (stmt.getCalleeName() != null || stmt.getCalleeInstance() != null) {
         setStatus(Status.OK);
+      }
+    }
+
+    @Override
+    public void onConditionBlockBegin(final Node condition) {
+      if (null != condition) {
+        markVariables(new Expr(condition), ArgumentMode.IN);
       }
     }
 
