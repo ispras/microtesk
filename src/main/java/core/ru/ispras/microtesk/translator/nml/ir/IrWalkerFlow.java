@@ -103,11 +103,13 @@ public final class IrWalkerFlow {
       }
 
       final Attribute action = primitive.getAttributes().get(Attribute.ACTION_NAME);
-      visitAttribute(primitive, action);
-      if (isStatus(Status.ABORT)) {
-        return;
+      if (null != action) {
+        visitAttribute(primitive, action);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
       }
-
+  
       visitShortcuts(primitive);
       if (isStatus(Status.ABORT)) {
         return;
