@@ -116,7 +116,7 @@ public final class BranchDetector {
       final Expr node = new Expr(variable);
       final NodeInfo nodeInfo = node.getNodeInfo();
 
-      InvariantChecks.checkNotNull(nodeInfo.isLocation());
+      InvariantChecks.checkTrue(nodeInfo.isLocation());
       final Location location = (Location) nodeInfo.getSource();
 
       final List<LocationAtom> locations = location instanceof LocationAtom ?
