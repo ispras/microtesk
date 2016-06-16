@@ -14,8 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -42,7 +41,7 @@ public final class PrimitiveInfo {
     this.load = null;
     this.store = null;
     this.blockSize = null;
-    this.argsUsage = Collections.emptyMap();
+    this.argsUsage = new HashMap<>();
   }
 
   public PrimitiveInfo(final PrimitiveInfo other) {
@@ -55,8 +54,7 @@ public final class PrimitiveInfo {
     this.load = other.load;
     this.store = other.store;
     this.blockSize = other.blockSize;
-    this.argsUsage = other.argsUsage.isEmpty() ?
-        other.argsUsage : new LinkedHashMap<>(other.argsUsage);
+    this.argsUsage = new HashMap<>(other.argsUsage);
   }
 
   public boolean canThrowException() {
@@ -135,6 +133,30 @@ public final class PrimitiveInfo {
   public ArgumentMode getArgUsage(final String name) {
     final ArgumentMode result = argsUsage.get(name);
     return result != null ? result : ArgumentMode.NA;
+  }
+
+  public void setArgUsage(final String name, final ArgumentMode usage) {
+    InvariantChecks.checkTrue(usage == ArgumentMode.IN || usage == ArgumentMode.OUT);
+    final ArgumentMode prevUsage = argsUsage.get(name);
+
+    if (prevUsage == null) { // Argument has not been used yet
+      argsUsage.put(name, usage);
+      return;
+    }
+
+    if (prevUsage == usage || // Same access type
+        prevUsage == ArgumentMode.INOUT || // Already marked as both IN and OUT
+        prevUsage == ArgumentMode.OUT && usage == ArgumentMode.IN) { // IN after OUT means OUT
+      return;
+    }
+
+    if (prevUsage == ArgumentMode.IN && usage == ArgumentMode.OUT) { // OUT after IN means INOUT
+      argsUsage.put(name, ArgumentMode.INOUT);
+      return;
+    }
+
+    throw new IllegalStateException(
+        String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
   public void setArgsUsage(final Map<String, ArgumentMode> argsUsage) {
