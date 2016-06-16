@@ -17,7 +17,9 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -56,15 +58,19 @@ public final class ArgumentModeDetector {
 
   private final class Visitor extends IrVisitorDefault {
     private final Deque<PrimitiveAND> primitives;
+    private final Map<PrimitiveAND, PrimitiveAND> visited;
 
     public Visitor() {
       this.primitives = new ArrayDeque<>();
+      this.visited = new IdentityHashMap<>();
     }
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
-        this.primitives.push((PrimitiveAND) item);
+        final PrimitiveAND primitive = (PrimitiveAND) item;
+        this.primitives.push(primitive);
+        this.visited.put(primitive, primitive);
       }
     }
 
@@ -181,6 +187,7 @@ public final class ArgumentModeDetector {
     }
 
     private ArgumentMode getArgumentMode(final PrimitiveAND primitive, final int argumentIndex) {
+      InvariantChecks.checkTrue(visited.containsKey(primitive), primitive.getName());
       InvariantChecks.checkBounds(argumentIndex, primitive.getArguments().size());
 
       int index = 0;

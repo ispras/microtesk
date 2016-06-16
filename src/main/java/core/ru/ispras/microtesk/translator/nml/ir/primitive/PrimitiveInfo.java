@@ -136,8 +136,15 @@ public final class PrimitiveInfo {
   }
 
   public void setArgUsage(final String name, final ArgumentMode usage) {
-    InvariantChecks.checkTrue(usage == ArgumentMode.IN || usage == ArgumentMode.OUT);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(usage);
+
+    if (usage == ArgumentMode.NA) {
+      return;
+    }
+
     final ArgumentMode prevUsage = argsUsage.get(name);
+    InvariantChecks.checkTrue(usage.isIn() || usage.isOut(), usage.toString());
 
     if (prevUsage == null) { // Argument has not been used yet
       argsUsage.put(name, usage);
