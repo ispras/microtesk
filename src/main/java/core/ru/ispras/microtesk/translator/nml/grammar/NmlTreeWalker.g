@@ -228,7 +228,6 @@ $res = factory.createAlias(where($id), $id.text, $min.res, $max.res);
 /*======================================================================================*/
 
 modeDef 
-@init {reserveThis();}
     :  ^(MODE id=ID {pushSymbolScope(id);} sp=modeSpecPart[where($id), $id.text]
 {
 checkNotNull($id, $sp.res, $modeDef.text);
@@ -239,7 +238,6 @@ getIR().add($id.text, $sp.res);
 popSymbolScope();
 
 resetThisArgs();
-finalizeThis($sp.res);
 }
 
 modeSpecPart [Where w, String name] returns [Primitive res]
@@ -269,7 +267,6 @@ modeReturn returns [Expr res]
 /*======================================================================================*/
 
 opDef
-@init {reserveThis();}
     :  ^(OP id=ID {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text]
 {
 checkNotNull($id, $sp.res, $opDef.text);
@@ -280,7 +277,6 @@ getIR().add($id.text, $sp.res);
 popSymbolScope();
 
 resetThisArgs();
-finalizeThis($sp.res);
 }
 
 opSpecPart [Where w, String name] returns [Primitive res]
@@ -545,14 +541,9 @@ getLocationFactory().endCollectingArgs();
 }
 
 assignmentStatement returns [List<Statement> res]
-@init
-{
-getLocationFactory().beginLhs();
-}
     :  ^(ASSIGN le=location
 {
 checkNotNull($le.start, $le.res, $le.text);
-getLocationFactory().beginRhs();
 }
     me=dataExpr)
 {
@@ -562,10 +553,6 @@ result.add(getStatementFactory().createAssignment(where($le.start), $le.res, $me
 $res = result;
 }
     ;
-finally
-{
-getLocationFactory().endAssignment();
-}
 
 conditionalStatement returns [List<Statement> res]
     :  ifs = ifStmt { $res = $ifs.res; }
@@ -573,8 +560,7 @@ conditionalStatement returns [List<Statement> res]
 
 ifStmt returns [List<Statement> res]
 @init  {final List<StatementCondition.Block> blocks = new ArrayList<>();}
-    :  ^(IF {getLocationFactory().beginRhs();} cond=logicExpr {getLocationFactory().endAssignment();}
-         stmts=sequence
+    :  ^(IF cond=logicExpr stmts=sequence
 {
 checkNotNull($stmts.start, $stmts.res, $stmts.text);
 blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));
@@ -595,7 +581,7 @@ $res = Collections.singletonList(getStatementFactory().createCondition(blocks));
     ;
 
 elseIfStmt returns [StatementCondition.Block res]
-    :  ^(ELSEIF {getLocationFactory().beginRhs();}cond=logicExpr{getLocationFactory().endAssignment();} stmts=sequence)
+    :  ^(ELSEIF cond=logicExpr stmts=sequence)
 {
 checkNotNull($stmts.start, $stmts.res, $stmts.text);
 $res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);

@@ -53,11 +53,6 @@ public class WalkerFactoryBase implements WalkerContext {
     return context.getThisArgs();
   }
 
-  @Override
-  public Primitive.Holder getThis() {
-    return context.getThis();
-  }
-
   protected final void raiseError(
       final Where where, final String what) throws SemanticException {
     getReporter().raiseError(where, what);

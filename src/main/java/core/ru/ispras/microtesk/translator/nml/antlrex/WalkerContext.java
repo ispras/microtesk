@@ -26,5 +26,4 @@ public interface WalkerContext {
   public SymbolTable getSymbols();
   public Ir getIR();
   public Map<String, Primitive> getThisArgs();
-  public Primitive.Holder getThis();
 }

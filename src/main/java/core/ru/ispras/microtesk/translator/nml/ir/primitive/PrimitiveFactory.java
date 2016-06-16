@@ -249,19 +249,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
         args.set(index, newIe);
       }
-      
-      for(final String involvedArgName : ie.getInvolvedArgs()) {
-        /*System.out.println(String.format("%s <- %s.%s [%s]",
-            involvedArgName,
-            primitiveAND.getName(),
-            argNames[index],
-            primitiveAND.getArgUsage(argNames[index]))
-            );*/
-
-        getThis().setArgsUsage(
-            involvedArgName,
-            primitiveAND.getInfo().getArgUsage(argNames[index]));
-      }
       index++;
     }
 

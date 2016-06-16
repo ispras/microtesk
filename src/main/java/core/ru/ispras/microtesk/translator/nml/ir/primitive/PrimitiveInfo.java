@@ -159,11 +159,6 @@ public final class PrimitiveInfo {
         String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
-  public void setArgsUsage(final Map<String, ArgumentMode> argsUsage) {
-    InvariantChecks.checkNotNull(argsUsage);
-    this.argsUsage = argsUsage;
-  }
-
   @Override
   public String toString() {
     return String.format(

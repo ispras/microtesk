@@ -35,7 +35,6 @@ import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private Ir ir;
   private Map<String, Primitive> thisArgs;
-  private Primitive.Holder thisPrimitive;
 
   public NmlTreeWalkerBase(
       final TreeNodeStream input,
@@ -44,7 +43,6 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
 
     this.ir = null;
     this.thisArgs = null;
-    this.thisPrimitive = null;
   }
 
   @Override
@@ -73,22 +71,6 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   @Override
   public final Map<String, Primitive> getThisArgs() {
     return thisArgs;
-  }
-
-  protected final void reserveThis() {
-    assert null == thisPrimitive;
-    thisPrimitive = new Primitive.Holder();
-  }
-
-  protected final void finalizeThis(final Primitive value) {
-    assert null != thisPrimitive;
-    thisPrimitive.setValue(value);
-    thisPrimitive = null;
-  }
-
-  @Override
-  public final Primitive.Holder getThis() {
-    return thisPrimitive;
   }
 
   /* ====================================================================================== */

@@ -19,7 +19,6 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,6 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
@@ -45,14 +43,10 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class LocationFactory extends WalkerFactoryBase {
   private static final String OUT_OF_BOUNDS =
-    "The bitfield expression tries to access bit %d which is beyond location bounds (%d bits).";
+      "The bitfield expression tries to access bit %d which is beyond location bounds (%d bits).";
 
   private static final String FAILED_TO_CALCULATE_SIZE =
-    "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
-
-  private boolean isLhs;
-  private boolean isRhs;
-  private Set<String> lhsArgs;
+      "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
 
   private void addToLog(LocationAtom location) {
     if (location.getSource().getSymbolKind() != NmlSymbolKind.ARGUMENT) {
@@ -61,18 +55,6 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     final String name = location.getName();
 
-    if (isLhs) {
-      // System.out.println("LHS: " + location.getName());
-      getThis().setArgsUsage(name, ArgumentMode.OUT);
-      lhsArgs.add(name);
-    }
-
-    if (isRhs) {
-      // System.out.println("RHS: " + location.getName());
-      getThis().setArgsUsage(name, 
-          (null != lhsArgs && lhsArgs.contains(name)) ? ArgumentMode.INOUT : ArgumentMode.IN);
-    }
-
     if (null != involvedArgs) {
       involvedArgs.add(name);
     }
@@ -80,9 +62,6 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   public LocationFactory(WalkerContext context) {
     super(context);
-
-    isLhs = false;
-    isRhs = false;
   }
 
   public Expr location(Where where, String name) throws SemanticException {
@@ -224,23 +203,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     return symbol;
-  }
-
-  public void beginLhs() {
-    isLhs = true;
-    isRhs = false;
-    lhsArgs = new HashSet<>();
-  }
-
-  public void beginRhs() {
-    isLhs = false;
-    isRhs = true;
-  }
-  
-  public void endAssignment() {
-    isLhs = false;
-    isRhs = false;
-    lhsArgs = null;
   }
 
   private Set<String> involvedArgs = null; 
