@@ -80,7 +80,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitPrimitives(final Collection<Primitive> primitives) {
-    for (final Primitive item : ir.getOps().values()) {
+    for (final Primitive item : primitives) {
       if (isStatus(Status.OK) && !item.isOrRule()) {
         visitPrimitive((PrimitiveAND) item);
         if (isStatus(Status.ABORT)) {
