@@ -475,7 +475,7 @@ final class Executor {
       }
     }
   }
-  
+
   private void logLabels(final List<Label> labels) {
     InvariantChecks.checkNotNull(labels);
     for (final Label label : labels) {
