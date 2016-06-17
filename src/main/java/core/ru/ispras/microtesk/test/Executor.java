@@ -46,7 +46,6 @@ import ru.ispras.microtesk.test.template.Output;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 final class Executor {
   private final EngineContext context;
   private final ModelStateObserver observer;
@@ -60,7 +59,6 @@ final class Executor {
    * 
    * @throws IllegalArgumentException if the {@code observer} parameter is {@code null}.
    */
-
   public Executor(
       final EngineContext context,
       final ModelStateObserver observer) {
@@ -93,7 +91,6 @@ final class Executor {
    *         evaluating an {@link Output} object causes an invalid request to the model state
    *         observer).
    */
-
   public void executeSequence(
       final TestSequence sequence,
       final int sequenceIndex,
@@ -468,7 +465,6 @@ final class Executor {
    * @throws ConfigurationException if failed to evaluate the information in an Output
    *         object due to an incorrect request to the model state observer.
    */
-
   private void logOutputs(
       final List<Output> outputs) throws ConfigurationException {
     InvariantChecks.checkNotNull(outputs);
@@ -492,7 +488,6 @@ final class Executor {
    * 
    * @param text Text to be printed.
    */
-
   private void logText(final String text) {
     if (text != null) {
       Logger.debug(text);
