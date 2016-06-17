@@ -100,7 +100,7 @@ final class Executor {
     final List<ConcreteCall> calls = new ArrayList<>();
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
- 
+
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
