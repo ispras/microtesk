@@ -45,7 +45,7 @@ public final class Statistics {
     PRINTING
   }
 
-  private final Deque<Pair<Activity, Long>> timerStack;
+  private final Deque<Pair<Activity, Long>> activities;
   private final Map<Activity, Long> timeMetrics;
   private long totalTime;
 
@@ -60,7 +60,7 @@ public final class Statistics {
   private final long traceLengthLimit;
 
   public Statistics(final long programLengthLimit, final long traceLengthLimit) {
-    this.timerStack = new ArrayDeque<>();
+    this.activities = new ArrayDeque<>();
     this.timeMetrics = new EnumMap<Activity, Long>(Activity.class);
     this.totalTime = 0;
 
@@ -94,15 +94,15 @@ public final class Statistics {
 
   public void pushActivity(final Activity activity) {
     InvariantChecks.checkNotNull(activity);
-    timerStack.push(new Pair<>(activity, new Date().getTime()));
+    activities.push(new Pair<>(activity, new Date().getTime()));
   }
 
   public void popActivity() {
-    final Pair<Activity, Long> timer = timerStack.pop();
-    final long value = new Date().getTime() - timer.second;
+    final Pair<Activity, Long> activity = activities.pop();
+    final long value = new Date().getTime() - activity.second;
 
-    final long metric = timeMetrics.get(timer.first);
-    timeMetrics.put(timer.first, metric + value);
+    final long metric = timeMetrics.get(activity.first);
+    timeMetrics.put(activity.first, metric + value);
   }
 
   public int getPrograms() {
@@ -136,7 +136,7 @@ public final class Statistics {
     traceLength = 0;
   }
 
-  public static String timeToString(long time) {
+  private static String timeToString(long time) {
     final long useconds = time % 1000;
     final long seconds = (time /= 1000) % 60;
     final long minutes = (time /= 60) % 60;
