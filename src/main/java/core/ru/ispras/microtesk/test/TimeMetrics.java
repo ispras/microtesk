@@ -20,7 +20,6 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class TimeMetrics {
-
   public static enum Kind {
     /** Time in milliseconds spent on initializing and launching the generator */
     LAUNCH,
@@ -57,6 +56,10 @@ public final class TimeMetrics {
 
   public long getTotal() {
     return total;
+  }
+
+  public String getTotalAsString() {
+    return timeToString(total);
   }
 
   private void incTotal(final long value) {
