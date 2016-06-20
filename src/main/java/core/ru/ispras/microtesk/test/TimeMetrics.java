@@ -14,16 +14,70 @@
 
 package ru.ispras.microtesk.test;
 
+import java.util.EnumMap;
+import java.util.Map;
+
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class TimeMetrics {
-  /*
-  private long totalTime;
-  private long launchTime;
-  private long parsingTime;
-  private long sequencingTime;
-  private long generationTime;
-  private long simulationTime;
-  private long printingTime;
-  */
+
+  public static enum Kind {
+    /** Time in milliseconds spent on initializing and launching the generator */
+    LAUNCH,
+
+    /** Time in milliseconds spent on parsing the test template */
+    PARSING,
+
+    /** Time in milliseconds spent on constructing abstract sequences */
+    SEQUENCING,
+
+    /** Time in milliseconds spent on spent on building concrete sequences (including generating
+     * test data)
+     */
+    GENERATION,
+
+    /** Time in milliseconds spent on simulation (execution) */
+    SIMULATION,
+
+    /** Time in milliseconds spent on printing assembly code */
+    PRINTING
+  }
+
+  private long total;
+  private Map<Kind, Long> metrics;
+
+  public TimeMetrics() {
+    total = 0L;
+    metrics = new EnumMap<>(Kind.class);
+
+    for (final Kind kind : Kind.values()) {
+      metrics.put(kind, 0L);
+    }
+  }
+
+  public long getTotal() {
+    return total;
+  }
+
+  private void incTotal(final long value) {
+    total += value;
+  }
+
+  public long getMetric(final Kind kind) {
+    InvariantChecks.checkNotNull(kind);
+    return metrics.get(kind);
+  }
+
+  public String getMetricAsString(final Kind kind) {
+    return timeToString(getMetric(kind));
+  }
+
+  public void incMetric(final Kind kind, final long value) {
+    InvariantChecks.checkNotNull(kind);
+    incTotal(value);
+    final long metric = metrics.get(kind);
+    metrics.put(kind, metric + value);
+  }
 
   public static String timeToString(long time) {
     final long useconds = time % 1000;
@@ -43,5 +97,10 @@ public final class TimeMetrics {
 
     sb.append(String.format("%d.%03d seconds ", seconds, useconds));
     return sb.toString();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("TimeMetrics [total=%d, metrics=%s]", total, metrics);
   }
 }
