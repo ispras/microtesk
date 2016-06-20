@@ -31,6 +31,7 @@ import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.TestStatistics;
+import ru.ispras.microtesk.test.TimeMetrics;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -292,26 +293,12 @@ public final class MicroTESK {
     final Date startTime = statistics.startTime;
     final Date endTime = new Date();
 
-    long time = endTime.getTime() - startTime.getTime();
-    final long useconds = time % 1000;
-    final long seconds = (time /= 1000) % 60; 
-    final long minutes = (time /= 60) % 60;
-    final long hours = time / 60;
-
-    final StringBuilder sb = new StringBuilder();
-    if (hours != 0) {
-      sb.append(String.format("%d hours ", hours));
-    }
-    if (hours != 0 || minutes != 0) {
-      sb.append(String.format("%d minutes ", minutes));
-    }
-    sb.append(String.format("%d.%03d seconds ", seconds, useconds));
+    final long time = endTime.getTime() - startTime.getTime();
 
     Logger.message("Generation Statistics");
-    Logger.message("Generation time: %s", sb.toString());
+    Logger.message("Generation time: %s", TimeMetrics.timeToString(time));
 
-    final long rate = (1000 * statistics.instructionCount) /
-                       (endTime.getTime() - startTime.getTime());
+    final long rate = (1000 * statistics.instructionCount) / time;
     Logger.message("Generation rate: %d instructions/second", rate);
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
