@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.DataManager;
@@ -43,6 +44,7 @@ public final class EngineContext {
   private final StreamStore streams;
   private final GeneratorSettings settings;
   private final TestBase testBase;
+  private final Statistics statistics;
   private final int delaySlotSize;
 
   // Address to be used for allocations
@@ -61,7 +63,8 @@ public final class EngineContext {
       final PreparatorStore preparators,
       final BufferPreparatorStore bufferPreparators,
       final StreamStore streams,
-      final GeneratorSettings settings) {
+      final GeneratorSettings settings,
+      final Statistics statistics) {
 
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(dataManager);
@@ -69,6 +72,7 @@ public final class EngineContext {
     InvariantChecks.checkNotNull(bufferPreparators);
     InvariantChecks.checkNotNull(streams);
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
+    InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
     this.dataManager = dataManager;
@@ -78,6 +82,7 @@ public final class EngineContext {
     this.settings = settings;
 
     this.testBase = newTestBase(settings);
+    this.statistics = statistics;
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
@@ -112,6 +117,10 @@ public final class EngineContext {
 
   public TestBase getTestBase() {
     return testBase;
+  }
+
+  public Statistics getStatistics() {
+    return statistics;
   }
 
   public int getDelaySlotSize() {

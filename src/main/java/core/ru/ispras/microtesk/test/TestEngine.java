@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -66,7 +66,6 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
-  public static TestStatistics STATISTICS = new TestStatistics();
 
   private static TestEngine instance = null;
   public static TestEngine getInstance() {
@@ -74,12 +73,17 @@ public final class TestEngine {
   }
 
   private final IModel model;
+  private Statistics statistics;
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
 
   public IModel getModel() {
     return model;
+  }
+
+  public Statistics getStatistics() {
+    return statistics;
   }
 
   public String getModelName() {
@@ -119,7 +123,7 @@ public final class TestEngine {
     }
   }
 
-  public static TestStatistics generate(
+  public static Statistics generate(
       final String modelName,
       final String templateFile,
       final List<Plugin> plugins) throws Throwable {
@@ -127,8 +131,6 @@ public final class TestEngine {
     Logger.debug("Current directory: " + SysUtils.getCurrentDir());
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
-
-    STATISTICS = null;
 
     try {
       final IModel model = SysUtils.loadModel(modelName);
@@ -158,29 +160,30 @@ public final class TestEngine {
         try {
           throw e.getCause();
         } catch (final GenerationAbortedException e2) {
-          handleGenerationAborted(e2);
+          instance.handleGenerationAborted(e2);
         }
       }
     } catch (final GenerationAbortedException e) {
-      handleGenerationAborted(e);
+      instance.handleGenerationAborted(e);
     }
 
-    return STATISTICS;
+    return instance.getStatistics();
   }
 
-  private static void handleGenerationAborted(final GenerationAbortedException e) {
+  private void handleGenerationAborted(final GenerationAbortedException e) {
     Logger.message("Generation Aborted");
     Logger.error(e.getMessage());
 
     if (null != Printer.getLastFileName()) {
       new File(Printer.getLastFileName()).delete();
-      STATISTICS.testProgramNumber--;
+      statistics.decPrograms();
     }
   }
 
   private TestEngine(final IModel model) {
     InvariantChecks.checkNotNull(model);
 
+    this.statistics = null;
     this.model = model;
     Reader.setModel(model);
 
@@ -226,9 +229,11 @@ public final class TestEngine {
     final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
     final StreamStore streams = new StreamStore();
 
-    final ModelStateObserver observer = model.getStateObserver();
-    final Printer printer = new Printer(observer);
+    statistics = new Statistics(
+        TestSettings.getProgramLengthLimit(), TestSettings.getTraceLengthLimit());
 
+    final ModelStateObserver observer = model.getStateObserver();
+    final Printer printer = new Printer(observer, statistics);
     final DataManager dataManager = new DataManager(printer);
  
     final EngineContext context = new EngineContext(
@@ -237,7 +242,8 @@ public final class TestEngine {
         preparators,
         bufferPreparators,
         streams,
-        settings
+        settings,
+        statistics
         );
 
     if (TestSettings.isTarmacLog()) {
@@ -245,25 +251,9 @@ public final class TestEngine {
     }
 
     final Executor executor = new Executor(context, observer);
+    final TemplateProcessor processor = new TemplateProcessor(context, executor, printer);
 
-    final TemplateProcessor processor = new TemplateProcessor(
-        context,
-        executor,
-        printer,
-        dataManager
-        );
-
-    STATISTICS = new TestStatistics();
-
-    return new Template(
-        context,
-        model.getMetaData(),
-        dataManager,
-        preparators,
-        bufferPreparators,
-        streams,
-        processor
-        );
+    return new Template(context, processor);
   }
 
   public void process(final Template template) throws ConfigurationException, IOException {
@@ -290,6 +280,7 @@ public final class TestEngine {
     private final Executor executor;
     private final Printer printer;
     private final DataManager dataManager;
+    private final Statistics statistics;
     private final GeneratorConfig<Call> config;
 
     private int testIndex = 0; 
@@ -299,13 +290,13 @@ public final class TestEngine {
     private TemplateProcessor(
         final EngineContext engineContext,
         final Executor executor,
-        final Printer printer,
-        final DataManager dataManager) {
-
+        final Printer printer) {
       this.engineContext = engineContext;
+
       this.executor = executor;
       this.printer = printer;
-      this.dataManager = dataManager;
+      this.dataManager = engineContext.getDataManager();
+      this.statistics = engineContext.getStatistics();
       this.config = GeneratorConfig.<Call>get();
 
       this.needCreateNewFile = true;
@@ -313,7 +304,6 @@ public final class TestEngine {
 
     private List<TestSequence> preBlockTestSequences = null;
     private Block postBlock = null;
-    private TestStatistics before;
     private String fileName;
 
     @Override
@@ -371,10 +361,10 @@ public final class TestEngine {
       if (!needCreateNewFile) {
         finishCurrentFile();
 
-        // No instruction was added to the newly created file, it must be deleted
-        if (STATISTICS.instructionCount == before.instructionCount) {
+        // No instructions were added to the newly created file, it must be deleted
+        if (statistics.getProgramLength() == 0) {
           new File(fileName).delete();
-          STATISTICS.testProgramNumber--;
+          statistics.decPrograms();
         }
       }
 
@@ -398,12 +388,11 @@ public final class TestEngine {
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           if (needCreateNewFile) {
             try {
-              before = STATISTICS.copy();
               fileName = printer.createNewFile();
-              STATISTICS.testProgramNumber++;
+              statistics.incPrograms();
 
               Tarmac.createFile();
-            } catch (IOException e) {
+            } catch (final IOException e) {
               Logger.error(e.getMessage());
             }
 
@@ -449,7 +438,7 @@ public final class TestEngine {
             Logger.debug(concreteCall.getText());
           }
 
-          final int testCaseIndex = STATISTICS.testCaseNumber;
+          final int testCaseIndex = statistics.getSequences();
           dataManager.setTestCaseIndex(testCaseIndex);
 
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
@@ -474,7 +463,6 @@ public final class TestEngine {
           printer.printToFile("");
           printer.printSubheaderToFile(sequenceId);
           printer.printSequence(concreteSequence);
-          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
 
           if (null != selfCheckSequence) {
             printer.printText("");
@@ -486,36 +474,15 @@ public final class TestEngine {
             } else {
               printer.printCalls(selfCheckCalls);
             }
-
-            STATISTICS.instructionCount += selfCheckSequence.getInstructionCount();
           }
 
-          STATISTICS.testCaseNumber++;
+          statistics.incSequences();
           ++sequenceIndex;
           Logger.debugHeader("");
 
-          final TestStatistics after = STATISTICS.copy();
+          needCreateNewFile = 
+              statistics.isProgramLengthLimitExceeded() || statistics.isTraceLengthLimitExceeded();
 
-          final boolean isProgramLengthLimitExceeded =
-              (after.instructionCount - before.instructionCount) >= TestSettings.getProgramLengthLimit();
-
-          final boolean isTraceLengthLimitExceeded =
-              (after.instructionExecutedCount - before.instructionExecutedCount) >= TestSettings.getTraceLengthLimit();
-
-           /*
-           System.out.println(String.format("INSTRS: %d, %d, %d, %b%nEXECS: %d, %d, %d, %b",
-                  before.instructionCount, after.instructionCount,
-                  (after.instructionCount - before.instructionCount),
-                  (after.instructionCount - before.instructionCount) >= programLengthLimit,
-                  
-                  before.instructionExecutedCount,
-                  after.instructionExecutedCount,
-                  (after.instructionCount - before.instructionCount),
-                  (after.instructionCount - before.instructionCount) >= programLengthLimit
-                  ));
-           */
-
-          needCreateNewFile = isProgramLengthLimitExceeded || isTraceLengthLimitExceeded;
           if (needCreateNewFile) {
             finishCurrentFile();
 
@@ -642,8 +609,6 @@ public final class TestEngine {
 
         Logger.debugHeader("Printing %s to %s", headerText, fileName);
         printer.printSequence(concreteSequence);
-
-        STATISTICS.instructionCount += concreteSequence.getInstructionCount();
       }
     }
 
@@ -712,8 +677,6 @@ public final class TestEngine {
           } catch (final ConfigurationException e) {
             e.printStackTrace();
           }
-
-          STATISTICS.instructionCount += concreteSequence.getInstructionCount();
         }
 
         executor.setExceptionHandlers(handlers);

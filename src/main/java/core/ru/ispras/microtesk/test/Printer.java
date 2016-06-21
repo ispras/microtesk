@@ -36,11 +36,12 @@ import ru.ispras.microtesk.test.template.Output;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Printer {
   private final static int LINE_WIDTH = 100;
 
   private final ModelStateObserver observer;
+  private final Statistics statistics;
+
   private final String separator;
   private int codeFileCount;
 
@@ -50,26 +51,23 @@ public final class Printer {
   /**
    * Constructs a printer object.
    * 
-   * @param fileName Test program file name (if null or empty no file is generated),
    * @param observer Model state observer to evaluate outputs.
-   * @param indentToken Token for indents.
-   * @param commentToken Token for comments (used to generate the header).
-   * @param separatorToken Token for separator comments.
-   * @param printToScreen Specifies whether the test program is to be printed to the screen.
    * 
    * @throws IllegalArgumentException if the observer or commentToken parameter is null.
    * @throws IOException if failed to open the specified file for writing.
    */
 
-  public Printer(final ModelStateObserver observer) {
+  public Printer(final ModelStateObserver observer, final Statistics statistics) {
     checkNotNull(observer);
+    checkNotNull(statistics);
+
+    this.observer = observer;
+    this.statistics = statistics;
 
     final String commentToken = TestSettings.getCommentToken();
     final String separatorToken = TestSettings.getSeparatorToken();
 
-    this.observer = observer;
     this.separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
-
     this.codeFileCount = 0;
   }
 
@@ -185,7 +183,11 @@ public final class Printer {
       printOutputs(call.getOutputs());
       printLabels(call.getLabels());
 
-      printText(call.getText());
+      final String text = call.getText();
+      if (null != text) {
+        printText(text);
+        statistics.incInstructions();
+      }
     }
   }
 

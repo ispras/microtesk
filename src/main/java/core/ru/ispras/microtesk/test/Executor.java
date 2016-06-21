@@ -293,7 +293,7 @@ final class Executor {
       return;
     }
 
-    TestEngine.STATISTICS.instructionExecutedCount++;
+    context.getStatistics().incTraceLength();
     if (Tarmac.isEnabled()) {
       Tarmac.addRecord(Record.newInstruction(call));
     }

@@ -24,6 +24,12 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
+/**
+ * The {@link Statistics} class collects statistical information and performance metrics
+ * during test program generation.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Statistics {
   public static enum Activity {
     /** Initializing and launching the generator */
@@ -47,7 +53,7 @@ public final class Statistics {
 
   private final Deque<Pair<Activity, Long>> activities;
   private final Map<Activity, Long> timeMetrics;
-  private long totalTime;
+  private final long startTime;
 
   private int programs;
   private long programLength;
@@ -61,9 +67,9 @@ public final class Statistics {
 
   public Statistics(final long programLengthLimit, final long traceLengthLimit) {
     this.activities = new ArrayDeque<>();
-    this.timeMetrics = new EnumMap<Activity, Long>(Activity.class);
-    this.totalTime = 0;
-
+    this.timeMetrics = new EnumMap<>(Activity.class);
+    this.startTime = new Date().getTime();
+ 
     this.programs = 0;
     this.programLength = 0;
 
@@ -73,23 +79,6 @@ public final class Statistics {
 
     this.programLengthLimit = programLengthLimit;
     this.traceLengthLimit = traceLengthLimit;
-  }
-
-  public long getTotalTime() {
-    return totalTime;
-  }
-
-  public String getTotalTimeText() {
-    return timeToString(totalTime);
-  }
-
-  public long getTimeMetric(final Activity activity) {
-    InvariantChecks.checkNotNull(activity);
-    return timeMetrics.get(activity);
-  }
-
-  public String getTimeMetricAsString(final Activity activity) {
-    return timeToString(getTimeMetric(activity));
   }
 
   public void pushActivity(final Activity activity) {
@@ -105,6 +94,44 @@ public final class Statistics {
     timeMetrics.put(activity.first, metric + value);
   }
 
+  public void incPrograms() {
+    programs++;
+    programLength = 0;
+    traceLength = 0;
+  }
+
+  public void decPrograms() {
+    programs--;
+    programLength = 0;
+  }
+
+  public void incSequences() {
+    sequences++;
+    traceLength = 0;
+  }
+
+  public void incInstructions() {
+    instructions++;
+    programLength++;
+  }
+
+  public void incTraceLength() {
+    traceLength++;
+  }
+
+  public long getTotalTime() {
+    return new Date().getTime() - startTime;
+  }
+
+  public long getRate() {
+    return (1000 * instructions) / getTotalTime();
+  }
+
+  public long getTimeMetric(final Activity activity) {
+    InvariantChecks.checkNotNull(activity);
+    return timeMetrics.get(activity);
+  }
+
   public int getPrograms() {
     return programs;
   }
@@ -117,6 +144,10 @@ public final class Statistics {
     return instructions;
   }
 
+  public long getProgramLength() {
+    return programLength;
+  }
+
   public boolean isProgramLengthLimitExceeded() {
     return programLength >= programLengthLimit;
   }
@@ -125,18 +156,7 @@ public final class Statistics {
     return traceLength >= traceLengthLimit;
   }
 
-  public void newProgram() {
-    programs++;
-    programLength = 0;
-    traceLength = 0;
-  }
-
-  public void newSequence() {
-    sequences++;
-    traceLength = 0;
-  }
-
-  private static String timeToString(long time) {
+  public static String timeToString(long time) {
     final long useconds = time % 1000;
     final long seconds = (time /= 1000) % 60;
     final long minutes = (time /= 60) % 60;

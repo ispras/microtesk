@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.ispras.microtesk;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +27,9 @@ import org.apache.commons.cli.ParseException;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
+import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.TestSettings;
-import ru.ispras.microtesk.test.TestStatistics;
-import ru.ispras.microtesk.test.TimeMetrics;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
@@ -285,31 +283,27 @@ public final class MicroTESK {
       }
     }
 
-    final TestStatistics statistics = TestEngine.generate(modelName, templateFile, plugins);
+    final Statistics statistics = TestEngine.generate(modelName, templateFile, plugins);
     if (null == statistics) {
       return;
     }
 
-    final Date startTime = statistics.startTime;
-    final Date endTime = new Date();
-
-    final long time = endTime.getTime() - startTime.getTime();
+    final long time = statistics.getTotalTime();
+    final long rate = statistics.getRate();
 
     Logger.message("Generation Statistics");
-    Logger.message("Generation time: %s", TimeMetrics.timeToString(time));
-
-    final long rate = (1000 * statistics.instructionCount) / time;
+    Logger.message("Generation time: %s", Statistics.timeToString(time));
     Logger.message("Generation rate: %d instructions/second", rate);
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
-        statistics.testProgramNumber,
-        statistics.testCaseNumber,
-        statistics.instructionCount
+        statistics.getPrograms(),
+        statistics.getSequences(),
+        statistics.getInstructions()
         );
 
     if (params.hasOption(Parameters.RATE_LIMIT)) {
       final long rateLimit = params.getOptionValueAsInt(Parameters.RATE_LIMIT);
-      if (rate < rateLimit && statistics.instructionCount >= 1000) { 
+      if (rate < rateLimit && statistics.getInstructions() >= 1000) { 
         // Makes sense only for sequences of significant length (>= 1000)
         Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
         System.exit(-1);

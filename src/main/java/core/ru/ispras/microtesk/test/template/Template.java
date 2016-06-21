@@ -95,32 +95,19 @@ public final class Template {
 
   private final Set<Block> unusedBlocks;
 
-  public Template(
-      final EngineContext context,
-      final MetaModel metaModel,
-      final DataManager dataManager,
-      final PreparatorStore preparators,
-      final BufferPreparatorStore bufferPreparators,
-      final StreamStore streams,
-      final Processor processor) {
-
+  public Template(final EngineContext context, final Processor processor) {
     Logger.debugHeader("Started Processing Template");
 
     checkNotNull(context);
-    checkNotNull(metaModel);
-    checkNotNull(dataManager);
-    checkNotNull(preparators);
-    checkNotNull(bufferPreparators);
-    checkNotNull(streams);
     checkNotNull(processor);
 
     this.context = context;
 
-    this.metaModel = metaModel;
-    this.dataManager = dataManager;
-    this.preparators = preparators;
-    this.bufferPreparators = bufferPreparators;
-    this.streams = streams;
+    this.metaModel = context.getModel().getMetaData();
+    this.dataManager = context.getDataManager();
+    this.preparators = context.getPreparators();
+    this.bufferPreparators = context.getBufferPreparators();
+    this.streams = context.getStreams();
     this.processor = processor;
 
     this.preparatorBuilder = null;
