@@ -27,7 +27,6 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaAddressingMode implements MetaData {
   private final String name;
   private final Type dataType;
@@ -55,7 +54,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
-
   public MetaAddressingMode(
       final String name,
       final Type dataType,
@@ -83,7 +81,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Mode name.
    */
-
   @Override
   public String getName() {
     return name;
@@ -94,7 +91,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Data type.
    */
-
   public Type getDataType() {
     return dataType;
   }
@@ -104,7 +100,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Collection of addressing mode arguments.
    */
-
   public Iterable<MetaArgument> getArguments() {
     return args.values();
   }
@@ -116,7 +111,6 @@ public final class MetaAddressingMode implements MetaData {
    * @return Argument with the specified name or {@code null} if no such
    *         argument is defined.
    */
-
   public MetaArgument getArgument(final String name) {
     return args.get(name);
   }
@@ -126,7 +120,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Collection of argument names.
    */
-
   public Collection<String> getArgumentNames() {
     return args.keySet();
   }
@@ -137,7 +130,6 @@ public final class MetaAddressingMode implements MetaData {
    * @param name Argument name.
    * @return {@code true} if the argument is defined of {@code false} otherwise.
    */
-
   public boolean isArgumentDefined(final String name) {
     return args.containsKey(name);
   }
@@ -148,7 +140,6 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode can throw an exception
    * or {@code false} otherwise.
    */
-
   public boolean canThrowException() {
     return exception;
   }
@@ -160,7 +151,6 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode provides an reference to memory
    * or {@code false} otherwise.
    */
-
   public boolean isMemoryReference() {
     return memoryReference;
   }
@@ -173,7 +163,6 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode performs a memory load action
    * or {@code false} otherwise.
    */
-
   public boolean isLoad() {
     return load;
   }
@@ -186,7 +175,6 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode performs a memory store action
    * or {@code false} otherwise.
    */
-
   public boolean isStore() {
     return store;
   }
@@ -197,7 +185,6 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Size of memory block in bits.
    */
-
   public int getBlockSize() {
     return blockSize;
   }
