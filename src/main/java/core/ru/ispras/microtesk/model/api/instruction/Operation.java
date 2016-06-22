@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -38,7 +37,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Operation implements IOperation {
+public abstract class Operation extends Primitive implements IOperation {
 
   protected static final class Shortcuts {
     private final Map<String, InfoAndRule> shortcuts;
@@ -297,54 +296,6 @@ public abstract class Operation implements IOperation {
   private static final Deque<String> CALL_STACK = new LinkedList<>();
   public static String getCurrentOperation() {
     return CALL_STACK.peek();
-  }
-
-  /**
-   * Default implementation of the syntax attribute. Provided to allow using addressing modes that
-   * have no explicitly specified syntax attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  @Override
-  public String syntax() {
-    Logger.error(
-        "The 'syntax' attribute is not defined for the '%s' primitive. " + 
-        "An empty string is returned.",
-        getClass().getSimpleName()
-        );
-
-    return "";
-  }
-
-  /**
-   * Default implementation of the image attribute. Provided to allow using addressing modes that
-   * have no explicitly specified image attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  @Override
-  public String image() {
-    Logger.error(
-        "The 'image' attribute is not defined for the '%s' primitive. " + 
-        "An empty string is returned. Primitive size will be calculated incorrectly.",
-        getClass().getSimpleName()
-        );
-
-    return "";
-  }
-
-  /**
-   * Default implementation of the action attribute. Provided to allow using addressing modes that
-   * have no explicitly specified action attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  public void action() {
-    Logger.error(
-        "The 'action' attribute is not defined for the '%s' primitive. " + 
-        "No action will be performed.",
-        getClass().getSimpleName()
-        );
   }
 
   protected final void actionBegin() {

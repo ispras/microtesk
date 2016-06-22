@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -36,7 +35,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class AddressingMode implements IAddressingMode {
+public abstract class AddressingMode extends Primitive implements IAddressingMode {
   public static final String IMM_TYPE_NAME = "#IMM";
 
   /**
@@ -222,65 +221,5 @@ public abstract class AddressingMode implements IAddressingMode {
 
       return new MetaGroup(MetaGroup.Kind.MODE, name, items);
     }
-  }
-
-  /**
-   * Default implementation of the syntax attribute. Provided to allow using addressing modes that
-   * have no explicitly specified syntax attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  @Override
-  public String syntax() {
-    Logger.error(
-        "The 'syntax' attribute is not defined for the '%s' primitive. " + 
-        "An empty string is returned.",
-        getClass().getSimpleName()
-        );
-
-    return "";
-  }
-
-  /**
-   * Default implementation of the image attribute. Provided to allow using addressing modes that
-   * have no explicitly specified image attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  @Override
-  public String image() {
-    Logger.error(
-        "The 'image' attribute is not defined for the '%s' primitive. " + 
-        "An empty string is returned. Primitive size will be calculated incorrectly.",
-        getClass().getSimpleName()
-        );
-
-    return "";
-  }
-
-  /**
-   * Default implementation of the action attribute. Provided to allow using addressing modes that
-   * have no explicitly specified action attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
-   */
-
-  public void action() {
-    Logger.error(
-        "The 'action' attribute is not defined for the '%s' primitive. " + 
-        "No action will be performed.",
-        getClass().getSimpleName()
-        );
-  }
-
-  /**
-   * Default implementation of the access method. The method is overridden in concrete addressing
-   * mode class if the return expression was specified for this addressing mode.
-   */
-
-  @Override
-  public Location access() {
-    // This code should never be called!
-    assert false : "AddressingMode.access - default implementation. Should never be called!";
-    return null;
   }
 }
