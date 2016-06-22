@@ -24,7 +24,6 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaShortcut implements MetaData {
   private final String contextName;
   private final MetaOperation operation;
@@ -37,7 +36,6 @@ public final class MetaShortcut implements MetaData {
    * 
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
-
   public MetaShortcut(
       final String contextName,
       final MetaOperation operation) {
@@ -53,7 +51,6 @@ public final class MetaShortcut implements MetaData {
    * 
    * @return The shortcut name.
    */
-
   @Override
   public String getName() {
     return operation.getName();
@@ -65,7 +62,6 @@ public final class MetaShortcut implements MetaData {
    * 
    * @return Name of the context in which the shortcut can be referred.
    */
-
   public String getContextName() {
     return contextName;
   }
@@ -75,7 +71,6 @@ public final class MetaShortcut implements MetaData {
    * 
    * @return Metadata describing the shortcut operation.
    */
-
   public MetaOperation getOperation() {
     return operation;
   }

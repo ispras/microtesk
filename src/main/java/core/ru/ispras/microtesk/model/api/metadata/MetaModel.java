@@ -24,7 +24,6 @@ import java.util.Map;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaModel {
   private final Map<String, MetaAddressingMode> modes;
   private final Map<String, MetaGroup> modeGroups;
@@ -54,7 +53,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaAddressingMode> getAddressingModes() {
     return modes.values();
   }
@@ -65,7 +63,6 @@ public final class MetaModel {
    * @param name Addressing mode name.
    * @return Addressing mode metadata.
    */
-
   public MetaAddressingMode getAddressingMode(final String name) {
     return modes.get(name);
   }
@@ -75,7 +72,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaGroup> getAddressingModeGroups() {
     return modeGroups.values();
   }
@@ -86,7 +82,6 @@ public final class MetaModel {
    * @param name Name of addressing mode group.
    * @return Addressing mode group metadata.
    */
-
   public MetaGroup getAddressingModeGroup(final String name) {
     return modeGroups.get(name);
   }
@@ -97,7 +92,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaOperation> getOperations() {
     return operations.values();
   }
@@ -108,7 +102,6 @@ public final class MetaModel {
    * @param name Operation name.
    * @return Operation metadata.
    */
-
   public MetaOperation getOperation(final String name) {
     return operations.get(name);
   }
@@ -118,7 +111,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaGroup> getOperationGroups() {
     return operationGroups.values();
   }
@@ -129,7 +121,6 @@ public final class MetaModel {
    * @param name Name of operation group.
    * @return Operation group metadata.
    */
-
   public MetaGroup getOperationGroup(final String name) {
     return operationGroups.get(name);
   }
@@ -139,7 +130,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaLocationStore> getRegisters() {
     return registers.values();
   }
@@ -150,7 +140,6 @@ public final class MetaModel {
    * @param name Register file name.
    * @return Register file metadata.
    */
-
   public MetaLocationStore getRegister(final String name) {
     return registers.get(name);
   }
@@ -160,7 +149,6 @@ public final class MetaModel {
    * 
    * @return An Iterable object.
    */
-
   public Iterable<MetaLocationStore> getMemoryStores() {
     return memory.values();
   }
@@ -171,7 +159,6 @@ public final class MetaModel {
    * @param name Memory store location name.
    * @return Memory store location metadata.
    */
-
   public MetaLocationStore getMemoryStore(final String name) {
     return memory.get(name);
   }
