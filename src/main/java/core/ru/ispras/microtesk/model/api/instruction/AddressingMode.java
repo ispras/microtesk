@@ -37,6 +37,8 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
  */
 
 public abstract class AddressingMode implements IAddressingMode {
+  public static final String IMM_TYPE_NAME = "#IMM";
+
   /**
    * The AddressingMode.Info class is an implementation of the IInfo interface that provides logic
    * for storing information about a single addressing mode. The class is to be used by generated

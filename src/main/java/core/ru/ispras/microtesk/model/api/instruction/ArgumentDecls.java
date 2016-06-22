@@ -59,7 +59,7 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.IMM,
         ArgumentMode.IN,
-        Collections.singleton(AddressingModeImm.NAME),
+        Collections.singleton(AddressingMode.IMM_TYPE_NAME),
         type) {
 
       @Override
