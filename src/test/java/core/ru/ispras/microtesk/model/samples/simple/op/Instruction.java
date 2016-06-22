@@ -73,6 +73,6 @@ public final class Instruction extends Operation {
 
   @Override
   public void action() { 
-    x.action();
+    x.execute();
   }
 }

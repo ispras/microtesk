@@ -57,7 +57,7 @@ public final class InstructionCall {
    */
   public void execute() {
     resetter.reset();
-    instruction.action();
+    instruction.execute();
   }
 
   /**

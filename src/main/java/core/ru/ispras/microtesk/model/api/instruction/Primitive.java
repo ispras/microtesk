@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.Map;
 
 import ru.ispras.microtesk.Logger;
@@ -43,8 +45,22 @@ public abstract class Primitive {
     T create(final Map<String, Object> args);
   }
 
+  /** Tracks execution of primitives */
+  private static final Deque<Primitive> CALL_STACK = new LinkedList<>();
+
+  /**
+   * Returns the name of the currently executed primitive or an empty
+   * string if no primitive is being executed.
+   * 
+   * @return Name of the executed primitive.
+   */
+  public static String getCurrentOperation() {
+    return CALL_STACK.isEmpty() ? "" : CALL_STACK.peek().getName();
+  }
+
   /**
    * Returns the primitive name.
+   * 
    * @return Primitive name.
    */
   public final String getName() {
@@ -82,11 +98,25 @@ public abstract class Primitive {
   }
 
   /**
-   * Default implementation of the action attribute. Provided to allow using addressing modes that
-   * have no explicitly specified action attribute. This method does not do any useful work and
-   * should never be called. It is needed only to let inherited classes compile.
+   * Runs execution of the current primitive's action.
    */
-  public void action() {
+  public final void execute() {
+    try {
+      CALL_STACK.push(this);
+      action();
+    } finally {
+      CALL_STACK.pop();
+    }
+  }
+
+  /**
+   * Runs the action associated with the primitive.
+   * 
+   * <p>Default implementation is provided to allow using primitives that have no
+   * explicitly specified action attribute. This method does not do any useful work
+   * and should never be called. It is needed only to let inherited classes compile.
+   */
+  protected void action() {
     Logger.error(UNDEFINED_ATTR + "No action will be performed.", "action", getName());
   }
 

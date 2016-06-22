@@ -99,7 +99,7 @@ public class Arith_Mem_Inst extends Operation {
     SRC1.access().assign(op1.access());
     SRC2.access().assign(op2.access());
 
-    y.action();
+    y.execute();
     op1.access().assign(DEST.access());
 
     PC.access().store(PC.access().load().add(Data.valueOf(PC.getType(), 2)));

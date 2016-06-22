@@ -17,10 +17,8 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -342,18 +340,5 @@ public abstract class Operation extends Primitive {
 
       return new MetaGroup(MetaGroup.Kind.OP, name, items);
     }
-  }
-
-  private static final Deque<String> CALL_STACK = new LinkedList<>();
-  public static String getCurrentOperation() {
-    return CALL_STACK.peek();
-  }
-
-  protected final void actionBegin() {
-    CALL_STACK.push(getClass().getSimpleName());
-  }
-
-  protected final void actionEnd() {
-    CALL_STACK.pop();
   }
 }
