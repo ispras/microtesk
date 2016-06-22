@@ -29,7 +29,6 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaArgument implements MetaData {
   private final ArgumentKind kind;
   private final ArgumentMode mode;
@@ -49,7 +48,6 @@ public final class MetaArgument implements MetaData {
    * @throws IllegalArgumentException if any argument except for {@code dataType}
    *         it {@code null}; if the set of type names is empty.
    */
-
   public MetaArgument(
       final ArgumentKind kind,
       final ArgumentMode mode,
@@ -73,7 +71,6 @@ public final class MetaArgument implements MetaData {
    * 
    * @return Argument kind.
    */
-
   public ArgumentKind getKind() {
     return kind;
   }
@@ -83,7 +80,6 @@ public final class MetaArgument implements MetaData {
    * 
    * @return Argument usage mode.
    */
-
   public ArgumentMode getMode() {
     return mode;
   }
@@ -93,7 +89,6 @@ public final class MetaArgument implements MetaData {
    * 
    * @return Argument name.
    */
-
   @Override
   public String getName() {
     return name;
@@ -106,7 +101,6 @@ public final class MetaArgument implements MetaData {
    * @return An {@link Iterable} object that refers to the collection
    *         of type names (e.g. addressing mode names).
    */
-
   public Collection<String> getTypeNames() {
     return typeNames;
   }
@@ -118,7 +112,6 @@ public final class MetaArgument implements MetaData {
    * @return {@code true} if the specified type is accepted for
    *         the argument of {@code false} otherwise.
    */
-
   public boolean isTypeAccepted(final String typeName) {
     return typeNames.contains(typeName);
   }
@@ -130,7 +123,6 @@ public final class MetaArgument implements MetaData {
    * 
    * @return Argument data type.
    */
-
   public Type getDataType() {
     return dataType;
   }

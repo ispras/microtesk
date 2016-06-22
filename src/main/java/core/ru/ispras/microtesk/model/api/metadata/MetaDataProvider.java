@@ -22,12 +22,10 @@ package ru.ispras.microtesk.model.api.metadata;
  *
  * @param <T> Type of a {@link MetaData} object.
  */
-
 public interface MetaDataProvider<T extends MetaData> {
   /**
    * Returns a {@code MetaData} object.
    * @return {@code MetaData} object.
    */
-
   T getMetaData();
 }

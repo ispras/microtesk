@@ -25,13 +25,10 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaGroup implements MetaData {
-
   /**
    * Specifies the kind of stored items.
    */
-
   public enum Kind {
     /** Addressing mode */
     MODE,
@@ -53,7 +50,6 @@ public final class MetaGroup implements MetaData {
    * @throws IllegalArgumentException if any parameter is {@code null};
    *         if the collection of items is empty.
    */
-
   public MetaGroup(
       final Kind kind,
       final String name,
@@ -72,7 +68,6 @@ public final class MetaGroup implements MetaData {
    * 
    * @return Item kind.
    */
-
   public Kind getKind() {
     return kind;
   }
@@ -82,7 +77,6 @@ public final class MetaGroup implements MetaData {
    * 
    * @return Group name.
    */
-
   @Override
   public String getName() {
     return name;
@@ -93,7 +87,6 @@ public final class MetaGroup implements MetaData {
    * 
    * @return Items being grouped (an {@link Iterable} object).
    */
-
   public Collection<? extends MetaData> getItems() {
     return items;
   }

@@ -14,11 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThan;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
 /**
@@ -27,7 +24,6 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaLocationStore implements MetaData {
   private final String name;
   private final Type dataType;
@@ -37,9 +33,9 @@ public final class MetaLocationStore implements MetaData {
       final String name,
       final Type dataType, 
       final BigInteger count) {
-    checkNotNull(name);
-    checkNotNull(count);
-    checkGreaterThan(count, BigInteger.ZERO);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(count);
+    InvariantChecks.checkGreaterThan(count, BigInteger.ZERO);
 
     this.name = name;
     this.dataType = dataType;
@@ -51,18 +47,16 @@ public final class MetaLocationStore implements MetaData {
    * 
    * @return Memory resource name.
    */
-
   @Override
   public String getName() {
     return name;
   }
-  
+
   /**
    * Returns the type of items stored in the memory store.
    * 
    * @return Item data type.
    */
-
   public Type getDataType() {
     return dataType;
   }
@@ -72,7 +66,6 @@ public final class MetaLocationStore implements MetaData {
    * 
    * @return Memory store item count.
    */
-
   public BigInteger getCount() {
     return count;
   }

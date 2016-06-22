@@ -31,7 +31,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaDataUtils {
   private MetaDataUtils() {}
 
@@ -42,7 +41,6 @@ public final class MetaDataUtils {
    * @param c Collection of {@code MetaData} objects.
    * @return Map of {@code MetaData} objects.
    */
-
   public static <T extends MetaData> Map<String, T> toMap(final Collection<T> c) {
     InvariantChecks.checkNotNull(c);
 
@@ -65,7 +63,6 @@ public final class MetaDataUtils {
    * @param c Collection of {@code MetaData} objects.
    * @return Set of {@code MetaData} object names.
    */
-
   public static Set<String> toNameSet(final Collection<? extends MetaData> c) {
     InvariantChecks.checkNotNull(c);
 
@@ -88,7 +85,6 @@ public final class MetaDataUtils {
    * @param c Collection of {@code MetaData} objects.
    * @return List of {@code MetaData} object names.
    */
-
   public static List<String> toNameList(final Collection<? extends MetaData> c) {
     InvariantChecks.checkNotNull(c);
 
@@ -113,7 +109,6 @@ public final class MetaDataUtils {
    * @return String containing a list of {@code MetaData} object names or
    *         empty string of the collection is empty.
    */
-
   public static String toNameListString(
       final Collection<? extends MetaData> c, final String sep) {
     InvariantChecks.checkNotNull(c);
@@ -132,7 +127,7 @@ public final class MetaDataUtils {
 
     return sb.toString();
   }
-  
+
   public static String toNameListStringRecursive(
       final Collection<? extends MetaData> c, final String sep) {
     InvariantChecks.checkNotNull(c);
