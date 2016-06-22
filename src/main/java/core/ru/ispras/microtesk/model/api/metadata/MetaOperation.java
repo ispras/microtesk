@@ -25,7 +25,6 @@ import java.util.Map;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaOperation implements MetaData {
   private final String name;
   private final String typeName;
