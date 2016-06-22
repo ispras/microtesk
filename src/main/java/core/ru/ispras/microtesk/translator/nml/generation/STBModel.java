@@ -28,8 +28,8 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -63,8 +63,8 @@ final class STBModel implements STBuilder {
     t.add("imps", ProcessorModel.class.getName());
     t.add("imps", MetaModelPrinter.class.getName());
     t.add("imps", ModelStatePrinter.class.getName());
-    t.add("imps", IAddressingMode.class.getName());
-    t.add("imps", IOperation.class.getName());
+    t.add("imps", AddressingMode.class.getName());
+    t.add("imps", Operation.class.getName());
 
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 

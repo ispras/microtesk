@@ -75,7 +75,7 @@ Info() {
   );
 }<\n>
 @Override
-public IAddressingMode create(final <data_map_type()> args) {
+public AddressingMode create(final <data_map_type()> args) {
   <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
   return new <name>(<param_names :{n | <n>}; separator=", ">);
 }

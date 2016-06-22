@@ -23,19 +23,19 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 
 public abstract class CallSimulator {
-  protected final void addCall(final IOperation op) {
+  protected final void addCall(final Operation op) {
     final InstructionCall call = model.getCallFactory().newCall(op);
     calls.add(call);
   }
 
-  protected final IAddressingMode newMode(
+  protected final AddressingMode newMode(
       final String name,
       final Map<String, BigInteger> args) throws ConfigurationException {
     final AddressingModeBuilder modeBuilder = model.getCallFactory().newMode(name);
@@ -46,13 +46,13 @@ public abstract class CallSimulator {
     return modeBuilder.build();
   }
 
-  protected final IOperation newOp(
+  protected final Operation newOp(
       final String name,
       final String context,
-      final Map<String, IAddressingMode> args) throws ConfigurationException {
+      final Map<String, AddressingMode> args) throws ConfigurationException {
     final OperationBuilder opBuilder = model.getCallFactory().newOp(name, context);
 
-    for (final Map.Entry<String, IAddressingMode> arg : args.entrySet()) {
+    for (final Map.Entry<String, AddressingMode> arg : args.entrySet()) {
       opBuilder.setArgument(arg.getKey(), arg.getValue());
     }
 

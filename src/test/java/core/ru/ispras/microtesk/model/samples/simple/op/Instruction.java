@@ -18,7 +18,6 @@ package ru.ispras.microtesk.model.samples.simple.op;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 
 /*
@@ -47,17 +46,17 @@ public final class Instruction extends Operation {
     }
 
     @Override
-    public IOperation create(final Map<String, Object> args) {
-      final IOperation x = (IOperation) getArgument("x", args);
+    public Operation create(final Map<String, Object> args) {
+      final Operation x = (Operation) getArgument("x", args);
       return new Instruction(x);
     }
   }
 
   public static final IInfo INFO = new Info();
 
-  private final IOperation x;
+  private final Operation x;
 
-  public Instruction(final IOperation x) {
+  public Instruction(final Operation x) {
     assert Arith_Mem_Inst.INFO.isSupported(x);
     this.x = x;
   }

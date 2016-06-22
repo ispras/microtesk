@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.CallFactory;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -71,7 +71,7 @@ public final class Reader {
     final MetaAddressingMode metaMode = model.getMetaData().getAddressingMode(name);
     InvariantChecks.checkNotNull(metaMode);
 
-    final IAddressingMode mode;
+    final AddressingMode mode;
     try {
       final CallFactory callFactory = model.getCallFactory();
       final AddressingModeBuilder modeBuilder = callFactory.newMode(name);
@@ -106,9 +106,9 @@ public final class Reader {
   }
 
   private static final class ModeValue implements Value<BitVector> {
-    private final IAddressingMode mode;
+    private final AddressingMode mode;
 
-    private ModeValue(final IAddressingMode mode) {
+    private ModeValue(final AddressingMode mode) {
       InvariantChecks.checkNotNull(mode);
       this.mode = mode;
     }

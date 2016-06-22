@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-public final class OperationBuilder extends PrimitiveBuilder<IOperation>{
+public final class OperationBuilder extends PrimitiveBuilder<Operation>{
 
   public OperationBuilder(
       final String opName,
-      final IPrimitive.IFactory<IOperation> factory,
+      final Primitive.Factory<Operation> factory,
       final ArgumentDecls decls) {
     super(
         opName,

@@ -33,10 +33,9 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
-public class PrimitiveBuilder<T extends IPrimitive> {
+public class PrimitiveBuilder<T extends Primitive> {
   private final String primitiveName;
-  private final IPrimitive.IFactory<T> factory;
+  private final Primitive.Factory<T> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Object> args;
 
@@ -47,10 +46,9 @@ public class PrimitiveBuilder<T extends IPrimitive> {
    * @param factory The factory for creating the specified primitive.
    * @param decls The table of argument declarations.
    */
-
   public PrimitiveBuilder(
       final String name,
-      final IPrimitive.IFactory<T> factory,
+      final Primitive.Factory<T> factory,
       final ArgumentDecls decls) {
     this.primitiveName = name;
     this.factory = factory;
@@ -64,7 +62,6 @@ public class PrimitiveBuilder<T extends IPrimitive> {
    * @param name Argument name.
    * @param value Argument integer value.
    */
-
   public LocationAccessor setArgument(
       final String name,
       final BigInteger value) throws ConfigurationException {
@@ -96,7 +93,7 @@ public class PrimitiveBuilder<T extends IPrimitive> {
 
   public void setArgument(
       final String name,
-      final IAddressingMode value) throws ConfigurationException {
+      final AddressingMode value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
@@ -123,7 +120,7 @@ public class PrimitiveBuilder<T extends IPrimitive> {
 
   public void setArgument(
       final String name,
-      final IOperation value) throws ConfigurationException {
+      final Operation value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
@@ -155,7 +152,6 @@ public class PrimitiveBuilder<T extends IPrimitive> {
    * @throws ConfigurationException Exception that informs of an error that occurs on attempt to
    *         build an object due to incorrect configuration.
    */
-
   public T build() throws ConfigurationException {
     checkInitialized();
     return factory.create(args);

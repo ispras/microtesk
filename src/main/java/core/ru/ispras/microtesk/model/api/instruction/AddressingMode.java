@@ -34,8 +34,58 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
+public abstract class AddressingMode extends Primitive {
+  /**
+   * The IInfo interface provides information on an addressing mode object or a group of addressing
+   * mode object united by an OR rule. This information is needed to instantiate a concrete
+   * addressing mode object at runtime depending on the selected builder.
+   * 
+   * @author Andrei Tatarnikov
+   */
+  public interface IInfo {
+    /**
+     * Returns the name of the mode or the name of the OR rule used for grouping addressing modes.
+     * 
+     * @return The mode name.
+     */
+    String getName();
 
-public abstract class AddressingMode extends Primitive implements IAddressingMode {
+    /**
+     * Returns the type of data accessed via the addressing mode.
+     * 
+     * @return Data type.
+     */
+    Type getType();
+
+    /**
+     * Returns a table of builder for the addressing mode (or the group of addressing modes)
+     * described by the current info object.
+     * 
+     * @return A table of addressing mode builders (key is the mode name, value is the builder).
+     */
+    Map<String, AddressingModeBuilder> createBuilders();
+
+    /**
+     * Returns a collection of meta data objects describing the addressing mode (or the group of
+     * addressing modes) the info object refers to. In the case, when there is a single addressing
+     * mode, the collection will contain only one item.
+     * 
+     * @return A collection of meta data objects for an addressing mode or a group of addressing
+     *         modes.
+     */
+    Collection<MetaAddressingMode> getMetaData();
+
+    /**
+     * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
+     * the specified addressing mode. This method is used in runtime checks to make sure that the
+     * object composition in the model is valid.
+     * 
+     * @param mode An addressing mode object.
+     * @return true if the mode is supported or false otherwise.
+     */
+    boolean isSupported(AddressingMode mode);
+  }
+
   public static final String IMM_TYPE_NAME = "#IMM";
 
   /**
@@ -46,7 +96,7 @@ public abstract class AddressingMode extends Primitive implements IAddressingMod
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
-  protected static abstract class InfoAndRule implements IInfo, IFactory<IAddressingMode> {
+  protected static abstract class InfoAndRule implements IInfo, Factory<AddressingMode> {
     private final Class<?> modeClass;
     private final String name;
     private final Type type;
@@ -124,7 +174,7 @@ public abstract class AddressingMode extends Primitive implements IAddressingMod
     }
 
     @Override
-    public final boolean isSupported(final IAddressingMode mode) {
+    public final boolean isSupported(final AddressingMode mode) {
       return modeClass.equals(mode.getClass());
     }
 
@@ -198,7 +248,7 @@ public abstract class AddressingMode extends Primitive implements IAddressingMod
     }
 
     @Override
-    public boolean isSupported(final IAddressingMode mode) {
+    public boolean isSupported(final AddressingMode mode) {
       for (final IInfo i : childs) {
         if (i.isSupported(mode)) {
           return true;

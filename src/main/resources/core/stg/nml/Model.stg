@@ -29,19 +29,19 @@ model(file, pack, imps, simps, base, members) ::= <<
 constructor(name, reg, mem, var, lab, stat, modes, mgs, ops, ogs) ::= <<
 <class_string_const("String", "NAME", name)>
 
-private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[] {
+private static final AddressingMode.IInfo[] __MODES = new AddressingMode.IInfo[] {
   <modes:{m |<m>.INFO}; separator=",\n">
 };
 
-private static final IAddressingMode.IInfo[] __MODE_GROUPS = new IAddressingMode.IInfo[] {
+private static final AddressingMode.IInfo[] __MODE_GROUPS = new AddressingMode.IInfo[] {
   <mgs:{m |<m>.INFO}; separator=",\n">
 };
 
-private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[] {
+private static final Operation.IInfo[] __OPS = new Operation.IInfo[] {
   <ops:{op |<op>.INFO}; separator=",\n">
 };
 
-private static final IOperation.IInfo[] __OP_GROUPS = new IOperation.IInfo[] {
+private static final Operation.IInfo[] __OP_GROUPS = new Operation.IInfo[] {
   <ogs:{op |<op>.INFO}; separator=",\n">
 };
 

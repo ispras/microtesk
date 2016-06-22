@@ -24,8 +24,7 @@ import java.util.Map;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
@@ -56,10 +55,10 @@ public class Arith_Mem_Inst extends Operation {
     }
 
     @Override
-    public IOperation create(Map<String, Object> args) {
-      final IOperation y = (IOperation) getArgument("y", args);
-      final IAddressingMode op1 = (IAddressingMode) getArgument("op1", args);
-      final IAddressingMode op2 = (IAddressingMode) getArgument("op2", args);
+    public Operation create(Map<String, Object> args) {
+      final Operation y = (Operation) getArgument("y", args);
+      final AddressingMode op1 = (AddressingMode) getArgument("op1", args);
+      final AddressingMode op2 = (AddressingMode) getArgument("op2", args);
 
       return new Arith_Mem_Inst(y, op1, op2);
     }
@@ -67,15 +66,15 @@ public class Arith_Mem_Inst extends Operation {
 
   public static final IInfo INFO = new Info();
 
-  private static final IOperation.IInfo yINFO = Add_sub_mov.INFO;
-  private static final IAddressingMode.IInfo op1INFO = OPRNDL.INFO;
-  private static final IAddressingMode.IInfo op2INFO = OPRNDR.INFO;
+  private static final Operation.IInfo yINFO = Add_sub_mov.INFO;
+  private static final AddressingMode.IInfo op1INFO = OPRNDL.INFO;
+  private static final AddressingMode.IInfo op2INFO = OPRNDR.INFO;
 
-  private IOperation y;
-  private IAddressingMode op1;
-  private IAddressingMode op2;
+  private Operation y;
+  private AddressingMode op1;
+  private AddressingMode op2;
 
-  public Arith_Mem_Inst(IOperation y, IAddressingMode op1, IAddressingMode op2) {
+  public Arith_Mem_Inst(Operation y, AddressingMode op1, AddressingMode op2) {
     assert yINFO.isSupported(y);
     assert op1INFO.isSupported(op1);
     assert op2INFO.isSupported(op2);

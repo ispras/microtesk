@@ -22,8 +22,8 @@ import static ru.ispras.microtesk.model.samples.simple.shared.Shared.__VARIABLES
 import ru.ispras.microtesk.model.api.ProcessorModel;
 import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.samples.simple.mode.IMM;
 import ru.ispras.microtesk.model.samples.simple.mode.IREG;
 import ru.ispras.microtesk.model.samples.simple.mode.MEM;
@@ -40,19 +40,19 @@ import ru.ispras.microtesk.model.samples.simple.op.Sub;
 public final class Model extends ProcessorModel {
   public static final String NAME = "simple";
 
-  private static final IAddressingMode.IInfo[] __MODES = new IAddressingMode.IInfo[] {
+  private static final AddressingMode.IInfo[] __MODES = new AddressingMode.IInfo[] {
     IMM.INFO,
     IREG.INFO,
     MEM.INFO,
     REG.INFO
   };
 
-  private static final IAddressingMode.IInfo[] __MODE_GROUPS = new IAddressingMode.IInfo[] {
+  private static final AddressingMode.IInfo[] __MODE_GROUPS = new AddressingMode.IInfo[] {
     OPRNDL.INFO,
     OPRNDR.INFO
   };
 
-  private static final IOperation.IInfo[] __OPS = new IOperation.IInfo[] {
+  private static final Operation.IInfo[] __OPS = new Operation.IInfo[] {
     Add.INFO,
     Sub.INFO,
     Mov.INFO,
@@ -60,7 +60,7 @@ public final class Model extends ProcessorModel {
     Instruction.INFO
   };
 
-  private static final IOperation.IInfo[] __OP_GROUPS = new IOperation.IInfo[] {
+  private static final Operation.IInfo[] __OP_GROUPS = new Operation.IInfo[] {
     Add_sub_mov.INFO
   };
 

@@ -104,7 +104,7 @@ Info() {
   );
 }<\n>
 @Override
-public IOperation create(Map\<String, Object\> args) {
+public Operation create(Map\<String, Object\> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return new <name>(<arg_names :{n | <n>}; separator=", ">);
 }
@@ -169,7 +169,7 @@ shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree,
   );
 }<\n>
 @Override
-public IOperation create(Map\<String, Object\> args) {
+public Operation create(Map\<String, Object\> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return <op_param(op_tree)>;
 }

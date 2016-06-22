@@ -20,8 +20,7 @@ package ru.ispras.microtesk.model.api.instruction;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
-public final class AddressingModeBuilder extends PrimitiveBuilder<IAddressingMode>{
+public final class AddressingModeBuilder extends PrimitiveBuilder<AddressingMode>{
   /**
    * Creates a builder for an addressing mode based on the specified configuration parameters.
    * 
@@ -29,10 +28,9 @@ public final class AddressingModeBuilder extends PrimitiveBuilder<IAddressingMod
    * @param factory The factory for creating the specified mode.
    * @param decls The table of mode argument declarations.
    */
-
   public AddressingModeBuilder(
       final String modeName,
-      final IPrimitive.IFactory<IAddressingMode> factory,
+      final Primitive.Factory<AddressingMode> factory,
       final ArgumentDecls decls) {
     super(
         modeName,

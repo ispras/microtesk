@@ -22,8 +22,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
@@ -52,7 +51,7 @@ public final class Add extends Operation {
     }
 
     @Override
-    public IOperation create(final Map<String, Object> args) {
+    public Operation create(final Map<String, Object> args) {
       return new Add();
     }
   }
@@ -77,9 +76,9 @@ public final class Add extends Operation {
     }
 
     @Override
-    public IOperation create(final Map<String, Object> args) {
-      final IAddressingMode op1 = (IAddressingMode) getArgument("op1", args);
-      final IAddressingMode op2 = (IAddressingMode) getArgument("op2", args);
+    public Operation create(final Map<String, Object> args) {
+      final AddressingMode op1 = (AddressingMode) getArgument("op1", args);
+      final AddressingMode op2 = (AddressingMode) getArgument("op2", args);
 
       return new Instruction(new Arith_Mem_Inst(new Add(), op1, op2));
     }

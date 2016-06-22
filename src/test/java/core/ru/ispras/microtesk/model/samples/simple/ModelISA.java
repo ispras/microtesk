@@ -29,15 +29,15 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 
 abstract class ModelISA extends CallSimulator {
   public ModelISA(IModel model) {
     super(model);
   }
 
-  public final void mov(IAddressingMode op1, IAddressingMode op2) throws ConfigurationException {
-    final Map<String, IAddressingMode> args = new LinkedHashMap<>();
+  public final void mov(AddressingMode op1, AddressingMode op2) throws ConfigurationException {
+    final Map<String, AddressingMode> args = new LinkedHashMap<>();
 
     args.put("op1", op1);
     args.put("op2", op2);
@@ -45,8 +45,8 @@ abstract class ModelISA extends CallSimulator {
     addCall(newOp("Mov", "#root", args));
   }
 
-  public final void add(IAddressingMode op1, IAddressingMode op2) throws ConfigurationException {
-    final Map<String, IAddressingMode> args = new LinkedHashMap<>();
+  public final void add(AddressingMode op1, AddressingMode op2) throws ConfigurationException {
+    final Map<String, AddressingMode> args = new LinkedHashMap<>();
 
     args.put("op1", op1);
     args.put("op2", op2);
@@ -54,8 +54,8 @@ abstract class ModelISA extends CallSimulator {
     addCall(newOp("Add", "#root", args));
   }
 
-  public final void sub(IAddressingMode op1, IAddressingMode op2) throws ConfigurationException {
-    final Map<String, IAddressingMode> args = new LinkedHashMap<>();
+  public final void sub(AddressingMode op1, AddressingMode op2) throws ConfigurationException {
+    final Map<String, AddressingMode> args = new LinkedHashMap<>();
 
     args.put("op1", op1);
     args.put("op2", op2);
@@ -63,19 +63,19 @@ abstract class ModelISA extends CallSimulator {
     addCall(newOp("Sub", "#root", args));
   }
 
-  public final IAddressingMode reg(int i) throws ConfigurationException {
+  public final AddressingMode reg(int i) throws ConfigurationException {
     return newMode("REG", Collections.singletonMap("i", BigInteger.valueOf(i)));
   }
 
-  public final IAddressingMode ireg(int i) throws ConfigurationException {
+  public final AddressingMode ireg(int i) throws ConfigurationException {
     return newMode("IREG", Collections.singletonMap("i", BigInteger.valueOf(i)));
   }
 
-  public final IAddressingMode mem(int i) throws ConfigurationException {
+  public final AddressingMode mem(int i) throws ConfigurationException {
     return newMode("MEM", Collections.singletonMap("i", BigInteger.valueOf(i)));
   }
 
-  public final IAddressingMode imm(int i) throws ConfigurationException {
+  public final AddressingMode imm(int i) throws ConfigurationException {
     return newMode("IMM", Collections.singletonMap("i", BigInteger.valueOf(i)));
   }
 }

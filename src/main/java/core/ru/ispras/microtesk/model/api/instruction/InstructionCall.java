@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
  */
 public final class InstructionCall {
   private final Resetter resetter;
-  private final IOperation instruction;
+  private final Operation instruction;
   private final String image;
   private final int byteSize;
 
@@ -40,7 +40,7 @@ public final class InstructionCall {
    */
   public InstructionCall(
       final Resetter resetter,
-      final IOperation instruction) {
+      final Operation instruction) {
     InvariantChecks.checkNotNull(resetter);
     InvariantChecks.checkNotNull(instruction);
 

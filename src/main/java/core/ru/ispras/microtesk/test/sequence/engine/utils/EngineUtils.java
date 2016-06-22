@@ -42,9 +42,9 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.CallFactory;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.settings.ExtensionSettings;
@@ -200,7 +200,7 @@ public final class EngineUtils {
       if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
         if (arg.getKind() == Argument.Kind.MODE) {
           try {
-            final IAddressingMode concreteMode = makeMode(engineContext, arg);
+            final AddressingMode concreteMode = makeMode(engineContext, arg);
             if (concreteMode.access().isInitialized()) {
               continue;
             }
@@ -353,7 +353,7 @@ public final class EngineUtils {
       checkRootOp(rootOp);
 
       final CallFactory callFactory = engineContext.getModel().getCallFactory();
-      final IOperation op = makeOp(engineContext, rootOp);
+      final Operation op = makeOp(engineContext, rootOp);
       final InstructionCall executable = callFactory.newCall(op);
 
       return new ConcreteCall(abstractCall, executable, labelRefs);
@@ -370,7 +370,7 @@ public final class EngineUtils {
 
     final CallFactory callFactory = engineContext.getModel().getCallFactory();
 
-    final IOperation operation;
+    final Operation operation;
     try {
       final OperationBuilder operationBuilder = callFactory.newOp(instructionName, null);
       operation = operationBuilder.build();
@@ -407,7 +407,7 @@ public final class EngineUtils {
     return ((LabelValue) argument.getValue()).getValue();
   }
 
-  public static IAddressingMode makeMode(
+  public static AddressingMode makeMode(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -417,7 +417,7 @@ public final class EngineUtils {
     return makeMode(engineContext, abstractMode);
   }
 
-  public static IAddressingMode makeMode(
+  public static AddressingMode makeMode(
       final EngineContext engineContext,
       final Primitive abstractMode) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -458,7 +458,7 @@ public final class EngineUtils {
     return builder.build();
   }
 
-  public static IOperation makeOp(
+  public static Operation makeOp(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -468,7 +468,7 @@ public final class EngineUtils {
     return makeOp(engineContext, abstractOp);
   }
 
-  public static IOperation makeOp(
+  public static Operation makeOp(
       final EngineContext engineContext,
       final Primitive abstractOp) throws ConfigurationException {
     checkNotNull(engineContext);

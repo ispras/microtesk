@@ -37,7 +37,58 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public abstract class Operation extends Primitive implements IOperation {
+public abstract class Operation extends Primitive {
+  /**
+   * The IInfo interface provides information on an operation object or a group of operation object
+   * united by an OR rule. This information is needed for runtime checks to make sure that
+   * instructions are configured with proper operation objects.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+
+  public interface IInfo {
+    /**
+     * Returns the name of the operation or the name of the OR rule used for grouping operations.
+     * 
+     * @return The mode name.
+     */
+
+    String getName();
+
+    /**
+     * Checks whether the current operation is a root. An operation is a root if it does not have
+     * parents.
+     * 
+     * @return {@code true} if it is a root operation or {@code false} otherwise.
+     */
+
+    boolean isRoot();
+
+    Map<String, OperationBuilder> createBuilders();
+
+    Map<String, OperationBuilder> createBuildersForShortcut(String contextName);
+
+    /**
+     * Checks if the current operation (or group of operations) implements (or contains) the
+     * specified operation. This method is used in runtime checks to make sure that the object
+     * composition in the model is valid.
+     * 
+     * @param op An operation object.
+     * @return true if the operation is supported or false otherwise.
+     */
+
+    boolean isSupported(Operation op);
+
+    /**
+     * Returns a collection of meta data objects describing the operation (or the group of
+     * operations) the info object refers to. In the case, when there is a single operation, the
+     * collection contains only one item.
+     * 
+     * @return A collection of meta data objects for an operation or a group of operations.
+     */
+
+    Collection<MetaOperation> getMetaData();
+  }
 
   protected static final class Shortcuts {
     private final Map<String, InfoAndRule> shortcuts;
@@ -85,7 +136,7 @@ public abstract class Operation extends Primitive implements IOperation {
    * @author Andrei Tatarnikov
    */
 
-  public static abstract class InfoAndRule implements IInfo, IFactory<IOperation> {
+  public static abstract class InfoAndRule implements IInfo, Factory<Operation> {
     private final Class<?> opClass;
     private final String name;
     private final boolean isRoot;
@@ -163,7 +214,7 @@ public abstract class Operation extends Primitive implements IOperation {
     }
 
     @Override
-    public final boolean isSupported(final IOperation op) {
+    public final boolean isSupported(final Operation op) {
       return opClass.equals(op.getClass());
     }
 
@@ -248,7 +299,7 @@ public abstract class Operation extends Primitive implements IOperation {
     }
 
     @Override
-    public boolean isSupported(final IOperation op) {
+    public boolean isSupported(final Operation op) {
       for (final IInfo i : childs) {
         if (i.isSupported(op)) {
           return true;

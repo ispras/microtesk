@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+import java.util.Map;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -24,6 +26,23 @@ import ru.ispras.microtesk.model.api.memory.Location;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class Primitive {
+  /**
+   * The {@link Primitive.Factory} interface is a base interface for factories
+   * that create instances addressing modes and operations and initialize them
+   * with the provided arguments.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public interface Factory<T extends Primitive> {
+    /**
+     * Creates a primitive instance.
+     * 
+     * @param args A table of arguments (key is the argument name, value is the argument value).
+     * @return The addressing mode object.
+     */
+    T create(final Map<String, Object> args);
+  }
+
   /**
    * Returns the primitive name.
    * @return Primitive name.

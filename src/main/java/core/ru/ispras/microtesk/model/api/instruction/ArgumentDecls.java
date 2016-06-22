@@ -63,7 +63,7 @@ public final class ArgumentDecls {
         type) {
 
       @Override
-      public boolean isSupported(final IPrimitive o) {
+      public boolean isSupported(final Primitive o) {
         return false;
       }
     };
@@ -97,8 +97,8 @@ public final class ArgumentDecls {
         info.getType()) {
 
       @Override
-      public boolean isSupported(final IPrimitive o) {
-        return (o instanceof IAddressingMode) && info.isSupported((IAddressingMode) o);
+      public boolean isSupported(final Primitive o) {
+        return (o instanceof AddressingMode) && info.isSupported((AddressingMode) o);
       }
     };
 
@@ -116,7 +116,7 @@ public final class ArgumentDecls {
 
   public ArgumentDecls add(
       final String name,
-      final IOperation.IInfo info) {
+      final Operation.IInfo info) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(info);
 
@@ -128,8 +128,8 @@ public final class ArgumentDecls {
         null) {
 
       @Override
-      public boolean isSupported(final IPrimitive o) {
-        return (o instanceof IOperation) && info.isSupported((IOperation) o);
+      public boolean isSupported(final Primitive o) {
+        return (o instanceof Operation) && info.isSupported((Operation) o);
       }
     };
 
@@ -197,7 +197,7 @@ public final class ArgumentDecls {
       return metaData;
     }
 
-    public abstract boolean isSupported(final IPrimitive o);
+    public abstract boolean isSupported(final Primitive o);
 
     @Override
     public String toString() {

@@ -27,8 +27,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.IAddressingMode;
-import ru.ispras.microtesk.model.api.instruction.IOperation;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
@@ -130,12 +129,12 @@ final class STBOperation extends STBPrimitiveBase {
       if (Primitive.Kind.MODE == argType.getKind()) {
         importModeDependencies(t);
         t.add("arg_types",
-            argType.isOrRule() ? IAddressingMode.class.getSimpleName() : argType.getName());
+            argType.isOrRule() ? AddressingMode.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else if (Primitive.Kind.OP == argType.getKind()) {
         t.add( "arg_types",
-            argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
+            argType.isOrRule() ? Operation.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else // if Primitive.Kind.IMM == oa.getKind()
@@ -238,10 +237,10 @@ final class STBOperation extends STBPrimitiveBase {
         if (Primitive.Kind.MODE == argType.getKind()) {
           importModeDependencies(t);
           shortcutST.add("arg_types",
-              argType.isOrRule() ? IAddressingMode.class.getSimpleName() : argType.getName());
+              argType.isOrRule() ? AddressingMode.class.getSimpleName() : argType.getName());
         } else if (Primitive.Kind.OP == argType.getKind()) {
           shortcutST.add("arg_types",
-              argType.isOrRule() ? IOperation.class.getSimpleName() : argType.getName());
+              argType.isOrRule() ? Operation.class.getSimpleName() : argType.getName());
         } else // if Primitive.Kind.IMM == oa.getKind()
         {
           importImmDependencies(t);
