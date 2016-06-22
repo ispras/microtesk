@@ -23,7 +23,6 @@ import ru.ispras.microtesk.model.api.state.Resetter;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class InstructionCall {
   private final Resetter resetter;
   private final IOperation instruction;
@@ -39,7 +38,6 @@ public final class InstructionCall {
    * 
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
-
   public InstructionCall(
       final Resetter resetter,
       final IOperation instruction) {
@@ -57,7 +55,6 @@ public final class InstructionCall {
   /**
    * Runs simulation of a corresponding instruction described within the model.
    */
-
   public void execute() {
     resetter.reset();
     instruction.action();
@@ -69,7 +66,6 @@ public final class InstructionCall {
    * 
    * @return Text for the instruction call (assembler code).
    */
-
   public String getText() {
     return instruction.syntax();
   }
@@ -79,7 +75,6 @@ public final class InstructionCall {
    * 
    * @return Image (binary representation) of the instuction call.
    */
-
   public String getImage() {
     return image;
   }
@@ -89,14 +84,12 @@ public final class InstructionCall {
    * 
    * @return Size of the instruction in bytes.
    */
-
   public int getByteSize() {
     return byteSize;
   }
 
   @Override
   public String toString() {
-    return String.format(
-        "%s : %s : %d bytes", getText(), image, byteSize);
+    return String.format("%s : %s : %d bytes", getText(), image, byteSize);
   }
 }
