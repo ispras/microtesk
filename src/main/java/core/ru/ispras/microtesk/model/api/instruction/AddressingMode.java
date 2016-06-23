@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
@@ -176,25 +175,6 @@ public abstract class AddressingMode extends Primitive {
     @Override
     public final boolean isSupported(final AddressingMode mode) {
       return modeClass.equals(mode.getClass());
-    }
-
-    /**
-     * Extracts the specified argument from the table of arguments and wraps it into a location
-     * object.
-     * 
-     * @param name The name of the argument.
-     * @param args A table of parameters.
-     * @return The location that stores the specified addressing mode argument.
-     */
-
-    protected final Location getArgument(final String name, final Map<String, Object> args) {
-      final Object arg = args.get(name);
-      // TODO Check argument
-      /*
-      assert decls.getDecls().get(name).getType().equals(data.getType()) :
-          String.format("The %s parameter does not exist.", name);
-      */
-      return (Location) arg;
     }
   }
 

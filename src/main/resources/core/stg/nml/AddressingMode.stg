@@ -76,8 +76,7 @@ Info() {
 }<\n>
 @Override
 public AddressingMode create(final <data_map_type()> args) {
-  <param_names:{n | final Location <n> = getArgument("<n>", args);}; separator="\n">
-  return new <name>(<param_names :{n | <n>}; separator=", ">);
+  return new <name>(args);
 }
 >>
 
@@ -89,8 +88,9 @@ new ArgumentDecls()<param_names, param_types:{n, t | <\n>    .add("<n>", <t>)}>
 
 mode_constructor(name, param_names) ::= <<
 <if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
-public <name>(<param_names:{n | Location <n>}; separator=", ">) {
-  <param_names:{n | this.<n> = <n>;}; separator="\n">
+public <name>(final <data_map_type()> args) {
+  super(args);
+  <param_names:{n | this.<n> = (Location) getArgument("<n>");}; separator="\n">
 }
 >>
 
