@@ -341,4 +341,12 @@ public abstract class Operation extends Primitive {
       return new MetaGroup(MetaGroup.Kind.OP, name, items);
     }
   }
+
+  protected Operation(final Map<String, Object> args) {
+    super(args);
+  }
+
+  protected Operation() {
+    this(Collections.<String, Object>emptyMap());
+  }
 }

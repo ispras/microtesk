@@ -18,6 +18,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -45,8 +46,23 @@ public abstract class Primitive {
     T create(final Map<String, Object> args);
   }
 
-  /** Tracks execution of primitives */
+  /** Tracks execution of primitives. */
   private static final Deque<Primitive> CALL_STACK = new LinkedList<>();
+
+  /** Table of arguments passed to the primitive. */
+  private final Map<String, Object> args;
+
+  /**
+   * Constructs a primitive and saves the argument table.
+   * 
+   * @param args Argument table.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
+  protected Primitive(final Map<String, Object> args) {
+    InvariantChecks.checkNotNull(args);
+    this.args = args;
+  }
 
   /**
    * Returns the name of the currently executed primitive or an empty
@@ -65,6 +81,22 @@ public abstract class Primitive {
    */
   public final String getName() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * Returns a primitive argument with the specified name.
+   * 
+   * @param name Argument name.
+   * @return Argument.
+   * 
+   * @throws IllegalArgumentException if {@code name} is {@code null} or
+   *         the argument with such name is undefined. 
+   */
+  public Object getArgument(final String name) {
+    InvariantChecks.checkNotNull(name);
+    final Object result = args.get(name);
+    InvariantChecks.checkNotNull(result);
+    return result;
   }
 
   /**

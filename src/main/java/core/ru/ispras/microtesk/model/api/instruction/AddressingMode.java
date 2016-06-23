@@ -272,4 +272,12 @@ public abstract class AddressingMode extends Primitive {
       return new MetaGroup(MetaGroup.Kind.MODE, name, items);
     }
   }
+
+  protected AddressingMode(final Map<String, Object> args) {
+    super(args);
+  }
+
+  protected AddressingMode() {
+    this(Collections.<String, Object>emptyMap());
+  }
 }
