@@ -1000,6 +1000,9 @@ class DataManager
   def initialize(template, manager)
     @template = template
     @manager = manager
+
+    @builder = nil
+    @ref_count = 0
   end
 
   def beginConfig(text, target, addressableSize, baseVirtAddr)
@@ -1012,12 +1015,19 @@ class DataManager
   end
 
   def beginData(global, separate_file)
-    @builder = @template.template.beginData global, separate_file
+    if @ref_count == 0
+      @builder = @template.template.beginData global, separate_file
+    end
+    @ref_count = @ref_count + 1
+    @builder
   end
 
   def endData
-    @template.template.endData
-    @builder = nil
+    @ref_count = @ref_count - 1
+    if @ref_count == 0
+      @template.template.endData
+      @builder = nil
+    end
   end
 
   def align(value)
@@ -1104,9 +1114,21 @@ class DataManager
   def comment(value)
     @manager.addComment value
   end
-  
+
   def value(*args)
     @template.value *args 
+  end
+
+  def data(attrs = {}, &contents)
+    self.instance_eval &contents
+  end
+
+  def method_missing(meth, *args, &block)
+    if @template.respond_to?(meth)
+      @template.send meth, *args, &block
+    else
+      super
+    end
   end
 
 end # DataManager
