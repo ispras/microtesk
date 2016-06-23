@@ -1124,10 +1124,11 @@ class DataManager
   end
 
   def method_missing(meth, *args, &block)
-    if @template.respond_to?(meth)
+    # Redirecting call to the template. Note: methods of Template are not accepted.
+    if @template.respond_to?(meth) and not Template.instance_methods.include?(meth)
       @template.send meth, *args, &block
     else
-      super
+      raise MTRubyError, "Method '#{meth}' is not available in data sections."
     end
   end
 
