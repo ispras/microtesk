@@ -47,8 +47,7 @@ public final class IMM extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Object> args) {
-      final Location i = getArgument("i", args);
-      return new IMM(i);
+      return new IMM(args);
     }
   }
 
@@ -56,8 +55,9 @@ public final class IMM extends AddressingMode {
 
   private final Location i;
 
-  public IMM(final Location i) {
-    this.i = i;
+  public IMM(final Map<String, Object> args) {
+    super(args);
+    this.i = (Location) getArgument("i");
   }
 
   @Override

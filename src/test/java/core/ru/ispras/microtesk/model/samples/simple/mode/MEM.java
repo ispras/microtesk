@@ -49,8 +49,7 @@ public class MEM extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Object> args) {
-      final Location i = getArgument("i", args);
-      return new MEM(i);
+      return new MEM(args);
     }
   }
 
@@ -58,8 +57,9 @@ public class MEM extends AddressingMode {
 
   private final Location i;
 
-  public MEM(final Location i) {
-    this.i = i;
+  public MEM(final Map<String, Object> args) {
+    super(args);
+    this.i = (Location) getArgument("i");
   }
 
   @Override

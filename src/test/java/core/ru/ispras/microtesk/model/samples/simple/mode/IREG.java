@@ -50,8 +50,7 @@ public class IREG extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Object> args) {
-      final Location i = getArgument("i", args);
-      return new IREG(i);
+      return new IREG(args);
     }
   }
 
@@ -59,8 +58,9 @@ public class IREG extends AddressingMode {
 
   private final Location i;
 
-  public IREG(Location i) {
-    this.i = i;
+  public IREG(final Map<String, Object> args) {
+    super(args);
+    this.i = (Location) getArgument("i");
   }
 
   @Override

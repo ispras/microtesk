@@ -49,8 +49,7 @@ public final class REG extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Object> args) {
-      final Location i = getArgument("i", args);
-      return new REG(i);
+      return new REG(args);
     }
   }
 
@@ -58,8 +57,9 @@ public final class REG extends AddressingMode {
 
   private final Location i;
 
-  public REG(final Location i) {
-    this.i = i;
+  public REG(final Map<String, Object> args) {
+    super(args);
+    this.i = (Location) getArgument("i");
   }
 
   @Override
