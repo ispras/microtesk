@@ -58,7 +58,7 @@ public class MEM extends AddressingMode {
 
   private final Location i;
 
-  public MEM(Location i) {
+  public MEM(final Location i) {
     this.i = i;
   }
 

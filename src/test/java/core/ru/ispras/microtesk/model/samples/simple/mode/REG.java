@@ -56,7 +56,7 @@ public final class REG extends AddressingMode {
 
   public static final IInfo INFO = new Info();
 
-  private Location i;
+  private final Location i;
 
   public REG(final Location i) {
     this.i = i;

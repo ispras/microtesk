@@ -54,7 +54,7 @@ public final class IMM extends AddressingMode {
 
   public static final IInfo INFO = new Info();
 
-  private Location i;
+  private final Location i;
 
   public IMM(final Location i) {
     this.i = i;

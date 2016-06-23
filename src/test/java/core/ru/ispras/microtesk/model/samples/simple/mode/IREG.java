@@ -57,7 +57,7 @@ public class IREG extends AddressingMode {
 
   public static final IInfo INFO = new Info();
 
-  private Location i;
+  private final Location i;
 
   public IREG(Location i) {
     this.i = i;
