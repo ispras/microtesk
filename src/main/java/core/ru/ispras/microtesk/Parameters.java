@@ -136,7 +136,7 @@ public final class Parameters {
 
   public static final Option NO_SIMULATION =
       newOption("no-simulation", false,
-          "Disables simulation of generated test programs on model", GENERATE);
+          "Disables simulation of generated test programs on the model", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
