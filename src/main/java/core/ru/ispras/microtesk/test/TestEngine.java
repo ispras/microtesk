@@ -231,10 +231,11 @@ public final class TestEngine {
 
     statistics = new Statistics(
         TestSettings.getProgramLengthLimit(), TestSettings.getTraceLengthLimit());
+    statistics.pushActivity(Statistics.Activity.PARSING);
 
     final ModelStateObserver observer = model.getStateObserver();
     final Printer printer = new Printer(observer, statistics);
-    final DataManager dataManager = new DataManager(printer);
+    final DataManager dataManager = new DataManager(printer, statistics);
  
     final EngineContext context = new EngineContext(
         model,
@@ -369,9 +370,14 @@ public final class TestEngine {
       }
 
       Logger.debugHeader("Ended Processing Template");
+
+      engineContext.getStatistics().popActivity(); // PARSING
+      engineContext.getStatistics().saveTotalTime();
     }
 
     private void processBlock(final Block block) throws ConfigurationException {
+      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
+
       final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
@@ -498,6 +504,8 @@ public final class TestEngine {
 
         sequenceIt.next();
       } // Abstract sequence iterator
+
+      engineContext.getStatistics().popActivity();
     }
 
     private void sandboxExecution(
@@ -519,10 +527,12 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       final boolean tempIsGenerateData = engineContext.isGenerateData();
       try {
+        engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
         final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
         executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
       } finally {
         engineContext.setGenerateData(tempIsGenerateData);
+        engineContext.getStatistics().popActivity();
       }
     }
 
