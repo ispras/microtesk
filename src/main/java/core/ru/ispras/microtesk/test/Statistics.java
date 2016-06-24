@@ -32,25 +32,27 @@ import ru.ispras.fortress.util.Pair;
  */
 public final class Statistics {
   public static enum Activity {
-    /** Parsing the test template */
-    PARSING,
+    PARSING    ("Template parsing time"),
+    SEQUENCING ("Sequence construction time"),
+    PROCESSING ("Sequence concretization time"),
+    SIMULATING ("Simulation time"),
+    PRINTING   ("Printing time");
 
-    /** Constructing abstract sequences */
-    SEQUENCING,
+    private final String text;
 
-    /** Building concrete sequences (including generating test data) */
-    PROCESSING,
+    private Activity(final String text) {
+      this.text = text;
+    }
 
-    /** Simulation (execution) */
-    SIMULATING,
-
-    /** Printing assembly code */
-    PRINTING
+    public String getText() {
+      return text;
+    }
   }
 
   private final Deque<Pair<Activity, Long>> activities;
   private final Map<Activity, Long> timeMetrics;
   private final long startTime;
+  private long totalTime;
 
   private int programs;
   private long programLength;
@@ -65,7 +67,9 @@ public final class Statistics {
   public Statistics(final long programLengthLimit, final long traceLengthLimit) {
     this.activities = new ArrayDeque<>();
     this.timeMetrics = new EnumMap<>(Activity.class);
+
     this.startTime = new Date().getTime();
+    this.totalTime = 0;
 
     for (final Activity activity : Activity.values()) {
       this.timeMetrics.put(activity, 0L);
@@ -80,6 +84,10 @@ public final class Statistics {
 
     this.programLengthLimit = programLengthLimit;
     this.traceLengthLimit = traceLengthLimit;
+  }
+
+  public void saveTotalTime() {
+    this.totalTime = new Date().getTime() - startTime;
   }
 
   public void pushActivity(final Activity activity) {
@@ -131,7 +139,8 @@ public final class Statistics {
   }
 
   public long getTotalTime() {
-    return new Date().getTime() - startTime;
+    InvariantChecks.checkTrue(totalTime != 0, "Total time is unknown.");
+    return totalTime;
   }
 
   public long getRate() {
@@ -141,6 +150,12 @@ public final class Statistics {
   public long getTimeMetric(final Activity activity) {
     InvariantChecks.checkNotNull(activity);
     return timeMetrics.get(activity);
+  }
+
+  public String getTimeMetricText(final Activity activity) {
+    final long metric = getTimeMetric(activity);
+    final long percentage = (metric * 100) / getTotalTime();
+    return String.format("%s: %s (%d%%)",  activity.getText(), timeToString(metric), percentage);
   }
 
   public int getPrograms() {
@@ -183,7 +198,7 @@ public final class Statistics {
       sb.append(String.format("%d minutes ", minutes));
     }
 
-    sb.append(String.format("%d.%03d seconds ", seconds, useconds));
+    sb.append(String.format("%d.%03d seconds", seconds, useconds));
     return sb.toString();
   }
 }
