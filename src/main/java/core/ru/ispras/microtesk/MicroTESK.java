@@ -297,10 +297,12 @@ public final class MicroTESK {
     Logger.message("Generation rate: %d instructions/second", rate);
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
-        statistics.getPrograms(),
-        statistics.getSequences(),
-        statistics.getInstructions()
-        );
+        statistics.getPrograms(), statistics.getSequences(), statistics.getInstructions());
+
+    Logger.message(System.lineSeparator() + "Time Metrics");
+    for (final Statistics.Activity activity : Statistics.Activity.values()) {
+      Logger.message(statistics.getTimeMetricText(activity));
+    }
 
     if (params.hasOption(Parameters.RATE_LIMIT)) {
       final long rateLimit = params.getOptionValueAsInt(Parameters.RATE_LIMIT);
