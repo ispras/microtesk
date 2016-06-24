@@ -91,6 +91,9 @@ mode_constructor(name, param_names) ::= <<
 public <name>(final <data_map_type()> args) {
   super(args);
   <param_names:{n | this.<n> = (Location) getArgument("<n>");}; separator="\n">
+}<\n>
+public <name>(<param_names:{n | Location <n>}; separator=", ">) {
+  <param_names:{n | this.<n> = <n>;}; separator="\n">
 }
 >>
 
