@@ -33,10 +33,12 @@ import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
+import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
   private final Printer printer;
+  private final Statistics statistics;
 
   private final LabelManager globalLabels;
   private final List<DataDirective> globalData;
@@ -51,8 +53,12 @@ public final class DataManager {
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
-  public DataManager(final Printer printer) {
+  public DataManager(final Printer printer, final Statistics statistics) {
+    InvariantChecks.checkNotNull(printer);
+    InvariantChecks.checkNotNull(statistics);
+
     this.printer = printer;
+    this.statistics = statistics;
 
     this.globalLabels = new LabelManager();
     this.globalData = new ArrayList<>();
@@ -168,6 +174,7 @@ public final class DataManager {
 
   public void printData(final Printer printer) {
     InvariantChecks.checkNotNull(printer);
+    statistics.pushActivity(Statistics.Activity.PRINTING);
 
     Logger.debugHeader("Printing Data to %s", Printer.getLastFileName());
     printer.printToFile("");
@@ -220,6 +227,8 @@ public final class DataManager {
         }
       }
     }
+
+    statistics.popActivity();
   }
 
   public void clearLocalData() {
@@ -347,6 +356,8 @@ public final class DataManager {
   }
 
   private void saveToFile(final List<DataDirective> data) {
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
     final String fileName = String.format("%s_%04d.%s",
         TestSettings.getDataFilePrefix(), dataFileIndex, TestSettings.getDataFileExtension());
 
@@ -372,6 +383,8 @@ public final class DataManager {
       throw new GenerationAbortedException(String.format(
           "Failed to generate data file %s. Reason: %s", e.getMessage()));
     }
+
+    statistics.popActivity();
   }
 
   private void checkInitialized() {

@@ -171,6 +171,8 @@ public final class Printer {
    */
 
   public void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
     for (final ConcreteCall call : calls) {
       if (call.getOrigin() != null) {
         printText(String.format(TestSettings.getOriginFormat(), call.getOrigin()));
@@ -189,6 +191,8 @@ public final class Printer {
         statistics.incInstructions();
       }
     }
+
+    statistics.popActivity();
   }
 
   /**
