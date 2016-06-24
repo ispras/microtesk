@@ -133,7 +133,11 @@ public final class Parameters {
       newOption("comments-debug", false,
           "Enables printing detailed comments, must be used together with --" +
           COMMENTS_ENABLED.getLongOpt(), GENERATE);
-  
+
+  public static final Option NO_SIMULATION =
+      newOption("no-simulation", false,
+          "Disables simulation of generated test programs on model", GENERATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
 
@@ -278,6 +282,7 @@ public final class Parameters {
 
     result.addOption(COMMENTS_ENABLED);
     result.addOption(COMMENTS_DEBUG);
+    result.addOption(NO_SIMULATION);
 
     return result;
   }

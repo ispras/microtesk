@@ -41,6 +41,7 @@ public final class TestSettings {
   private static int traceLengthLimit       = 1000;
   private static boolean commentsDebug      = false;
   private static boolean commentsEnabled    = false;
+  private static boolean simulationDisabled = false;
   private static boolean tarmacLog          = false;
   private static boolean selfChecks         = false;
 
@@ -188,6 +189,14 @@ public final class TestSettings {
 
   public static void setCommentsEnabled(final boolean commentsEnabled) {
     TestSettings.commentsEnabled = commentsEnabled;
+  }
+
+  public static boolean isSimulationDisabled() {
+    return simulationDisabled;
+  }
+
+  public static void setSimulationDisabled(final boolean simulationDisabled) {
+    TestSettings.simulationDisabled = simulationDisabled;
   }
 
   public static boolean isTarmacLog() {

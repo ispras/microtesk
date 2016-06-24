@@ -116,6 +116,11 @@ final class Executor {
 
     patchLabels(calls, labelManager, addressMap, abortOnUndefinedLabel);
 
+    if (TestSettings.isSimulationDisabled()) {
+      logText("Simulation is disabled");
+      return;
+    }
+
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
     int index = startIndex;

@@ -251,6 +251,7 @@ public final class MicroTESK {
 
     TestSettings.setCommentsEnabled(params.hasOption(Parameters.COMMENTS_ENABLED));
     TestSettings.setCommentsDebug(params.hasOption(Parameters.COMMENTS_DEBUG));
+    TestSettings.setSimulationDisabled(params.hasOption(Parameters.NO_SIMULATION));
 
     if (params.hasOption(Parameters.SOLVER_DEBUG)) {
       Environment.setDebugMode(true);
