@@ -121,6 +121,8 @@ final class Executor {
       return;
     }
 
+    context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
+
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
     int index = startIndex;
@@ -261,6 +263,8 @@ final class Executor {
         }
       }
     }
+
+    context.getStatistics().popActivity();
   }
 
   private static int getNextCallIndex(
