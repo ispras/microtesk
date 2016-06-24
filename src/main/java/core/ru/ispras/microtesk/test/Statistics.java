@@ -139,7 +139,10 @@ public final class Statistics {
   }
 
   public long getTotalTime() {
-    InvariantChecks.checkTrue(totalTime != 0, "Total time is unknown.");
+    if (0 == totalTime) {
+      saveTotalTime();
+    }  
+
     return totalTime;
   }
 
