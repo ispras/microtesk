@@ -32,9 +32,6 @@ import ru.ispras.fortress.util.Pair;
  */
 public final class Statistics {
   public static enum Activity {
-    /** Initializing and launching the generator */
-    LAUNCH,
-
     /** Parsing the test template */
     PARSING,
 
@@ -42,10 +39,10 @@ public final class Statistics {
     SEQUENCING,
 
     /** Building concrete sequences (including generating test data) */
-    GENERATION,
+    PROCESSING,
 
     /** Simulation (execution) */
-    SIMULATION,
+    SIMULATING,
 
     /** Printing assembly code */
     PRINTING
@@ -69,6 +66,10 @@ public final class Statistics {
     this.activities = new ArrayDeque<>();
     this.timeMetrics = new EnumMap<>(Activity.class);
     this.startTime = new Date().getTime();
+
+    for (final Activity activity : Activity.values()) {
+      this.timeMetrics.put(activity, 0L);
+    }
  
     this.programs = 0;
     this.programLength = 0;
@@ -90,8 +91,18 @@ public final class Statistics {
     final Pair<Activity, Long> activity = activities.pop();
     final long value = new Date().getTime() - activity.second;
 
-    final long metric = timeMetrics.get(activity.first);
-    timeMetrics.put(activity.first, metric + value);
+    // Increases metric associated with current activity
+    addToTimeMetric(activity.first, value);
+
+    // Decreases metric associated with parent activity to exclude time of current activity
+    if (!activities.isEmpty()) {
+      addToTimeMetric(activities.peek().first, -value);
+    }
+  }
+
+  private void addToTimeMetric(final Activity activity, final long value) {
+    final long metric = timeMetrics.get(activity);
+    timeMetrics.put(activity, metric + value);
   }
 
   public void incPrograms() {
