@@ -138,6 +138,10 @@ public final class Parameters {
       newOption("no-simulation", false,
           "Disables simulation of generated test programs on the model", GENERATE);
 
+  public static final Option TIME_STATISTICS =
+      newOption("time-statistics", false,
+          "Enables printing time statistics", GENERATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
 
@@ -283,6 +287,7 @@ public final class Parameters {
     result.addOption(COMMENTS_ENABLED);
     result.addOption(COMMENTS_DEBUG);
     result.addOption(NO_SIMULATION);
+    result.addOption(TIME_STATISTICS);
 
     return result;
   }
