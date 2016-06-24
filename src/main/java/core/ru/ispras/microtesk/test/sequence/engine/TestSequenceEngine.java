@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -71,19 +72,25 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
   public Iterator<AdapterResult> process(
       final EngineContext engineContext, final List<Call> abstractSequence) {
-    // Labels in repeated parts of a sequence have to be unique only on sequence level.
-    LabelUniqualizer.get().resetNumbers();
+    try {
+      engineContext.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
 
-    final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
-
-    if (result.getStatus() != EngineResult.Status.OK) {
-      final String msg = listErrors(
-          "Failed to find a solution for abstract call sequence", result.getErrors());
-
-      throw new IllegalStateException(msg);
+      // Labels in repeated parts of a sequence have to be unique only on sequence level.
+      LabelUniqualizer.get().resetNumbers();
+  
+      final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
+  
+      if (result.getStatus() != EngineResult.Status.OK) {
+        final String msg = listErrors(
+            "Failed to find a solution for abstract call sequence", result.getErrors());
+  
+        throw new IllegalStateException(msg);
+      }
+  
+      return result.getResult();
+    } finally {
+      engineContext.getStatistics().popActivity();
     }
-
-    return result.getResult();
   }
 
   private static <T> EngineResult<T> solve(
