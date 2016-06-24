@@ -39,6 +39,8 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
     buffer_preparator(:target => 'M') {
       # Nothing
     }
+
+    org 0x10000
   end
 
   def run
