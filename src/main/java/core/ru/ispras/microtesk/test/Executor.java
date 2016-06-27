@@ -256,6 +256,9 @@ final class Executor {
 
           logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
           index = handlerIndex;
+        } else if (call == invalidCall) {
+          Logger.error(
+              "Exception handler for %s is not found. Execution will be terminated.", exception);
         } else {
           Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
           if (index == endIndex) break;
