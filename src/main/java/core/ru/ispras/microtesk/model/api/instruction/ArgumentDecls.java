@@ -33,7 +33,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaDataUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class ArgumentDecls {
   private final Map<String, Argument> decls;
 
@@ -48,7 +47,6 @@ public final class ArgumentDecls {
    * @param type
    * @return
    */
-
   public ArgumentDecls add(
       final String name,
       final Type type) {
@@ -59,7 +57,7 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.IMM,
         ArgumentMode.IN,
-        Collections.singleton(AddressingMode.IMM_TYPE_NAME),
+        Collections.singleton(Immediate.TYPE_NAME),
         type) {
 
       @Override
@@ -80,7 +78,6 @@ public final class ArgumentDecls {
    * @param info
    * @return
    */
-
   public ArgumentDecls add(
       final String name,
       final ArgumentMode mode, // IN/OUT/INOUT/NA (if no return type)
@@ -113,7 +110,6 @@ public final class ArgumentDecls {
    * @param info
    * @return
    */
-
   public ArgumentDecls add(
       final String name,
       final Operation.IInfo info) {

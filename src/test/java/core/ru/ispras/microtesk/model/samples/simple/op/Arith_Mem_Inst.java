@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.Primitive;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
 
@@ -55,7 +56,7 @@ public class Arith_Mem_Inst extends Operation {
     }
 
     @Override
-    public Operation create(Map<String, Object> args) {
+    public Operation create(Map<String, Primitive> args) {
       final Operation y = (Operation) getArgument("y", args);
       final AddressingMode op1 = (AddressingMode) getArgument("op1", args);
       final AddressingMode op2 = (AddressingMode) getArgument("op2", args);

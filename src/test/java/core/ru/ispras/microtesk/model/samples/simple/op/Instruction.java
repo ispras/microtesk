@@ -19,6 +19,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.Primitive;
 
 /*
     op Instruction(x: arith_mem_inst)
@@ -46,7 +47,7 @@ public final class Instruction extends Operation {
     }
 
     @Override
-    public Operation create(final Map<String, Object> args) {
+    public Operation create(final Map<String, Primitive> args) {
       final Operation x = (Operation) getArgument("x", args);
       return new Instruction(x);
     }

@@ -85,8 +85,6 @@ public abstract class AddressingMode extends Primitive {
     boolean isSupported(AddressingMode mode);
   }
 
-  public static final String IMM_TYPE_NAME = "#IMM";
-
   /**
    * The AddressingMode.Info class is an implementation of the IInfo interface that provides logic
    * for storing information about a single addressing mode. The class is to be used by generated
@@ -94,7 +92,6 @@ public abstract class AddressingMode extends Primitive {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   protected static abstract class InfoAndRule implements IInfo, Factory<AddressingMode> {
     private final Class<?> modeClass;
     private final String name;
@@ -185,7 +182,6 @@ public abstract class AddressingMode extends Primitive {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public static final class InfoOrRule implements IInfo {
     private final String name;
     private final IInfo[] childs;
@@ -253,11 +249,11 @@ public abstract class AddressingMode extends Primitive {
     }
   }
 
-  protected AddressingMode(final Map<String, Object> args) {
+  protected AddressingMode(final Map<String, Primitive> args) {
     super(args);
   }
 
   protected AddressingMode() {
-    this(Collections.<String, Object>emptyMap());
+    super();
   }
 }

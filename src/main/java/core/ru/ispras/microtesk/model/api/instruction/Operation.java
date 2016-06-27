@@ -34,7 +34,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public abstract class Operation extends Primitive {
   /**
    * The IInfo interface provides information on an operation object or a group of operation object
@@ -43,14 +42,12 @@ public abstract class Operation extends Primitive {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public interface IInfo {
     /**
      * Returns the name of the operation or the name of the OR rule used for grouping operations.
      * 
      * @return The mode name.
      */
-
     String getName();
 
     /**
@@ -59,7 +56,6 @@ public abstract class Operation extends Primitive {
      * 
      * @return {@code true} if it is a root operation or {@code false} otherwise.
      */
-
     boolean isRoot();
 
     Map<String, OperationBuilder> createBuilders();
@@ -74,7 +70,6 @@ public abstract class Operation extends Primitive {
      * @param op An operation object.
      * @return true if the operation is supported or false otherwise.
      */
-
     boolean isSupported(Operation op);
 
     /**
@@ -84,7 +79,6 @@ public abstract class Operation extends Primitive {
      * 
      * @return A collection of meta data objects for an operation or a group of operations.
      */
-
     Collection<MetaOperation> getMetaData();
   }
 
@@ -133,7 +127,6 @@ public abstract class Operation extends Primitive {
    * 
    * @author Andrei Tatarnikov
    */
-
   public static abstract class InfoAndRule implements IInfo, Factory<Operation> {
     private final Class<?> opClass;
     private final String name;
@@ -231,7 +224,7 @@ public abstract class Operation extends Primitive {
       return Collections.singletonMap(name, builder);
     }
 
-    protected final Object getArgument(final String name, final Map<String, Object> args) {
+    protected final Object getArgument(final String name, final Map<String, Primitive> args) {
       final Object arg = args.get(name);
       // TODO Check argument
       return arg;
@@ -256,7 +249,6 @@ public abstract class Operation extends Primitive {
    * 
    * @author Andrei Tatarnikov
    */
-
   public static final class InfoOrRule implements IInfo {
     private final String name;
     private final IInfo[] childs;
@@ -342,11 +334,11 @@ public abstract class Operation extends Primitive {
     }
   }
 
-  protected Operation(final Map<String, Object> args) {
+  protected Operation(final Map<String, Primitive> args) {
     super(args);
   }
 
   protected Operation() {
-    this(Collections.<String, Object>emptyMap());
+    super();
   }
 }

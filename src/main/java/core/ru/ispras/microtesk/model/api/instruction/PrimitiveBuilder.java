@@ -37,7 +37,7 @@ public class PrimitiveBuilder<T extends Primitive> {
   private final String primitiveName;
   private final Primitive.Factory<T> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
-  private final Map<String, Object> args;
+  private final Map<String, Primitive> args;
 
   /**
    * Creates a builder for a primitive described with the specified parameters.
@@ -85,10 +85,11 @@ public class PrimitiveBuilder<T extends Primitive> {
          );
     }
 
-    final Location arg = Location.newLocationForConst(data);
-    args.put(name, arg);
+    final Location location = Location.newLocationForConst(data);
+    final Immediate arg = new Immediate(location);
 
-    return arg;
+    args.put(name, arg);
+    return location;
   }
 
   public void setArgument(

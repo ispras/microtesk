@@ -24,6 +24,7 @@ import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.Primitive;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDL;
 import ru.ispras.microtesk.model.samples.simple.mode.OPRNDR;
 
@@ -51,7 +52,7 @@ public final class Add extends Operation {
     }
 
     @Override
-    public Operation create(final Map<String, Object> args) {
+    public Operation create(final Map<String, Primitive> args) {
       return new Add();
     }
   }
@@ -76,7 +77,7 @@ public final class Add extends Operation {
     }
 
     @Override
-    public Operation create(final Map<String, Object> args) {
+    public Operation create(final Map<String, Primitive> args) {
       final AddressingMode op1 = (AddressingMode) getArgument("op1", args);
       final AddressingMode op2 = (AddressingMode) getArgument("op2", args);
 

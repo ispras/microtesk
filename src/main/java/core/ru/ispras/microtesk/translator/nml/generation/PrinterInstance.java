@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.api.instruction.Immediate;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -42,10 +42,7 @@ public final class PrinterInstance {
         case EXPR: {
           final boolean isLocation = arg.getExpr().getNodeInfo().isLocation();
           String text = ExprPrinter.toString(arg.getExpr(), isLocation);
-          if (!isLocation) {
-            text = String.format("%s.newLocationForConst(%s)", Location.class.getSimpleName(), text);
-          }
-          sb.append(text);
+          sb.append(String.format("new %s(%s)", Immediate.class.getSimpleName(), text));
           break;
         }
 

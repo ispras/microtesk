@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -43,14 +44,14 @@ public abstract class Primitive {
      * @param args A table of arguments (key is the argument name, value is the argument value).
      * @return The addressing mode object.
      */
-    T create(final Map<String, Object> args);
+    T create(final Map<String, Primitive> args);
   }
 
   /** Tracks execution of primitives. */
   private static final Deque<Primitive> CALL_STACK = new LinkedList<>();
 
   /** Table of arguments passed to the primitive. */
-  private final Map<String, Object> args;
+  private final Map<String, Primitive> args;
 
   /**
    * Constructs a primitive and saves the argument table.
@@ -59,9 +60,16 @@ public abstract class Primitive {
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
-  protected Primitive(final Map<String, Object> args) {
+  protected Primitive(final Map<String, Primitive> args) {
     InvariantChecks.checkNotNull(args);
     this.args = args;
+  }
+
+  /**
+   * Constructs a primitive with an empty argument table.
+   */
+  protected Primitive() {
+    this(new HashMap<String, Primitive>());
   }
 
   /**
@@ -92,11 +100,25 @@ public abstract class Primitive {
    * @throws IllegalArgumentException if {@code name} is {@code null} or
    *         the argument with such name is undefined. 
    */
-  public Object getArgument(final String name) {
+  public Primitive getArgument(final String name) {
     InvariantChecks.checkNotNull(name);
-    final Object result = args.get(name);
+    final Primitive result = args.get(name);
     InvariantChecks.checkNotNull(result);
     return result;
+  }
+
+  /**
+   * Saves an argument into the argument table.
+   * 
+   * @param name Argument name.
+   * @param value Argument.
+   * 
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   */
+  protected void setArgument(final String name, final Primitive value) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
+    args.put(name, value);
   }
 
   /**

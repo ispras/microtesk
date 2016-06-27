@@ -104,7 +104,7 @@ Info() {
   );
 }<\n>
 @Override
-public Operation create(Map\<String, Object\> args) {
+public Operation create(final Map\<String, Primitive\> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return new <name>(<arg_names :{n | <n>}; separator=", ">);
 }
@@ -169,7 +169,7 @@ shortcut_body(name, is_root, entry, arg_names, arg_tnames, arg_types, op_tree,
   );
 }<\n>
 @Override
-public Operation create(Map\<String, Object\> args) {
+public Operation create(final Map\<String, Primitive\> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return <op_param(op_tree)>;
 }
@@ -187,9 +187,11 @@ op_param(p) ::= <<
 
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
-public <name>(<arg_names, arg_types:{n, t | <t> <n>}; separator=", ">) {
-<if(arg_checks)><arg_checks; separator="\n"><\n><endif>
-<arg_names:op_arg_init(); separator="\n">
+public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
+  super();
+  <if(arg_checks)><arg_checks; separator="\n"><endif>
+  <arg_names:op_arg_init(); separator="\n">
+  <arg_names:{n | setArgument("<n>", <n>);}; separator="\n">
 }
 >>
 
@@ -198,15 +200,15 @@ private final <type> <name>;
 >>
 
 op_arg_check_opmode(arg_type, arg_name) ::= <<
-  assert <arg_type>.INFO.isSupported(<arg_name>);
+assert <arg_type>.INFO.isSupported(<arg_name>);
 >>
 
 op_arg_check_imm(arg_type, arg_name) ::= <<
-  assert <arg_type>.equals(<arg_name>.getType());
+assert <arg_type>.equals(<arg_name>.getType());
 >>
 
 op_arg_init(name) ::= <<
-  this.<name> = <name>;
+this.<name> = <name>;
 >>
 
 ///////////////////////////////////////////////////////////////////////////////

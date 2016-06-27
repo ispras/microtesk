@@ -80,7 +80,7 @@ public AddressingMode create(final <data_map_type()> args) {
 }
 >>
 
-data_map_type() ::= <<Map\<String, Object\>>>
+data_map_type() ::= <<Map\<String, Primitive\>>>
 
 param_decls(param_names, param_types) ::= <<
 new ArgumentDecls()<param_names, param_types:{n, t | <\n>    .add("<n>", <t>)}>
@@ -90,15 +90,17 @@ mode_constructor(name, param_names) ::= <<
 <if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
 public <name>(final <data_map_type()> args) {
   super(args);
-  <param_names:{n | this.<n> = (Location) getArgument("<n>");}; separator="\n">
+  <param_names:{n | this.<n> = (Immediate) getArgument("<n>");}; separator="\n">
 }<\n>
-public <name>(<param_names:{n | Location <n>}; separator=", ">) {
+public <name>(<param_names:{n | final Immediate <n>}; separator=", ">) {
+  super();
   <param_names:{n | this.<n> = <n>;}; separator="\n">
+  <param_names:{n | setArgument("<n>", <n>);}; separator="\n">
 }
 >>
 
 mode_param_def(param_name) ::= <<
-private final Location <param_name>;
+private final Immediate <param_name>;
 >>
 
 mode_attribute(name, rettype, stmts, override) ::= <<

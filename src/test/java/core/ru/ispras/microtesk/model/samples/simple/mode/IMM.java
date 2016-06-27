@@ -20,6 +20,8 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.ArgumentDecls;
+import ru.ispras.microtesk.model.api.instruction.Immediate;
+import ru.ispras.microtesk.model.api.instruction.Primitive;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 /*
@@ -46,23 +48,23 @@ public final class IMM extends AddressingMode {
     }
 
     @Override
-    public AddressingMode create(final Map<String, Object> args) {
+    public AddressingMode create(final Map<String, Primitive> args) {
       return new IMM(args);
     }
   }
 
   public static final IInfo INFO = new Info();
 
-  private final Location i;
+  private final Immediate i;
 
-  public IMM(final Map<String, Object> args) {
+  public IMM(final Map<String, Primitive> args) {
     super(args);
-    this.i = (Location) getArgument("i");
+    this.i = (Immediate) getArgument("i");
   }
 
   @Override
   public String syntax() {
-    return String.format("[%d]", i.getValue());
+    return String.format("[%d]", i.access().getValue());
   }
 
   @Override
@@ -79,6 +81,6 @@ public final class IMM extends AddressingMode {
 
   @Override
   public Location access() {
-    return i;
+    return i.access();
   }
 }

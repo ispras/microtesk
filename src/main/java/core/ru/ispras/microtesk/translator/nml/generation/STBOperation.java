@@ -28,6 +28,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.Immediate;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
@@ -140,7 +141,7 @@ final class STBOperation extends STBPrimitiveBase {
       } else // if Primitive.Kind.IMM == oa.getKind()
       {
         importImmDependencies(t);
-        t.add("arg_types", Location.class.getSimpleName());
+        t.add("arg_types", Immediate.class.getSimpleName());
 
         argCheckST = group.getInstanceOf("op_arg_check_imm");
       }
@@ -239,7 +240,7 @@ final class STBOperation extends STBPrimitiveBase {
         } else // if Primitive.Kind.IMM == oa.getKind()
         {
           importImmDependencies(t);
-          shortcutST.add("arg_types", Location.class.getSimpleName());
+          shortcutST.add("arg_types", Immediate.class.getSimpleName());
         }
       }
 

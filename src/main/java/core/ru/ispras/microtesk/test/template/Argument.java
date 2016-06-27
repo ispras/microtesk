@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.Immediate;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Argument {
@@ -133,7 +133,7 @@ public final class Argument {
 
   public String getTypeName() {
     return isImmediate() ?
-        AddressingMode.IMM_TYPE_NAME : ((Primitive) value).getTypeName();
+        Immediate.TYPE_NAME : ((Primitive) value).getTypeName();
   }
 
   public ArgumentMode getMode() {
