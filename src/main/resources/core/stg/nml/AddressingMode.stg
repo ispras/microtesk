@@ -100,7 +100,7 @@ public <name>(<param_names:{n | final Immediate <n>}; separator=", ">) {
 >>
 
 mode_param_def(param_name) ::= <<
-private final Immediate <param_name>;
+public final Immediate <param_name>;
 >>
 
 mode_attribute(name, rettype, stmts, override) ::= <<

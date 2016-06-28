@@ -196,7 +196,7 @@ public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
 >>
 
 op_arg_def(name, type) ::= <<
-private final <type> <name>;
+public final <type> <name>;
 >>
 
 op_arg_check_opmode(arg_type, arg_name) ::= <<
