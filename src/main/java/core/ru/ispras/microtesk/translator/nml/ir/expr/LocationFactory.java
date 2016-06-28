@@ -36,6 +36,7 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -86,9 +87,36 @@ public final class LocationFactory extends WalkerFactoryBase {
   }
 
   public Expr location(Where where, String name, List<String> argNames) throws SemanticException {
-    // TODO
-    raiseError(where, "Unsupported construct.");
-    return null;
+    Primitive argument = getThisArgs().get(name);
+    if (null == argument) {
+      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
+    }
+
+    final StringBuilder nameBuilder = new StringBuilder(name);
+    for (final String argName : argNames) {
+      nameBuilder.append('.');
+      nameBuilder.append(argName);
+
+      if (!(argument instanceof PrimitiveAND)) {
+        raiseError(where, String.format(
+            "Cannot access arguments of %s (%s). It must be an AND-rule.",
+            argument.getName(),
+            nameBuilder.toString()
+            ));
+      }
+
+      argument = ((PrimitiveAND) argument).getArguments().get(argName);
+      if (null == argument) {
+        raiseError(where, new UndefinedPrimitive(nameBuilder.toString(), NmlSymbolKind.ARGUMENT));
+      }
+    }
+
+    if (null == argument.getReturnType()) {
+      raiseError(where, String.format("%s is not a data variable.", nameBuilder.toString()));
+    }
+
+    final Location location = LocationAtom.createPrimitiveBased(nameBuilder.toString(), argument);
+    return newLocationExpr(location);
   }
 
   public Expr bitfield(
