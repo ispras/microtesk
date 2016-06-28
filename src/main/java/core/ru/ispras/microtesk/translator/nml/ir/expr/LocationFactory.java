@@ -85,6 +85,12 @@ public final class LocationFactory extends WalkerFactoryBase {
     return newLocationExpr(result);
   }
 
+  public Expr location(Where where, String name, List<String> argNames) throws SemanticException {
+    // TODO
+    raiseError(where, "Unsupported construct.");
+    return null;
+  }
+
   public Expr bitfield(
       final Where where, final Expr variable, final Expr pos) throws SemanticException {
     checkNotNull(variable);

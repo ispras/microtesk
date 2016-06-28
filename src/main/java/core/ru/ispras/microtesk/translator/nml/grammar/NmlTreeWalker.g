@@ -929,8 +929,14 @@ $res = getLocationFactory().location(where($id), $id.text, $e.res);
 {
 $res = getLocationFactory().location(where($id), $id.text);
 }
-    | ^(DOT id=ID ID+) {raiseError(where($id), "Unsupported construct.");}
-    | ^(INSTANCE_CALL w=.) {raiseError(where($w), "Unsupported construct.");}
+    |  ^(DOT id=ID {final List<String> args = new ArrayList<>();} (a=ID{args.add($a.text);})+)
+{
+$res = getLocationFactory().location(where($id), $id.text, args);
+}
+    |  ^(INSTANCE_CALL w=.)
+{
+raiseError(where($w), "Unsupported construct.");
+}
     ;
 
 /*======================================================================================*/
