@@ -224,12 +224,6 @@ public abstract class Operation extends Primitive {
       return Collections.singletonMap(name, builder);
     }
 
-    protected final Object getArgument(final String name, final Map<String, Primitive> args) {
-      final Object arg = args.get(name);
-      // TODO Check argument
-      return arg;
-    }
-
     public final Map<String, OperationBuilder> createBuildersForShortcut(
         final String contextName) {
 
@@ -332,13 +326,5 @@ public abstract class Operation extends Primitive {
 
       return new MetaGroup(MetaGroup.Kind.OP, name, items);
     }
-  }
-
-  protected Operation(final Map<String, Primitive> args) {
-    super(args);
-  }
-
-  protected Operation() {
-    super();
   }
 }

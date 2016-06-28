@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -50,28 +49,6 @@ public abstract class Primitive {
   /** Tracks execution of primitives. */
   private static final Deque<Primitive> CALL_STACK = new LinkedList<>();
 
-  /** Table of arguments passed to the primitive. */
-  private final Map<String, Primitive> args;
-
-  /**
-   * Constructs a primitive and saves the argument table.
-   * 
-   * @param args Argument table.
-   * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
-   */
-  protected Primitive(final Map<String, Primitive> args) {
-    InvariantChecks.checkNotNull(args);
-    this.args = args;
-  }
-
-  /**
-   * Constructs a primitive with an empty argument table.
-   */
-  protected Primitive() {
-    this(new HashMap<String, Primitive>());
-  }
-
   /**
    * Returns the name of the currently executed primitive or an empty
    * string if no primitive is being executed.
@@ -89,36 +66,6 @@ public abstract class Primitive {
    */
   public final String getName() {
     return getClass().getSimpleName();
-  }
-
-  /**
-   * Returns a primitive argument with the specified name.
-   * 
-   * @param name Argument name.
-   * @return Argument.
-   * 
-   * @throws IllegalArgumentException if {@code name} is {@code null} or
-   *         the argument with such name is undefined. 
-   */
-  public Primitive getArgument(final String name) {
-    InvariantChecks.checkNotNull(name);
-    final Primitive result = args.get(name);
-    InvariantChecks.checkNotNull(result);
-    return result;
-  }
-
-  /**
-   * Saves an argument into the argument table.
-   * 
-   * @param name Argument name.
-   * @param value Argument.
-   * 
-   * @throws IllegalArgumentException if any of the arguments is {@code null}.
-   */
-  protected void setArgument(final String name, final Primitive value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-    args.put(name, value);
   }
 
   /**
@@ -187,6 +134,21 @@ public abstract class Primitive {
   public Location access() {
     Logger.error(UNDEFINED_ATTR + "nill is returned.", "access", getName());
     return null;
+  }
+
+  /**
+   * Extracts an argument from a table.
+   * 
+   * @param name Argument name.
+   * @param args Table of arguments.
+   * @return Argument.
+   * 
+   * @throws IllegalArgumentException if there is no such argument in the table.
+   */
+  protected static Primitive getArgument(final String name, final Map<String, Primitive> args) {
+    final Primitive arg = args.get(name);
+    InvariantChecks.checkNotNull(arg);
+    return arg;
   }
 
   private static final String UNDEFINED_ATTR =

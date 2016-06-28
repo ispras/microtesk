@@ -188,10 +188,8 @@ op_param(p) ::= <<
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
 public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
-  super();
   <if(arg_checks)><arg_checks; separator="\n"><endif>
   <arg_names:op_arg_init(); separator="\n">
-  <arg_names:{n | setArgument("<n>", <n>);}; separator="\n">
 }
 >>
 

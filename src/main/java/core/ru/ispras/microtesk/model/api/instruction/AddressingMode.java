@@ -248,12 +248,4 @@ public abstract class AddressingMode extends Primitive {
       return new MetaGroup(MetaGroup.Kind.MODE, name, items);
     }
   }
-
-  protected AddressingMode(final Map<String, Primitive> args) {
-    super(args);
-  }
-
-  protected AddressingMode() {
-    super();
-  }
 }
