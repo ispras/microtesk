@@ -51,7 +51,8 @@ public final class REG extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Primitive> args) {
-      return new REG(args);
+      final Immediate i = (Immediate) getArgument("i", args);
+      return new REG(i);
     }
   }
 
@@ -59,9 +60,8 @@ public final class REG extends AddressingMode {
 
   private final Immediate i;
 
-  public REG(final Map<String, Primitive> args) {
-    super(args);
-    this.i = (Immediate) getArgument("i");
+  public REG(final Immediate i) {
+    this.i = i;
   }
 
   @Override

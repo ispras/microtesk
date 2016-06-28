@@ -52,7 +52,8 @@ public class IREG extends AddressingMode {
 
     @Override
     public AddressingMode create(final Map<String, Primitive> args) {
-      return new IREG(args);
+      final Immediate i = (Immediate) getArgument("i", args);
+      return new IREG(i);
     }
   }
 
@@ -60,9 +61,8 @@ public class IREG extends AddressingMode {
 
   private final Immediate i;
 
-  public IREG(final Map<String, Primitive> args) {
-    super(args);
-    this.i = (Immediate) getArgument("i");
+  public IREG(final Immediate i) {
+    this.i = i;
   }
 
   @Override
