@@ -388,6 +388,7 @@ public final class TestEngine {
         final List<Call> abstractSequence = Call.expandAtomic(sequenceIt.value());
         InvariantChecks.checkNotNull(abstractSequence);
 
+        Logger.debugHeader("Processing Abstract Sequence");
         final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
         InvariantChecks.checkNotNull(iterator);
 
@@ -435,20 +436,13 @@ public final class TestEngine {
           final TestSequence concreteSequence = adapterResult.getResult();
           InvariantChecks.checkNotNull(concreteSequence);
 
-          Logger.debugHeader("Initialization");
-          for (final ConcreteCall concreteCall : concreteSequence.getPrologue()) {
-            Logger.debug(concreteCall.getText());
-          }
-          Logger.debugHeader("Test Case");
-          for (final ConcreteCall concreteCall : concreteSequence.getBody()) {
-            Logger.debug(concreteCall.getText());
-          }
-
           final int testCaseIndex = statistics.getSequences();
           dataManager.setTestCaseIndex(testCaseIndex);
 
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
-          Logger.debugHeader("Generating Data for %s", sequenceId);
+
+          Logger.debugHeader("Constructed %s", sequenceId);
+          printer.printSequence(null, concreteSequence);
 
           Logger.debugHeader("Executing %s", sequenceId);
           sandboxExecution(executor, concreteSequence, testCaseIndex, true);
