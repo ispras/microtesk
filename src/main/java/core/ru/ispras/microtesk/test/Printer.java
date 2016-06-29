@@ -188,7 +188,9 @@ public final class Printer {
       final String text = call.getText();
       if (null != text) {
         printText(text);
-        statistics.incInstructions();
+        if (null != fileWritter) {
+          statistics.incInstructions();
+        }
       }
     }
 
