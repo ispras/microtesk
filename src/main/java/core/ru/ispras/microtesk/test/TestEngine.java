@@ -82,10 +82,6 @@ public final class TestEngine {
     return model;
   }
 
-  public Statistics getStatistics() {
-    return statistics;
-  }
-
   public String getModelName() {
     return model.getName();
   }
@@ -132,6 +128,8 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
+    Statistics statistics = null;
+
     try {
       final IModel model = SysUtils.loadModel(modelName);
       if (null == model) {
@@ -153,6 +151,7 @@ public final class TestEngine {
 
       try {
         container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+        statistics = instance.statistics;
       } catch(final org.jruby.embed.EvalFailedException e) {
         // JRuby wraps exceptions that occur in Java libraries it calls into
         // EvalFailedException. To handle them correctly, we need to unwrap them.
@@ -160,23 +159,26 @@ public final class TestEngine {
         try {
           throw e.getCause();
         } catch (final GenerationAbortedException e2) {
-          instance.handleGenerationAborted(e2);
+          handleGenerationAborted(e2, statistics);
         }
       }
     } catch (final GenerationAbortedException e) {
-      instance.handleGenerationAborted(e);
+      handleGenerationAborted(e, statistics);
     }
 
-    return instance.getStatistics();
+    return statistics;
   }
 
-  private void handleGenerationAborted(final GenerationAbortedException e) {
+  private static void handleGenerationAborted(
+      final GenerationAbortedException e, final Statistics statistics) {
     Logger.message("Generation Aborted");
     Logger.error(e.getMessage());
 
     if (null != Printer.getLastFileName()) {
       new File(Printer.getLastFileName()).delete();
-      statistics.decPrograms();
+      if (null != statistics) {
+        statistics.decPrograms();
+      }
     }
   }
 
