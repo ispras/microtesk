@@ -97,6 +97,13 @@ public final class Parameters {
   public static final Option RATE_LIMIT =
       newOption("rate-limit", true, "Generation rate limit, causes error when broken", GENERATE);
 
+  public static final Option NO_SIMULATION =
+      newOption("no-simulation", false,
+          "Disables simulation of generated test programs on the model", GENERATE);
+
+  public static final Option TIME_STATISTICS =
+      newOption("time-statistics", false, "Enables printing time statistics", GENERATE);
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options (File Creation)
 
@@ -133,14 +140,6 @@ public final class Parameters {
       newOption("comments-debug", false,
           "Enables printing detailed comments, must be used together with --" +
           COMMENTS_ENABLED.getLongOpt(), GENERATE);
-
-  public static final Option NO_SIMULATION =
-      newOption("no-simulation", false,
-          "Disables simulation of generated test programs on the model", GENERATE);
-
-  public static final Option TIME_STATISTICS =
-      newOption("time-statistics", false,
-          "Enables printing time statistics", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Options
@@ -275,6 +274,8 @@ public final class Parameters {
     result.addOption(SELF_CHECKS);
     result.addOption(ARCH_DIRS);
     result.addOption(RATE_LIMIT);
+    result.addOption(NO_SIMULATION);
+    result.addOption(TIME_STATISTICS);
 
     result.addOption(CODE_EXT);
     result.addOption(CODE_PRE);
@@ -286,8 +287,6 @@ public final class Parameters {
 
     result.addOption(COMMENTS_ENABLED);
     result.addOption(COMMENTS_DEBUG);
-    result.addOption(NO_SIMULATION);
-    result.addOption(TIME_STATISTICS);
 
     return result;
   }
