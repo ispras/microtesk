@@ -312,6 +312,7 @@ Here is the list of options:\\
   --solver-debug & -sd & Enables debug mode for SMT solvers & --generate \\ \hline
   --tarmac-log & -tl & Saves simulator log in Tarmac format & --generate \\ \hline
   --self-checks & -sc & Inserts self-checking code into test programs & --generate \\ \hline
+  --default-test-data & -dtd & Enables generation of default test data & --generate \\ \hline
   --arch-dirs <arg> & -ad & Home directories for tested architectures & --generate \\ \hline
   --rate-limit <arg> & -rl & Generation rate limit, causes error when broken & --generate \\ \hline
   --code-file-extension <arg> & -cfe & The output file extension & --generate \\ \hline
@@ -351,6 +352,7 @@ configururation file that has the following format:
   <setting name="trace-length-limit" value="1000"/>
   <setting name="comments-enabled" value=""/>
   <setting name="comments-debug" value=""/>
+  <setting name="default-test-data" value=""/>
   <setting
     name="arch-dirs" 
     value="cpu=arch/demo/cpu/settings.xml:minimips=arch/minimips/settings.xml"
