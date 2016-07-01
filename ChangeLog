@@ -6,10 +6,17 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/07/01 MicroTESK 2.3.40 beta
+
+ - New option --default-test-data (-dtd) that enables generation of default
+   test data for instructions with no explicitly specified test situations
+ - External access to MODE and OP arguments (nML)
+ - Bug fixes and general improvements
+
 2016/06/24 MicroTESK 2.3.39 beta
 
- - New command-line option --time-statistics (-ts) for printing time statistics
- - New command-line option --no-simulation (-ns) for disabling simulation
+ - New option --time-statistics (-ts) for printing time statistics
+ - New option --no-simulation (-ns) for disabling simulation
  - Bug fixes and general improvements
 
 2016/06/17 MicroTESK 2.3.38 beta
