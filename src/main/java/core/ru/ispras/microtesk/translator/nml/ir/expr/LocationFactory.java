@@ -111,8 +111,11 @@ public final class LocationFactory extends WalkerFactoryBase {
       }
     }
 
-    if (null == argument.getReturnType()) {
-      raiseError(where, String.format("%s is not a data variable.", nameBuilder.toString()));
+    if (Primitive.Kind.IMM != argument.getKind()) {
+      raiseError(where, String.format(
+          "%s is inaccessible. External access is allowed only to immediate arguments.",
+          nameBuilder.toString())
+          );
     }
 
     final Location location = LocationAtom.createPrimitiveBased(nameBuilder.toString(), argument);
