@@ -265,6 +265,10 @@ public final class MicroTESK {
       TestSettings.setSelfChecks(true);
     }
 
+    if (params.hasOption(Parameters.DEFAULT_TEST_DATA)) {
+      TestSettings.setDefaultTestData(true);
+    }
+
     if (params.hasOption(Parameters.ARCH_DIRS)) {
       final String archDirs = params.getOptionValue(Parameters.ARCH_DIRS);
       final String[] archDirsArray = archDirs.split(":");
