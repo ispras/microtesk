@@ -54,6 +54,9 @@ public final class EngineContext {
   // (including randomization is not needed). This is to disable test data generation.
   private boolean generateData;
 
+  // Flag to control generation of default data (for some tests this is undesirable).
+  private final boolean generateDefaultData;
+
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
 
@@ -64,7 +67,8 @@ public final class EngineContext {
       final BufferPreparatorStore bufferPreparators,
       final StreamStore streams,
       final GeneratorSettings settings,
-      final Statistics statistics) {
+      final Statistics statistics,
+      final boolean generateDefaultData) {
 
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(dataManager);
@@ -89,6 +93,7 @@ public final class EngineContext {
 
     this.address = TestSettings.getBaseVirtualAddress().longValue();
     this.generateData = true;
+    this.generateDefaultData = generateDefaultData;
   }
 
   public IModel getModel() {
@@ -141,6 +146,10 @@ public final class EngineContext {
 
   public void setGenerateData(final boolean value) {
     this.generateData = value;
+  }
+
+  public boolean isGenerateDefaultData() {
+    return generateDefaultData;
   }
 
   public Object getCustomContext(final String id) {

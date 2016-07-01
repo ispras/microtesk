@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -82,6 +83,8 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class EngineUtils {
+  public static final TestData NO_TEST_DATA = new TestData(Collections.<String, Node>emptyMap());
+
   private EngineUtils() {}
 
   public static TestBase newTestBase(final GeneratorSettings settings) {
@@ -230,7 +233,8 @@ public final class EngineUtils {
 
     Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
     if (situation == null) {
-      return getDefaultTestData(engineContext, primitive, queryCreator);
+      return engineContext.isGenerateDefaultData() ?
+          getDefaultTestData(engineContext, primitive, queryCreator) : NO_TEST_DATA;
     }
 
     final TestBaseQuery query = queryCreator.getQuery();

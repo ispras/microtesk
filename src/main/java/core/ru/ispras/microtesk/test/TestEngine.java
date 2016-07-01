@@ -246,7 +246,8 @@ public final class TestEngine {
         bufferPreparators,
         streams,
         settings,
-        statistics
+        statistics,
+        TestSettings.isDefaultTestData()
         );
 
     if (TestSettings.isTarmacLog()) {
