@@ -11,6 +11,7 @@
   <setting name="trace-length-limit" value="100000"/>
   <setting name="comments-enabled" value=""/>
   <setting name="comments-debug" value=""/>
+  <setting name="default-test-data" value=""/>
   <setting
     name="arch-dirs"
     value="cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
