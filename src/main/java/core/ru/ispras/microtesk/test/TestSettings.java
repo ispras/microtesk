@@ -44,6 +44,7 @@ public final class TestSettings {
   private static boolean simulationDisabled = false;
   private static boolean tarmacLog          = false;
   private static boolean selfChecks         = false;
+  private static boolean defaultTestData    = false;
 
   public static String getIndentToken() {
     return indentToken;
@@ -213,5 +214,13 @@ public final class TestSettings {
 
   public static void setSelfChecks(final boolean selfChecks) {
     TestSettings.selfChecks = selfChecks;
+  }
+
+  public static boolean isDefaultTestData() {
+    return defaultTestData;
+  }
+
+  public static void setDefaultTestData(final boolean value) {
+    TestSettings.defaultTestData = value;
   }
 }
