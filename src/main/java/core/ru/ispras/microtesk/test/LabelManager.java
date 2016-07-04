@@ -50,7 +50,6 @@ import ru.ispras.microtesk.test.template.Label;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class LabelManager {
   /**
    * The {@link Target} class stores information about the target the specified label points to.
@@ -58,7 +57,6 @@ public final class LabelManager {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public static final class Target {
     private final Label label;
     private final long address;
@@ -130,7 +128,6 @@ public final class LabelManager {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   private static final class TargetDistance implements Comparable<TargetDistance> {
     private final Target target;
     private final Distance distance;
@@ -209,7 +206,6 @@ public final class LabelManager {
   /**
    * Constructs a new label manager that stores no information about labels.
    */
-
   public LabelManager() {
     this.table = new HashMap<>();
   }
@@ -231,7 +227,6 @@ public final class LabelManager {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public void addLabel(final Label label, final long address) {
     InvariantChecks.checkNotNull(label);
 
@@ -267,7 +262,6 @@ public final class LabelManager {
    * @throws IllegalArgumentException if an object in the {@code labels} collection is not a
    *         Label object.
    */
-
   public void addAllLabels(
       final Collection<Label> labels, final long address, final int sequenceIndex) {
     InvariantChecks.checkNotNull(labels);
@@ -294,7 +288,6 @@ public final class LabelManager {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public Target resolve(final Label referenceLabel) {
     InvariantChecks.checkNotNull(referenceLabel);
 
