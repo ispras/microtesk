@@ -25,7 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Label {
   private final String name;
   private final BlockId blockId;
@@ -44,7 +43,6 @@ public final class Label {
    * 
    * @throws IllegalStateException if any of the parameters equals {@code null}.
    */
-
   public Label(final String name, final BlockId blockId) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(blockId);
@@ -60,7 +58,6 @@ public final class Label {
    * 
    * @param other Label to be copied.
    */
-
   public Label(final Label other) {
     InvariantChecks.checkNotNull(other);
 
@@ -78,7 +75,6 @@ public final class Label {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public static List<Label> copyAll(final List<Label> labels) {
     InvariantChecks.checkNotNull(labels);
 
@@ -102,7 +98,6 @@ public final class Label {
    * 
    * @param value Number that uniquely identifies a label which is duplicated within a sequence.
    */
-
   public void setReferenceNumber(final int value) {
     InvariantChecks.checkGreaterOrEqZero(value);
     this.referenceNumber = value;
@@ -113,7 +108,6 @@ public final class Label {
    * 
    * @return Number that uniquely identifies the label among labels that have the same name.
    */
-
   public int getReferenceNumber() {
     return referenceNumber;
   }
@@ -125,7 +119,6 @@ public final class Label {
    * 
    * @param value Index that identifies the instruction sequence where the label is defined.
    */
-
   public void setSequenceIndex(final int value) {
     InvariantChecks.checkGreaterOrEqZero(value);
     this.sequenceIndex = value;
@@ -136,7 +129,6 @@ public final class Label {
    * 
    * @return The name of the label.
    */
-
   public String getName() {
     return name;
   }
@@ -152,7 +144,6 @@ public final class Label {
    * 
    * @return Unique name based on the label name and the context in which it is defined.
    */
-
   public String getUniqueName() {
     final StringBuilder sb = new StringBuilder(name);
 
@@ -176,7 +167,6 @@ public final class Label {
    * 
    * @return Block identifier.
    */
-
   public BlockId getBlockId() {
     return blockId;
   }
@@ -186,7 +176,6 @@ public final class Label {
    * 
    * @return Textual representation based on the unique name.
    */
-
   @Override
   public String toString() {
     return getUniqueName();
