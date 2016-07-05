@@ -21,7 +21,6 @@ package ru.ispras.microtesk.model.api;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public enum ArgumentMode {
   /** {@code IN} argument. Used for immediate values and addressing modes. */
   IN("in", true, false),

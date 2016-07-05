@@ -19,7 +19,6 @@ package ru.ispras.microtesk.model.api;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public enum ArgumentKind {
   /** Immediate value */
   IMM,
