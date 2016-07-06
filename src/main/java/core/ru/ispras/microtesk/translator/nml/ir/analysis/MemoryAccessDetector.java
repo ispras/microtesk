@@ -15,11 +15,16 @@
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -30,17 +35,139 @@ import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 
 public final class MemoryAccessDetector {
 
-  public static boolean isMemoryReference(final Expr expr) {
-    if (null == expr) {
+  private static final class Visitor extends IrVisitorDefault {
+
+    private static final class Context {
+      private final PrimitiveAND primitive;
+      private MemoryAccessStatus status;
+      private final List<Location> loadTargets;
+
+      private Context(final PrimitiveAND primitive) {
+        this.primitive = primitive;
+        this.status = MemoryAccessStatus.NO;
+        this.loadTargets = new ArrayList<>();
+      }
+    }
+
+    private final Deque<Context> contexts = new ArrayDeque<>();
+
+    @Override
+    public void onPrimitiveBegin(final Primitive item) {
+      if (!item.isOrRule()) {
+        final PrimitiveAND primitive = (PrimitiveAND) item;
+
+        final boolean isMemoryReference = primitive.getReturnExpr() != null ?
+            isMemoryReference(primitive.getReturnExpr()) : false;
+
+        primitive.getInfo().setMemoryReference(isMemoryReference);
+        contexts.push(new Context(primitive));
+      }
+    }
+
+    @Override
+    public void onPrimitiveEnd(final Primitive item) {
+      if (!item.isOrRule()) {
+        final Context context = contexts.pop();
+        InvariantChecks.checkTrue(item == context.primitive);
+
+        final PrimitiveAND primitive = context.primitive;
+        final MemoryAccessStatus status = context.status;
+
+        primitive.getInfo().setLoad(status.isLoad());
+        primitive.getInfo().setStore(status.isStore());
+        primitive.getInfo().setBlockSize(status.getBlockSize());
+      }
+    }
+
+    @Override
+    public void onAssignment(final StatementAssignment stmt) {
+      MemoryAccessStatus status = MemoryAccessStatus.NO;
+
+      final Expr right = stmt.getRight();
+      final Location left = stmt.getLeft();
+
+      if (isMemoryReference(right)) {
+        final int bitSize = right.getNodeInfo().getType().getBitSize();
+        status = new MemoryAccessStatus(true, false, bitSize);
+        addLoadTarget(left);
+      }
+
+      if (isMemoryReference(left)) {
+        final int bitSize = left.getType().getBitSize();
+        status = status.merge(new MemoryAccessStatus(false, true, bitSize));
+      }
+
+      final Context context = contexts.peek();
+      if (status.isStore() && isLoadTarget(stmt.getRight())) {
+        context.status = status;
+      } else {
+        context.status = context.status.merge(status);
+      }
+    }
+
+    @Override
+    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+      final Context context = contexts.peek();
+      if (andRule != context.primitive) {
+        setStatus(Status.SKIP);
+
+        final PrimitiveInfo info = andRule.getInfo();
+        final MemoryAccessStatus status =
+            new MemoryAccessStatus(info.isLoad(), info.isStore(), info.getBlockSize());
+
+        context.status = context.status.merge(status);
+      }
+    }
+
+    @Override
+    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+      if (andRule != contexts.peek().primitive) {
+        setStatus(Status.OK);
+      }
+    }
+
+    private void addLoadTarget(final Location location) {
+      final Context context = contexts.peek();
+      context.loadTargets.add(location);
+    }
+
+    private boolean isLoadTarget(final Expr expr) {
+      final NodeInfo nodeInfo = expr.getNodeInfo();
+      if (!nodeInfo.isLocation()) {
+        return false;
+      }
+
+      final Location location = (Location) nodeInfo.getSource();
+      final Context context = contexts.peek();
+      for (final Location loadLocation : context.loadTargets) {
+        if (location.equals(loadLocation)) {
+          return true;
+        }
+      }
+
       return false;
     }
+  }
+
+  private final Ir ir;
+
+  public MemoryAccessDetector(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+    this.ir = ir;
+  }
+
+  public void start() {
+    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
+    walker.visit();
+  }
+
+  private static boolean isMemoryReference(final Expr expr) {
+    InvariantChecks.checkNotNull(expr);
 
     final NodeInfo nodeInfo = expr.getNodeInfo();
     if (!nodeInfo.isLocation()) {
@@ -89,146 +216,4 @@ public final class MemoryAccessDetector {
     }
     return false;
   }
-
-  private final Map<String, Primitive> args;
-  private final Map<String, Attribute> attrs;
-  private final List<Location> loadTargets;
-
-  public MemoryAccessDetector(
-      final Map<String, Primitive> args,
-      final Map<String, Attribute> attrs) {
-    this.args = args;
-    this.attrs = attrs;
-    this.loadTargets = new ArrayList<>();
-  }
-
-  private void addLoadTarget(final Location location) {
-    loadTargets.add(location);
-  }
-
-  private boolean isLoadTarget(final Expr expr) {
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-    if (!nodeInfo.isLocation()) {
-      return false;
-    }
-
-    final Location location = (Location) nodeInfo.getSource();
-    for (final Location loadLocation : loadTargets) {
-      if (location.equals(loadLocation)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  public MemoryAccessStatus getMemoryAccessStatus(final String attributeName) {
-    final Attribute attribute = attrs.get(attributeName);
-    if (null == attribute) {
-      return MemoryAccessStatus.NO;
-    }
-
-    return getMemoryAccessStatus(attribute.getStatements());
-  }
-
-  private MemoryAccessStatus getMemoryAccessStatus(final List<Statement> stmts) {
-    MemoryAccessStatus result = MemoryAccessStatus.NO;
-
-    for (final Statement stmt : stmts) {
-      switch(stmt.getKind()) {
-        case ASSIGN:
-          final StatementAssignment stmtAssign = (StatementAssignment) stmt;
-          final MemoryAccessStatus assignStatus = getMemoryAccessStatus(stmtAssign);
-
-          // If the same a variable was used by a load and a store action,
-          // we assume that this is store action and the load was performed just
-          // make it possible to to write a small portion of data (smaller than the storage unit).
-
-          if (assignStatus.isStore() && isLoadTarget(stmtAssign.getRight())) {
-            result = assignStatus;
-          } else {
-            result = result.merge(assignStatus);
-          }
-
-          break;
-
-        case CALL:
-          result = result.merge(getMemoryAccessStatus((StatementAttributeCall) stmt));
-          break;
-
-        case COND:
-          result = result.merge(getMemoryAccessStatus((StatementCondition) stmt));
-          break;
-
-        case FORMAT:  // Ignored
-        case FUNCALL: // Ignored
-          break;
-
-        default:
-          throw new IllegalArgumentException("Unknown statement kind: " + stmt.getKind());
-      }
-    }
-
-    return result;
-  }
-
-  private MemoryAccessStatus getMemoryAccessStatus(final StatementAssignment stmt) {
-    MemoryAccessStatus result = MemoryAccessStatus.NO;
-
-    final Expr right = stmt.getRight();
-    final Location left = stmt.getLeft();
-
-    if (isMemoryReference(right)) {
-      // Load action is detected
-      final int bitSize = right.getNodeInfo().getType().getBitSize();
-      result = new MemoryAccessStatus(true, false, bitSize);
-      addLoadTarget(left);
-    }
-
-    if (isMemoryReference(left)) {
-      // Store action is detected
-      final int bitSize = left.getType().getBitSize();
-      result = result.merge(new MemoryAccessStatus(false, true, bitSize));
-    }
-
-    return result;
-  }
-
-  private MemoryAccessStatus getMemoryAccessStatus(final StatementAttributeCall stmt) {
-    // Instance Attribute Call
-    if (stmt.getCalleeInstance() != null) {
-      final PrimitiveAND primitive = stmt.getCalleeInstance().getPrimitive();
-      return new MemoryAccessStatus(
-          primitive.getInfo().isLoad(), primitive.getInfo().isStore(), primitive.getInfo().getBlockSize());
-    }
-
-    // Argument Attribute Call
-    if (stmt.getCalleeName() != null) {
-      final Primitive callee = args.get(stmt.getCalleeName());
-
-      if (callee.isOrRule()) {
-        return MemoryAccessStatus.NO;
-      }
-
-      final PrimitiveAND primitive = (PrimitiveAND) callee;
-      return new MemoryAccessStatus(
-          primitive.getInfo().isLoad(), primitive.getInfo().isStore(), primitive.getInfo().getBlockSize());
-    }
-
-    // This Object Attribute Call
-    final Attribute attribute = attrs.get(stmt.getAttributeName());
-    return getMemoryAccessStatus(attribute.getStatements());
-  }
-
-  private MemoryAccessStatus getMemoryAccessStatus(final StatementCondition stmt) {
-    MemoryAccessStatus result = MemoryAccessStatus.NO;
-
-    for (int index = 0; index < stmt.getBlockCount(); ++index) {
-      final StatementCondition.Block block = stmt.getBlock(index);
-      result = result.merge(getMemoryAccessStatus(block.getStatements()));
-    }
-
-    return result;
-  }
 }
-

@@ -31,8 +31,6 @@ import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedProductionRuleItem;
 import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
-import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector;
-import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -62,9 +60,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, "Return value is untyped. Use casts to enforce a certain type.");
     }
 
-    final MemoryAccessStatus memoryAccessStatus =
-        new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
-
     final PrimitiveAND result = new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
@@ -72,10 +67,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         args,
         attrs
         );
-
-    result.getInfo().setLoad(memoryAccessStatus.isLoad());
-    result.getInfo().setStore(memoryAccessStatus.isStore());
-    result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());
 
     return result;
   }
@@ -88,13 +79,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     //checkAttributeDefined(where, name, Attribute.SYNTAX_NAME, attrs);
     //checkAttributeDefined(where, name, Attribute.IMAGE_NAME, attrs);
 
-    final MemoryAccessStatus memoryAccessStatus = 
-        new MemoryAccessDetector(args, attrs).getMemoryAccessStatus(Attribute.ACTION_NAME);
-
-    // if (memoryAccessStatus.isLoad() && memoryAccessStatus.isStore()) {
-    //   System.out.printf("%-25s : %s%n", name, memoryAccessStatus);
-    // }
-
     final PrimitiveAND result = new PrimitiveAND(
         name,
         Primitive.Kind.OP,
@@ -102,10 +86,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         args,
         attrs
         );
-
-    result.getInfo().setLoad(memoryAccessStatus.isLoad());
-    result.getInfo().setStore(memoryAccessStatus.isStore());
-    result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());
 
     return result;
   }
