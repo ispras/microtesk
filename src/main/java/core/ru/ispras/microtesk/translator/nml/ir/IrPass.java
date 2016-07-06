@@ -16,22 +16,24 @@ package ru.ispras.microtesk.translator.nml.ir;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-public abstract class IrPass {
+public final class IrPass {
   private final Ir ir;
+  private final IrVisitor visitor;
 
-  public IrPass(final Ir ir) {
+  public IrPass(final Ir ir, final IrVisitor visitor) {
     InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(visitor);
+
     this.ir = ir;
+    this.visitor = visitor;
   }
 
-  public final Ir getIr() {
+  public Ir getIr() {
     return ir;
   }
 
-  public final void start() {
-    final IrWalkerFlow walker = new IrWalkerFlow(ir, getVisitor());
+  public void start() {
+    final IrWalkerFlow walker = new IrWalkerFlow(ir, visitor);
     walker.visit();
   }
-
-  protected abstract IrVisitor getVisitor();
 }

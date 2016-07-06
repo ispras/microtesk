@@ -25,9 +25,9 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrPass;
-import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -38,17 +38,14 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
-public final class BranchDetector extends IrPass {
-  private final IrInquirer inquirer;
-
-  public BranchDetector(final Ir ir) {
-    super(ir);
-    this.inquirer = new IrInquirer(ir);
-  }
+public final class BranchDetector implements TranslatorHandler<Ir> {
+  private IrInquirer inquirer;
 
   @Override
-  public IrVisitor getVisitor() {
-    return new Visitor();
+  public void processIr(final Ir ir) {
+    this.inquirer = new IrInquirer(ir);
+    final IrPass pass = new IrPass(ir, new Visitor());
+    pass.start();
   }
 
   private final class Visitor extends IrVisitorDefault {

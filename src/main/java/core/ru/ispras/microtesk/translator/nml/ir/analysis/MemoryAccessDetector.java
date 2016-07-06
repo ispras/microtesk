@@ -22,9 +22,9 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrPass;
-import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -39,14 +39,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
-public final class MemoryAccessDetector extends IrPass {
-  public MemoryAccessDetector(final Ir ir) {
-    super(ir);
-  }
-
+public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
   @Override
-  protected IrVisitor getVisitor() {
-    return new Visitor();
+  public void processIr(final Ir ir) {
+    final IrPass pass = new IrPass(ir, new Visitor());
+    pass.start();
   }
 
   private static final class Visitor extends IrVisitorDefault {

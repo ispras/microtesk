@@ -42,7 +42,6 @@ import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.IrPass;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ArgumentModeDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
@@ -59,6 +58,11 @@ public final class NmlTranslator extends Translator<Ir> {
 
     symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+
+    addHandler(new ArgumentModeDetector());
+    addHandler(new BranchDetector());
+    addHandler(new ExceptionDetector());
+    addHandler(new MemoryAccessDetector());
   }
 
   //------------------------------------------------------------------------------------------------
@@ -170,18 +174,6 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
-
-    final IrPass branchDetector = new BranchDetector(ir);
-    branchDetector.start();
-
-    final IrPass exceptionDetector = new ExceptionDetector(ir);
-    exceptionDetector.start();
-
-    final IrPass argumentModeDetector = new ArgumentModeDetector(ir);
-    argumentModeDetector.start();
-
-    final IrPass memoryAccessDetector = new MemoryAccessDetector(ir);
-    memoryAccessDetector.start();
 
     if (!primitiveSyntesizer.syntesize()) {
       Logger.error(FAILED_TO_SYNTH_PRIMITIVES);

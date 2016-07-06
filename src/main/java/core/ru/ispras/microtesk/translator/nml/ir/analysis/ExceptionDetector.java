@@ -17,22 +17,20 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrPass;
-import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 
-public final class ExceptionDetector extends IrPass {
-  public ExceptionDetector(final Ir ir) {
-    super(ir);
-  }
+public final class ExceptionDetector implements TranslatorHandler<Ir> {
 
   @Override
-  protected IrVisitor getVisitor() {
-    return new Visitor();
+  public void processIr(final Ir ir) {
+    final IrPass pass = new IrPass(ir, new Visitor());
+    pass.start();
   }
 
   private static final class Visitor extends IrVisitorDefault {
