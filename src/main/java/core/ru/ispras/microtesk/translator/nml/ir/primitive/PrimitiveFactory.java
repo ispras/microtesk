@@ -73,7 +73,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs
         );
 
-    result.getInfo().setMemoryReference(MemoryAccessDetector.isMemoryReference(retExpr));
     result.getInfo().setLoad(memoryAccessStatus.isLoad());
     result.getInfo().setStore(memoryAccessStatus.isStore());
     result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());
@@ -104,7 +103,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         attrs
         );
 
-    result.getInfo().setMemoryReference(false);
     result.getInfo().setLoad(memoryAccessStatus.isLoad());
     result.getInfo().setStore(memoryAccessStatus.isStore());
     result.getInfo().setBlockSize(memoryAccessStatus.getBlockSize());

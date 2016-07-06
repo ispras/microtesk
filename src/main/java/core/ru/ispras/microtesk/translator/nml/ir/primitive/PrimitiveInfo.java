@@ -26,7 +26,7 @@ public final class PrimitiveInfo {
   private boolean branch;
   private boolean conditionalBranch;
 
-  private Boolean memoryReference;
+  private boolean memoryReference;
   private Boolean load;
   private Boolean store;
   private Integer blockSize;
@@ -37,7 +37,7 @@ public final class PrimitiveInfo {
     this.exception = false;
     this.branch = false;
     this.conditionalBranch = false;
-    this.memoryReference = null;
+    this.memoryReference = false;
     this.load = null;
     this.store = null;
     this.blockSize = null;
@@ -70,7 +70,6 @@ public final class PrimitiveInfo {
   }
 
   public boolean isMemoryReference() {
-    checkInitialized(memoryReference, "memoryReference");
     return memoryReference;
   }
 
@@ -110,7 +109,6 @@ public final class PrimitiveInfo {
   }
 
   public void setMemoryReference(final boolean value) {
-    checkReinitialized(memoryReference, "memoryReference");
     this.memoryReference = value;
   }
 

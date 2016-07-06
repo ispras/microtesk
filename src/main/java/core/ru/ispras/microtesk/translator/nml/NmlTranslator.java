@@ -45,6 +45,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ArgumentModeDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
+import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector2;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.utils.FileUtils;
 
@@ -177,6 +178,9 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final ArgumentModeDetector argumentModeDetector = new ArgumentModeDetector(ir);
     argumentModeDetector.start();
+
+    final MemoryAccessDetector2 memoryAccessDetector = new MemoryAccessDetector2(ir);
+    memoryAccessDetector.start();
 
     if (!primitiveSyntesizer.syntesize()) {
       Logger.error(FAILED_TO_SYNTH_PRIMITIVES);
