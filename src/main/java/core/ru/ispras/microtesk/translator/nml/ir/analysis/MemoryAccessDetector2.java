@@ -75,7 +75,7 @@ public final class MemoryAccessDetector2 {
     walker.visit();
   }
 
-  public static boolean isMemoryReference(final Expr expr) {
+  private static boolean isMemoryReference(final Expr expr) {
     InvariantChecks.checkNotNull(expr);
 
     final NodeInfo nodeInfo = expr.getNodeInfo();

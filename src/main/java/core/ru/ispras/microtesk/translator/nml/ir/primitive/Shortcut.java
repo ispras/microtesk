@@ -36,14 +36,12 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Shortcut {
   /**
    * The Argument class describes shortcut arguments (arguments of a composite operation).
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public static final class Argument {
     private final String uniqueName;
     private final Primitive type;
@@ -66,7 +64,6 @@ public final class Shortcut {
      * 
      * @return Unique argument name.
      */
-
     public String getUniqueName() {
       return uniqueName;
     }
@@ -76,7 +73,6 @@ public final class Shortcut {
      * 
      * @return Argument type.
      */
-
     public Primitive getType() {
       return type;
     }
@@ -87,7 +83,6 @@ public final class Shortcut {
      * 
      * @return Argument name from the source operation signature.
      */
-
     public String getName() {
       return name;
     }
@@ -97,7 +92,6 @@ public final class Shortcut {
      * 
      * @return Source operation.
      */
-
     public PrimitiveAND getSource() {
       return source;
     }
@@ -129,7 +123,6 @@ public final class Shortcut {
    * @throws IllegalArgumentException if target or entry is not an operation; if an operation on the
    *         shortcut path is an OR rule (all OR rules must be resolved at this point).
    */
-
   public Shortcut(
       final PrimitiveAND entry,
       final PrimitiveAND target,
@@ -165,7 +158,6 @@ public final class Shortcut {
   /**
    * Constructor than uses one context name.
    */
-
   public Shortcut(
       final PrimitiveAND entry,
       final PrimitiveAND target,
@@ -182,7 +174,6 @@ public final class Shortcut {
    * @param reachedTarget Specifies whether the target operation is reached. It it is, the recursion
    *        stops and all child operations are added as arguments.
    */
-
   private void addArguments(final PrimitiveAND root, final boolean reachedTarget) {
     for (final Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
       final String argName = e.getKey();
@@ -263,7 +254,6 @@ public final class Shortcut {
    * @param name Original name.
    * @return A unique argument name.
    */
-
   private String createUniqueArgumentName(final String name) {
     String result = name;
 
@@ -280,7 +270,6 @@ public final class Shortcut {
    * 
    * @return Shortcut name.
    */
-
   public String getName() {
     return target.getName();
   }
@@ -290,7 +279,6 @@ public final class Shortcut {
    * 
    * @return Entry operation.
    */
-
   public PrimitiveAND getEntry() {
     return entry;
   }
@@ -300,7 +288,6 @@ public final class Shortcut {
    * 
    * @return Target operation.
    */
-
   public PrimitiveAND getTarget() {
     return target;
   }
@@ -311,7 +298,6 @@ public final class Shortcut {
    * 
    * @return List of context identifiers.
    */
-
   public List<String> getContextName() {
     return contextNames;
   }
@@ -321,7 +307,6 @@ public final class Shortcut {
    * 
    * @return Shortcut arguments.
    */
-
   public Collection<Argument> getArguments() {
     return arguments.values();
   }
