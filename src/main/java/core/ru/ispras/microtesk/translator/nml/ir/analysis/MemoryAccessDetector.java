@@ -23,8 +23,9 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrPass;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
-import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -38,7 +39,15 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
-public final class MemoryAccessDetector {
+public final class MemoryAccessDetector extends IrPass {
+  public MemoryAccessDetector(final Ir ir) {
+    super(ir);
+  }
+
+  @Override
+  protected IrVisitor getVisitor() {
+    return new Visitor();
+  }
 
   private static final class Visitor extends IrVisitorDefault {
 
@@ -152,18 +161,6 @@ public final class MemoryAccessDetector {
 
       return false;
     }
-  }
-
-  private final Ir ir;
-
-  public MemoryAccessDetector(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-    this.ir = ir;
-  }
-
-  public void start() {
-    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
-    walker.visit();
   }
 
   private static boolean isMemoryReference(final Expr expr) {

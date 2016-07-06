@@ -26,8 +26,9 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrPass;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
-import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -37,7 +38,19 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
-public final class BranchDetector {
+public final class BranchDetector extends IrPass {
+  private final IrInquirer inquirer;
+
+  public BranchDetector(final Ir ir) {
+    super(ir);
+    this.inquirer = new IrInquirer(ir);
+  }
+
+  @Override
+  public IrVisitor getVisitor() {
+    return new Visitor();
+  }
+
   private final class Visitor extends IrVisitorDefault {
     private final Deque<PrimitiveAND> primitives;
     private final Deque<Node> conditions;
@@ -130,20 +143,5 @@ public final class BranchDetector {
         }
       }
     }
-  }
-
-  private final Ir ir;
-  private final IrInquirer inquirer;
-
-  public BranchDetector(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-
-    this.ir = ir;
-    this.inquirer = new IrInquirer(ir);
-  }
-
-  public void start() {
-    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
-    walker.visit();
   }
 }

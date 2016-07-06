@@ -42,6 +42,7 @@ import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrPass;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ArgumentModeDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
@@ -170,16 +171,16 @@ public final class NmlTranslator extends Translator<Ir> {
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
 
-    final BranchDetector branchDetector = new BranchDetector(ir);
+    final IrPass branchDetector = new BranchDetector(ir);
     branchDetector.start();
 
-    final ExceptionDetector exceptionDetector = new ExceptionDetector(ir);
+    final IrPass exceptionDetector = new ExceptionDetector(ir);
     exceptionDetector.start();
 
-    final ArgumentModeDetector argumentModeDetector = new ArgumentModeDetector(ir);
+    final IrPass argumentModeDetector = new ArgumentModeDetector(ir);
     argumentModeDetector.start();
 
-    final MemoryAccessDetector memoryAccessDetector = new MemoryAccessDetector(ir);
+    final IrPass memoryAccessDetector = new MemoryAccessDetector(ir);
     memoryAccessDetector.start();
 
     if (!primitiveSyntesizer.syntesize()) {

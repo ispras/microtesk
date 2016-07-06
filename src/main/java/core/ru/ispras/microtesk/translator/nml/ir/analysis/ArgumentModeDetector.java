@@ -28,8 +28,9 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrPass;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
-import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -43,17 +44,14 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
-public final class ArgumentModeDetector {
-  private final Ir ir;
-
+public final class ArgumentModeDetector extends IrPass {
   public ArgumentModeDetector(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-    this.ir = ir;
+    super(ir);
   }
 
-  public void start() {
-    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
-    walker.visit();
+  @Override
+  protected IrVisitor getVisitor() {
+    return new Visitor();
   }
 
   private final class Visitor extends IrVisitorDefault {

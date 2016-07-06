@@ -17,15 +17,23 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrPass;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitor;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
-import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 
-public final class ExceptionDetector {
+public final class ExceptionDetector extends IrPass {
+  public ExceptionDetector(final Ir ir) {
+    super(ir);
+  }
+
+  @Override
+  protected IrVisitor getVisitor() {
+    return new Visitor();
+  }
 
   private static final class Visitor extends IrVisitorDefault {
     private final Deque<PrimitiveAND> primitives;
@@ -61,17 +69,5 @@ public final class ExceptionDetector {
     private static boolean isException(final StatementFunctionCall stmt) {
       return "exception".equals(stmt.getName());
     }
-  }
-
-  private final Ir ir;
-
-  public ExceptionDetector(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-    this.ir = ir;
-  }
-
-  public void start() {
-    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
-    walker.visit();
   }
 }
