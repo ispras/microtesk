@@ -16,7 +16,9 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -30,36 +32,125 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
 public final class MemoryAccessDetector2 {
 
   private static final class Visitor extends IrVisitorDefault {
-    private final Deque<PrimitiveAND> primitives;
 
-    public Visitor() {
-      this.primitives = new ArrayDeque<>();
+    private static final class Context {
+      private final PrimitiveAND primitive;
+      private MemoryAccessStatus status;
+      private final List<Location> loadTargets;
+
+      private Context(final PrimitiveAND primitive) {
+        this.primitive = primitive;
+        this.status = MemoryAccessStatus.NO;
+        this.loadTargets = new ArrayList<>();
+      }
     }
+
+    private final Deque<Context> contexts = new ArrayDeque<>();
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
         final PrimitiveAND primitive = (PrimitiveAND) item;
-        this.primitives.push(primitive);
 
         final boolean isMemoryReference = primitive.getReturnExpr() != null ?
             isMemoryReference(primitive.getReturnExpr()) : false;
 
         primitive.getInfo().setMemoryReference(isMemoryReference);
+        contexts.push(new Context(primitive));
       }
     }
 
     @Override
     public void onPrimitiveEnd(final Primitive item) {
       if (!item.isOrRule()) {
-        this.primitives.pop();
+        final Context context = contexts.pop();
+        InvariantChecks.checkTrue(item == context.primitive);
+
+        final PrimitiveAND primitive = context.primitive;
+        final MemoryAccessStatus status = context.status;
+
+        primitive.getInfo().setLoad(status.isLoad());
+        primitive.getInfo().setStore(status.isStore());
+        primitive.getInfo().setBlockSize(status.getBlockSize());
       }
+    }
+
+    @Override
+    public void onAssignment(final StatementAssignment stmt) {
+      MemoryAccessStatus status = MemoryAccessStatus.NO;
+
+      final Expr right = stmt.getRight();
+      final Location left = stmt.getLeft();
+
+      if (isMemoryReference(right)) {
+        final int bitSize = right.getNodeInfo().getType().getBitSize();
+        status = new MemoryAccessStatus(true, false, bitSize);
+        addLoadTarget(left);
+      }
+
+      if (isMemoryReference(left)) {
+        final int bitSize = left.getType().getBitSize();
+        status = status.merge(new MemoryAccessStatus(false, true, bitSize));
+      }
+
+      final Context context = contexts.peek();
+      if (status.isStore() && isLoadTarget(stmt.getRight())) {
+        context.status = status;
+      } else {
+        context.status = context.status.merge(status);
+      }
+    }
+
+    @Override
+    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+      final Context context = contexts.peek();
+      if (andRule != context.primitive) {
+        setStatus(Status.SKIP);
+
+        final PrimitiveInfo info = andRule.getInfo();
+        final MemoryAccessStatus status =
+            new MemoryAccessStatus(info.isLoad(), info.isStore(), info.getBlockSize());
+
+        context.status = context.status.merge(status);
+      }
+    }
+
+    @Override
+    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+      if (andRule != contexts.peek().primitive) {
+        setStatus(Status.OK);
+      }
+    }
+
+    private void addLoadTarget(final Location location) {
+      final Context context = contexts.peek();
+      context.loadTargets.add(location);
+    }
+
+    private boolean isLoadTarget(final Expr expr) {
+      final NodeInfo nodeInfo = expr.getNodeInfo();
+      if (!nodeInfo.isLocation()) {
+        return false;
+      }
+
+      final Location location = (Location) nodeInfo.getSource();
+      final Context context = contexts.peek();
+      for (final Location loadLocation : context.loadTargets) {
+        if (location.equals(loadLocation)) {
+          return true;
+        }
+      }
+
+      return false;
     }
   }
 
