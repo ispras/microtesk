@@ -138,16 +138,16 @@ public final class MemoryAccessDetector {
       switch(stmt.getKind()) {
         case ASSIGN:
           final StatementAssignment stmtAssign = (StatementAssignment) stmt;
-          final MemoryAccessStatus assignResult = getMemoryAccessStatus(stmtAssign);
+          final MemoryAccessStatus assignStatus = getMemoryAccessStatus(stmtAssign);
 
           // If the same a variable was used by a load and a store action,
           // we assume that this is store action and the load was performed just
           // make it possible to to write a small portion of data (smaller than the storage unit).
 
-          if (assignResult.isStore() && isLoadTarget(stmtAssign.getRight())) {
-            result = assignResult;
+          if (assignStatus.isStore() && isLoadTarget(stmtAssign.getRight())) {
+            result = assignStatus;
           } else {
-            result = result.merge(getMemoryAccessStatus((StatementAssignment) stmt));
+            result = result.merge(assignStatus);
           }
 
           break;
