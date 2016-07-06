@@ -198,11 +198,11 @@ public final class StatementFactory extends WalkerFactoryBase {
   }
 
   public Statement createExceptionCall(final Where where, final String text) {
-    return new StatementFunctionCall("exception", String.format("%s", text));
+    return new StatementFunctionCall("exception", text);
   }
 
   public Statement createMark(final Where where, final String text) {
-    return new StatementFunctionCall("mark", String.format("%s", text));
+    return new StatementFunctionCall("mark", text);
   }
 
   public Statement createUnpredicted() {
