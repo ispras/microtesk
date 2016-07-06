@@ -46,8 +46,6 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final Expr retExpr) throws SemanticException {
-    //checkAttributeDefined(where, name, Attribute.SYNTAX_NAME, attrs);
-    //checkAttributeDefined(where, name, Attribute.IMAGE_NAME, attrs);
 
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
@@ -60,15 +58,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, "Return value is untyped. Use casts to enforce a certain type.");
     }
 
-    final PrimitiveAND result = new PrimitiveAND(
+    return new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
         retExpr,
         args,
         attrs
         );
-
-    return result;
   }
 
   public Primitive createOp(
@@ -76,33 +72,15 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final String name,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
-    //checkAttributeDefined(where, name, Attribute.SYNTAX_NAME, attrs);
-    //checkAttributeDefined(where, name, Attribute.IMAGE_NAME, attrs);
 
-    final PrimitiveAND result = new PrimitiveAND(
+    return new PrimitiveAND(
         name,
         Primitive.Kind.OP,
         null,
         args,
         attrs
         );
-
-    return result;
   }
-
-  /*private void checkAttributeDefined(
-      final Where where,
-      final String primitiveName,
-      final String attributeName,
-      final Map<String, Attribute> attrs) throws SemanticException {
-    if (!attrs.containsKey(attributeName)) {
-      raiseError(where, String.format(
-          "The '%s' attribute is not defined for the '%s' primitive.",
-          attributeName,
-          primitiveName
-          ));
-    }
-  }*/
 
   public Primitive createModeOR(
       final Where where,
