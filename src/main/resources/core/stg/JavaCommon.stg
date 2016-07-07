@@ -24,15 +24,15 @@ group JavaCommon;
  *
  * @param file The name of the specification file from which the model (or its part) is generated.
  */
-header(year) ::= <<
+header(file) ::= <<
 /*
- * Copyright (c) 2012-<year> Institute for System Programming of the Russian Academy of Sciences
+ * Copyright (c) Institute for System Programming of the Russian Academy of Sciences
  * All Rights Reserved
  *
  * Institute for System Programming of the Russian Academy of Sciences (ISP RAS)
  * 25 Alexander Solzhenitsyn st., Moscow, 109004, Russia
  * http://www.ispras.ru
- * 
+ *
  * The present file was automatically generated on the basis of formal specifications.
  * It is distributed under the same terms and conditions as the derived specifications.
  *
