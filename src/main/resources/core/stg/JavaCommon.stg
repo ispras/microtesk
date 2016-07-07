@@ -26,7 +26,7 @@ group JavaCommon;
  */
 header(year) ::= <<
 /*
- * Copyright (c) <year> Institute for System Programming of the Russian Academy of Sciences
+ * Copyright (c) 2012-<year> Institute for System Programming of the Russian Academy of Sciences
  * All Rights Reserved
  *
  * Institute for System Programming of the Russian Academy of Sciences (ISP RAS)
