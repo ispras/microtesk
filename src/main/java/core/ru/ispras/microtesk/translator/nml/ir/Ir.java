@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ public final class Ir {
   private final Map<String, MemoryExpr> memory;
   private final Map<String, Primitive> modes;
   private final Map<String, Primitive> ops;
-  private List<Primitive> roots;
+  private final List<Primitive> roots;
 
   public Ir(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
@@ -49,7 +50,7 @@ public final class Ir {
     this.modes   = new LinkedHashMap<>();
     this.ops     = new LinkedHashMap<>();
 
-    this.roots = Collections.<Primitive>emptyList();
+    this.roots = new ArrayList<>();
   }
 
   public String getModelName() {
@@ -86,13 +87,14 @@ public final class Ir {
 
     if (Primitive.Kind.MODE == value.getKind()) {
       modes.put(name, value);
-    }
-    else if (Primitive.Kind.OP == value.getKind()) {
+    } else if (Primitive.Kind.OP == value.getKind()) {
       ops.put(name, value);
-    }
-    else {
+      if (value.isRoot() && !value.isOrRule()) {
+        roots.add(value);
+      }
+    } else {
       throw new IllegalArgumentException(
-        "Illegal primitive kind: " + value.getKind());
+          "Illegal primitive kind: " + value.getKind());
     }
   }
 
@@ -121,16 +123,6 @@ public final class Ir {
   }
 
   public List<Primitive> getRoots() {
-    return roots;
-  }
-
-  public void setRoots(final List<Primitive> value) {
-    InvariantChecks.checkNotNull(value);
-
-    if (!roots.isEmpty()) {
-      throw new IllegalStateException("Root is already assigned.");
-    }
-
-    roots = Collections.unmodifiableList(value);
+    return Collections.unmodifiableList(roots);
   }
 }
