@@ -147,9 +147,7 @@ public final class Shortcut {
     this.info.setBranch(branchInfo.first);
     this.info.setConditionalBranch(branchInfo.second);
 
-    this.info.setCanThrowException(canThrowException(entry, false));
     final MemoryAccessStatus memAccessStatus = getMemoryAccessStatus(entry, false);
-
     this.info.setLoad(memAccessStatus.isLoad());
     this.info.setStore(memAccessStatus.isStore());
     this.info.setBlockSize(memAccessStatus.getBlockSize());
@@ -188,23 +186,6 @@ public final class Shortcut {
         arguments.put(uniqueArgName, arg);
       }
     }
-  }
-
-  private boolean canThrowException(final PrimitiveAND root, final boolean reachedTarget) {
-    if (root.getInfo().canThrowException()) {
-      return true;
-    }
-
-    for (final Primitive arg : root.getArguments().values()) {
-      if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
-        notOrRuleCheck(arg);
-        if (canThrowException((PrimitiveAND) arg, arg == target)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   private Pair<Boolean, Boolean> getBranchInfo(final PrimitiveAND root, final boolean reachedTarget) {
@@ -315,7 +296,6 @@ public final class Shortcut {
     return info;
   }
 
-  
   @Override
   public String toString() {
     final StringBuilder cnsb = new StringBuilder();
