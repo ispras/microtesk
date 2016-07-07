@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ru.ispras.microtesk.translator.antlrex.log.LogStore;
+import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -45,7 +46,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class PrimitiveSyntesizer extends LogWriter {
+public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHandler<Ir> {
   /**
    * Name for the fake operation (OR rule) that unites all root operations described in the
    * specification (AND rules that have no parents). This identifier is used a context name when a
@@ -56,63 +57,34 @@ public final class PrimitiveSyntesizer extends LogWriter {
   /**
    * The internal representation (IR) of the ISA.
    */
-  private final Ir ir;
-
-  /**
-   * The flag that is set when all information has been successfully synthesized.
-   */
-  private boolean isSyntesized;
+  private Ir ir;
 
   /**
    * Constructs a PrimitiveSyntesizer object.
    * 
-   * @param operations A list of operations to be processed.
-   * @param fileName Specification file name.
-   * @param log log Log object that stores information about events and issues that may occur.
-   * 
-   * @throws NullPointerException if any of the parameters equals null.
+   * @throws IllegalArgumentException if any of the parameters equals null.
    */
-  public PrimitiveSyntesizer(final Ir ir, final String fileName, final LogStore log) {
-    super(SenderKind.EMITTER, fileName, log);
-    checkNotNull(ir);
-
-    this.ir = ir;
-    this.isSyntesized = false;
+  public PrimitiveSyntesizer(final Translator<Ir> translator) {
+    super(SenderKind.EMITTER, "", translator != null ? translator.getLog() : null);
+    checkNotNull(translator);
   }
 
-  /**
-   * Synthesizes the list of root operations and shortcuts for all "interesting" operations (leafs
-   * and junctions) based on the list of all defined operations. For details on building shortcuts,
-   * see documentation on the syntesizeShortcuts method.
-   * 
-   * @return <code>true</code> if the information was successfully synthesized or <code>false</code>
-   *         otherwise.
-   */
-  public boolean syntesize() {
-    if (isSyntesized) {
-      reportWarning(ALREADY_SYNTHESIZED);
-      return true;
-    }
+  @Override
+  protected String getSourceName() {
+    return ir.getModelName();
+  }
+
+  @Override
+  public void processIr(final Ir ir) {
+    checkNotNull(ir);
+    this.ir = ir;
 
     if (ir.getOps().isEmpty()) {
       reportError(NO_OPERATIONS);
-      return false;
+      return;
     }
 
     syntesizeShortcuts();
-    isSyntesized = true;
-
-    return true;
-  }
-
-  /**
-   * Checks whether the information was successfully synthesized.
-   * 
-   * @return <code>true</code> if the information was successfully synthesized or <code>false</code>
-   *         otherwise.
-   */
-  public boolean isSyntesized() {
-    return isSyntesized;
   }
 
   /**
@@ -147,9 +119,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
 
   private static final String NO_OPERATIONS =
       "The operation list is empty. No information to be analyzed.";
-
-  private static final String ALREADY_SYNTHESIZED =
-      "Internal presentation has already been fully synthesized. No action was be performed.";
 }
 
 

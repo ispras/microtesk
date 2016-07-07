@@ -16,22 +16,37 @@ package ru.ispras.microtesk.translator.nml.generation;
 
 import java.io.IOException;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
-public final class Generator {
-  private final GeneratorFactory factory;
-  private final Ir ir;
+public final class Generator implements TranslatorHandler<Ir> {
+  private final Translator<Ir> translator;
+  private Ir ir;
+  private GeneratorFactory factory;
 
-  public Generator(String outDir, String modelName, Ir ir) {
-    this.factory = new GeneratorFactory(outDir, modelName);
-    this.ir = ir;
+  public Generator(final Translator<Ir> translator) {
+    InvariantChecks.checkNotNull(translator);
+    this.translator = translator;
   }
 
-  public void generate() {
+  @Override
+  public void processIr(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+    this.ir = ir;
+
+    this.factory = new GeneratorFactory(
+        translator.getOutDir() + "/src/java", ir.getModelName());
+
+    generate();
+  }
+
+  private void generate() {
     try {
       generateShared();
       generateModes();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -64,6 +64,8 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new ExceptionDetector());
     addHandler(new MemoryAccessDetector());
     addHandler(new Analyzer(this));
+    addHandler(new PrimitiveSyntesizer(this));
+    addHandler(new Generator(this));
   }
 
   //------------------------------------------------------------------------------------------------
@@ -140,15 +142,6 @@ public final class NmlTranslator extends Translator<Ir> {
   }
 
   //------------------------------------------------------------------------------------------------
-  // Generator
-  //------------------------------------------------------------------------------------------------
-
-  private void startGenerator(final String modelName, final Ir ir) {
-    final Generator generator = new Generator(getOutDir() + "/src/java", modelName, ir);
-    generator.generate();
-  }
-
-  //------------------------------------------------------------------------------------------------
   // Translator
   //------------------------------------------------------------------------------------------------
 
@@ -169,19 +162,5 @@ public final class NmlTranslator extends Translator<Ir> {
     final Ir ir = startParserAndWalker(modelName, source);
 
     processIr(ir);
-
-    final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
-        ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());
-
-    if (!primitiveSyntesizer.syntesize()) {
-      Logger.error(FAILED_TO_SYNTH_PRIMITIVES);
-      return;
-    }
-    ir.setRoots(primitiveSyntesizer.getRoots());
-
-    startGenerator(modelName, ir);
   }
-
-  private static final String FAILED_TO_SYNTH_PRIMITIVES =
-      "FAILED TO SYNTHESIZE INFORMATION ON DESCRIBED OPERATIONS. TRANSLATION WAS INTERRUPTED.";
 }

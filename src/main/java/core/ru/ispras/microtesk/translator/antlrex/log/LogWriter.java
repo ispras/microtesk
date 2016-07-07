@@ -37,7 +37,11 @@ public class LogWriter {
   }
 
   private void report(final LogEntry.Kind kind, final String message) {
-    log.append(new LogEntry(kind, sender, fileName, 0, 0, message));
+    log.append(new LogEntry(kind, sender, getSourceName(), 0, 0, message));
+  }
+
+  protected String getSourceName() {
+    return fileName;
   }
 
   /**
