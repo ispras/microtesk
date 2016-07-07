@@ -17,12 +17,16 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 
 public final class ExceptionDetector implements TranslatorHandler<Ir> {
@@ -34,9 +38,17 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
 
   private static final class Visitor extends IrVisitorDefault {
     private final Deque<PrimitiveAND> primitives;
+    private final Deque<Shortcut> shortcuts;
 
     public Visitor() {
       this.primitives = new ArrayDeque<>();
+      this.shortcuts = new ArrayDeque<>();
+    }
+
+    private PrimitiveInfo getInfo() {
+      return shortcuts.isEmpty() ?
+          primitives.peek().getInfo() :
+          shortcuts.peek().getInfo();
     }
 
     @Override
@@ -51,15 +63,38 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
       if (!item.isOrRule()) {
         this.primitives.pop();
       }
+
+      if (isStatus(Status.SKIP)) {
+        setStatus(Status.OK);
+      }
+    }
+
+    @Override
+    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+      if (isStatus(Status.SKIP) &&
+          primitives.peek() == andRule && 
+          attr.getName().equals(Attribute.ACTION_NAME)) {
+       setStatus(Status.OK);
+      }
+    }
+
+    @Override
+    public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
+      InvariantChecks.checkTrue(andRule == primitives.peek());
+      shortcuts.push(shortcut);
+    }
+
+    @Override
+    public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
+      InvariantChecks.checkTrue(andRule == primitives.peek());
+      shortcuts.pop();
     }
 
     @Override
     public void onFunctionCall(final StatementFunctionCall stmt) {
       if (isException(stmt)) {
-        final PrimitiveAND primitive = primitives.peek();
-        primitive.getInfo().setCanThrowException(true);
+        getInfo().setCanThrowException(true);
         setStatus(Status.SKIP);
-        //System.out.printf("[Funcall] %s - exception%n", primitive.getName());
       }
     }
 
