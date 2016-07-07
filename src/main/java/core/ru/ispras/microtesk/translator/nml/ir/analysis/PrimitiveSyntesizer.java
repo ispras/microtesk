@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,6 @@ import static ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.isJu
 import static ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.isLeaf;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +26,7 @@ import java.util.Set;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.PathCounter;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -37,17 +37,13 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
  * The PrimitiveSyntesizer class provides facilities to analyze information on relations between
  * operations and to synthesize on its basis the following elements:
  * 
- * <p>1. The list of root operations that includes all operations described by AND rules which have no
- * parents. Such operations serve as entry points in composite operations describing instruction
- * calls.
- * 
- * <p>2. Shortcuts for leaf (have no child operations) and junction (have more than one child
+ * <p>Shortcuts for leaf (have no child operations) and junction (have more than one child
  * operations) operations that allow addressing (instantiating with all required parent operations)
  * these operation in various contexts. A shortcut can be synthesized if there is an unambiguous way
  * to resolve all dependencies of parent operations on the way from an entry operation to a target
  * operation. Shortcuts are added to IR of corresponding target operations.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class PrimitiveSyntesizer extends LogWriter {
   /**
@@ -58,14 +54,9 @@ public final class PrimitiveSyntesizer extends LogWriter {
   public static final String ROOT_ID = "#root";
 
   /**
-   * The collection of operation primitives to be processed.
+   * The internal representation (IR) of the ISA.
    */
-  private final Collection<Primitive> operations;
-
-  /**
-   * The synthesized list of root primitives (all AND operations that have no parents).
-   */
-  private final List<Primitive> roots;
+  private final Ir ir;
 
   /**
    * The flag that is set when all information has been successfully synthesized.
@@ -81,12 +72,11 @@ public final class PrimitiveSyntesizer extends LogWriter {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-  public PrimitiveSyntesizer(final Collection<Primitive> operations, final String fileName, final LogStore log) {
+  public PrimitiveSyntesizer(final Ir ir, final String fileName, final LogStore log) {
     super(SenderKind.EMITTER, fileName, log);
-    checkNotNull(operations);
+    checkNotNull(ir);
 
-    this.operations = operations;
-    this.roots = new ArrayList<>();
+    this.ir = ir;
     this.isSyntesized = false;
   }
 
@@ -104,12 +94,8 @@ public final class PrimitiveSyntesizer extends LogWriter {
       return true;
     }
 
-    if (operations.isEmpty()) {
+    if (ir.getOps().isEmpty()) {
       reportError(NO_OPERATIONS);
-      return false;
-    }
-
-    if (!syntesizeRoots()) {
       return false;
     }
 
@@ -130,40 +116,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
   }
 
   /**
-   * Returns the list of root operations. A root operation is an AND rule that has no parents. The
-   * list is synthesized.
-   * 
-   * @return List of root operations.
-   */
-  public List<Primitive> getRoots() {
-    return roots;
-  }
-
-  /**
-   * Synthesizes the list of root operations (saves all root operations in the list). A root
-   * operation is considered to be an AND-rule operation that has no parents. If the method fails,
-   * the list is cleared.
-   * 
-   * @return <code>true</code> if the list of root operations was successfully synthesized or
-   *         <code>false</code> otherwise.
-   */
-  private boolean syntesizeRoots() {
-    for (final Primitive op : operations) {
-      if (op.getKind() != Primitive.Kind.OP) {
-        roots.clear();
-        reportError(String.format(NOT_OPERATION, op.getName()));
-        return false;
-      }
-
-      if (op.isRoot() && !op.isOrRule()) {
-        roots.add(op);
-      }
-    }
-
-    return true;
-  }
-
-  /**
    * Synthesizes shortcuts for leaf and junction operations and adds the them to the corresponding
    * operations. Only leafs (no childs) and junctions (more than one child) are considered
    * interesting because there is no need to create shortcuts for intermediate nodes.
@@ -178,13 +130,13 @@ public final class PrimitiveSyntesizer extends LogWriter {
    */
   private void syntesizeShortcuts() {
     // Fake primitive, root of all roots, needed to provide a common context.
-    final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, roots);
+    final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, ir.getRoots());
 
     // Used by ShortcutBuilder, stores all previous results to avoid
     // redundant traversals.
     final PathCounter pathCounter = new PathCounter();
 
-    for (final Primitive op : operations) {
+    for (final Primitive op : ir.getOps().values()) {
       // Only leafs and junctions: shortcuts for other nodes are redundant.
       if (isLeaf(op) || isJunction(op)) {
         final PrimitiveAND target = (PrimitiveAND) op;
@@ -198,9 +150,6 @@ public final class PrimitiveSyntesizer extends LogWriter {
 
   private static final String ALREADY_SYNTHESIZED =
       "Internal presentation has already been fully synthesized. No action was be performed.";
-
-  private static final String NOT_OPERATION =
-      "Wring input data. The %s primitive is not an operation.";
 }
 
 
