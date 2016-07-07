@@ -117,9 +117,6 @@ public final class IrWalkerFlow {
     }
 
     visitor.onPrimitiveEnd(primitive);
-    if (isStatus(Status.SKIP)) {
-      visitor.setStatus(Status.OK);
-    }
   }
 
   private void visitArguments(final PrimitiveAND primitive) {
@@ -138,6 +135,11 @@ public final class IrWalkerFlow {
       if (isStatus(Status.ABORT)) {
         return;
       }
+
+      if (isStatus(Status.OK)) {
+        visitPrimitive(shortcut.getEntry());
+      }
+
       visitor.onShortcutEnd(primitive, shortcut);
     }
   }

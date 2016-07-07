@@ -69,6 +69,10 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
       if (!item.isOrRule()) {
         this.primitives.pop();
       }
+
+      if (isStatus(Status.SKIP)) {
+        setStatus(Status.OK);
+      }
     }
 
     @Override

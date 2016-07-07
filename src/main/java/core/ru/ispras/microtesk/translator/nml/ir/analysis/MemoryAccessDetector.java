@@ -88,6 +88,10 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
         primitive.getInfo().setStore(status.isStore());
         primitive.getInfo().setBlockSize(status.getBlockSize());
       }
+
+      if (isStatus(Status.SKIP)) {
+        setStatus(Status.OK);
+      }
     }
 
     @Override

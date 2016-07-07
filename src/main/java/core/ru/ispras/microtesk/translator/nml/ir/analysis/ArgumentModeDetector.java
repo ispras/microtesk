@@ -74,6 +74,10 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
       if (!item.isOrRule()) {
         this.primitives.pop();
       }
+
+      if (isStatus(Status.SKIP)) {
+        setStatus(Status.OK);
+      }
     }
 
     @Override
