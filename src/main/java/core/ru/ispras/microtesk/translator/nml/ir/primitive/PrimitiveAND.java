@@ -64,7 +64,7 @@ public final class PrimitiveAND extends Primitive {
     this.args = new LinkedHashMap<>(other.args);
     this.attrs = other.attrs;
     this.shortcuts = other.shortcuts;
-    this.info = other.info; 
+    this.info = new PrimitiveInfo(other.info); 
   }
 
   public void addShortcut(final Shortcut shortcut) {
