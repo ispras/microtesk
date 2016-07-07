@@ -27,6 +27,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class Ir {
+  private final String modelName;
   private final Map<String, LetConstant> consts;
   private final Map<String, LetLabel> labels;
   private final Map<String, Type> types;
@@ -35,7 +36,10 @@ public final class Ir {
   private final Map<String, Primitive> ops;
   private List<Primitive> roots;
 
-  public Ir() {
+  public Ir(final String modelName) {
+    InvariantChecks.checkNotNull(modelName);
+    this.modelName = modelName;
+
     this.consts  = new LinkedHashMap<>();
 
     this.labels  = new LinkedHashMap<>();
@@ -46,6 +50,10 @@ public final class Ir {
     this.ops     = new LinkedHashMap<>();
 
     this.roots = Collections.<Primitive>emptyList();
+  }
+
+  public String getModelName() {
+    return modelName;
   }
 
   public void add(final String name, final LetConstant value) {

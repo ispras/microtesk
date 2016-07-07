@@ -63,6 +63,7 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new BranchDetector());
     addHandler(new ExceptionDetector());
     addHandler(new MemoryAccessDetector());
+    addHandler(new Analyzer(this));
   }
 
   //------------------------------------------------------------------------------------------------
@@ -101,7 +102,7 @@ public final class NmlTranslator extends Translator<Ir> {
   // Parser
   //------------------------------------------------------------------------------------------------
 
-  private Ir startParserAndWalker(final TokenSource source) {// throws RecognitionException {
+  private Ir startParserAndWalker(final String modelName, final TokenSource source) {
     final LogStore log = getLog();
 
     final CommonTokenStream tokens = new TokenRewriteStream();
@@ -124,7 +125,7 @@ public final class NmlTranslator extends Translator<Ir> {
       final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
       nodes.setTokenStream(tokens);
 
-      final Ir ir = new Ir();
+      final Ir ir = new Ir(modelName);
       final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
       walker.assignLog(log);
@@ -165,12 +166,9 @@ public final class NmlTranslator extends Translator<Ir> {
     Logger.message("Model name: " + modelName);
 
     final TokenSource source = startLexer(filenames);
-    final Ir ir = startParserAndWalker(source);
+    final Ir ir = startParserAndWalker(modelName, source);
 
     processIr(ir);
-
-    final Analyzer coverageAnalyzer = new Analyzer(ir, modelName);
-    coverageAnalyzer.generateOutput(this.getOutDir());
 
     final PrimitiveSyntesizer primitiveSyntesizer = new PrimitiveSyntesizer(
         ir.getOps().values(), FileUtils.getShortFileName(fileName), getLog());

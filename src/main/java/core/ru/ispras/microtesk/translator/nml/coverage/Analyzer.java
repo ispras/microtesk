@@ -29,6 +29,8 @@ import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
@@ -39,23 +41,29 @@ import ru.ispras.microtesk.utils.FileUtils;
 /**
  * Class for model code coverage extraction from internal representation.
  */
-public final class Analyzer {
-  private final Ir ir;
-  private final IrInquirer inquirer;
-  private final Map<String, SsaForm> ssa;
-  private final String modelName;
+public final class Analyzer implements TranslatorHandler<Ir> {
+  private final Translator<Ir> translator;
+  private Ir ir;
+  private IrInquirer inquirer;
+  private Map<String, SsaForm> ssa;
 
-  public Analyzer(final Ir ir, final String modelName) {
+  public Analyzer(final Translator<Ir> translator) {
+    InvariantChecks.checkNotNull(translator);
+    this.translator = translator;
+  }
+
+  @Override
+  public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkNotNull(modelName);
 
     this.ir = ir;
     this.inquirer = new IrInquirer(ir);
     this.ssa = new TreeMap<>();
-    this.modelName = modelName;
+
+    generateOutput(translator.getOutDir());
   }
 
-  public void generateOutput(final String targetDir) {
+  private void generateOutput(final String targetDir) {
     InvariantChecks.checkTrue(ssa.isEmpty());
     InvariantChecks.checkNotNull(targetDir);
 
@@ -63,6 +71,7 @@ public final class Analyzer {
     processPrimitives(ir.getModes().values());
     processPrimitives(ir.getOps().values());
 
+    final String modelName = ir.getModelName();
     final List<Constraint> constraints = new ArrayList<>();
 
     try {
