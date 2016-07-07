@@ -79,10 +79,7 @@ public abstract class Translator<Ir> {
     this.log = log;
   }
   
-  public final void addHandler(final TranslatorHandler<Ir> handler) {
-    checkNotNull(handler);
-    handlers.add(handler);
-  }
+
 
   public final boolean start(final String... fileNames) {
     final List<String> filteredFileNames = new ArrayList<>();
@@ -106,7 +103,10 @@ public abstract class Translator<Ir> {
     return true;
   }
 
-  protected abstract void start(final List<String> fileNames);
+  public final void addHandler(final TranslatorHandler<Ir> handler) {
+    checkNotNull(handler);
+    handlers.add(handler);
+  }
 
   protected final void processIr(final Ir ir) {
     checkNotNull(ir);
@@ -118,4 +118,6 @@ public abstract class Translator<Ir> {
       context.addIr(ir);
     }
   }
+
+  protected abstract void start(final List<String> fileNames);
 }
