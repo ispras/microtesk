@@ -12,7 +12,6 @@
  * the License.
  */
 
-
 package ru.ispras.microtesk.translator.nml.ir;
 
 import ru.ispras.fortress.expression.Node;
@@ -49,6 +48,10 @@ public class IrVisitorDefault implements IrVisitor {
   public final void setStatus(final Status status) {
     InvariantChecks.checkNotNull(status);
     this.status = status;
+  }
+
+  public final boolean isStatus(final Status status) {
+    return getStatus() == status;
   }
 
   @Override
