@@ -28,14 +28,12 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 final class STBAddressingModeOr implements STBuilder {
-  private final String specFileName;
   private final String modelName;
   private final PrimitiveOR mode;
 
-  public STBAddressingModeOr(String specFileName, String modelName, PrimitiveOR mode) {
+  public STBAddressingModeOr(String modelName, PrimitiveOR mode) {
     assert mode.getKind() == Primitive.Kind.MODE;
 
-    this.specFileName = specFileName;
     this.modelName = modelName;
     this.mode = mode;
   }
@@ -45,7 +43,6 @@ final class STBAddressingModeOr implements STBuilder {
     final ST t = group.getInstanceOf("modeor");
 
     t.add("name", mode.getName());
-    t.add("file", specFileName);
     t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
 
     t.add("imps", AddressingMode.class.getName());

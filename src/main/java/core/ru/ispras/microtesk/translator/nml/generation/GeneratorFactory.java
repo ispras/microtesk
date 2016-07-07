@@ -29,12 +29,10 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 final class GeneratorFactory {
   private final String outDir;
-  private final String specFileName;
   private final String modelName;
 
-  public GeneratorFactory(String outDir, String modelName, String specFileName) {
+  public GeneratorFactory(String outDir, String modelName) {
     this.outDir = outDir;
-    this.specFileName = specFileName;
     this.modelName = modelName.toLowerCase();
   }
 
@@ -46,7 +44,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "Model.stg"
     };
 
-    final STBuilder modelBuilder = new STBModel(specFileName, modelName, ir);
+    final STBuilder modelBuilder = new STBModel(modelName, ir);
     return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
   }
 
@@ -58,7 +56,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "Shared.stg"
     };
 
-    final STBuilder builder = new STBShared(ir, specFileName, modelName);
+    final STBuilder builder = new STBShared(ir, modelName);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
@@ -71,7 +69,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "AddressingModeOr.stg"
     };
 
-    final STBuilder builder = new STBAddressingModeOr(specFileName, modelName, mode);
+    final STBuilder builder = new STBAddressingModeOr(modelName, mode);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
@@ -84,7 +82,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "AddressingMode.stg"
     };
 
-    final STBuilder builder = new STBAddressingMode(specFileName, modelName, mode);
+    final STBuilder builder = new STBAddressingMode(modelName, mode);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
@@ -97,7 +95,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "OperationOr.stg"
     };
 
-    final STBuilder builder = new STBOperationOr(specFileName, modelName, op);
+    final STBuilder builder = new STBOperationOr(modelName, op);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
@@ -109,7 +107,7 @@ final class GeneratorFactory {
       NML_TEMPLATE_DIR + "Operation.stg"
     };
 
-    final STBuilder builder = new STBOperation(specFileName, modelName, op);
+    final STBuilder builder = new STBOperation(modelName, op);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 }

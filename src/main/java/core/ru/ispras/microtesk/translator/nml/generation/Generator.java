@@ -26,8 +26,8 @@ public final class Generator {
   private final GeneratorFactory factory;
   private final Ir ir;
 
-  public Generator(String outDir, String modelName, String specFileName, Ir ir) {
-    this.factory = new GeneratorFactory(outDir, modelName, specFileName);
+  public Generator(String outDir, String modelName, Ir ir) {
+    this.factory = new GeneratorFactory(outDir, modelName);
     this.ir = ir;
   }
 

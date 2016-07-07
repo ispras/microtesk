@@ -40,7 +40,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 
 final class STBOperation extends STBPrimitiveBase {
-  private final String specFileName;
   private final String modelName;
   private final PrimitiveAND op;
 
@@ -62,20 +61,15 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  public STBOperation(
-      final String specFileName,
-      final String modelName,
-      final PrimitiveAND op) {
+  public STBOperation(final String modelName, final PrimitiveAND op) {
     assert op.getKind() == Primitive.Kind.OP;
 
-    this.specFileName = specFileName;
     this.modelName = modelName;
     this.op = op;
   }
 
   private void buildHeader(final ST t) {
     t.add("name", op.getName());
-    t.add("file", specFileName);
     t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());

@@ -28,14 +28,12 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 final class STBOperationOr implements STBuilder {
-  private final String specFileName;
   private final String modelName;
   private final PrimitiveOR op;
 
-  public STBOperationOr(String specFileName, String modelName, PrimitiveOR op) {
+  public STBOperationOr(String modelName, PrimitiveOR op) {
     assert op.getKind() == Primitive.Kind.OP;
 
-    this.specFileName = specFileName;
     this.modelName = modelName;
     this.op = op;
   }
@@ -45,7 +43,6 @@ final class STBOperationOr implements STBuilder {
     final ST t = group.getInstanceOf("op");
 
     t.add("name", op.getName());
-    t.add("file", specFileName);
     t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Operation.class.getName());

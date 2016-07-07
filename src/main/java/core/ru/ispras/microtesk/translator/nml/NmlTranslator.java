@@ -142,8 +142,8 @@ public final class NmlTranslator extends Translator<Ir> {
   // Generator
   //------------------------------------------------------------------------------------------------
 
-  private void startGenerator(final String modelName, final String fileName, final Ir ir) {
-    final Generator generator = new Generator(getOutDir() + "/src/java", modelName, fileName, ir);
+  private void startGenerator(final String modelName, final Ir ir) {
+    final Generator generator = new Generator(getOutDir() + "/src/java", modelName, ir);
     generator.generate();
   }
 
@@ -181,7 +181,7 @@ public final class NmlTranslator extends Translator<Ir> {
     }
     ir.setRoots(primitiveSyntesizer.getRoots());
 
-    startGenerator(modelName, FileUtils.getShortFileName(fileName), ir);
+    startGenerator(modelName, ir);
   }
 
   private static final String FAILED_TO_SYNTH_PRIMITIVES =

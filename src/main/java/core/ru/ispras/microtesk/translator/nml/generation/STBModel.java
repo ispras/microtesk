@@ -40,15 +40,12 @@ final class STBModel implements STBuilder {
   public static final String SHARED_VARIABLES = "__VARIABLES";
   public static final String SHARED_LABELS = "__LABELS";
 
-  private final String specFileName;
   private final String modelName;
   private final Ir ir;
 
   public STBModel(
-      final String specFileName,
       final String modelName,
       final Ir ir) {
-    this.specFileName = specFileName;
     this.modelName = modelName;
     this.ir = ir;
   }
@@ -56,8 +53,6 @@ final class STBModel implements STBuilder {
   @Override
   public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("model");
-
-    t.add("file", specFileName);
     t.add("pack", String.format(MODEL_PACKAGE_FORMAT, modelName));
 
     t.add("imps", ProcessorModel.class.getName());

@@ -35,18 +35,15 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 final class STBAddressingMode extends STBPrimitiveBase {
-  private final String specFileName;
   private final String modelName;
   private final PrimitiveAND mode;
 
   public STBAddressingMode(
-      final String specFileName,
       final String modelName,
       final PrimitiveAND mode) {
 
     assert mode.getKind() == Primitive.Kind.MODE;
 
-    this.specFileName = specFileName;
     this.modelName = modelName;
     this.mode = mode;
   }
@@ -54,7 +51,6 @@ final class STBAddressingMode extends STBPrimitiveBase {
   private void buildHeader(final STGroup group, final ST t) {
     t.add("name", mode.getName());
     t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
-    t.add("file", specFileName);
     t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
