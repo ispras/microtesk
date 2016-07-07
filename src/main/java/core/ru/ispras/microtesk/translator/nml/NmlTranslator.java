@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.nml;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.antlr.runtime.CharStream;
@@ -31,11 +30,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.antlrex.Preprocessor;
-import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
-import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
@@ -51,13 +46,12 @@ import ru.ispras.microtesk.utils.FileUtils;
 
 public final class NmlTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".nml");
-  private final SymbolTable symbols = new SymbolTable();
 
   public NmlTranslator() {
     super(FILTER);
 
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+    getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
@@ -68,82 +62,10 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new Generator(this));
   }
 
-  //------------------------------------------------------------------------------------------------
-  // Lexer and Preprocessor
-  //------------------------------------------------------------------------------------------------
-
-  private final Preprocessor pp = new Preprocessor(this);
-
-  private TokenSourceStack source;
-
   @Override
-  public void addPath(final String path) {
-    pp.addPath(path);
+  protected TokenSource newLexer(final CharStream stream) {
+    return new NmlLexer(stream, getPreprocessor(), getSymbols());
   }
-
-  @Override
-  public void startLexer(final CharStream stream) {
-    source.push(new NmlLexer(stream, pp, symbols));
-  }
-
-  private TokenSource startLexer(final List<String> filenames) {
-    ListIterator<String> iterator = filenames.listIterator(filenames.size());
-
-    // Create a stack of lexers.
-    source = new TokenSourceStack();
-
-    // Process the files in reverse order (emulate inclusion).
-    while (iterator.hasPrevious()) {
-      pp.includeTokensFromFile(iterator.previous());
-    }
-
-    return source;
-  }
-
-  //------------------------------------------------------------------------------------------------
-  // Parser
-  //------------------------------------------------------------------------------------------------
-
-  private Ir startParserAndWalker(final String modelName, final TokenSource source) {
-    final LogStore log = getLog();
-
-    final CommonTokenStream tokens = new TokenRewriteStream();
-    tokens.setTokenSource(source);
-
-    final NmlParser parser = new NmlParser(tokens);
-    parser.assignLog(log);
-    parser.assignSymbols(symbols);
-    parser.commonParser.assignLog(log);
-    parser.commonParser.assignSymbols(symbols);
-    parser.setTreeAdaptor(new CommonTreeAdaptor());
-
-    try {
-      final RuleReturnScope result = parser.startRule();
-      final CommonTree tree = (CommonTree) result.getTree();
-
-      // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
-      // print(tree);
-
-      final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
-      nodes.setTokenStream(tokens);
-
-      final Ir ir = new Ir(modelName);
-      final NmlTreeWalker walker = new NmlTreeWalker(nodes);
-
-      walker.assignLog(log);
-      walker.assignSymbols(symbols);
-      walker.assignIR(ir);
-
-      walker.startRule();
-      return ir;
-    } catch (final RecognitionException re) {
-      return null;
-    }
-  }
-
-  //------------------------------------------------------------------------------------------------
-  // Translator
-  //------------------------------------------------------------------------------------------------
 
   @Override
   protected void start(final List<String> filenames) {
@@ -162,5 +84,40 @@ public final class NmlTranslator extends Translator<Ir> {
     final Ir ir = startParserAndWalker(modelName, source);
 
     processIr(ir);
+  }
+
+  private Ir startParserAndWalker(final String modelName, final TokenSource source) {
+    final CommonTokenStream tokens = new TokenRewriteStream();
+    tokens.setTokenSource(source);
+
+    final NmlParser parser = new NmlParser(tokens);
+    parser.assignLog(getLog());
+    parser.assignSymbols(getSymbols());
+    parser.commonParser.assignLog(getLog());
+    parser.commonParser.assignSymbols(getSymbols());
+    parser.setTreeAdaptor(new CommonTreeAdaptor());
+
+    try {
+      final RuleReturnScope result = parser.startRule();
+      final CommonTree tree = (CommonTree) result.getTree();
+
+      // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
+      // print(tree);
+
+      final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
+      nodes.setTokenStream(tokens);
+
+      final Ir ir = new Ir(modelName);
+      final NmlTreeWalker walker = new NmlTreeWalker(nodes);
+
+      walker.assignLog(getLog());
+      walker.assignSymbols(getSymbols());
+      walker.assignIR(ir);
+
+      walker.startRule();
+      return ir;
+    } catch (final RecognitionException re) {
+      return null;
+    }
   }
 }

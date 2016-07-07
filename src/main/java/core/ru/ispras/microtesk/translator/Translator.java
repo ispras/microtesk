@@ -17,34 +17,67 @@ package ru.ispras.microtesk.translator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.antlr.runtime.CharStream;
+import org.antlr.runtime.TokenSource;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.antlrex.Preprocessor;
+import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public abstract class Translator<Ir> {
   private final Set<String> fileExtFilter;
   private final List<TranslatorHandler<Ir>> handlers;
+  private final SymbolTable symbols;
 
   private String outDir;
   private TranslatorContext context;
   private LogStore log;
+
+  private final Preprocessor preprocessor;
+  private TokenSourceStack source;
 
   public Translator(final Set<String> fileExtFilter) {
     InvariantChecks.checkNotNull(fileExtFilter);
 
     this.fileExtFilter = fileExtFilter;
     this.handlers = new ArrayList<>();
+    this.symbols = new SymbolTable();
 
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
     this.context = null;
     this.log = LogStoreConsole.INSTANCE;
+
+    this.preprocessor = new Preprocessor(this);
+    this.source = null;
+  }
+
+  public final void addHandler(final TranslatorHandler<Ir> handler) {
+    InvariantChecks.checkNotNull(handler);
+    handlers.add(handler);
+  }
+
+  protected final void processIr(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+    for (final TranslatorHandler<Ir> handler : handlers) {
+      handler.processIr(ir);
+    }
+
+    if (null != context) {
+      context.addIr(ir);
+    }
+  }
+
+  protected SymbolTable getSymbols() {
+    return symbols;
   }
 
   public final String getOutDir() {
@@ -65,10 +98,6 @@ public abstract class Translator<Ir> {
     this.context = context;
   }
 
-  public abstract void addPath(String path);
- 
-  public abstract void startLexer(final CharStream stream);
-
   public final LogStore getLog() {
     return log;
   }
@@ -76,6 +105,32 @@ public abstract class Translator<Ir> {
   public final void setLog(final LogStore log) {
     InvariantChecks.checkNotNull(log);
     this.log = log;
+  }
+
+  protected final Preprocessor getPreprocessor() {
+    return preprocessor;
+  }
+
+  public final void addPath(final String path) {
+    preprocessor.addPath(path);
+  }
+
+  public final void startLexer(final CharStream stream) {
+    source.push(newLexer(stream));
+  }
+
+  protected final TokenSource startLexer(final List<String> filenames) {
+    ListIterator<String> iterator = filenames.listIterator(filenames.size());
+
+    // Create a stack of lexers.
+    source = new TokenSourceStack();
+
+    // Process the files in reverse order (emulate inclusion).
+    while (iterator.hasPrevious()) {
+      preprocessor.includeTokensFromFile(iterator.previous());
+    }
+
+    return source;
   }
 
   public final boolean start(final String... fileNames) {
@@ -100,21 +155,6 @@ public abstract class Translator<Ir> {
     return true;
   }
 
-  public final void addHandler(final TranslatorHandler<Ir> handler) {
-    InvariantChecks.checkNotNull(handler);
-    handlers.add(handler);
-  }
-
-  protected final void processIr(final Ir ir) {
-    InvariantChecks.checkNotNull(ir);
-    for (final TranslatorHandler<Ir> handler : handlers) {
-      handler.processIr(ir);
-    }
-
-    if (null != context) {
-      context.addIr(ir);
-    }
-  }
-
+  protected abstract TokenSource newLexer(CharStream stream);
   protected abstract void start(final List<String> fileNames);
 }
