@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.translator;
 import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.antlr.runtime.ANTLRReaderStream;
@@ -39,55 +38,25 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.antlrex.Preprocessor;
-import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
-import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
-import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class MmuTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".mmu");
-  private final SymbolTable symbols = new SymbolTable();
 
   public MmuTranslator() {
     super(FILTER);
 
-    symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.JAVA);
-    symbols.defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+    getSymbols().defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.JAVA);
+    getSymbols().defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     addHandler(new SimGenerator(this));
     addHandler(new SpecGenerator(this));
   }
 
-  private final Preprocessor pp = new Preprocessor(this);
-
-  private TokenSourceStack source;
-
   @Override
-  public void addPath(final String path) {
-    InvariantChecks.checkNotNull(path);
-    pp.addPath(path);
-  }
-
-  @Override
-  public void startLexer(final CharStream stream) {
-    InvariantChecks.checkNotNull(stream);
-    source.push(new MmuLexer(stream, pp, symbols));
-  }
-
-  private TokenSource startLexer(final List<String> filenames) {
-    ListIterator<String> iterator = filenames.listIterator(filenames.size());
-
-    // Create a stack of lexers.
-    source = new TokenSourceStack();
-
-    // Process the files in reverse order (emulate inclusion).
-    while (iterator.hasPrevious()) {
-      pp.includeTokensFromFile(iterator.previous());
-    }
-
-    return source;
+  protected TokenSource newLexer(final CharStream stream) {
+    return new MmuLexer(stream, getPreprocessor(), getSymbols());
   }
 
   @Override
@@ -101,7 +70,6 @@ public final class MmuTranslator extends Translator<Ir> {
     Logger.message("Model name: " + modelName);
     Logger.message("");
 
-    final LogStore LOG = getLog();
     final Ir ir = new Ir(modelName);
 
     try {
@@ -114,10 +82,10 @@ public final class MmuTranslator extends Translator<Ir> {
       tokens.setTokenSource(source);
 
       final MmuParser parser = new MmuParser(tokens);
-      parser.assignLog(LOG);
-      parser.assignSymbols(symbols);
-      parser.commonParser.assignLog(LOG);
-      parser.commonParser.assignSymbols(symbols);
+      parser.assignLog(getLog());
+      parser.assignSymbols(getSymbols());
+      parser.commonParser.assignLog(getLog());
+      parser.commonParser.assignSymbols(getSymbols());
 
       final MmuParser.startRule_return r = parser.startRule();
       final CommonTree t = (CommonTree) r.getTree();
@@ -133,8 +101,8 @@ public final class MmuTranslator extends Translator<Ir> {
       nodes.setTokenStream(tokens);
 
       final MmuTreeWalker walker = new MmuTreeWalker(nodes);
-      walker.assignLog(LOG);
-      walker.assignSymbols(symbols);
+      walker.assignLog(getLog());
+      walker.assignSymbols(getSymbols());
       walker.assignIR(ir);
       walker.assignContext(getContext());
 
