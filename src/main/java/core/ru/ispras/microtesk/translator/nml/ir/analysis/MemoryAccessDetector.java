@@ -24,8 +24,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.IrPass;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
@@ -42,8 +42,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
-    final IrPass pass = new IrPass(ir, new Visitor());
-    pass.start();
+    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
+    walker.visit();
   }
 
   private static final class Visitor extends IrVisitorDefault {

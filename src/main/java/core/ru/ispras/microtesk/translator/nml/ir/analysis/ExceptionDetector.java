@@ -19,18 +19,17 @@ import java.util.Deque;
 
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.IrPass;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 
 public final class ExceptionDetector implements TranslatorHandler<Ir> {
-
   @Override
   public void processIr(final Ir ir) {
-    final IrPass pass = new IrPass(ir, new Visitor());
-    pass.start();
+    final IrWalkerFlow walker = new IrWalkerFlow(ir, new Visitor());
+    walker.visit();
   }
 
   private static final class Visitor extends IrVisitorDefault {
