@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,15 +19,14 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 /**
  * The LogWriter is a helper class that provides facilities to post messages to the log.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class LogWriter {
   private final SenderKind sender;
   private final String fileName;
   private final LogStore log;
 
-  public LogWriter(SenderKind sender, String fileName, LogStore log) {
+  public LogWriter(final SenderKind sender, final String fileName, final LogStore log) {
     checkNotNull(sender);
     checkNotNull(fileName);
     checkNotNull(log);
@@ -37,7 +36,7 @@ public class LogWriter {
     this.log = log;
   }
 
-  private void report(LogEntry.Kind kind, String message) {
+  private void report(final LogEntry.Kind kind, final String message) {
     log.append(new LogEntry(kind, sender, fileName, 0, 0, message));
   }
 
@@ -46,8 +45,7 @@ public class LogWriter {
    * 
    * @param message Error message.
    */
-
-  public final void reportError(String message) {
+  public final void reportError(final String message) {
     report(LogEntry.Kind.ERROR, message);
   }
 
@@ -56,8 +54,7 @@ public class LogWriter {
    * 
    * @param message Warning message.
    */
-
-  public final void reportWarning(String message) {
+  public final void reportWarning(final String message) {
     report(LogEntry.Kind.WARNING, message);
   }
 }
