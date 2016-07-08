@@ -30,6 +30,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.utils.SharedObject;
+import ru.ispras.microtesk.utils.StringUtils;
 
 public final class Preparator {
   private final Where where;
@@ -281,15 +282,7 @@ public final class Preparator {
 
     if (!arguments.isEmpty()) {
       sb.append(", :arguments => {");
-      boolean isFirst = true;
-      for (final Argument argument : arguments) {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append(", ");
-        }
-        sb.append(argument.toString());
-      }
+      sb.append(StringUtils.toString(arguments, ", "));
       sb.append('}');
     }
 
@@ -519,16 +512,7 @@ public final class Preparator {
         sb.append('[');
       }
 
-      boolean isFirst = true;
-      for (final BigInteger value : values) {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append(", ");
-        }
-
-        sb.append(value);
-      }
+      sb.append(StringUtils.toString(values, ", "));
 
       if (!isSingle) {
         sb.append(']');
