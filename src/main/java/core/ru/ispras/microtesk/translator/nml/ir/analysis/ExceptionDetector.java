@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -37,31 +34,50 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
   }
 
   private static final class Visitor extends IrVisitorDefault {
-    private final Deque<PrimitiveAND> primitives;
-    private final Deque<Shortcut> shortcuts;
+    private PrimitiveAND primitive;
+    private Shortcut shortcut;
+    private PrimitiveInfo info;
 
     public Visitor() {
-      this.primitives = new ArrayDeque<>();
-      this.shortcuts = new ArrayDeque<>();
+      this.primitive = null;
+      this.shortcut = null;
+      this.info = null;
     }
 
     private PrimitiveInfo getInfo() {
-      return shortcuts.isEmpty() ?
-          primitives.peek().getInfo() :
-          shortcuts.peek().getInfo();
+      InvariantChecks.checkNotNull(info);
+      return info;
     }
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (!item.isOrRule()) {
-        this.primitives.push((PrimitiveAND) item);
+      InvariantChecks.checkFalse(item.isOrRule());
+
+      if (this.primitive == null) {
+        InvariantChecks.checkTrue(this.shortcut == null);
+        InvariantChecks.checkTrue(this.info == null);
+
+        this.primitive = (PrimitiveAND) item;
+        this.info = this.primitive.getInfo();
+      } else {
+        InvariantChecks.checkNotNull(this.shortcut);
+        InvariantChecks.checkTrue(this.info == this.shortcut.getInfo());
       }
     }
 
     @Override
     public void onPrimitiveEnd(final Primitive item) {
-      if (!item.isOrRule()) {
-        this.primitives.pop();
+      InvariantChecks.checkFalse(item.isOrRule());
+
+      if (this.shortcut == null) {
+        InvariantChecks.checkNotNull(this.primitive);
+        InvariantChecks.checkTrue(this.info == this.primitive.getInfo());
+
+        this.primitive = null;
+        this.info = null;
+      } else {
+        InvariantChecks.checkTrue(this.primitive != item);
+        InvariantChecks.checkTrue(this.info == this.shortcut.getInfo());
       }
 
       if (isStatus(Status.SKIP)) {
@@ -70,24 +86,30 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
-      if (isStatus(Status.SKIP) &&
-          primitives.peek() == andRule && 
-          attr.getName().equals(Attribute.ACTION_NAME)) {
-       setStatus(Status.OK);
-      }
-    }
-
-    @Override
     public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
-      InvariantChecks.checkTrue(andRule == primitives.peek());
-      shortcuts.push(shortcut);
+      InvariantChecks.checkTrue(this.primitive == andRule);
+      InvariantChecks.checkTrue(this.shortcut == null);
+
+      this.shortcut = shortcut;
+      this.info = shortcut.getInfo();
     }
 
     @Override
     public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
-      InvariantChecks.checkTrue(andRule == primitives.peek());
-      shortcuts.pop();
+      InvariantChecks.checkTrue(this.primitive == andRule);
+      InvariantChecks.checkTrue(this.shortcut == shortcut);
+
+      this.shortcut = null;
+      this.info = andRule.getInfo();
+    }
+
+    @Override
+    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+      if (isStatus(Status.SKIP) &&
+          this.primitive == andRule &&
+          attr.getName().equals(Attribute.ACTION_NAME)) {
+       setStatus(Status.OK);
+      }
     }
 
     @Override
