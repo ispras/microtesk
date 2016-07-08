@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The {@code MetaAddressingMode} class holds information on the specified
@@ -191,14 +192,6 @@ public final class MetaAddressingMode implements MetaData {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder();
-    for (final String argName : getArgumentNames()) {
-      if (sb.length() > 0) {
-        sb.append(", ");
-      }
-      sb.append(argName);
-    }
-
-    return String.format("%s (%s)", name, sb.toString());
+    return String.format("%s (%s)", name, StringUtils.toString(getArgumentNames(), ", "));
   }
 }
