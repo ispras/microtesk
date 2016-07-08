@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Reference;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
@@ -135,7 +135,7 @@ public final class PrimitiveUtils {
 
     int nonJunctionParents = 0;
 
-    for (final Reference ref : primitive.getParents()) {
+    for (final PrimitiveReference ref : primitive.getParents()) {
       if (!PrimitiveUtils.isJunction(ref.getSource())) {
         nonJunctionParents++;
       }

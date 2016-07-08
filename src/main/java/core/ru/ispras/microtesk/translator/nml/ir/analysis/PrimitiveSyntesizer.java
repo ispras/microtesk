@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.PathCounter
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
 /**
@@ -217,7 +218,7 @@ final class ShortcutBuilder {
       creator.addShortcutContext(root.getName());
     } else {
       checkForMultipleParents(entry);
-      for (final Primitive.Reference ref : entry.getParents()) {
+      for (final PrimitiveReference ref : entry.getParents()) {
         if (!isSinglePathToTarget(ref.getSource())) {
           continue;
         }

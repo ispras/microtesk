@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,115 +32,12 @@ public class Primitive {
     IMM
   }
 
-  /**
-   * The Reference class describes references to the current primitive made from another primitive
-   * (parent). There may be several reference since a primitive (AND rule) can have several
-   * parameters of the same type.
-   * 
-   * @author Andrei Tatarnikov
-   */
-
-  public static final class Reference {
-    private final PrimitiveAND source;
-    private final Primitive target;
-    private final Set<String> refNames;
-
-    /**
-     * Constructs a reference made from the source (parent) primitive to the target primitive.
-     */
-
-    private Reference(PrimitiveAND source, Primitive target) {
-      this(source, target, new LinkedHashSet<String>());
-    }
-
-    /**
-     * Additional constructor for making modified copies.
-     */
-
-    private Reference(
-        final PrimitiveAND source,
-        final Primitive target,
-        final Set<String> refNames) {
-      this.source = source;
-      this.target = target;
-      this.refNames = refNames;
-    }
-
-    /**
-     * Registers a reference from the parent primitive to the current primitive.
-     */
-
-    private void addReference(String referenceName) {
-      refNames.add(referenceName);
-    }
-
-    /**
-     * Returns the name of the primitive that makes a reference to the current primitive.
-     */
-
-    public String getName() {
-      return source.getName();
-    }
-
-    /**
-     * Returns the primitive the refers to the current primitive.
-     */
-
-    public PrimitiveAND getSource() {
-      return source;
-    }
-
-    /**
-     * Returns the primitive the reference points to (current primitive).
-     */
-
-    public Primitive getTarget() {
-      return target;
-    }
-
-    /**
-     * Returns the number of references made from the parent primitive to the current primitive.
-     */
-
-    public int getReferenceCount() {
-      return refNames.size();
-    }
-
-    /**
-     * Returns names of the references (parameter names) made from the parent primitive
-     * to the current primitive.
-     */
-
-    public Set<String> getReferenceNames() {
-      return Collections.unmodifiableSet(refNames);
-    }
-
-    /**
-     * Resolves the reference and returns the source primitive that has all references resolved. To
-     * resolve a reference from source to target means to set all source arguments that can point to
-     * the target (OR rules) to the specified target.
-     */
-
-    public PrimitiveAND resolve() {
-      PrimitiveAND result = source;
-      for (String refName : refNames) {
-        if (result.getArguments().get(refName) != target) {
-          if (result == source) {
-            result = source.makeCopy();
-          }
-          result.getArguments().put(refName, target);
-        }
-      }
-      return result;
-    }
-  }
-
   private final String name;
   private final Kind kind;
   private final boolean isOrRule;
   private final Type returnType;
   private final Set<String> attrNames;
-  private final Map<String, Reference> parents;
+  private final Map<String, PrimitiveReference> parents;
 
   Primitive(
       final String name,
@@ -154,7 +50,7 @@ public class Primitive {
     this.isOrRule = isOrRule;
     this.returnType = returnType;
     this.attrNames = attrNames;
-    this.parents = new HashMap<String, Reference>();
+    this.parents = new HashMap<>();
   }
 
   Primitive(Primitive source) {
@@ -163,13 +59,13 @@ public class Primitive {
     this.isOrRule = source.isOrRule;
     this.returnType = source.returnType;
     this.attrNames = source.attrNames;
-    this.parents = new HashMap<String, Reference>();
+    this.parents = new HashMap<>();
 
-    for (Map.Entry<String, Reference> e : source.parents.entrySet()) {
+    for (Map.Entry<String, PrimitiveReference> e : source.parents.entrySet()) {
       final String id = e.getKey();
-      final Reference ref = e.getValue();
+      final PrimitiveReference ref = e.getValue();
 
-      this.parents.put(id, new Reference(ref.source, this, ref.refNames));
+      this.parents.put(id, new PrimitiveReference(ref.source, this, ref.refNames));
     }
   }
 
@@ -181,11 +77,11 @@ public class Primitive {
    *        the current primitive.
    */
   protected void addParentReference(PrimitiveAND parent, String referenceName) {
-    final Reference reference;
+    final PrimitiveReference reference;
     if (parents.containsKey(parent.getName())) {
       reference = parents.get(parent.getName());
     } else {
-      reference = new Reference(parent, this);
+      reference = new PrimitiveReference(parent, this);
       parents.put(parent.getName(), reference);
     }
     reference.addReference(referenceName);
@@ -238,7 +134,7 @@ public class Primitive {
    * @return Collection of parent primitives.
    */
 
-  public final Collection<Reference> getParents() {
+  public final Collection<PrimitiveReference> getParents() {
     return Collections.unmodifiableCollection(parents.values());
   }
 
@@ -262,7 +158,7 @@ public class Primitive {
 
   public final int getParentReferenceCount() {
     int count = 0;
-    for (Reference ref : getParents()) {
+    for (final PrimitiveReference ref : getParents()) {
       count += ref.getReferenceCount();
     }
     return count;
