@@ -23,6 +23,7 @@ import java.util.Set;
 import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The {@code MetaArgument} class describes arguments or addressing modes and operations.
@@ -134,15 +135,7 @@ public final class MetaArgument implements MetaData {
     sb.append(String.format("[%s] %s: %s ",
         mode.getText(), getName(), kind.name().toLowerCase()));
 
-    boolean isFirst = false;
-    for (final String typeName: typeNames) {
-      if (isFirst) {
-        isFirst = false; 
-      } else {
-        sb.append('|');
-      }
-      sb.append(typeName);
-    }
+    sb.append(StringUtils.toString(typeNames, "|"));
 
     if (dataType != null) {
       sb.append(String.format("(%s)", dataType.toString()));
