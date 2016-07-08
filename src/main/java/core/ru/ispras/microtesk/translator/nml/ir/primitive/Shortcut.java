@@ -24,6 +24,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The Shortcut class describes a shortcut (a short way) to address a group of operations within the
@@ -298,37 +299,13 @@ public final class Shortcut {
 
   @Override
   public String toString() {
-    final StringBuilder cnsb = new StringBuilder();
-    boolean isFirst = true;
-
-    for (final String cn : contextNames) {
-      if (!isFirst) {
-        cnsb.append(", ");
-      } else {
-        isFirst = false;
-      }
-      cnsb.append(cn);
-    }
-
-    final StringBuilder argsb = new StringBuilder();
-    isFirst = true;
-
-    for (final Argument arg : arguments.values()) {
-      if (!isFirst) {
-        argsb.append(", ");
-      } else {
-        isFirst = false;
-      }
-      argsb.append(arg);
-    }
-
     return String.format(
         "%s: Entry = %s, Target = %s, Contexts = [%s], Args = [%s]",
         getName(),
         entry.getName(),
         target.getName(),
-        cnsb,
-        argsb
+        StringUtils.toString(contextNames, ", "),
+        StringUtils.toString(arguments.values(), ", ")
         );
   }
 
