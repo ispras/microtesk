@@ -89,13 +89,17 @@ public final class Ir {
       modes.put(name, value);
     } else if (Primitive.Kind.OP == value.getKind()) {
       ops.put(name, value);
-      if (value.isRoot() && !value.isOrRule()) {
-        roots.add(value);
-      }
     } else {
       throw new IllegalArgumentException(
           "Illegal primitive kind: " + value.getKind());
     }
+  }
+
+  public void addRoot(final Primitive value) {
+    InvariantChecks.checkTrue(value.isRoot());
+    InvariantChecks.checkTrue(Primitive.Kind.OP == value.getKind());
+    InvariantChecks.checkFalse(value.isOrRule());
+    roots.add(value);
   }
 
   public Map<String, LetConstant> getConstants() {

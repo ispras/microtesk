@@ -18,18 +18,22 @@ import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 
-public final class ReferenceDetector implements TranslatorHandler<Ir> {
+public final class RootDetector implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
     final IrWalker walker = new IrWalker(ir);
-    walker.visit(new Visitor(), IrWalker.Direction.LINEAR);
+    walker.visit(new Visitor(ir), IrWalker.Direction.LINEAR);
   }
 
   private static final class Visitor extends IrVisitorDefault {
+    private final Ir ir;
+
+    private Visitor(final Ir ir) {
+      this.ir = ir;
+    }
+
     @Override
     public void onResourcesBegin() {
       setStatus(Status.SKIP);
@@ -41,17 +45,15 @@ public final class ReferenceDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onArgumentBegin(final PrimitiveAND andRule, final String argName, final Primitive argType) {
-      argType.addParentReference(andRule, argName);
-    }
-
-    @Override
-    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+    public void onPrimitiveBegin(final Primitive item) {
       setStatus(Status.SKIP);
+      if (item.isRoot() && Primitive.Kind.OP == item.getKind() && !item.isOrRule()) {
+        ir.addRoot(item);
+      }
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onPrimitiveEnd(final Primitive item) {
       setStatus(Status.OK);
     }
   }

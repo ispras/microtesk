@@ -43,6 +43,7 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
+import ru.ispras.microtesk.translator.nml.ir.analysis.RootDetector;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class NmlTranslator extends Translator<Ir> {
@@ -54,13 +55,19 @@ public final class NmlTranslator extends Translator<Ir> {
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
+    // Detects parent-child connections between primitives
     addHandler(new ReferenceDetector());
+    // Adds the list of root operations to IR 
+    addHandler(new RootDetector());
+
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());
     addHandler(new Analyzer(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
+
+    // Generates Java code of the ISA model
     addHandler(new Generator(this));
   }
 
