@@ -34,7 +34,7 @@ public final class PrimitiveOR extends Primitive {
     this.ors = ors;
   }
 
-  protected void addParentReference(final PrimitiveAND parent, final String referenceName) {
+  public void addParentReference(final PrimitiveAND parent, final String referenceName) {
     super.addParentReference(parent, referenceName);
 
     for (final Primitive target : ors) {
