@@ -41,6 +41,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class GuardPrinter {
   private final Ir ir;
@@ -135,14 +136,14 @@ final class GuardPrinter {
           cond.getType() == Condition.Type.AND ? "and" : "or";
 
       return String.format("new MmuGuard(MmuCondition.%s(%s))",
-          operation, Utils.toString(conditionAtoms, ", "));
+          operation, StringUtils.toString(conditionAtoms, ", "));
     }
 
     if (equalities.isEmpty() && !segments.isEmpty() && buffers.isEmpty()) {
       InvariantChecks.checkTrue(segments.size() == 1, "One segment event is allowed.");
 
       final List<String> segmentIds = extractSegmentIds(segments.get(0));
-      final String segmentIdsText = Utils.toString(segmentIds, ".get(), ") + ".get()";
+      final String segmentIdsText = StringUtils.toString(segmentIds, ".get(), ") + ".get()";
 
       return String.format(
           "new MmuGuard(null, Arrays.<MmuSegment>asList(%s))", segmentIdsText);

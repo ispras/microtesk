@@ -43,6 +43,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class SegmentControlFlowExplorer {
   private final boolean isMapped;
@@ -79,7 +80,7 @@ final class SegmentControlFlowExplorer {
         address.getAddressType().getBitSize();
 
     final String variableId =
-        address.getId() + "." + Utils.toString(address.getAccessChain());
+        address.getId() + "." + StringUtils.toString(address.getAccessChain(), ".");
 
     return new IntegerVariable(variableId, variableSize);
   }

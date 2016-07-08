@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -24,24 +23,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 public final class Utils {
   private Utils() {}
-
-  public static String toString(final Collection<String> list) {
-    return toString(list, ".");
-  }
-
-  public static String toString(final Collection<String> list, final String sep) {
-    InvariantChecks.checkNotNull(list);
-
-    final StringBuilder sb = new StringBuilder();
-    for (final String string : list) {
-      if (sb.length() != 0) {
-        sb.append(sep);
-      }
-      sb.append(string);
-    }
-
-    return sb.toString();
-  }
 
   public static String toString(final BigInteger value) {
     InvariantChecks.checkNotNull(value);

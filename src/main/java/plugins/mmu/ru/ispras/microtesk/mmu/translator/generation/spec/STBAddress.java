@@ -21,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class STBAddress implements STBuilder {
   public static final Class<?> ADDRESS_CLASS =
@@ -75,7 +76,7 @@ final class STBAddress implements STBuilder {
 
     stConstructor.add("stmts", "");
     stConstructor.add("stmts", String.format("setVariable(%s);",
-                      Utils.toString(address.getAccessChain(), ".")));
+                      StringUtils.toString(address.getAccessChain(), ".")));
 
     st.add("members", "");
     st.add("members", stConstructorDef);

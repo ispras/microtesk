@@ -38,6 +38,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class BufferExprAnalyzer {
   private final Variable addressVariable;
@@ -279,7 +280,8 @@ final class BufferExprAnalyzer {
     this.addressVariable = addressVariable.accessNested(address.getAccessChain());
 
     final int addressSize = address.getAddressType().getBitSize();
-    final String addressName = address.getId() + "." + Utils.toString(address.getAccessChain());
+    final String addressName =
+        address.getId() + "." + StringUtils.toString(address.getAccessChain(), ".");
 
     this.variableForAddress = new IntegerVariable(addressName, addressSize);
     this.fieldTrackerForAddress = new IntegerFieldTracker(variableForAddress);
