@@ -49,7 +49,7 @@ public final class MicroTESK {
 
     try {
       params = new Parameters(args);
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       Logger.error("Incorrect command line: " + e.getMessage());
       Parameters.help();
       return;
@@ -171,8 +171,7 @@ public final class MicroTESK {
   }
 
   private static void generate(
-      final Parameters params,
-      final List<Plugin> plugins) throws ParseException, Throwable {
+      final Parameters params, final List<Plugin> plugins) throws ParseException, Throwable {
     final String[] args = params.getArgs();
     if (args.length != 2) {
       Logger.error("Wrong number of generator arguments. Two arguments are required.");
