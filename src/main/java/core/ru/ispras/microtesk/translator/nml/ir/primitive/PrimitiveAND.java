@@ -47,13 +47,6 @@ public final class PrimitiveAND extends Primitive {
     this.args = args;
     this.attrs = Collections.unmodifiableMap(attrs);
     this.shortcuts = new ArrayList<>();
-
-    for (final Map.Entry<String, Primitive> e : args.entrySet()) {
-      final Primitive target = e.getValue();
-      final String referenceName = e.getKey();
-      target.addParentReference(this, referenceName);
-    }
-
     this.info = new PrimitiveInfo();
   }
 

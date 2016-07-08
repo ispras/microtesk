@@ -42,6 +42,7 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
+import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class NmlTranslator extends Translator<Ir> {
@@ -53,6 +54,7 @@ public final class NmlTranslator extends Translator<Ir> {
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
+    addHandler(new ReferenceDetector());
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());
