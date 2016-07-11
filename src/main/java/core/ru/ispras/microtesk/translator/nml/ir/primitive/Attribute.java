@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,12 @@ public final class Attribute {
   public static final String ACTION_NAME = "action";
   public static final String INIT_NAME   = "init";
 
-  public static final Set<String> STANDARD_NAMES = createStandardNames();
+  public static final Set<String> STANDARD_NAMES =
+      Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+          SYNTAX_NAME,
+          IMAGE_NAME,
+          ACTION_NAME
+          )));
 
   public static enum Kind {
     ACTION,
@@ -61,15 +67,5 @@ public final class Attribute {
 
   public List<Statement> getStatements() {
     return stmts;
-  }
-
-  private static Set<String> createStandardNames() {
-    final Set<String> result = new HashSet<>();
-
-    result.add(SYNTAX_NAME);
-    result.add(IMAGE_NAME);
-    result.add(ACTION_NAME);
-
-    return Collections.unmodifiableSet(result);
   }
 }
