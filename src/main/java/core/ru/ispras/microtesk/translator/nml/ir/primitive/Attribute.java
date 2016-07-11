@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public final class Attribute {
 
     this.name = name;
     this.kind = kind;
-    this.stmts = Collections.unmodifiableList(stmts);
+    this.stmts = new LinkedList<>(stmts);
   }
 
   public String getName() {
@@ -66,6 +67,11 @@ public final class Attribute {
   }
 
   public List<Statement> getStatements() {
-    return stmts;
+    return Collections.unmodifiableList(stmts);
+  }
+
+  void insertStatement(final Statement stmt) {
+    checkNotNull(stmt);
+    stmts.add(0, stmt);
   }
 }

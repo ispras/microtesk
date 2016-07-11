@@ -58,6 +58,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, "Return value is untyped. Use casts to enforce a certain type.");
     }
 
+    insertInitCalls(attrs);
     return new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
@@ -73,6 +74,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
+    insertInitCalls(attrs);
     return new PrimitiveAND(
         name,
         Primitive.Kind.OP,
@@ -80,6 +82,17 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         args,
         attrs
         );
+  }
+
+  private static void insertInitCalls(final Map<String, Attribute> attrs) {
+    if (attrs.containsKey(Attribute.INIT_NAME)) {
+      final Statement initCall = StatementAttributeCall.newThisCall(Attribute.INIT_NAME);
+      for (final Attribute attribute : attrs.values()) {
+        if (!attribute.getName().equals(Attribute.INIT_NAME)) {
+          attribute.insertStatement(initCall);
+        }
+      }
+    }
   }
 
   public Primitive createModeOR(

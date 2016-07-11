@@ -35,7 +35,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 
@@ -148,30 +147,23 @@ final class STBOperation extends STBPrimitiveBase {
   }
 
   private void buildAttributes(final STGroup group, final ST t) {
-    final boolean isInitNeeded = 
-        op.getAttributes().containsKey(Attribute.INIT_NAME);
-
-    for (Attribute attr : op.getAttributes().values()) {
+    for (final Attribute attr : op.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("op_attribute");
 
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
-
-      if (isInitNeeded && !Attribute.INIT_NAME.equals(attr.getName())) {
-        addStatement(attrST, StatementAttributeCall.newThisCall(Attribute.INIT_NAME), false);
-      }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (Statement stmt : attr.getStatements()) {
           addStatement(attrST, stmt, false);
         }
       } else if (Attribute.Kind.EXPRESSION == attr.getKind()) {
-        assert 1 == attr.getStatements().size() : "Expression attributes must always include a single statement.";
-
-        final Statement stmt =
-            (attr.getStatements().size() > 0) ? attr.getStatements().get(0) : null;
-
-        addStatement(attrST, stmt, true);
+        final int count = attr.getStatements().size();
+        int index = 0;
+        for (final Statement stmt : attr.getStatements()) {
+          addStatement(attrST, stmt, index == count - 1);
+          index++;
+        }
       } else {
         assert false : "Unknown attribute kind: " + attr.getKind();
       }
