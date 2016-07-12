@@ -123,6 +123,9 @@ public final class ModeAllocator {
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
         useInitializedModes(primitive);
+      } else if (call.isPreparatorCall()) {
+        final Primitive primitive = call.getPreparatorReference().getTarget();
+        useInitializedModes(primitive);
       }
     }
 
@@ -135,6 +138,9 @@ public final class ModeAllocator {
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
+        allocateUninitializedModes(primitive);
+      } else if (call.isPreparatorCall()) {
+        final Primitive primitive = call.getPreparatorReference().getTarget();
         allocateUninitializedModes(primitive);
       }
     }

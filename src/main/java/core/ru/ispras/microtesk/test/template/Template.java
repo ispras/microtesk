@@ -619,7 +619,7 @@ public final class Template {
     checkNotNull(value);
 
     endBuildingCall();
-    Logger.debug("Preparator invocation: %s = 0x%x", targetMode.getName(), value); 
+    Logger.debug("Preparator reference: %s = 0x%x", targetMode.getName(), value); 
 
     final MetaAddressingMode metaTargetMode =
         metaModel.getAddressingMode(targetMode.getName());
@@ -630,20 +630,13 @@ public final class Template {
     final BitVector data =
         BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
 
-    final Preparator preparator =
-        preparators.getPreparator(targetMode, data, preparatorName);
+    final LazyData lazyData = new LazyData();
+    lazyData.setValue(data);
 
-    if (null == preparator) {
-      throw new GenerationAbortedException(
-          String.format("No suitable preparator is found for %s.", targetMode.getSignature()));
-    }
+    callBuilder.setPreparatorReference(
+        new PreparatorReference(targetMode, new LazyValue(lazyData), preparatorName, variantName));
 
-    final List<Call> initializer =
-        preparator.makeInitializer(preparators, targetMode, data, variantName);
-
-    for (final Call call : initializer) {
-      addCall(call);
-    }
+    endBuildingCall();
   }
 
   public void addPreparatorCall(

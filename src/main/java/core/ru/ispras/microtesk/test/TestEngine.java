@@ -388,11 +388,9 @@ public final class TestEngine {
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
-        final List<Call> abstractSequence = Call.expandAtomic(sequenceIt.value());
-        InvariantChecks.checkNotNull(abstractSequence);
-
         Logger.debugHeader("Processing Abstract Sequence");
-        final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+
+        final Iterator<AdapterResult> iterator = engine.process(engineContext, sequenceIt.value());
         InvariantChecks.checkNotNull(iterator);
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
@@ -557,7 +555,7 @@ public final class TestEngine {
         return Collections.emptyList();
       }
 
-      final List<Call> abstractSequence = Call.expandAtomic(sequenceIt.value());
+      final List<Call> abstractSequence = sequenceIt.value();
 
       sequenceIt.next();
       InvariantChecks.checkFalse(

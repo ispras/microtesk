@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.sequence.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.allocateModes;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.checkRootOp;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
@@ -89,9 +88,6 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     initializedModes = new HashSet<>();
     sequenceBuilder = new TestSequence.Builder();
-
-    // Default solver should allocate uninitialized addressing modes.
-    allocateModes(abstractSequence);
 
     // Get modes for output arguments for self-checks if the setting is enabled.
     final Set<AddressingModeWrapper> outModes = TestSettings.isSelfChecks() ?

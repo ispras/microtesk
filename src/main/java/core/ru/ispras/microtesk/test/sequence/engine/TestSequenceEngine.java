@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.allocateModes;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +21,19 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.Statistics;
+import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
+import ru.ispras.microtesk.test.template.Preparator;
+import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
+ * The {@link TestSequenceEngine} class is processes an abstract sequence with the
+ * specified solver engine and adapts the results with the specified adapter.
+ * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class TestSequenceEngine implements Engine<AdapterResult> {
   private final Engine<?> engine;
@@ -40,6 +45,23 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
     this.engine = engine;
     this.adapter = adapter;
+  }
+
+  public Iterator<AdapterResult> process(
+      final EngineContext context, final List<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    try {
+      context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
+
+      final EngineResult<AdapterResult> result = solve(context, abstractSequence);
+      checkResultStatus(result);
+
+      return result.getResult();
+    } finally {
+      context.getStatistics().popActivity();
+    }
   }
 
   @Override
@@ -57,53 +79,40 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
   @Override
   public EngineResult<AdapterResult> solve(
-      final EngineContext engineContext, final List<Call> abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
+      final EngineContext context, final List<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final EngineResult<?> result = solve(engine, engineContext, abstractSequence);
+    // Makes a copy as the abstract sequence can be modified by solver or adapter.
+    List<Call> sequence = Call.copyAll(Call.expandAtomic(abstractSequence));
 
-    if (result.getStatus() != EngineResult.Status.OK) {
-      return new EngineResult<AdapterResult>(result.getStatus(), null, result.getErrors());
-    }
-
-    return adapt(adapter, engineContext, abstractSequence, result.getResult());
-  }
-
-  public Iterator<AdapterResult> process(
-      final EngineContext engineContext, final List<Call> abstractSequence) {
-    try {
-      engineContext.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
-
-      // Labels in repeated parts of a sequence have to be unique only on sequence level.
-      LabelUniqualizer.get().resetNumbers();
-  
-      final EngineResult<AdapterResult> result = solve(engineContext, abstractSequence);
-  
-      if (result.getStatus() != EngineResult.Status.OK) {
-        final String msg = listErrors(
-            "Failed to find a solution for abstract call sequence", result.getErrors());
-  
-        throw new IllegalStateException(msg);
-      }
-  
-      return result.getResult();
-    } finally {
-      engineContext.getStatistics().popActivity();
-    }
-  }
-
-  private static <T> EngineResult<T> solve(
-      final Engine<T> engine,
-      final EngineContext engineContext,
-      final List<Call> abstractSequence) {
-    // Solver may modify the abstract sequence.
-    final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
+    allocateModes(sequence);
+    sequence = expandPreparators(context, sequence);
 
     // Sets temporary context.
     Memory.setUseTempCopies(true);
 
-    return engine.solve(engineContext, abstractSequenceCopy);
+    final EngineResult<?> result = engine.solve(context, sequence);
+    if (result.getStatus() != EngineResult.Status.OK) {
+      return new EngineResult<>(result.getStatus(), null, result.getErrors());
+    }
+
+    return adapt(adapter, context, sequence, result.getResult());
+  }
+
+  private static void allocateModes(final List<Call> abstractSequence) {
+    final ModeAllocator modeAllocator = ModeAllocator.get();
+    if (null != modeAllocator) {
+      modeAllocator.allocate(abstractSequence);
+    }
+  }
+
+  private static List<Call> expandPreparators(
+      final EngineContext context, final List<Call> abstractSequence) {
+    // Labels in repeated parts of a sequence have to be unique only on sequence level.
+    LabelUniqualizer.get().resetNumbers();
+
+    return Preparator.expandCalls(null, context.getPreparators(), abstractSequence);
   }
 
   private static <T> EngineResult<AdapterResult> adapt(
@@ -111,7 +120,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final EngineContext engineContext,
       final List<Call> abstractSequence,
       final Iterator<?> solutionIterator) {
-    final Iterator<AdapterResult> resultIterator = new Iterator<AdapterResult>() {
+    return new EngineResult<>(new Iterator<AdapterResult>() {
       @Override
       public void init() {
         solutionIterator.init();
@@ -127,11 +136,10 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         final Object solution = solutionIterator.value(); 
         final Class<T> solutionClass = adapter.getSolutionClass();
 
-        // Adapter may modify the abstract sequence.
+        // Makes a copy as the adapter may modify the abstract sequence.
         final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
-        // Allocate uninitialized addressing modes.
-        allocateModes(abstractSequenceCopy);
 
+        // Sets temporary context.
         Memory.setUseTempCopies(true);
 
         return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
@@ -151,21 +159,22 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       public Iterator<AdapterResult> clone() {
         throw new UnsupportedOperationException();
       }
-    };
+    });
+  }
 
-    return new EngineResult<AdapterResult>(resultIterator);
+  private static void checkResultStatus(final EngineResult<AdapterResult> result) {
+    if (EngineResult.Status.OK != result.getStatus()) {
+      throw new IllegalStateException(listErrors(
+          "Failed to find a solution for an abstract call sequence.", result.getErrors()));
+    }
   }
 
   private static String listErrors(final String message, final Collection<String> errors) {
     if (errors.isEmpty()) {
       return message;
     }
-    final StringBuilder builder = new StringBuilder(message);
-    builder.append(" Errors:");
-    for (final String error : errors) {
-      builder.append(System.lineSeparator() + "  " + error);
-    }
-    return builder.toString();
+
+    final String separator = System.lineSeparator() + "  ";
+    return message + " Errors:" + separator + StringUtils.toString(errors, separator);
   }
 }
-
