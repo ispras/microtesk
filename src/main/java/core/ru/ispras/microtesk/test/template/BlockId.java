@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class BlockId {
   /**
    * The Distance class describe a distance between blocks. I.e. the path from one block to another
@@ -36,7 +35,6 @@ public final class BlockId {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public static final class Distance {
     private final int up;
     private final int down;
@@ -103,7 +101,6 @@ public final class BlockId {
   /**
    * Constructs a identifier for a root block.
    */
-
   public BlockId() {
     this(null, Collections.singletonList(1));
   }
@@ -119,7 +116,6 @@ public final class BlockId {
    * 
    * @return Next child identifier.
    */
-
   public BlockId nextChildId() {
     childCount++;
     final List<Integer> childIndexes = new ArrayList<>(indexes.size() + 1);
@@ -136,7 +132,6 @@ public final class BlockId {
    * 
    * @return Parent identifier or {@code null} if there is no parent.
    */
-
   public BlockId parentId() {
     return parent;
   }
@@ -146,7 +141,6 @@ public final class BlockId {
    * 
    * @return {@code true} is this is a root block or {@false} otherwise.
    */
-
   public boolean isRoot() {
     return null == parentId();
   }
@@ -162,7 +156,6 @@ public final class BlockId {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public boolean isParent(final BlockId parentId) {
     InvariantChecks.checkNotNull(parentId);
 
@@ -184,7 +177,6 @@ public final class BlockId {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public boolean isChild(final BlockId childId) {
     InvariantChecks.checkNotNull(childId);
 
@@ -200,7 +192,6 @@ public final class BlockId {
    * 
    * @return Nesting depth of the block described by the identifier.
    */
-
   public int getDepth() {
     return indexes.size() - 1;
   }
@@ -214,7 +205,6 @@ public final class BlockId {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public Distance getDistance(final BlockId target) {
     InvariantChecks.checkNotNull(target);
 
@@ -231,7 +221,6 @@ public final class BlockId {
    * 
    * @return Textual representation of the identifier.
    */
-
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
@@ -250,7 +239,6 @@ public final class BlockId {
    * 
    * @return Hash code for the block identifier.
    */
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -269,7 +257,6 @@ public final class BlockId {
    * @return {@code true} the object refers to an equal block identifier or
    *         {@code false} otherwise.
    */
-
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -302,7 +289,6 @@ public final class BlockId {
    * @param b Second list.
    * @return Size of a common sequence starting from the 0th position.
    */
-
   private static int getEqualSize(final List<Integer> a, final List<Integer> b) {
     final int maxEqualSize = Math.min(a.size(), b.size());
 
