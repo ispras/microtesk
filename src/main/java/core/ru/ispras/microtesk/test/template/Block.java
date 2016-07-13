@@ -103,6 +103,11 @@ public final class Block {
     return attributes.get(name);
   }
 
+  public String getAttribute(final String name, final String fallback) {
+    final Object value = getAttribute(name);
+    return null == value ? fallback : value.toString();
+  }
+
   public Map<String, Object> getAttributes() {
     return attributes;
   }

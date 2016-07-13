@@ -585,8 +585,8 @@ public final class TestEngine {
     private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
 
-      final String engineName = blockAttribute(block, "engine", "default");
-      final String adapterName = blockAttribute(block, "adapter", engineName);
+      final String engineName = block.getAttribute("engine", "default");
+      final String adapterName = block.getAttribute("adapter", engineName);
 
       final Engine<?> engine = config.getEngine(engineName);
       InvariantChecks.checkNotNull(engine);
@@ -615,16 +615,6 @@ public final class TestEngine {
         Logger.debugHeader("Printing %s to %s", headerText, fileName);
         printer.printSequence(concreteSequence);
       }
-    }
-
-    private static String blockAttribute(final Block block,
-                                         final String name,
-                                         final String fallback) {
-      final Object value = block.getAttribute(name);
-      if (value == null) {
-        return fallback;
-      }
-      return value.toString();
     }
 
     @Override
