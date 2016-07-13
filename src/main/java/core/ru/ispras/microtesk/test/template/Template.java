@@ -210,7 +210,7 @@ public final class Template {
   }
 
   private void beginNewSection() {
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(false);
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(true);
     rootBlockBuilder.setSequence(true);
 
     this.blockBuilders = new LinkedList<>();
@@ -258,7 +258,7 @@ public final class Template {
       }
 
       blockBuilders.pop();
-      current = new BlockBuilder(true);
+      current = new BlockBuilder(false);
       blockBuilders.push(current);
     } else {
       current = new BlockBuilder(parent);
@@ -289,7 +289,7 @@ public final class Template {
       // Then a new root block builder is created and pushed to the stack.
       block = builder.build(globalPrologue, globalEpilogue);
 
-      final BlockBuilder newBuilder = new BlockBuilder(false);
+      final BlockBuilder newBuilder = new BlockBuilder(true);
       newBuilder.setSequence(true);
       blockBuilders.push(newBuilder);
     } else {

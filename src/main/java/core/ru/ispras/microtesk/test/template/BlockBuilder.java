@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
   private final BlockId blockId;
-  private final boolean isExplicit;
+  private final boolean isExternal;
   private Where where;
 
   private List<Block> nestedBlocks;
@@ -52,17 +52,17 @@ public final class BlockBuilder {
   private List<Call> prologue;
   private List<Call> epilogue;
 
-  protected BlockBuilder(final boolean isExplicit) {
-    this(new BlockId(), isExplicit);
+  protected BlockBuilder(final boolean isExternal) {
+    this(new BlockId(), isExternal);
   }
 
   protected BlockBuilder(final BlockBuilder parent) {
     this(parent.getBlockId().nextChildId(), true);
   }
 
-  private BlockBuilder(final BlockId blockId, final boolean isExplicit) {
+  private BlockBuilder(final BlockId blockId, final boolean isExternal) {
     this.blockId = blockId;
-    this.isExplicit = isExplicit;
+    this.isExternal = isExternal;
     this.where = null;
 
     this.nestedBlocks = new ArrayList<>();
@@ -182,7 +182,7 @@ public final class BlockBuilder {
     final Iterator<List<Call>> iterator =
         new SingleValueIterator<>(Collections.singletonList(call));
 
-    nestedBlocks.add(new Block(blockId, where, true, iterator));
+    nestedBlocks.add(new Block(blockId, where, true, false, iterator));
   }
 
   public void setPrologue(final List<Call> value) {
@@ -256,8 +256,9 @@ public final class BlockBuilder {
       }
     }
 
-    // For an empty sequence block (explicitly specified), a single empty sequence is inserted.
-    if (isEmpty() && isExplicit && (isAtomic || isSequence)) {
+    // For an empty sequence block (non-external, explicitly specified),
+    // a single empty sequence is inserted.
+    if (isEmpty() && !isExternal && (isAtomic || isSequence)) {
       generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
     }
 
@@ -270,7 +271,14 @@ public final class BlockBuilder {
     final Generator<Call> generatorGlobalPrologueEpilogue =
         wrapWithPrologueAndEpilogue(generatorPrologueEpilogue, globalPrologue, globalEpilogue);
 
-    return new Block(blockId, where, isAtomic, generatorGlobalPrologueEpilogue, attributes);
+    return new Block(
+        blockId,
+        where,
+        isAtomic,
+        isExternal,
+        generatorGlobalPrologueEpilogue,
+        attributes
+        );
   }
 
   private static Generator<Call> wrapWithPrologueAndEpilogue(

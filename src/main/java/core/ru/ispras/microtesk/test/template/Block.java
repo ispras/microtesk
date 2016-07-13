@@ -25,6 +25,7 @@ public final class Block {
   private final BlockId blockId;
   private final Where where;
   private final boolean isAtomic;
+  private final boolean isExternal;
 
   private final Iterator<List<Call>> iterator;
   private final Map<String, Object> attributes;
@@ -37,6 +38,7 @@ public final class Block {
       final BlockId blockId,
       final Where where,
       final boolean isAtomic,
+      final boolean isExternal,
       final Iterator<List<Call>> iterator,
       final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(blockId);
@@ -46,6 +48,7 @@ public final class Block {
     this.blockId = blockId;
     this.where = where;
     this.isAtomic = isAtomic;
+    this.isExternal = isExternal;
 
     this.iterator = iterator;
     this.attributes = attributes;
@@ -64,11 +67,13 @@ public final class Block {
       final BlockId blockId,
       final Where where,
       final boolean isAtomic,
+      final boolean isExternal,
       final Iterator<List<Call>> iterator) {
     this(
         blockId,
         where,
         isAtomic,
+        isExternal,
         iterator,
         Collections.<String, Object>emptyMap()
         );
@@ -84,6 +89,10 @@ public final class Block {
 
   public boolean isAtomic() {
     return isAtomic;
+  }
+
+  public boolean isExternal() {
+    return isExternal;
   }
 
   public Iterator<List<Call>> getIterator() {
