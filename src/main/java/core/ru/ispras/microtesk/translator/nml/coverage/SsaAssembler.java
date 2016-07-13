@@ -443,7 +443,8 @@ public final class SsaAssembler {
 
       @Override
       public Node apply(Node node) {
-        throw new UnsupportedOperationException();
+        step(prefix, literalOperand(0, node));
+        return node;
       }
     };
 
@@ -461,6 +462,7 @@ public final class SsaAssembler {
 
     final Map<Enum<?>, TransformerRule> rules = new IdentityHashMap<>();
     rules.put(SsaOperation.CALL, call);
+    rules.put(SsaOperation.THIS_CALL, thisCall);
     rules.put(SsaOperation.SUBSTITUTE, substitute);
 
     rules.put(SsaOperation.EXPAND,
