@@ -22,10 +22,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class RandomValue extends SharedObject<RandomValue> implements Value {
-  private final Variate<BigInteger> variate;
+  private final Variate<?> variate;
   private BigInteger value;
 
-  protected RandomValue(final Variate<BigInteger> variate) {
+  protected RandomValue(final Variate<?> variate) {
     InvariantChecks.checkNotNull(variate);
 
     this.variate = variate;
@@ -56,7 +56,20 @@ public final class RandomValue extends SharedObject<RandomValue> implements Valu
   @Override
   public BigInteger getValue() {
     if (null == value) {
-      value = variate.value();
+      final Object valueObject = variate.value();
+      if (valueObject instanceof BigInteger) {
+        value = (BigInteger) valueObject;
+      } else if (valueObject instanceof Long) {
+        value = BigInteger.valueOf((Long) valueObject);
+      } else if (valueObject instanceof Integer) {
+        value = BigInteger.valueOf((Integer) valueObject);
+      } else {
+        throw new IllegalStateException(String.format(
+            "Unsupported value type: %s (%s)",
+            valueObject,
+            valueObject != null ? valueObject.getClass().getName() : null
+            ));
+      }
     }
     return value;
   }

@@ -438,7 +438,7 @@ public final class Template {
     return new RandomValue(from, to);
   }
 
-  public RandomValue newRandom(final Variate<BigInteger> variate) {
+  public RandomValue newRandom(final Variate<?> variate) {
     return new RandomValue(variate);
   }
 
