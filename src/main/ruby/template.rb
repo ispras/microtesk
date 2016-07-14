@@ -296,14 +296,30 @@ class Template
   end
 
   #
-  # Creates an object for generating a random integer within
-  # the specified range (to be used as an argument of a mode or op).
+  # Creates an object for generating a random integer (to be used as an argument of a mode or op)
+  # selected from the specified range or according to the specified distribution.
   # 
-  def rand(from, to)
-    if !from.is_a?(Integer) or !to.is_a?(Integer)
-      raise MTRubyError, "from #{from} and to #{to} must be integers."
+  def rand(*args)
+    if args.count == 1
+      distribution = args.at(0)
+
+      if !distribution.is_a?(Dist)
+        raise MTRubyError, "the argument must be a distribution."
+      end
+
+      @template.newRandom distribution.java_object
+    elsif args.count != 2
+      from = args.at(0)
+      to = args.at(1)
+
+      if !from.is_a?(Integer) or !to.is_a?(Integer)
+        raise MTRubyError, "the arguments must be integers."
+      end
+
+      @template.newRandom from, to
+    else
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 1 or 2."
     end
-    @template.newRandom from, to
   end
 
   #

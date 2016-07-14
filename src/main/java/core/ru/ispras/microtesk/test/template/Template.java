@@ -438,6 +438,10 @@ public final class Template {
     return new RandomValue(from, to);
   }
 
+  public RandomValue newRandom(final Variate<BigInteger> variate) {
+    return new RandomValue(variate);
+  }
+
   public VariateBuilder<?> newVariateBuilder() {
     return new VariateBuilder<>();
   }
