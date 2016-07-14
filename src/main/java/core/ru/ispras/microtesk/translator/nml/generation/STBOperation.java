@@ -168,7 +168,7 @@ final class STBOperation extends STBPrimitiveBase {
         assert false : "Unknown attribute kind: " + attr.getKind();
       }
 
-      attrST.add("override", isStandardAttribute(attr.getName()));
+      attrST.add("override", attr.isStandard());
       t.add("attrs", attrST);
     }
   }

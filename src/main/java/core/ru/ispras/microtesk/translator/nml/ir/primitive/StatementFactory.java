@@ -135,7 +135,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       raiseError(where, String.format(IMM_HAVE_NO_ATTR, calleeName));
     }
 
-    if (!Attribute.STANDARD_NAMES.contains(attributeName)) {
+    if (!Attribute.isStandard(attributeName)) {
       raiseError(where, String.format(ONLY_STANDARD_ATTR, calleeName));
     }
 

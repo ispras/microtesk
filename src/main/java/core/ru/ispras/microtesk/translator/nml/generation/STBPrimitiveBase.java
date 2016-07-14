@@ -43,10 +43,6 @@ abstract class STBPrimitiveBase implements STBuilder {
     return RET_TYPE_MAP.get(kind);
   }
 
-  protected final boolean isStandardAttribute(String name) {
-    return Attribute.STANDARD_NAMES.contains(name);
-  }
-
   protected static void addStatement(ST attrST, Statement stmt, boolean isReturn) {
     new StatementBuilder(attrST, isReturn).build(stmt);
   }

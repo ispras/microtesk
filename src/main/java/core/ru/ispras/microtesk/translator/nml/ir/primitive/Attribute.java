@@ -24,25 +24,26 @@ import java.util.List;
 import java.util.Set;
 
 public final class Attribute {
+  public static enum Kind {
+    ACTION,
+    EXPRESSION
+  }
+
   public static final String SYNTAX_NAME = "syntax";
   public static final String IMAGE_NAME  = "image";
   public static final String ACTION_NAME = "action";
   public static final String INIT_NAME   = "init";
 
-  public static final Set<String> STANDARD_NAMES =
+  private static final Set<String> STANDARD_NAMES =
       Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
           SYNTAX_NAME,
           IMAGE_NAME,
           ACTION_NAME
           )));
 
-  public static enum Kind {
-    ACTION,
-    EXPRESSION
-  }
-
   private final String name;
   private final Kind kind;
+  private final boolean isStandard;
   private final List<Statement> stmts;
 
   Attribute(
@@ -55,7 +56,16 @@ public final class Attribute {
 
     this.name = name;
     this.kind = kind;
+    this.isStandard = isStandard(name);
     this.stmts = new LinkedList<>(stmts);
+  }
+
+  public static boolean isStandard(final String name) {
+    return STANDARD_NAMES.contains(name);
+  }
+
+  public boolean isStandard() {
+    return isStandard;
   }
 
   public String getName() {
