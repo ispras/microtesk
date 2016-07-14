@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -430,7 +430,6 @@ public final class Data implements Comparable<Data> {
    * @return {@code true} if significant bits will be lost during the conversion
    * or {@code false} otherwise.
    */
-
   public static boolean isLossOfSignificantBits(final Type type, final BigInteger value) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(value);
