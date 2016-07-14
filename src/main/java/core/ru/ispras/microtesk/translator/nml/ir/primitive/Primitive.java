@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -53,7 +53,7 @@ public class Primitive {
     this.parents = new HashMap<>();
   }
 
-  Primitive(Primitive source) {
+  Primitive(final Primitive source) {
     this.name = source.name;
     this.kind = source.kind;
     this.isOrRule = source.isOrRule;
@@ -61,7 +61,7 @@ public class Primitive {
     this.attrNames = source.attrNames;
     this.parents = new HashMap<>();
 
-    for (Map.Entry<String, PrimitiveReference> e : source.parents.entrySet()) {
+    for (final Map.Entry<String, PrimitiveReference> e : source.parents.entrySet()) {
       final String id = e.getKey();
       final PrimitiveReference ref = e.getValue();
 
@@ -76,7 +76,7 @@ public class Primitive {
    * @param referenceName The name of the reference (parameter) made from the parent primitive to
    *        the current primitive.
    */
-  public void addParentReference(PrimitiveAND parent, String referenceName) {
+  public void addParentReference(final PrimitiveAND parent, final String referenceName) {
     final PrimitiveReference reference;
     if (parents.containsKey(parent.getName())) {
       reference = parents.get(parent.getName());
@@ -112,6 +112,11 @@ public class Primitive {
     return returnType;
   }
 
+  /**
+   * Returns names of the public attributes of the primitive.
+   * 
+   * @return Public attribute names.
+   */
   public final Set<String> getAttrNames() {
     return attrNames;
   }
@@ -122,7 +127,6 @@ public class Primitive {
    * 
    * @return true if it is a root primitive or false otherwise.
    */
-
   public final boolean isRoot() {
     return 0 == getParentCount();
   }
@@ -133,7 +137,6 @@ public class Primitive {
    * 
    * @return Collection of parent primitives.
    */
-
   public final Collection<PrimitiveReference> getParents() {
     return Collections.unmodifiableCollection(parents.values());
   }
@@ -144,7 +147,6 @@ public class Primitive {
    * 
    * @return Parent count.
    */
-
   public final int getParentCount() {
     return parents.size();
   }
@@ -155,7 +157,6 @@ public class Primitive {
    * 
    * @return Number of reference to this primitive from all its parents.
    */
-
   public final int getParentReferenceCount() {
     int count = 0;
     for (final PrimitiveReference ref : getParents()) {

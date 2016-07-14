@@ -36,20 +36,17 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StatementFactory extends WalkerFactoryBase {
   private static final String UNDEFINED_ARG =
-    "The %s argument is not defined.";
+      "The %s argument is not defined.";
 
   private static final String IMM_HAVE_NO_ATTR =
-    "The immediate value %s does not provide any callable attributes.";
-
-  private static final String ONLY_STANDARD_ATTR =
-    "Only standard attributes can be called for the %s object.";
+      "The immediate value %s does not provide any callable attributes.";
 
   private static final String WRONG_FORMAT_ARG_SPEC =
-    "Incorrect format specification. The number of arguments specified in the format string (%d) " +
-    "does not match to the number of provided argumens (%d).";
+      "Incorrect format specification. The number of arguments specified in the format string " +
+      "(%d) does not match to the number of provided argumens (%d).";
 
   private static final String UNDEFINED_ATTR =
-    "The %s attribute is not defined for the %s primitive.";
+      "The %s attribute of the %s object is not defined or is not accessible in this context.";
 
   public StatementFactory(final WalkerContext context) {
     super(context);
@@ -96,7 +93,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       if (right.isTypeOf(TypeId.BOOL)) {
         final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
         right.setNodeInfo(newNodeInfo);
-      } 
+      }
     }
 
     return new StatementAssignment(left, right);
@@ -133,10 +130,6 @@ public final class StatementFactory extends WalkerFactoryBase {
     final Primitive callee = getThisArgs().get(calleeName);
     if (Primitive.Kind.IMM == callee.getKind()) {
       raiseError(where, String.format(IMM_HAVE_NO_ATTR, calleeName));
-    }
-
-    if (!Attribute.isStandard(attributeName)) {
-      raiseError(where, String.format(ONLY_STANDARD_ATTR, calleeName));
     }
 
     if (!callee.getAttrNames().contains(attributeName)) {

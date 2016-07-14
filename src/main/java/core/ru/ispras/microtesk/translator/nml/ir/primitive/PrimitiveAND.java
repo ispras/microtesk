@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,8 +17,10 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -40,7 +42,8 @@ public final class PrimitiveAND extends Primitive {
         name,
         kind,
         false,
-        getReturnType(retExpr), null == attrs ? null : attrs.keySet()
+        getReturnType(retExpr),
+        getAttrNames(attrs)
     );
 
     this.retExpr = retExpr;
@@ -58,6 +61,25 @@ public final class PrimitiveAND extends Primitive {
     this.attrs = other.attrs;
     this.shortcuts = other.shortcuts;
     this.info = new PrimitiveInfo(other.info); 
+  }
+
+  private static Type getReturnType(final Expr retExpr) {
+    return null != retExpr ? retExpr.getNodeInfo().getType() : null;
+  }
+
+  private static Set<String> getAttrNames(final Map<String, Attribute> attrs) {
+    if (null == attrs) {
+      return null;
+    }
+
+    final Set<String> result = new LinkedHashSet<>();
+    for (final Attribute attribute : attrs.values()) {
+      if (attribute.isStandard()) {
+        result.add(attribute.getName());
+      }
+    }
+
+    return result;
   }
 
   public void addShortcut(final Shortcut shortcut) {
@@ -82,10 +104,6 @@ public final class PrimitiveAND extends Primitive {
 
   public Expr getReturnExpr() {
     return retExpr;
-  }
-
-  private static Type getReturnType(final Expr retExpr) {
-    return (null != retExpr) ? retExpr.getNodeInfo().getType() : null;
   }
 
   public PrimitiveInfo getInfo() {
