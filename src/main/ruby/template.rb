@@ -308,7 +308,7 @@ class Template
       end
 
       @template.newRandom distribution.java_object
-    elsif args.count != 2
+    elsif args.count == 2
       from = args.at(0)
       to = args.at(1)
 
