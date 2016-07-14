@@ -431,7 +431,8 @@ public final class SsaAssembler {
           linkClosure(prefix, inner, new Closure(instance));
           step(inner, literalOperand(1, call));
         }
-        return node;
+        // Prune custom SSA operation
+        return Expression.TRUE;
       }
     };
 
@@ -444,7 +445,8 @@ public final class SsaAssembler {
       @Override
       public Node apply(Node node) {
         step(prefix, literalOperand(0, node));
-        return node;
+        // Prune custom SSA operation
+        return Expression.TRUE;
       }
     };
 
@@ -578,8 +580,7 @@ public final class SsaAssembler {
   }
 
   private void addToBatch(Node node) {
-    if (ExprUtils.isOperation(node, SsaOperation.CALL) ||
-        ExprUtils.isOperation(node, SsaOperation.PHI) ||
+    if (ExprUtils.isOperation(node, SsaOperation.PHI) ||
         nodeIsTrue(node)) {
       return;
     }
