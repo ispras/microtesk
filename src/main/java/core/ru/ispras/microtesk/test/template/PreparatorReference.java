@@ -24,7 +24,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class PreparatorReference {
   private final Primitive target;
   private final LazyValue value;

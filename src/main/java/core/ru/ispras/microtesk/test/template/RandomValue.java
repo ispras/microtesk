@@ -16,30 +16,30 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 
-import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateInterval;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class RandomValue extends SharedObject<RandomValue> implements Value {
-  private final BigInteger min;
-  private final BigInteger max;
+  private final Variate<BigInteger> variate;
   private BigInteger value;
 
-  protected RandomValue(final BigInteger min, final BigInteger max) {
-    InvariantChecks.checkNotNull(min);
-    InvariantChecks.checkNotNull(max);
-    InvariantChecks.checkGreaterOrEq(max, min);
+  protected RandomValue(final Variate<BigInteger> variate) {
+    InvariantChecks.checkNotNull(variate);
 
-    this.min = min;
-    this.max = max;
+    this.variate = variate;
     this.value = null;
   }
 
-  protected RandomValue(final RandomValue other) {
+  protected RandomValue(final BigInteger min, final BigInteger max) {
+    this(new VariateInterval<>(min, max));
+  }
+
+  private RandomValue(final RandomValue other) {
     super(other);
 
-    this.min = other.min;
-    this.max = other.max;
+    this.variate = other.variate;
     this.value = other.value;
   }
 
@@ -53,24 +53,16 @@ public final class RandomValue extends SharedObject<RandomValue> implements Valu
     return newCopy();
   }
 
-  public BigInteger getMin() {
-    return min;
-  }
-
-  public BigInteger getMax() {
-    return max;
-  }
-
   @Override
   public BigInteger getValue() {
     if (null == value) {
-      value = Randomizer.get().nextBigIntegerRange(min, max);
+      value = variate.value();
     }
     return value;
   }
 
   @Override
   public String toString() {
-    return null != value ? value.toString() : String.format("RandomValue[%d..%d]", min, max);
+    return null != value ? value.toString() : "RandomValue";
   }
 }
