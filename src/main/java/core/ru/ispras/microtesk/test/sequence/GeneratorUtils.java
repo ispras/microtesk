@@ -43,8 +43,21 @@ public final class GeneratorUtils {
     final List<T> result = new ArrayList<>();
 
     for (final Iterator<List<T>> sequenceIterator : iterators) {
-      final List<T> sequence = GeneratorUtils.expand(sequenceIterator);
+      final List<T> sequence = expand(sequenceIterator);
       result.addAll(sequence);
+    }
+
+    return result;
+  }
+
+  public static <T> ArrayList<List<T>> toArrayList(final Iterator<List<T>> iterator) {
+    InvariantChecks.checkNotNull(iterator);
+    final ArrayList<List<T>> result = new ArrayList<>();
+
+    iterator.init();
+    while (iterator.hasValue()) {
+      result.add(iterator.value());
+      iterator.next();
     }
 
     return result;
