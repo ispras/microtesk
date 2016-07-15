@@ -21,6 +21,7 @@ import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.TrivialEngine;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchAdapter;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
@@ -44,6 +45,7 @@ final class Core implements Plugin {
     final Map<String, Engine<?>> engines = new LinkedHashMap<>();
 
     engines.put("default", new DefaultEngine());
+    engines.put("trivial", new TrivialEngine());
     engines.put("branch", new BranchEngine());
 
     return engines;
@@ -52,8 +54,10 @@ final class Core implements Plugin {
   @Override
   public Map<String, Adapter<?>> getAdapters() {
     final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
+    final Adapter<?> defaultAdapter = new DefaultAdapter();
 
-    adapters.put("default", new DefaultAdapter());
+    adapters.put("default", defaultAdapter);
+    adapters.put("trivial", defaultAdapter);
     adapters.put("branch", new BranchAdapter());
 
     return adapters;
