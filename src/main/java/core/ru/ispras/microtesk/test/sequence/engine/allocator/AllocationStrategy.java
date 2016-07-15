@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * {@link AllocationStrategy} defines an interface of resource allocation strategies.
@@ -33,5 +33,7 @@ public interface AllocationStrategy {
    * @param attributes the parameters.
    * @return the chosen object or {@code null}.
    */
-  <T> T next(final Set<T> free, final Set<T> used, final Map<String, String> attributes);
+  <T> T next(final Collection<T> free,
+             final Collection<T> used,
+             final Map<String, String> attributes);
 }
