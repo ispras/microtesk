@@ -619,11 +619,27 @@ public final class Template {
       final BigInteger value,
       final String preparatorName,
       final String variantName) {
+    addPreparatorCall(targetMode, new FixedValue(value), preparatorName, variantName);
+  }
+
+  public void addPreparatorCall(
+      final Primitive targetMode,
+      final Value value,
+      final String preparatorName,
+      final String variantName) {
     checkNotNull(targetMode);
     checkNotNull(value);
 
+    if (value instanceof LazyValue &&
+        null == preparatorBuilder &&
+        null == bufferPreparatorBuilder) {
+      throw new IllegalStateException(
+          "A preparator with a lazy value can be invoked only inside " + 
+          "a preparator or buffer_preparator block.");
+    }
+
     endBuildingCall();
-    Logger.debug("Preparator reference: %s = 0x%x", targetMode.getName(), value); 
+    Logger.debug("Preparator reference: %s", targetMode.getName()); 
 
     final MetaAddressingMode metaTargetMode =
         metaModel.getAddressingMode(targetMode.getName());
@@ -631,47 +647,11 @@ public final class Template {
     checkNotNull(
         metaTargetMode, "No such addressing mode: " + targetMode.getName());
 
-    final BitVector data =
-        BitVector.valueOf(value, metaTargetMode.getDataType().getBitSize());
-
-    final LazyData lazyData = new LazyData();
-    lazyData.setValue(data);
+    final int valueBitSize =
+        metaTargetMode.getDataType().getBitSize();
 
     callBuilder.setPreparatorReference(
-        new PreparatorReference(targetMode, new LazyValue(lazyData), preparatorName, variantName));
-
-    endBuildingCall();
-  }
-
-  public void addPreparatorCall(
-      final Primitive targetMode,
-      final RandomValue value,
-      final String preparatorName,
-      final String variantName) {
-    checkNotNull(targetMode);
-    checkNotNull(value);
-    addPreparatorCall(targetMode, value.getValue(), preparatorName, variantName);
-  }
-
-  public void addPreparatorCall(
-      final Primitive targetMode,
-      final LazyValue value,
-      final String preparatorName,
-      final String variantName) {
-    if (null == preparatorBuilder && null == bufferPreparatorBuilder) {
-      throw new IllegalStateException(
-          "A preparator with a lazy value can be invoked only inside " + 
-          "a preparator or buffer_preparator block.");
-    }
-
-    checkNotNull(targetMode);
-    checkNotNull(value);
-
-    endBuildingCall();
-    Logger.debug("Preparator reference: %s", targetMode.getName());
-
-    callBuilder.setPreparatorReference(
-        new PreparatorReference(targetMode, value, preparatorName, variantName));
+        new PreparatorReference(targetMode, value, valueBitSize, preparatorName, variantName));
 
     endBuildingCall();
   }
