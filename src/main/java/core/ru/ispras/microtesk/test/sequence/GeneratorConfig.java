@@ -37,6 +37,7 @@ import ru.ispras.microtesk.test.sequence.permutator.PermutatorRandom;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
 import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
 import ru.ispras.microtesk.test.sequence.rearranger.RearrangerExpand;
+import ru.ispras.microtesk.test.sequence.rearranger.RearrangerSample;
 import ru.ispras.microtesk.test.sequence.rearranger.RearrangerTrivial;
 
 /**
@@ -76,6 +77,7 @@ public final class GeneratorConfig<T> {
 
     rearrangers.put("trivial", RearrangerTrivial.class);
     rearrangers.put("expand", RearrangerExpand.class);
+    rearrangers.put("sample", RearrangerSample.class);
   }
 
   /**
