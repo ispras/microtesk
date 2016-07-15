@@ -23,34 +23,38 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
- * The UnknownValue class describes an unknown immediate value to be specified as an argument of an
- * addressing mode or operation. A corresponding concrete value must be produced as a result of test
- * data generation for some test situation linked to the primitive (MODE or OP) this unknown value
- * is passed to an argument. The generated concrete value is assigned to the object via the
- * {@code setValue} method. 
+ * The {@link UnknownValue} class describes an unknown immediate value to be specified as an
+ * argument of an addressing mode or operation. A corresponding concrete value must be produced
+ * as a result of test data generation for some test situation linked to the primitive (MODE or OP)
+ * this unknown value is passed to an argument. The generated concrete value is assigned to the
+ * object via the {@code setValue} method. 
  * 
- * <p>N.B. The value can be assigned only once, otherwise an exception will be
- * raised. This is done to avoid misuse of the class. For example, when several MODE or OP object
- * hold a reference to the same unknown value object the concrete value must be generated and
- * assigned only once.
+ * <p>N.B. The value can be assigned only once, otherwise an exception will be raised. This is
+ * done to avoid misuse of the class. For example, when several MODE or OP object hold a reference
+ * to the same unknown value object the concrete value must be generated and assigned only once.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
                                          implements Value {
   private final Allocator allocator;
+  private final List<Value> retain;
   private final List<Value> exclude;
   private BigInteger value;
 
   protected UnknownImmediateValue() {
     this.allocator = null;
+    this.retain = null;
     this.exclude = null;
     this.value = null;
   }
 
-  protected UnknownImmediateValue(final Allocator allocator, final List<Value> exclude) {
+  protected UnknownImmediateValue(
+      final Allocator allocator,
+      final List<Value> retain,
+      final List<Value> exclude) {
     this.allocator = allocator;
+    this.retain = retain;
     this.exclude = exclude;
     this.value = null;
   }
@@ -59,6 +63,7 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     super(other);
 
     this.allocator = other.allocator;
+    this.retain = copyValues(other.retain);
     this.exclude = copyValues(other.exclude);
     this.value = other.value;
   }
@@ -85,6 +90,10 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
 
   public Allocator getAllocator() {
     return allocator;
+  }
+
+  public List<Value> getRetain() {
+    return retain;
   }
 
   public List<Value> getExclude() {
