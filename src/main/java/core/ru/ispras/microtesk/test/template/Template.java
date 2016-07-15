@@ -464,26 +464,24 @@ public final class Template {
   public UnknownImmediateValue newUnknownImmediate(
       final Where where,
       final Allocator allocator,
-      final Primitive exclude) {
-    return newUnknownImmediate(
-        where,
+      final List<Primitive> retain,
+      final List<Primitive> exclude) {
+    return new UnknownImmediateValue(
         allocator,
-        null != exclude ? Collections.singletonList(exclude) : null);
+        getModeValues(where, retain),
+        getModeValues(where, exclude)
+        );
   }
 
-  public UnknownImmediateValue newUnknownImmediate(
-      final Where where,
-      final Allocator allocator,
-      final List<Primitive> exclude) {
-
-    if (null == exclude) {
-      return new UnknownImmediateValue(allocator, null);
+  private static List<Value> getModeValues(final Where where, final List<Primitive> modes) {
+    if (null == modes) {
+      return null;
     }
 
-    final List<Value> excludeValues = new ArrayList<>();
+    final List<Value> result = new ArrayList<>();
     String modeName = null;
 
-    for (final Primitive primitive : exclude) {
+    for (final Primitive primitive : modes) {
       if (primitive.getKind() != Primitive.Kind.MODE) {
         throw new GenerationAbortedException(String.format(
             "%s: %s is not an addressing mode.", where, primitive.getName()));
@@ -498,16 +496,16 @@ public final class Template {
 
       for (final Argument arg : primitive.getArguments().values()) {
         if (arg.getValue() instanceof BigInteger) {
-          excludeValues.add(new FixedValue((BigInteger) arg.getValue()));
+          result.add(new FixedValue((BigInteger) arg.getValue()));
         } else if (arg.getValue() instanceof Value) {
-          excludeValues.add((Value) arg.getValue());
+          result.add((Value) arg.getValue());
         } else {
           InvariantChecks.checkTrue(false, "Unknown argument type: " + arg);
         }
       }
     }
 
-    return new UnknownImmediateValue(allocator, excludeValues);
+    return result;
   }
 
   public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {
