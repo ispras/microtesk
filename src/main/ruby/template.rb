@@ -438,8 +438,10 @@ class Template
       raise MTRubyError, "#{attrs} is not a Hash."
     end
 
+    retain = attrs[:retain]
     exclude = attrs[:exclude]
-    @template.newUnknownImmediate get_caller_location, allocator, exclude
+
+    @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
   end
 
   # --- Special "no value" method ---
