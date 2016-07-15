@@ -26,7 +26,7 @@ public final class GeneratorUtils {
   public static <T> List<T> expand(final Iterator<List<T>> iterator) {
     InvariantChecks.checkNotNull(iterator);
 
-    final List<T> result = new ArrayList<T>();
+    final List<T> result = new ArrayList<>();
 
     iterator.init();
     while (iterator.hasValue()) {
@@ -40,7 +40,7 @@ public final class GeneratorUtils {
   public static <T> List<T> expandAll(final List<Iterator<List<T>>> iterators) {
     InvariantChecks.checkNotNull(iterators);
 
-    final List<T> result = new ArrayList<T>();
+    final List<T> result = new ArrayList<>();
 
     for (final Iterator<List<T>> sequenceIterator : iterators) {
       final List<T> sequence = GeneratorUtils.expand(sequenceIterator);
