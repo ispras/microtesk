@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -26,17 +27,20 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class PreparatorReference {
   private final Primitive target;
-  private final LazyValue value;
+  private final Value value;
+  private final int valueBitSize;
   private final String preparatorName;
   private final String variantName;
 
   protected PreparatorReference(
       final Primitive target,
-      final LazyValue value,
+      final Value value,
+      final int valueBitSize,
       final String preparatorName,
       final String variantName) {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkGreaterThanZero(valueBitSize);
 
     if (target.getKind() != Primitive.Kind.MODE) {
       throw new IllegalArgumentException(String.format(
@@ -45,6 +49,7 @@ public final class PreparatorReference {
 
     this.target = target;
     this.value = value;
+    this.valueBitSize = valueBitSize;
     this.preparatorName = preparatorName;
     this.variantName = variantName;
   }
@@ -53,7 +58,8 @@ public final class PreparatorReference {
     InvariantChecks.checkNotNull(other);
 
     this.target = other.target.newCopy();
-    this.value = new LazyValue(other.value);
+    this.value = other.value.copy();
+    this.valueBitSize = other.valueBitSize;
     this.preparatorName = other.preparatorName;
     this.variantName = other.variantName;
   }
@@ -62,8 +68,10 @@ public final class PreparatorReference {
     return target;
   }
 
-  public LazyValue getValue() {
-    return value;
+  public BitVector getValue() {
+    return value instanceof LazyValue ?
+        ((LazyValue) value).asBitVector() :
+        BitVector.valueOf(value.getValue(), valueBitSize);
   }
 
   public String getPreparatorName() {
