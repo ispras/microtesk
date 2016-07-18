@@ -49,6 +49,7 @@ import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -75,14 +76,14 @@ public final class TestBase {
     ru.ispras.testbase.stub.TestBase.setSolverId(value);
   }
 
-  private TestBase(String path) {
+  private TestBase(final String path) {
     this.path = path;
     this.storage = new HashMap<>();
     this.testBase = ru.ispras.testbase.stub.TestBase.get();
   }
 
   private TestBase() {
-    this(System.getenv("MICROTESK_HOME"));
+    this(SysUtils.getHomeDir());
   }
 
   public TestBaseQueryResult executeQuery(TestBaseQuery query) {
