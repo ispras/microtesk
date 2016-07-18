@@ -26,16 +26,30 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class StringUtils {
   private StringUtils() {}
 
-  public static String toString(final Collection<?> list, final String sep) {
+  public static interface Converter<T> {
+    String toString(T o);
+  }
+
+  public static <T> String toString(
+      final Collection<T> list,
+      final String sep) {
+    return toString(list, sep, null);
+  }
+
+  public static <T> String toString(
+      final Collection<T> list,
+      final String sep,
+      final Converter<T> converter) {
     InvariantChecks.checkNotNull(list);
     InvariantChecks.checkNotNull(sep);
 
     final StringBuilder sb = new StringBuilder();
-    for (final Object item : list) {
+    for (final T item : list) {
       if (sb.length() != 0) {
         sb.append(sep);
       }
-      sb.append(item.toString());
+      sb.append(
+          null != converter ? converter.toString(item) : item.toString());
     }
 
     return sb.toString();

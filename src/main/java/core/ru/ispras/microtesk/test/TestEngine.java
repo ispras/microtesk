@@ -63,6 +63,7 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
@@ -265,17 +266,11 @@ public final class TestEngine {
 
     final Set<Block> unusedBlocks = template.getUnusedBlocks();
     if (!unusedBlocks.isEmpty()) {
-      final StringBuilder sb = new StringBuilder("Unused blocks have been detected at: ");
-      boolean isFirst = true;
-      for (final Block block : unusedBlocks) {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append(", ");
-        }
-        sb.append(block.getWhere());
-      }
-      Logger.warning(sb.toString());
+      Logger.warning("Unused blocks have been detected at: %s",
+          StringUtils.toString(unusedBlocks, ", ", new StringUtils.Converter<Block>() {
+              @Override
+              public String toString(final Block o) {return o.getWhere().toString();}
+          }));
     }
   }
 
