@@ -187,43 +187,9 @@ public final class TestEngine {
 
     this.statistics = null;
     this.model = model;
+
     Reader.setModel(model);
-
-    final String home = SysUtils.getHomeDir();
-
-    final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
-    if (null == z3Solver.getSolverPath()) {
-      // If the Z3_PATH environment variable is not set, we set up default solver path
-      // in hope to find the the tool there.
-      final String z3Path = (home != null ? home : ".") + "/tools/z3/";
-      if (Environment.isUnix()) {
-        z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
-      } else if (Environment.isWindows()) {
-        z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
-      } else if (Environment.isOSX()) {
-        z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
-      } else {
-        throw new UnsupportedOperationException(String.format(
-          "Unsupported platform: %s.", Environment.getOSName()));
-      }
-    }
-
-    final ru.ispras.fortress.solver.Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
-    if (null == cvc4Solver.getSolverPath()) {
-      // If the CVC4_PATH environment variable is not set, we set up default solver path
-      // in hope to find the the tool there.
-      final String cvc4Path = (home != null ? home : ".") + "/tools/cvc4/";
-      if (Environment.isUnix()) {
-        cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
-      } else if (Environment.isWindows()) {
-        cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
-      } else if (Environment.isOSX()) {
-        cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
-      } else {
-        throw new UnsupportedOperationException(String.format(
-          "Unsupported platform: %s.", Environment.getOSName()));
-      }
-    }
+    initSolverPaths(SysUtils.getHomeDir());
   }
 
   public Template newTemplate() {
@@ -279,7 +245,6 @@ public final class TestEngine {
     private final Printer printer;
     private final DataManager dataManager;
     private final Statistics statistics;
-    private final GeneratorConfig<Call> config;
 
     private int testIndex = 0; 
 
@@ -295,7 +260,6 @@ public final class TestEngine {
       this.printer = printer;
       this.dataManager = engineContext.getDataManager();
       this.statistics = engineContext.getStatistics();
-      this.config = GeneratorConfig.<Call>get();
 
       this.needCreateNewFile = true;
     }
@@ -562,28 +526,6 @@ public final class TestEngine {
       return result;
     }
 
-    private TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
-      InvariantChecks.checkNotNull(block);
-
-      final String engineName = block.getAttribute("engine", "default");
-      final String adapterName = block.getAttribute("adapter", engineName);
-
-      final Engine<?> engine = config.getEngine(engineName);
-      InvariantChecks.checkNotNull(engine);
-
-      final Adapter<?> adapter = config.getAdapter(adapterName);
-      InvariantChecks.checkNotNull(adapter);
-
-      if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
-        throw new IllegalStateException("Mismatched solver/adapter pair");
-      }
-
-      final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
-      testSequenceEngine.configure(block.getAttributes());
-
-      return testSequenceEngine;
-    }
-
     private void executeAndPrintTestSequencesOfPreOrPostBlock(
         final List<TestSequence> concreteSequences,
         final String headerText) throws ConfigurationException {
@@ -658,6 +600,64 @@ public final class TestEngine {
       } finally {
         fileWriter.close();
         Logger.debugBar();
+      }
+    }
+  }
+
+  private static TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
+    InvariantChecks.checkNotNull(block);
+
+    final String engineName = block.getAttribute("engine", "default");
+    final String adapterName = block.getAttribute("adapter", engineName);
+
+    final Engine<?> engine = GeneratorConfig.get().getEngine(engineName);
+    InvariantChecks.checkNotNull(engine);
+
+    final Adapter<?> adapter = GeneratorConfig.get().getAdapter(adapterName);
+    InvariantChecks.checkNotNull(adapter);
+
+    if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
+      throw new IllegalStateException("Mismatched solver/adapter pair");
+    }
+
+    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
+    testSequenceEngine.configure(block.getAttributes());
+
+    return testSequenceEngine;
+  }
+
+  private static void initSolverPaths(final String home) {
+    final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
+    if (null == z3Solver.getSolverPath()) {
+      // If the Z3_PATH environment variable is not set, we set up default solver path
+      // in hope to find the the tool there.
+      final String z3Path = (home != null ? home : ".") + "/tools/z3/";
+      if (Environment.isUnix()) {
+        z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
+      } else if (Environment.isWindows()) {
+        z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
+      } else if (Environment.isOSX()) {
+        z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
+      } else {
+        throw new UnsupportedOperationException(String.format(
+            "Unsupported platform: %s.", Environment.getOSName()));
+      }
+    }
+
+    final ru.ispras.fortress.solver.Solver cvc4Solver = SolverId.CVC4_TEXT.getSolver();
+    if (null == cvc4Solver.getSolverPath()) {
+      // If the CVC4_PATH environment variable is not set, we set up default solver path
+      // in hope to find the the tool there.
+      final String cvc4Path = (home != null ? home : ".") + "/tools/cvc4/";
+      if (Environment.isUnix()) {
+        cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
+      } else if (Environment.isWindows()) {
+        cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
+      } else if (Environment.isOSX()) {
+        cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
+      } else {
+        throw new UnsupportedOperationException(String.format(
+            "Unsupported platform: %s.", Environment.getOSName()));
       }
     }
   }
