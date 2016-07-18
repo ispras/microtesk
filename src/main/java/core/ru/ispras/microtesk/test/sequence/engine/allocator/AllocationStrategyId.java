@@ -34,6 +34,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
   FREE() {
     @Override
     public <T> T next(
+        final Collection<T> domain,
         final Collection<T> free,
         final Collection<T> used,
         final Map<String, String> attributes) {
@@ -48,6 +49,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
   TRY_FREE() {
     @Override
     public <T> T next(
+        final Collection<T> domain,
         final Collection<T> free,
         final Collection<T> used,
         final Map<String, String> attributes) {
@@ -65,6 +67,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
 
     @Override
     public <T> T next(
+        final Collection<T> domain,
         final Collection<T> free,
         final Collection<T> used,
         final Map<String, String> attributes) {

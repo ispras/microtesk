@@ -277,7 +277,7 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
-    final T object = allocator.next(free, used);
+    final T object = allocator.next(objects, free, used);
 
     if (object == null) {
       throw new IllegalStateException("Cannot peek an object");
@@ -297,10 +297,13 @@ public final class AllocationTable<T, V> {
   public T peek(final Set<T> exclude) {
     InvariantChecks.checkNotNull(exclude);
 
-    final Set<T> domain = new HashSet<>(free);
+    final Set<T> domain = new HashSet<>(objects);
     domain.removeAll(exclude);
 
-    final T object = allocator.next(domain, used);
+    final Set<T> freeDomain = new HashSet<>(free);
+    freeDomain.removeAll(exclude);
+
+    final T object = allocator.next(domain, freeDomain, used);
 
     if (object == null) {
       throw new IllegalStateException(

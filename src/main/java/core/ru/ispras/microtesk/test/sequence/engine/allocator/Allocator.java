@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -24,7 +24,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Allocator {
   /** The strategy for object allocation. */
   private final AllocationStrategy strategy;
@@ -32,14 +31,19 @@ public final class Allocator {
   /** The strategy parameters. */
   private final Map<String, String> attributes;
 
-  public Allocator(final AllocationStrategy strategy, final Map<String, String> attributes) {
+  public Allocator(
+      final AllocationStrategy strategy,
+      final Map<String, String> attributes) {
     InvariantChecks.checkNotNull(strategy);
 
     this.strategy = strategy;
     this.attributes = attributes;
   }
 
-  public <T> T next(final Set<T> free, final Set<T> used) {
-    return strategy.next(free, used, attributes);
+  public <T> T next(
+      final Collection<T> domain,
+      final Collection<T> free,
+      final Collection<T> used) {
+    return strategy.next(domain, free, used, attributes);
   }
 }

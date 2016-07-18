@@ -28,12 +28,14 @@ public interface AllocationStrategy {
    * Chooses an object.
    * 
    * @param <T> type of objects.
-   * @param free the set of free objects.
-   * @param used the set of used objects.
+   * @param domain all available objects. 
+   * @param free free objects.
+   * @param used used objects.
    * @param attributes the parameters.
    * @return the chosen object or {@code null}.
    */
-  <T> T next(final Collection<T> free,
+  <T> T next(final Collection<T> domain,
+             final Collection<T> free,
              final Collection<T> used,
              final Map<String, String> attributes);
 }
