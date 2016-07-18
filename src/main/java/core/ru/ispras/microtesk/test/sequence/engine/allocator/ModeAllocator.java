@@ -200,7 +200,11 @@ public final class ModeAllocator {
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
             final int value = allocate(
-                primitive.getName(), unknownValue.getAllocator(), unknownValue.getExclude());
+                primitive.getName(),
+                unknownValue.getAllocator(),
+                unknownValue.getRetain(),
+                unknownValue.getExclude()
+                );
             unknownValue.setValue(BigInteger.valueOf(value));
           }
           break;
@@ -219,7 +223,11 @@ public final class ModeAllocator {
     }
   }
 
-  private int allocate(final String mode, final Allocator allocator, final List<Value> exclude) {
+  private int allocate(
+      final String mode,
+      final Allocator allocator,
+      final List<Value> retain,
+      final List<Value> exclude) {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
