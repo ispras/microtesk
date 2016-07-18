@@ -91,7 +91,21 @@ final class Executor {
    *         evaluating an {@link Output} object causes an invalid request to the model state
    *         observer).
    */
-  public void executeSequence(
+  public void execute(
+      final TestSequence sequence,
+      final int index,
+      final boolean abortOnUndefinedLabel) {
+    try {
+      executeSequence(sequence, index, abortOnUndefinedLabel);
+    } catch (final ConfigurationException e) {
+      final java.io.StringWriter writer = new java.io.StringWriter();
+      e.printStackTrace(new java.io.PrintWriter(writer));
+      throw new GenerationAbortedException(String.format(
+          "Simulation failed: %s%n%s", e.getMessage(), writer));
+    }
+  }
+
+  private void executeSequence(
       final TestSequence sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {

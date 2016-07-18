@@ -67,7 +67,6 @@ import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
-
   private static TestEngine instance = null;
   public static TestEngine getInstance() {
     return instance;
@@ -441,7 +440,7 @@ public final class TestEngine {
           printer.printSequence(null, concreteSequence);
 
           Logger.debugHeader("Executing %s", sequenceId);
-          sandboxExecution(executor, concreteSequence, testCaseIndex, true);
+          executor.execute(concreteSequence, testCaseIndex, true);
 
           final TestSequence selfCheckSequence;
           if (TestSettings.isSelfChecks()) {
@@ -449,7 +448,7 @@ public final class TestEngine {
             selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
 
             Logger.debugHeader("Executing Self-Checks for %s", sequenceId);
-            sandboxExecution(executor, selfCheckSequence, testCaseIndex, false);
+            executor.execute(selfCheckSequence, testCaseIndex, false);
           } else {
             selfCheckSequence = null;
           }
@@ -496,20 +495,6 @@ public final class TestEngine {
       } // Abstract sequence iterator
 
       engineContext.getStatistics().popActivity();
-    }
-
-    private void sandboxExecution(
-        final Executor exe,
-        final TestSequence s,
-        final int index,
-        final boolean abortOnUndefinedLabel) {
-      try {
-        exe.executeSequence(s, index, abortOnUndefinedLabel);
-      } catch (final ConfigurationException e) {
-        final java.io.StringWriter writer = new java.io.StringWriter();
-        e.printStackTrace(new java.io.PrintWriter(writer));
-        Logger.warning("Simulation failed: %s%n%s", e.getMessage(), writer);
-      }
     }
 
     private void processPreOrPostBlock(
@@ -605,7 +590,7 @@ public final class TestEngine {
 
       for (final TestSequence concreteSequence : concreteSequences) {
         Logger.debugHeader("Executing %s", headerText);
-        sandboxExecution(executor, concreteSequence, Label.NO_SEQUENCE_INDEX, true);
+        executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
 
         Logger.debugHeader("Printing %s to %s", headerText, fileName);
         printer.printSequence(concreteSequence);
