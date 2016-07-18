@@ -128,51 +128,51 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
-    Statistics statistics = null;
+    final IModel model = SysUtils.loadModel(modelName);
+    if (null == model) {
+      reportAborted("Failed to load the %s model.", modelName);
+      return null;
+    }
+
+    instance = new TestEngine(model);
 
     try {
-      final IModel model = SysUtils.loadModel(modelName);
-      if (null == model) {
-        throw new GenerationAbortedException(
-            String.format("Failed to load the %s model.", modelName));
-      }
-
-      instance = new TestEngine(model);
-
-      final ScriptingContainer container = new ScriptingContainer();
-      container.setArgv(new String[] {templateFile});
-
-      final String scriptsPath = String.format(
-          "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
-
       for (final Plugin plugin : plugins) {
         plugin.initializeGenerationEnvironment();
       }
+    } catch (final GenerationAbortedException e) {
+      reportAborted(e.getMessage());
+      return null;
+    }
+
+    return instance.processTemplate(templateFile);
+  }
+
+  private Statistics processTemplate(final String templateFile) throws Throwable {
+    final String scriptsPath = String.format(
+        "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
+
+    final ScriptingContainer container = new ScriptingContainer();
+    container.setArgv(new String[] {templateFile});
+
+    try {
+      container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
+    } catch(final org.jruby.embed.EvalFailedException e) {
+      // JRuby wraps exceptions that occur in Java libraries it calls into
+      // EvalFailedException. To handle them correctly, we need to unwrap them.
 
       try {
-        container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
-        statistics = instance.statistics;
-      } catch(final org.jruby.embed.EvalFailedException e) {
-        // JRuby wraps exceptions that occur in Java libraries it calls into
-        // EvalFailedException. To handle them correctly, we need to unwrap them.
-
-        try {
-          throw e.getCause();
-        } catch (final GenerationAbortedException e2) {
-          handleGenerationAborted(e2, statistics);
-        }
+        throw e.getCause();
+      } catch (final GenerationAbortedException e2) {
+        handleGenerationAborted(e2);
       }
-    } catch (final GenerationAbortedException e) {
-      handleGenerationAborted(e, statistics);
     }
 
     return statistics;
   }
 
-  private static void handleGenerationAborted(
-      final GenerationAbortedException e, final Statistics statistics) {
-    Logger.message("Generation Aborted");
-    Logger.error(e.getMessage());
+  private void handleGenerationAborted(final GenerationAbortedException e) {
+    reportAborted(e.getMessage());
 
     if (null != Printer.getLastFileName()) {
       new File(Printer.getLastFileName()).delete();
@@ -660,5 +660,10 @@ public final class TestEngine {
             "Unsupported platform: %s.", Environment.getOSName()));
       }
     }
+  }
+
+  private static void reportAborted(final String format, final Object... args) {
+    Logger.error(format, args);
+    Logger.message("Generation Aborted");
   }
 }
