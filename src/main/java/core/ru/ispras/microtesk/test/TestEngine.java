@@ -68,12 +68,23 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
   private static TestEngine instance = null;
+
   public static TestEngine getInstance() {
     return instance;
   }
 
   private final IModel model;
   private Statistics statistics;
+
+  private TestEngine(final IModel model) {
+    InvariantChecks.checkNotNull(model);
+
+    this.statistics = null;
+    this.model = model;
+
+    Reader.setModel(model);
+    initSolverPaths(SysUtils.getHomeDir());
+  }
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
@@ -180,16 +191,6 @@ public final class TestEngine {
         statistics.decPrograms();
       }
     }
-  }
-
-  private TestEngine(final IModel model) {
-    InvariantChecks.checkNotNull(model);
-
-    this.statistics = null;
-    this.model = model;
-
-    Reader.setModel(model);
-    initSolverPaths(SysUtils.getHomeDir());
   }
 
   public Template newTemplate() {
