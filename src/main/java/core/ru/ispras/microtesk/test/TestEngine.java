@@ -465,13 +465,11 @@ public final class TestEngine {
     private void processPreOrPostBlock(
         final Block block,
         final String headerText) throws ConfigurationException {
-      final boolean tempIsGenerateData = engineContext.isGenerateData();
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
         final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
         executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
       } finally {
-        engineContext.setGenerateData(tempIsGenerateData);
         engineContext.getStatistics().popActivity();
       }
     }
@@ -488,7 +486,6 @@ public final class TestEngine {
      * @param block PRE or POST block to be processed.
      * @return List of test sequences.
      */
-
     public List<TestSequence> buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
 
@@ -608,8 +605,16 @@ public final class TestEngine {
   private static TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
     InvariantChecks.checkNotNull(block);
 
-    final String engineName = block.getAttribute("engine", "default");
-    final String adapterName = block.getAttribute("adapter", engineName);
+    final String engineName;
+    final String adapterName;
+
+    if (block.isExternal()) {
+      engineName = "trivial";
+      adapterName = engineName;
+    } else {
+      engineName = block.getAttribute("engine", "default");
+      adapterName = block.getAttribute("adapter", engineName);
+    }
 
     final Engine<?> engine = GeneratorConfig.get().getEngine(engineName);
     InvariantChecks.checkNotNull(engine);

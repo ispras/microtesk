@@ -50,10 +50,6 @@ public final class EngineContext {
   // Address to be used for allocations
   private long address; 
 
-  // For some code sequence like exception handler no test data generation
-  // (including randomization is not needed). This is to disable test data generation.
-  private boolean generateData;
-
   // Flag to control generation of default data (for some tests this is undesirable).
   private final boolean generateDefaultData;
 
@@ -92,7 +88,6 @@ public final class EngineContext {
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
     this.address = TestSettings.getBaseVirtualAddress().longValue();
-    this.generateData = true;
     this.generateDefaultData = generateDefaultData;
   }
 
@@ -138,14 +133,6 @@ public final class EngineContext {
 
   public void setAddress(final long value) {
     this.address = value;
-  }
-
-  public boolean isGenerateData() {
-    return generateData;
-  }
-
-  public void setGenerateData(final boolean value) {
-    this.generateData = value;
   }
 
   public boolean isGenerateDefaultData() {
