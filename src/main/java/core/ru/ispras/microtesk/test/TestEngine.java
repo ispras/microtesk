@@ -437,13 +437,8 @@ public final class TestEngine {
       try {
         final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
         for (final ExceptionHandler.Section section : handler.getSections()) {
-          final List<ConcreteCall> concreteCalls;
-          try {
-             concreteCalls = EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
-          } catch (final ConfigurationException e) {
-            InvariantChecks.checkTrue(false, e.getMessage());
-            return;
-          }
+          final List<ConcreteCall> concreteCalls =
+              EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
 
           final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
           concreteSequenceBuilder.add(concreteCalls);
@@ -459,23 +454,21 @@ public final class TestEngine {
             }
           }
 
-          try {
-            fileWriter.println();
-            Logger.debug("");
+          fileWriter.println();
+          Logger.debug("");
 
-            printer.printCommentToFile(fileWriter,
-                String.format("Exceptions: %s", section.getExceptions()));
+          printer.printCommentToFile(fileWriter,
+              String.format("Exceptions: %s", section.getExceptions()));
 
-            final String org = String.format(".org 0x%x", address);
-            Logger.debug(org);
-            printer.printToFile(fileWriter, org);
-            printer.printSequence(fileWriter, concreteSequence);
-          } catch (final ConfigurationException e) {
-            e.printStackTrace();
-          }
+          final String org = String.format(".org 0x%x", address);
+          Logger.debug(org);
+          printer.printToFile(fileWriter, org);
+          printer.printSequence(fileWriter, concreteSequence);
         }
 
         executor.setExceptionHandlers(handlers);
+      } catch (final ConfigurationException e) { 
+        Logger.error(e.getMessage());
       } finally {
         fileWriter.close();
         Logger.debugBar();
