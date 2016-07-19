@@ -225,20 +225,18 @@ public final class TestEngine {
     private final Printer printer;
 
     private int testIndex = 0; 
-    private boolean needCreateNewFile;
+    private boolean needCreateNewFile = true;
+
+    private List<TestSequence> preBlockTestSequences = null;
+    private Block postBlock = null;
+    private String fileName = null;
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
 
       this.executor = new Executor(engineContext);
       this.printer = printer;
-
-      this.needCreateNewFile = true;
     }
-
-    private List<TestSequence> preBlockTestSequences = null;
-    private Block postBlock = null;
-    private String fileName;
 
     @Override
     public void process(final Section section, final Block block) {
