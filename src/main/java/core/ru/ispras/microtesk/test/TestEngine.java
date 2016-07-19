@@ -378,9 +378,8 @@ public final class TestEngine {
           }
 
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
-
-          printer.printToFile("");
           printer.printSubheaderToFile(sequenceId);
+
           printer.printSequence(concreteSequence);
 
           if (null != selfCheckSequence) {

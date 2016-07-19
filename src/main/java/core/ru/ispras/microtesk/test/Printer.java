@@ -139,7 +139,6 @@ public final class Printer {
 
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
-      printText("");
       printNote("Preparation");
       printCalls(prologue);
 
@@ -304,8 +303,10 @@ public final class Printer {
 
   public void printSubheaderToFile(String text) {
     if (TestSettings.isCommentsEnabled()) {
+      printToFile("");
       printSeparatorToFile();
       printCommentToFile(text);
+      printToFile("");
     }
   }
 

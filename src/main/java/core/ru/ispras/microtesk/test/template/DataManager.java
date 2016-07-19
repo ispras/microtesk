@@ -210,9 +210,7 @@ public final class DataManager {
 
       if (index != currentTestCaseIndex) {
         currentTestCaseIndex = index;
-        printer.printToFile("");
         printer.printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
-        printer.printToFile("");
       }
 
       for (final DataDirective item : data) {
