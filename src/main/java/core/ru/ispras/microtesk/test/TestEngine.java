@@ -437,19 +437,12 @@ public final class TestEngine {
       try {
         final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
         for (final ExceptionHandler.Section section : handler.getSections()) {
-          final List<ConcreteCall> concreteCalls =
-              EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
+          final TestSequence concreteSequence =
+              makeTestSequenceForExceptionHandler(engineContext, section);
 
-          final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
-          concreteSequenceBuilder.add(concreteCalls);
-
-          final TestSequence concreteSequence = concreteSequenceBuilder.build();
-          final long address = section.getAddress().longValue();
-          concreteSequence.setAddress(address);
-
-          final List<ConcreteCall> handlerSequence = concreteSequence.getAll();
+          final List<ConcreteCall> handlerCalls = concreteSequence.getAll();
           for (final String exception : section.getExceptions()) {
-            if (null != handlers.put(exception, handlerSequence)) {
+            if (null != handlers.put(exception, handlerCalls)) {
               Logger.warning("Exception handler for %s is redefined.", exception);
             }
           }
@@ -460,7 +453,7 @@ public final class TestEngine {
           printer.printCommentToFile(fileWriter,
               String.format("Exceptions: %s", section.getExceptions()));
 
-          final String org = String.format(".org 0x%x", address);
+          final String org = String.format(".org 0x%x", section.getAddress());
           Logger.debug(org);
           printer.printToFile(fileWriter, org);
           printer.printSequence(fileWriter, concreteSequence);
@@ -548,6 +541,25 @@ public final class TestEngine {
 
     iterator.next();
     InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
+
+    return result;
+  }
+
+  private static TestSequence makeTestSequenceForExceptionHandler(
+      final EngineContext engineContext,
+      final ExceptionHandler.Section section) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(section);
+
+    final List<ConcreteCall> concreteCalls =
+        EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
+
+    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+    concreteSequenceBuilder.add(concreteCalls);
+
+    final TestSequence result = concreteSequenceBuilder.build();
+    final long address = section.getAddress().longValue();
+    result.setAddress(address);
 
     return result;
   }
