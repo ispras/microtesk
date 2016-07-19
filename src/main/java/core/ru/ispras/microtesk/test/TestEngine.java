@@ -259,9 +259,7 @@ public final class TestEngine {
     }
 
     private void finishCurrentFile() {
-      printer.printToFile("");
       printer.printHeaderToFile("Epilogue");
-      printer.printToFile("");
 
       if (!postBlock.isEmpty()) {
         try {
@@ -326,9 +324,7 @@ public final class TestEngine {
               Logger.error(e.getMessage());
             }
 
-            printer.printToFile("");
             printer.printHeaderToFile("Prologue");
-            printer.printToFile("");
 
             if (!preBlockTestSequences.isEmpty()) {
               try {

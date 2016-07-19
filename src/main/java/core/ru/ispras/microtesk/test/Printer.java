@@ -287,9 +287,11 @@ public final class Printer {
 
   public void printHeaderToFile(String text) {
     if (TestSettings.isCommentsEnabled()) {
+      printToFile("");
       printSeparatorToFile();
       printCommentToFile(text);
       printSeparatorToFile();
+      printToFile("");
     }
   }
 

@@ -177,9 +177,7 @@ public final class DataManager {
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     Logger.debugHeader("Printing Data to %s", Printer.getLastFileName());
-    printer.printToFile("");
     printer.printHeaderToFile("Data");
-    printer.printToFile("");
 
     final String headerText = factory.getHeader().getText();
     printer.printToScreen(TestSettings.getIndentToken() + headerText);
