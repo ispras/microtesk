@@ -311,8 +311,6 @@ public final class TestEngine {
         Logger.debugHeader("Processing Abstract Sequence");
 
         final Iterator<AdapterResult> iterator = engine.process(engineContext, sequenceIt.value());
-        InvariantChecks.checkNotNull(iterator);
-
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           if (needCreateNewFile) {
             fileName = printer.createNewFile();
@@ -416,18 +414,6 @@ public final class TestEngine {
       }
     }
 
-    /**
-     * This method creates a list of test sequences (sequences of concrete calls)
-     * for a PRE or a POST block.
-     * 
-     * <p>NOTE: It is assumed that PRE and POST blocks can return only one <b>SINGLE</b>
-     * sequence of abstract calls. Otherwise, this is an incorrect test template. Using 
-     * constructs like 'block' that produce multiple sequence is forbidden in
-     * 'pre' and 'post'.
-     * 
-     * @param block PRE or POST block to be processed.
-     * @return List of test sequences.
-     */
     public List<TestSequence> buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
 
