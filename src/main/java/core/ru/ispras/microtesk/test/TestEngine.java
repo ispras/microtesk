@@ -253,7 +253,7 @@ public final class TestEngine {
         } else {
           processBlock(block);
         }
-      } catch (final ConfigurationException e) {
+      } catch (final ConfigurationException | IOException e) {
         Logger.error(e.getMessage());
       }
     }
@@ -298,7 +298,7 @@ public final class TestEngine {
       engineContext.getStatistics().saveTotalTime();
     }
 
-    private void processBlock(final Block block) throws ConfigurationException {
+    private void processBlock(final Block block) throws ConfigurationException, IOException {
       engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
 
       final Iterator<List<Call>> sequenceIt = block.getIterator();
@@ -315,23 +315,15 @@ public final class TestEngine {
 
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           if (needCreateNewFile) {
-            try {
-              fileName = printer.createNewFile();
-              engineContext.getStatistics().incPrograms();
+            fileName = printer.createNewFile();
 
-              Tarmac.createFile();
-            } catch (final IOException e) {
-              Logger.error(e.getMessage());
-            }
+            engineContext.getStatistics().incPrograms();
+            Tarmac.createFile();
 
             printer.printHeaderToFile("Prologue");
 
             if (!preBlockTestSequences.isEmpty()) {
-              try {
-                executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences, "Prologue");
-              } catch (ConfigurationException e) {
-                Logger.error(e.getMessage());
-              }
+              executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences, "Prologue");
             } else {
               printer.printCommentToFile("Empty");
             }
