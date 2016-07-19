@@ -76,6 +76,9 @@ public final class TestEngine {
   private final IModel model;
   private Statistics statistics;
 
+  // Architecture-specific settings
+  private static GeneratorSettings settings;
+
   private TestEngine(final IModel model) {
     InvariantChecks.checkNotNull(model);
 
@@ -85,9 +88,6 @@ public final class TestEngine {
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
   }
-
-  // Architecture-specific settings
-  private static GeneratorSettings settings;
 
   public IModel getModel() {
     return model;
@@ -99,20 +99,6 @@ public final class TestEngine {
 
   public MetaModel getMetaModel() {
     return model.getMetaData();
-  }
-
-  public static void setRandomSeed(int seed) {
-    Randomizer.get().setSeed(seed);
-  }
-
-  public static void setSolver(final String solverName) {
-    if ("z3".equalsIgnoreCase(solverName)) {
-      TestBase.setSolverId(SolverId.Z3_TEXT);
-    } else if ("cvc4".equalsIgnoreCase(solverName)) {
-      TestBase.setSolverId(SolverId.CVC4_TEXT);
-    } else {
-      Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
-    }
   }
 
   public static GeneratorSettings getGeneratorSettings() {
@@ -664,5 +650,19 @@ public final class TestEngine {
   private static void reportAborted(final String format, final Object... args) {
     Logger.error(format, args);
     Logger.message("Generation Aborted");
+  }
+
+  public static void setRandomSeed(int seed) {
+    Randomizer.get().setSeed(seed);
+  }
+
+  public static void setSolver(final String solverName) {
+    if ("z3".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.Z3_TEXT);
+    } else if ("cvc4".equalsIgnoreCase(solverName)) {
+      TestBase.setSolverId(SolverId.CVC4_TEXT);
+    } else {
+      Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
+    }
   }
 }
