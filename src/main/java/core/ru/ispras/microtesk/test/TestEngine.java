@@ -37,7 +37,6 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.settings.AllocationSettings;
