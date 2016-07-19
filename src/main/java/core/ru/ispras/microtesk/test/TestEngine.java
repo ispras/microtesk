@@ -344,16 +344,7 @@ public final class TestEngine {
             printer.printSeparatorToFile(String.format("Test %d", testIndex++));
           }
 
-          final AdapterResult adapterResult = iterator.value();
-          InvariantChecks.checkNotNull(adapterResult);
-
-          if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-            Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
-            continue;
-          }
-
-          final TestSequence concreteSequence = adapterResult.getResult();
-          InvariantChecks.checkNotNull(concreteSequence);
+          final TestSequence concreteSequence = getTestSequence(iterator.value());
 
           final int testCaseIndex = engineContext.getStatistics().getSequences();
           engineContext.getDataManager().setTestCaseIndex(testCaseIndex);
@@ -455,17 +446,7 @@ public final class TestEngine {
       final List<TestSequence> result = new ArrayList<>();
 
       for (iterator.init(); iterator.hasValue(); iterator.next()) {
-        final AdapterResult adapterResult = iterator.value();
-        InvariantChecks.checkNotNull(adapterResult);
-
-        if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-          Logger.debug("%nAdapter Error: %s", adapterResult.getErrors());
-          continue;
-        }
-
-        final TestSequence concreteSequence = adapterResult.getResult();
-        InvariantChecks.checkNotNull(concreteSequence);
-
+        final TestSequence concreteSequence = getTestSequence(iterator.value());
         result.add(concreteSequence);
       }
 
@@ -594,6 +575,20 @@ public final class TestEngine {
 
     sequenceIt.next();
     InvariantChecks.checkFalse(sequenceIt.hasValue(), "A single sequence is expected.");
+
+    return result;
+  }
+
+  private static TestSequence getTestSequence(final AdapterResult adapterResult) {
+    InvariantChecks.checkNotNull(adapterResult);
+
+    if (adapterResult.getStatus() != AdapterResult.Status.OK) {
+      throw new GenerationAbortedException(String.format(
+         "Adapter Error: %s", adapterResult.getErrors()));
+    }
+
+    final TestSequence result = adapterResult.getResult();
+    InvariantChecks.checkNotNull(result);
 
     return result;
   }
