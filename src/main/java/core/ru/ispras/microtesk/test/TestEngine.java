@@ -226,8 +226,8 @@ public final class TestEngine {
     private int testIndex = 0; 
     private boolean needCreateNewFile = true;
 
-    private TestSequence preBlockTestSequence = null;
-    private Block postBlock = null;
+    private TestSequence prologue = null;
+    private Block epilogueBlock = null;
     private String fileName = null;
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
@@ -244,9 +244,9 @@ public final class TestEngine {
 
       try {
         if (section == Section.PRE) {
-          preBlockTestSequence = buildTestSequencesForPreOrPost(block);
+          prologue = buildTestSequenceForExternalBlock(block);
         } else if (section == Section.POST) {
-          postBlock = block;
+          epilogueBlock = block;
         } else {
           processBlock(block);
         }
@@ -258,9 +258,9 @@ public final class TestEngine {
     private void finishCurrentFile() {
       printer.printHeaderToFile("Epilogue");
 
-      if (!postBlock.isEmpty()) {
+      if (!epilogueBlock.isEmpty()) {
         try {
-          processPreOrPostBlock(postBlock, "Epilogue");
+          processPreOrPostBlock(epilogueBlock, "Epilogue");
         } catch (ConfigurationException e) {
           Logger.error(e.getMessage());
         }
@@ -316,7 +316,7 @@ public final class TestEngine {
             Tarmac.createFile();
 
             printer.printHeaderToFile("Prologue");
-            executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequence, "Prologue");
+            executeAndPrintTestSequencesOfPreOrPostBlock(prologue, "Prologue");
 
             needCreateNewFile = false;
           }
@@ -377,7 +377,7 @@ public final class TestEngine {
 
           if (needCreateNewFile) {
             finishCurrentFile();
-            engineContext.setAddress(preBlockTestSequence.getEndAddress());
+            engineContext.setAddress(prologue.getEndAddress());
           }
         } // Concrete sequence iterator
 
@@ -392,15 +392,16 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final TestSequence concreteSequence = buildTestSequencesForPreOrPost(block);
+        final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
         executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequence, headerText);
       } finally {
         engineContext.getStatistics().popActivity();
       }
     }
 
-    private TestSequence buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
+    private TestSequence buildTestSequenceForExternalBlock(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
+      InvariantChecks.checkTrue(block.isExternal());
 
       final TestSequenceEngine engine = getEngine(block);
       final List<Call> abstractSequence = getSingleSequence(block);
