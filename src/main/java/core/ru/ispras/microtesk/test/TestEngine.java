@@ -225,6 +225,7 @@ public final class TestEngine {
  
     private boolean needCreateNewFile = true;
     private String fileName = null;
+    private int testIndex = 0;
 
     private TestSequence prologue = null;
     private Block epilogueBlock = null;
@@ -279,9 +280,8 @@ public final class TestEngine {
       final TestSequenceEngine engine = getEngine(block);
 
       int sequenceIndex = 0;
-      int testIndex = 0;
-
       sequenceIt.init();
+
       while (sequenceIt.hasValue()) {
         Logger.debugHeader("Processing Abstract Sequence");
 
