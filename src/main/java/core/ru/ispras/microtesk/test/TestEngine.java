@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -227,7 +226,7 @@ public final class TestEngine {
     private int testIndex = 0; 
     private boolean needCreateNewFile = true;
 
-    private List<TestSequence> preBlockTestSequences = null;
+    private TestSequence preBlockTestSequence = null;
     private Block postBlock = null;
     private String fileName = null;
 
@@ -245,7 +244,7 @@ public final class TestEngine {
 
       try {
         if (section == Section.PRE) {
-          preBlockTestSequences = buildTestSequencesForPreOrPost(block);
+          preBlockTestSequence = buildTestSequencesForPreOrPost(block);
         } else if (section == Section.POST) {
           postBlock = block;
         } else {
@@ -317,12 +316,7 @@ public final class TestEngine {
             Tarmac.createFile();
 
             printer.printHeaderToFile("Prologue");
-
-            if (!preBlockTestSequences.isEmpty()) {
-              executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequences, "Prologue");
-            } else {
-              printer.printCommentToFile("Empty");
-            }
+            executeAndPrintTestSequencesOfPreOrPostBlock(preBlockTestSequence, "Prologue");
 
             needCreateNewFile = false;
           }
@@ -383,14 +377,7 @@ public final class TestEngine {
 
           if (needCreateNewFile) {
             finishCurrentFile();
-
-            if (!preBlockTestSequences.isEmpty()) {
-              final TestSequence sequences =
-                  preBlockTestSequences.get(preBlockTestSequences.size() - 1);
-              engineContext.setAddress(sequences.getEndAddress());
-            } else {
-              engineContext.setAddress(0);
-            }
+            engineContext.setAddress(preBlockTestSequence.getEndAddress());
           }
         } // Concrete sequence iterator
 
@@ -405,41 +392,36 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final List<TestSequence> concreteSequences = buildTestSequencesForPreOrPost(block);
-        executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequences, headerText);
+        final TestSequence concreteSequence = buildTestSequencesForPreOrPost(block);
+        executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequence, headerText);
       } finally {
         engineContext.getStatistics().popActivity();
       }
     }
 
-    public List<TestSequence> buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
+    private TestSequence buildTestSequencesForPreOrPost(final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
 
       final TestSequenceEngine engine = getEngine(block);
       final List<Call> abstractSequence = getSingleSequence(block);
 
       final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-      final List<TestSequence> result = new ArrayList<>();
-
-      for (iterator.init(); iterator.hasValue(); iterator.next()) {
-        final TestSequence concreteSequence = getTestSequence(iterator.value());
-        result.add(concreteSequence);
-      }
-
-      return result;
+      return getSingleTestSequence(iterator);
     }
 
     private void executeAndPrintTestSequencesOfPreOrPostBlock(
-        final List<TestSequence> concreteSequences,
+        final TestSequence concreteSequence,
         final String headerText) throws ConfigurationException {
-
-      for (final TestSequence concreteSequence : concreteSequences) {
-        Logger.debugHeader("Executing %s", headerText);
-        executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
-
-        Logger.debugHeader("Printing %s to %s", headerText, fileName);
-        printer.printSequence(concreteSequence);
+      if (concreteSequence.getPrologue().isEmpty() && concreteSequence.getBody().isEmpty()) {
+        printer.printCommentToFile("Empty");
+        return;
       }
+
+      Logger.debugHeader("Executing %s", headerText);
+      executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
+
+      Logger.debugHeader("Printing %s to %s", headerText, fileName);
+      printer.printSequence(concreteSequence);
     }
 
     @Override
@@ -540,17 +522,17 @@ public final class TestEngine {
   private static List<Call> getSingleSequence(final Block block) {
     InvariantChecks.checkNotNull(block);
 
-    final Iterator<List<Call>> sequenceIt = block.getIterator();
-    sequenceIt.init();
+    final Iterator<List<Call>> iterator = block.getIterator();
+    iterator.init();
 
-    if (!sequenceIt.hasValue()) {
+    if (!iterator.hasValue()) {
       return Collections.emptyList();
     }
 
-    final List<Call> result = sequenceIt.value();
+    final List<Call> result = iterator.value();
 
-    sequenceIt.next();
-    InvariantChecks.checkFalse(sequenceIt.hasValue(), "A single sequence is expected.");
+    iterator.next();
+    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
 
     return result;
   }
@@ -565,6 +547,20 @@ public final class TestEngine {
 
     final TestSequence result = adapterResult.getResult();
     InvariantChecks.checkNotNull(result);
+
+    return result;
+  }
+
+  private static TestSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
+    InvariantChecks.checkNotNull(iterator);
+
+    iterator.init();
+    InvariantChecks.checkTrue(iterator.hasValue());
+
+    final TestSequence result = getTestSequence(iterator.value());
+
+    iterator.next();
+    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
 
     return result;
   }
