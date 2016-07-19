@@ -244,8 +244,6 @@ public final class TestEngine {
     private final EngineContext engineContext;
     private final Executor executor;
     private final Printer printer;
-    private final DataManager dataManager;
-    private final Statistics statistics;
 
     private int testIndex = 0; 
 
@@ -259,8 +257,6 @@ public final class TestEngine {
 
       this.executor = executor;
       this.printer = printer;
-      this.dataManager = engineContext.getDataManager();
-      this.statistics = engineContext.getStatistics();
 
       this.needCreateNewFile = true;
     }
@@ -310,9 +306,9 @@ public final class TestEngine {
         printer.printCommentToFile("Empty");
       }
 
-      if (dataManager.containsDecls()) {
-        dataManager.printData(printer);
-        dataManager.clearLocalData();
+      if (engineContext.getDataManager().containsDecls()) {
+        engineContext.getDataManager().printData(printer);
+        engineContext.getDataManager().clearLocalData();
       }
 
       printer.close();
@@ -325,9 +321,9 @@ public final class TestEngine {
         finishCurrentFile();
 
         // No instructions were added to the newly created file, it must be deleted
-        if (statistics.getProgramLength() == 0) {
+        if (engineContext.getStatistics().getProgramLength() == 0) {
           new File(fileName).delete();
-          statistics.decPrograms();
+          engineContext.getStatistics().decPrograms();
         }
       }
 
@@ -356,7 +352,7 @@ public final class TestEngine {
           if (needCreateNewFile) {
             try {
               fileName = printer.createNewFile();
-              statistics.incPrograms();
+              engineContext.getStatistics().incPrograms();
 
               Tarmac.createFile();
             } catch (final IOException e) {
@@ -396,8 +392,8 @@ public final class TestEngine {
           final TestSequence concreteSequence = adapterResult.getResult();
           InvariantChecks.checkNotNull(concreteSequence);
 
-          final int testCaseIndex = statistics.getSequences();
-          dataManager.setTestCaseIndex(testCaseIndex);
+          final int testCaseIndex = engineContext.getStatistics().getSequences();
+          engineContext.getDataManager().setTestCaseIndex(testCaseIndex);
 
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
 
@@ -436,12 +432,13 @@ public final class TestEngine {
             }
           }
 
-          statistics.incSequences();
+          engineContext.getStatistics().incSequences();
           ++sequenceIndex;
           Logger.debugHeader("");
 
-          needCreateNewFile = 
-              statistics.isProgramLengthLimitExceeded() || statistics.isTraceLengthLimitExceeded();
+          needCreateNewFile =
+              engineContext.getStatistics().isProgramLengthLimitExceeded() ||
+              engineContext.getStatistics().isTraceLengthLimitExceeded();
 
           if (needCreateNewFile) {
             finishCurrentFile();
