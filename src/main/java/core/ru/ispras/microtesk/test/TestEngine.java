@@ -221,8 +221,7 @@ public final class TestEngine {
       Tarmac.initialize(TestSettings.getOutDir(), TestSettings.getCodeFilePrefix());
     }
 
-    final Executor executor = new Executor(context, observer);
-    final TemplateProcessor processor = new TemplateProcessor(context, executor, printer);
+    final TemplateProcessor processor = new TemplateProcessor(context, printer);
 
     return new Template(context, processor);
   }
@@ -249,13 +248,10 @@ public final class TestEngine {
 
     private boolean needCreateNewFile;
 
-    private TemplateProcessor(
-        final EngineContext engineContext,
-        final Executor executor,
-        final Printer printer) {
+    private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
 
-      this.executor = executor;
+      this.executor = new Executor(engineContext);
       this.printer = printer;
 
       this.needCreateNewFile = true;

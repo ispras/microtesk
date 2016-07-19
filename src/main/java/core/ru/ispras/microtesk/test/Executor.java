@@ -28,6 +28,7 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
@@ -48,26 +49,28 @@ import ru.ispras.microtesk.test.template.Output;
  */
 final class Executor {
   private final EngineContext context;
-  private final ModelStateObserver observer;
   private Map<String, List<ConcreteCall>> exceptionHandlers;
 
   /**
    * Constructs an Executor object.
    * 
-   * @param observer Model state observer to evaluate simulation-time outputs.
    * @param logExecution Specifies whether printing to the simulator log is enabled.
    * 
    * @throws IllegalArgumentException if the {@code observer} parameter is {@code null}.
    */
-  public Executor(
-      final EngineContext context,
-      final ModelStateObserver observer) {
+  public Executor(final EngineContext context) {
     InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(observer);
 
     this.context = context;
-    this.observer = observer;
     this.exceptionHandlers = null;
+  }
+
+  private ModelStateObserver getStateObserver() {
+    return context.getModel().getStateObserver();
+  }
+
+  private LocationAccessor getPC() throws ConfigurationException {
+    return getStateObserver().accessLocation("PC");
   }
 
   public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
@@ -157,7 +160,7 @@ final class Executor {
 
       if (call != invalidCall) {
         final long address = call.getAddress();
-        observer.accessLocation("PC").setValue(BigInteger.valueOf(address));
+        getPC().setValue(BigInteger.valueOf(address));
       }
 
       if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
@@ -216,7 +219,7 @@ final class Executor {
       if (null == exception) {
         // NORMAL EXECUTION
 
-        final long address = observer.accessLocation("PC").getValue().longValue();
+        final long address = getPC().getValue().longValue();
         final boolean isJump = address != call.getAddress() + call.getByteSize();
 
         if (!isJump) {
@@ -247,7 +250,7 @@ final class Executor {
         }
 
         // If no label references are found within the delay slot we try to use PC to jump
-        final long nextAddress = observer.accessLocation("PC").getValue().longValue();
+        final long nextAddress = getPC().getValue().longValue();
         if (addressMap.containsKey(nextAddress)) {
           logText(String.format("Jump to address: 0x%x", nextAddress));
           final int nextIndex = addressMap.get(nextAddress);
@@ -497,7 +500,7 @@ final class Executor {
 
     for (final Output output : outputs) {
       if (output.isRuntime()) {
-        logText(output.evaluate(observer));
+        logText(output.evaluate(getStateObserver()));
       }
     }
   }
