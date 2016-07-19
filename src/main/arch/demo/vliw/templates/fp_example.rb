@@ -25,23 +25,25 @@ require_relative 'vliw_base'
 class FpExampleTemplate < VliwBaseTemplate
 
   def run
-    # Adding and subtracting data in random floating-point registers.
-    vliw(
-      (add_s f(_), f(_), f(_)),
-      (sub_s f(_), f(_), f(_))
-    )
-
-    # All registers are filled with zeros.
-    comment 'zero (:size => 32)'
-    vliw(
-      (add_s f(1), f(3), f(5)),
-      (add_s f(2), f(4), f(6))
-    ) do situation('zero', :size => 32) end
-
-    # Random registers are filled with random values.
-    vliw(
-      (add_s f(_), f(_), f(_)),
-      (add_s f(_), f(_), f(_))
-    )
+    sequence {
+      # Adding and subtracting data in random floating-point registers.
+      vliw(
+        (add_s f(_), f(_), f(_)),
+        (sub_s f(_), f(_), f(_))
+      )
+  
+      # All registers are filled with zeros.
+      comment 'zero (:size => 32)'
+      vliw(
+        (add_s f(1), f(3), f(5)),
+        (add_s f(2), f(4), f(6))
+      ) do situation('zero', :size => 32) end
+  
+      # Random registers are filled with random values.
+      vliw(
+        (add_s f(_), f(_), f(_)),
+        (add_s f(_), f(_), f(_))
+      )
+    }.run
   end
 end
