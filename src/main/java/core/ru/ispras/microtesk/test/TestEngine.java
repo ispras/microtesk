@@ -252,23 +252,15 @@ public final class TestEngine {
       InvariantChecks.checkNotNull(section);
       InvariantChecks.checkNotNull(block);
 
-      if (section == Section.PRE) {
-        try {
-          preBlockTestSequences = buildTestSequencesForPreOrPost(block);
-        } catch (ConfigurationException e) {
-          Logger.error(e.getMessage());
-        }
-        return;
-      }
-
-      if (section == Section.POST) {
-        postBlock = block;
-        return;
-      }
-
       try {
-        processBlock(block);
-      } catch (ConfigurationException e) {
+        if (section == Section.PRE) {
+          preBlockTestSequences = buildTestSequencesForPreOrPost(block);
+        } else if (section == Section.POST) {
+          postBlock = block;
+        } else {
+          processBlock(block);
+        }
+      } catch (final ConfigurationException e) {
         Logger.error(e.getMessage());
       }
     }
