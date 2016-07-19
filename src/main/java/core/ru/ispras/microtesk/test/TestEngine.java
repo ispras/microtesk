@@ -360,11 +360,7 @@ public final class TestEngine {
             printer.printNote("Self Checks");
 
             final List<ConcreteCall> selfCheckCalls = selfCheckSequence.getAll();
-            if (selfCheckCalls.isEmpty()) {
-              printer.printNote("Empty");
-            } else {
-              printer.printCalls(selfCheckCalls);
-            }
+            printer.printCalls(selfCheckCalls);
           }
 
           engineContext.getStatistics().incSequences();
