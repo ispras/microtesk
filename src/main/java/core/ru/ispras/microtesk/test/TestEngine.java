@@ -316,7 +316,7 @@ public final class TestEngine {
             Tarmac.createFile();
 
             printer.printHeaderToFile("Prologue");
-            executeAndPrintTestSequencesOfPreOrPostBlock(prologue, "Prologue");
+            executeAndPrintExternalTestSequence(prologue, "Prologue");
 
             needCreateNewFile = false;
           }
@@ -393,7 +393,7 @@ public final class TestEngine {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
         final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
-        executeAndPrintTestSequencesOfPreOrPostBlock(concreteSequence, headerText);
+        executeAndPrintExternalTestSequence(concreteSequence, headerText);
       } finally {
         engineContext.getStatistics().popActivity();
       }
@@ -410,7 +410,7 @@ public final class TestEngine {
       return getSingleTestSequence(iterator);
     }
 
-    private void executeAndPrintTestSequencesOfPreOrPostBlock(
+    private void executeAndPrintExternalTestSequence(
         final TestSequence concreteSequence,
         final String headerText) throws ConfigurationException {
       if (concreteSequence.getPrologue().isEmpty() && concreteSequence.getBody().isEmpty()) {
