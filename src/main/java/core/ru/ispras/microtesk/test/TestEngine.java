@@ -180,10 +180,6 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
-    final PreparatorStore preparators = new PreparatorStore();
-    final BufferPreparatorStore bufferPreparators = new BufferPreparatorStore();
-    final StreamStore streams = new StreamStore();
-
     statistics = new Statistics(
         TestSettings.getProgramLengthLimit(), TestSettings.getTraceLengthLimit());
     statistics.pushActivity(Statistics.Activity.PARSING);
@@ -195,9 +191,9 @@ public final class TestEngine {
     final EngineContext context = new EngineContext(
         model,
         dataManager,
-        preparators,
-        bufferPreparators,
-        streams,
+        new PreparatorStore(),
+        new BufferPreparatorStore(),
+        new StreamStore(),
         settings,
         statistics,
         TestSettings.isDefaultTestData()
