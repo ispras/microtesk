@@ -184,8 +184,7 @@ public final class TestEngine {
         TestSettings.getProgramLengthLimit(), TestSettings.getTraceLengthLimit());
     statistics.pushActivity(Statistics.Activity.PARSING);
 
-    final ModelStateObserver observer = model.getStateObserver();
-    final Printer printer = new Printer(observer, statistics);
+    final Printer printer = new Printer(model.getStateObserver(), statistics);
     final DataManager dataManager = new DataManager(printer, statistics);
  
     final EngineContext context = new EngineContext(
