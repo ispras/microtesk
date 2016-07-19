@@ -179,8 +179,8 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
-    statistics = new Statistics(
-        TestSettings.getProgramLengthLimit(), TestSettings.getTraceLengthLimit());
+    statistics = new Statistics(TestSettings.getProgramLengthLimit(),
+                                TestSettings.getTraceLengthLimit());
     statistics.pushActivity(Statistics.Activity.PARSING);
 
     final Printer printer = new Printer(model.getStateObserver(), statistics);
