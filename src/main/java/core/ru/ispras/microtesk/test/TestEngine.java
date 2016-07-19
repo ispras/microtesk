@@ -231,7 +231,6 @@ public final class TestEngine {
     private final Printer printer;
 
     private int testIndex = 0; 
-
     private boolean needCreateNewFile;
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
