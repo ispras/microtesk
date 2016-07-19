@@ -222,13 +222,12 @@ public final class TestEngine {
     private final EngineContext engineContext;
     private final Executor executor;
     private final Printer printer;
-
-    private int testIndex = 0; 
+ 
     private boolean needCreateNewFile = true;
+    private String fileName = null;
 
     private TestSequence prologue = null;
     private Block epilogueBlock = null;
-    private String fileName = null;
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
@@ -280,8 +279,9 @@ public final class TestEngine {
       final TestSequenceEngine engine = getEngine(block);
 
       int sequenceIndex = 0;
-      sequenceIt.init();
+      int testIndex = 0;
 
+      sequenceIt.init();
       while (sequenceIt.hasValue()) {
         Logger.debugHeader("Processing Abstract Sequence");
 
