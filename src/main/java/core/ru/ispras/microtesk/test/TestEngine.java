@@ -460,18 +460,7 @@ public final class TestEngine {
       InvariantChecks.checkNotNull(block);
 
       final TestSequenceEngine engine = getEngine(block);
-      final Iterator<List<Call>> sequenceIt = block.getIterator();
-
-      sequenceIt.init();
-      if (!sequenceIt.hasValue()) {
-        return Collections.emptyList();
-      }
-
-      final List<Call> abstractSequence = sequenceIt.value();
-
-      sequenceIt.next();
-      InvariantChecks.checkFalse(
-          sequenceIt.hasValue(), "Pre or Post block must contain a single sequence.");
+      final List<Call> abstractSequence = getSingleSequence(block);
 
       final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
       final List<TestSequence> result = new ArrayList<>();
@@ -600,6 +589,24 @@ public final class TestEngine {
     testSequenceEngine.configure(block.getAttributes());
 
     return testSequenceEngine;
+  }
+
+  private static List<Call> getSingleSequence(final Block block) {
+    InvariantChecks.checkNotNull(block);
+
+    final Iterator<List<Call>> sequenceIt = block.getIterator();
+    sequenceIt.init();
+
+    if (!sequenceIt.hasValue()) {
+      return Collections.emptyList();
+    }
+
+    final List<Call> result = sequenceIt.value();
+
+    sequenceIt.next();
+    InvariantChecks.checkFalse(sequenceIt.hasValue(), "A single sequence is expected.");
+
+    return result;
   }
 
   private static void initSolverPaths(final String home) {
