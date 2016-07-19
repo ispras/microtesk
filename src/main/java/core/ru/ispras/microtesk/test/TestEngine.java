@@ -255,28 +255,6 @@ public final class TestEngine {
       }
     }
 
-    private void finishCurrentFile() {
-      printer.printHeaderToFile("Epilogue");
-
-      if (!epilogueBlock.isEmpty()) {
-        try {
-          processPreOrPostBlock(epilogueBlock, "Epilogue");
-        } catch (ConfigurationException e) {
-          Logger.error(e.getMessage());
-        }
-      } else {
-        printer.printCommentToFile("Empty");
-      }
-
-      if (engineContext.getDataManager().containsDecls()) {
-        engineContext.getDataManager().printData(printer);
-        engineContext.getDataManager().clearLocalData();
-      }
-
-      printer.close();
-      Tarmac.closeFile();
-    }
-
     @Override
     public void finish() {
       if (!needCreateNewFile) {
@@ -310,14 +288,7 @@ public final class TestEngine {
         final Iterator<AdapterResult> iterator = engine.process(engineContext, sequenceIt.value());
         for (iterator.init(); iterator.hasValue(); iterator.next()) {
           if (needCreateNewFile) {
-            fileName = printer.createNewFile();
-
-            engineContext.getStatistics().incPrograms();
-            Tarmac.createFile();
-
-            printer.printHeaderToFile("Prologue");
-            executeAndPrintExternalTestSequence(prologue, "Prologue");
-
+            createNewFile();
             needCreateNewFile = false;
           }
 
@@ -383,6 +354,35 @@ public final class TestEngine {
       engineContext.getStatistics().popActivity();
     }
 
+    private void createNewFile() throws IOException, ConfigurationException {
+      fileName = printer.createNewFile();
+      Tarmac.createFile();
+
+      engineContext.getStatistics().incPrograms();
+      executeAndPrintExternalTestSequence(prologue, "Prologue");
+    }
+
+    private void finishCurrentFile() {
+      if (!epilogueBlock.isEmpty()) {
+        try {
+          processPreOrPostBlock(epilogueBlock, "Epilogue");
+        } catch (ConfigurationException e) {
+          Logger.error(e.getMessage());
+        }
+      } else {
+        printer.printHeaderToFile("Epilogue");
+        printer.printCommentToFile("Empty");
+      }
+
+      if (engineContext.getDataManager().containsDecls()) {
+        engineContext.getDataManager().printData(printer);
+        engineContext.getDataManager().clearLocalData();
+      }
+
+      printer.close();
+      Tarmac.closeFile();
+    }
+
     private void processPreOrPostBlock(
         final Block block,
         final String headerText) throws ConfigurationException {
@@ -409,6 +409,8 @@ public final class TestEngine {
     private void executeAndPrintExternalTestSequence(
         final TestSequence concreteSequence,
         final String headerText) throws ConfigurationException {
+      printer.printHeaderToFile(headerText);
+
       if (concreteSequence.getPrologue().isEmpty() && concreteSequence.getBody().isEmpty()) {
         printer.printCommentToFile("Empty");
         return;
