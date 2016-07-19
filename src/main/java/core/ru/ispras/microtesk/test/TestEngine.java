@@ -363,15 +363,10 @@ public final class TestEngine {
     }
 
     private void finishCurrentFile() {
-      if (!epilogueBlock.isEmpty()) {
-        try {
-          processPreOrPostBlock(epilogueBlock, "Epilogue");
-        } catch (ConfigurationException e) {
-          Logger.error(e.getMessage());
-        }
-      } else {
-        printer.printHeaderToFile("Epilogue");
-        printer.printCommentToFile("Empty");
+      try {
+        processExternalBlock(epilogueBlock, "Epilogue");
+      } catch (final ConfigurationException e) {
+        Logger.error(e.getMessage());
       }
 
       if (engineContext.getDataManager().containsDecls()) {
@@ -383,7 +378,7 @@ public final class TestEngine {
       Tarmac.closeFile();
     }
 
-    private void processPreOrPostBlock(
+    private void processExternalBlock(
         final Block block,
         final String headerText) throws ConfigurationException {
       try {
