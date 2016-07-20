@@ -348,6 +348,9 @@ public final class TestEngine {
       Logger.debugHeader("Preparing Self-Checks for Test Case %d", testCaseIndex);
       final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
 
+      Logger.debugHeader("Constructed Self-Checks for Test Case %d", testCaseIndex);
+      printer.printSequence(null, selfCheckSequence);
+
       Logger.debugHeader("Executing Self-Checks for Test Case %d", testCaseIndex);
       executor.execute(selfCheckSequence, testCaseIndex, false);
 
