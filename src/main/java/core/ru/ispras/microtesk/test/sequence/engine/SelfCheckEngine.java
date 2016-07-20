@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
-
-import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -31,7 +28,6 @@ import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -90,29 +86,8 @@ public final class SelfCheckEngine {
         comparator.makeInitializer(preparators, abstractMode, value, null);
 
     for (final Call abstractCall : abstractCalls) {
-      final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
-      patchLabels(concreteCall);
+      final ConcreteCall concreteCall = EngineUtils.makeConcreteCall(engineContext, abstractCall);
       sequenceBuilder.add(concreteCall);
-    }
-  }
-
-  private static void patchLabels(final ConcreteCall call) {
-    for (final LabelReference labelRef : call.getLabelReferences()) {
-      labelRef.resetTarget();
-
-      final String name = labelRef.getReference().getName();
-      final BigInteger value = labelRef.getArgumentValue();
-
-      final String text = call.getText();
-      final String pattern;
-      if (null != value) {
-        pattern = String.format("<label>%d", labelRef.getArgumentValue());
-      } else {
-        pattern = "<label>([0-9]+|0x[0-9A-Fa-f]+)";
-      }
-
-      final String patchedText = text.replaceFirst(pattern, name);
-      call.setText(patchedText);
     }
   }
 }
