@@ -232,7 +232,6 @@ public final class TestEngine {
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
-
       this.executor = new Executor(engineContext);
       this.printer = printer;
     }
