@@ -246,7 +246,7 @@ public final class TestEngine {
 
       try {
         if (section == Section.PRE) {
-          prologue = buildTestSequenceForExternalBlock(block);
+          prologue = makeTestSequenceForExternalBlock(block);
         } else if (section == Section.POST) {
           epilogueBlock = block;
         } else {
@@ -335,7 +335,7 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
+        final TestSequence concreteSequence = makeTestSequenceForExternalBlock(block);
         processTestSequence(concreteSequence, headerText, Label.NO_SEQUENCE_INDEX, true);
       } finally {
         engineContext.getStatistics().popActivity();
@@ -404,7 +404,8 @@ public final class TestEngine {
       }
     }
 
-    private TestSequence buildTestSequenceForExternalBlock(final Block block) throws ConfigurationException {
+    private TestSequence makeTestSequenceForExternalBlock(
+        final Block block) throws ConfigurationException {
       InvariantChecks.checkNotNull(block);
       InvariantChecks.checkTrue(block.isExternal());
 
