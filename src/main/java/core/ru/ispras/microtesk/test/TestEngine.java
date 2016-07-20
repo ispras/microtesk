@@ -338,10 +338,7 @@ public final class TestEngine {
           ++sequenceIndex;
           Logger.debugHeader("");
 
-          needCreateNewFile =
-              engineContext.getStatistics().isProgramLengthLimitExceeded() ||
-              engineContext.getStatistics().isTraceLengthLimitExceeded();
-
+          needCreateNewFile = isFileLengthLimitExceeded();
           if (needCreateNewFile) {
             finishCurrentFile();
             engineContext.setAddress(prologue.getEndAddress());
@@ -352,6 +349,11 @@ public final class TestEngine {
       } // Abstract sequence iterator
 
       engineContext.getStatistics().popActivity();
+    }
+
+    private boolean isFileLengthLimitExceeded() {
+      return engineContext.getStatistics().isProgramLengthLimitExceeded() ||
+             engineContext.getStatistics().isTraceLengthLimitExceeded();
     }
 
     private void createNewFile() throws IOException, ConfigurationException {
