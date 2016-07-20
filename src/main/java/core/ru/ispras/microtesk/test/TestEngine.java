@@ -336,7 +336,7 @@ public final class TestEngine {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
         final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
-        executeAndPrintExternalTestSequence(concreteSequence, headerText);
+        processTestSequence(concreteSequence, headerText, Label.NO_SEQUENCE_INDEX);
       } finally {
         engineContext.getStatistics().popActivity();
       }
@@ -393,7 +393,7 @@ public final class TestEngine {
       Tarmac.createFile();
 
       engineContext.getStatistics().incPrograms();
-      executeAndPrintExternalTestSequence(prologue, "Prologue");
+      processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX);
     }
 
     private void finishCurrentFile() throws ConfigurationException {
@@ -420,24 +420,6 @@ public final class TestEngine {
 
       final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
       return getSingleTestSequence(iterator);
-    }
-
-    private void executeAndPrintExternalTestSequence(
-        final TestSequence concreteSequence,
-        final String headerText) throws ConfigurationException {
-      printer.printHeaderToFile(headerText);
-
-      if (concreteSequence.getPrologue().isEmpty() && concreteSequence.getBody().isEmpty()) {
-        printer.printCommentToFile("Empty");
-        return;
-      }
-
-      Logger.debugHeader("Executing %s", headerText);
-      final List<ConcreteCall> calls = executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
-      externalCode.addAll(calls);
-
-      Logger.debugHeader("Printing %s to %s", headerText, fileName);
-      printer.printSequence(concreteSequence);
     }
 
     @Override
