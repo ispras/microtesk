@@ -520,7 +520,7 @@ public final class TestEngine {
 
     if (adapterResult.getStatus() != AdapterResult.Status.OK) {
       throw new GenerationAbortedException(String.format(
-         "Adapter Error: %s", adapterResult.getErrors()));
+          "Adapter Error: %s", adapterResult.getErrors()));
     }
 
     final TestSequence result = adapterResult.getResult();
