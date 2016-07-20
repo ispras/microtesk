@@ -250,14 +250,18 @@ public final class TestEngine {
           processBlock(block);
         }
       } catch (final ConfigurationException | IOException e) {
-        Logger.error(e.getMessage());
+        throw new GenerationAbortedException(e.getMessage());
       }
     }
 
     @Override
     public void finish() {
       if (!needCreateNewFile) {
-        finishCurrentFile();
+        try {
+          finishCurrentFile();
+        } catch (final ConfigurationException e) {
+          Logger.error(e.getMessage());
+        }
 
         // No instructions were added to the newly created file, it must be deleted
         if (engineContext.getStatistics().getProgramLength() == 0) {
@@ -363,20 +367,18 @@ public final class TestEngine {
       executeAndPrintExternalTestSequence(prologue, "Prologue");
     }
 
-    private void finishCurrentFile() {
+    private void finishCurrentFile() throws ConfigurationException {
       try {
         processExternalBlock(epilogueBlock, "Epilogue");
-      } catch (final ConfigurationException e) {
-        Logger.error(e.getMessage());
-      }
 
-      if (engineContext.getDataManager().containsDecls()) {
-        engineContext.getDataManager().printData(printer);
-        engineContext.getDataManager().clearLocalData();
+        if (engineContext.getDataManager().containsDecls()) {
+          engineContext.getDataManager().printData(printer);
+          engineContext.getDataManager().clearLocalData();
+        }
+      } finally {
+        printer.close();
+        Tarmac.closeFile();
       }
-
-      printer.close();
-      Tarmac.closeFile();
     }
 
     private void processExternalBlock(
