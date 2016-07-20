@@ -309,7 +309,7 @@ public final class TestEngine {
           engineContext.getDataManager().setTestCaseIndex(testCaseIndex);
 
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
-          processTestSequence(concreteSequence, sequenceId, testCaseIndex);
+          processTestSequence(concreteSequence, sequenceId, testCaseIndex, true);
 
           processSelfChecks(concreteSequence.getChecks(), testCaseIndex);
 
@@ -336,7 +336,7 @@ public final class TestEngine {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
         final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
-        processTestSequence(concreteSequence, headerText, Label.NO_SEQUENCE_INDEX);
+        processTestSequence(concreteSequence, headerText, Label.NO_SEQUENCE_INDEX, true);
       } finally {
         engineContext.getStatistics().popActivity();
       }
@@ -345,12 +345,13 @@ public final class TestEngine {
     private void processTestSequence(
         final TestSequence sequence,
         final String sequenceId,
-        final int index) throws ConfigurationException {
+        final int index,
+        final boolean abortOnUndefinedLabel) throws ConfigurationException {
       Logger.debugHeader("Constructed %s", sequenceId);
       printer.printSequence(null, sequence);
 
       Logger.debugHeader("Executing %s", sequenceId);
-      final List<ConcreteCall> calls = executor.execute(sequence, index, true);
+      final List<ConcreteCall> calls = executor.execute(sequence, index, abortOnUndefinedLabel);
       externalCode.addAll(calls);
 
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
@@ -367,20 +368,11 @@ public final class TestEngine {
         return;
       }
 
-      Logger.debugHeader("Preparing Self-Checks for Test Case %d", testCaseIndex);
+      final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
+      Logger.debugHeader("Preparing %s", sequenceId);
+
       final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-
-      Logger.debugHeader("Constructed Self-Checks for Test Case %d", testCaseIndex);
-      printer.printSequence(null, selfCheckSequence);
-
-      Logger.debugHeader("Executing Self-Checks for Test Case %d", testCaseIndex);
-      final List<ConcreteCall> calls = executor.execute(selfCheckSequence, testCaseIndex, false);
-      externalCode.addAll(calls);
-
-      Logger.debugHeader("Printing Self-Checks for Test Case %d to %s", testCaseIndex, fileName);
-      printer.printToFile("");
-      printer.printNote("Self Checks");
-      printer.printSequence(selfCheckSequence);
+      processTestSequence(selfCheckSequence, sequenceId, testCaseIndex, false);
     }
 
     private boolean isFileLengthLimitExceeded() {
@@ -393,7 +385,7 @@ public final class TestEngine {
       Tarmac.createFile();
 
       engineContext.getStatistics().incPrograms();
-      processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX);
+      processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
     }
 
     private void finishCurrentFile() throws ConfigurationException {
