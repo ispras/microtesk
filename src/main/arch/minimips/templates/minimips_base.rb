@@ -74,6 +74,7 @@ class MiniMipsBaseTemplate < Template
         data {
           # Sets relative origin: 0x10 bytes from the latest allocation.
           org :delta => 0x10
+          align 4
           label :preparator_data
           word value
         }
