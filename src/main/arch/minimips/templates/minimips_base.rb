@@ -217,6 +217,7 @@ class MiniMipsBaseTemplate < Template
       }
     }
 
+    #
     # The code below specifies a comparator sequence to be used in self-checking tests
     # to test values in the specified register (target) accessed via the REG
     # addressing mode.
@@ -227,8 +228,7 @@ class MiniMipsBaseTemplate < Template
     # Default comparator: It is used when no special case is applicable.
     #
     comparator(:target => 'REG') {
-      prepare target, value
-
+      prepare at, value
       bne at, target, :check_failed
       nop
     }
