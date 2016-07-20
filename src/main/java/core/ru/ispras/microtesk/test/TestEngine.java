@@ -285,7 +285,7 @@ public final class TestEngine {
       final Iterator<List<Call>> sequenceIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
-      int sequenceIndex = 0;
+      boolean isFirstSequence = true;
       sequenceIt.init();
 
       while (sequenceIt.hasValue()) {
@@ -298,9 +298,10 @@ public final class TestEngine {
             needCreateNewFile = false;
           }
 
-          if (sequenceIndex == 0) {
+          if (isFirstSequence) {
             printer.printText("");
             printer.printSeparatorToFile(String.format("Test %d", testIndex++));
+            isFirstSequence = false;
           }
 
           final TestSequence concreteSequence = getTestSequence(iterator.value());
@@ -314,7 +315,6 @@ public final class TestEngine {
           processSelfChecks(concreteSequence.getChecks(), testCaseIndex);
 
           engineContext.getStatistics().incSequences();
-          ++sequenceIndex;
           Logger.debugHeader("");
 
           needCreateNewFile = isFileLengthLimitExceeded();
@@ -345,13 +345,14 @@ public final class TestEngine {
     private void processTestSequence(
         final TestSequence sequence,
         final String sequenceId,
-        final int index,
+        final int sequenceIndex,
         final boolean abortOnUndefinedLabel) throws ConfigurationException {
       Logger.debugHeader("Constructed %s", sequenceId);
       printer.printSequence(null, sequence);
 
       Logger.debugHeader("Executing %s", sequenceId);
-      final List<ConcreteCall> calls = executor.execute(sequence, index, abortOnUndefinedLabel);
+      final List<ConcreteCall> calls =
+          executor.execute(sequence, sequenceIndex, abortOnUndefinedLabel);
       externalCode.addAll(calls);
 
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
