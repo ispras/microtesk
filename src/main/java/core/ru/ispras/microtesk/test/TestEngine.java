@@ -335,8 +335,8 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       try {
         engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final TestSequence concreteSequence = makeTestSequenceForExternalBlock(block);
-        processTestSequence(concreteSequence, headerText, Label.NO_SEQUENCE_INDEX, true);
+        final TestSequence sequence = makeTestSequenceForExternalBlock(block);
+        processTestSequence(sequence, headerText, Label.NO_SEQUENCE_INDEX, true);
       } finally {
         engineContext.getStatistics().popActivity();
       }
