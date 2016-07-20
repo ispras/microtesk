@@ -190,10 +190,6 @@ class MiniMipsBaseTemplate < Template
       variant {
         xori target, zero, value(0, 15)
       }
-
-      variant {
-        addi target, zero, value(0, 15)
-      }
     }
 
     #
@@ -210,10 +206,6 @@ class MiniMipsBaseTemplate < Template
 
       variant {
         xori target, target, value(0, 15)
-      }
-
-      variant {
-        addi target, target, value(0, 15)
       }
     }
 
