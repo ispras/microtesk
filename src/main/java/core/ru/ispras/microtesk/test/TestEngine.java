@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -230,6 +231,8 @@ public final class TestEngine {
     private TestSequence prologue = null;
     private Block epilogueBlock = null;
 
+    private List<ConcreteCall> externalCode = new ArrayList<>();
+
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
       this.executor = new Executor(engineContext);
@@ -306,16 +309,7 @@ public final class TestEngine {
           engineContext.getDataManager().setTestCaseIndex(testCaseIndex);
 
           final String sequenceId = String.format("Test Case %d", testCaseIndex);
-
-          Logger.debugHeader("Constructed %s", sequenceId);
-          printer.printSequence(null, concreteSequence);
-
-          Logger.debugHeader("Executing %s", sequenceId);
-          executor.execute(concreteSequence, testCaseIndex, true);
-
-          Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
-          printer.printSubheaderToFile(sequenceId);
-          printer.printSequence(concreteSequence);
+          processTestSequence(concreteSequence, sequenceId, testCaseIndex);
 
           processSelfChecks(concreteSequence.getChecks(), testCaseIndex);
 
@@ -336,6 +330,34 @@ public final class TestEngine {
       engineContext.getStatistics().popActivity();
     }
 
+    private void processExternalBlock(
+        final Block block,
+        final String headerText) throws ConfigurationException {
+      try {
+        engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
+        final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
+        executeAndPrintExternalTestSequence(concreteSequence, headerText);
+      } finally {
+        engineContext.getStatistics().popActivity();
+      }
+    }
+
+    private void processTestSequence(
+        final TestSequence sequence,
+        final String sequenceId,
+        final int index) throws ConfigurationException {
+      Logger.debugHeader("Constructed %s", sequenceId);
+      printer.printSequence(null, sequence);
+
+      Logger.debugHeader("Executing %s", sequenceId);
+      final List<ConcreteCall> calls = executor.execute(sequence, index, true);
+      externalCode.addAll(calls);
+
+      Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
+      printer.printSubheaderToFile(sequenceId);
+      printer.printSequence(sequence);
+    }
+
     private void processSelfChecks(
         final List<SelfCheck> selfChecks,
         final int testCaseIndex) throws ConfigurationException {
@@ -352,7 +374,8 @@ public final class TestEngine {
       printer.printSequence(null, selfCheckSequence);
 
       Logger.debugHeader("Executing Self-Checks for Test Case %d", testCaseIndex);
-      executor.execute(selfCheckSequence, testCaseIndex, false);
+      final List<ConcreteCall> calls = executor.execute(selfCheckSequence, testCaseIndex, false);
+      externalCode.addAll(calls);
 
       Logger.debugHeader("Printing Self-Checks for Test Case %d to %s", testCaseIndex, fileName);
       printer.printToFile("");
@@ -382,20 +405,9 @@ public final class TestEngine {
           engineContext.getDataManager().clearLocalData();
         }
       } finally {
+        externalCode = new ArrayList<>();
         printer.close();
         Tarmac.closeFile();
-      }
-    }
-
-    private void processExternalBlock(
-        final Block block,
-        final String headerText) throws ConfigurationException {
-      try {
-        engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final TestSequence concreteSequence = buildTestSequenceForExternalBlock(block);
-        executeAndPrintExternalTestSequence(concreteSequence, headerText);
-      } finally {
-        engineContext.getStatistics().popActivity();
       }
     }
 
@@ -421,7 +433,8 @@ public final class TestEngine {
       }
 
       Logger.debugHeader("Executing %s", headerText);
-      executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
+      final List<ConcreteCall> calls = executor.execute(concreteSequence, Label.NO_SEQUENCE_INDEX, true);
+      externalCode.addAll(calls);
 
       Logger.debugHeader("Printing %s to %s", headerText, fileName);
       printer.printSequence(concreteSequence);
