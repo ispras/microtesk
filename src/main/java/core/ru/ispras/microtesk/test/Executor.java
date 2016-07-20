@@ -94,12 +94,12 @@ final class Executor {
    *         evaluating an {@link Output} object causes an invalid request to the model state
    *         observer).
    */
-  public void execute(
+  public List<ConcreteCall> execute(
       final TestSequence sequence,
       final int index,
       final boolean abortOnUndefinedLabel) {
     try {
-      executeSequence(sequence, index, abortOnUndefinedLabel);
+      return executeSequence(sequence, index, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -108,7 +108,7 @@ final class Executor {
     }
   }
 
-  private void executeSequence(
+  private List<ConcreteCall> executeSequence(
       final TestSequence sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
@@ -122,7 +122,7 @@ final class Executor {
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
     if (calls.isEmpty()) {
-      return;
+      return calls;
     }
 
     final int startIndex = 0;
@@ -135,7 +135,7 @@ final class Executor {
 
     if (TestSettings.isSimulationDisabled()) {
       logText("Simulation is disabled");
-      return;
+      return calls;
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
@@ -285,6 +285,7 @@ final class Executor {
     }
 
     context.getStatistics().popActivity();
+    return calls;
   }
 
   private static int getNextCallIndex(
