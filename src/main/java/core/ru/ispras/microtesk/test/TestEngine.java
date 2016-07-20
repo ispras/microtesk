@@ -313,29 +313,11 @@ public final class TestEngine {
           Logger.debugHeader("Executing %s", sequenceId);
           executor.execute(concreteSequence, testCaseIndex, true);
 
-          final TestSequence selfCheckSequence;
-          if (TestSettings.isSelfChecks()) {
-            Logger.debugHeader("Preparing Self-Checks for %s", sequenceId);
-            selfCheckSequence = SelfCheckEngine.solve(engineContext, concreteSequence.getChecks());
-
-            Logger.debugHeader("Executing Self-Checks for %s", sequenceId);
-            executor.execute(selfCheckSequence, testCaseIndex, false);
-          } else {
-            selfCheckSequence = null;
-          }
-
           Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
           printer.printSubheaderToFile(sequenceId);
-
           printer.printSequence(concreteSequence);
 
-          if (null != selfCheckSequence) {
-            printer.printText("");
-            printer.printNote("Self Checks");
-
-            final List<ConcreteCall> selfCheckCalls = selfCheckSequence.getAll();
-            printer.printCalls(selfCheckCalls);
-          }
+          processSelfChecks(concreteSequence.getChecks(), testCaseIndex);
 
           engineContext.getStatistics().incSequences();
           ++sequenceIndex;
@@ -352,6 +334,27 @@ public final class TestEngine {
       } // Abstract sequence iterator
 
       engineContext.getStatistics().popActivity();
+    }
+
+    private void processSelfChecks(
+        final List<SelfCheck> selfChecks,
+        final int testCaseIndex) throws ConfigurationException {
+      InvariantChecks.checkNotNull(selfChecks);
+
+      if (!TestSettings.isSelfChecks()) {
+        return;
+      }
+
+      Logger.debugHeader("Preparing Self-Checks for Test Case %d", testCaseIndex);
+      final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
+
+      Logger.debugHeader("Executing Self-Checks for Test Case %d", testCaseIndex);
+      executor.execute(selfCheckSequence, testCaseIndex, false);
+
+      Logger.debugHeader("Printing Self-Checks for Test Case %d to %s", testCaseIndex, fileName);
+      printer.printToFile("");
+      printer.printNote("Self Checks");
+      printer.printSequence(selfCheckSequence);
     }
 
     private boolean isFileLengthLimitExceeded() {
