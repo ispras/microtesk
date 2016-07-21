@@ -103,7 +103,7 @@ final class Executor {
     try {
       InvariantChecks.checkNotNull(externalCode);
       InvariantChecks.checkNotNull(sequence);
-      return executeSequence(externalCode, sequence.getAll(), index, abortOnUndefinedLabel);
+      return executeSequence(externalCode, sequence, index, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -114,18 +114,22 @@ final class Executor {
 
   private List<ConcreteCall> executeSequence(
       final List<ConcreteCall> externalCode,
-      final List<ConcreteCall> sequenceCode,
+      final TestSequence sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    if (sequenceCode.isEmpty()) {
+    if (sequence.isEmpty()) {
       return Collections.emptyList();
     }
 
     Memory.setUseTempCopies(false);
 
-    final Map<Long, Integer> addressMap = new LinkedHashMap<>();
-    final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
+    final LabelManager labelManager =
+        new LabelManager(context.getDataManager().getGlobalLabels());
 
+    final List<ConcreteCall> sequenceCode =
+        expandDataSections(sequence.getAll(), labelManager, sequenceIndex);
+
+    final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final List<ConcreteCall> calls = new ArrayList<>();
     registerCalls(calls, addressMap, labelManager, sequenceCode, sequenceIndex);
 
@@ -333,14 +337,14 @@ final class Executor {
     }
   }
 
-  private void registerCalls(
+  private List<ConcreteCall> expandDataSections(
       final List<ConcreteCall> calls,
-      final Map<Long, Integer> addressMap,
       final LabelManager labelManager,
-      final List<ConcreteCall> sequence,
       final int sequenceIndex) {
     context.getDataManager().setTestCaseIndex(sequenceIndex);
-    for (final ConcreteCall call : sequence) {
+
+    final List<ConcreteCall> result = new ArrayList<>();
+    for (final ConcreteCall call : calls) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
         context.getDataManager().processData(data);
@@ -356,6 +360,19 @@ final class Executor {
         continue;
       }
 
+      result.add(call);
+    }
+
+    return result;
+  }
+
+  private static void registerCalls(
+      final List<ConcreteCall> calls,
+      final Map<Long, Integer> addressMap,
+      final LabelManager labelManager,
+      final List<ConcreteCall> sequence,
+      final int sequenceIndex) {
+    for (final ConcreteCall call : sequence) {
       calls.add(call);
 
       final int index = calls.size() - 1;
@@ -411,7 +428,7 @@ final class Executor {
     }
   }
 
-  private void registerExceptionHandlers(
+  private static void registerExceptionHandlers(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
       final Map<Long, Integer> addressMap,
