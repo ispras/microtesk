@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
@@ -52,15 +53,16 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    try {
-      context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
+    Logger.debugHeader("Processing Abstract Sequence");
+    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
 
+    try {
       final EngineResult<AdapterResult> result = solve(context, abstractSequence);
       checkResultStatus(result);
 
       return result.getResult();
     } finally {
-      context.getStatistics().popActivity();
+      context.getStatistics().popActivity(); // PROCESSING
     }
   }
 
