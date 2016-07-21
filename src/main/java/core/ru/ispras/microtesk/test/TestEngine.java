@@ -245,7 +245,7 @@ public final class TestEngine {
 
       try {
         if (section == Section.PRE) {
-          prologue = makeTestSequenceForExternalBlock(block);
+          prologue = makeTestSequenceForExternalBlock(engineContext, block);
         } else if (section == Section.POST) {
           epilogueBlock = block;
         } else {
@@ -323,7 +323,7 @@ public final class TestEngine {
         final String headerText) throws ConfigurationException {
       engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
 
-      final TestSequence sequence = makeTestSequenceForExternalBlock(block);
+      final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
       processTestSequence(sequence, headerText, Label.NO_SEQUENCE_INDEX, true);
 
       engineContext.getStatistics().popActivity();
@@ -391,18 +391,6 @@ public final class TestEngine {
         printer.close();
         Tarmac.closeFile();
       }
-    }
-
-    private TestSequence makeTestSequenceForExternalBlock(
-        final Block block) throws ConfigurationException {
-      InvariantChecks.checkNotNull(block);
-      InvariantChecks.checkTrue(block.isExternal());
-
-      final TestSequenceEngine engine = getEngine(block);
-      final List<Call> abstractSequence = getSingleSequence(block);
-
-      final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-      return getSingleTestSequence(iterator);
     }
 
     @Override
@@ -549,6 +537,20 @@ public final class TestEngine {
     result.setAddress(address);
 
     return result;
+  }
+
+  private static TestSequence makeTestSequenceForExternalBlock(
+      final EngineContext engineContext,
+      final Block block) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(block);
+    InvariantChecks.checkTrue(block.isExternal());
+
+    final TestSequenceEngine engine = getEngine(block);
+    final List<Call> abstractSequence = getSingleSequence(block);
+
+    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+    return getSingleTestSequence(iterator);
   }
 
   private static void initSolverPaths(final String home) {
