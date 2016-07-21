@@ -356,47 +356,56 @@ final class Executor {
 
       calls.add(call);
 
-      final long address = call.getAddress();
       final int index = calls.size() - 1;
+      registerCallAddress(addressMap, calls, call, index);
 
-      if (addressMap.containsKey(address)) {
-        final int conflictIndex = addressMap.get(address);
-        final ConcreteCall conflictCall = calls.get(conflictIndex);
+      final long address = call.getAddress();
+      labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
+    }
+  }
 
-        // Several calls can be mapped to the same address when a pseudo call with
-        // zero size (label, compiler directive, text output etc.) precedes
-        // an executable (non-zero size) call. This is considered normal. When such
-        // a situation is detected, address mapping is not changed in order to allow
-        // jumping on the beginning of calls mapped to the same address.
+  private static void registerCallAddress(
+      final Map<Long, Integer> addressMap,
+      final List<ConcreteCall> calls,
+      final ConcreteCall call,
+      final int index) {
+    final long address = call.getAddress();
+    if (!addressMap.containsKey(address)) {
+      addressMap.put(address, index);
+      return;
+    }
 
-        boolean isConflictLegal = false;
+    final int conflictIndex = addressMap.get(address);
+    final ConcreteCall conflictCall = calls.get(conflictIndex);
 
-        // Tests whether all calls mapped to the given address and preceding the current
-        // call (ending with the conflict call) are zero-size. If the condition holds,
-        // this is considered legal.
-        for (int testIndex = index - 1; testIndex >= 0; --testIndex) {
-          final ConcreteCall testCall = calls.get(testIndex);
+    // Several calls can be mapped to the same address when a pseudo call with
+    // zero size (label, compiler directive, text output etc.) precedes
+    // an executable (non-zero size) call. This is considered normal. When such
+    // a situation is detected, address mapping is not changed in order to allow
+    // jumping on the beginning of calls mapped to the same address.
 
-          if (testCall.getByteSize() > 0 || testCall.getAddress() != address) {
-            break;
-          }
+    boolean isConflictLegal = false;
 
-          if (testIndex == conflictIndex) {
-            isConflictLegal = true;
-            break;
-          }
-        }
+    // Tests whether all calls mapped to the given address and preceding the current
+    // call (ending with the conflict call) are zero-size. If the condition holds,
+    // this is considered legal.
+    for (int testIndex = index - 1; testIndex >= 0; --testIndex) {
+      final ConcreteCall testCall = calls.get(testIndex);
 
-        if (!isConflictLegal) {
-          Logger.error(
-              "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
-              call.getText(), index, address, conflictCall.getText(), conflictIndex);
-        }
-      } else {
-        addressMap.put(address, index);
+      if (testCall.getByteSize() > 0 || testCall.getAddress() != address) {
+        break;
       }
 
-      labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
+      if (testIndex == conflictIndex) {
+        isConflictLegal = true;
+        break;
+      }
+    }
+
+    if (!isConflictLegal) {
+      Logger.error(
+          "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
+          call.getText(), index, address, conflictCall.getText(), conflictIndex);
     }
   }
 
