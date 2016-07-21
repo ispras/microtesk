@@ -131,15 +131,18 @@ final class Executor {
 
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final List<ConcreteCall> calls = new ArrayList<>();
+
+    registerCalls(calls, addressMap, labelManager, externalCode, sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequenceCode, sequenceIndex);
 
-    final int startIndex = 0;
+    final int startIndex = externalCode.size();
     final int endIndex = calls.size() - 1;
 
     final Map<String, Long> exceptionHandlerAddresses = new HashMap<>();
     registerExceptionHandlers(calls, labelManager, addressMap, exceptionHandlers, exceptionHandlerAddresses);
 
-    patchLabels(calls, labelManager, addressMap, abortOnUndefinedLabel);
+    patchLabels(sequenceCode, labelManager, addressMap, abortOnUndefinedLabel);
+    // TODO: patch labels in exception handler code (need refactoring to have it in separate collection)
 
     if (TestSettings.isSimulationDisabled()) {
       logText("Simulation is disabled");
