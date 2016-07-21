@@ -321,13 +321,12 @@ public final class TestEngine {
     private void processExternalBlock(
         final Block block,
         final String headerText) throws ConfigurationException {
-      try {
-        engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-        final TestSequence sequence = makeTestSequenceForExternalBlock(block);
-        processTestSequence(sequence, headerText, Label.NO_SEQUENCE_INDEX, true);
-      } finally {
-        engineContext.getStatistics().popActivity();
-      }
+      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
+
+      final TestSequence sequence = makeTestSequenceForExternalBlock(block);
+      processTestSequence(sequence, headerText, Label.NO_SEQUENCE_INDEX, true);
+
+      engineContext.getStatistics().popActivity();
     }
 
     private void processTestSequence(
