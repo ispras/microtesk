@@ -139,7 +139,7 @@ final class Executor {
 
     if (TestSettings.isSimulationDisabled()) {
       logText("Simulation is disabled");
-      return calls;
+      return sequenceCode;
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
@@ -289,7 +289,7 @@ final class Executor {
     }
 
     context.getStatistics().popActivity();
-    return calls;
+    return sequenceCode;
   }
 
   private static int getNextCallIndex(
