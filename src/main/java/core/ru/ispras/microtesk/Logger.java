@@ -78,8 +78,9 @@ public final class Logger {
       return;
     }
 
-    final int prefixLength = (LINE_WIDTH - text.length()) / 2;
-    final int postfixLength = LINE_WIDTH - prefixLength - text.length();
+    final int barLength = LINE_WIDTH - text.length();
+    final int prefixLength  = barLength > 0 ? barLength / 2 : 0;
+    final int postfixLength = barLength > 0 ? barLength - prefixLength : 0;
 
     final StringBuilder sb = new StringBuilder();
 
