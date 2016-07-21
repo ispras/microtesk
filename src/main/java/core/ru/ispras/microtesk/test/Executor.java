@@ -101,7 +101,9 @@ final class Executor {
       final int index,
       final boolean abortOnUndefinedLabel) {
     try {
-      return executeSequence(externalCode, sequence, index, abortOnUndefinedLabel);
+      InvariantChecks.checkNotNull(externalCode);
+      InvariantChecks.checkNotNull(sequence);
+      return executeSequence(externalCode, sequence.getAll(), index, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -112,21 +114,20 @@ final class Executor {
 
   private List<ConcreteCall> executeSequence(
       final List<ConcreteCall> externalCode,
-      final TestSequence sequence,
+      final List<ConcreteCall> sequenceCode,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
+    if (sequenceCode.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     Memory.setUseTempCopies(false);
 
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
 
     final List<ConcreteCall> calls = new ArrayList<>();
-    registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
-    registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
-
-    if (calls.isEmpty()) {
-      return Collections.emptyList();
-    }
+    registerCalls(calls, addressMap, labelManager, sequenceCode, sequenceIndex);
 
     final int startIndex = 0;
     final int endIndex = calls.size() - 1;
