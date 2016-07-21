@@ -24,12 +24,11 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Execution {
   private Execution() {}
 
   public static void exception(final String text) {
-    Logger.debug("Exception was raised: " + text);
+    Logger.debug("Exception was raised: %s", text);
     throw new ExecutionException(text);
   }
 
