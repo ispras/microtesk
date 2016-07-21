@@ -260,7 +260,7 @@ public final class TestEngine {
     public void finish() {
       if (!needCreateNewFile) {
         try {
-          finishCurrentFile();
+          finishFile();
         } catch (final ConfigurationException e) {
           Logger.error(e.getMessage());
         }
@@ -292,7 +292,7 @@ public final class TestEngine {
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (needCreateNewFile) {
-            createNewFile();
+            startFile();
             needCreateNewFile = false;
           }
 
@@ -309,7 +309,7 @@ public final class TestEngine {
           Logger.debugHeader("");
 
           if (isFileLengthLimitExceeded()) {
-            finishCurrentFile();
+            finishFile();
             needCreateNewFile = true;
           }
         } // Concrete sequence iterator
@@ -369,7 +369,7 @@ public final class TestEngine {
              engineContext.getStatistics().isTraceLengthLimitExceeded();
     }
 
-    private void createNewFile() throws IOException, ConfigurationException {
+    private void startFile() throws IOException, ConfigurationException {
       engineContext.getStatistics().incPrograms();
 
       fileName = printer.createNewFile();
@@ -379,7 +379,7 @@ public final class TestEngine {
       processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
     }
 
-    private void finishCurrentFile() throws ConfigurationException {
+    private void finishFile() throws ConfigurationException {
       try {
         processExternalBlock(epilogueBlock, "Epilogue");
 
