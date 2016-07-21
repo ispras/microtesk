@@ -226,7 +226,6 @@ public final class TestEngine {
  
     private boolean needCreateNewFile = true;
     private String fileName = null;
-    private int testIndex = 0;
 
     private TestSequence prologue = null;
     private Block epilogueBlock = null;
@@ -282,49 +281,38 @@ public final class TestEngine {
     private void processBlock(final Block block) throws ConfigurationException, IOException {
       engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
 
-      final Iterator<List<Call>> sequenceIt = block.getIterator();
+      final Iterator<List<Call>> abstractIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
-      boolean isFirstSequence = true;
-      sequenceIt.init();
-
-      while (sequenceIt.hasValue()) {
+      for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         Logger.debugHeader("Processing Abstract Sequence");
 
-        final Iterator<AdapterResult> iterator = engine.process(engineContext, sequenceIt.value());
-        for (iterator.init(); iterator.hasValue(); iterator.next()) {
+        final Iterator<AdapterResult> concreteIt =
+            engine.process(engineContext, abstractIt.value());
+
+        for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (needCreateNewFile) {
             createNewFile();
             needCreateNewFile = false;
           }
 
-          if (isFirstSequence) {
-            printer.printText("");
-            printer.printSeparatorToFile(String.format("Test %d", testIndex++));
-            isFirstSequence = false;
-          }
+          final TestSequence sequence = getTestSequence(concreteIt.value());
+          final int sequenceIndex = engineContext.getStatistics().getSequences();
 
-          final TestSequence concreteSequence = getTestSequence(iterator.value());
+          final String sequenceId =
+              String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
 
-          final int testCaseIndex = engineContext.getStatistics().getSequences();
-          engineContext.getDataManager().setTestCaseIndex(testCaseIndex);
-
-          final String sequenceId = String.format("Test Case %d", testCaseIndex);
-          processTestSequence(concreteSequence, sequenceId, testCaseIndex, true);
-
-          processSelfChecks(concreteSequence.getChecks(), testCaseIndex);
+          processTestSequence(sequence, sequenceId, sequenceIndex, true);
+          processSelfChecks(sequence.getChecks(), sequenceIndex);
 
           engineContext.getStatistics().incSequences();
           Logger.debugHeader("");
 
-          needCreateNewFile = isFileLengthLimitExceeded();
-          if (needCreateNewFile) {
+          if (isFileLengthLimitExceeded()) {
             finishCurrentFile();
-            engineContext.setAddress(prologue.getEndAddress());
+            needCreateNewFile = true;
           }
         } // Concrete sequence iterator
-
-        sequenceIt.next();
       } // Abstract sequence iterator
 
       engineContext.getStatistics().popActivity();
@@ -382,10 +370,12 @@ public final class TestEngine {
     }
 
     private void createNewFile() throws IOException, ConfigurationException {
+      engineContext.getStatistics().incPrograms();
+
       fileName = printer.createNewFile();
       Tarmac.createFile();
 
-      engineContext.getStatistics().incPrograms();
+      engineContext.setAddress(prologue.getEndAddress());
       processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
     }
 

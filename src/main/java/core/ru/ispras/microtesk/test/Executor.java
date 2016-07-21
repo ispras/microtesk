@@ -335,6 +335,7 @@ final class Executor {
       final LabelManager labelManager,
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
+    context.getDataManager().setTestCaseIndex(sequenceIndex);
     for (final ConcreteCall call : sequence) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
