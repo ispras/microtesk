@@ -56,7 +56,6 @@ public final class Printer {
    * @throws IllegalArgumentException if the observer or commentToken parameter is null.
    * @throws IOException if failed to open the specified file for writing.
    */
-
   public Printer(final ModelStateObserver observer, final Statistics statistics) {
     checkNotNull(observer);
     checkNotNull(statistics);
@@ -133,20 +132,24 @@ public final class Printer {
    * @throws ConfigurationException if failed to evaluate one of the output objects associated with
    *         an instruction call in the sequence.
    */
-
   public void printSequence(final TestSequence sequence) throws ConfigurationException {
     checkNotNull(sequence);
+    statistics.pushActivity(Statistics.Activity.PRINTING);
 
-    final List<ConcreteCall> prologue = sequence.getPrologue();
-    if (!prologue.isEmpty()) {
-      printNote("Preparation");
-      printCalls(prologue);
+    try {
+      final List<ConcreteCall> prologue = sequence.getPrologue();
+      if (!prologue.isEmpty()) {
+        printNote("Preparation");
+        printCalls(prologue);
 
-      printText("");
-      printNote("Stimulus");
+        printText("");
+        printNote("Stimulus");
+      }
+
+      printCalls(sequence.getBody());
+    } finally {
+      statistics.popActivity(); // PRINTING
     }
-
-    printCalls(sequence.getBody());
   }
 
   public void printSequence(
@@ -168,10 +171,7 @@ public final class Printer {
    * @throws ConfigurationException if failed to evaluate one of the output objects
    *         associated with an instruction call.
    */
-
-  public void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
+  private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
     if (calls.isEmpty()) {
       printNote("Empty");
       return;
@@ -197,14 +197,11 @@ public final class Printer {
         }
       }
     }
-
-    statistics.popActivity();
   }
 
   /**
    * Closes the generated file.
    */
-
   public void close() {
     if (null != fileWritter) {
       fileWritter.close();
@@ -248,8 +245,7 @@ public final class Printer {
    * 
    * @param text Text to be printed.
    */
-
-  public void printNote(final String text) {
+  private void printNote(final String text) {
     printToScreen(text);
     if (TestSettings.isCommentsEnabled()) {
       printCommentToFile(text);
@@ -260,7 +256,6 @@ public final class Printer {
    * Prints text both to the file and to the screen (if corresponding options are enabled).
    * @param text Text to be printed.
    */
-
   public void printText(final String text) {
     if (text != null) {
       printToScreen(text);
@@ -274,7 +269,6 @@ public final class Printer {
    * 
    * @param text Text to be printed.
    */
-
   public void printTextNoIndent(final String text) {
     if (text != null) {
       printToScreen(text);
@@ -288,7 +282,6 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-
   public void printHeaderToFile(String text) {
     if (TestSettings.isCommentsEnabled()) {
       printToFile("");
@@ -305,7 +298,6 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-
   public void printSubheaderToFile(String text) {
     if (TestSettings.isCommentsEnabled()) {
       printToFile("");
@@ -320,7 +312,6 @@ public final class Printer {
    * 
    * @param text Text of the comment to be printed.
    */
-
   public void printCommentToFile(String text) {
     if (text != null) {
       final String commentToken = TestSettings.getCommentToken();
@@ -342,7 +333,6 @@ public final class Printer {
    * Prints a special comment (a line of '*' characters) to the file to
    * separate different parts of the code.
    */
-
   public void printSeparatorToFile() {
     if (TestSettings.isCommentsEnabled()) {
       printToFile(separator);
@@ -354,7 +344,6 @@ public final class Printer {
    * 
    * @param text Text of the separator.
    */
-
   public void printSeparatorToFile(String text) {
     if (!TestSettings.isCommentsEnabled()) {
       return;
