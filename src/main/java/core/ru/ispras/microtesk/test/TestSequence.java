@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,12 +26,12 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 /**
  * The {@code TestSequence} class describes a test sequence, a symbolic test program (or a part of a
  * test program) that consists of concrete calls which can be simulated on the microprocessor model
- * or dumped to textual representation (assembler code). The sequence is split into two parts: (1)
- * prologue that holds the initialization code and (2) body that holds the main code (test case).
+ * or dumped to textual representation (assembler code). The sequence is split into tree parts: (1)
+ * prologue that holds the initialization code and (2) body that holds the main code (test case)
+ * and (3) self-checks that must be generated after simulating the sequence.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class TestSequence {
 
   public static final class Builder {
@@ -116,6 +116,9 @@ public final class TestSequence {
     checkNotNull(body);
     checkNotNull(checks);
 
+    // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
+    checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
+
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
     this.checks = Collections.unmodifiableList(checks);
@@ -178,5 +181,9 @@ public final class TestSequence {
 
   public List<SelfCheck> getChecks() {
     return checks;
+  }
+
+  public boolean isEmpty() {
+    return prologue.isEmpty() && body.isEmpty() && checks.isEmpty();
   }
 }
