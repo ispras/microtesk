@@ -116,9 +116,10 @@ final class Executor {
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     Memory.setUseTempCopies(false);
 
-    final List<ConcreteCall> calls = new ArrayList<>();
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
+
+    final List<ConcreteCall> calls = new ArrayList<>();
 
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
