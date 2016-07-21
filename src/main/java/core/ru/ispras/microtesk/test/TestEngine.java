@@ -291,7 +291,7 @@ public final class TestEngine {
       }
 
       final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
-      processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
+      processTestSequence(sequence, "External Code", true, Label.NO_SEQUENCE_INDEX, true);
 
       if (isFileLengthLimitExceeded()) {
         finishFile();
@@ -319,7 +319,7 @@ public final class TestEngine {
           final String sequenceId =
               String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
 
-          processTestSequence(sequence, sequenceId, sequenceIndex, true);
+          processTestSequence(sequence, sequenceId, false, sequenceIndex, true);
           processSelfChecks(sequence.getChecks(), sequenceIndex);
 
           engineContext.getStatistics().incSequences();
@@ -336,14 +336,19 @@ public final class TestEngine {
     private void processTestSequence(
         final TestSequence sequence,
         final String sequenceId,
+        final boolean isExternal,
         final int sequenceIndex,
         final boolean abortOnUndefinedLabel) throws ConfigurationException {
       Logger.debugHeader("Constructed %s", sequenceId);
       printer.printSequence(null, sequence);
 
       Logger.debugHeader("Executing %s", sequenceId);
-      final List<ConcreteCall> calls =
-          executor.execute(sequence, sequenceIndex, abortOnUndefinedLabel);
+      final List<ConcreteCall> calls = executor.execute(
+          isExternal ? externalCode : Collections.<ConcreteCall>emptyList(),
+          sequence,
+          sequenceIndex,
+          abortOnUndefinedLabel
+          );
       externalCode.addAll(calls);
 
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
@@ -364,7 +369,7 @@ public final class TestEngine {
       Logger.debugHeader("Preparing %s", sequenceId);
 
       final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-      processTestSequence(selfCheckSequence, sequenceId, testCaseIndex, false);
+      processTestSequence(selfCheckSequence, sequenceId, true, testCaseIndex, false);
     }
 
     private boolean isFileLengthLimitExceeded() {
@@ -379,13 +384,13 @@ public final class TestEngine {
       Tarmac.createFile();
 
       engineContext.setAddress(prologue.getEndAddress());
-      processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
+      processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
     }
 
     private void finishFile() throws ConfigurationException {
       try {
         final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
-        processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
+        processTestSequence(sequence, "Epilogue", true, Label.NO_SEQUENCE_INDEX, true);
 
         if (engineContext.getDataManager().containsDecls()) {
           engineContext.getDataManager().printData(printer);

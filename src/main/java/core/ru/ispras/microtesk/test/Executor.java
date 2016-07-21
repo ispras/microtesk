@@ -95,11 +95,12 @@ final class Executor {
    *         observer).
    */
   public List<ConcreteCall> execute(
+      final List<ConcreteCall> externalCode,
       final TestSequence sequence,
       final int index,
       final boolean abortOnUndefinedLabel) {
     try {
-      return executeSequence(sequence, index, abortOnUndefinedLabel);
+      return executeSequence(externalCode, sequence, index, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -109,6 +110,7 @@ final class Executor {
   }
 
   private List<ConcreteCall> executeSequence(
+      final List<ConcreteCall> externalCode,
       final TestSequence sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
