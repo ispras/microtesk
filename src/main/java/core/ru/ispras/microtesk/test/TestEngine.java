@@ -243,50 +243,67 @@ public final class TestEngine {
       InvariantChecks.checkNotNull(section);
       InvariantChecks.checkNotNull(block);
 
+      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
+
       try {
         if (section == Section.PRE) {
           prologue = makeTestSequenceForExternalBlock(engineContext, block);
         } else if (section == Section.POST) {
           epilogueBlock = block;
+        } else if (block.isExternal()) {
+          processExternalBlock(block);
         } else {
           processBlock(block);
         }
       } catch (final ConfigurationException | IOException e) {
         throw new GenerationAbortedException(e.getMessage());
+      } finally {
+        engineContext.getStatistics().popActivity(); // SEQUENCING
       }
     }
 
     @Override
     public void finish() {
-      if (!needCreateNewFile) {
-        try {
+      try {
+        if (!needCreateNewFile) {
           finishFile();
-        } catch (final ConfigurationException e) {
-          Logger.error(e.getMessage());
+
+          //No instructions were added to the newly created file, it must be deleted
+          if (engineContext.getStatistics().getProgramLength() == 0) {
+            new File(fileName).delete();
+            engineContext.getStatistics().decPrograms();
+          }
         }
 
-        // No instructions were added to the newly created file, it must be deleted
-        if (engineContext.getStatistics().getProgramLength() == 0) {
-          new File(fileName).delete();
-          engineContext.getStatistics().decPrograms();
-        }
+        Logger.debugHeader("Ended Processing Template");
+      } catch (final ConfigurationException e) {
+        throw new GenerationAbortedException(e.getMessage());
+      } finally {
+        engineContext.getStatistics().popActivity(); // PARSING
+        engineContext.getStatistics().saveTotalTime();
+      }
+    }
+
+    private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
+      if (needCreateNewFile) {
+        startFile();
+        needCreateNewFile = false;
       }
 
-      Logger.debugHeader("Ended Processing Template");
+      final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
+      processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
 
-      engineContext.getStatistics().popActivity(); // PARSING
-      engineContext.getStatistics().saveTotalTime();
+      if (isFileLengthLimitExceeded()) {
+        finishFile();
+        needCreateNewFile = true;
+      }
     }
 
     private void processBlock(final Block block) throws ConfigurationException, IOException {
-      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-
       final Iterator<List<Call>> abstractIt = block.getIterator();
       final TestSequenceEngine engine = getEngine(block);
 
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-        Logger.debugHeader("Processing Abstract Sequence");
-
         final Iterator<AdapterResult> concreteIt =
             engine.process(engineContext, abstractIt.value());
 
@@ -314,19 +331,6 @@ public final class TestEngine {
           }
         } // Concrete sequence iterator
       } // Abstract sequence iterator
-
-      engineContext.getStatistics().popActivity();
-    }
-
-    private void processExternalBlock(
-        final Block block,
-        final String headerText) throws ConfigurationException {
-      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-
-      final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
-      processTestSequence(sequence, headerText, Label.NO_SEQUENCE_INDEX, true);
-
-      engineContext.getStatistics().popActivity();
     }
 
     private void processTestSequence(
@@ -380,7 +384,8 @@ public final class TestEngine {
 
     private void finishFile() throws ConfigurationException {
       try {
-        processExternalBlock(epilogueBlock, "Epilogue");
+        final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
+        processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
 
         if (engineContext.getDataManager().containsDecls()) {
           engineContext.getDataManager().printData(printer);
