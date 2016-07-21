@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -120,12 +121,11 @@ final class Executor {
     final LabelManager labelManager = new LabelManager(context.getDataManager().getGlobalLabels());
 
     final List<ConcreteCall> calls = new ArrayList<>();
-
     registerCalls(calls, addressMap, labelManager, sequence.getPrologue(), sequenceIndex);
     registerCalls(calls, addressMap, labelManager, sequence.getBody(), sequenceIndex);
 
     if (calls.isEmpty()) {
-      return calls;
+      return Collections.emptyList();
     }
 
     final int startIndex = 0;
