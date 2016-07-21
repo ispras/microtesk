@@ -144,6 +144,10 @@ public final class Logger {
   }
 
   private static String makeBar(final char ch, final int length) {
+    if (length <= 0) {
+      return "";
+    }
+
     final StringBuilder sb = new StringBuilder(length);
     for (int i = 0; i < length; ++i) {
       sb.append(ch);
