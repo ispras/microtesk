@@ -383,7 +383,6 @@ public final class TestEngine {
       fileName = printer.createNewFile();
       Tarmac.createFile();
 
-      engineContext.setAddress(prologue.getEndAddress());
       processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
     }
 
@@ -397,6 +396,9 @@ public final class TestEngine {
           engineContext.getDataManager().clearLocalData();
         }
       } finally {
+        // Addresses to allocations start after prologue
+        engineContext.setAddress(prologue.getEndAddress());
+
         externalCode = new ArrayList<>();
         printer.close();
         Tarmac.closeFile();
