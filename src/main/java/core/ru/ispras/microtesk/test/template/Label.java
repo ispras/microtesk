@@ -21,7 +21,8 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * The Label class describes a label set in test templates and symbolic test programs.
+ * The {@link Label} class describes a label set in test templates and
+ * symbolic test programs.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -122,6 +123,15 @@ public final class Label {
   public void setSequenceIndex(final int value) {
     InvariantChecks.checkGreaterOrEqZero(value);
     this.sequenceIndex = value;
+  }
+
+  /**
+   * Returns an index that identifies the instruction sequence where the label is defined.
+   * 
+   * @return Index that identifies the instruction sequence where the label is defined.
+   */
+  public int getSequenceIndex() {
+    return sequenceIndex;
   }
 
   /**
