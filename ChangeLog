@@ -6,6 +6,11 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/07/22 MicroTESK 2.3.43 beta
+
+ - Test Templates: support for global code sections, global labels and
+   control transfers between global sections
+
 2016/07/15 MicroTESK 2.3.42 beta
 
  - Test Templates: new rearranger strategy 'sample'
