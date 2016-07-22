@@ -52,7 +52,12 @@ public final class RearrangerSample<T> implements Rearranger<T> {
   @Override
   public void initialize(final Iterator<List<T>> original) {
     InvariantChecks.checkNotNull(original);
-    this.sampled = new ArrayIterator<>(sample(GeneratorUtils.toArrayList(original)));
+
+    original.init();
+    this.sampled = original.hasValue() ?
+        new ArrayIterator<>(sample(GeneratorUtils.toArrayList(original))) :
+        original
+        ;
   }
 
   private static <T> ArrayList<T> sample(final ArrayList<T> original) {
