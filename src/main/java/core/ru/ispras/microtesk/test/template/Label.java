@@ -199,6 +199,7 @@ public final class Label {
     result = prime * result + name.hashCode();
     result = prime * result + blockId.hashCode();
     result = prime * result + referenceNumber;
+    result = prime * result + sequenceIndex;
 
     return result;
   }
@@ -220,6 +221,7 @@ public final class Label {
     final Label other = (Label) obj;
     return this.name.equals(other.name) && 
            this.blockId.equals(other.blockId) &&
-           this.referenceNumber == other.referenceNumber;
+           this.referenceNumber == other.referenceNumber &&
+           this.sequenceIndex == other.sequenceIndex;
   }
 }
