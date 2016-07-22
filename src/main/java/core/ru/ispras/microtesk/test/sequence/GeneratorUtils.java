@@ -27,11 +27,8 @@ public final class GeneratorUtils {
     InvariantChecks.checkNotNull(iterator);
 
     final List<T> result = new ArrayList<>();
-
-    iterator.init();
-    while (iterator.hasValue()) {
+    for (iterator.init(); iterator.hasValue(); iterator.next()) {
       result.addAll(iterator.value());
-      iterator.next();
     }
 
     return result;
@@ -41,7 +38,6 @@ public final class GeneratorUtils {
     InvariantChecks.checkNotNull(iterators);
 
     final List<T> result = new ArrayList<>();
-
     for (final Iterator<List<T>> sequenceIterator : iterators) {
       final List<T> sequence = expand(sequenceIterator);
       result.addAll(sequence);
@@ -52,12 +48,10 @@ public final class GeneratorUtils {
 
   public static <T> ArrayList<List<T>> toArrayList(final Iterator<List<T>> iterator) {
     InvariantChecks.checkNotNull(iterator);
-    final ArrayList<List<T>> result = new ArrayList<>();
 
-    iterator.init();
-    while (iterator.hasValue()) {
+    final ArrayList<List<T>> result = new ArrayList<>();
+    for (iterator.init(); iterator.hasValue(); iterator.next()) {
       result.add(iterator.value());
-      iterator.next();
     }
 
     return result;
