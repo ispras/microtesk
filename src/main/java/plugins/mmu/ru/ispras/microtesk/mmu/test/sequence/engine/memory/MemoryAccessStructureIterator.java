@@ -144,6 +144,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
       final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
 
+      Logger.debug("Composing memory access classes size(%s)=%d", accessType, accessPathClasses.size());
+      Logger.debug("Composing memory access classes %s=%s", accessType, accessPathClasses);
+
       this.accessPathClasses.add(accessPathClasses);
       accessPathIterator.registerIterator(new IntRangeIterator(0, accessPathClasses.size() - 1));
 

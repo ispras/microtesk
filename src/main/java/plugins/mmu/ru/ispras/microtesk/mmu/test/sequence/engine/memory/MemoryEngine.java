@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -89,7 +89,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return situation != null;
   }
 
-  public static MemoryAccessConstraints getMemoryAccessConstants(final Call abstractCall) {
+  public static MemoryAccessConstraints getMemoryAccessConstraints(final Call abstractCall) {
     if (!isMemoryAccessWithSituation(abstractCall)) {
       return null;
     }
@@ -225,17 +225,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final MemoryEngineContext customContext =
-        (MemoryEngineContext) engineContext.getCustomContext(ID);
-
-    // TODO: Compatibility with MMU TestGen.
-    final Iterator<MemoryAccessStructure> structureIterator =
-        customContext != null ? customContext.getStructureIterator() : null;
-
-    if (structureIterator != null) {
-      return structureIterator;
-    }
-
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
@@ -249,7 +238,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           abstractCall.isLoad() ? MemoryOperation.LOAD : MemoryOperation.STORE;
 
       final MemoryAccessConstraints constraints =
-          getMemoryAccessConstants(abstractCall);
+          getMemoryAccessConstraints(abstractCall);
 
       final int blockSizeInBits = abstractCall.getBlockSize();
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
