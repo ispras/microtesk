@@ -10,6 +10,7 @@
 
  - Test Templates: support for global code sections, global labels and
    control transfers between global sections
+ - New test template example for miniMIPS external_labels.rb
 
 2016/07/15 MicroTESK 2.3.42 beta
 
