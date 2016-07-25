@@ -30,7 +30,7 @@ import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * The {@link TestSequenceEngine} class is processes an abstract sequence with the
+ * The {@link TestSequenceEngine} class processes an abstract sequence with the
  * specified solver engine and adapts the results with the specified adapter.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
