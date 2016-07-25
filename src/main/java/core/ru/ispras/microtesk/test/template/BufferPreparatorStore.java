@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -28,11 +28,24 @@ public final class BufferPreparatorStore {
 
   public void addPreparator(final BufferPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-    preparators.put(preparator.getBufferId(), preparator);
+
+    final String id = getBufferIdWithLevel(preparator.getBufferId(), preparator.getLevel());
+    preparators.put(id, preparator);
+  }
+
+  public BufferPreparator getPreparatorFor(final String bufferId, final int level) {
+    InvariantChecks.checkNotNull(bufferId);
+    InvariantChecks.checkGreaterOrEqZero(level);
+
+    final String id = getBufferIdWithLevel(bufferId, level);
+    return preparators.get(id);
   }
 
   public BufferPreparator getPreparatorFor(final String bufferId) {
-    InvariantChecks.checkNotNull(bufferId);
-    return preparators.get(bufferId);
+    return getPreparatorFor(bufferId, 0);
+  }
+
+  private static String getBufferIdWithLevel(final String bufferId, final int level) {
+    return String.format("%s#%d", bufferId, level);
   }
 }

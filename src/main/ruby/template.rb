@@ -722,7 +722,11 @@ class Template
 
   def buffer_preparator(attrs, &contents)
     buffer_id = get_attribute attrs, :target
-    @template.beginBufferPreparator buffer_id
+    builder = @template.beginBufferPreparator buffer_id
+
+    if attrs.has_key?(:level)
+      builder.setLevel attrs[:level]
+    end
 
     self.instance_eval &contents
     @template.endBufferPreparator

@@ -25,6 +25,7 @@ import ru.ispras.microtesk.Logger;
 
 public final class BufferPreparator {
   private final String bufferId;
+  private final int level;
   private final LazyData address;
   private final Map<String, LazyData> entry;
   private final LazyData entryData;
@@ -33,16 +34,19 @@ public final class BufferPreparator {
 
   protected BufferPreparator(
       final String bufferId,
+      final int level,
       final LazyData address,
       final Map<String, LazyData> entry,
       final LazyData entryData,
       final List<Call> calls) {
     InvariantChecks.checkNotNull(bufferId);
+    InvariantChecks.checkGreaterOrEqZero(level);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(calls);
 
     this.bufferId = bufferId;
+    this.level = level;
     this.address = address;
     this.entry = Collections.unmodifiableMap(entry);
     this.entryData = entryData;
@@ -52,6 +56,10 @@ public final class BufferPreparator {
 
   public String getBufferId() {
     return bufferId;
+  }
+
+  public int getLevel() {
+    return level;
   }
 
   public List<Call> makeInitializer(
