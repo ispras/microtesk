@@ -30,19 +30,19 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 public final class MmuAction {
   /** Unique name. */
   private final String name;
-  /** Device used in the action or {@code null}. */
+  /** Buffer used in the action or {@code null}. */
   private final MmuBuffer buffer;
   /** Assignments performed by the action. */
   private final Map<IntegerField, MmuBinding> action = new HashMap<>();
   /** Marks associated with the action. */
   private final Set<String> marks = new LinkedHashSet<>();
 
-  public MmuAction(final String name, final MmuBuffer device, final MmuBinding... assignments) {
+  public MmuAction(final String name, final MmuBuffer buffer, final MmuBinding... assignments) {
     InvariantChecks.checkNotNull(name);
-    // The device is allowed to be null.
+    // The buffer is allowed to be null.
 
     this.name = name;
-    this.buffer = device;
+    this.buffer = buffer;
 
     for (final MmuBinding assignment : assignments) {
       action.put(assignment.getLhs(), assignment);
@@ -60,16 +60,16 @@ public final class MmuAction {
 
     this.name = name;
 
-    if (null != lhs.getDevice() && null != rhs.getDevice()) {
+    if (null != lhs.getBuffer() && null != rhs.getBuffer()) {
       InvariantChecks.checkTrue(
-          lhs.getDevice() == rhs.getDevice(),
+          lhs.getBuffer() == rhs.getBuffer(),
           "Devices at both sides of assignment"
           );
-      this.buffer = lhs.getDevice();
-    } else if (null != lhs.getDevice()) {
-      this.buffer = lhs.getDevice();
-    } else if (null != rhs.getDevice()) {
-      this.buffer = rhs.getDevice();
+      this.buffer = lhs.getBuffer();
+    } else if (null != lhs.getBuffer()) {
+      this.buffer = lhs.getBuffer();
+    } else if (null != rhs.getBuffer()) {
+      this.buffer = rhs.getBuffer();
     } else {
       this.buffer = null;
     }

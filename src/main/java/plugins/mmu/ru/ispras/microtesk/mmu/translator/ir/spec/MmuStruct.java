@@ -31,7 +31,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 public class MmuStruct {
   private final String name;
 
-  private MmuBuffer device = null;
+  private MmuBuffer buffer = null;
   private final List<IntegerVariable> fields = new ArrayList<>();
   private int bitSize = 0;
 
@@ -39,7 +39,7 @@ public class MmuStruct {
    * Constructs an MmuStruct object.
    * 
    * @param name structure name.
-   * @param device device associated with the structure.
+   * @param buffer buffer associated with the structure.
    * @param variables field variables.
    * 
    * @throws IllegalArgumentException if {@code name} equals {@code null} or
@@ -66,25 +66,25 @@ public class MmuStruct {
   }
 
   /**
-   * Sets the device associated with the structure (for buffer entries).
+   * Sets the buffer associated with the structure (for buffer entries).
    * 
-   * @param device the device to be associated with the structure.
+   * @param buffer the buffer to be associated with the structure.
    * 
-   * @throws IllegalArgumentException if {@code device} equals {@code null}.
+   * @throws IllegalArgumentException if {@code buffer} equals {@code null}.
    */
-  public void setDevice(final MmuBuffer device) {
-    InvariantChecks.checkNotNull(device);
-    this.device = device;
+  public void setBuffer(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    this.buffer = buffer;
   }
 
   /**
-   * Returns the device associated with the structure (for buffer entries)
+   * Returns the buffer associated with the structure (for buffer entries)
    * or {@code null} if not applicable.
    * 
-   * @return the device associated with the structure or {@code null} if not applicable.
+   * @return the buffer associated with the structure or {@code null} if not applicable.
    */
-  public MmuBuffer getDevice() {
-    return device;
+  public MmuBuffer getBuffer() {
+    return buffer;
   }
 
   /**

@@ -90,7 +90,7 @@ public class MmuBuffer extends MmuStruct {
       final boolean replaceable,
       final MmuBuffer parent) {
     super(name);
-    setDevice(this);
+    setBuffer(this);
 
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(address);
