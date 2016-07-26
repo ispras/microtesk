@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
@@ -31,7 +31,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class MemoryUnitedHazard {
   /** The address space touched upon the hazard. */
-  private MmuAddressType address;
+  private MmuAddressInstance address;
   /** The device touched upon the hazard. */
   private MmuBuffer device;
 
@@ -87,7 +87,7 @@ public final class MemoryUnitedHazard {
   }
 
   // TODO:
-  public MmuAddressType getAddress() {
+  public MmuAddressInstance getAddress() {
     return address;
   }
 

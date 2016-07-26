@@ -40,7 +40,7 @@ import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -182,7 +182,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         getSolutionIterator(engineContext, structureIterator);
 
     final GeneratorSettings settings = engineContext.getSettings();
-    final Map<MmuAddressType, Collection<? extends Range<Long>>> addressToRegions = new HashMap<>();
+    final Map<MmuAddressInstance, Collection<? extends Range<Long>>> addressToRegions = new HashMap<>();
     final Collection<RegionSettings> regions = new ArrayList<>();
 
     for (final RegionSettings region : settings.getMemory().getRegions()) {
@@ -195,7 +195,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
-    for (final MmuAddressType addrType : memory.getSortedListOfAddresses()) {
+    for (final MmuAddressInstance addrType : memory.getSortedListOfAddresses()) {
       if (addrType.equals(memory.getVirtualAddress())) {
         addressToRegions.put(addrType, memory.getSegments()); // TODO: memory.getSegments(addrType)
       } else if (addrType.equals(memory.getPhysicalAddress())) {
@@ -212,7 +212,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   }
 
   public Collection<Long> getAllAddresses(
-      final MmuAddressType addressType, final RegionSettings region) {
+      final MmuAddressInstance addressType, final RegionSettings region) {
     InvariantChecks.checkNotNull(addressType);
     InvariantChecks.checkNotNull(region);
 
@@ -273,9 +273,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       customContext = (MemoryEngineContext) engineContext.getCustomContext(ID);
     } else {
       final MmuSubsystem memory = MmuPlugin.getSpecification();
-      final Map<MmuAddressType, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
+      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
 
-      for (final MmuAddressType addressType : memory.getSortedListOfAddresses()) {
+      for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
         hitCheckers.put(addressType, new Predicate<Long>() {
           @Override
           public boolean test(final Long address) {

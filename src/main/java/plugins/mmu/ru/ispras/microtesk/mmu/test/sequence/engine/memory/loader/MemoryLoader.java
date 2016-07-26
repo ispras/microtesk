@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -92,7 +92,7 @@ public final class MemoryLoader implements Loader {
     return bufferLoader.prepareLoads();
   }
 
-  public List<Load> prepareLoads(final MmuAddressType addressType) {
+  public List<Load> prepareLoads(final MmuAddressInstance addressType) {
     InvariantChecks.checkNotNull(addressType);
 
     final List<Load> sequence = new ArrayList<>();
@@ -113,9 +113,9 @@ public final class MemoryLoader implements Loader {
   @Override
   public List<Load> prepareLoads() {
     final List<Load> sequence = new ArrayList<>();
-    final List<MmuAddressType> addressTypes = memory.getSortedListOfAddresses();
+    final List<MmuAddressInstance> addressTypes = memory.getSortedListOfAddresses();
 
-    for (final MmuAddressType addressType : addressTypes) {
+    for (final MmuAddressInstance addressType : addressTypes) {
       sequence.addAll(prepareLoads(addressType));
     }
 

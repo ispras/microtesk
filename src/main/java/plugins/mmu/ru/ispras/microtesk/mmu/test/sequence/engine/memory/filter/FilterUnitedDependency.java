@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -51,7 +51,7 @@ public final class FilterUnitedDependency implements BiPredicate<MemoryAccess, M
   public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
     final Set<MemoryUnitedHazard> hazards = new LinkedHashSet<>();
 
-    final Map<MmuAddressType, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
+    final Map<MmuAddressInstance, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
     final Map<MmuBuffer, MemoryUnitedHazard> deviceHazards = dependency.getDeviceHazards();
 
     hazards.addAll(addrHazards.values());

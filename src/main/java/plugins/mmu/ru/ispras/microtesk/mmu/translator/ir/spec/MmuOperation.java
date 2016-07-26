@@ -23,12 +23,12 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 
 public final class MmuOperation {
   private final String name;
-  private final MmuAddressType addressType;
+  private final MmuAddressInstance addressType;
   private final Map<IntegerField, MmuBinding> assignments;
 
   public MmuOperation(
       final String name,
-      final MmuAddressType addressType,
+      final MmuAddressInstance addressType,
       final MmuBinding... assignments) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(addressType);
@@ -48,7 +48,7 @@ public final class MmuOperation {
     return name;
   }
 
-  public MmuAddressType getAddressType() {
+  public MmuAddressInstance getAddressType() {
     return addressType;
   }
 

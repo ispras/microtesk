@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**
@@ -117,7 +117,7 @@ public class MemoryDependency {
    *         otherwise.
    * @throws IllegalArgumentException if {@code address} or {@code hazardType} is null.
    */
-  public boolean contains(final MmuAddressType address, final MemoryHazard.Type hazardType) {
+  public boolean contains(final MmuAddressInstance address, final MemoryHazard.Type hazardType) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(hazardType);
 

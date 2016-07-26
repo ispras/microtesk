@@ -35,14 +35,14 @@ import ru.ispras.microtesk.utils.function.Function;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class MmuBufferTestCase {
-  private static MmuAddressType newAddress(final String name, int width) {
+  private static MmuAddressInstance newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
-    return new MmuAddressType(new Variable(name, type),
+    return new MmuAddressInstance(new Variable(name, type),
                               new IntegerVariable(name + ".value", width));
   }
 
-  public static final MmuAddressType VA_ADDR = newAddress("VA", 64);
-  public static final MmuAddressType PA_ADDR = newAddress("PA", 36);
+  public static final MmuAddressInstance VA_ADDR = newAddress("VA", 64);
+  public static final MmuAddressInstance PA_ADDR = newAddress("PA", 36);
 
   public static final IntegerVariable VA = VA_ADDR.getVariable();
   public static final IntegerVariable PA = PA_ADDR.getVariable();

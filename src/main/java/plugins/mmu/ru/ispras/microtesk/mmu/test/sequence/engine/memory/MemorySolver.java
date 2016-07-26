@@ -46,7 +46,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessTh
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.AddressAndEntry;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -72,7 +72,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Memory access structures being processed. */
   private final MemoryAccessStructure structure;
 
-  private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
+  private final Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
   private final MemoryAccessConstraints constraints;
 
   private final long pageMask;
@@ -183,7 +183,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the solution.
    */
   private SolverResult<MemorySolution> solveAlignConstraint(
-      final int j, final MmuAddressType addrType) {
+      final int j, final MmuAddressInstance addrType) {
 
     final MemoryAccess access = structure.getAccess(j);
     final AddressObject addrObject = solution.getAddressObject(j);
@@ -224,7 +224,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveHitConstraint(final int j, final MmuBuffer buffer) {
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -319,7 +319,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -418,7 +418,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveAddrEqualConstraint(
-      final int j, final MmuAddressType addrType) {
+      final int j, final MmuAddressInstance addrType) {
     final AddressObject addrObject = solution.getAddressObject(j);
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
@@ -448,7 +448,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private SolverResult<MemorySolution> solveIndexEqualConstraint(
       final int j, final MmuBuffer buffer) {
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(buffer);
@@ -493,7 +493,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private SolverResult<MemorySolution> solveTagEqualConstraint(
       final int j, final MmuBuffer buffer) {
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
@@ -524,7 +524,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    */
   private SolverResult<MemorySolution> solveTagReplacedConstraints(
       final int j, final MmuBuffer buffer) {
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
         buffer.getSets(), buffer.getWays(), buffer.getAddressView());
@@ -702,15 +702,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
-    for (final MmuAddressType addrType : addrObject.getAddresses().keySet()) {
+    for (final MmuAddressInstance addrType : addrObject.getAddresses().keySet()) {
       solveAlignConstraint(j, addrType);
     }
 
     // Assign the tag, index and offset according to the dependencies.
-    final Map<MmuAddressType, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
+    final Map<MmuAddressInstance, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
 
-    for (final Map.Entry<MmuAddressType, MemoryUnitedHazard> addrEntry : addrHazards.entrySet()) {
-      final MmuAddressType addrType = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressInstance, MemoryUnitedHazard> addrEntry : addrHazards.entrySet()) {
+      final MmuAddressInstance addrType = addrEntry.getKey();
       final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
 
       if (!addrEqualRelation.isEmpty()) {
@@ -851,14 +851,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return {@code false} if a hit is infeasible; {@code true} if a hit is possible.
    */
   private boolean mayBeHit(final int j, final MmuBuffer buffer) {
-    final MmuAddressType addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = buffer.getAddress();
 
     // TODO: This check can be optimized.
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 
-    for (final MmuAddressType prevAddrType : path.getAddresses()) {
+    for (final MmuAddressInstance prevAddrType : path.getAddresses()) {
       if (prevAddrType != addrType) {
         if (!solution.getLoader().prepareLoads(prevAddrType).isEmpty()) {
           // Possible HIT.
@@ -916,7 +916,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private long allocateAddr(
-      final MmuAddressType addrType,
+      final MmuAddressInstance addrType,
       final Range<Long> region,
       final boolean peek) {
     InvariantChecks.checkNotNull(addrType);
@@ -931,7 +931,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private long allocateAddr(
-      final MmuAddressType addrType,
+      final MmuAddressInstance addrType,
       final long partialAddress, // Offset
       final Range<Long> region,
       final boolean peek) {
@@ -1040,8 +1040,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
-    final MmuAddressType vaType = memory.getVirtualAddress();
-    final MmuAddressType paType = memory.getPhysicalAddress();
+    final MmuAddressInstance vaType = memory.getVirtualAddress();
+    final MmuAddressInstance paType = memory.getPhysicalAddress();
 
     final AddressObject addrObject = new AddressObject(access);
 
@@ -1083,10 +1083,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     correctOffset(addrObject);
 
-    final MmuAddressType vaType = memory.getVirtualAddress();
+    final MmuAddressInstance vaType = memory.getVirtualAddress();
     InvariantChecks.checkNotNull(vaType, "Virtual address type is null");
 
-    final MmuAddressType paType = memory.getPhysicalAddress();
+    final MmuAddressInstance paType = memory.getPhysicalAddress();
     InvariantChecks.checkNotNull(paType, "Physical address type is null");
 
     final IntegerVariable vaVar = vaType.getVariable();
@@ -1104,7 +1104,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         continue;
       }
 
-      final MmuAddressType addrType = buffer.getAddress();
+      final MmuAddressInstance addrType = buffer.getAddress();
       final long address = addrObject.getAddress(addrType);
 
       if (buffer.getWays() > 1) {
@@ -1172,8 +1172,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private void correctOffset(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
 
-    final MmuAddressType vaType = memory.getVirtualAddress();
-    final MmuAddressType paType = memory.getPhysicalAddress();
+    final MmuAddressInstance vaType = memory.getVirtualAddress();
+    final MmuAddressInstance paType = memory.getPhysicalAddress();
 
     final long va = addrObject.getAddress(vaType);
     final long pa = addrObject.getAddress(paType);
@@ -1191,8 +1191,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     correctOffset(addrObject);
 
-    final MmuAddressType vaType = memory.getVirtualAddress();
-    final MmuAddressType paType = memory.getPhysicalAddress();
+    final MmuAddressInstance vaType = memory.getVirtualAddress();
+    final MmuAddressInstance paType = memory.getPhysicalAddress();
 
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
@@ -1265,15 +1265,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(addrObject);
     InvariantChecks.checkNotNull(entry);
 
-    final Map<MmuAddressType, Long> addresses = addrObject.getAddresses();
+    final Map<MmuAddressInstance, Long> addresses = addrObject.getAddresses();
     final MemoryAccessPath path = addrObject.getPath();
 
     // Fix the known values of the addresses.
     final Collection<IntegerConstraint<IntegerField>> constraints =
         new ArrayList<>(this.constraints.getIntegers());
 
-    for (final Map.Entry<MmuAddressType, Long> addrEntry : addresses.entrySet()) {
-      final MmuAddressType addrType = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressInstance, Long> addrEntry : addresses.entrySet()) {
+      final MmuAddressInstance addrType = addrEntry.getKey();
       final long address = addrEntry.getValue();
 
       constraints.add(new IntegerDomainConstraint<IntegerField>(

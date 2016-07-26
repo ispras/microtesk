@@ -22,7 +22,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -37,7 +37,7 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
 public final class FilterMultipleTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
   @Override
   public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
-    final Set<MmuAddressType> addresses = new HashSet<>();
+    final Set<MmuAddressInstance> addresses = new HashSet<>();
     final Map<MmuBuffer, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
 
     for (final Map.Entry<MmuBuffer, MemoryUnitedHazard> entry : hazards.entrySet()) {

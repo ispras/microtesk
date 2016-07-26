@@ -29,7 +29,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -70,18 +70,18 @@ public final class MemoryAccessPath {
       return result;
     }
 
-    private static Collection<MmuAddressType> getAddresses(
+    private static Collection<MmuAddressInstance> getAddresses(
         final Collection<MmuTransition> transitions) {
       InvariantChecks.checkNotNull(transitions);
 
-      final Collection<MmuAddressType> result = new LinkedHashSet<>();
+      final Collection<MmuAddressInstance> result = new LinkedHashSet<>();
 
       for (final MmuTransition transition : transitions) {
         final MmuAction action = transition.getSource();
         final MmuBuffer buffer = action.getBuffer();
 
         if (buffer != null) {
-          final MmuAddressType address = buffer.getAddress();
+          final MmuAddressInstance address = buffer.getAddress();
           result.add(address);
         }
       }
@@ -298,7 +298,7 @@ public final class MemoryAccessPath {
 
   private final Collection<MmuTransition> transitions;
   private final Collection<MmuAction> actions;
-  private final Collection<MmuAddressType> addresses;
+  private final Collection<MmuAddressInstance> addresses;
   private final Collection<MmuBuffer> buffers;
   private final Collection<MmuSegment> segments;
   private final Collection<IntegerVariable> variables;
@@ -313,7 +313,7 @@ public final class MemoryAccessPath {
   public MemoryAccessPath(
       final Collection<MmuTransition> transitions,
       final Collection<MmuAction> actions,
-      final Collection<MmuAddressType> addresses,
+      final Collection<MmuAddressInstance> addresses,
       final Collection<MmuBuffer> buffers,
       final Collection<MmuSegment> segments,
       final Collection<IntegerVariable> variables,
@@ -366,7 +366,7 @@ public final class MemoryAccessPath {
     return actions;
   }
 
-  public Collection<MmuAddressType> getAddresses() {
+  public Collection<MmuAddressInstance> getAddresses() {
     return addresses;
   }
 
@@ -396,7 +396,7 @@ public final class MemoryAccessPath {
     return actions.contains(action);
   }
 
-  public boolean contains(final MmuAddressType address) {
+  public boolean contains(final MmuAddressInstance address) {
     InvariantChecks.checkNotNull(address);
     return addresses.contains(address);
   }

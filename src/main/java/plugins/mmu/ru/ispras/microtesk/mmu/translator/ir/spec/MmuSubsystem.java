@@ -45,16 +45,16 @@ public final class MmuSubsystem {
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
    */
-  private final Map<String, MmuAddressType> addresses;
+  private final Map<String, MmuAddressInstance> addresses;
 
   // TODO:
-  private final List<MmuAddressType> sortedAddresses;
+  private final List<MmuAddressInstance> sortedAddresses;
 
   /** Refers to the virtual address type of the MMU. */
-  private final MmuAddressType virtualAddress;
+  private final MmuAddressInstance virtualAddress;
 
   /** Refers to the physical address type of the MMU. */
-  private final MmuAddressType physicalAddress;
+  private final MmuAddressInstance physicalAddress;
 
   /** Stores operations of MMU (linked to with operations in SA specs) */
   private final Map<String, MmuOperation> operations;
@@ -86,10 +86,10 @@ public final class MmuSubsystem {
 
   private MmuSubsystem(
       final Map<String, IntegerVariable> variables,
-      final Map<String, MmuAddressType> addresses,
-      final List<MmuAddressType> sortedAddresses,
-      final MmuAddressType virtualAddress,
-      final MmuAddressType physicalAddress,
+      final Map<String, MmuAddressInstance> addresses,
+      final List<MmuAddressInstance> sortedAddresses,
+      final MmuAddressInstance virtualAddress,
+      final MmuAddressInstance physicalAddress,
       final Map<String, MmuOperation> operations,
       final Map<String, MmuSegment> segments,
       final Map<String, MmuBuffer> buffers,
@@ -149,12 +149,12 @@ public final class MmuSubsystem {
    * 
    * @return the collection of addresses.
    */
-  public Collection<MmuAddressType> getAddresses() {
+  public Collection<MmuAddressInstance> getAddresses() {
     return addresses.values();
   }
 
   // TODO:
-  public List<MmuAddressType> getSortedListOfAddresses() {
+  public List<MmuAddressInstance> getSortedListOfAddresses() {
     return sortedAddresses;
   }
 
@@ -164,15 +164,15 @@ public final class MmuSubsystem {
    * @param name the name of the address.
    * @return address or {@code null} it is undefined.
    */
-  public MmuAddressType getAddress(final String name) {
+  public MmuAddressInstance getAddress(final String name) {
     return addresses.get(name);
   }
 
-  public MmuAddressType getVirtualAddress() {
+  public MmuAddressInstance getVirtualAddress() {
     return virtualAddress;
   }
 
-  public MmuAddressType getPhysicalAddress() {
+  public MmuAddressInstance getPhysicalAddress() {
     return physicalAddress;
   }
 
@@ -293,7 +293,7 @@ public final class MmuSubsystem {
     final StringBuilder builder = new StringBuilder("MMU:");
 
     builder.append(String.format("%nAddresses: %d", addresses.size()));
-    for (final MmuAddressType address : getAddresses()) {
+    for (final MmuAddressInstance address : getAddresses()) {
       builder.append(newline);
       builder.append(address);
     }
@@ -349,16 +349,16 @@ public final class MmuSubsystem {
      * Stores available address types.
      * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
      */
-    private final Map<String, MmuAddressType> addresses = new LinkedHashMap<>();
+    private final Map<String, MmuAddressInstance> addresses = new LinkedHashMap<>();
 
     // TODO:
-    private final List<MmuAddressType> sortedAddresses = new ArrayList<>();
+    private final List<MmuAddressInstance> sortedAddresses = new ArrayList<>();
 
     /** Refers to the virtual address type of the MMU. */
-    private MmuAddressType virtualAddress;
+    private MmuAddressInstance virtualAddress;
 
     /** Refers to the physical address type of the MMU. */
-    private MmuAddressType physicalAddress;
+    private MmuAddressInstance physicalAddress;
 
     /** Stores operations of MMU (linked to with operations in SA specs) */
     private final Map<String, MmuOperation> operations = new LinkedHashMap<>();
@@ -417,7 +417,7 @@ public final class MmuSubsystem {
      * @param address the address to be registered.
      * @throws IllegalArgumentException if {@code address} is {@code null}.
      */
-    public void registerAddress(final MmuAddressType address) {
+    public void registerAddress(final MmuAddressInstance address) {
       InvariantChecks.checkNotNull(address);
       registerVariable(address);
 
@@ -425,16 +425,16 @@ public final class MmuSubsystem {
       sortedAddresses.add(address);
     }
 
-    public MmuAddressType getAddress(final String name) {
+    public MmuAddressInstance getAddress(final String name) {
       return addresses.get(name);
     }
 
-    public void setVirtualAddress(final MmuAddressType address) {
+    public void setVirtualAddress(final MmuAddressInstance address) {
       InvariantChecks.checkNotNull(address);
       virtualAddress = address;
     }
 
-    public void setPhysicalAddress(final MmuAddressType address) {
+    public void setPhysicalAddress(final MmuAddressInstance address) {
       InvariantChecks.checkNotNull(address);
       physicalAddress = address;
     }

@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -119,10 +119,10 @@ public final class MmuUnderTest {
   }
 
 
-  private static MmuAddressType newAddress(final String name, int width) {
+  private static MmuAddressInstance newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
 
-    return new MmuAddressType(new Variable(name, type),
+    return new MmuAddressInstance(new Variable(name, type),
                               new IntegerVariable(name + ".value", width));
   }
 
@@ -130,8 +130,8 @@ public final class MmuUnderTest {
   // Variables
   // ===============================================================================================
 
-  public final MmuAddressType vaAddr = newAddress("VA", 64);
-  public final MmuAddressType paAddr = newAddress("PA", 36);
+  public final MmuAddressInstance vaAddr = newAddress("VA", 64);
+  public final MmuAddressInstance paAddr = newAddress("PA", 36);
 
   public final IntegerVariable va = vaAddr.getVariable();
   public final IntegerVariable pa = paAddr.getVariable();

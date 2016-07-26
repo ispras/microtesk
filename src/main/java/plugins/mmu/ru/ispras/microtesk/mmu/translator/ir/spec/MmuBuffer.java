@@ -55,7 +55,7 @@ public class MmuBuffer extends MmuStruct {
   private final long sets;
 
   /** The MMU address. */
-  private final MmuAddressType address;
+  private final MmuAddressInstance address;
 
   /** The tag calculation function. */
   private final MmuExpression tagExpression;
@@ -82,7 +82,7 @@ public class MmuBuffer extends MmuStruct {
       final Kind kind,
       final long ways,
       final long sets,
-      final MmuAddressType address,
+      final MmuAddressInstance address,
       final MmuExpression tagExpression,
       final MmuExpression indexExpression,
       final MmuExpression offsetExpression,
@@ -155,7 +155,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the input parameter.
    */
-  public final MmuAddressType getAddress() {
+  public final MmuAddressInstance getAddress() {
     return address;
   }
 

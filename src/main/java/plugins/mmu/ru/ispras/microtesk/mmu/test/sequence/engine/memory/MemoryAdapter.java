@@ -31,7 +31,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -166,7 +166,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final List<ConcreteCall> preparation = new ArrayList<>(); 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
-    for (final MmuAddressType addressType : memory.getSortedListOfAddresses()) {
+    for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
       preparation.addAll(prepareData(addressType, engineContext, solution));
     }
 
@@ -174,7 +174,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   }
 
   private List<ConcreteCall> prepareData(
-      final MmuAddressType addressType,
+      final MmuAddressInstance addressType,
       final EngineContext engineContext,
       final MemorySolution solution) {
     InvariantChecks.checkNotNull(addressType);

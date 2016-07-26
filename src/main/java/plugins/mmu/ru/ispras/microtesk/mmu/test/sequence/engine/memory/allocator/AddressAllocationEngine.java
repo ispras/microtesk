@@ -27,7 +27,7 @@ import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.utils.Range;
 
@@ -77,7 +77,7 @@ public final class AddressAllocationEngine {
    * @param regions the memory regions or {@code null}.
    */
   public AddressAllocationEngine(
-      final MmuAddressType addressType,
+      final MmuAddressInstance addressType,
       final Collection<MmuExpression> expressions,
       final long mask,
       final Collection<? extends Range<Long>> regions) {

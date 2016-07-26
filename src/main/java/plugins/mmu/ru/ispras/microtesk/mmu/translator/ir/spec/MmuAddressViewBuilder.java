@@ -103,13 +103,13 @@ public final class MmuAddressViewBuilder {
     }
   }
 
-  private final MmuAddressType addressType;
+  private final MmuAddressInstance addressType;
   private final List<MmuExpression> expressions = new ArrayList<>();
 
   /** Auxiliary variables that represent values of the fields. */
   private final List<IntegerVariable> variables = new ArrayList<>();
 
-  public MmuAddressViewBuilder(final MmuAddressType addressType, final MmuExpression ... fields) {
+  public MmuAddressViewBuilder(final MmuAddressInstance addressType, final MmuExpression ... fields) {
     InvariantChecks.checkNotNull(addressType);
     InvariantChecks.checkNotNull(fields);
 

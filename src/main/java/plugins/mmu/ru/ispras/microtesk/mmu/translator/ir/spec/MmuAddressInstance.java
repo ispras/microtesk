@@ -19,17 +19,17 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 /**
- * {@link MmuAddressType} describes an address, i.e. a parameter used to access a buffer.
+ * {@link MmuAddressInstance} describes an address, i.e. a parameter used to access a buffer.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class MmuAddressType extends MmuStruct {
+public class MmuAddressInstance extends MmuStruct {
   /** Address description (the variable contains the name and the bit length). */
   private final Variable addrStruct;
   private IntegerVariable address;
 
-  public MmuAddressType(final Variable addrStruct, final IntegerVariable address) {
+  public MmuAddressInstance(final Variable addrStruct, final IntegerVariable address) {
     super(addrStruct != null ? addrStruct.getName() : null);
 
     InvariantChecks.checkNotNull(address);
@@ -37,7 +37,7 @@ public class MmuAddressType extends MmuStruct {
     this.address = address;
   }
 
-  public MmuAddressType(final String name, final IntegerVariable address) {
+  public MmuAddressInstance(final String name, final IntegerVariable address) {
     super(name);
 
     InvariantChecks.checkNotNull(address);
@@ -45,7 +45,7 @@ public class MmuAddressType extends MmuStruct {
     this.address = address;
   }
 
-  protected MmuAddressType(final String name) {
+  protected MmuAddressInstance(final String name) {
     super(name);
 
     this.addrStruct = null;
@@ -87,11 +87,11 @@ public class MmuAddressType extends MmuStruct {
       return true;
     }
 
-    if ((obj == null) || !(obj instanceof MmuAddressType)) {
+    if ((obj == null) || !(obj instanceof MmuAddressInstance)) {
       return false;
     }
 
-    final MmuAddressType other = (MmuAddressType) obj;
+    final MmuAddressInstance other = (MmuAddressInstance) obj;
     return getName().equals(other.getName());
   }
 }

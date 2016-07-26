@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -43,7 +43,7 @@ public final class CoverageExtractor {
     return instance;
   }
 
-  private final Map<MmuAddressType, Collection<MemoryHazard>> addressHazards = new HashMap<>();
+  private final Map<MmuAddressInstance, Collection<MemoryHazard>> addressHazards = new HashMap<>();
   private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
   private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
 
@@ -53,7 +53,7 @@ public final class CoverageExtractor {
   private final Map<MmuSubsystem, Map<MmuBuffer, Collection<MemoryAccessPath>>> normalPaths =
       new HashMap<>();
 
-  public Collection<MemoryHazard> getHazards(final MmuAddressType address) {
+  public Collection<MemoryHazard> getHazards(final MmuAddressInstance address) {
     InvariantChecks.checkNotNull(address);
 
     Collection<MemoryHazard> coverage = addressHazards.get(address);

@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
@@ -85,7 +85,7 @@ public final class MemoryHazard {
   /** The conflict type. */
   private final Type type;
   /** The address. */
-  private final MmuAddressType address;
+  private final MmuAddressInstance address;
   /** The device being used. */
   private final MmuBuffer device;
   /** The address condition. */
@@ -118,7 +118,7 @@ public final class MemoryHazard {
    * @param condition the condition.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public MemoryHazard(final Type type, final MmuAddressType address, final MmuCondition condition) {
+  public MemoryHazard(final Type type, final MmuAddressInstance address, final MmuCondition condition) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(condition);
@@ -178,7 +178,7 @@ public final class MemoryHazard {
    * 
    * @return the address.
    */
-  public MmuAddressType getAddress() {
+  public MmuAddressInstance getAddress() {
     return address;
   }
 

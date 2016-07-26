@@ -39,7 +39,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqual
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -396,14 +396,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     final Collection<MmuBuffer> buffers = new ArrayList<>(buffers1);
     buffers.retainAll(buffers2);
 
-    final Set<MmuAddressType> addresses = new LinkedHashSet<>();
+    final Set<MmuAddressInstance> addresses = new LinkedHashSet<>();
 
     for (final MmuBuffer buffer : buffers) {
       addresses.add(buffer.getAddress());
     }
 
     List<MemoryDependency> addrDependencies = new ArrayList<>();
-    for (final MmuAddressType address : addresses) {
+    for (final MmuAddressInstance address : addresses) {
       final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(address);
       addHazardsToDependencies(addrDependencies, access1, access2, hazards);
     }

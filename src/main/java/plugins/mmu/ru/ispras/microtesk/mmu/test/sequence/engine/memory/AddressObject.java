@@ -20,7 +20,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -43,7 +43,7 @@ public final class AddressObject {
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   /** Contains addresses (virtual, physical and intermediate addresses). */
-  private final Map<MmuAddressType, Long> addresses = new LinkedHashMap<>();
+  private final Map<MmuAddressInstance, Long> addresses = new LinkedHashMap<>();
 
   /** Contains attributes associated with the instruction call (cache policy, etc.). */
   private final Map<IntegerVariable, Long> attributes = new LinkedHashMap<>();
@@ -125,7 +125,7 @@ public final class AddressObject {
    * @return the address value.
    * @throws IllegalArgumentException if {@code addressType} is null.
    */
-  public long getAddress(final MmuAddressType addressType) {
+  public long getAddress(final MmuAddressInstance addressType) {
     InvariantChecks.checkNotNull(addressType);
     return addresses.get(addressType); 
   }
@@ -143,7 +143,7 @@ public final class AddressObject {
    * 
    * @return the address map.
    */
-  public Map<MmuAddressType, Long> getAddresses() {
+  public Map<MmuAddressInstance, Long> getAddresses() {
     return addresses; 
   }
 
@@ -154,7 +154,7 @@ public final class AddressObject {
    * @param value the address value.
    * @throws IllegalArgumentException if {@code addressType} is null.
    */
-  public void setAddress(final MmuAddressType addressType, final long value) {
+  public void setAddress(final MmuAddressInstance addressType, final long value) {
     InvariantChecks.checkNotNull(addressType);
     addresses.put(addressType, value);
   }
@@ -231,8 +231,8 @@ public final class AddressObject {
 
     boolean comma = false;
 
-    for (final Map.Entry<MmuAddressType, Long> addrEntry : addresses.entrySet()) {
-      final MmuAddressType addrType = addrEntry.getKey();
+    for (final Map.Entry<MmuAddressInstance, Long> addrEntry : addresses.entrySet()) {
+      final MmuAddressInstance addrType = addrEntry.getKey();
       final long addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");

@@ -31,8 +31,8 @@ import ru.ispras.microtesk.utils.Range;
  */
 public class MmuSegment implements Range<Long> {
   private final String name;
-  private final MmuAddressType vaType;
-  private final MmuAddressType paType;
+  private final MmuAddressInstance vaType;
+  private final MmuAddressInstance paType;
   private final long startAddress;
   private final long endAddress;
   private final boolean isMapped;
@@ -43,8 +43,8 @@ public class MmuSegment implements Range<Long> {
 
   public MmuSegment(
       final String name,
-      final MmuAddressType vaType,
-      final MmuAddressType paType,
+      final MmuAddressInstance vaType,
+      final MmuAddressInstance paType,
       final long startAddress,
       final long endAddress,
       final boolean isMapped,
@@ -76,11 +76,11 @@ public class MmuSegment implements Range<Long> {
     return name;
   }
 
-  public final MmuAddressType getVaType() {
+  public final MmuAddressInstance getVaType() {
     return vaType;
   }
 
-  public final MmuAddressType getPaType() {
+  public final MmuAddressInstance getPaType() {
     return paType;
   }
 

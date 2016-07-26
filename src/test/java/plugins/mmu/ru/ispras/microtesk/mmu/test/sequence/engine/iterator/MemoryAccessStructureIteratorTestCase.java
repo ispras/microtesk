@@ -37,7 +37,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -48,7 +48,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  */
 public final class MemoryAccessStructureIteratorTestCase {
   private static Collection<MmuBuffer> buffers = new LinkedHashSet<>();
-  private static Collection<MmuAddressType> addresses = new LinkedHashSet<>();
+  private static Collection<MmuAddressInstance> addresses = new LinkedHashSet<>();
 
   private static final boolean PRINT_LOGS = false;
   private final static int N = 2;
@@ -91,8 +91,8 @@ public final class MemoryAccessStructureIteratorTestCase {
       bufferHazards.put(buffer, hazards);
     }
 
-    final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressHazards = new HashMap<>();
-    for (final MmuAddressType address : addresses) {
+    final Map<MmuAddressInstance, Map<MemoryHazard.Type, Integer>> addressHazards = new HashMap<>();
+    for (final MmuAddressInstance address : addresses) {
       final Map<MemoryHazard.Type, Integer> hazards = new HashMap<>();
 
       for (final MemoryHazard hazard : CoverageExtractor.get().getHazards(address)) {
@@ -174,7 +174,7 @@ public final class MemoryAccessStructureIteratorTestCase {
       }
     }
 
-    for (final Map.Entry<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressHazardCounts :
+    for (final Map.Entry<MmuAddressInstance, Map<MemoryHazard.Type, Integer>> addressHazardCounts :
       addressHazards.entrySet()) {
       for (final Map.Entry<MemoryHazard.Type, Integer> hazards :
         addressHazardCounts.getValue().entrySet()) {
@@ -190,7 +190,7 @@ public final class MemoryAccessStructureIteratorTestCase {
   private static void checkSituationsDependency(final MemoryAccessStructure template,
       final Map<MemoryHazard.Type, Integer> hazardsType,
       final Map<MmuBuffer, Map<MemoryHazard.Type, Integer>> bufferHazards,
-      final Map<MmuAddressType, Map<MemoryHazard.Type, Integer>> addressHazards) {
+      final Map<MmuAddressInstance, Map<MemoryHazard.Type, Integer>> addressHazards) {
     InvariantChecks.checkNotNull(template);
     InvariantChecks.checkNotNull(hazardsType);
     InvariantChecks.checkNotNull(bufferHazards);
@@ -207,7 +207,7 @@ public final class MemoryAccessStructureIteratorTestCase {
           boolean memTagNotEqual = false;
 
           for (final MemoryHazard hazard : dependency.getHazards()) {
-            final MmuAddressType address = hazard.getAddress();
+            final MmuAddressInstance address = hazard.getAddress();
             final MmuBuffer buffer = hazard.getDevice();
             final MemoryHazard.Type type = hazard.getType();
 

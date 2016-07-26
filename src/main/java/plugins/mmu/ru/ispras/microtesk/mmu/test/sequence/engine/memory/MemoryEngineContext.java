@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -30,11 +30,11 @@ public final class MemoryEngineContext {
   // TODO: Integration with MMU TestGen (to be removed).
   private final Iterator<MemoryAccessStructure> structureIterator;
 
-  private final Map<MmuAddressType, Predicate<Long>> hitCheckers;
+  private final Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
-      final Map<MmuAddressType, Predicate<Long>> hitCheckers) {
+      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers) {
     InvariantChecks.checkNotNull(hitCheckers);
 
     this.structureIterator = structureIterator;
@@ -45,7 +45,7 @@ public final class MemoryEngineContext {
     return structureIterator;
   }
 
-  public Map<MmuAddressType, Predicate<Long>> getHitCheckers() {
+  public Map<MmuAddressInstance, Predicate<Long>> getHitCheckers() {
     return hitCheckers;
   }
 }
