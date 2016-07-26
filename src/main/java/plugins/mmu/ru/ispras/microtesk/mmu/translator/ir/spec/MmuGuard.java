@@ -27,8 +27,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 public final class MmuGuard {
   /** Operation: {@code LOAD}, {@code STORE} or {@code null} (any operation). */
   private final MemoryOperation operation;
-  /** Device (buffer). */
-  private final MmuBuffer buffer;
+  /** Buffer access. */
+  private final MmuBufferAccess bufferAccess;
   /** Event: {@code HIT} or {@code MISS}. */
   private final BufferAccessEvent event;
   /** Logical condition. */
@@ -40,13 +40,13 @@ public final class MmuGuard {
   
   public MmuGuard(
       final MemoryOperation operation,
-      final MmuBuffer buffer,
+      final MmuBufferAccess bufferAccess,
       final BufferAccessEvent event,
       final MmuCondition condition,
       final Collection<String> regions,
       final Collection<MmuSegment> segments) {
     this.operation = operation;
-    this.buffer = buffer;
+    this.bufferAccess = bufferAccess;
     this.event = event;
     this.condition = condition;
     this.regions = regions;
@@ -54,14 +54,14 @@ public final class MmuGuard {
   }
 
   public MmuGuard(
-      final MmuBuffer buffer,
+      final MmuBufferAccess bufferAccess,
       final BufferAccessEvent event,
       final MmuCondition condition) {
-    this(null, buffer, event, condition, null, null);
+    this(null, bufferAccess, event, condition, null, null);
   }
 
-  public MmuGuard(final MmuBuffer buffer, final BufferAccessEvent event) {
-    this(null, buffer, event, null, null, null);
+  public MmuGuard(final MmuBufferAccess bufferAccess, final BufferAccessEvent event) {
+    this(null, bufferAccess, event, null, null, null);
   }
 
   public MmuGuard(final MmuCondition condition) {
@@ -84,8 +84,8 @@ public final class MmuGuard {
     this(null, null, null, null, regions, segments);
   }
 
-  public MmuBuffer getBuffer() {
-    return buffer;
+  public MmuBufferAccess getBufferAccess() {
+    return bufferAccess;
   }
 
   public MemoryOperation getOperation() {
@@ -117,9 +117,9 @@ public final class MmuGuard {
       builder.append(operation);
     }
 
-    if (buffer != null) {
+    if (bufferAccess != null) {
       builder.append(builder.length() > 0 ? separator : "");
-      builder.append(String.format("%s.Event=%s", buffer, event));
+      builder.append(String.format("%s.Event=%s", bufferAccess, event));
     }
 
     if (condition != null) {

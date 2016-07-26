@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,6 +32,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
@@ -78,10 +79,10 @@ public final class MemoryAccessPath {
 
       for (final MmuTransition transition : transitions) {
         final MmuAction action = transition.getSource();
-        final MmuBuffer buffer = action.getBuffer();
+        final MmuBufferAccess bufferAccess = action.getBufferAccess();
 
-        if (buffer != null) {
-          final MmuAddressInstance address = buffer.getAddress();
+        if (bufferAccess != null) {
+          final MmuAddressInstance address = bufferAccess.getAddress();
           result.add(address);
         }
       }
@@ -89,52 +90,52 @@ public final class MemoryAccessPath {
       return result;
     }
 
-    private static Collection<MmuBuffer> getBuffers(
+    private static Collection<MmuBufferAccess> getBufferAccesses(
         final Collection<MmuTransition> transitions) {
       InvariantChecks.checkNotNull(transitions);
 
-      final Collection<MmuBuffer> result = new LinkedHashSet<>();
+      final Collection<MmuBufferAccess> result = new LinkedHashSet<>();
 
       for (final MmuTransition transition : transitions) {
         final MmuGuard guard = transition.getGuard();
-        final MmuBuffer guardBuffer = guard != null ? guard.getBuffer() : null;
+        final MmuBufferAccess guardBufferAccess = guard != null ? guard.getBufferAccess() : null;
 
-        if (guardBuffer != null) {
-          result.add(guardBuffer);
+        if (guardBufferAccess != null) {
+          result.add(guardBufferAccess);
         }
 
         final MmuAction source = transition.getSource();
-        final MmuBuffer sourceBuffer = source.getBuffer();
+        final MmuBufferAccess sourceBufferAccess = source.getBufferAccess();
 
-        if (sourceBuffer != null) {
-          result.add(sourceBuffer);
+        if (sourceBufferAccess != null) {
+          result.add(sourceBufferAccess);
         }
 
         final MmuAction target = transition.getTarget();
-        final MmuBuffer targetBuffer = target.getBuffer();
+        final MmuBufferAccess targetBufferAccess = target.getBufferAccess();
 
-        if (targetBuffer != null) {
-          result.add(targetBuffer);
+        if (targetBufferAccess != null) {
+          result.add(targetBufferAccess);
         }
       }
 
       return result;
     }
 
-    private static Map<MmuBuffer, BufferAccessEvent> getEvents(
+    private static Map<MmuBufferAccess, BufferAccessEvent> getEvents(
         final Collection<MmuTransition> transitions) {
       InvariantChecks.checkNotNull(transitions);
 
-      final Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
+      final Map<MmuBufferAccess, BufferAccessEvent> result = new LinkedHashMap<>();
 
       for (final MmuTransition transition : transitions) {
         final MmuGuard guard = transition.getGuard();
 
         if (guard != null) {
-          final MmuBuffer guardBuffer = guard.getBuffer();
+          final MmuBufferAccess guardBufferAccess = guard.getBufferAccess();
 
-          if (guardBuffer != null) {
-            result.put(guardBuffer, guard.getEvent());
+          if (guardBufferAccess != null) {
+            result.put(guardBufferAccess, guard.getEvent());
           }
         }
       }
@@ -288,7 +289,7 @@ public final class MemoryAccessPath {
           transitions,
           getActions(transitions),
           getAddresses(transitions),
-          getBuffers(transitions),
+          getBufferAccesses(transitions),
           getSegments(transitions),
           getVariables(transitions),
           getEvents(transitions),
@@ -299,10 +300,10 @@ public final class MemoryAccessPath {
   private final Collection<MmuTransition> transitions;
   private final Collection<MmuAction> actions;
   private final Collection<MmuAddressInstance> addresses;
-  private final Collection<MmuBuffer> buffers;
+  private final Collection<MmuBufferAccess> bufferAccesses;
   private final Collection<MmuSegment> segments;
   private final Collection<IntegerVariable> variables;
-  private final Map<MmuBuffer, BufferAccessEvent> events;
+  private final Map<MmuBufferAccess, BufferAccessEvent> events;
   private final Map<RegionSettings, Collection<MmuSegment>> regions;
 
   private final MmuTransition firstTransition;
@@ -314,16 +315,16 @@ public final class MemoryAccessPath {
       final Collection<MmuTransition> transitions,
       final Collection<MmuAction> actions,
       final Collection<MmuAddressInstance> addresses,
-      final Collection<MmuBuffer> buffers,
+      final Collection<MmuBufferAccess> bufferAccesses,
       final Collection<MmuSegment> segments,
       final Collection<IntegerVariable> variables,
-      final Map<MmuBuffer, BufferAccessEvent> events,
+      final Map<MmuBufferAccess, BufferAccessEvent> events,
       final Map<RegionSettings, Collection<MmuSegment>> regions) {
     InvariantChecks.checkNotNull(transitions);
     InvariantChecks.checkNotEmpty(transitions);
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(addresses);
-    InvariantChecks.checkNotNull(buffers);
+    InvariantChecks.checkNotNull(bufferAccesses);
     InvariantChecks.checkNotNull(segments);
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(events);
@@ -332,7 +333,7 @@ public final class MemoryAccessPath {
     this.transitions = Collections.unmodifiableCollection(transitions);
     this.actions = Collections.unmodifiableCollection(actions);
     this.addresses = Collections.unmodifiableCollection(addresses);
-    this.buffers = Collections.unmodifiableCollection(buffers);
+    this.bufferAccesses = Collections.unmodifiableCollection(bufferAccesses);
     this.segments = Collections.unmodifiableCollection(segments);
     this.variables = Collections.unmodifiableCollection(variables);
     this.events = Collections.unmodifiableMap(events);
@@ -370,7 +371,18 @@ public final class MemoryAccessPath {
     return addresses;
   }
 
+  public Collection<MmuBufferAccess> getBufferAccesses() {
+    return bufferAccesses;
+  }
+
+  // TODO:
   public Collection<MmuBuffer> getBuffers() {
+    final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
+
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+      buffers.add(bufferAccess.getBuffer());
+    }
+
     return buffers;
   }
 
@@ -401,9 +413,15 @@ public final class MemoryAccessPath {
     return addresses.contains(address);
   }
 
+  public boolean contains(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    return bufferAccesses.contains(bufferAccess);
+  }
+
+  // TODO:
   public boolean contains(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
-    return buffers.contains(buffer);
+    return getBuffers().contains(buffer);
   }
 
   public boolean contains(final IntegerVariable variable) {
@@ -442,9 +460,10 @@ public final class MemoryAccessPath {
       }
 
       final MmuAction action = transition.getSource();
+      final MmuBufferAccess bufferAccess = action.getBufferAccess();
 
-      if (action.getBuffer() != null && (guard == null || guard.getBuffer() == null)) {
-        builder.append(action.getBuffer());
+      if (bufferAccess != null && (guard == null || guard.getBufferAccess() == null)) {
+        builder.append(bufferAccess);
         builder.append(separator);
       }
     }

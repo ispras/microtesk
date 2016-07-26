@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -43,10 +43,10 @@ public final class ClassifierEventBased implements Classifier<MemoryAccessPath> 
    * @param path the memory access path.
    * @return the buffers and events.
    */
-  public static Map<MmuBuffer, BufferAccessEvent> getBuffersAndEvents(final MemoryAccessPath path) {
+  public static Map<MmuBufferAccess, BufferAccessEvent> getBuffersAndEvents(final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(path);
 
-    final Map<MmuBuffer, BufferAccessEvent> result = new LinkedHashMap<>();
+    final Map<MmuBufferAccess, BufferAccessEvent> result = new LinkedHashMap<>();
 
     for (final MmuTransition transition : path.getTransitions()) {
       final MmuGuard guard = transition.getGuard();
@@ -54,17 +54,17 @@ public final class ClassifierEventBased implements Classifier<MemoryAccessPath> 
         continue;
       }
 
-      final MmuBuffer buffer = guard.getBuffer();
-      if (buffer == null) {
+      final MmuBufferAccess bufferAccess = guard.getBufferAccess();
+      if (bufferAccess == null) {
         continue;
       }
 
       final BufferAccessEvent event = guard.getEvent();
       InvariantChecks.checkNotNull(event);
 
-      final BufferAccessEvent oldEvent = result.put(buffer, event);
+      final BufferAccessEvent oldEvent = result.put(bufferAccess, event);
       InvariantChecks.checkTrue(oldEvent == null || event.equals(oldEvent),
-          String.format("Usage of the same buffer %s with different events", buffer.getName()));
+          String.format("Usage of the same buffer %s with different events", bufferAccess));
     }
 
     return result;
@@ -76,15 +76,15 @@ public final class ClassifierEventBased implements Classifier<MemoryAccessPath> 
    * @param paths the memory access paths,
    * @return the classes of memory access pairs.
    */
-  public static Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>>
+  public static Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>>
     getBuffersAndEvents(final Collection<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);
 
-    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> result =
+    final Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>> result =
         new LinkedHashMap<>();
 
     for (final MemoryAccessPath path : paths) {
-      final Map<MmuBuffer, BufferAccessEvent> buffersAndEvents = getBuffersAndEvents(path);
+      final Map<MmuBufferAccess, BufferAccessEvent> buffersAndEvents = getBuffersAndEvents(path);
 
       Set<MemoryAccessPath> group = result.get(buffersAndEvents);
       if (group == null) {

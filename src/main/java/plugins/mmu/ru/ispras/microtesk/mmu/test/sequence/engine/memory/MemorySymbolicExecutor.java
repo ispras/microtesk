@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -285,9 +285,9 @@ public final class MemorySymbolicExecutor {
   private void execute(final MmuGuard guard, final int pathIndex) {
     InvariantChecks.checkNotNull(guard);
 
-    final MmuBuffer buffer = guard.getBuffer();
-    if (buffer != null) {
-      execute(buffer, pathIndex);
+    final MmuBufferAccess bufferAccess = guard.getBufferAccess();
+    if (bufferAccess != null) {
+      execute(bufferAccess, pathIndex);
     }
 
     final MmuCondition condition = guard.getCondition();
@@ -305,9 +305,10 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  private void execute(final MmuBuffer buffer, final int pathIndex) {
-    InvariantChecks.checkNotNull(buffer);
-    execute(buffer.getMatchBindings(), pathIndex);
+  private void execute(final MmuBufferAccess bufferAccess, final int pathIndex) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    // TODO: bufferAccess.getMatchBindings() - new variables.
+    execute(bufferAccess.getBuffer().getMatchBindings(), pathIndex);
   }
 
   private void execute(final MmuCondition condition, final int pathIndex) {

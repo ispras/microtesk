@@ -31,18 +31,21 @@ public final class MmuAction {
   /** Unique name. */
   private final String name;
   /** Buffer used in the action or {@code null}. */
-  private final MmuBuffer buffer;
+  private final MmuBufferAccess bufferAccess;
   /** Assignments performed by the action. */
   private final Map<IntegerField, MmuBinding> action = new HashMap<>();
   /** Marks associated with the action. */
   private final Set<String> marks = new LinkedHashSet<>();
 
-  public MmuAction(final String name, final MmuBuffer buffer, final MmuBinding... assignments) {
+  public MmuAction(
+      final String name,
+      final MmuBufferAccess bufferAccess,
+      final MmuBinding... assignments) {
     InvariantChecks.checkNotNull(name);
     // The buffer is allowed to be null.
 
     this.name = name;
-    this.buffer = buffer;
+    this.bufferAccess = bufferAccess;
 
     for (final MmuBinding assignment : assignments) {
       action.put(assignment.getLhs(), assignment);
@@ -53,26 +56,17 @@ public final class MmuAction {
     this(name, null, assignments);
   }
 
-  public MmuAction(final String name, final MmuStruct lhs, final MmuStruct rhs) {
+  public MmuAction(final String name,
+      final MmuBufferAccess bufferAccess,
+      final MmuStruct lhs,
+      final MmuStruct rhs) {
     InvariantChecks.checkNotNull(name);
+    // The buffer access is allowed to be null.
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
     this.name = name;
-
-    if (null != lhs.getBuffer() && null != rhs.getBuffer()) {
-      InvariantChecks.checkTrue(
-          lhs.getBuffer() == rhs.getBuffer(),
-          "Devices at both sides of assignment"
-          );
-      this.buffer = lhs.getBuffer();
-    } else if (null != lhs.getBuffer()) {
-      this.buffer = lhs.getBuffer();
-    } else if (null != rhs.getBuffer()) {
-      this.buffer = rhs.getBuffer();
-    } else {
-      this.buffer = null;
-    }
+    this.bufferAccess = bufferAccess;
 
     for (final MmuBinding assignment : lhs.bindings(rhs)) {
       action.put(assignment.getLhs(), assignment);
@@ -83,8 +77,8 @@ public final class MmuAction {
     return name;
   }
 
-  public MmuBuffer getBuffer() {
-    return buffer;
+  public MmuBufferAccess getBufferAccess() {
+    return bufferAccess;
   }
 
   public Map<IntegerField, MmuBinding> getAction() {

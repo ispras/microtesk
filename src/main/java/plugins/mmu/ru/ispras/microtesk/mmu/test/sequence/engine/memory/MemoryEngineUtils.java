@@ -33,7 +33,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
@@ -99,9 +99,9 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(paths);
 
-    final Map<MmuBuffer, BufferAccessEvent> pathSkeleton =
+    final Map<MmuBufferAccess, BufferAccessEvent> pathSkeleton =
         ClassifierEventBased.getBuffersAndEvents(path);
-    final Map<Map<MmuBuffer, BufferAccessEvent>, Set<MemoryAccessPath>> pathClasses =
+    final Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>> pathClasses =
         ClassifierEventBased.getBuffersAndEvents(paths);
 
     return pathClasses.get(pathSkeleton);
