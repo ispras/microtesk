@@ -20,7 +20,6 @@
                     conf="build->default">
           <artifact name="jruby" type="jar" url="http://s3.amazonaws.com/jruby.org/downloads/1.7.25/jruby-complete-1.7.25.jar"/>
         </dependency>
-
         <dependency org="junit"
                     name="junit"
                     rev="4.11"
