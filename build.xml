@@ -325,7 +325,7 @@
   <target name="copy.jars">
     <copy file="${jars.path}/${antlr.jar}"    todir="${dist.jars}"/>
     <copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
-    <copy file="${jars.path}/${jruby.jar}"    todir="${dist.jars}"/>
+    <copy file="${tools.dir}/${jruby.jar}"    todir="${dist.jars}"/>
     <copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
     <copy file="${jars.path}/${testbase.jar}" todir="${dist.jars}"/>
     <copy file="${jars.path}/${jsoftfloat.jar}" todir="${dist.jars}"/>
