@@ -150,7 +150,18 @@ final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
+    executeCalls(addressMap, exceptionHandlerAddresses, calls, startIndex, endIndex);
+    context.getStatistics().popActivity();
 
+    return sequenceCode;
+  }
+
+  private void executeCalls(
+      final Map<Long, Integer> addressMap,
+      final Map<String, Long> exceptionHandlerAddresses,
+      final List<ConcreteCall> calls,
+      final int startIndex,
+      final int endIndex) throws ConfigurationException {
     List<LabelReference> labelRefs = null;
     int labelRefsIndex = 0;
     int index = startIndex;
@@ -294,9 +305,6 @@ final class Executor {
         }
       }
     }
-
-    context.getStatistics().popActivity();
-    return sequenceCode;
   }
 
   private static int getNextCallIndex(
