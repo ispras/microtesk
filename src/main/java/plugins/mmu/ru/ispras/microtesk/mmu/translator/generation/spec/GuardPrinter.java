@@ -154,7 +154,9 @@ final class GuardPrinter {
       final Pair<String, String> bufferEvent = extractBufferEventInfo(buffers.get(0));
 
       return String.format(
-          "new MmuGuard(%s.get(), %s)", bufferEvent.first, bufferEvent.second);
+          "new MmuGuard(%s, %s)",
+          ControlFlowBuilder.defaultBufferAccess(bufferEvent.first),
+          bufferEvent.second);
     }
 
     throw new UnsupportedOperationException(

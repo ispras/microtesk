@@ -65,6 +65,9 @@ final class ControlFlowBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
+  public static final Class<?> BUFFER_ACCESS_CLASS =
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess.class;
+
   public static final Class<?> COND_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition.class;
 
@@ -128,6 +131,7 @@ final class ControlFlowBuilder {
     st.add("imps", BUFFER_EVENT_CLASS.getName());
     st.add("imps", ACTION_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
+    st.add("imps", BUFFER_ACCESS_CLASS.getName());
     st.add("imps", COND_CLASS.getName());
     st.add("imps", COND_ATOM_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
@@ -323,11 +327,22 @@ final class ControlFlowBuilder {
 
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
+    final String access = selectBufferAccess(lhs, rhs);
 
-    buildAction(target, targetBindings);
+    buildAction(target, filterEmpty(access, targetBindings));
     buildTransition(rule.getState(), target);
 
     return target;
+  }
+
+  private static String[] filterEmpty(final String... strings) {
+    final List<String> list = new ArrayList<>(strings.length);
+    for (final String s : strings) {
+      if (s != null && !s.isEmpty()) {
+        list.add(s);
+      }
+    }
+    return list.toArray(new String[list.size()]);
   }
 
   private String buildStmtAssert(final String source, final StmtAssert stmt) {
@@ -538,6 +553,23 @@ final class ControlFlowBuilder {
     return memory.getDataArg().equals(expr.getUserData());
   }
 
+  private String selectBufferAccess(final Atom... atoms) {
+    for (final Atom atom : atoms) {
+      if (atom.getKind().isStruct()) {
+        final String name = ((Variable) atom.getObject()).getName();
+        if (isBufferAccess(name)) {
+          return defaultBufferAccess(name);
+        }
+      }
+    }
+    return null;
+  }
+
+  static String defaultBufferAccess(final String name) {
+    return String.format("new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get(), 0)",
+      name, name, name);
+  }
+
   private boolean isBufferAccess(final String variableName) {
     return ir.getBuffers().containsKey(variableName);
   }
@@ -728,7 +760,7 @@ final class ControlFlowBuilder {
       }
 
       if (isBufferAccess(left.getName())) {
-        return String.format("%s /* no bindings for write */", toString(lhs));
+        return "";
       }
 
       return String.format("%s, %s", toString(lhs), toString(rhs));
@@ -740,8 +772,7 @@ final class ControlFlowBuilder {
       InvariantChecks.checkFalse(leftField.isStruct());
 
       final Atom lhsField = AtomExtractor.extract(leftField.getNode());
-      return String.format("%snew MmuBinding(%s, %s)",
-          isBufferAccess(left.getName()) ? toString(lhs) + ", " : "",
+      return String.format("new MmuBinding(%s, %s)",
           toString(lhsField),
           toString(rhs)
           );
@@ -754,8 +785,7 @@ final class ControlFlowBuilder {
 
       final Atom rhsField = AtomExtractor.extract(rightField.getNode());
       return String.format(
-          "%snew MmuBinding(%s, %s)",
-          isBufferAccess(right.getName()) ? toString(rhs) + ", " : "",
+          "new MmuBinding(%s, %s)",
           toString(lhs),
           toString(rhsField)
           );
