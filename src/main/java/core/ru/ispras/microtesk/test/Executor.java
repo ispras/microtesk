@@ -146,16 +146,15 @@ final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-    executeCalls(addressMap, exceptionHandlerAddresses, calls, startIndex, endIndex);
+    executeCalls(new ExecutorCode(calls, addressMap), exceptionHandlerAddresses, startIndex, endIndex);
     context.getStatistics().popActivity();
 
     return sequenceCode;
   }
 
   private void executeCalls(
-      final Map<Long, Integer> addressMap,
+      final ExecutorCode code,
       final Map<String, Long> exceptionHandlerAddresses,
-      final List<ConcreteCall> calls,
       final int startIndex,
       final int endIndex) throws ConfigurationException {
     List<LabelReference> labelRefs = null;
@@ -170,11 +169,11 @@ final class Executor {
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
 
-    while (index >= 0 && index < calls.size() ||
+    while (code.isInBounds(index) ||
            null != invalidCall && invalidCall.getExecutionCount() == 0) {
 
       final ConcreteCall call =
-          index >= 0 && index < calls.size() ? calls.get(index) : invalidCall;
+          code.isInBounds(index) ? code.getCall(index) : invalidCall;
 
       if (call != invalidCall) {
         final long address = call.getAddress();
@@ -243,7 +242,7 @@ final class Executor {
         if (!isJump) {
           // If there are no transfers, continue to the next instruction if there is such.
           if (index == endIndex) break;
-          index = getNextCallIndex(index, calls, null != invalidCall); 
+          index = getNextCallIndex(code, index, null != invalidCall); 
           continue;
         }
 
@@ -256,7 +255,7 @@ final class Executor {
 
           if (null != target) {
             index = target.getPosition();
-            final long nextAddress = calls.get(index).getAddress();
+            final long nextAddress = code.getCallAddress(index);
             logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
             continue;
           }
@@ -269,9 +268,9 @@ final class Executor {
 
         // If no label references are found within the delay slot we try to use PC to jump
         final long nextAddress = getPC().getValue().longValue();
-        if (addressMap.containsKey(nextAddress)) {
+        if (code.hasAddress(nextAddress)) {
           logText(String.format("Jump to address: 0x%x", nextAddress));
-          final int nextIndex = addressMap.get(nextAddress);
+          final int nextIndex = code.getCallIndex(nextAddress);
           index = nextIndex;
         } else if (null != invalidCall) {
           index = -1;
@@ -287,7 +286,7 @@ final class Executor {
 
         if (exceptionHandlerAddresses.containsKey(exception)) {
           final long handlerAddress = exceptionHandlerAddresses.get(exception);
-          final int handlerIndex = addressMap.get(handlerAddress);
+          final int handlerIndex = code.getCallIndex(handlerAddress);
 
           logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
           index = handlerIndex;
@@ -297,24 +296,24 @@ final class Executor {
         } else {
           Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
           if (index == endIndex) break;
-          index = getNextCallIndex(index, calls, null != invalidCall);
+          index = getNextCallIndex(code, index, null != invalidCall);
         }
       }
     }
   }
 
   private static int getNextCallIndex(
+      final ExecutorCode code,
       final int currentIndex,
-      final List<ConcreteCall> calls,
       final boolean isInvalidCallHandled) {
+    InvariantChecks.checkNotNull(code);
     InvariantChecks.checkGreaterOrEqZero(currentIndex);
-    InvariantChecks.checkNotNull(calls);
 
-    final ConcreteCall currentCall = calls.get(currentIndex);
+    final ConcreteCall currentCall = code.getCall(currentIndex);
     final long nextAddress = currentCall.getAddress() + currentCall.getByteSize();
 
     final int nextIndex = currentIndex + 1;
-    final ConcreteCall nextCall = calls.get(nextIndex);
+    final ConcreteCall nextCall = code.getCall(nextIndex);
 
     if (nextCall.getAddress() == nextAddress) {
       return nextIndex;
