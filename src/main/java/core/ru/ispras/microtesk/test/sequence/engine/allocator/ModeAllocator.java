@@ -271,6 +271,11 @@ public final class ModeAllocator {
       if (arg.getValue() instanceof BigInteger) {
         final BigInteger value = (BigInteger) arg.getValue();
         allocationTable.free(value.intValue());
+      } if (arg.getValue() instanceof UnknownImmediateValue) {
+        final UnknownImmediateValue value = (UnknownImmediateValue) arg.getValue();
+        if (value.isValueSet()) {
+          allocationTable.free(value.getValue().intValue());
+        }
       } else if (arg.getValue() instanceof Value) {
         final BigInteger value = ((Value) arg.getValue()).getValue();
         allocationTable.free(value.intValue());
