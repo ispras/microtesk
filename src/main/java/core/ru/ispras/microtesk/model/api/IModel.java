@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,14 +23,12 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface IModel {
   /**
    * Returns the name of the modeled microprocessor design.
    * 
    * @return name Microprocessor design name.
    */
-
   String getName();
 
   /**
@@ -38,14 +36,12 @@ public interface IModel {
    * 
    * @return An meta data object (provides access to model's meta data).
    */
-
   MetaModel getMetaData();
 
   /**
    * Returns a model state monitor object that allows getting information on the current state of
    * the microprocessor mode (current register values, value in memory locations, etc)
    */
-
   ModelStateObserver getStateObserver();
 
   /**
@@ -54,6 +50,5 @@ public interface IModel {
    * 
    * @return Call factory.
    */
-
   CallFactory getCallFactory();
 }
