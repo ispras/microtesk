@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,12 +20,15 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 
 final class RegisterFile extends Memory {
   private final List<Location> locations;
+  private final List<RegisterAtom> atoms;
+
   private List<Location> tempLocations;
 
   protected RegisterFile(
@@ -37,23 +40,30 @@ final class RegisterFile extends Memory {
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterOrEq(BigInteger.valueOf(Integer.MAX_VALUE), length);
 
-    final int count = length.intValue();
-    this.locations = newLocations(type, count);
+    final Pair<List<Location>, List<RegisterAtom>> registers =
+        newRegisters(type, length.intValue());
+
+    this.locations = registers.first;
+    this.atoms = registers.second;
 
     this.tempLocations = null;
   }
 
-  private static List<Location> newLocations(final Type type, final int count) {
+  private static Pair<List<Location>, List<RegisterAtom>>
+      newRegisters(final Type type, final int count) {
+    final List<RegisterAtom> atoms = new ArrayList<>(count);
     final List<Location> locations = new ArrayList<>(count);
-    final int bitSize = type.getBitSize();
 
+    final int bitSize = type.getBitSize();
     for(int index = 0; index < count; ++index) {
-      final Location.Atom atom = new RegisterAtom(bitSize);
+      final RegisterAtom atom = new RegisterAtom(bitSize);
+      atoms.add(atom);
+
       final Location location = Location.newLocationForAtom(type, atom);
       locations.add(location);
     }
 
-    return locations;
+    return new Pair<>(locations, atoms);
   }
 
   @Override
@@ -82,7 +92,9 @@ final class RegisterFile extends Memory {
 
   @Override
   public void reset() {
-    // Do nothing. Registers are not reset.
+    for (final RegisterAtom atom : atoms) {
+      atom.reset();
+    }
   }
 
   @Override
@@ -93,7 +105,7 @@ final class RegisterFile extends Memory {
     }
 
     if (value) {
-      tempLocations = newLocations(getType(), getLength().intValue());
+      tempLocations = newRegisters(getType(), getLength().intValue()).first;
     } else {
       tempLocations = null;
     }
@@ -175,6 +187,11 @@ final class RegisterFile extends Memory {
 
       BitVector.newMapping(value, startBitPos, bitSize).assign(data);
       BitVector.newMapping(flags, startBitPos, bitSize).setAll();
+    }
+
+    public void reset() {
+      BitVector.newMapping(value, startBitPos, bitSize).reset();
+      BitVector.newMapping(flags, startBitPos, bitSize).reset();
     }
   }
 }
