@@ -120,8 +120,6 @@ final class Executor {
       return Collections.emptyList();
     }
 
-    context.getModel().getStateObserver().setUseTempState(false);
-
     final LabelManager labelManager =
         new LabelManager(context.getDataManager().getGlobalLabels());
 

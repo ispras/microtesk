@@ -118,9 +118,7 @@ public final class DataManager {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
-    Memory.setUseTempCopies(false);
     dataBuilder = new DataSectionBuilder(blockId, factory, isGlobal, isSeparateFile);
-
     return dataBuilder; 
   }
 
@@ -262,7 +260,6 @@ public final class DataManager {
     InvariantChecks.checkNotNull(method);
 
     checkInitialized();
-    Memory.setUseTempCopies(false);
 
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(), factory, true, isSeparateFile);
@@ -303,7 +300,6 @@ public final class DataManager {
     InvariantChecks.checkNotNull(method);
 
     checkInitialized();
-    Memory.setUseTempCopies(false);
 
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(), factory, true, isSeparateFile);
