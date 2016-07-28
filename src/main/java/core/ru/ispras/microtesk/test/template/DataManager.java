@@ -40,9 +40,9 @@ public final class DataManager {
   private final Printer printer;
   private final Statistics statistics;
 
-  private final LabelManager globalLabels;
   private final List<DataDirective> globalData;
   private final List<Pair<List<DataDirective>, Integer>> localData;
+  private LabelManager labelManager;
 
   private BigInteger baseVirtualAddress;
   private MemoryAllocator allocator;
@@ -60,7 +60,6 @@ public final class DataManager {
     this.printer = printer;
     this.statistics = statistics;
 
-    this.globalLabels = new LabelManager();
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
 
@@ -73,6 +72,10 @@ public final class DataManager {
 
     this.factoryBuilder = null;
     this.dataBuilder = null;
+  }
+
+  public void setLabelManager(final LabelManager labelManager) {
+    this.labelManager = labelManager;
   }
 
   public DataDirectiveFactory.Builder beginConfig(
@@ -131,7 +134,8 @@ public final class DataManager {
     return data;
   }
 
-  public void processData(final DataSection data) {
+  public void processData(final LabelManager globalLabels, final DataSection data) {
+    InvariantChecks.checkNotNull(globalLabels);
     InvariantChecks.checkNotNull(data);
 
     for (final DataDirective directive : data.getDirectives()) {
@@ -164,10 +168,6 @@ public final class DataManager {
 
   public boolean containsDecls() {
     return !globalData.isEmpty() || !localData.isEmpty();
-  }
-
-  public LabelManager getGlobalLabels() {
-    return globalLabels;
   }
 
   public void printData(final Printer printer) {
@@ -282,7 +282,7 @@ public final class DataManager {
         dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
       }
 
-      processData(dataBuilder.build());
+      processData(labelManager, dataBuilder.build());
     } finally {
       allocator.setCurrentAddress(oldAddress);
     }
@@ -341,7 +341,7 @@ public final class DataManager {
         nextAddress = allocator.getCurrentAddress();
       }
 
-      processData(dataBuilder.build());
+      processData(labelManager, dataBuilder.build());
     } finally {
       allocator.setCurrentAddress(oldAddress);
     }

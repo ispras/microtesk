@@ -152,7 +152,7 @@ public final class Template {
 
   public BigInteger getAddressForLabel(final String label) {
     final LabelManager.Target target =
-        dataManager.getGlobalLabels().resolve(new Label(label, getCurrentBlockId()));
+        context.getLabelManager().resolve(new Label(label, getCurrentBlockId()));
 
     if (null == target) {
       throw new GenerationAbortedException(
@@ -680,7 +680,7 @@ public final class Template {
     }
 
     streamPreparatorBuilder = new StreamPreparatorBuilder(
-        dataManager.getGlobalLabels(), dataMode, indexMode);
+        context.getLabelManager(), dataMode, indexMode);
 
     return streamPreparatorBuilder;
   }
@@ -959,7 +959,7 @@ public final class Template {
 
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
-      dataManager.processData(data);
+      dataManager.processData(context.getLabelManager(), data);
       context.setAddress(dataManager.getAddress().longValue());
     } else {
       endBuildingCall();
@@ -1043,7 +1043,7 @@ public final class Template {
   public MemoryObjectBuilder newMemoryObjectBuilder(final int size) {
     return new MemoryObjectBuilder(
         size,
-        dataManager.getGlobalLabels(),
+        context.getLabelManager(),
         context.getSettings()
         );
   }

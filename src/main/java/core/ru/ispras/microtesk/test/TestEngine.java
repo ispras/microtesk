@@ -51,14 +51,11 @@ import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
-import ru.ispras.microtesk.test.template.PreparatorStore;
-import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -189,20 +186,18 @@ public final class TestEngine {
     final EngineContext context = new EngineContext(
         model,
         dataManager,
-        new PreparatorStore(),
-        new BufferPreparatorStore(),
-        new StreamStore(),
         settings,
         statistics,
         TestSettings.isDefaultTestData()
         );
+
+    dataManager.setLabelManager(context.getLabelManager());
 
     if (TestSettings.isTarmacLog()) {
       Tarmac.initialize(TestSettings.getOutDir(), TestSettings.getCodeFilePrefix());
     }
 
     final TemplateProcessor processor = new TemplateProcessor(context, printer);
-
     return new Template(context, processor);
   }
 

@@ -164,7 +164,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
 
     final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-    registerCall(concreteCall, context.getDataManager().getGlobalLabels());
+    registerCall(concreteCall, context.getLabelManager());
   }
 
   private void processSituations(
@@ -192,7 +192,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     for (final Call abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-      registerPrologueCall(concreteCall, context.getDataManager().getGlobalLabels());
+      registerPrologueCall(concreteCall, context.getLabelManager());
     }
   }
 }

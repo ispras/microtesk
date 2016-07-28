@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
  */
 public final class EngineContext {
   private final IModel model;
+  private final LabelManager labelManager;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
@@ -59,26 +61,20 @@ public final class EngineContext {
   public EngineContext(
       final IModel model,
       final DataManager dataManager,
-      final PreparatorStore preparators,
-      final BufferPreparatorStore bufferPreparators,
-      final StreamStore streams,
       final GeneratorSettings settings,
       final Statistics statistics,
       final boolean generateDefaultData) {
-
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(dataManager);
-    InvariantChecks.checkNotNull(preparators);
-    InvariantChecks.checkNotNull(bufferPreparators);
-    InvariantChecks.checkNotNull(streams);
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
     InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
+    this.labelManager = new LabelManager();
     this.dataManager = dataManager;
-    this.preparators = preparators;
-    this.bufferPreparators = bufferPreparators;
-    this.streams = streams;
+    this.preparators = new PreparatorStore();
+    this.bufferPreparators = new BufferPreparatorStore();
+    this.streams = new StreamStore();
     this.settings = settings;
 
     this.testBase = newTestBase(settings);
@@ -93,6 +89,10 @@ public final class EngineContext {
 
   public IModel getModel() {
     return model;
+  }
+
+  public LabelManager getLabelManager() {
+    return labelManager;
   }
 
   public DataManager getDataManager() {

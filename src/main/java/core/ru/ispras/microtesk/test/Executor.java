@@ -120,8 +120,7 @@ final class Executor {
       return Collections.emptyList();
     }
 
-    final LabelManager labelManager =
-        new LabelManager(context.getDataManager().getGlobalLabels());
+    final LabelManager labelManager = new LabelManager(context.getLabelManager());
 
     final List<ConcreteCall> sequenceCode =
         expandDataSections(sequence.getAll(), labelManager, sequenceIndex);
@@ -355,7 +354,7 @@ final class Executor {
     for (final ConcreteCall call : calls) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
-        context.getDataManager().processData(data);
+        context.getDataManager().processData(labelManager, data);
 
         for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
           final Label label = labelInfo.first;
