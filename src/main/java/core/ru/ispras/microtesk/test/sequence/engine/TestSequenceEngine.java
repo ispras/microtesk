@@ -92,7 +92,6 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     allocateModes(sequence);
     sequence = expandPreparators(context, sequence);
 
-
     final EngineResult<?> result = engine.solve(context, sequence);
     if (result.getStatus() != EngineResult.Status.OK) {
       return new EngineResult<>(result.getStatus(), null, result.getErrors());
