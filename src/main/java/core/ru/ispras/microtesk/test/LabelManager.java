@@ -349,6 +349,10 @@ public final class LabelManager {
         );
   }
 
+  public void reset() {
+    table.clear();
+  }
+
   @Override
   public String toString() {
     return String.format("LabelManager [table=%s]", table);
