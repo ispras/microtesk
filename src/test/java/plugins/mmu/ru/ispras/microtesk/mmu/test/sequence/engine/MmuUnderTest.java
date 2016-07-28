@@ -30,6 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -300,8 +301,10 @@ public final class MmuUnderTest {
       new MmuBinding(pa, MmuExpression.var(va, 0, 28)));
   public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
       new MmuBinding(pa, MmuExpression.var(va, 0, 35)));
-  public final MmuAction startDtlb = new MmuAction("START_DTLB", dtlb);
-  public final MmuAction hitDtlb = new MmuAction("HIT_DTLB", dtlb,
+  public final MmuAction startDtlb = new MmuAction("START_DTLB", defaultAccess(dtlb));
+  public final MmuAction hitDtlb = new MmuAction(
+      "HIT_DTLB",
+      defaultAccess(dtlb),
       new MmuBinding(v0),
       new MmuBinding(d0),
       new MmuBinding(c0),
@@ -310,8 +313,10 @@ public final class MmuUnderTest {
       new MmuBinding(d1),
       new MmuBinding(c1),
       new MmuBinding(pfn1));
-  public final MmuAction startJtlb = new MmuAction("START_JTLB", jtlb);
-  public final MmuAction hitJtlb = new MmuAction("HIT_JTLB", jtlb,
+  public final MmuAction startJtlb = new MmuAction("START_JTLB", defaultAccess(jtlb));
+  public final MmuAction hitJtlb = new MmuAction(
+      "HIT_JTLB",
+      defaultAccess(jtlb),
       new MmuBinding(v0),
       new MmuBinding(d0),
       new MmuBinding(c0),
@@ -344,14 +349,20 @@ public final class MmuUnderTest {
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(c, MmuExpression.var(va, 59, 61)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
-  public final MmuAction startL1 = new MmuAction("START_L1", l1);
-  public final MmuAction hitL1 = new MmuAction("HIT_L1", l1,
+  public final MmuAction startL1 = new MmuAction("START_L1", defaultAccess(l1));
+  public final MmuAction hitL1 = new MmuAction(
+      "HIT_L1",
+      defaultAccess(l1),
       new MmuBinding(data));
   public final MmuAction checkL2 = new MmuAction("CHECK_L2");
-  public final MmuAction startL2 = new MmuAction("START_L2", l2);
-  public final MmuAction hitL2 = new MmuAction("HIT_L2", l2,
+  public final MmuAction startL2 = new MmuAction("START_L2", defaultAccess(l2));
+  public final MmuAction hitL2 = new MmuAction(
+      "HIT_L2",
+      defaultAccess(l2),
       new MmuBinding(data));
-  public final MmuAction startMem = new MmuAction("START_MEM", mem,
+  public final MmuAction startMem = new MmuAction(
+      "START_MEM",
+      defaultAccess(mem),
       new MmuBinding(data));
   public final MmuAction tlbRefill = new MmuAction("TLB_REFILL");
   public final MmuAction tlbInvalid = new MmuAction("TLB_INVALID");
@@ -375,14 +386,14 @@ public final class MmuUnderTest {
   public final MmuTransition afterUpaKseg = new MmuTransition(getUpaKseg, checkSegment);
   public final MmuTransition afterUpaXkphys = new MmuTransition(getUpaXkphys, checkSegment);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
-      new MmuGuard(dtlb, BufferAccessEvent.MISS));
+      new MmuGuard(defaultAccess(dtlb), BufferAccessEvent.MISS));
   public final MmuTransition ifDtlbHit = new MmuTransition(startDtlb, hitDtlb,
-      new MmuGuard(dtlb, BufferAccessEvent.HIT));
+      new MmuGuard(defaultAccess(dtlb), BufferAccessEvent.HIT));
   public final MmuTransition afterDtlb = new MmuTransition(hitDtlb, selectVpn);
   public final MmuTransition ifJtlbMiss = new MmuTransition(startJtlb, tlbRefill,
-      new MmuGuard(jtlb, BufferAccessEvent.MISS));
+      new MmuGuard(defaultAccess(jtlb), BufferAccessEvent.MISS));
   public final MmuTransition ifJtlbHit = new MmuTransition(startJtlb, hitJtlb,
-      new MmuGuard(jtlb, BufferAccessEvent.HIT));
+      new MmuGuard(defaultAccess(jtlb), BufferAccessEvent.HIT));
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
       new MmuGuard(MmuCondition.eq(new IntegerField(va, 12), BigInteger.ZERO)));
@@ -428,9 +439,9 @@ public final class MmuUnderTest {
       new MmuGuard(
           MmuCondition.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
-      new MmuGuard(l1, BufferAccessEvent.MISS));
+      new MmuGuard(defaultAccess(l1), BufferAccessEvent.MISS));
   public final MmuTransition ifL1Hit = new MmuTransition(startL1, hitL1,
-      new MmuGuard(l1, BufferAccessEvent.HIT));
+      new MmuGuard(defaultAccess(l1), BufferAccessEvent.HIT));
   public final MmuTransition afterL1 = new MmuTransition(hitL1, stop);
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
@@ -443,9 +454,9 @@ public final class MmuUnderTest {
               MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
               MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
-      new MmuGuard(l2, BufferAccessEvent.MISS));
+      new MmuGuard(defaultAccess(l2), BufferAccessEvent.MISS));
   public final MmuTransition ifL2Hit = new MmuTransition(startL2, hitL2,
-      new MmuGuard(l2, BufferAccessEvent.HIT));
+      new MmuGuard(defaultAccess(l2), BufferAccessEvent.HIT));
   public final MmuTransition afterL2 = new MmuTransition(hitL2, stop);
   public final MmuTransition afterMem = new MmuTransition(startMem, stop);
 
@@ -599,4 +610,8 @@ public final class MmuUnderTest {
   }
 
   private MmuUnderTest() {}
+
+  private static MmuBufferAccess defaultAccess(final MmuBuffer buf) {
+    return new MmuBufferAccess(buf, buf.getAddress(), buf, 0);
+  }
 }
