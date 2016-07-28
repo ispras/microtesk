@@ -30,7 +30,8 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * The {@link TestSequenceEngine} class processes an abstract sequence with the
- * specified solver engine and adapts the results with the specified adapter.
+ * specified solver engine and adapts the results with the specified adapter
+ * to produce a collection of concrete sequences.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
