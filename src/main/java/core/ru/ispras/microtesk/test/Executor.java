@@ -146,7 +146,7 @@ final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-    executeCalls(new ExecutorCode(calls, addressMap), exceptionHandlerAddresses, startIndex, endIndex);
+    executeCalls(new ExecutorCode(calls, addressMap, exceptionHandlerAddresses), startIndex, endIndex);
     context.getStatistics().popActivity();
 
     return sequenceCode;
@@ -154,7 +154,6 @@ final class Executor {
 
   private void executeCalls(
       final ExecutorCode code,
-      final Map<String, Long> exceptionHandlerAddresses,
       final int startIndex,
       final int endIndex) throws ConfigurationException {
     List<LabelReference> labelRefs = null;
@@ -284,8 +283,8 @@ final class Executor {
         // Resets labels to jump (they are no longer needed after being used).
         labelRefs = null;
 
-        if (exceptionHandlerAddresses.containsKey(exception)) {
-          final long handlerAddress = exceptionHandlerAddresses.get(exception);
+        if (code.hasHandler(exception)) {
+          final long handlerAddress = code.getHandlerAddress(exception);
           final int handlerIndex = code.getCallIndex(handlerAddress);
 
           logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));

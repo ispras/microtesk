@@ -26,15 +26,21 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public final class ExecutorCode {
   private final List<ConcreteCall> calls;
   private final Map<Long, Integer> addresses;
+  private final Map<String, Long> handlerAddresses;
 
-  public ExecutorCode(final List<ConcreteCall> calls, final Map<Long, Integer> addresses) {
+  public ExecutorCode(
+      final List<ConcreteCall> calls,
+      final Map<Long, Integer> addresses,
+      final Map<String, Long> handlerAddresses) {
     this.calls = calls;
     this.addresses = addresses;
+    this.handlerAddresses = handlerAddresses;
   }
 
   public ExecutorCode() {
     this.calls = new ArrayList<>();
     this.addresses = new LinkedHashMap<>();
+    this.handlerAddresses = new LinkedHashMap<>();
   }
 
   public boolean isInBounds(final int index) {
@@ -108,5 +114,15 @@ public final class ExecutorCode {
           "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
           call.getText(), index, address, conflictCall.getText(), conflictIndex);
     }
+  }
+
+  public boolean hasHandler(final String id) {
+    return handlerAddresses.containsKey(id);
+  }
+
+  public long getHandlerAddress(final String id) {
+    final Long address = handlerAddresses.get(id);
+    InvariantChecks.checkNotNull(address);
+    return address;
   }
 }
