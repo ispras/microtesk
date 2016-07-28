@@ -170,6 +170,7 @@ public abstract class Memory {
         "setHandler is not supported for " + toString());
   }
 
+  @Deprecated
   public static void setUseTempCopies(final boolean value) {
     for (final Memory memory : INSTANCES.values()) {
       memory.setUseTempCopy(value);

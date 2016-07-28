@@ -20,7 +20,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Call;
@@ -91,8 +90,8 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     allocateModes(sequence);
     sequence = expandPreparators(context, sequence);
 
-    // Sets temporary context.
-    Memory.setUseTempCopies(true);
+    // Sets temporary state.
+    context.getModel().getStateObserver().setUseTempState(true);
 
     final EngineResult<?> result = engine.solve(context, sequence);
     if (result.getStatus() != EngineResult.Status.OK) {
@@ -141,8 +140,8 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         // Makes a copy as the adapter may modify the abstract sequence.
         final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
 
-        // Sets temporary context.
-        Memory.setUseTempCopies(true);
+        // Sets temporary state.
+        engineContext.getModel().getStateObserver().setUseTempState(true);
 
         return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
       }
