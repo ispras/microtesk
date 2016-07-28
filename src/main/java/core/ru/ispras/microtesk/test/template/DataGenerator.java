@@ -25,7 +25,6 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 abstract class DataGenerator {
   private DataGenerator() {}
 
