@@ -27,9 +27,22 @@ public final class ExecutorCode {
   private final List<ConcreteCall> calls;
   private final Map<Long, Integer> addresses;
 
+  public ExecutorCode(final List<ConcreteCall> calls, final Map<Long, Integer> addresses) {
+    this.calls = calls;
+    this.addresses = addresses;
+  }
+
   public ExecutorCode() {
     this.calls = new ArrayList<>();
     this.addresses = new LinkedHashMap<>();
+  }
+
+  public boolean isInBounds(final int index) {
+    return 0 <= index && index < calls.size();
+  }
+
+  public boolean hasAddress(final long address) {
+    return addresses.containsKey(address);
   }
 
   public ConcreteCall getCall(final int index) {
@@ -40,10 +53,6 @@ public final class ExecutorCode {
     final Integer index = addresses.get(address);
     InvariantChecks.checkNotNull(index);
     return index;
-  }
-
-  public boolean hasCallAt(final long address) {
-    return addresses.containsKey(address);
   }
 
   public ConcreteCall getCallAt(final long address) {
@@ -61,7 +70,7 @@ public final class ExecutorCode {
     final int index = calls.size() - 1;
     final long address = call.getAddress();
 
-    if (!hasCallAt(address)) {
+    if (!hasAddress(address)) {
       addresses.put(address, index);
       return;
     }
