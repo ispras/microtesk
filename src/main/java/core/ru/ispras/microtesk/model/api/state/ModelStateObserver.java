@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -58,8 +58,7 @@ public final class ModelStateObserver {
     for (final Memory m : items) {
       final Memory prev = map.put(m.getName(), m);
       if (null != prev) {
-        throw new IllegalStateException(String.format(
-          ALREADY_ADDED_ERR_FRMT, m.getName()));
+        throw new IllegalStateException(String.format(ALREADY_ADDED_ERR_FRMT, m.getName()));
       }
     }
   }
@@ -68,8 +67,7 @@ public final class ModelStateObserver {
     for (final Label l : items) {
       final Label prev = map.put(l.getName(), l);
       if (null != prev) {
-        throw new IllegalStateException(String.format(
-          ALREADY_ADDED_ERR_FRMT, l.getName()));
+        throw new IllegalStateException(String.format(ALREADY_ADDED_ERR_FRMT, l.getName()));
       }
     }
   }
@@ -94,5 +92,17 @@ public final class ModelStateObserver {
 
     final Memory current = memoryMap.get(name);
     return current.access(index);
+  }
+
+  public void resetState() {
+    for (final Memory memory : memoryMap.values()) {
+      memory.reset();
+    }
+  }
+
+  public void setUseTempState(final boolean value) {
+    for (final Memory memory : memoryMap.values()) {
+      memory.setUseTempCopy(value);
+    }
   }
 }
