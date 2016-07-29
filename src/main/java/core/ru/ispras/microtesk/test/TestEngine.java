@@ -328,6 +328,22 @@ public final class TestEngine {
       } // Abstract sequence iterator
     }
 
+    private void processSelfChecks(
+        final List<SelfCheck> selfChecks,
+        final int testCaseIndex) throws ConfigurationException {
+      InvariantChecks.checkNotNull(selfChecks);
+
+      if (!TestSettings.isSelfChecks()) {
+        return;
+      }
+
+      final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
+      Logger.debugHeader("Preparing %s", sequenceId);
+
+      final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
+      processTestSequence(selfCheckSequence, sequenceId, true, testCaseIndex, false);
+    }
+
     private void processTestSequence(
         final TestSequence sequence,
         final String sequenceId,
@@ -349,22 +365,6 @@ public final class TestEngine {
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
       printer.printSubheaderToFile(sequenceId);
       printer.printSequence(sequence);
-    }
-
-    private void processSelfChecks(
-        final List<SelfCheck> selfChecks,
-        final int testCaseIndex) throws ConfigurationException {
-      InvariantChecks.checkNotNull(selfChecks);
-
-      if (!TestSettings.isSelfChecks()) {
-        return;
-      }
-
-      final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
-      Logger.debugHeader("Preparing %s", sequenceId);
-
-      final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-      processTestSequence(selfCheckSequence, sequenceId, true, testCaseIndex, false);
     }
 
     private boolean isFileLengthLimitExceeded() {
