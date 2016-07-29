@@ -73,6 +73,13 @@ public final class ExecutorCode {
     return getCall(index).getAddress();
   }
 
+  public void addCalls(final List<ConcreteCall> calls) {
+    InvariantChecks.checkNotNull(calls);
+    for (final ConcreteCall call : calls) {
+      addCall(call);
+    }
+  }
+
   public void addCall(final ConcreteCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);

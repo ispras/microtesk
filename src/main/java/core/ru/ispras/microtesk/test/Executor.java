@@ -386,10 +386,7 @@ final class Executor {
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
     registerLabels(labelManager, sequence, sequenceIndex);
-
-    for (final ConcreteCall call : sequence) {
-      code.addCall(call);
-    }
+    code.addCalls(sequence);
   }
 
   private static void registerExceptionHandlers(
