@@ -125,8 +125,11 @@ final class Executor {
 
     final ExecutorCode executorCode = new ExecutorCode();
 
-    registerCalls(executorCode, labelManager, externalCode, sequenceIndex);
-    registerCalls(executorCode, labelManager, sequenceCode, sequenceIndex);
+    registerLabels(labelManager, externalCode, sequenceIndex);
+    registerLabels(labelManager, sequenceCode, sequenceIndex);
+
+    executorCode.addCalls(externalCode);
+    executorCode.addCalls(sequenceCode);
 
     final int startIndex = externalCode.size();
     final int endIndex = executorCode.getCallCount() - 1;
@@ -380,15 +383,6 @@ final class Executor {
     }
   }
 
-  private static void registerCalls(
-      final ExecutorCode code,
-      final LabelManager labelManager,
-      final List<ConcreteCall> sequence,
-      final int sequenceIndex) {
-    registerLabels(labelManager, sequence, sequenceIndex);
-    code.addCalls(sequence);
-  }
-
   private static void registerExceptionHandlers(
       final ExecutorCode code,
       final LabelManager labelManager,
@@ -409,7 +403,9 @@ final class Executor {
         }
 
         code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
-        registerCalls(code, labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+
+        registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+        code.addCalls(handlerCalls);
 
         handlerSet.add(handlerCalls);
       }
