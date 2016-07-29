@@ -17,9 +17,7 @@ package ru.ispras.microtesk.test;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,19 +123,17 @@ final class Executor {
     final List<ConcreteCall> sequenceCode =
         expandDataSections(sequence, labelManager, sequenceIndex);
 
-    final Map<Long, Integer> addressMap = new LinkedHashMap<>();
-    final List<ConcreteCall> calls = new ArrayList<>();
+    final ExecutorCode executorCode = new ExecutorCode();
 
-    registerCalls(calls, addressMap, labelManager, externalCode, sequenceIndex);
-    registerCalls(calls, addressMap, labelManager, sequenceCode, sequenceIndex);
+    registerCalls(executorCode, labelManager, externalCode, sequenceIndex);
+    registerCalls(executorCode, labelManager, sequenceCode, sequenceIndex);
 
     final int startIndex = externalCode.size();
-    final int endIndex = calls.size() - 1;
+    final int endIndex = executorCode.getCallCount() - 1;
 
-    final Map<String, Long> exceptionHandlerAddresses = new HashMap<>();
-    registerExceptionHandlers(calls, labelManager, addressMap, exceptionHandlers, exceptionHandlerAddresses);
+    registerExceptionHandlers(executorCode, labelManager, exceptionHandlers);
 
-    patchLabels(sequenceCode, labelManager, addressMap, abortOnUndefinedLabel);
+    patchLabels(sequenceCode, labelManager, executorCode, abortOnUndefinedLabel);
     // TODO: patch labels in exception handler code (need refactoring to have it in separate collection)
 
     if (TestSettings.isSimulationDisabled()) {
@@ -146,7 +142,7 @@ final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-    executeCalls(new ExecutorCode(calls, addressMap, exceptionHandlerAddresses), startIndex, endIndex);
+    executeCalls(executorCode, startIndex, endIndex);
     context.getStatistics().popActivity();
 
     return sequenceCode;
@@ -385,72 +381,21 @@ final class Executor {
   }
 
   private static void registerCalls(
-      final List<ConcreteCall> calls,
-      final Map<Long, Integer> addressMap,
+      final ExecutorCode code,
       final LabelManager labelManager,
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
     registerLabels(labelManager, sequence, sequenceIndex);
 
     for (final ConcreteCall call : sequence) {
-      calls.add(call);
-
-      final int index = calls.size() - 1;
-      registerCallAddress(addressMap, calls, call, index);
-    }
-  }
-
-  private static void registerCallAddress(
-      final Map<Long, Integer> addressMap,
-      final List<ConcreteCall> calls,
-      final ConcreteCall call,
-      final int index) {
-    final long address = call.getAddress();
-    if (!addressMap.containsKey(address)) {
-      addressMap.put(address, index);
-      return;
-    }
-
-    final int conflictIndex = addressMap.get(address);
-    final ConcreteCall conflictCall = calls.get(conflictIndex);
-
-    // Several calls can be mapped to the same address when a pseudo call with
-    // zero size (label, compiler directive, text output etc.) precedes
-    // an executable (non-zero size) call. This is considered normal. When such
-    // a situation is detected, address mapping is not changed in order to allow
-    // jumping on the beginning of calls mapped to the same address.
-
-    boolean isConflictLegal = false;
-
-    // Tests whether all calls mapped to the given address and preceding the current
-    // call (ending with the conflict call) are zero-size. If the condition holds,
-    // this is considered legal.
-    for (int testIndex = index - 1; testIndex >= 0; --testIndex) {
-      final ConcreteCall testCall = calls.get(testIndex);
-
-      if (testCall.getByteSize() > 0 || testCall.getAddress() != address) {
-        break;
-      }
-
-      if (testIndex == conflictIndex) {
-        isConflictLegal = true;
-        break;
-      }
-    }
-
-    if (!isConflictLegal) {
-      Logger.error(
-          "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
-          call.getText(), index, address, conflictCall.getText(), conflictIndex);
+      code.addCall(call);
     }
   }
 
   private static void registerExceptionHandlers(
-      final List<ConcreteCall> calls,
+      final ExecutorCode code,
       final LabelManager labelManager,
-      final Map<Long, Integer> addressMap,
-      final Map<String, List<ConcreteCall>> exceptionHandlers,
-      final Map<String, Long> exceptionHandlerAddresses) {
+      final Map<String, List<ConcreteCall>> exceptionHandlers) {
     if (exceptionHandlers != null) {
       final Set<Object> handlerSet = new HashSet<>();
       for (final Map.Entry<String, List<ConcreteCall>> e : exceptionHandlers.entrySet()) {
@@ -466,8 +411,8 @@ final class Executor {
           continue;
         }
 
-        exceptionHandlerAddresses.put(handlerName, handlerCalls.get(0).getAddress());
-        registerCalls(calls, addressMap, labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+        code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
+        registerCalls(code, labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
 
         handlerSet.add(handlerCalls);
       }
@@ -477,7 +422,7 @@ final class Executor {
   private static void patchLabels(
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
-      final Map<Long, Integer> addressMap,
+      final ExecutorCode code,
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
     for (final ConcreteCall call : calls) {
@@ -496,8 +441,8 @@ final class Executor {
           final long address = target.getAddress();
 
           // For code labels
-          if (addressMap.containsKey(address)) {
-            final int index = addressMap.get(address);
+          if (code.hasAddress(address)) {
+            final int index = code.getCallIndex(address);
             labelRef.setTarget(target.getLabel(), index);
           }
 

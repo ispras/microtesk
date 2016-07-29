@@ -43,6 +43,10 @@ public final class ExecutorCode {
     this.handlerAddresses = new LinkedHashMap<>();
   }
 
+  public int getCallCount() {
+    return calls.size();
+  }
+
   public boolean isInBounds(final int index) {
     return 0 <= index && index < calls.size();
   }
@@ -124,5 +128,11 @@ public final class ExecutorCode {
     final Long address = handlerAddresses.get(id);
     InvariantChecks.checkNotNull(address);
     return address;
+  }
+
+  public void addHanderAddress(final String id, final long address) {
+    InvariantChecks.checkNotNull(id);
+    final Long previous = handlerAddresses.put(id, address);
+    InvariantChecks.checkTrue(null == previous);
   }
 }
