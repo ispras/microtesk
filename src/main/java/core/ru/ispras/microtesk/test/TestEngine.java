@@ -356,7 +356,7 @@ public final class TestEngine {
       Logger.debugHeader("Executing %s", sequenceId);
       final List<ConcreteCall> calls = executor.execute(
           isExternal ? externalCode : Collections.<ConcreteCall>emptyList(),
-          sequence,
+          sequence.getAll(),
           sequenceIndex,
           abortOnUndefinedLabel
           );

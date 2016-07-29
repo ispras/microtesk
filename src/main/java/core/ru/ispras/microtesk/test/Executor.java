@@ -96,13 +96,13 @@ final class Executor {
    */
   public List<ConcreteCall> execute(
       final List<ConcreteCall> externalCode,
-      final TestSequence sequence,
-      final int index,
+      final List<ConcreteCall> sequenceCode,
+      final int sequenceIndex,
       final boolean abortOnUndefinedLabel) {
     try {
       InvariantChecks.checkNotNull(externalCode);
-      InvariantChecks.checkNotNull(sequence);
-      return executeSequence(externalCode, sequence, index, abortOnUndefinedLabel);
+      InvariantChecks.checkNotNull(sequenceCode);
+      return executeSequence(externalCode, sequenceCode, sequenceIndex, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -113,7 +113,7 @@ final class Executor {
 
   private List<ConcreteCall> executeSequence(
       final List<ConcreteCall> externalCode,
-      final TestSequence sequence,
+      final List<ConcreteCall> sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     if (sequence.isEmpty()) {
@@ -123,7 +123,7 @@ final class Executor {
     final LabelManager labelManager = new LabelManager(context.getLabelManager());
 
     final List<ConcreteCall> sequenceCode =
-        expandDataSections(sequence.getAll(), labelManager, sequenceIndex);
+        expandDataSections(sequence, labelManager, sequenceIndex);
 
     final Map<Long, Integer> addressMap = new LinkedHashMap<>();
     final List<ConcreteCall> calls = new ArrayList<>();
@@ -371,20 +371,32 @@ final class Executor {
     return result;
   }
 
+  private static void registerLabels(
+      final LabelManager labelManager,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex) {
+    for (final ConcreteCall call : calls) {
+      labelManager.addAllLabels(
+          call.getLabels(),
+          call.getAddress(),
+          sequenceIndex
+          );
+    }
+  }
+
   private static void registerCalls(
       final List<ConcreteCall> calls,
       final Map<Long, Integer> addressMap,
       final LabelManager labelManager,
       final List<ConcreteCall> sequence,
       final int sequenceIndex) {
+    registerLabels(labelManager, sequence, sequenceIndex);
+
     for (final ConcreteCall call : sequence) {
       calls.add(call);
 
       final int index = calls.size() - 1;
       registerCallAddress(addressMap, calls, call, index);
-
-      final long address = call.getAddress();
-      labelManager.addAllLabels(call.getLabels(), address, sequenceIndex);
     }
   }
 
