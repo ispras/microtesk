@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.EmptyIterator;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.ArrayIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -51,13 +52,23 @@ public final class RearrangerSample<T> implements Rearranger<T> {
 
   @Override
   public void initialize(final Iterator<List<T>> original) {
+    this.sampled = sample(original);
+  }
+
+  private static <T> Iterator<List<T>> sample(final Iterator<List<T>> original) {
     InvariantChecks.checkNotNull(original);
 
     original.init();
-    this.sampled = original.hasValue() ?
-        new ArrayIterator<>(sample(GeneratorUtils.toArrayList(original))) :
-        original
-        ;
+    if (!original.hasValue()) {
+      return EmptyIterator.get();
+    }
+
+    final ArrayList<List<T>> sampled = sample(GeneratorUtils.toArrayList(original));
+    if (sampled.isEmpty()) {
+      return EmptyIterator.get();
+    }
+ 
+    return new ArrayIterator<>(sampled);
   }
 
   private static <T> ArrayList<T> sample(final ArrayList<T> original) {
