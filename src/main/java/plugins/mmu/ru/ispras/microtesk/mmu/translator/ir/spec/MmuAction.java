@@ -73,6 +73,10 @@ public final class MmuAction {
     }
   }
 
+  public MmuAction(final String name, final MmuStruct lhs, final MmuStruct rhs) {
+    this(name, null, lhs, rhs);
+  }
+
   public String getName() {
     return name;
   }
