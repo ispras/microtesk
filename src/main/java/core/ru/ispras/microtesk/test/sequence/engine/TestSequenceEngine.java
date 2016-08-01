@@ -139,7 +139,13 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
         // Makes a copy as the adapter may modify the abstract sequence.
         final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
-        return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
+
+        try {
+          engineContext.getModel().getStateObserver().setUseTempState(true);
+          return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
+        } finally {
+          engineContext.getModel().getStateObserver().setUseTempState(false);
+        }
       }
 
       @Override
