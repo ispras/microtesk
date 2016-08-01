@@ -21,9 +21,9 @@ import java.util.TreeMap;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.sequence.EmptyIterator;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.ArrayIterator;
+import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
