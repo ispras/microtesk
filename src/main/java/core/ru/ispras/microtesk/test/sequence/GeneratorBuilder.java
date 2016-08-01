@@ -70,7 +70,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * @throws IllegalArgumentException if both {@code isSequence} and {@code isIterate}
    *         are {@code true}.
    */
-
   public GeneratorBuilder(final boolean isSequence, final boolean isIterate) {
     InvariantChecks.checkFalse(isSequence && isIterate);
 
@@ -83,7 +82,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @param combinator the combinator name.
    */
-
   public void setCombinator(final String combinator) {
     this.combinator = combinator;
   }
@@ -93,7 +91,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @param permutator the permutator name.
    */
-
   public void setPermutator(final String permutator) {
     this.permutator = permutator;
   }
@@ -103,7 +100,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @param compositor the compositor name.
    */
-
   public void setCompositor(final String compositor) {
     this.compositor = compositor;
   }
@@ -113,7 +109,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @param rearranger the rearranger name.
    */
-
   public void setRearranger(final String rearranger) {
     this.rearranger = rearranger;
   }
@@ -123,7 +118,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @param obfuscator the obfuscator name.
    */
-
   public void setObfuscator(final String obfuscator) {
     this.obfuscator = obfuscator;
   }
@@ -133,7 +127,6 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * 
    * @return the test sequence generator.
    */
-
   public Generator<T> getGenerator() {
     final GeneratorConfig<T> config = GeneratorConfig.get();
 
