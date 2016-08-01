@@ -307,7 +307,7 @@ public final class LabelManager {
 
       // If reference numbers or sequence indexes do not match,
       // it is a different label that cannot be chosen.
-      if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber() ||
+      if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber() &&
           referenceLabel.getSequenceIndex() == targetLabel.getSequenceIndex()) {
         final Distance distance = referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
         distances.add(new TargetDistance(target, distance));
