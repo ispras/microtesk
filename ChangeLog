@@ -6,6 +6,12 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/08/01 MicroTESK 2.3.44 beta
+
+ - New documentation file on simulator's memory settings
+ - JRuby was updated to version 1.7.25
+ - Bug fixes and general improvements
+
 2016/07/22 MicroTESK 2.3.43 beta
 
  - Test Templates: support for global code sections, global labels and
