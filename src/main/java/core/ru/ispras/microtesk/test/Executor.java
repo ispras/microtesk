@@ -136,7 +136,8 @@ final class Executor {
     patchLabels(
         context.getLabelManager(),
         executorCode,
-        sequenceCode,
+        startIndex,
+        endIndex,
         sequenceIndex,
         abortOnUndefinedLabel
         );
@@ -415,12 +416,19 @@ final class Executor {
   private static void patchLabels(
       final LabelManager labelManager,
       final ExecutorCode code,
-      final List<ConcreteCall> calls,
+      final int startIndex,
+      final int endIndex,
       final int sequenceIndex,
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
-    for (final ConcreteCall call : calls) {
-      patchLabels(labelManager, code, call, sequenceIndex, abortOnUndefined);
+    for (int index = startIndex; index <= endIndex; ++index) {
+      patchLabels(
+          labelManager,
+          code,
+          code.getCall(index),
+          sequenceIndex,
+          abortOnUndefined
+          );
     }
   }
 
