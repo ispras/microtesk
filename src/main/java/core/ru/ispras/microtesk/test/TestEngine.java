@@ -395,6 +395,7 @@ public final class TestEngine {
         printer.close();
         Tarmac.closeFile();
 
+        engineContext.getLabelManager().reset();
         executorCode = null;
       }
     }
