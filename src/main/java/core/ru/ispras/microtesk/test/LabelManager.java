@@ -305,10 +305,11 @@ public final class LabelManager {
       final Target target = targets.get(index);
       final Label targetLabel = target.getLabel();
 
-      // If reference numbers or sequence indexes do not match,
+      // If reference numbers or sequence indexes (except for global labels) do not match,
       // it is a different label that cannot be chosen.
       if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber() &&
-          referenceLabel.getSequenceIndex() == targetLabel.getSequenceIndex()) {
+          (referenceLabel.getSequenceIndex() == targetLabel.getSequenceIndex() ||
+          Label.NO_SEQUENCE_INDEX == targetLabel.getSequenceIndex())) {
         final Distance distance = referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
         distances.add(new TargetDistance(target, distance));
       }
