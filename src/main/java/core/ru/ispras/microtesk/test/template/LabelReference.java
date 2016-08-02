@@ -35,7 +35,6 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class LabelReference {
   private final LabelValue reference;
   private final LocationAccessor patcher;
@@ -109,7 +108,6 @@ public final class LabelReference {
    * 
    * @return Label object describing a reference to a label.
    */
-
   public Label getReference() {
     return reference.getLabel();
   }
@@ -120,7 +118,6 @@ public final class LabelReference {
    * 
    * @return Value assigned to the associated primitive argument.
    */
-
   public BigInteger getArgumentValue() {
     return reference.hasAddress() ? reference.getAddress() : null;
   }
