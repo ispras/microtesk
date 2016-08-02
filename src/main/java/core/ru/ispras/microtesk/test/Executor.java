@@ -420,58 +420,68 @@ final class Executor {
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
     for (final ConcreteCall call : calls) {
-      for (final LabelReference labelRef : call.getLabelReferences()) {
-        labelRef.resetTarget();
+      patchLabels(labelManager, code, call, sequenceIndex, abortOnUndefined);
+    }
+  }
 
-        final Label source = labelRef.getReference();
-        source.setSequenceIndex(sequenceIndex);
+  private static void patchLabels(
+      final LabelManager labelManager,
+      final ExecutorCode code,
+      final ConcreteCall call,
+      final int sequenceIndex,
+      final boolean abortOnUndefined) {
+    // Resolves all label references and patches the instruction call text accordingly.
+    for (final LabelReference labelRef : call.getLabelReferences()) {
+      labelRef.resetTarget();
 
-        final LabelManager.Target target = labelManager.resolve(source);
+      final Label source = labelRef.getReference();
+      source.setSequenceIndex(sequenceIndex);
 
-        final String uniqueName;
-        final String searchPattern;
-        final String patchedText;
+      final LabelManager.Target target = labelManager.resolve(source);
 
-        if (null != target) { // Label is found
-          uniqueName = target.getLabel().getUniqueName();
-          final long address = target.getAddress();
+      final String uniqueName;
+      final String searchPattern;
+      final String patchedText;
 
-          // For code labels
-          if (code.hasAddress(address)) {
-            final int index = code.getCallIndex(address);
-            labelRef.setTarget(target.getLabel(), index);
-          }
+      if (null != target) { // Label is found
+        uniqueName = target.getLabel().getUniqueName();
+        final long address = target.getAddress();
 
-          if (null != labelRef.getArgumentValue()) {
-            searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
-          } else {
-            labelRef.getPatcher().setValue(BigInteger.ZERO);
-            searchPattern = "<label>0";
-          }
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
-          labelRef.getPatcher().setValue(BigInteger.valueOf(address));
-        } else { // Label is not found
-          if (abortOnUndefined) {
-            throw new GenerationAbortedException(String.format(
-                "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
-                "is not accessible in the scope of the current test sequence.",
-                source.getName(), call.getText(), call.getAddress()));
-          }
-
-          uniqueName = source.getName();
-          searchPattern = "<label>0";
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
+        // For code labels
+        if (code.hasAddress(address)) {
+          final int index = code.getCallIndex(address);
+          labelRef.setTarget(target.getLabel(), index);
         }
 
-        call.setText(patchedText);
+        if (null != labelRef.getArgumentValue()) {
+          searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+        } else {
+          labelRef.getPatcher().setValue(BigInteger.ZERO);
+          searchPattern = "<label>0";
+        }
+
+        patchedText = call.getText().replace(searchPattern, uniqueName);
+        labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+      } else { // Label is not found
+        if (abortOnUndefined) {
+          throw new GenerationAbortedException(String.format(
+              "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
+              "is not accessible in the scope of the current test sequence.",
+              source.getName(), call.getText(), call.getAddress()));
+        }
+
+        uniqueName = source.getName();
+        searchPattern = "<label>0";
+
+        patchedText = call.getText().replace(searchPattern, uniqueName);
       }
 
-      // Kill all unused "<label>" markers.
-      if (null != call.getText()) {
-        call.setText(call.getText().replace("<label>", ""));
-      }
+      call.setText(patchedText);
+    }
+
+    // Kill all unused "<label>" markers.
+    if (null != call.getText()) {
+      call.setText(call.getText().replace("<label>", ""));
     }
   }
 
