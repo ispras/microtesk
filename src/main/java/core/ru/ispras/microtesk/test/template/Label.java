@@ -121,7 +121,7 @@ public final class Label {
    * @param value Index that identifies the instruction sequence where the label is defined.
    */
   public void setSequenceIndex(final int value) {
-    InvariantChecks.checkGreaterOrEqZero(value);
+    InvariantChecks.checkTrue(value >= 0 || value == NO_SEQUENCE_INDEX);
     this.sequenceIndex = value;
   }
 
