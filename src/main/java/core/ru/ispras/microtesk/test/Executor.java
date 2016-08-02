@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -92,15 +91,15 @@ final class Executor {
    *         evaluating an {@link Output} object causes an invalid request to the model state
    *         observer).
    */
-  public List<ConcreteCall> execute(
-      final List<ConcreteCall> externalCode,
+  public void execute(
+      final ExecutorCode executorCode,
       final List<ConcreteCall> sequenceCode,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) {
     try {
-      InvariantChecks.checkNotNull(externalCode);
+      InvariantChecks.checkNotNull(executorCode);
       InvariantChecks.checkNotNull(sequenceCode);
-      return executeSequence(externalCode, sequenceCode, sequenceIndex, abortOnUndefinedLabel);
+      executeSequence(executorCode, sequenceCode, sequenceIndex, abortOnUndefinedLabel);
     } catch (final ConfigurationException e) {
       final java.io.StringWriter writer = new java.io.StringWriter();
       e.printStackTrace(new java.io.PrintWriter(writer));
@@ -109,46 +108,47 @@ final class Executor {
     }
   }
 
-  private List<ConcreteCall> executeSequence(
-      final List<ConcreteCall> externalCode,
+  private void executeSequence(
+      final ExecutorCode executorCode,
       final List<ConcreteCall> sequence,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     if (sequence.isEmpty()) {
-      return Collections.emptyList();
+      return;
     }
 
-    final LabelManager labelManager = new LabelManager(context.getLabelManager());
+    if (executorCode.getCallCount() == 0) {
+      registerExceptionHandlers(executorCode, context.getLabelManager(), exceptionHandlers);
+    }
 
     final List<ConcreteCall> sequenceCode =
-        expandDataSections(sequence, labelManager, sequenceIndex);
+        expandDataSections(sequence, context.getLabelManager(), sequenceIndex);
 
-    final ExecutorCode executorCode = new ExecutorCode();
+    final int startIndex = executorCode.getCallCount();
 
-    registerLabels(labelManager, externalCode, sequenceIndex);
-    registerLabels(labelManager, sequenceCode, sequenceIndex);
-
-    executorCode.addCalls(externalCode);
+    registerLabels(context.getLabelManager(), sequenceCode, sequenceIndex);
     executorCode.addCalls(sequenceCode);
 
-    final int startIndex = externalCode.size();
     final int endIndex = executorCode.getCallCount() - 1;
 
-    registerExceptionHandlers(executorCode, labelManager, exceptionHandlers);
-
-    patchLabels(sequenceCode, labelManager, executorCode, abortOnUndefinedLabel);
-    // TODO: patch labels in exception handler code (need refactoring to have it in separate collection)
+    // TODO: patch labels in exception handler code
+    // (need refactoring to have it in separate collection)
+    patchLabels(
+        context.getLabelManager(),
+        executorCode,
+        sequenceCode,
+        sequenceIndex,
+        abortOnUndefinedLabel
+        );
 
     if (TestSettings.isSimulationDisabled()) {
       logText("Simulation is disabled");
-      return sequenceCode;
+      return;
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
     executeCalls(executorCode, startIndex, endIndex);
     context.getStatistics().popActivity();
-
-    return sequenceCode;
   }
 
   private void executeCalls(
@@ -413,9 +413,10 @@ final class Executor {
   }
 
   private static void patchLabels(
-      final List<ConcreteCall> calls,
       final LabelManager labelManager,
       final ExecutorCode code,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex,
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
     for (final ConcreteCall call : calls) {
@@ -423,6 +424,8 @@ final class Executor {
         labelRef.resetTarget();
 
         final Label source = labelRef.getReference();
+        source.setSequenceIndex(sequenceIndex);
+
         final LabelManager.Target target = labelManager.resolve(source);
 
         final String uniqueName;

@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -224,8 +223,7 @@ public final class TestEngine {
 
     private TestSequence prologue = null;
     private Block epilogueBlock = null;
-
-    private List<ConcreteCall> externalCode = new ArrayList<>();
+    private ExecutorCode executorCode = null;
 
     private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
       this.engineContext = engineContext;
@@ -354,13 +352,12 @@ public final class TestEngine {
       printer.printSequence(null, sequence);
 
       Logger.debugHeader("Executing %s", sequenceId);
-      final List<ConcreteCall> calls = executor.execute(
-          isExternal ? externalCode : Collections.<ConcreteCall>emptyList(),
+      executor.execute(
+          executorCode,
           sequence.getAll(),
           sequenceIndex,
           abortOnUndefinedLabel
           );
-      externalCode.addAll(calls);
 
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
       printer.printSubheaderToFile(sequenceId);
@@ -378,6 +375,7 @@ public final class TestEngine {
       fileName = printer.createNewFile();
       Tarmac.createFile();
 
+      executorCode = new ExecutorCode();
       processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
     }
 
@@ -394,9 +392,10 @@ public final class TestEngine {
         // Addresses to allocations start after prologue
         engineContext.setAddress(prologue.getEndAddress());
 
-        externalCode = new ArrayList<>();
         printer.close();
         Tarmac.closeFile();
+
+        executorCode = null;
       }
     }
 
