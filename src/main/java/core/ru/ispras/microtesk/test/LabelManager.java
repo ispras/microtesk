@@ -350,6 +350,9 @@ public final class LabelManager {
         );
   }
 
+  /**
+   * Clears all labels.
+   */
   public void reset() {
     table.clear();
   }
