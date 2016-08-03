@@ -14,6 +14,18 @@
     </publications>
     <dependencies>
         <!-- Tools -->
+        <dependency org="antlr"
+                    name="antlr"
+                    rev="3.5.2"
+                    conf="build->default">
+        <artifact name="antlr" type="jar" url="http://www.antlr3.org/download/antlr-3.5.2-complete-no-st3.jar"/>
+        </dependency>
+        <dependency org="antlrworks"
+                    name="antlrworks"
+                    rev="1.5"
+                    conf="build->default">
+        <artifact name="antlrworks" type="jar" url="http://www.antlr3.org/download/antlrworks-1.5.jar"/>
+        </dependency>
         <dependency org="jruby"
                     name="jruby"
                     rev="1.7.25"
