@@ -22,7 +22,7 @@ public static MmuDynamicConst get() {
   }<\n>
   return constant;
 }<\n><\n><endif>
-private static final Map\<Integer, MmuDynamicConst\> constants = new HashMap\<\>();<\n>
+private static final Map\<Integer, MmuDynamicConst> constants = new HashMap\<>();<\n>
 <if(fixed_width)>private<else>public<endif> static MmuDynamicConst get(final int width) {
   InvariantChecks.checkGreaterThanZero(width);
   MmuDynamicConst result = constants.get(width);

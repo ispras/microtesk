@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.antlrex;
 
 import java.util.Stack;
 
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 
@@ -39,7 +40,8 @@ public final class TokenSourceStack implements TokenSource {
     }
   }
 
-  private Stack<TokenSourceEntry> sources = new Stack<TokenSourceEntry>();
+  private final static Token EOF_TOKEN = new CommonToken(Token.EOF);
+  private Stack<TokenSourceEntry> sources = new Stack<>();
 
   public TokenSourceStack() {}
 
@@ -83,12 +85,12 @@ public final class TokenSourceStack implements TokenSource {
   public Token nextToken() {
     // If there are no sources, returns EOF.
     if (!hasSources()) {
-      return Token.EOF_TOKEN;
+      return EOF_TOKEN;
     }
 
     int size = -1;
     TokenSource source = null;
-    Token token = Token.EOF_TOKEN;
+    Token token = EOF_TOKEN;
 
     boolean subsourceCreated = true;
 

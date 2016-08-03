@@ -81,7 +81,9 @@ public AddressingMode create(final <data_map_type()> args) {
 }
 >>
 
-data_map_type() ::= <<Map\<String, Primitive\>>>
+data_map_type() ::= <<
+Map\<String, Primitive>
+>>
 
 param_decls(param_names, param_types) ::= <<
 new ArgumentDecls()<param_names, param_types:{n, t | <\n>    .add("<n>", <t>)}>

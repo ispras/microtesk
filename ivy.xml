@@ -16,9 +16,9 @@
         <!-- Tools -->
         <dependency org="antlr"
                     name="antlr"
-                    rev="3.4-complete"
+                    rev="3.5.2-complete-no-st3"
                     conf="build->default">
-        <artifact name="antlr" type="jar" url="http://www.antlr3.org/download/antlr-3.4-complete.jar"/>
+        <artifact name="antlr" type="jar" url="http://www.antlr3.org/download/antlr-3.5.2-complete-no-st3.jar"/>
         </dependency>
         <dependency org="antlrworks"
                     name="antlrworks"

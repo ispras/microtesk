@@ -29,7 +29,7 @@ public <name>() {
 }
 
 private static Map\<String, <buf_type>\> newBuffers() {
-  final Map\<String, <buf_type>\> result = new HashMap\<\>();
+  final Map\<String, <buf_type>\> result = new HashMap\<>();
   <buffers : {b | result.put("<b>", <b>.get());}; separator="\n">
   return result;
 }
