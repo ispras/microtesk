@@ -9,7 +9,7 @@
 	<classpathentry kind="src" output="bin" path="gen"/>
 	<classpathentry kind="src" path="output/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="jars/antlr-3.4-complete.jar"/>
+	<classpathentry exported="true" kind="lib" path="tools/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="tools/jruby.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/fortress.jar" sourcepath="jars/fortress-src.jar"/>
