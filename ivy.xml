@@ -36,6 +36,10 @@
                     name="junit"
                     rev="4.11"
                     conf="build->default" />
+        <dependency org="commons-cli"
+                    name="commons-cli"
+                    rev="1.2"
+                    conf="build->default" />
         <dependency org="hamcrest"
                     name="hamcrest-core"
                     rev="1.3" 

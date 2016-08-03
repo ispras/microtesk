@@ -62,7 +62,7 @@
   <!-- External JARs -->
   <property name="antlr.jar"      value="antlr.jar"/>
   <property name="antlr.ant.jar"  value="ant-antlr3.jar"/>
-  <property name="cli.jar"        value="commons-cli-1.2.jar"/>
+  <property name="cli.jar"        value="commons-cli.jar"/>
   <property name="jruby.jar"      value="jruby.jar"/>
   <property name="fortress.jar"   value="fortress.jar"/>
   <property name="testbase.jar"   value="testbase.jar"/>
@@ -74,7 +74,7 @@
 
   <!-- Classpath for external libraries -->
   <property name="jars.path" value="./jars"/>
-  <property name="classpath" value="./tools/${antlr.jar}:${jars.path}/${antlr.ant.jar}:${jars.path}/${cli.jar}:./tools/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}:${jars.path}/${jsoftfloat.jar}"/>
+  <property name="classpath" value="./tools/${antlr.jar}:${jars.path}/${antlr.ant.jar}:./tools/${cli.jar}:./tools/${jruby.jar}:${jars.path}/${fortress.jar}:${jars.path}/${testbase.jar}:${jars.path}/${jsoftfloat.jar}"/>
 
   <!-- Options -->
   <property name="debug" value="false"/>
@@ -324,7 +324,7 @@
   <!-- Copies all required JARS to the distributive folder -->
   <target name="copy.jars">
     <copy file="${tools.dir}/${antlr.jar}"    todir="${dist.jars}"/>
-    <copy file="${jars.path}/${cli.jar}"      todir="${dist.jars}"/>
+    <copy file="${tools.dir}/${cli.jar}"      todir="${dist.jars}"/>
     <copy file="${tools.dir}/${jruby.jar}"    todir="${dist.jars}"/>
     <copy file="${jars.path}/${fortress.jar}" todir="${dist.jars}"/>
     <copy file="${jars.path}/${testbase.jar}" todir="${dist.jars}"/>
