@@ -57,47 +57,49 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
     text  '.text'
     trace '.text'
 
-    trace_data :data, :end
+    sequence {
+      trace_data :data, :end
 
-    la s0, :data
-    la s1, :end
+      la s0, :data
+      la s1, :end
 
-    add t0, zero, zero
-    ########################### Outer loop starts ##############################
-    label :repeat
+      add t0, zero, zero
+      ########################### Outer loop starts ##############################
+      label :repeat
 
-    addi t1, s0, 4
-    ########################### Inner loop starts ##############################
-    label :for
-    beq t1, s1, :exit_for
+      addi t1, s0, 4
+      ########################### Inner loop starts ##############################
+      label :for
+      beq t1, s1, :exit_for
 
-    addi t3, zero, 4
-    sub  t2, t1, t3
+      addi t3, zero, 4
+      sub  t2, t1, t3
 
-    lw t4, 0, t1
-    lw t5, 0, t2
+      lw t4, 0, t1
+      lw t5, 0, t2
 
-    slt t6, t4, t5
-    beq t6, zero, :next
-    nop
+      slt t6, t4, t5
+      beq t6, zero, :next
+      nop
 
-    swap t4, t5
-    addi t0, zero, 1
+      swap t4, t5
+      addi t0, zero, 1
 
-    sw t4, 0, t1
-    sw t5, 0, t2
+      sw t4, 0, t1
+      sw t5, 0, t2
 
-    label :next
-    j :for
-    addi t1, t1, 4
-    ############################ Inner loop ends ###############################
-    label :exit_for
+      label :next
+      j :for
+      addi t1, t1, 4
+      ############################ Inner loop ends ###############################
+      label :exit_for
 
-    bne t0, zero, :repeat
-    add t0, zero, zero
-    ############################ Outer loop ends ###############################
+      bne t0, zero, :repeat
+      add t0, zero, zero
+      ############################ Outer loop ends ###############################
 
-    trace_data :data, :end
+      trace_data :data, :end
+    }.run
   end
 
   def swap(reg1, reg2)
