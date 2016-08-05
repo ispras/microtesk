@@ -29,37 +29,37 @@ require_relative 'minimips_base'
 class EuclidTemplate < MiniMipsBaseTemplate
 
   def run
-    trace "Euclidean Algorithm (miniMIPS): Debug Output"
+    sequence {
+      # Values from [1..63], zero is excluded because there is no solution
+      val1 = rand(1, 63)
+      val2 = rand(1, 63)
 
-    # Values from [1..63], zero is excluded because there is no solution
-    val1 = rand(1, 63)
-    val2 = rand(1, 63)
+      trace "\nInput parameter values: %d, %d\n", val1, val2
 
-    trace "\nInput parameter values: %d, %d\n", val1, val2
+      prepare t1, val1
+      prepare t2, val2
 
-    prepare t1, val1
-    prepare t2, val2
+      label :cycle
+      trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr_observer(9), gpr_observer(10)
+      beq t1, t2, :done
 
-    label :cycle
-    trace "\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr_observer(9), gpr_observer(10)
-    beq t1, t2, :done
+      slt t0, t1, t2
+      bne t0, zero, :if_less
+      nop
 
-    slt t0, t1, t2
-    bne t0, zero, :if_less
-    nop
+      subu t1, t1, t2
+      j :cycle
+      nop
 
-    subu t1, t1, t2
-    j :cycle
-    nop
+      label :if_less
+      subu t2, t2, t1
+      j :cycle
 
-    label :if_less
-    subu t2, t2, t1
-    j :cycle
+      label :done
+      add t3, t1, zero
 
-    label :done
-    add t3, t1, zero
-
-    trace "\nResult stored in $t3($11): %d", gpr_observer(11)
+      trace "\nResult stored in $t3($11): %d", gpr_observer(11)
+    }.run
   end
 
 end
