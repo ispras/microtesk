@@ -46,7 +46,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * @param <T> Type of the shared object.
  */
-
 public abstract class SharedObject<T extends SharedObject<T>> {
   /**
    * Table shared copies. Key is original object, value is its shared copy.
@@ -58,7 +57,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * <p>No shared copies a published until an object is copied.
    */
-
   protected SharedObject() {
   }
 
@@ -72,7 +70,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
-
   protected SharedObject(final SharedObject<T> other) {
     InvariantChecks.checkNotNull(other);
     publishSharedCopy(other, this);
@@ -81,7 +78,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   /**
    * Frees all shared objects.
    */
-
   public static void freeSharedCopies() {
     sharedObjects = null;
   }
@@ -97,7 +93,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if no shared copy is available yet.
    */
-
   public final T sharedCopy() {
     final T copy = getSharedCopyFor(this);
     InvariantChecks.checkNotNull(copy, "Shared copy is unavailable.");
@@ -112,7 +107,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if any of the objects has no shared copy.
    */
-
   public static <T extends SharedObject<T>> List<T> sharedCopyAll(final List<T> objects) {
     InvariantChecks.checkNotNull(objects);
 
@@ -136,7 +130,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if the newly created shared copy was not published.
    */
-
   public final T getCopy() {
     final T sharedCopy = getSharedCopyFor(this);
 
@@ -168,7 +161,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
-
   private static void publishSharedCopy(final Object original, final Object copy) {
     InvariantChecks.checkNotNull(original);
     InvariantChecks.checkNotNull(copy);
@@ -188,7 +180,6 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * @return Shared copy of the given object or {@code null} if no shared copy
    *         is available.
    */
-
   @SuppressWarnings("unchecked")
   private static <U> U getSharedCopyFor(final Object original) {
     InvariantChecks.checkNotNull(original);
