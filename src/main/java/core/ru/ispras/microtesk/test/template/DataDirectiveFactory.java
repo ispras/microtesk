@@ -784,7 +784,6 @@ public final class DataDirectiveFactory {
       final BigInteger physicalAddress) {
     for (final LabelValue label : labels) {
       final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
-      InvariantChecks.checkFalse(label.hasAddress(), "Address is already assigned.");
       label.setAddress(virtuaAddress);
     }
   }

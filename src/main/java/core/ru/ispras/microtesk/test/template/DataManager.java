@@ -40,8 +40,8 @@ public final class DataManager {
   private final Printer printer;
   private final Statistics statistics;
 
-  private final List<DataDirective> globalData;
-  private final List<Pair<List<DataDirective>, Integer>> localData;
+  private final List<DataSection> globalData;
+  private final List<Pair<DataSection, Integer>> localData;
   private LabelManager labelManager;
 
   private BigInteger baseVirtualAddress;
@@ -156,9 +156,28 @@ public final class DataManager {
     }
 
     if (data.isGlobal()) {
-      globalData.addAll(data.getDirectives());
+      globalData.add(data);
     } else {
-      localData.add(new Pair<>(data.getDirectives(), testCaseIndex));
+      localData.add(new Pair<>(data, testCaseIndex));
+    }
+  }
+
+  public void resetLocalData() {
+    localData.clear();
+  }
+
+  public void reallocateGlobalData() {
+    allocator.resetCurrentAddress();
+    for (final DataSection data : globalData) {
+      for (final DataDirective directive : data.getDirectives()) {
+        directive.apply(allocator);
+      }
+
+      for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
+        final Label label = labelInfo.first;
+        final long address = labelInfo.second.longValue();
+        labelManager.addLabel(label, address);
+      }
     }
   }
 
@@ -186,14 +205,8 @@ public final class DataManager {
       printer.printSeparatorToFile("Global Data");
     }
 
-    for (final DataDirective item : globalData) {
-      final String text = item.getText();
-      if (item.needsIndent()) {
-        printer.printToScreen(TestSettings.getIndentToken() + text);
-        printer.printToFile(text);
-      } else {
-        printer.printTextNoIndent(text);
-      }
+    for (final DataSection item : globalData) {
+      printDataDirectives(item.getDirectives());
     }
 
     if (!localData.isEmpty()) {
@@ -202,8 +215,8 @@ public final class DataManager {
     }
 
     int currentTestCaseIndex = -1;
-    for (final Pair<List<DataDirective>, Integer> pair : localData) {
-      final List<DataDirective> data = pair.first;
+    for (final Pair<DataSection, Integer> pair : localData) {
+      final List<DataDirective> directives = pair.first.getDirectives();
       final int index = pair.second;
 
       if (index != currentTestCaseIndex) {
@@ -211,22 +224,22 @@ public final class DataManager {
         printer.printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
       }
 
-      for (final DataDirective item : data) {
-        final String text = item.getText();
-        if (item.needsIndent()) {
-          printer.printToScreen(TestSettings.getIndentToken() + text);
-          printer.printToFile(text);
-        } else {
-          printer.printTextNoIndent(text);
-        }
-      }
+      printDataDirectives(directives);
     }
 
     statistics.popActivity();
   }
 
-  public void clearLocalData() {
-    localData.clear();
+  private void printDataDirectives(final List<DataDirective> directives) {
+    for (final DataDirective directive : directives) {
+      final String text = directive.getText();
+      if (directive.needsIndent()) {
+        printer.printToScreen(TestSettings.getIndentToken() + text);
+        printer.printToFile(text);
+      } else {
+        printer.printTextNoIndent(text);
+      }
+    }
   }
 
   public void setTestCaseIndex(final int value) {

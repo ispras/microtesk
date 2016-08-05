@@ -375,6 +375,12 @@ public final class TestEngine {
       fileName = printer.createNewFile();
       Tarmac.createFile();
 
+      // Allocates global data created during generation of previous test programs
+      if (engineContext.getStatistics().getPrograms() > 1 &&
+          engineContext.getDataManager().containsDecls()) {
+        engineContext.getDataManager().reallocateGlobalData();
+      }
+
       executorCode = new ExecutorCode();
       processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
     }
@@ -386,17 +392,19 @@ public final class TestEngine {
 
         if (engineContext.getDataManager().containsDecls()) {
           engineContext.getDataManager().printData(printer);
-          engineContext.getDataManager().clearLocalData();
         }
       } finally {
-        // Addresses to allocations start after prologue
-        engineContext.setAddress(prologue.getEndAddress());
-
         printer.close();
         Tarmac.closeFile();
 
+        // Clean up all the state
+        engineContext.getDataManager().resetLocalData();
+        engineContext.getModel().getStateObserver().resetState();
         engineContext.getLabelManager().reset();
         executorCode = null;
+
+        // Sets the starting address for instruction allocation after the prologue
+        engineContext.setAddress(prologue.getEndAddress());
       }
     }
 
