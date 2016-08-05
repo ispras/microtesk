@@ -23,7 +23,6 @@ import java.math.BigInteger;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface Value {
   Value copy();
   BigInteger getValue();
