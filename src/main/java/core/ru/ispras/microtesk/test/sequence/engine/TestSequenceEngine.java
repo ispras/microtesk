@@ -112,8 +112,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final EngineContext context, final List<Call> abstractSequence) {
     // Labels in repeated parts of a sequence have to be unique only on sequence level.
     LabelUniqualizer.get().resetNumbers();
-
-    return Preparator.expandCalls(null, context.getPreparators(), abstractSequence);
+    return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
   private static <T> EngineResult<AdapterResult> adapt(

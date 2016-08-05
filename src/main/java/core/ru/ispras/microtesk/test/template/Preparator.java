@@ -161,10 +161,10 @@ public final class Preparator {
     dataHolder.setValue(data);
 
     final List<Call> chosenCalls = chooseCalls(preferedVariantName);
-    return expandCalls(labelSeriesId, preparators, chosenCalls);
+    return expandPreparators(labelSeriesId, preparators, chosenCalls);
   }
 
-  public static List<Call> expandCalls(
+  public static List<Call> expandPreparators(
       final LabelUniqualizer.SeriesId labelSeriesId,
       final PreparatorStore preparators,
       final List<Call> calls) {
@@ -198,11 +198,15 @@ public final class Preparator {
 
         expandedCalls.addAll(expanded);
       } else {
-        final Call callCopy = new Call(call);
         if (null != labelSeriesId) {
+          final Call callCopy = new Call(call);
           LabelUniqualizer.get().makeLabelsUnique(callCopy);
+          expandedCalls.add(callCopy);
+        } else {
+          // Copies are needed only when there is a specific preparator series to make its calls
+          // unique. Otherwise, it will be redundant copying breaking links between shared objects.
+          expandedCalls.add(call);
         }
-        expandedCalls.add(callCopy);
       }
     }
 

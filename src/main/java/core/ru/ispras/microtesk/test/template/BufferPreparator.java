@@ -101,6 +101,6 @@ public final class BufferPreparator {
       Logger.debug("Entry data: %s", entryValue);
     }
 
-    return Preparator.expandCalls(labelSeriesId, preparators, calls);
+    return Preparator.expandPreparators(labelSeriesId, preparators, calls);
   }
 }
