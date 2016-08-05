@@ -246,7 +246,7 @@ public final class Call {
 
     this.labels = Label.copyAll(other.labels);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
-    this.outputs = other.outputs;
+    this.outputs = Output.copyAll(other.outputs);
 
     this.exception = other.exception;
     this.branch = other.branch;

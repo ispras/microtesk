@@ -21,13 +21,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.utils.SharedObject;
 
 /**
- * The Output class holds information to be printed to the simulation output to inserted into the
- * generated test program. The important attributes are:
+ * The {@link Output} class holds information to be printed to the simulation output to inserted
+ * into the generated test program. The important attributes are:
  * 
  * <ol>
  * <li>Runtime. Specifies whether the information is evaluated at the simulation time and goes to
@@ -39,7 +41,6 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Output {
   /**
    * The Argument interface is a base interface to be implemented by all objects that store format
@@ -47,7 +48,6 @@ public final class Output {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   interface Argument {
     /**
      * Evaluates the format argument using the model state observer and returns the resulting
@@ -58,18 +58,23 @@ public final class Output {
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
      *         access to the model state.
      */
-
     Object evaluate(ModelStateObserver observer) throws ConfigurationException;
+
+    /**
+     * Creates a copy.
+     * 
+     * @return A new copy.
+     */
+    Argument copy();
   }
 
   /**
    * The ArgumentValue class describes a format argument that stores a constant value (integer,
    * string or boolean). When being evaluated, just returns the stored value.
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
-  final static class ArgumentValue implements Argument {
+  final static class ArgumentValue implements  Argument {
     private final Object value;
 
     ArgumentValue(final Object value) {
@@ -89,15 +94,20 @@ public final class Output {
     public String toString() {
       return value.toString();
     }
+
+    @Override
+    public Argument copy() {
+      return value instanceof SharedObject ?
+          new ArgumentValue(((SharedObject<?>) value).getCopy()) : this;
+    }
   }
 
   /**
    * The ArgumentLocation class describes a format argument that when being evaluated reads a value
    * from the specified location (register or memory address).
    * 
-   * @author Andrei Tatarnikov
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   final static class ArgumentLocation implements Argument {
     private final String name;
     private final BigInteger index;
@@ -119,6 +129,11 @@ public final class Output {
     public String toString() {
       return String.format("%s[%d]", name, index);
     }
+
+    @Override
+    public Argument copy() {
+      return this;
+    }
   }
 
   private final boolean isRuntime;
@@ -133,7 +148,6 @@ public final class Output {
    * @param format Format string.
    * @param args Format arguments.
    */
-
   public Output(
       final boolean isRuntime,
       final boolean isComment,
@@ -154,9 +168,22 @@ public final class Output {
    * @param isRuntime To the simulator or to the test program.
    * @param format Format string.
    */
-
   public Output(final boolean isRuntime, final boolean isComment, final String format) {
     this(isRuntime, isComment, format, Collections.<Argument>emptyList());
+  }
+
+  /**
+   * Constructs a copy of an {@link Output} object.
+   * 
+   * @param other Object to be copied.
+   */
+  public Output(final Output other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.isRuntime = other.isRuntime;
+    this.isComment = other.isComment;
+    this.format = other.format;
+    this.args = copyAllArguments(other.args);
   }
 
   /**
@@ -168,7 +195,6 @@ public final class Output {
    * @return {@code true} if it is to printed at runtime or {@code false} if it should be
    *         printed into the test program.
    */
-
   public boolean isRuntime() {
     return isRuntime;
   }
@@ -187,7 +213,6 @@ public final class Output {
    *         request to the model state observer.
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
-
   public String evaluate(final ModelStateObserver observer) throws ConfigurationException {
     if (args.isEmpty()) {
       return format;
@@ -207,7 +232,7 @@ public final class Output {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder(
-       String.format("Output (runtime: %b): \"%s\"", isRuntime, format.trim()));
+        String.format("Output (runtime: %b): \"%s\"", isRuntime, format.trim()));
 
     for (final Argument arg : args) {
       sb.append(", ");
@@ -215,5 +240,35 @@ public final class Output {
     }
 
     return sb.toString();
+  }
+
+  public static List<Output> copyAll(final List<Output> outputs) {
+    InvariantChecks.checkNotNull(outputs);
+
+    if (outputs.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Output> result = new ArrayList<>(outputs.size());
+    for (final Output output : outputs) {
+      result.add(new Output(output));
+    }
+
+    return result;
+  }
+
+  private static List<Argument> copyAllArguments(final List<Argument> arguments) {
+    InvariantChecks.checkNotNull(arguments);
+
+    if (arguments.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Argument> result = new ArrayList<>(arguments.size());
+    for (final Argument argument : arguments) {
+      result.add(argument.copy());
+    }
+
+    return result;
   }
 }
