@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.SharedObject;
 
 /**
  * The {@link PreparatorReference} class describes an invocation of a preparator
@@ -58,7 +59,9 @@ public final class PreparatorReference {
     InvariantChecks.checkNotNull(other);
 
     this.target = other.target.newCopy();
-    this.value = other.value.copy();
+    this.value = other.value instanceof SharedObject ?
+        (Value)((SharedObject<?>) other.value).getCopy() : other.value.copy();
+
     this.valueBitSize = other.valueBitSize;
     this.preparatorName = other.preparatorName;
     this.variantName = other.variantName;
