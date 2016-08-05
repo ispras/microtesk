@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,11 +26,10 @@ import ru.ispras.microtesk.test.template.Output.ArgumentValue;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 /**
- * The OutputBuilder class helps build Output objects.
+ * The {@link OutputBuilder} class helps build {@link Output} objects.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class OutputBuilder {
   private final boolean isRuntime;
   private final boolean isComment;
@@ -48,7 +47,6 @@ public final class OutputBuilder {
    * 
    * @throws IllegalArgumentException if the format parameter equals {@code null}.
    */
-
   OutputBuilder(
       final boolean isRuntime,
       final boolean isComment,
@@ -68,7 +66,6 @@ public final class OutputBuilder {
    * @param value Integer value.
    * @return This builder object to continue operations.
    */
-
   public OutputBuilder addArgument(final BigInteger value) {
     addArgument(new ArgumentValue(value));
     return this;
@@ -82,7 +79,6 @@ public final class OutputBuilder {
    * 
    * @throws IllegalAccessError if the parameter equals {@code null}.
    */
-
   public OutputBuilder addArgument(final String value) {
     checkNotNull(value);
     addArgument(new ArgumentValue(value));
@@ -98,7 +94,6 @@ public final class OutputBuilder {
    * 
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
-
   public OutputBuilder addArgument(final Value value) {
     checkNotNull(value);
     addArgument(new ArgumentValue(value));
@@ -111,7 +106,6 @@ public final class OutputBuilder {
    * @param value Boolean value.
    * @return This builder object to continue operations.
    */
-
   public OutputBuilder addArgument(final boolean value) {
     addArgument(new ArgumentValue(value));
     return this;
@@ -127,7 +121,6 @@ public final class OutputBuilder {
    * 
    * @throws IllegalArgumentException if the name parameter equals {@code null}.
    */
-
   public OutputBuilder addArgument(final String name, final BigInteger index) {
     checkNotNull(name);
 
@@ -143,7 +136,6 @@ public final class OutputBuilder {
    * 
    * @return Output object.
    */
-
   public Output build() {
     if (null == args) {
       return new Output(isRuntime, isComment, format);
@@ -154,7 +146,7 @@ public final class OutputBuilder {
 
   private void addArgument(final Argument arg) {
     if (null == args) {
-      args = new ArrayList<Output.Argument>();
+      args = new ArrayList<>();
     }
 
     args.add(arg);
