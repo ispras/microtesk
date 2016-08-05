@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -79,6 +79,11 @@ public final class MemoryAllocator {
     this.currentAddress = baseAddress;
   }
 
+  /**
+   * Returns the base address.
+   * 
+   * @return Base address (in addressable units).
+   */
   public BigInteger getBaseAddress() {
     return baseAddress;
   }
@@ -94,6 +99,10 @@ public final class MemoryAllocator {
 
   public void setCurrentAddress(final BigInteger value) {
     currentAddress = value;
+  }
+
+  public void resetCurrentAddress() {
+    setCurrentAddress(getBaseAddress());
   }
 
   public void setOrigin(final BigInteger value) {
