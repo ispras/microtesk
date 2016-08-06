@@ -6,6 +6,11 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/08/06 MicroTESK 2.3.45 beta
+
+ - ANTLR was updated to version 3.5.2
+ - Bug fixes and general improvements
+
 2016/08/01 MicroTESK 2.3.44 beta
 
  - New documentation file on simulator's memory settings
