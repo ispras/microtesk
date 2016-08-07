@@ -41,14 +41,13 @@ public final class DataManager {
   private final Statistics statistics;
 
   private final List<DataSection> globalData;
-  private final List<Pair<DataSection, Integer>> localData;
+  private final List<DataSection> localData;
   private LabelManager labelManager;
 
   private BigInteger baseVirtualAddress;
   private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
   private int dataFileIndex;
-  private int testCaseIndex;
 
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
@@ -68,7 +67,6 @@ public final class DataManager {
 
     this.factory = null;
     this.dataFileIndex = 0;
-    this.testCaseIndex = 0;
 
     this.factoryBuilder = null;
     this.dataBuilder = null;
@@ -138,15 +136,8 @@ public final class DataManager {
     InvariantChecks.checkNotNull(globalLabels);
     InvariantChecks.checkNotNull(data);
 
-    data.allocate(allocator);
-
-    if (data.isGlobal()) {
-      for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
-        final Label label = labelInfo.first;
-        final long address = labelInfo.second.longValue();
-        globalLabels.addLabel(label, address);
-      }
-    }
+    allocateData(data, allocator);
+    registerLabels(data, globalLabels);
 
     if (data.isSeparateFile()) {
       saveToFile(data.getDirectives());
@@ -156,7 +147,27 @@ public final class DataManager {
     if (data.isGlobal()) {
       globalData.add(data);
     } else {
-      localData.add(new Pair<>(data, testCaseIndex));
+      localData.add(data);
+    }
+  }
+
+  private static void allocateData(final DataSection data, final MemoryAllocator allocator) {
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkNotNull(allocator);
+    for (final DataDirective directive : data.getDirectives()) {
+      directive.apply(allocator);
+    }
+  }
+
+  private static void registerLabels(final DataSection data, final LabelManager labelManager) {
+    InvariantChecks.checkNotNull(labelManager);
+
+    final int sequenceIndex = data.getSequenceIndex();
+    for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
+      final Label label = labelInfo.first;
+      final long address = labelInfo.second.longValue();
+      label.setSequenceIndex(sequenceIndex);
+      labelManager.addLabel(label, address);
     }
   }
 
@@ -167,13 +178,8 @@ public final class DataManager {
   public void reallocateGlobalData() {
     allocator.resetCurrentAddress();
     for (final DataSection data : globalData) {
-      data.allocate(allocator);
-
-      for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
-        final Label label = labelInfo.first;
-        final long address = labelInfo.second.longValue();
-        labelManager.addLabel(label, address);
-      }
+      allocateData(data, allocator);
+      registerLabels(data, labelManager);
     }
   }
 
@@ -211,9 +217,9 @@ public final class DataManager {
     }
 
     int currentTestCaseIndex = -1;
-    for (final Pair<DataSection, Integer> pair : localData) {
-      final List<DataDirective> directives = pair.first.getDirectives();
-      final int index = pair.second;
+    for (final DataSection data : localData) {
+      final List<DataDirective> directives = data.getDirectives();
+      final int index = data.getSequenceIndex();
 
       if (index != currentTestCaseIndex) {
         currentTestCaseIndex = index;
@@ -236,10 +242,6 @@ public final class DataManager {
         printer.printTextNoIndent(text);
       }
     }
-  }
-
-  public void setTestCaseIndex(final int value) {
-    testCaseIndex = value;
   }
 
   public BigInteger getAddress() {
