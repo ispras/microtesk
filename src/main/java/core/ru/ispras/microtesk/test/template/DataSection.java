@@ -69,7 +69,7 @@ public class DataSection {
     return result;
   }
 
-  public void apply(final MemoryAllocator allocator) {
+  public void allocate(final MemoryAllocator allocator) {
     InvariantChecks.checkNotNull(allocator);
     for (final DataDirective directive : directives) {
       directive.apply(allocator);

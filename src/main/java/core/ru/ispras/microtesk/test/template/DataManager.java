@@ -138,7 +138,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(globalLabels);
     InvariantChecks.checkNotNull(data);
 
-    data.apply(allocator);
+    data.allocate(allocator);
 
     if (data.isGlobal()) {
       for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
@@ -167,7 +167,7 @@ public final class DataManager {
   public void reallocateGlobalData() {
     allocator.resetCurrentAddress();
     for (final DataSection data : globalData) {
-      data.apply(allocator);
+      data.allocate(allocator);
 
       for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
         final Label label = labelInfo.first;
