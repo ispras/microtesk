@@ -21,7 +21,6 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 
 public class DataSection {
   private final List<LabelValue> labelValues;
@@ -29,6 +28,8 @@ public class DataSection {
 
   private final boolean global;
   private final boolean separateFile;
+
+  private int sequenceIndex;
 
   protected DataSection(
       final List<LabelValue> labelValues,
@@ -42,6 +43,8 @@ public class DataSection {
 
     this.global = global;
     this.separateFile = separateFile;
+
+    this.sequenceIndex = Label.NO_SEQUENCE_INDEX;
   }
 
   protected DataSection(final DataSection other) {
@@ -52,6 +55,8 @@ public class DataSection {
 
     this.global = other.global;
     this.separateFile = other.separateFile;
+
+    this.sequenceIndex = other.sequenceIndex;
   }
 
   private static List<DataDirective> copyAllDirectives(final List<DataDirective> directives) {
@@ -69,11 +74,13 @@ public class DataSection {
     return result;
   }
 
-  public void allocate(final MemoryAllocator allocator) {
-    InvariantChecks.checkNotNull(allocator);
-    for (final DataDirective directive : directives) {
-      directive.apply(allocator);
-    }
+  public int getSequenceIndex() {
+    return sequenceIndex;
+  }
+
+  public void setSequenceIndex(final int value) {
+    InvariantChecks.checkTrue(global ? value == Label.NO_SEQUENCE_INDEX : value >= 0);
+    sequenceIndex = value;
   }
 
   public List<Label> getLabels() {
