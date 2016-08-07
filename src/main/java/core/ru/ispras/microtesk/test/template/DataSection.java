@@ -21,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 
 public class DataSection {
   private final List<LabelValue> labelValues;
@@ -66,6 +67,13 @@ public class DataSection {
     }
 
     return result;
+  }
+
+  public void apply(final MemoryAllocator allocator) {
+    InvariantChecks.checkNotNull(allocator);
+    for (final DataDirective directive : directives) {
+      directive.apply(allocator);
+    }
   }
 
   public List<Label> getLabels() {
