@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
@@ -346,22 +345,12 @@ final class Executor {
       final List<ConcreteCall> calls,
       final LabelManager labelManager,
       final int sequenceIndex) {
-    context.getDataManager().setTestCaseIndex(sequenceIndex);
-
     final List<ConcreteCall> result = new ArrayList<>();
     for (final ConcreteCall call : calls) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
         context.getDataManager().processData(labelManager, data);
-
-        for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
-          final Label label = labelInfo.first;
-          final long address = labelInfo.second.longValue();
-
-          label.setSequenceIndex(sequenceIndex);
-          labelManager.addLabel(label, address);
-        }
-
         continue;
       }
 
