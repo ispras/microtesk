@@ -162,14 +162,14 @@ task getCVC4(type: Copy) {
 test.dependsOn getCVC4
 
 task copyResources(type: Copy) {
-  from 'src/main/resources/core/stg'
-  into 'build/classes/main/stg'
+  from "${project.projectDir}/src/main/resources/core/stg"
+  into "${project.projectDir}/build/classes/main/stg"
 
-  from 'src/main/resources/plugins/mmu/stg'
-  into 'build/classes/main/stg'
+  from "${project.projectDir}/src/main/resources/plugins/mmu/stg"
+  into "${project.projectDir}/build/classes/main/stg"
 
-  from 'src/main/resources/core/config.xml'
-  into 'build/classes/main'
+  from "${project.projectDir}/src/main/resources/core/config.xml"
+  into "${project.projectDir}/build/classes/main"
 }
 
 test.dependsOn copyResources
