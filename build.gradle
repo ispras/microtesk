@@ -338,7 +338,7 @@ distributions {
     baseName = projectName
 
     contents {
-      rename '(.)*(?<!-src|-javadoc).jar', 'jars/$0.jar'
+      rename '(.)*(?<!-src|-javadoc).jar', 'jars/$0'
 
       into('lib') {
         from jarModels
