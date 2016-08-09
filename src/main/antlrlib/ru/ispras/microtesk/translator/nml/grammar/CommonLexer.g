@@ -180,6 +180,8 @@ DOUBLE_DOT    : '..'          { pp(); };
 DOUBLE_COLON  : '::'          { pp(); };
 
 SQRT          : 'sqrt'        { pp(); };
+IS_NAN        : 'is_nan'      { pp(); };
+IS_SIGN_NAN   : 'is_signaling_nan'{ pp(); };
 
 //==================================================================================================
 // Control Statements
@@ -190,6 +192,7 @@ THEN          : 'then'        { pp(); };
 ELSE          : 'else'        { pp(); };
 ELSEIF        : 'elif'        { pp(); };
 ENDIF         : 'endif'       { pp(); };
+RETURN        : 'return'      { pp(); };
 
 //==================================================================================================
 // Type Conversion Directive Names
@@ -213,6 +216,9 @@ EXCEPTION     : 'exception'   { pp(); };
 MARK          : 'mark'        { pp(); };
 UNPREDICTED   : 'unpredicted' { pp(); };
 UNDEFINED     : 'undefined'   { pp(); };
+
+ASSERT        : 'assert'      { pp(); };
+FUNCTION      : 'function'    { pp(); };
 
 //==================================================================================================
 // Identifier

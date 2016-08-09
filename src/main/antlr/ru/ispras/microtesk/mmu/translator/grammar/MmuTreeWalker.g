@@ -1,7 +1,7 @@
 /*
  * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file /xcept
  * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -56,14 +56,18 @@ catch (final RecognitionException re) {
 package ru.ispras.microtesk.mmu.translator.grammar;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.translator.antlrex.Where;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 
 import ru.ispras.microtesk.mmu.translator.MmuLanguageContext;
 import ru.ispras.microtesk.mmu.translator.MmuTreeWalkerBase;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
+import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 }
 
@@ -80,9 +84,11 @@ declaration
     | extern
     | struct
     | address
+    | operation
     | segment
     | buffer
     | mmu
+    | functionDef
     ;
 
 //==================================================================================================
@@ -90,7 +96,10 @@ declaration
 //==================================================================================================
 
 let
-    : ^(MMU_LET id=ID e=expr[0]) {newConstant($id, $e.res);}
+    : ^(MMU_LET id=ID e=expr[0])
+{
+newConstant($id, $e.res);
+}
     ;
 
 //==================================================================================================
@@ -133,10 +142,30 @@ address
     : ^(MMU_ADDRESS addressId=ID {declareAndPushSymbolScope($addressId, MmuSymbolKind.ADDRESS);}
                     ( ref=ID { addressType = findType($ref); }
                     | ^(MMU_STRUCT type=structFields[$addressId.getText()] {
-                        addressType = newType($addressId, $type.res.build());
-                      }))
-                    chain=memberChain?)
+                                     addressType = newType($addressId, $type.res.build());
+                                   }))
+                    chain=idList?)
       { newAddress($addressId, addressType, $chain.res); }
+    ; finally {popSymbolScope();}
+
+//==================================================================================================
+// Operation
+//==================================================================================================
+
+operation
+    : ^(MMU_OP operationId=ID {declareAndPushSymbolScope($operationId, MmuSymbolKind.OPERATION);}
+      addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);}
+      addressArgType=ID
+{
+final OperationBuilder builder = new OperationBuilder(
+    $operationId, $addressArgId, $addressArgType);
+}
+      attrId=ID stmts=sequence
+{
+builder.addAttribute($attrId, $stmts.res);
+builder.build();
+}
+      )
     ; finally {popSymbolScope();}
 
 //==================================================================================================
@@ -145,10 +174,19 @@ address
 
 segment
     : ^(MMU_SEGMENT segmentId=ID {declareAndPushSymbolScope($segmentId, MmuSymbolKind.SEGMENT);} 
-        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
-        outputVarId=ID {declare($outputVarId, MmuSymbolKind.DATA, false);} outputVarType=ID
-        ^(MMU_RANGE from=expr[0] to=expr[0])
-        {final CommonBuilder builder = newSegmentBuilder($segmentId, $addressArgId, $addressArgType, $outputVarId, $outputVarType);}
+                    addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);}
+                    addressArgType=ID
+                    outputVarId=ID {declare($outputVarId, MmuSymbolKind.DATA, false);}
+                    outputVarType=ID
+                    ^(MMU_RANGE from=expr[0] to=expr[0])
+      {
+        final CommonBuilder builder = newSegmentBuilder(
+            $segmentId,
+            $addressArgId,
+            $addressArgType,
+            $outputVarId,
+            $outputVarType);
+      }
         (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
              bufferId=ID     {builder.addVariable($varId, $bufferId);}
            | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
@@ -167,7 +205,7 @@ buffer
     : ^(MMU_BUFFER bufferId=ID { declareAndPushSymbolScope($bufferId, MmuSymbolKind.BUFFER); }
                    addressArgId=ID { declare($addressArgId, MmuSymbolKind.ARGUMENT, false); }
                    addressArgType=ID
-                   keywords=contextKeywords {
+                   ^(MMU_CONTEXT keywords=idList?) {
                      qualifiers = checkContextKeywords(MmuLanguageContext.BUFFER_TYPE, $keywords.res);
                    }
                    parentBufferId=ID?
@@ -178,21 +216,16 @@ buffer
         (
             ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
           | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
-          | ^(w=MMU_ENTRY e=structFields[$bufferId.getText() + ".Entry"]) {builder.setEntry($w, $e.res.build());}
+          | ^(w=MMU_ENTRY e=structFields[$bufferId.getText() + ".Entry"]) {
+              builder.setEntry($w, newType($bufferId, $e.res.build()));
+            }
           | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
           | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
-          | ^(w=MMU_GUARD guard=expr[0]) {builder.setGuard($w, $guard.res);}
           | ^(w=MMU_POLICY policyId=ID)  {builder.setPolicyId($w, $policyId);}
         )*
         {builder.build();}
       )
     ; finally {popSymbolScope();}
-
-contextKeywords returns [List<CommonTree> res]
-@init { final List<CommonTree> keywords = new ArrayList<>(); }
-@after { $res = keywords; }
-    : ^(MMU_CONTEXT (kw=ID { keywords.add($kw); } )*)
-    ;
 
 //==================================================================================================
 // Memory
@@ -200,17 +233,24 @@ contextKeywords returns [List<CommonTree> res]
 
 mmu
     : ^(MMU memoryId=ID {declareAndPushSymbolScope($memoryId, MmuSymbolKind.MEMORY);}
-        addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);} addressArgType=ID
-        dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);} dataArgSize=expr[0]
-        {final CommonBuilder builder = newMemoryBuilder($memoryId, $addressArgId, $addressArgType, $dataArgId, $dataArgSize.res);}
-        (^(MMU_VAR varId=ID  {declare($varId, MmuSymbolKind.VAR, false);}(
-             bufferId=ID     {builder.addVariable($varId, $bufferId);}
-           | varSize=expr[0] {builder.addVariable($varId, $varSize.res);})
-        ))*
-        (attrId=ID {declare($attrId, MmuSymbolKind.ATTRIBUTE, false);}
-         stmts=sequence {builder.addAttribute($attrId, $stmts.res);})*
-        {builder.buildMemory();}
-      )
+            addressArgId=ID {declare($addressArgId, MmuSymbolKind.ARGUMENT, false);}
+            addressArgType=ID
+            dataArgId=ID {declare($dataArgId, MmuSymbolKind.DATA, false);}
+            dataArgSize=expr[0]
+      {
+        final CommonBuilder builder = newMemoryBuilder(
+            $memoryId,
+            $addressArgId,
+            $addressArgType,
+            $dataArgId,
+            $dataArgSize.res);
+      }
+            (^(MMU_VAR varId=ID { declare($varId, MmuSymbolKind.VAR, false); }
+                       ( bufferId=ID { builder.addVariable($varId, $bufferId); }
+                       | varSize=expr[0] { builder.addVariable($varId, $varSize.res); })))*
+            (attrId=ID { declare($attrId, MmuSymbolKind.ATTRIBUTE, false); }
+             stmts=sequence { builder.addAttribute($attrId, $stmts.res); })*
+      { builder.buildMemory(); })
     ; finally {popSymbolScope();}
 
 //==================================================================================================
@@ -232,6 +272,7 @@ statement returns [Stmt res]
     | stmt=assignmentStmt
     | stmt=conditionalStmt
     | stmt=functionCallStmt
+    | stmt=returnStmt
     ;
 
 attributeCallStmt returns [Stmt res]
@@ -265,6 +306,21 @@ functionCallStmt returns [Stmt res]
        {$res = newTrace($fs, fargs);}
     | ^(EXCEPTION s=STRING_CONST) {$res = newException($s);}
     | ^(MARK s=STRING_CONST) {$res = newMark($s);}
+    | ^(ASSERT cond=expr[0]) {checkNotNull($cond.start, $cond.res); $res = newAssert($cond.start, $cond.res);}
+    | functionCall[0] { $res = newCallStmt($functionCall.res); }
+    ;
+
+returnStmt returns [Stmt res]
+    : ^(RETURN expr[0]) { $res = new StmtReturn($expr.res); }
+    ;
+
+functionCall[int depth] returns [NodeOperation res]
+    : ^(FUNCTION_CALL ID exprList[depth]) { $res = newCall($ID, $exprList.res); }
+    ;
+
+exprList[int depth] returns [List<Node> res]
+@init { $res = new ArrayList<>(); }
+    : (expr[depth] { $res.add($expr.res); })*
     ;
 
 //==================================================================================================
@@ -288,19 +344,46 @@ $res = n;
     : n=atom
     | n=binaryExpr[depth+1]
     | n=unaryExpr[depth+1]
-//  | ifExpr[depth+1]
+    | n=ifExpr[depth+1]
+    | functionCall[depth+1] { n = newCallExpr(where($functionCall.start), $functionCall.res); }
     ;
 
 ifExpr [int depth] returns [Node res]
-    : ^(IF expr[depth] expr[depth] elseIfExpr[depth]* elseExpr[depth]?)
+@init {final List<Pair<Node, Node>> exprs = new ArrayList<>();}
+    : ^(id=IF ce=expr[depth] ve=expr[depth]
+{
+checkNotNull($ce.start, $ce.res);
+checkNotNull($ve.start, $ve.res);
+exprs.add(new Pair<>($ce.res, $ve.res));
+}
+    (eife = elseIfExpr[depth]
+{
+checkNotNull($eife.start, $eife.res);
+exprs.add($eife.res);
+})*
+    ele=elseExpr[depth]
+{
+checkNotNull($ele.start, $ele.res);
+exprs.add($ele.res);
+$res = newCondExpression($id, exprs);
+})
     ;
 
-elseIfExpr [int depth] returns [Node res]
-    : ^(ELSEIF expr[depth] expr[depth])
+elseIfExpr [int depth] returns [Pair<Node, Node> res]
+    : ^(ELSEIF ce=expr[depth] ve=expr[depth])
+{
+checkNotNull($ce.start, $ce.res);
+checkNotNull($ve.start, $ve.res);
+$res = new Pair<>($ce.res, $ve.res);
+}
     ;
 
-elseExpr [int depth] returns [Node res]
-    : ^(ELSE expr[depth])
+elseExpr [int depth] returns [Pair<Node, Node> res]
+    : ^(ELSE ve=expr[depth])
+{
+checkNotNull($ve.start, $ve.res);
+$res = new Pair<>((Node) NodeValue.newBoolean(true), $ve.res);
+}
     ;
 
 binaryExpr [int depth] returns [Node res]
@@ -381,15 +464,59 @@ variableBitfield [boolean isLhs] returns [Node res]
 
 variableAtom [boolean isLhs] returns [Node res]
     : varId=ID {$res = newVariable(isLhs, $varId);}
-    | ^(DOT objId=ID chain=memberChain) {$res=newAttributeCall($objId, $chain.res);}
+    | ^(DOT objId=ID chain=idList) {$res=newAttributeCall($objId, $chain.res);}
     | ^(LOCATION_INDEX varId=ID index=expr[0]) {$res = newIndexedVariable($varId, $index.res);}
     | atr=attributeRef[isLhs] {$res = $atr.res;}
     ;
 
-memberChain returns [List<CommonTree> res]
-@init { final List<CommonTree> chain = new ArrayList<>(); }
-@after { $res = chain; }
-    : (name=ID { chain.add($name); } )+
+idList returns [List<CommonTree> res]
+@init { final List<CommonTree> list = new ArrayList<>(); }
+@after { $res = list; }
+    : (name=ID { list.add($name); } )+
+    ;
+
+functionDef
+@init { final CallableBuilder builder; }
+    : ^(MMU_FUNC_DEF header=funcHeader { builder = $header.res; }
+                     locals=variableList {
+                       builder.addLocalVariables($locals.res.first, $locals.res.second);
+                     }
+                     body=sequence { builder.setBody($sequence.res); })
+      { registerFunction(builder.build()); }
+    ; finally { popSymbolScope(); }
+
+funcHeader returns [CallableBuilder res]
+@init { final CallableBuilder builder; }
+@after { $res = builder; }
+    : ^(MMU_FUNC ^(FUNCTION name=ID) {
+                   pushSymbolScope($name);
+                   builder = new CallableBuilder($name);
+                 }
+                 params=variableList {
+                   builder.addParameters($params.res.first, $params.res.second);
+                 }
+                 rettype=typeRef[where($name)]? { builder.setRetType($typeRef.res); } )
+    ;
+
+variableList returns [Pair<List<CommonTree>, List<Type>> res]
+@init {
+  final List<CommonTree> nodes = new ArrayList<>();
+  final List<Type> types = new ArrayList<>();
+}
+@after { $res = new Pair<>(nodes, types); }
+    : (^(MMU_VAR name=ID {
+                   declare($name, MmuSymbolKind.VAR, false);
+                   nodes.add($name);
+                 }
+                 type=typeRef[where($name)] { types.add($typeRef.res); } ))*
+    ;
+
+typeRef[Where w] returns [Type res]
+    : name=ID { $res = resolveTypeName($name); }
+    | size=expr[0] {
+        final int bitSize = extractPositiveInt(w, $size.res, "Type size");
+        $res = new Type(bitSize);
+      }
     ;
 
 //==================================================================================================

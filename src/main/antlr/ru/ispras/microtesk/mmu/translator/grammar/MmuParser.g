@@ -30,6 +30,8 @@ import commonParser=CommonParser;
 
 tokens {
   MMU_CONTEXT;
+  MMU_FUNC;
+  MMU_FUNC_DEF;
 }
 
 //==================================================================================================
@@ -83,6 +85,8 @@ declaration
     | extern
     | struct
     | address
+    | function
+    | operation
     | segment
     | buffer
     | mmu
@@ -93,20 +97,10 @@ declaration
 //==================================================================================================
 
 let
-    : MMU_LET^ id=ID ASSIGN! expr {declare($id, NmlSymbolKind.LET_CONST, false);}
-    ;
-
-fields
-    : field (COMMA! field)*
-    ;
-
-field
-    : ID COLON! typeRef
-    ;
-
-typeRef
-    : ID
-    | expr (ASSIGN! expr)?
+    : MMU_LET^ id=ID ASSIGN! expr
+{
+declare($id, NmlSymbolKind.LET_CONST, false);
+}
     ;
 
 //==================================================================================================
@@ -129,6 +123,20 @@ struct
     : MMU_STRUCT^ ID LEFT_PARENTH! fields RIGHT_PARENTH!
     ;
 
+
+fields
+    : field (COMMA! field)*
+    ;
+
+field
+    : ID COLON! typeRef
+    ;
+
+typeRef
+    : ID
+    | expr (ASSIGN! expr)?
+    ;
+
 //==================================================================================================
 // Address
 //==================================================================================================
@@ -147,13 +155,43 @@ addressValue
     ;
 
 //==================================================================================================
+// Function
+//==================================================================================================
+
+function
+    : funcHeader funcBody -> ^(MMU_FUNC_DEF ^(MMU_FUNC funcHeader) funcBody)
+    ;
+
+funcHeader
+    : functionDecl LEFT_PARENTH! funcParams? RIGHT_PARENTH! (COLON! mmuVariableType)?
+    ;
+
+funcParams
+    : ID COLON mmuVariableType (COMMA ID COLON mmuVariableType)* ->
+        ^(MMU_VAR ID mmuVariableType)+
+    ;
+
+funcBody
+    : localVars LEFT_BRACE! sequence RIGHT_BRACE!
+    ;
+
+//==================================================================================================
+// Operation
+//==================================================================================================
+
+operation
+    : MMU_OP^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
+      mmuFunction
+    ;
+
+//==================================================================================================
 // Segment
 //==================================================================================================
 
 segment
     : MMU_SEGMENT^ ID nameType ASSIGN! nameType
         range
-        (mmuVariable)*
+        localVars
         (mmuFunction)?
     ;
 
@@ -187,7 +225,6 @@ bufferParameter
     | index
     | match
     | policy
-    | guard
     ;
 
 //--------------------------------------------------------------------------------------------------
@@ -226,12 +263,6 @@ policy
     : MMU_POLICY^ ASSIGN! ID
     ;
 
-//--------------------------------------------------------------------------------------------------
-
-guard
-    : MMU_GUARD^ ASSIGN! expr
-    ;
-
 //==================================================================================================
 // MMU Logic
 //==================================================================================================
@@ -239,16 +270,20 @@ guard
 mmu
     : MMU^ ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH! ASSIGN!
               LEFT_PARENTH! ID COLON! expr RIGHT_PARENTH!
-        (mmuVariable)*
+        localVars
         (mmuFunction)*
     ;
 
+localVars
+    : (mmuVariable SEMI!)*
+    ;
+
 mmuVariable
-    : MMU_VAR^ ID COLON! mmuVariableType SEMI!
+    : MMU_VAR^ ID COLON! mmuVariableType
     ;
 
 mmuVariableType
-    : ID (DOT MMU_ENTRY)? -> ID
+    : {!isDeclaredAs(input.LT(1), NmlSymbolKind.LET_CONST)}? ID (DOT MMU_ENTRY)? -> ID
     | expr
     ;
 

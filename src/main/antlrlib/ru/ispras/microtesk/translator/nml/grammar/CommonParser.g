@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -52,6 +52,8 @@ tokens {
 
   // Ternary 'if' expression for string format expressions
   SIF;
+
+  FUNCTION_CALL;
 }
 
 //==================================================================================================
@@ -91,7 +93,7 @@ typeExpr
 //  |  BOOL // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
     |  INT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     |  CARD^ LEFT_PARENTH! expr RIGHT_PARENTH!
-    |  FIX^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
+//  |  FIX^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
     |  FLOAT^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
 //  |  LEFT_HOOK constExpr DOUBLE_DOT constExpr RIGHT_HOOK -> ^(RANGE constExpr constExpr) // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
 //  |  ENUM^ LEFT_PARENTH! identifierList RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
@@ -116,10 +118,20 @@ expr
 
 nonNumExpr
     :  ifExpr
+    |  functionCall
+    ;
+
+functionDecl
+    :  FUNCTION^ ID { declare($ID, NmlSymbolKind.FUNCTION, true); }
+    ;
+
+functionCall
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}?
+       ID LEFT_PARENTH (expr (COMMA expr)*)? RIGHT_PARENTH -> ^(FUNCTION_CALL ID expr*)
     ;
 
 ifExpr
-    :  IF^ expr THEN! expr elseIfExpr* elseExpr? ENDIF!
+    :  IF^ expr THEN! expr elseIfExpr* elseExpr ENDIF!
     ;
 
 elseIfExpr
@@ -193,13 +205,17 @@ unaryExpr
 
 atom
     :  LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  constant
     |  letConst
     |  location
-    |  CARD_CONST
+    |  typeCast
+    |  mathFunc
+    ;
+
+constant
+    :  CARD_CONST
     |  BINARY_CONST
     |  HEX_CONST
-    |  typeCast
-    |  SQRT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 letConst
@@ -214,6 +230,12 @@ typeCast
     |  INT_TO_FLOAT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_INT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    ;
+
+mathFunc
+    :  SQRT^        LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  IS_NAN^      LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
@@ -243,7 +265,7 @@ locationAtom
     ;
 
 bitFieldExpr
-@init   { setInBitField(true); }
+@init  { setInBitField(true); }
     :  LEFT_BROCKET! expr (DOUBLE_DOT! expr)? RIGHT_BROCKET!
     ;
 finally { setInBitField(false); }
@@ -283,14 +305,16 @@ attributeFormatCall
 /*======================================================================================*/
 
 sequence
-    : (statement SEMI)* -> ^(SEQUENCE statement*) 
+    :  (statement SEMI)* -> ^(SEQUENCE statement*) 
     ;
 
 statement
     :  attributeCallStatement
+    |  functionCall
     |  location ASSIGN^ expr
     |  conditionalStatement
     |  functionCallStatement
+    |  RETURN^ expr
     ;
 
 attributeCallStatement
@@ -304,17 +328,17 @@ attributeCall
     ;
 
 instance
-    :  /*{isDeclaredAs(input.LT(1), NmlSymbolKind.MODE) || isDeclaredAs(input.LT(1), NmlSymbolKind.OP)}?*/ ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
+    :  {!isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}? ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
     ;
 
 instance_arg
-    : instance 
-    | argument
-    | expr
+    :  instance
+    |  argument
+    |  expr
     ;
 
 argument
-    : {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
+    :  {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT) && (input.LA(2) == COMMA || input.LA(2) == RIGHT_PARENTH) }? ID -> ^(ARGUMENT ID)
     ;
 
 conditionalStatement
@@ -332,13 +356,14 @@ elseIfStmt
 elseStmt
     :  ELSE^ sequence
     ;
-    
+
 functionCallStatement
     :  TRACE^ LEFT_PARENTH! STRING_CONST (COMMA! formatIdList)? RIGHT_PARENTH!
     |  EXCEPTION^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
     |  MARK^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
-    |  UNPREDICTED (LEFT_PARENTH! RIGHT_PARENTH!)?  
+    |  UNPREDICTED (LEFT_PARENTH! RIGHT_PARENTH!)?
     |  UNDEFINED (LEFT_PARENTH! RIGHT_PARENTH!)?
+    |  ASSERT^ LEFT_PARENTH! expr RIGHT_PARENTH!
 //  |  ERROR^ LEFT_PARENTH! STRING_CONST RIGHT_PARENTH!
     ;
 
