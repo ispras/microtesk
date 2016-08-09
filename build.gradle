@@ -219,8 +219,6 @@ sonarqube {
   }
 }
 
-mainClassName = "ru.ispras.microtesk.MicroTESK"
-
 jar {
   archiveName = projectName + '.jar'
 
