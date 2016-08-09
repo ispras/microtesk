@@ -293,8 +293,9 @@ distributions {
         into("etc")
       }
 
-      from("xdocs/") {
+      from(fileTree("xdocs/").files) {
         into("doc")
+        include("**/*microtesk*.pdf")
       }
 
       from("ChangeLog")
