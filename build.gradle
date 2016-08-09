@@ -314,6 +314,8 @@ distributions {
   main{
     baseName = projectName
     contents {
+      rename '(.)*.jar', 'jars/$0.jar'
+
       from("src/main/arch/") {
         into("arch")
       }
