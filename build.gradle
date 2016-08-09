@@ -34,7 +34,7 @@ buildscript {
 plugins {
   id 'net.saliman.properties' version '1.4.4'
   id 'net.researchgate.release' version '2.3.5'
-  id "org.sonarqube" version "1.0"
+  id 'org.sonarqube' version '1.0'
 }
 
 apply plugin: 'os'
@@ -59,10 +59,10 @@ repositories {
     }
   }
   maven {
-    url "http://forge.ispras.ru:8082/nexus/content/repositories/releases"
+    url 'http://forge.ispras.ru:8082/nexus/content/repositories/releases'
   }
   maven {
-    url "http://forge.ispras.ru:8082/nexus/content/repositories/snapshots"
+    url 'http://forge.ispras.ru:8082/nexus/content/repositories/snapshots'
   }
   mavenCentral();
 }
@@ -226,7 +226,7 @@ jar {
   archiveName = projectName + '.jar'
 
   from('LICENSE') {
-    into('META-INF/')
+    into('META-INF')
   }
 
   exclude('*core*')
@@ -306,57 +306,85 @@ task translateMiniMips(type: JavaExec) {
   ]
 }
 
-distTar.dependsOn.add('translateCpuDemo')
-distTar.dependsOn.add('translateVliwDemo')
-distTar.dependsOn.add('translateMiniMips')
+task compileModels(type: JavaCompile) {
+  source = fileTree(dir: 'build/gen/src', include: '**/*.java')
+  destinationDir = file('build/gen/bin')
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+}
+
+task jarModels(type: Jar) {
+  archiveName = 'models.jar'
+  from('build/gen/bin')
+
+  manifest {
+    attributes 'Title'  : projectTitle + ' Models'
+    attributes 'Version': project.version
+    attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
+    attributes 'Built-By': System.getProperty('user.name')
+    attributes 'Built-JDK': System.getProperty('java.version')
+    attributes 'Class-Path': projectName + '.jar'
+  }
+}
+
+distTar.dependsOn.add('jarModels')
+jarModels.dependsOn.add('compileModels')
+compileModels.dependsOn.add('translateCpuDemo')
+compileModels.dependsOn.add('translateVliwDemo')
+compileModels.dependsOn.add('translateMiniMips')
 
 distributions {
   main{
     baseName = projectName
-    contents {
-      rename '(.)*.jar', 'jars/$0.jar'
 
-      from("src/main/arch/") {
-        into("arch")
+    contents {
+      rename '(.)*(?<!-src|-javadoc).jar', 'jars/$0.jar'
+
+      into('lib') {
+        from jarModels
+      }
+
+      from('src/main/arch') {
+        into('arch')
       }
 
       from('build/gen') {
         into('gen')
       }
 
-      from("src/main/bin/") {
-        into("bin")
+      from('src/main/bin') {
+        into('bin')
       }
 
-      from("src/main/ruby/") {
-        into("lib/ruby")
+      from('src/main/ruby') {
+        into('lib/ruby')
       }
 
       from(sourcesJar) {
-        into("src")
+        into('src')
       }
 
       from(javadocJar) {
-        into("javadoc")
+        into('javadoc')
       }
 
-      from("src/main/etc/") {
-        into("etc")
+      from('src/main/etc') {
+        into('etc')
       }
 
-      from(fileTree("xdocs/").files) {
-        into("doc")
-        include("**/*microtesk*.pdf")
+      from(fileTree('xdocs').files) {
+        into('doc')
+        include('**/*microtesk*.pdf')
       }
 
-      from("ChangeLog")
-      from("LICENSE")
-      from("NOTICE")
-      from("src/main/text/README")
+      from('ChangeLog')
+      from('LICENSE')
+      from('NOTICE')
+      from('src/main/text/README')
 
-      from("src/main/text/README_TOOLS") {
-        into("tools")
-        rename("README_TOOLS", "README")
+      from('src/main/text/README_TOOLS') {
+        into('tools')
+        rename('README_TOOLS', 'README')
       }
     }
   }
