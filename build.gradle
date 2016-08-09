@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,7 +32,9 @@ buildscript {
 }
 
 plugins {
-  id 'net.researchgate.release' version '2.0.2'
+  id 'net.saliman.properties' version '1.4.4'
+  id 'net.researchgate.release' version '2.3.5'
+  id "org.sonarqube" version "1.0"
 }
 
 apply plugin: 'os'
@@ -44,6 +46,8 @@ apply plugin: 'findbugs'
 apply plugin: 'pmd'
 apply plugin: 'jacoco'
 apply plugin: 'sonar-runner'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 repositories {
   ivy {
@@ -147,16 +151,6 @@ task getDependencies(type: Copy) {
   from configurations.compile, configurations.testCompile
   into 'libs'
 }
-
-def getVersionWithUpdatedDate() {
-  return project.version.replace("SNAPSHOT", "") + new SimpleDateFormat("yyMMdd").format(new Date())
-}
-
-task updateVersionDate << {
-  project.version = getVersionWithUpdatedDate()
-}
-
-compileJava.dependsOn updateVersionDate
 
 release {
   failOnCommitNeeded = false
@@ -263,8 +257,8 @@ jar {
   from('src/main/resources/core/config.xml')
 
   manifest {
-    attributes 'Title'  : 'MicroTESK'
-    attributes 'Version': getVersionWithUpdatedDate()
+    attributes 'Title'  : projectTitle
+    attributes 'Version': project.version
     attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
     attributes 'Built-By': System.getProperty('user.name')
     attributes 'Built-JDK': System.getProperty('java.version')
