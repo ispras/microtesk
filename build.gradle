@@ -340,3 +340,43 @@ distributions {
     }
   }
 }
+
+def repoUrlStr = 'http://forge.ispras.ru:8082/nexus/content/repositories/'
+def repoUserStr = hasProperty('repoUser') ? repoUser : "$System.env._REPO_USER"
+def repoPasswordStr = hasProperty('repoPassword') ? repoPassword : "$System.env._REPO_PASSWORD"
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      groupId projectGroup
+      artifactId projectName
+      version project.version
+      from components.java
+
+      artifact(sourcesJar) {
+        classifier = "sources"
+      }
+
+      artifact(distTar)
+    }
+  }
+
+  repositories {
+    maven {
+      if(project.version.endsWith('-SNAPSHOT')) {
+        url repoUrlStr + 'snapshots'
+      } else {
+        url repoUrlStr + 'releases'
+      }
+      credentials {
+        username repoUserStr
+        password repoPasswordStr
+      }
+      authentication {
+        basic(BasicAuthentication)
+      }
+    }
+  }
+}
+
+afterReleaseBuild.dependsOn publish
