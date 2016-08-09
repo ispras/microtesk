@@ -260,11 +260,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
-artifacts {
-  archives sourcesJar
-  archives javadocJar
-}
-
 distributions {
   main{
     baseName = projectName
