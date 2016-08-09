@@ -181,6 +181,14 @@ test {
   ignoreFailures = true
 }
 
+sourceSets {
+  test {
+    resources {
+      srcDir "${project.projectDir}/build/classes/main"
+    }
+  }
+}
+
 //copying all dependencies attached to 'compile' into a specific folder
 task getDependencies(type: Copy) {
   //referring to the 'compile' configuration
