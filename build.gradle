@@ -229,7 +229,16 @@ jar {
     into('META-INF/')
   }
 
+  exclude('*core*')
+  exclude('*plugins*')
+
   from('src/main/resources/core/config.xml')
+  from('src/main/resources/core/stg') {
+    into('stg')
+  }
+  from('src/main/resources/plugins/mmu/stg') {
+    into('stg')
+  }
 
   manifest {
     attributes 'Title'  : projectTitle
@@ -260,12 +269,57 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
+task translateCpuDemo(type: JavaExec) {
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+  main = mainClassName
+  args = [
+    '-t',
+    'src/main/arch/demo/cpu/model/cpu.nml',
+    '-od',
+    'build/gen'
+  ]
+}
+
+task translateVliwDemo(type: JavaExec) {
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+  main = mainClassName
+  args = [
+    '-t',
+    'src/main/arch/demo/vliw/model/vliw.nml',
+    '-od',
+    'build/gen'
+  ]
+}
+
+task translateMiniMips(type: JavaExec) {
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+  main = mainClassName
+  args = [
+    '-t',
+    'src/main/arch/minimips/model/minimips.nml',
+    'src/main/arch/minimips/model/mmu/minimips.mmu',
+    '-od',
+    'build/gen'
+  ]
+}
+
+distTar.dependsOn.add('translateCpuDemo')
+distTar.dependsOn.add('translateVliwDemo')
+distTar.dependsOn.add('translateMiniMips')
+
 distributions {
   main{
     baseName = projectName
     contents {
       from("src/main/arch/") {
         into("arch")
+      }
+
+      from('build/gen') {
+        into('gen')
       }
 
       from("src/main/bin/") {
