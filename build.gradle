@@ -342,7 +342,8 @@ distributions {
     baseName = projectName
 
     contents {
-      rename '(.)*(?<!-src|-javadoc).jar', 'jars/$0'
+      rename '(.)*(?<!-src|-javadoc|microtesk).jar', 'jars/$0'
+      rename '(.)*microtesk.jar', 'lib/jars/microtesk.jar'
 
       into('lib') {
         from jarModels
