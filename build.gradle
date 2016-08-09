@@ -161,6 +161,19 @@ task getCVC4(type: Copy) {
 
 test.dependsOn getCVC4
 
+task copyResources(type: Copy) {
+  from 'src/main/resources/core/stg'
+  into 'build/classes/main/stg'
+
+  from 'src/main/resources/plugins/mmu/stg'
+  into 'build/classes/main/stg'
+
+  from 'src/main/resources/core/config.xml'
+  into 'build/classes/main'
+}
+
+test.dependsOn copyResources
+
 test {
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
