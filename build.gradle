@@ -28,7 +28,6 @@ buildscript {
   }
   dependencies {
     classpath 'gradle:gradle-os-plugin:1.0'
-    classpath 'de.aaschmid.gradle.plugins:gradle-cpd-plugin:0.3'
   }
 }
 
@@ -43,7 +42,6 @@ apply plugin: 'application'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
-apply plugin: 'cpd'
 apply plugin: 'jacoco'
 apply plugin: 'sonar-runner'
 
@@ -55,6 +53,9 @@ repositories {
       // z3
       artifact '[organization]/[artifact]-[revision](.[ext])'
     }
+  }
+  maven {
+    url "http://forge.ispras.ru:8082/nexus/content/repositories/snapshots"
   }
   mavenCentral();
 }
@@ -92,13 +93,13 @@ dependencies {
   testRuntime z3
   testRuntime cvc4
 
-  antlr 'org.antlr:antlr:3.4'
+  antlr 'org.antlr:antlr:3.5'
   compile 'commons-cli:commons-cli:1.2'
+  compile 'org.jruby:jruby-complete:1.7.25'
 
-  compile files("${project.projectDir}/jars/jruby.jar")
-  compile files("${project.projectDir}/jars/fortress.jar")
-  compile files("${project.projectDir}/jars/testbase.jar")
-  compile files("${project.projectDir}/jars/jsoftfloat.jar")
+  compile 'fortress:fortress:+'
+  compile 'testbase:testbase:+'
+  compile 'jsoftfloat:jsoftfloat:+'
 }
 
 task getZ3(type: Copy) {
