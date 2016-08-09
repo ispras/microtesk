@@ -281,7 +281,7 @@ task translateCpuDemo(type: JavaExec) {
     '-t',
     'src/main/arch/demo/cpu/model/cpu.nml',
     '-od',
-    'build/gen'
+    'build/generated-src/models'
   ]
 }
 
@@ -293,7 +293,7 @@ task translateVliwDemo(type: JavaExec) {
     '-t',
     'src/main/arch/demo/vliw/model/vliw.nml',
     '-od',
-    'build/gen'
+    'build/generated-src/models'
   ]
 }
 
@@ -306,20 +306,20 @@ task translateMiniMips(type: JavaExec) {
     'src/main/arch/minimips/model/minimips.nml',
     'src/main/arch/minimips/model/mmu/minimips.mmu',
     '-od',
-    'build/gen'
+    'build/generated-src/models'
   ]
 }
 
 task compileModels(type: JavaCompile) {
-  source = fileTree(dir: 'build/gen/src', include: '**/*.java')
-  destinationDir = file('build/gen/bin')
+  source = fileTree(dir: 'build/generated-src/models/src', include: '**/*.java')
+  destinationDir = file('build/classes/models')
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
 }
 
 task jarModels(type: Jar) {
   archiveName = 'models.jar'
-  from('build/gen/bin')
+  from('build/classes/models')
 
   manifest {
     attributes 'Title'  : projectTitle + ' Models'
@@ -352,7 +352,7 @@ distributions {
         into('arch')
       }
 
-      from('build/gen') {
+      from('build/generated-src/models') {
         into('gen')
       }
 
