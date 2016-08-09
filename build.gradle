@@ -24,8 +24,9 @@ buildscript {
         artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
       }
     }
-    mavenCentral();
+    jcenter()
   }
+
   dependencies {
     classpath 'gradle:gradle-os-plugin:1.0'
   }
@@ -49,6 +50,12 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 repositories {
+  maven {
+    url 'http://forge.ispras.ru:8082/nexus/content/repositories/releases'
+  }
+  maven {
+    url 'http://forge.ispras.ru:8082/nexus/content/repositories/snapshots'
+  }
   ivy {
     url = 'http://forge.ispras.ru/repo'
     layout 'pattern', {
@@ -57,13 +64,23 @@ repositories {
       artifact '[organization]/[artifact]-[revision](.[ext])'
     }
   }
-  maven {
-    url 'http://forge.ispras.ru:8082/nexus/content/repositories/releases'
+  jcenter()
+}
+
+uploadArchives {
+  repositories {
+    mavenLocal()
   }
-  maven {
-    url 'http://forge.ispras.ru:8082/nexus/content/repositories/snapshots'
-  }
-  mavenCentral();
+}
+
+release {
+  failOnCommitNeeded = false
+
+  versionPatterns = [
+    // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
+    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: 
+    { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
+  ]
 }
 
 String z3
@@ -157,15 +174,6 @@ task getDependencies(type: Copy) {
   //referring to the 'compile' configuration
   from configurations.compile, configurations.testCompile
   into 'libs'
-}
-
-release {
-  failOnCommitNeeded = false
-
-  versionPatterns = [
-    // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
-    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
-  ]
 }
 
 compileJava {
