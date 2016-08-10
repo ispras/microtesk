@@ -22,7 +22,6 @@ import ru.ispras.microtesk.utils.FileUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class LogEntry {
 
   /**
@@ -31,7 +30,6 @@ public final class LogEntry {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-
   public static enum Kind {
     /**
      * Signifies a severe translation error. Usually it means that some part of the 
@@ -73,7 +71,6 @@ public final class LogEntry {
    * @param position The position in the problematic line in the source file.
    * @param message The text message containing a description of the issue.
    */
-
   public LogEntry(
       final Kind kind,
       final SenderKind sender,
@@ -98,7 +95,6 @@ public final class LogEntry {
   /**
    * Return the textual representation of the entry.
    */
-
   @Override
   public String toString() {
     return String.format(
@@ -117,7 +113,6 @@ public final class LogEntry {
    * 
    * @return The severity level of the issue.
    */
-
   public Kind getKind() {
     return kind;
   }
@@ -127,7 +122,6 @@ public final class LogEntry {
    * 
    * @return Identifier of the subsystem that detected an issue.
    */
-
   public SenderKind getSender() {
     return sender;
   }
@@ -137,7 +131,6 @@ public final class LogEntry {
    * 
    * @return Source file name.
    */
-
   public String getSource() {
     return source;
   }
@@ -147,7 +140,6 @@ public final class LogEntry {
    * 
    * @return The line number.
    */
-
   public int getLine() {
     return line;
   }
@@ -157,7 +149,6 @@ public final class LogEntry {
    * 
    * @return The position of the text in the problematic line that caused the issue.
    */
-
   public int getPosition() {
     return position;
   }
@@ -167,7 +158,6 @@ public final class LogEntry {
    * 
    * @return The issue description.
    */
-
   public String getMessage() {
     return message;
   }

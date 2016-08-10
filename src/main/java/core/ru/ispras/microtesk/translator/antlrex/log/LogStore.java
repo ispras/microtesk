@@ -20,13 +20,11 @@ package ru.ispras.microtesk.translator.antlrex.log;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface LogStore {
   /**
    * Appends a record to the log store.
    * 
    * @param entry A log entry object. Stores detailed information bout the event.
    */
-
   public void append(LogEntry entry);
 }

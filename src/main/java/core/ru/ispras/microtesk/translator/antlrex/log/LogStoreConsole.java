@@ -20,14 +20,13 @@ package ru.ispras.microtesk.translator.antlrex.log;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class LogStoreConsole implements LogStore {
   public static LogStore INSTANCE = new LogStoreConsole();
 
   private LogStoreConsole() {}
 
   @Override
-  public void append(LogEntry entry) {
+  public void append(final LogEntry entry) {
     System.err.println(entry);
   }
 }

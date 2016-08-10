@@ -23,17 +23,16 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public abstract class LogStoreListener implements LogStore {
   private final LogStore log;
 
-  public LogStoreListener(LogStore log) {
+  public LogStoreListener(final LogStore log) {
     checkNotNull(log);
     this.log = log;
   }
 
   @Override
-  public final void append(LogEntry entry) {
+  public final void append(final LogEntry entry) {
     log.append(entry);
     processLogEntry(entry);
   }
