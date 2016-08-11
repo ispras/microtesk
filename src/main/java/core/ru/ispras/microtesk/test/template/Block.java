@@ -74,7 +74,6 @@ public final class Block {
     this.wrappedIterator = prologue.isEmpty() && epilogue.isEmpty() ?
         iterator :
         new GeneratorPrologueEpilogue<Call>(iterator, prologue, epilogue);
-        ;
 
     this.refCount = 0;
   }
