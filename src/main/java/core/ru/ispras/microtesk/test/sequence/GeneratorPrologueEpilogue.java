@@ -18,44 +18,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class GeneratorPrologueEpilogue<T> implements Generator<T> {
-  private final Generator<T> generator;
+  private final Iterator<List<T>> iterator;
   private final List<T> prologue;
   private final List<T> epilogue;
 
   public GeneratorPrologueEpilogue(
-      final Generator<T> generator,
+      final Iterator<List<T>> iterator,
       final List<T> prologue,
       final List<T> epilogue) {
-    InvariantChecks.checkNotNull(generator);
+    InvariantChecks.checkNotNull(iterator);
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(epilogue);
 
-    this.generator = generator;
+    this.iterator = iterator;
     this.prologue = prologue;
     this.epilogue = epilogue;
   }
 
   private GeneratorPrologueEpilogue(final GeneratorPrologueEpilogue<T> other) {
-    this.generator = (Generator<T>) other.generator.clone();
+    this.iterator = other.iterator.clone();
     this.prologue = other.prologue;
     this.epilogue = other.epilogue;
   }
 
   @Override
   public void init() {
-    generator.init();
+    iterator.init();
   }
 
   @Override
   public boolean hasValue() {
-    return generator.hasValue();
+    return iterator.hasValue();
   }
 
   @Override
   public List<T> value() {
-    final List<T> body = generator.value();
+    final List<T> body = iterator.value();
 
     if (prologue.isEmpty() && epilogue.isEmpty()) {
       return body;
@@ -73,12 +74,12 @@ public final class GeneratorPrologueEpilogue<T> implements Generator<T> {
 
   @Override
   public void next() {
-    generator.next();
+    iterator.next();
   }
 
   @Override
   public void stop() {
-    generator.stop();
+    iterator.stop();
   }
 
   @Override
