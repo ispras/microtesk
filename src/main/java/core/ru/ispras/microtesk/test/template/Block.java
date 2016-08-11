@@ -54,6 +54,9 @@ public final class Block {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(epilogue);
 
+    // External code has no prologue and epilogue, it prologue and epilogue for all root blocks.
+    InvariantChecks.checkTrue(isExternal ? epilogue.isEmpty() && prologue.isEmpty() : false);
+
     this.blockId = blockId;
     this.where = where;
 
