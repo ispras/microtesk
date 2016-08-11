@@ -63,22 +63,6 @@ public final class Block {
     this.refCount = 0;
   }
 
-  protected Block(
-      final BlockId blockId,
-      final Where where,
-      final boolean isAtomic,
-      final boolean isExternal,
-      final Iterator<List<Call>> iterator) {
-    this(
-        blockId,
-        where,
-        isAtomic,
-        isExternal,
-        iterator,
-        Collections.<String, Object>emptyMap()
-        );
-  }
-
   public BlockId getBlockId() {
     return blockId;
   }

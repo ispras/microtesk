@@ -182,7 +182,13 @@ public final class BlockBuilder {
     final Iterator<List<Call>> iterator =
         new SingleValueIterator<>(Collections.singletonList(call));
 
-    nestedBlocks.add(new Block(blockId, where, true, false, iterator));
+    nestedBlocks.add(new Block(
+        blockId,
+        where, true,
+        false,
+        iterator,
+        Collections.<String, Object>emptyMap())
+        );
   }
 
   public void setPrologue(final List<Call> value) {
