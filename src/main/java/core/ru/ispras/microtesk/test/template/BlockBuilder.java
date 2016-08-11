@@ -186,9 +186,11 @@ public final class BlockBuilder {
         blockId,
         where, true,
         false,
+        Collections.<String, Object>emptyMap(),
         iterator,
-        Collections.<String, Object>emptyMap())
-        );
+        Collections.<Call>emptyList(),
+        Collections.<Call>emptyList()
+        ));
   }
 
   public void setPrologue(final List<Call> value) {
@@ -282,8 +284,10 @@ public final class BlockBuilder {
         where,
         isAtomic,
         isExternal,
+        attributes,
         generatorGlobalPrologueEpilogue,
-        attributes
+        Collections.<Call>emptyList(),
+        Collections.<Call>emptyList()
         );
   }
 

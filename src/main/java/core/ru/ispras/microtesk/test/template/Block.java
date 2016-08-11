@@ -18,17 +18,23 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;
   private final Where where;
+
   private final boolean isAtomic;
   private final boolean isExternal;
+  private final Map<String, Object> attributes;
 
   private final Iterator<List<Call>> iterator;
-  private final Map<String, Object> attributes;
   private final boolean isEmpty;
+
+  private final List<Call> prologue;
+  private final List<Call> epilogue;
+  private final Iterator<List<Call>> wrappedIterator;
 
   // Number of times the block was nested into other blocks.
   private int refCount;
@@ -38,18 +44,21 @@ public final class Block {
       final Where where,
       final boolean isAtomic,
       final boolean isExternal,
+      final Map<String, Object> attributes,
       final Iterator<List<Call>> iterator,
-      final Map<String, Object> attributes) {
+      final List<Call> prologue,
+      final List<Call> epilogue) {
     InvariantChecks.checkNotNull(blockId);
-    InvariantChecks.checkNotNull(iterator);
     InvariantChecks.checkNotNull(attributes);
+    InvariantChecks.checkNotNull(iterator);
+    InvariantChecks.checkNotNull(prologue);
+    InvariantChecks.checkNotNull(epilogue);
 
     this.blockId = blockId;
     this.where = where;
+
     this.isAtomic = isAtomic;
     this.isExternal = isExternal;
-
-    this.iterator = iterator;
     this.attributes = attributes;
 
     // A block is considered empty if it does not contain any instruction
@@ -57,7 +66,15 @@ public final class Block {
     // useful outside the block.
 
     iterator.init();
+    this.iterator = iterator;
     this.isEmpty = !iterator.hasValue();
+
+    this.prologue = prologue;
+    this.epilogue = epilogue;
+    this.wrappedIterator = prologue.isEmpty() && epilogue.isEmpty() ?
+        iterator :
+        new GeneratorPrologueEpilogue<Call>(iterator, prologue, epilogue);
+        ;
 
     this.refCount = 0;
   }
@@ -78,10 +95,6 @@ public final class Block {
     return isExternal;
   }
 
-  public Iterator<List<Call>> getIterator() {
-    return iterator;
-  }
-
   public Object getAttribute(final String name) {
     return attributes.get(name);
   }
@@ -95,8 +108,24 @@ public final class Block {
     return attributes;
   }
 
+  public Iterator<List<Call>> getIterator() {
+    return getIterator(true);
+  }
+
+  public Iterator<List<Call>> getIterator(final boolean isPrologueEpilogue) {
+    return isPrologueEpilogue ? wrappedIterator : iterator;
+  }
+
   public boolean isEmpty() {
     return isEmpty;
+  }
+
+  public List<Call> getPrologue() {
+    return prologue;
+  }
+
+  public List<Call> getEpilogue() {
+    return epilogue;
   }
 
   protected int getRefCount() {
