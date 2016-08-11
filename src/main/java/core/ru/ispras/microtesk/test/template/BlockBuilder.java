@@ -38,6 +38,8 @@ public final class BlockBuilder {
 
   private final Map<String, Object> attributes;
   private final List<Block> nestedBlocks;
+  private List<Call> prologue;
+  private List<Call> epilogue;
 
   private String combinatorName;
   private String permutatorName;
@@ -48,9 +50,6 @@ public final class BlockBuilder {
   private boolean isAtomic;
   private boolean isSequence;
   private boolean isIterate;
-
-  private List<Call> prologue;
-  private List<Call> epilogue;
 
   protected BlockBuilder(final boolean isExternal) {
     this(new BlockId(), isExternal);
@@ -67,6 +66,8 @@ public final class BlockBuilder {
 
     this.attributes = new HashMap<>();
     this.nestedBlocks = new ArrayList<>();
+    this.prologue = null;
+    this.epilogue = null;
 
     this.combinatorName = null;
     this.permutatorName = null;
@@ -77,9 +78,6 @@ public final class BlockBuilder {
     this.isAtomic = false;
     this.isSequence = false;
     this.isIterate = false;
-
-    this.prologue = null;
-    this.epilogue = null;
   }
 
   public BlockId getBlockId() {
