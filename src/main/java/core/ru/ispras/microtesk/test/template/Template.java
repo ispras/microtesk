@@ -86,10 +86,6 @@ public final class Template {
   private boolean isMainSection;
   private int openBlockCount;
 
-  // Test case level prologue and epilogue
-  private List<Call> prologueBuilder;
-  private List<Call> epilogueBuilder;
-
   private List<Call> globalPrologue;
   private List<Call> globalEpilogue;
 
@@ -124,9 +120,6 @@ public final class Template {
 
     this.groupVariates = newVariatesForGroups(metaModel);
     this.defaultSituations = new HashMap<>();
-
-    this.prologueBuilder = null;
-    this.epilogueBuilder = null;
 
     this.globalPrologue = null;
     this.globalEpilogue = null;
@@ -299,6 +292,8 @@ public final class Template {
     }
 
     --openBlockCount;
+    InvariantChecks.checkGreaterOrEqZero(openBlockCount);
+
     return new BlockHolder(block);
   }
 
@@ -405,10 +400,6 @@ public final class Template {
         streamPreparatorBuilder.addCall(call);
       } else if (null != exceptionHandlerBuilder) {
         exceptionHandlerBuilder.addCall(call);
-      } else if (null != prologueBuilder) {
-        prologueBuilder.add(call);
-      } else if (null != epilogueBuilder) {
-        epilogueBuilder.add(call);
       } else {
         blockBuilders.peek().addCall(call);
       }
@@ -990,25 +981,21 @@ public final class Template {
     checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
-    checkTrue(null == prologueBuilder);
-    checkTrue(null == epilogueBuilder);
 
-    prologueBuilder = new ArrayList<>();
+    blockBuilders.peek().setPrologue(true);
   }
 
   public void endPrologue() {
     endBuildingCall();
     Logger.debug("End Test Case Level Prologue");
 
-    if (openBlockCount > 0) {
-      final BlockBuilder currentBlockBuilder = blockBuilders.peek();
-      currentBlockBuilder.setPrologue(prologueBuilder);
-    } else {
-      checkTrue(null == globalPrologue, "Global test case level prologue is redefined");
-      globalPrologue = Collections.unmodifiableList(prologueBuilder);
-    }
+    final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+    currentBlockBuilder.setPrologue(false);
 
-    prologueBuilder = null;
+    if (currentBlockBuilder.isExternal()) {
+      checkTrue(null == globalPrologue, "Global test case level prologue is redefined");
+      globalPrologue = currentBlockBuilder.getPrologue();
+    }
   }
 
   public void beginEpilogue() {
@@ -1019,25 +1006,21 @@ public final class Template {
     checkTrue(null == bufferPreparatorBuilder);
     checkTrue(null == streamPreparatorBuilder);
     checkTrue(null == exceptionHandlerBuilder);
-    checkTrue(null == prologueBuilder);
-    checkTrue(null == epilogueBuilder);
 
-    epilogueBuilder = new ArrayList<>();
+    blockBuilders.peek().setEpilogue(true);
   }
 
   public void endEpilogue() {
     endBuildingCall();
     Logger.debug("End Test Case Level Epilogue");
 
-    if (openBlockCount > 0) {
-      final BlockBuilder currentBlockBuilder = blockBuilders.peek();
-      currentBlockBuilder.setEpilogue(epilogueBuilder);
-    } else {
-      checkTrue(null == globalEpilogue, "Global test case level epilogue is redefined");
-      globalEpilogue = Collections.unmodifiableList(epilogueBuilder);
-    }
+    final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+    currentBlockBuilder.setEpilogue(false);
 
-    epilogueBuilder = null;
+    if (currentBlockBuilder.isExternal()) {
+      checkTrue(null == globalEpilogue, "Global test case level epilogue is redefined");
+      globalEpilogue = currentBlockBuilder.getEpilogue();
+    }
   }
 
   public MemoryObjectBuilder newMemoryObjectBuilder(final int size) {

@@ -38,8 +38,11 @@ public final class BlockBuilder {
 
   private final Map<String, Object> attributes;
   private final List<Block> nestedBlocks;
-  private List<Call> prologue;
-  private List<Call> epilogue;
+  private final List<Call> prologue;
+  private final List<Call> epilogue;
+
+  private boolean isPrologue; // Flag to show that prologue is being constructed
+  private boolean isEpilogue; // Flag to show that epilogue is being constructed
 
   private String combinatorName;
   private String permutatorName;
@@ -56,7 +59,7 @@ public final class BlockBuilder {
   }
 
   protected BlockBuilder(final BlockBuilder parent) {
-    this(parent.getBlockId().nextChildId(), true);
+    this(parent.getBlockId().nextChildId(), false);
   }
 
   private BlockBuilder(final BlockId blockId, final boolean isExternal) {
@@ -66,8 +69,8 @@ public final class BlockBuilder {
 
     this.attributes = new HashMap<>();
     this.nestedBlocks = new ArrayList<>();
-    this.prologue = null;
-    this.epilogue = null;
+    this.prologue = new ArrayList<>();
+    this.epilogue = new ArrayList<>();
 
     this.combinatorName = null;
     this.permutatorName = null;
@@ -82,6 +85,18 @@ public final class BlockBuilder {
 
   public BlockId getBlockId() {
     return blockId;
+  }
+
+  public boolean isExternal() {
+    return isExternal;
+  }
+
+  public List<Call> getPrologue() {
+    return prologue;
+  }
+
+  public List<Call> getEpilogue() {
+    return epilogue;
   }
 
   public boolean isEmpty() {
@@ -177,40 +192,36 @@ public final class BlockBuilder {
       return;
     }
 
-    final Iterator<List<Call>> iterator =
-        new SingleValueIterator<>(Collections.singletonList(call));
+    if (isPrologue) {
+      prologue.add(call);
+    } else if (isEpilogue) {
+      epilogue.add(call);
+    } else {
+      final Iterator<List<Call>> iterator =
+          new SingleValueIterator<>(Collections.singletonList(call));
 
-    nestedBlocks.add(new Block(
-        blockId,
-        where, true,
-        false,
-        Collections.<String, Object>emptyMap(),
-        iterator,
-        Collections.<Call>emptyList(),
-        Collections.<Call>emptyList()
-        ));
+      nestedBlocks.add(new Block(
+          blockId,
+          where, true,
+          false,
+          Collections.<String, Object>emptyMap(),
+          iterator,
+          Collections.<Call>emptyList(),
+          Collections.<Call>emptyList()
+          ));
+    }
   }
 
-  public void setPrologue(final List<Call> value) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkFalse(hasPrologue());
-
-    this.prologue = value;
+  public void setPrologue(final boolean value) {
+    InvariantChecks.checkTrue(value ? !isPrologue && prologue.isEmpty() : isPrologue);
+    InvariantChecks.checkFalse(isEpilogue);
+    this.isPrologue = value;
   }
 
-  public boolean hasPrologue() {
-    return prologue != null;
-  }
-
-  public void setEpilogue(final List<Call> value) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkFalse(hasEpilogue());
-
-    this.epilogue = value;
-  }
-
-  public boolean hasEpilogue() {
-    return epilogue != null;
+  public void setEpilogue(final boolean value) {
+    InvariantChecks.checkTrue(value ? !isEpilogue && epilogue.isEmpty() : isEpilogue);
+    InvariantChecks.checkFalse(isPrologue);
+    this.isEpilogue = value;
   }
 
   public Block build() {
@@ -218,6 +229,9 @@ public final class BlockBuilder {
   }
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
+    InvariantChecks.checkFalse(isPrologue);
+    InvariantChecks.checkFalse(isEpilogue);
+
     if (!isAtomic && !isSequence && !isIterate &&
         combinatorName == null &&
         permutatorName == null &&
