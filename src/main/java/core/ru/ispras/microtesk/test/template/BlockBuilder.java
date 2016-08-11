@@ -36,8 +36,8 @@ public final class BlockBuilder {
   private final boolean isExternal;
   private Where where;
 
-  private List<Block> nestedBlocks;
-  private Map<String, Object> attributes;
+  private final List<Block> nestedBlocks;
+  private final Map<String, Object> attributes;
 
   private String combinatorName;
   private String permutatorName;
