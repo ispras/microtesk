@@ -36,8 +36,8 @@ public final class BlockBuilder {
   private final boolean isExternal;
   private Where where;
 
-  private final List<Block> nestedBlocks;
   private final Map<String, Object> attributes;
+  private final List<Block> nestedBlocks;
 
   private String combinatorName;
   private String permutatorName;
@@ -65,8 +65,8 @@ public final class BlockBuilder {
     this.isExternal = isExternal;
     this.where = null;
 
-    this.nestedBlocks = new ArrayList<>();
     this.attributes = new HashMap<>();
+    this.nestedBlocks = new ArrayList<>();
 
     this.combinatorName = null;
     this.permutatorName = null;
