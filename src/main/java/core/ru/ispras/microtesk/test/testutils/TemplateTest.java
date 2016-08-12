@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.testutils;
 import java.util.ArrayList;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.MicroTESK;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
@@ -27,7 +28,7 @@ import ru.ispras.microtesk.test.TestEngine;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class TemplateTest {
+public abstract class TemplateTest implements Logger.Listener {
   private final String arch;
   private final String path;
   private boolean verbose;
