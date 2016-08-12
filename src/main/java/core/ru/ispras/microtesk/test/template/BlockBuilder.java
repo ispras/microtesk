@@ -23,9 +23,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
-import ru.ispras.microtesk.test.sequence.Generator;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
-import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -249,8 +247,22 @@ public final class BlockBuilder {
 
     final GeneratorBuilder<Call> generatorBuilder = newGeneratorBuilder();
 
+    final List<Call> resultPrologue = new ArrayList<>();
+    final List<Call> resultEpilogue = new ArrayList<>();
+
+    // Note: external code blocks have no prologue and epilogue. They can
+    // define prologue and epilogue to be added to all test cases, but they must
+    // be ignored when these blocks are processed.
+
+    resultPrologue.addAll(globalPrologue);
+    resultPrologue.addAll(isExternal ? Collections.<Call>emptyList() : prologue);
+
     for (final Block block : nestedBlocks) {
-      final Iterator<List<Call>> iterator = block.getIterator();
+      resultPrologue.addAll(block.getPrologue());
+      resultEpilogue.addAll(block.getEpilogue());
+
+      // This iterator does not add prologue and epilogue, which are handled by above lines.
+      final Iterator<List<Call>> iterator = block.getIterator(false);
       if (block.getRefCount() > 1) {
         generatorBuilder.addIterator(iterator.clone());
       } else {
@@ -258,20 +270,14 @@ public final class BlockBuilder {
       }
     }
 
+    resultEpilogue.addAll(isExternal ? Collections.<Call>emptyList() : epilogue);
+    resultEpilogue.addAll(globalEpilogue);
+
     // For an empty sequence block (non-external, explicitly specified),
     // a single empty sequence is inserted.
     if (isEmpty() && !isExternal && (isAtomic || isSequence)) {
       generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
     }
-
-    final Generator<Call> generator =
-        generatorBuilder.getGenerator();
-
-    final Generator<Call> generatorPrologueEpilogue =
-        wrapWithPrologueAndEpilogue(generator, prologue, epilogue);
-
-    final Generator<Call> generatorGlobalPrologueEpilogue =
-        wrapWithPrologueAndEpilogue(generatorPrologueEpilogue, globalPrologue, globalEpilogue);
 
     return new Block(
         blockId,
@@ -279,9 +285,9 @@ public final class BlockBuilder {
         isAtomic,
         isExternal,
         attributes,
-        generatorGlobalPrologueEpilogue,
-        Collections.<Call>emptyList(),
-        Collections.<Call>emptyList()
+        generatorBuilder.getGenerator(),
+        resultPrologue,
+        resultEpilogue
         );
   }
 
@@ -310,17 +316,5 @@ public final class BlockBuilder {
     }
 
     return generatorBuilder;
-  }
-
-  private static Generator<Call> wrapWithPrologueAndEpilogue(
-      final Generator<Call> generator,
-      final List<Call> prologue,
-      final List<Call> epilogue) {
-
-    if (prologue.isEmpty() && epilogue.isEmpty()) {
-      return generator;
-    }
-
-    return new GeneratorPrologueEpilogue<>(generator, prologue, epilogue);
   }
 }
