@@ -15,7 +15,7 @@
 package ru.ispras.microtesk;
 
 public final class Logger {
-  private static enum EventType {
+  public static enum EventType {
     DEBUG    (true,  ""),
     MESSAGE  (false, ""),
     WARNING  (false, "Warning: "),
@@ -30,14 +30,23 @@ public final class Logger {
     }
   }
 
+  public interface Listener {
+    void onEventLogged(Logger.EventType type, String message);
+  }
+
   public static final int LINE_WIDTH = 80;
   public static final String BAR = makeBar('-', LINE_WIDTH);
   public static final String SUPPORT_EMAIL = "microtesk-support@ispras.ru";
 
   private static boolean isDebug = false;
+  private static Listener listener = null;
 
   public static void setDebug(final boolean value) {
     isDebug = value;
+  }
+
+  public static void setListener(final Listener value) {
+    listener = value;
   }
 
   public static void message(final String format, final Object... args) {
@@ -58,7 +67,7 @@ public final class Logger {
 
   public static void debugBar() {
     if (isDebug) {
-      print(BAR);
+      print(EventType.DEBUG, BAR);
     }
   }
 
@@ -74,7 +83,7 @@ public final class Logger {
     }
 
     if (null == text || text.isEmpty()) {
-      print(System.lineSeparator() + BAR + System.lineSeparator());
+      print(EventType.DEBUG, System.lineSeparator() + BAR + System.lineSeparator());
       return;
     }
 
@@ -92,7 +101,7 @@ public final class Logger {
     sb.append(makeBar('-',  postfixLength - 1));
     sb.append(System.lineSeparator());
 
-    print(sb.toString());
+    print(EventType.DEBUG, sb.toString());
   }
 
   public static void exception(final Throwable e) {
@@ -116,13 +125,20 @@ public final class Logger {
     sb.append(System.lineSeparator());
     sb.append("We are sorry for the inconvenience.");
 
-    print(sb.toString());
+    sb.append(System.lineSeparator());
+    sb.append(System.lineSeparator());
+    sb.append("Exception stack:");
+    sb.append(System.lineSeparator());
+    sb.append(System.lineSeparator());
 
-    if (null != e) {
-      print("\r\nException stack:\r\n");
-      e.printStackTrace(System.out);
-    }
-    print(makeBar('*', LINE_WIDTH));
+    final java.io.StringWriter writer = new java.io.StringWriter();
+    e.printStackTrace(new java.io.PrintWriter(writer));
+    sb.append(writer.toString());
+
+    sb.append(System.lineSeparator());
+    sb.append(makeBar('*', LINE_WIDTH));
+
+    print(Logger.EventType.ERROR, sb.toString());
   }
 
   private static void print(
@@ -133,15 +149,19 @@ public final class Logger {
     }
 
     if (null == args || 0 == args.length) {
-      print(type.textPrefix + format);
+      print(type, type.textPrefix + format);
       return;
     }
 
-    print(type.textPrefix + (null != format ? String.format(format, args) : null)); 
+    print(type, type.textPrefix + (null != format ? String.format(format, args) : null)); 
   }
 
-  private static void print(final String text) {
+  private static void print(final EventType type, final String text) {
     System.out.println(text);
+
+    if (null != listener) {
+      listener.onEventLogged(type, text);
+    }
   }
 
   private static String makeBar(final char ch, final int length) {
