@@ -225,10 +225,13 @@ public final class BlockBuilder {
   }
 
   public Block build() {
-    return build(null, null);
+    return build(Collections.<Call>emptyList(), Collections.<Call>emptyList());
   }
 
   public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
+    InvariantChecks.checkNotNull(globalPrologue);
+    InvariantChecks.checkNotNull(globalEpilogue);
+
     InvariantChecks.checkFalse(isPrologue);
     InvariantChecks.checkFalse(isEpilogue);
 
@@ -314,14 +317,10 @@ public final class BlockBuilder {
       final List<Call> prologue,
       final List<Call> epilogue) {
 
-    if (prologue == null && epilogue == null) {
+    if (prologue.isEmpty() && epilogue.isEmpty()) {
       return generator;
     }
 
-    return new GeneratorPrologueEpilogue<>(
-        generator,
-        prologue != null ? prologue : Collections.<Call>emptyList(),
-        epilogue != null ? epilogue : Collections.<Call>emptyList()
-        );
+    return new GeneratorPrologueEpilogue<>(generator, prologue, epilogue);
   }
 }

@@ -114,8 +114,8 @@ public final class Template {
     this.callBuilder = null;
 
     this.isMainSection = false;
-    this.globalPrologue = null;
-    this.globalEpilogue = null;
+    this.globalPrologue = Collections.emptyList();
+    this.globalEpilogue = Collections.emptyList();
 
     this.groupVariates = newVariatesForGroups(metaModel);
     this.defaultSituations = new HashMap<>();
@@ -977,7 +977,7 @@ public final class Template {
     currentBlockBuilder.setPrologue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      checkTrue(null == globalPrologue, "Global test case level prologue is redefined");
+      checkTrue(globalPrologue.isEmpty(), "Global test case level prologue is already defined");
       globalPrologue = currentBlockBuilder.getPrologue();
     }
   }
@@ -1002,7 +1002,7 @@ public final class Template {
     currentBlockBuilder.setEpilogue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      checkTrue(null == globalEpilogue, "Global test case level epilogue is redefined");
+      checkTrue(globalEpilogue.isEmpty(), "Global test case level epilogue is already defined");
       globalEpilogue = currentBlockBuilder.getEpilogue();
     }
   }
