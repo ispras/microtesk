@@ -244,28 +244,7 @@ public final class BlockBuilder {
           );
     }
 
-    final GeneratorBuilder<Call> generatorBuilder =
-        new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
-
-    if (null != combinatorName) {
-      generatorBuilder.setCombinator(combinatorName);
-    }
-
-    if (null != permutatorName) {
-      generatorBuilder.setPermutator(permutatorName);
-    }
-
-    if (null != compositorName) {
-      generatorBuilder.setCompositor(compositorName);
-    }
-
-    if (null != rearrangerName) {
-      generatorBuilder.setRearranger(rearrangerName);
-    }
-
-    if (null != obfuscatorName) {
-      generatorBuilder.setObfuscator(obfuscatorName);
-    }
+    final GeneratorBuilder<Call> generatorBuilder = newGeneratorBuilder();
 
     for (final Block block : nestedBlocks) {
       final Iterator<List<Call>> iterator = block.getIterator();
@@ -301,6 +280,33 @@ public final class BlockBuilder {
         Collections.<Call>emptyList(),
         Collections.<Call>emptyList()
         );
+  }
+
+  private GeneratorBuilder<Call> newGeneratorBuilder() {
+    final GeneratorBuilder<Call> generatorBuilder =
+        new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
+
+    if (null != combinatorName) {
+      generatorBuilder.setCombinator(combinatorName);
+    }
+
+    if (null != permutatorName) {
+      generatorBuilder.setPermutator(permutatorName);
+    }
+
+    if (null != compositorName) {
+      generatorBuilder.setCompositor(compositorName);
+    }
+
+    if (null != rearrangerName) {
+      generatorBuilder.setRearranger(rearrangerName);
+    }
+
+    if (null != obfuscatorName) {
+      generatorBuilder.setObfuscator(obfuscatorName);
+    }
+
+    return generatorBuilder;
   }
 
   private static Generator<Call> wrapWithPrologueAndEpilogue(
