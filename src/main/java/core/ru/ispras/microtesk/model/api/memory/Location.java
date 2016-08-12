@@ -340,14 +340,19 @@ public final class Location implements LocationAccessor {
   }
 
   @Override
+  public BitVector toBitVector() {
+    return readData(false);
+  }
+
+  @Override
   public String toBinString() {
-    final BitVector rawData = readData(false); 
+    final BitVector rawData = toBitVector();
     return rawData.toBinString();
   }
 
   @Override
   public BigInteger getValue() {
-    final BitVector rawData = readData(false);
+    final BitVector rawData = toBitVector();
     return rawData.bigIntegerValue(false);
   }
 

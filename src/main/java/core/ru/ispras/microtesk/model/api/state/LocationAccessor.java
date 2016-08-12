@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.state;
 
 import java.math.BigInteger;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
  * The {@link LocationAccessor} interface is used by the simulator to access data stored
@@ -36,6 +37,13 @@ public interface LocationAccessor {
    * @return Binary string.
    */
   String toBinString();
+
+  /**
+   * Returns stored data in the form of a bit vector.
+   * 
+   * @return Bit vector.
+   */
+  BitVector toBitVector();
 
   /**
    * Returns the value stored in the location packed in a BigInteger object.
