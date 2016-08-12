@@ -359,8 +359,7 @@ public final class Location implements LocationAccessor {
     writeData(rawData, false);
   }
 
-  private BitVector readData(
-      final boolean callHandlers) {
+  private BitVector readData(final boolean callHandlers) {
     final BitVector[] dataItems = new BitVector[atoms.size()];
     for (int index = 0; index < atoms.size(); ++index) {
       final Atom atom = atoms.get(index);
@@ -370,9 +369,7 @@ public final class Location implements LocationAccessor {
     return BitVector.newMapping(dataItems).copy();
   }
 
-  private void writeData(
-      final BitVector data,
-      final boolean callHandlers) {
+  private void writeData(final BitVector data, final boolean callHandlers) {
     int position = 0;
     for (final Atom atom : atoms) {
       final BitVector dataItem =
