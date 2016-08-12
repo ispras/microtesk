@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -80,12 +80,10 @@ public final class Template {
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
   private boolean isExceptionHandlerDefined;
 
-  private Deque<BlockBuilder> blockBuilders;
+  private final Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
 
   private boolean isMainSection;
-  private int openBlockCount;
-
   private List<Call> globalPrologue;
   private List<Call> globalEpilogue;
 
@@ -112,17 +110,15 @@ public final class Template {
     this.exceptionHandlerBuilder = null;
     this.isExceptionHandlerDefined = false;
 
-    this.blockBuilders = null;
+    this.blockBuilders = new LinkedList<>();
     this.callBuilder = null;
 
     this.isMainSection = false;
-    this.openBlockCount = 0;
+    this.globalPrologue = null;
+    this.globalEpilogue = null;
 
     this.groupVariates = newVariatesForGroups(metaModel);
     this.defaultSituations = new HashMap<>();
-
-    this.globalPrologue = null;
-    this.globalEpilogue = null;
 
     this.unusedBlocks = new LinkedHashSet<>();
   }
@@ -158,9 +154,7 @@ public final class Template {
   public void beginPreSection() {
     Logger.debugHeader("Started Processing Initialization Section");
     beginNewSection();
-
     isMainSection = false;
-    openBlockCount = 0;
   }
 
   public void endPreSection() {
@@ -172,9 +166,7 @@ public final class Template {
   public void beginPostSection() {
     Logger.debugHeader("Started Processing Finalization Section");
     beginNewSection();
-
     isMainSection = false;
-    openBlockCount = 0;
   }
 
   public void endPostSection() {
@@ -186,15 +178,13 @@ public final class Template {
   public void beginMainSection() {
     Logger.debugHeader("Started Processing Main Section");
     beginNewSection();
-
     isMainSection = true;
-    openBlockCount = 0;
   }
 
   public void endMainSection() {
     final BlockBuilder rootBlockBuilder = endCurrentSection();
     if (!rootBlockBuilder.isEmpty()) {
-      final Block rootBlock = rootBlockBuilder.build(globalPrologue, globalEpilogue);
+      final Block rootBlock = rootBlockBuilder.build();
       processBlock(Section.MAIN, rootBlock);
     }
 
@@ -206,22 +196,18 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = new BlockBuilder(true);
     rootBlockBuilder.setSequence(true);
 
-    this.blockBuilders = new LinkedList<>();
+    checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
+
     this.callBuilder = new CallBuilder(getCurrentBlockId());
   }
 
   private BlockBuilder endCurrentSection() {
     endBuildingCall();
-
-    if (blockBuilders.size() != 1) {
-      throw new IllegalStateException();
-    }
-
-    final BlockBuilder rootBuilder = blockBuilders.peek();
-
-    blockBuilders = null;
     callBuilder = null;
+
+    final BlockBuilder rootBuilder = blockBuilders.pop();
+    checkTrue(blockBuilders.isEmpty());
 
     return rootBuilder;
   }
@@ -231,70 +217,59 @@ public final class Template {
   }
 
   public BlockBuilder beginBlock() {
-    if (blockBuilders.isEmpty()) {
-      throw new IllegalStateException();
-    }
-
-    if (openBlockCount < 0) {
-      throw new IllegalStateException();
-    }
-
+    checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
-    final boolean isRoot = openBlockCount == 0;
     final BlockBuilder parent = blockBuilders.peek();
-    final BlockBuilder current;
+    final BlockBuilder current = parent.isExternal() ?
+        new BlockBuilder(false) : new BlockBuilder(parent);
 
-    if (isMainSection && isRoot) {
-      if (!parent.isEmpty()) {
-        processBlock(Section.MAIN, parent.build(globalPrologue, globalEpilogue));
-      }
-
-      blockBuilders.pop();
-      current = new BlockBuilder(false);
-      blockBuilders.push(current);
-    } else {
-      current = new BlockBuilder(parent);
-      blockBuilders.push(current);
-    }
-
-    Logger.debug("Begin block: " + getCurrentBlockId());
-    ++openBlockCount;
+    blockBuilders.push(current);
+    Logger.debug("Begin block: " + current.getBlockId());
 
     return current;
   }
 
   public BlockHolder endBlock() {
-    if (blockBuilders.isEmpty()) {
-      throw new IllegalStateException();
-    }
-
+    checkTrue(blockBuilders.size() > 1);
     endBuildingCall();
-    Logger.debug("End block: " + getCurrentBlockId());
 
-    final boolean isRoot = openBlockCount == 1;
+    Logger.debug("End block: " + getCurrentBlockId());
 
     final BlockBuilder builder = blockBuilders.pop();
     final Block block;
 
+    final boolean isRoot = blockBuilders.peek().isExternal();
     if (isRoot) {
       // A root block is just returned to the caller.
       // Then a new root block builder is created and pushed to the stack.
       block = builder.build(globalPrologue, globalEpilogue);
-
-      final BlockBuilder newBuilder = new BlockBuilder(true);
-      newBuilder.setSequence(true);
-      blockBuilders.push(newBuilder);
     } else {
       // A non-root block is added to its parent.
       block = builder.build();
       blockBuilders.peek().addBlock(block);
     }
 
-    --openBlockCount;
-    InvariantChecks.checkGreaterOrEqZero(openBlockCount);
-
     return new BlockHolder(block);
+  }
+
+  private void processExternalCode() {
+    checkTrue(blockBuilders.size() == 1);
+    endBuildingCall();
+
+    final BlockBuilder rootBuilder = blockBuilders.pop();
+    checkTrue(rootBuilder.isExternal());
+
+    if (!rootBuilder.isEmpty()) {
+      final Block rootBlock = rootBuilder.build();
+      processBlock(Section.MAIN, rootBlock);
+    }
+
+    final BlockBuilder newRootBuilder = new BlockBuilder(true);
+    newRootBuilder.setSequence(true);
+
+    blockBuilders.push(newRootBuilder);
+    callBuilder = new CallBuilder(getCurrentBlockId());
   }
 
   public final class BlockHolder {
@@ -313,49 +288,58 @@ public final class Template {
       }
     }
 
-    public BlockHolder add() {
-      blockBuilders.peek().addBlock(block);
-
+    private void markBlockAsUsed() {
       if (isAddedToUnused) {
         unusedBlocks.remove(block);
         isAddedToUnused = false;
       }
-
-      return this;
     }
 
-    public BlockHolder add(final int times) {
-      for (int index = 0; index < times; index++) {
-        add();
-      }
-      return this;
-    }
-
-    public BlockHolder run() {
+    private void checkAllowedToRun() {
       if (!isMainSection) {
         throw new GenerationAbortedException(
-            "A block can be run only in the main section of a test template.");
+            "A block is allowed to run only in the main section of a test template.");
       }
 
       if (!block.getBlockId().isRoot()) {
         throw new GenerationAbortedException(String.format(
             "Running nested blocks is not allowed. At: %s", block.getWhere()));
       }
+    }
+
+    public BlockHolder add() {
+      blockBuilders.peek().addBlock(block);
+      markBlockAsUsed();
+      return this;
+    }
+
+    public BlockHolder add(final int times) {
+      for (int index = 0; index < times; index++) {
+        blockBuilders.peek().addBlock(block);
+      }
+      markBlockAsUsed();
+      return this;
+    }
+
+    public BlockHolder run() {
+      checkAllowedToRun();
+      processExternalCode();
 
       processBlock(Section.MAIN, block);
 
-      if (isAddedToUnused) {
-        unusedBlocks.remove(block);
-        isAddedToUnused = false;
-      }
-
+      markBlockAsUsed();
       return this;
     }
 
     public BlockHolder run(final int times) {
+      checkAllowedToRun();
+      processExternalCode();
+
       for (int index = 0; index < times; index++) {
-        run();
+        processBlock(Section.MAIN, block);
       }
+
+      markBlockAsUsed();
       return this;
     }
   }
@@ -934,7 +918,7 @@ public final class Template {
     endBuildingCall();
 
     final boolean isGlobalContext =
-        openBlockCount == 0 &&
+        blockBuilders.peek().isExternal() &&
         preparatorBuilder == null &&
         bufferPreparatorBuilder == null &&
         streamPreparatorBuilder == null &&
