@@ -40,6 +40,7 @@ class BlockTemplate < MiniMipsBaseTemplate
 
     # Produces three test cases each consisting of one instruction
     iterate {
+      epilogue { nop }
       Add t0, t1, t2
       Sub t3, t4, t5
       And reg(_), reg(_), reg(_)
@@ -48,6 +49,7 @@ class BlockTemplate < MiniMipsBaseTemplate
     # Produces four test cases consisting of two instructions
     # (Cartesian product composed in a random order)
     block(:combinator => 'product', :compositor => 'random') {
+      epilogue { nop }
       iterate {
         Add t0, t1, t2
         Sub t3, t4, t5

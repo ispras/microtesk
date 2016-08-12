@@ -179,6 +179,7 @@ test {
   environment 'CVC4_PATH', cvc4path
   testLogging.showStandardStreams = true
   ignoreFailures = true
+  forkEvery = 1
 }
 
 sourceSets {
