@@ -96,6 +96,10 @@ public final class TestEngine {
     return model.getMetaData();
   }
 
+  public Statistics getStatistics() {
+    return statistics;
+  }
+
   public static GeneratorSettings getGeneratorSettings() {
     return settings;
   }
