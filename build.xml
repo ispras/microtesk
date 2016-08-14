@@ -483,7 +483,7 @@
     </path>
 
     <mkdir dir="target/tests/reports"/>
-    <junit fork="no" printsummary="yes" showoutput="yes">
+    <junit fork="yes" printsummary="yes" showoutput="yes">
       <env key="Z3_PATH" value="${z3.path}"/>
       <env key="CVC4_PATH" value="${cvc4.path}"/>
       <env key="MICROTESK_HOME" value="${dist}"/>
