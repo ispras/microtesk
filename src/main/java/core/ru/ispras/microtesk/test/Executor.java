@@ -37,15 +37,28 @@ import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
 
 /**
- * The role of the Executor class is to execute (simulate) sequences of instruction calls (concrete
- * calls). It executes instruction by instruction, perform control transfers by labels (if needed)
- * and prints information about important events to the simulator log (currently, the console).
+ * The role of the {@link Executor} class is to execute (simulate) sequences of instruction calls
+ * (concrete calls). It executes instruction by instruction, perform control transfers by labels
+ * (if needed) and prints information about important events to the simulator log (currently,
+ * the console).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class Executor {
+public final class Executor {
+  /**
+   * The {@link Listener} interface is to be implemented by classes that monitor
+   * execution of instruction calls.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public interface Listener {
+    void onBeforeExecute(EngineContext context, ConcreteCall call);
+    void onAfterExecute(EngineContext context, ConcreteCall call);
+  }
+
   private final EngineContext context;
   private Map<String, List<ConcreteCall>> exceptionHandlers;
+  private Listener listener;
 
   /**
    * Constructs an Executor object.
@@ -59,6 +72,16 @@ final class Executor {
 
     this.context = context;
     this.exceptionHandlers = null;
+    this.listener = null;
+  }
+
+  public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
+    InvariantChecks.checkNotNull(handlers);
+    this.exceptionHandlers = handlers;
+  }
+
+  public void setListener(final Listener listener) {
+    this.listener = listener;
   }
 
   private ModelStateObserver getStateObserver() {
@@ -67,11 +90,6 @@ final class Executor {
 
   private LocationAccessor getPC() throws ConfigurationException {
     return getStateObserver().accessLocation("PC");
-  }
-
-  public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
-    InvariantChecks.checkNotNull(handlers);
-    this.exceptionHandlers = handlers;
   }
 
   /**
@@ -228,7 +246,9 @@ final class Executor {
         logCall(call);
       }
 
+      notifyBeforeExecute(call);
       final String exception = call.execute();
+      notifyAfterExecute(call);
       Tarmac.setEnabled(false);
 
       if (null == exception) {
@@ -504,6 +524,18 @@ final class Executor {
   private void logText(final String text) {
     if (text != null) {
       Logger.debug(text);
+    }
+  }
+
+  private void notifyAfterExecute(final ConcreteCall call) {
+    if (null != listener) {
+      listener.onBeforeExecute(context, call);
+    }
+  }
+
+  private void notifyBeforeExecute(final ConcreteCall call) {
+    if (null != listener) {
+      listener.onAfterExecute(context, call);
     }
   }
 
