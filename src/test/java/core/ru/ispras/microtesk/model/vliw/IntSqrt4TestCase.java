@@ -22,7 +22,6 @@ import ru.ispras.microtesk.test.Statistics;
 public class IntSqrt4TestCase extends VliwTest {
   @Test
   public void test() {
-    setVerbose(true);
     final Statistics statistics = run("int_sqrt4.rb");
     Assert.assertNotNull(statistics);
 

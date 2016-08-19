@@ -19,21 +19,14 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.test.Statistics;
 
-public class CombinationTestCase extends VliwTest {
+public class IntSqrtTestCase extends VliwTest {
   @Test
   public void test() {
-    final Statistics statistics = run("combination.rb");
+    final Statistics statistics = run("int_sqrt.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(4,  statistics.getSequences());
-    Assert.assertEquals(56, statistics.getInstructions());
-  }
-
-  protected boolean isExpectedError(final String message) {
-    return super.isExpectedError(message) || message.contains(
-        "Error: Exception handler for IntegerOverflow is not found. " +
-        "Have to continue to the next instruction"
-         );
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(0, statistics.getSequences());
+    Assert.assertEquals(10, statistics.getInstructions());
   }
 }

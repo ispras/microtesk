@@ -22,7 +22,6 @@ import ru.ispras.microtesk.test.Statistics;
 public class EuclidLoopTestCase extends VliwTest {
   @Test
   public void test() {
-    setVerbose(true);
     final Statistics statistics = run("euclid_loop.rb");
     Assert.assertNotNull(statistics);
 
