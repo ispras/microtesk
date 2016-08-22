@@ -26,7 +26,7 @@ public class AlignedCallsTestCase extends MiniMipsTest {
     Assert.assertNotNull(statistics);
 
     Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(1,  statistics.getSequences());
+    Assert.assertEquals(0,  statistics.getSequences());
     Assert.assertEquals(17, statistics.getInstructions());
   }
 }
