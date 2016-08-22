@@ -174,9 +174,17 @@ task copyResources(type: Copy) {
 
 test.dependsOn copyResources
 
+task copyDistribution(type: Copy) {
+  from tarTree("build/distributions/microtesk-${project.version}.tar")
+  into 'build/target'
+}
+
+test.dependsOn copyDistribution
+
 test {
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
+  environment 'MICROTESK_HOME', "build/target/microtesk-${project.version}"
   testLogging.showStandardStreams = true
   ignoreFailures = true
   forkEvery = 1
