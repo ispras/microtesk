@@ -22,12 +22,11 @@ import ru.ispras.microtesk.test.Statistics;
 public class RegisterAllocationTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    setVerbose(true);
     final Statistics statistics = run("register_allocation.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(3,  statistics.getSequences());
-    Assert.assertEquals(29, statistics.getInstructions());
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(3, statistics.getSequences());
+    Assert.assertEquals(126, statistics.getInstructions());
   }
 }

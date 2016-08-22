@@ -25,8 +25,8 @@ public class BlockTestCase extends MiniMipsTest {
     final Statistics statistics = run("block.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
+    Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(10, statistics.getSequences());
-    Assert.assertEquals(37, statistics.getInstructions());
+    Assert.assertEquals(120, statistics.getInstructions());
   }
 }
