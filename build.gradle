@@ -161,18 +161,22 @@ task getCVC4(type: Copy) {
 
 test.dependsOn getCVC4
 
-task copyResources(type: Copy) {
+task copyConfig(type: Copy) {
+  from "${project.projectDir}/src/main/resources/core/config.xml"
+  into "${project.projectDir}/build/resources/test"
+}
+
+test.dependsOn copyConfig
+
+task copyStg(type: Copy) {
   from "${project.projectDir}/src/main/resources/core/stg"
   into "${project.projectDir}/build/resources/test/stg"
 
   from "${project.projectDir}/src/main/resources/plugins/mmu/stg"
   into "${project.projectDir}/build/resources/test/stg"
-
-  from "${project.projectDir}/src/main/resources/core/config.xml"
-  into "${project.projectDir}/build/resources/test"
 }
 
-test.dependsOn copyResources
+test.dependsOn copyStg
 
 task copyDistribution(type: Copy) {
   from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar")
