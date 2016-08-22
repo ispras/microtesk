@@ -162,29 +162,30 @@ task getCVC4(type: Copy) {
 test.dependsOn getCVC4
 
 task copyResources(type: Copy) {
-  from "${project.projectDir}/src/main/resources/core/config.xml"
-  into "${project.projectDir}/build/resources/test"
-
   from "${project.projectDir}/src/main/resources/core/stg"
   into "${project.projectDir}/build/resources/test/stg"
 
   from "${project.projectDir}/src/main/resources/plugins/mmu/stg"
   into "${project.projectDir}/build/resources/test/stg"
+
+  from "${project.projectDir}/src/main/resources/core/config.xml"
+  into "${project.projectDir}/build/resources/test"
 }
 
 test.dependsOn copyResources
 
 task copyDistribution(type: Copy) {
-  from tarTree("build/distributions/microtesk-${project.version}.tar")
+  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar")
   into 'build/target'
 }
 
+copyDistribution.dependsOn distTar
 test.dependsOn copyDistribution
 
 test {
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
-  environment 'MICROTESK_HOME', "build/target/microtesk-${project.version}"
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target/microtesk-${project.version}"
   testLogging.showStandardStreams = true
   ignoreFailures = true
   forkEvery = 1
