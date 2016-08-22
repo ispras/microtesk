@@ -308,8 +308,8 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   }
 }
 
-task javadocTar(type: Tar, dependsOn: javadoc) {
-  archiveName = projectName + '-javadoc.tar'
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  archiveName = projectName + '-javadoc.jar'
   from javadoc.destinationDir
 }
 
@@ -390,13 +390,13 @@ task runRDoc(type: JavaExec) {
   ]
 }
 
-task rdocTar(type: Tar) {
-  archiveName = projectName + '-rubydoc.tar'
+task rdocJar(type: Jar) {
+  archiveName = projectName + '-rubydoc.jar'
   from "${project.projectDir}/build/tmp/rdoc/doc"
 }
 
-distTar.dependsOn.add('rdocTar')
-rdocTar.dependsOn.add('runRDoc')
+distTar.dependsOn.add('rdocJar')
+rdocJar.dependsOn.add('runRDoc')
 runRDoc.dependsOn.add('copyFilesForRDoc')
 copyFilesForRDoc.dependsOn.add('cleanFilesForRDoc')
 
@@ -411,7 +411,7 @@ distributions {
     baseName = projectName
 
     contents {
-      rename '(.)*(?<!-src|microtesk).jar', 'jars/$0'
+      rename '(.)*(?<!-src|microtesk|-javadoc|-rubydoc).jar', 'jars/$0'
       rename '(.)*microtesk.jar', 'lib/jars/microtesk.jar'
 
       into('lib') {
@@ -438,11 +438,11 @@ distributions {
         into('src')
       }
 
-      from(javadocTar) {
+      from(javadocJar) {
         into('doc')
       }
 
-      from(rdocTar) {
+      from(rdocJar) {
         into('doc')
       }
 
