@@ -405,7 +405,7 @@ distributions {
       }
 
       from(javadocJar) {
-        into('javadoc')
+        into('doc')
       }
 
       from('src/main/etc') {
