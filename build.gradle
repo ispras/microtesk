@@ -406,8 +406,12 @@ compileModels.dependsOn.add('translateCpuDemo')
 compileModels.dependsOn.add('translateVliwDemo')
 compileModels.dependsOn.add('translateMiniMips')
 
+tasks.withType(Tar){
+  compression = Compression.GZIP
+}
+
 distributions {
-  main{
+  main {
     baseName = projectName
 
     contents {
