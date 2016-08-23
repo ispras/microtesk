@@ -160,6 +160,7 @@ task getCVC4(type: Copy) {
   unix  {
     from configurations.testRuntime.fileCollection { dep -> dep.name == 'cvc4' }.singleFile
     rename '.*', 'cvc4-unix.bin'
+    fileMode = 0755
   }
   into 'tools'
 }
@@ -184,7 +185,7 @@ task copyStg(type: Copy) {
 test.dependsOn copyStg
 
 task copyDistribution(type: Copy) {
-  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar")
+  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tgz")
   into 'build/target'
 }
 
