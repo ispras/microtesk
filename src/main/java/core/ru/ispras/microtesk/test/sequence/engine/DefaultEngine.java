@@ -28,10 +28,10 @@ import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
@@ -89,7 +89,8 @@ public final class DefaultEngine implements Engine<TestSequence> {
     sequenceBuilder = new TestSequence.Builder();
 
     // Get modes for output arguments for self-checks if the setting is enabled.
-    final Set<AddressingModeWrapper> outModes = TestSettings.isSelfChecks() ?
+    final boolean isSelfChecks = engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS);
+    final Set<AddressingModeWrapper> outModes = isSelfChecks ?
         EngineUtils.getOutAddressingModes(abstractSequence):
         Collections.<AddressingModeWrapper>emptySet(); 
 

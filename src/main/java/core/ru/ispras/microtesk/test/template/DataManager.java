@@ -362,7 +362,10 @@ public final class DataManager {
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     final String fileName = String.format("%s_%04d.%s",
-        TestSettings.getDataFilePrefix(), dataFileIndex, TestSettings.getDataFileExtension());
+        TestSettings.getDataFilePrefix(),
+        dataFileIndex,
+        TestSettings.getDataFileExtension()
+        );
 
     Logger.debug("Generating data file: %s", fileName);
 

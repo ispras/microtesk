@@ -38,6 +38,8 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -68,17 +70,20 @@ public final class TestEngine {
     return instance;
   }
 
+  private final Options options;
   private final IModel model;
   private Statistics statistics;
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
 
-  private TestEngine(final IModel model) {
+  private TestEngine(final Options options, final IModel model) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
 
-    this.statistics = null;
+    this.options = options;
     this.model = model;
+    this.statistics = null;
 
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
@@ -116,6 +121,7 @@ public final class TestEngine {
   }
 
   public static Statistics generate(
+      final Options options,
       final String modelName,
       final String templateFile,
       final List<Plugin> plugins) throws Throwable {
@@ -130,7 +136,7 @@ public final class TestEngine {
       return null;
     }
 
-    instance = new TestEngine(model);
+    instance = new TestEngine(options, model);
 
     try {
       for (final Plugin plugin : plugins) {
@@ -179,24 +185,24 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
-    statistics = new Statistics(TestSettings.getProgramLengthLimit(),
-                                TestSettings.getTraceLengthLimit());
+    statistics = new Statistics(options.getValueAsInteger(Option.CODE_LIMIT),
+                                options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
 
-    final Printer printer = new Printer(model.getStateObserver(), statistics);
+    final Printer printer = new Printer(options, model.getStateObserver(), statistics);
     final DataManager dataManager = new DataManager(printer, statistics);
  
     final EngineContext context = new EngineContext(
+        options,
         model,
         dataManager,
         settings,
-        statistics,
-        TestSettings.isDefaultTestData()
+        statistics
         );
 
     dataManager.setLabelManager(context.getLabelManager());
 
-    if (TestSettings.isTarmacLog()) {
+    if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
       Tarmac.initialize(TestSettings.getOutDir(), TestSettings.getCodeFilePrefix());
     }
 
@@ -335,7 +341,7 @@ public final class TestEngine {
         final int testCaseIndex) throws ConfigurationException {
       InvariantChecks.checkNotNull(selfChecks);
 
-      if (!TestSettings.isSelfChecks()) {
+      if (!engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
         return;
       }
 

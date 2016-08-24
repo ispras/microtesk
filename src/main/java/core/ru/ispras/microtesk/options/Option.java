@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.SysUtils;
 
 public enum Option {
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +27,7 @@ public enum Option {
   VERBOSE("verbose", "Enables printing diagnostic messages", false),
   TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
   GENERATE("generate", "Generates test programs", false, null, "task"),
-  OUTDIR("output-dir", "Sets where to place generated files", SysUtils.getHomeDir()),
+  OUTDIR("output-dir", "Sets where to place generated files", "./output"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options
@@ -54,18 +53,16 @@ public enum Option {
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options (File Creation)
 
-  CODE_EXT("code-file-extension", "The output file extension", ".asm", GENERATE),
+  CODE_EXT("code-file-extension", "The output file extension", "asm", GENERATE),
   CODE_PRE("code-file-prefix", "The output file prefix (file name format is prefix_xxxx.ext)",
       "test", GENERATE),
-  DATA_EXT("data-file-extension", "The data file extension", ".dat", GENERATE),
-  DATA_PRE("data-file-prefix", "The data file prefix", ".asm", GENERATE),
+  DATA_EXT("data-file-extension", "The data file extension", "dat", GENERATE),
+  DATA_PRE("data-file-prefix", "The data file prefix", "asm", GENERATE),
   EXCEPT_PRE("exception-file-prefix", "The exception handler file prefix", "test_except", GENERATE),
   CODE_LIMIT("program-length-limit", "The maximum number of instructions in output programs",
       1000, GENERATE),
   TRACE_LIMIT("trace-length-limit", "The maximum length of execution traces of output programs",
       1000, GENERATE),
-  EXEC_LIMIT("exec-limit", "The maximum number of times an instruction can be executed",
-      100, GENERATE),
   COMMENTS_ENABLED("comments-enabled", "Enables printing comments; if not specified no comments " +
       "are printed", false, GENERATE),
   COMMENTS_DEBUG("comments-debug", "Enables printing detailed comments, must be used together " + 

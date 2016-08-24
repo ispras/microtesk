@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.LabelManager;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EngineContext {
+  private final Options options;
   private final IModel model;
   private final LabelManager labelManager;
   private final DataManager dataManager;
@@ -52,23 +54,22 @@ public final class EngineContext {
   // Address to be used for allocations
   private long address; 
 
-  // Flag to control generation of default data (for some tests this is undesirable).
-  private final boolean generateDefaultData;
-
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
 
   public EngineContext(
+      final Options options,
       final IModel model,
       final DataManager dataManager,
       final GeneratorSettings settings,
-      final Statistics statistics,
-      final boolean generateDefaultData) {
+      final Statistics statistics) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(dataManager);
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
     InvariantChecks.checkNotNull(statistics);
 
+    this.options = options;
     this.model = model;
     this.labelManager = new LabelManager();
     this.dataManager = dataManager;
@@ -84,7 +85,10 @@ public final class EngineContext {
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
     this.address = TestSettings.getBaseVirtualAddress().longValue();
-    this.generateDefaultData = generateDefaultData;
+  }
+
+  public Options getOptions() {
+    return options;
   }
 
   public IModel getModel() {
@@ -133,10 +137,6 @@ public final class EngineContext {
 
   public void setAddress(final long value) {
     this.address = value;
-  }
-
-  public boolean isGenerateDefaultData() {
-    return generateDefaultData;
   }
 
   public Object getCustomContext(final String id) {

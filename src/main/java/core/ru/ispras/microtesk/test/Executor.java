@@ -28,6 +28,7 @@ import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -159,7 +160,7 @@ public final class Executor {
         abortOnUndefinedLabel
         );
 
-    if (TestSettings.isSimulationDisabled()) {
+    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       logText("Simulation is disabled");
       return;
     }

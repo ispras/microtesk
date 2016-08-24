@@ -26,6 +26,8 @@ import java.util.List;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
@@ -39,6 +41,7 @@ import ru.ispras.microtesk.test.template.Output;
 public final class Printer {
   private final static int LINE_WIDTH = 100;
 
+  private final Options options;
   private final ModelStateObserver observer;
   private final Statistics statistics;
 
@@ -56,10 +59,15 @@ public final class Printer {
    * @throws IllegalArgumentException if the observer or commentToken parameter is null.
    * @throws IOException if failed to open the specified file for writing.
    */
-  public Printer(final ModelStateObserver observer, final Statistics statistics) {
+  public Printer(
+      final Options options,
+      final ModelStateObserver observer,
+      final Statistics statistics) {
+    checkNotNull(options);
     checkNotNull(observer);
     checkNotNull(statistics);
 
+    this.options = options;
     this.observer = observer;
     this.statistics = statistics;
 
@@ -75,9 +83,9 @@ public final class Printer {
 
     final String fileName = String.format(
         "%s_%04d.%s",
-        TestSettings.getCodeFilePrefix(),
+        options.getValueAsString(Option.CODE_PRE),
         codeFileCount,
-        TestSettings.getCodeFileExtension()
+        options.getValueAsString(Option.CODE_EXT)
         );
 
     fileWritter = newFileWriter(fileName);
@@ -98,7 +106,7 @@ public final class Printer {
 
     final String fullFileName = file.getAbsolutePath();
     final PrintWriter writer = new PrintWriter(new FileWriter(fullFileName));
-    if (TestSettings.isCommentsEnabled()) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       // Prints MicroTESK information to the file (as the top file header).
       final String commentToken = TestSettings.getCommentToken();
       printToFile(writer, separator);
@@ -217,7 +225,8 @@ public final class Printer {
       }
 
       final boolean printComment =
-          TestSettings.isCommentsEnabled() && TestSettings.isCommentsDebug();
+          options.getValueAsBoolean(Option.COMMENTS_ENABLED) &&
+          options.getValueAsBoolean(Option.COMMENTS_DEBUG);
 
       final String text = output.evaluate(observer);
 
@@ -247,7 +256,7 @@ public final class Printer {
    */
   private void printNote(final String text) {
     printToScreen(text);
-    if (TestSettings.isCommentsEnabled()) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printCommentToFile(text);
     }
   }
@@ -283,7 +292,7 @@ public final class Printer {
    * @param text Text of the header.
    */
   public void printHeaderToFile(String text) {
-    if (TestSettings.isCommentsEnabled()) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
       printCommentToFile(text);
@@ -299,7 +308,7 @@ public final class Printer {
    * @param text Text of the header.
    */
   public void printSubheaderToFile(String text) {
-    if (TestSettings.isCommentsEnabled()) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
       printCommentToFile(text);
@@ -321,7 +330,7 @@ public final class Printer {
   }
 
   public void printCommentToFile(PrintWriter writer, String text) {
-    if (TestSettings.isCommentsEnabled() && text != null) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED) && text != null) {
       final String commentToken = TestSettings.getCommentToken();
       printToFile(
           writer,
@@ -334,7 +343,7 @@ public final class Printer {
    * separate different parts of the code.
    */
   public void printSeparatorToFile() {
-    if (TestSettings.isCommentsEnabled()) {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile(separator);
     }
   }
@@ -345,7 +354,7 @@ public final class Printer {
    * @param text Text of the separator.
    */
   public void printSeparatorToFile(String text) {
-    if (!TestSettings.isCommentsEnabled()) {
+    if (!options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       return;
     }
 

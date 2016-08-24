@@ -48,6 +48,7 @@ import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -232,7 +233,7 @@ public final class EngineUtils {
 
     Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
     if (situation == null) {
-      return engineContext.isGenerateDefaultData() ?
+      return engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA) ?
           getDefaultTestData(engineContext, primitive, queryCreator) : NO_TEST_DATA;
     }
 
