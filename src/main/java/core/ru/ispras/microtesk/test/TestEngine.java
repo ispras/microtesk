@@ -190,7 +190,7 @@ public final class TestEngine {
     statistics.pushActivity(Statistics.Activity.PARSING);
 
     final Printer printer = new Printer(options, model.getStateObserver(), statistics);
-    final DataManager dataManager = new DataManager(printer, statistics);
+    final DataManager dataManager = new DataManager(options, printer, statistics);
  
     final EngineContext context = new EngineContext(
         options,

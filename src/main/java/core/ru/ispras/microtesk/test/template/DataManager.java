@@ -30,6 +30,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
@@ -37,6 +39,7 @@ import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
+  private final Options options;
   private final Printer printer;
   private final Statistics statistics;
 
@@ -52,10 +55,12 @@ public final class DataManager {
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
-  public DataManager(final Printer printer, final Statistics statistics) {
+  public DataManager(final Options options, final Printer printer, final Statistics statistics) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(printer);
     InvariantChecks.checkNotNull(statistics);
 
+    this.options = options;
     this.printer = printer;
     this.statistics = statistics;
 
@@ -362,9 +367,9 @@ public final class DataManager {
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     final String fileName = String.format("%s_%04d.%s",
-        TestSettings.getDataFilePrefix(),
+        options.getValueAsString(Option.DATA_PRE),
         dataFileIndex,
-        TestSettings.getDataFileExtension()
+        options.getValueAsString(Option.DATA_EXT)
         );
 
     Logger.debug("Generating data file: %s", fileName);
