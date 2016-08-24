@@ -116,10 +116,7 @@ public enum Option {
     this.name = name;
     this.shortName = makeUniqueShortName(name);
 
-    final String fullDescription = null == dependency ? description :
-        String.format("%s [works with --%s]", description, dependency.getShortName());
-
-    this.description = fullDescription;
+    this.description = description;
     this.defaultValue = defaultValue;
     this.dependency = dependency;
     this.groupName = groupName; 
@@ -153,7 +150,16 @@ public enum Option {
   }
 
   public String getDescription() {
-    return description;
+    final StringBuilder sb = new StringBuilder(description);
+
+    if (null != dependency) {
+      sb.append(String.format(" [works with --%s]", dependency.getShortName()));
+    }
+
+    sb.append(", default=");
+    sb.append(defaultValue instanceof String ? "\"" + defaultValue + "\"" : defaultValue);
+
+    return sb.toString();
   }
 
   public Object getDefaultValue() {

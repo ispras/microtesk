@@ -44,7 +44,7 @@ import ru.ispras.testbase.stub.TestBase;
 public final class MicroTESK {
   private MicroTESK() {}
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     final Parameters params;
 
     try {

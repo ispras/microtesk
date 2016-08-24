@@ -21,36 +21,43 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.cli.HelpFormatter;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Config;
 
 public final class OptionReader {
-  public static void main(final String[] args) throws org.apache.commons.cli.ParseException {
+  public static void main(final String[] args) throws Exception {
     final OptionReader reader = new OptionReader(Config.loadSettings(), args);
+    reader.read();
+
     final Options options = reader.getOptions();
     System.out.println(options);
     System.out.println(reader.getHelpText());
   }
 
-  private final Options options;
   private final Map<String, String> configuration;
-
+  private final String[] commandLineArgs;
   private final org.apache.commons.cli.Options commandLineOptions;
-  private final org.apache.commons.cli.CommandLine commandLine;
+
+  private org.apache.commons.cli.CommandLine commandLine;
+  private Options options;
 
   public OptionReader(
       final Map<String, String> configuration,
-      final String[] args) throws org.apache.commons.cli.ParseException {
-    InvariantChecks.checkNotNull(args);
+      final String[] commandLineArgs) {
+    InvariantChecks.checkNotNull(commandLineArgs);
     InvariantChecks.checkNotNull(configuration);
 
-    this.options = new Options();
     this.configuration = configuration;
-
+    this.commandLineArgs = commandLineArgs;
     this.commandLineOptions = newCommandLineOptions(Arrays.asList(Option.values()));
-    this.commandLine = parseCommandLine(args);
+
+    this.commandLine = null;
+    this.options = null;
+  }
+
+  public void read() throws Exception {
+    this.commandLine = parseCommandLine(commandLineArgs);
+    this.options = new Options();
 
     for (final Option option : Option.values()) {
       final Object value = getOptionValue(option);
@@ -65,12 +72,15 @@ public final class OptionReader {
   }
 
   public String[] getArguments() {
-    return commandLine.getArgs();
+    return null != commandLine ? commandLine.getArgs() : null;
   }
 
   public String getHelpText() {
-    final HelpFormatter formatter = new HelpFormatter();
-    final java.io.StringWriter writer = new java.io.StringWriter();
+    final org.apache.commons.cli.HelpFormatter formatter =
+        new org.apache.commons.cli.HelpFormatter();
+
+    final java.io.StringWriter writer =
+        new java.io.StringWriter();
 
     formatter.printHelp(
         new java.io.PrintWriter(writer),
