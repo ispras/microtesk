@@ -181,7 +181,8 @@ public final class Executor {
     // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
     int nonExecutableCount = 0; 
 
-    final int branchExecutionLimit = TestSettings.getBranchExecutionLimit();
+    final int branchExecutionLimit =
+        context.getOptions().getValueAsInteger(Option.LIMIT);
 
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
