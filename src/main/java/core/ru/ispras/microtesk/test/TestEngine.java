@@ -203,7 +203,7 @@ public final class TestEngine {
     dataManager.setLabelManager(context.getLabelManager());
 
     if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
-      Tarmac.initialize(TestSettings.getOutDir(), TestSettings.getCodeFilePrefix());
+      Tarmac.initialize(TestSettings.getOutDir(), options.getValueAsString(Option.CODE_PRE));
     }
 
     final TemplateProcessor processor = new TemplateProcessor(context, printer);
