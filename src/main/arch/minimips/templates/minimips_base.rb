@@ -20,16 +20,17 @@ class MiniMipsBaseTemplate < Template
 
   def initialize
     super
+
+    #
     # Initialize settings here
+    #
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', "="
-  end
 
-  def pre
     #
     # Information on data types to be used in data sections.
     #
@@ -42,7 +43,9 @@ class MiniMipsBaseTemplate < Template
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
+  end
 
+  def pre
     #
     # Simple exception handler. Continues execution from the next instruction.
     #

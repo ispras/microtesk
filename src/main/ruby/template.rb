@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,12 @@ class Template
 
   def initialize
     super
+
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance()
+
+    TemplateBuilder.define_runtime_methods engine.getMetaModel
+    @template = engine.newTemplate
   end
 
   def self.template_classes
@@ -889,9 +895,6 @@ class Template
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance()
-
-    TemplateBuilder.define_runtime_methods engine.getMetaModel
-    @template = engine.newTemplate
 
     @template.beginPreSection
     pre
