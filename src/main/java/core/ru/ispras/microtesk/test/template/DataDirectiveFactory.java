@@ -29,11 +29,13 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataDirectiveFactory {
+  private final Options options;
   private final DataDirective header;
   private final Map<String, TypeInfo> types;
   private final String spaceText;
@@ -44,15 +46,18 @@ public final class DataDirectiveFactory {
   private List<LabelValue> preceedingLabels;
 
   private DataDirectiveFactory(
+      final Options options,
       final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
       final BitVector spaceData,
       final String ztermStrText,
       final String nztermStrText) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
+    this.options = options;
     this.header = new Text(headerText);
     this.types = types;
     this.spaceText = spaceText;
@@ -64,6 +69,7 @@ public final class DataDirectiveFactory {
   }
 
   public static final class Builder {
+    private final Options options;
     private final int addressableUnitBitSize;
     private final String headerText;
 
@@ -74,11 +80,14 @@ public final class DataDirectiveFactory {
     private String nztermStrText;
 
     protected Builder(
+        final Options options,
         final int addressableUnitBitSize,
         final String headerText) {
+      InvariantChecks.checkNotNull(options);
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
       InvariantChecks.checkNotNull(headerText);
 
+      this.options = options;
       this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.headerText = headerText;
@@ -138,6 +147,7 @@ public final class DataDirectiveFactory {
 
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
+          options,
           headerText,
           types,
           spaceText,
@@ -195,14 +205,14 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class Comment extends Text {
+  private final class Comment extends Text {
     private Comment(final String text) {
       super(text);
     }
 
     @Override
     public String getText() {
-      return TestSettings.getCommentToken() + super.getText();
+      return options.getValueAsString(Option.COMMENT_TOKEN) + super.getText();
     }
   }
 
@@ -278,7 +288,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class Origin implements DataDirective {
+  private final class Origin implements DataDirective {
     private final BigInteger origin;
 
     private Origin(final BigInteger origin) {
@@ -288,7 +298,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public String getText() {
-      return String.format(TestSettings.getOriginFormat(), origin);
+      return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
     }
 
     @Override
@@ -312,7 +322,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class OriginRelative implements DataDirective {
+  private final class OriginRelative implements DataDirective {
     private final BigInteger delta;
     private BigInteger origin;
 
@@ -329,7 +339,7 @@ public final class DataDirectiveFactory {
     @Override
     public String getText() {
       InvariantChecks.checkNotNull(origin, "Origin is not initialized.");
-      return String.format(TestSettings.getOriginFormat(), origin);
+      return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
     }
 
     @Override
@@ -362,11 +372,11 @@ public final class DataDirectiveFactory {
     public String toString() {
       return origin != null ?
           getText() :
-          String.format(TestSettings.getOriginFormat() + " (relative)", delta);
+          String.format(options.getValueAsString(Option.ORIGIN_FORMAT) + " (relative)", delta);
     }
   }
 
-  private static final class Align implements DataDirective {
+  private final class Align implements DataDirective {
     private final BigInteger alignment;
     private final BigInteger alignmentInBytes;
 
@@ -380,7 +390,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public String getText() {
-      return String.format(TestSettings.getAlignFormat(), alignment);
+      return String.format(options.getValueAsString(Option.ALIGN_FORMAT), alignment);
     }
 
     @Override
@@ -401,7 +411,7 @@ public final class DataDirectiveFactory {
     @Override
     public String toString() {
       return String.format("%s %s %d bytes",
-          getText(), TestSettings.getCommentToken(), alignmentInBytes);
+          getText(), options.getValueAsString(Option.COMMENT_TOKEN), alignmentInBytes);
     }
   }
 

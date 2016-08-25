@@ -104,7 +104,7 @@ public final class DataManager {
     allocator = memory.newAllocator(
         addressableUnitBitSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(addressableUnitBitSize, text);
+    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize, text);
     return factoryBuilder;
   }
 
