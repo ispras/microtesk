@@ -392,7 +392,7 @@ public final class Printer {
       if (null != text && text.isEmpty()) {
         writer.println(text);
       } else {
-        writer.println(String.format("%s%s", TestSettings.getIndentToken(), text));
+        writer.println(String.format("%s%s", options.getValueAsString(Option.INDENT_TOKEN), text));
       }
     }
   }

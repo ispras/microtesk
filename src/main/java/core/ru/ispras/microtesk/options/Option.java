@@ -21,52 +21,54 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public enum Option {
   ////////////////////////////////////////////////////////////////////////////////////////////////
-  // Common flags
+  // Common Options
 
   HELP("help", "Shows help message", false),
   VERBOSE("verbose", "Enables printing diagnostic messages", false),
   TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
   GENERATE("generate", "Generates test programs", false, null, "task"),
-  OUTDIR("output-dir", "Sets where to place generated files", "./output"),
+  OUTDIR("output-dir", "Directory to place generated files", "./output"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options
 
-  INCLUDE("include", "Sets include files directories", "", TRANSLATE),
-  EXTDIR("extension-dir", "Sets directory that stores user-defined Java code", "", TRANSLATE),
+  INCLUDE("include", "Directory that stores include files", "", TRANSLATE),
+  EXTDIR("extension-dir", "Directory that stores user-defined Java code", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
 
-  RANDOM("random-seed", "Sets seed for randomizer", 0, GENERATE),
-  SOLVER("solver", "Sets constraint solver engine to be used", "cvc4"),
-  LIMIT("branch-exec-limit", "Sets the limit on jumps to detect endless loops", 100, GENERATE),
-  SOLVER_DEBUG("solver-debug", "Enables debug mode for SMT solvers", false, GENERATE),
-  TARMAC_LOG("tarmac-log", "Saves simulator log in Tarmac format", false, GENERATE),
-  SELF_CHECKS("self-checks", "Inserts self-checking code into test programs", false, GENERATE),
-  DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),
   ARCH_DIRS("arch-dirs", "Home directories for tested architectures", "", GENERATE),
-  RATE_LIMIT("rate-limit", "Generation rate limit, causes error when exceeded", 0, GENERATE),
+
+  RANDOM("random-seed", "Seed for randomizer", 0, GENERATE),
+  SOLVER("solver", "Constraint solver engine to be used", "cvc4"),
+  SOLVER_DEBUG("solver-debug", "Enables debug mode for SMT solvers", false, GENERATE),
+
+  CODE_LIMIT("program-length-limit", "Maximum program length", 1000, GENERATE),
+  TRACE_LIMIT("trace-length-limit", "Maximum execution trace length", 1000, GENERATE),
+  BRANCH_LIMIT("branch-exec-limit", "Maximum execution count for an instruction", 100, GENERATE),
+  RATE_LIMIT("rate-limit", "Minimum generation rate", 0, GENERATE),
+
+  TARMAC_LOG("tarmac-log", "Enables generation of Tarmac logs for simulation", false, GENERATE),
+  SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
+  DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),
   NO_SIMULATION("no-simulation", "Disables simulation of generated code", false, GENERATE),
+  COMMENTS_ENABLED("comments-enabled", "Enables generation of comments", false, GENERATE),
+  COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --" +
+      COMMENTS_ENABLED.getName(), false, GENERATE),
   TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  // Test Program Generation Options (File Creation)
+  CODE_EXT("code-file-extension", "Output file extension", "asm", GENERATE),
+  CODE_PRE("code-file-prefix", "Output file prefix", "test", GENERATE),
+  DATA_EXT("data-file-extension", "Data file extension", "dat", GENERATE),
+  DATA_PRE("data-file-prefix", "Data file prefix", "asm", GENERATE),
+  EXCEPT_PRE("exception-file-prefix", "Exception handler file prefix", "test_except", GENERATE),
 
-  CODE_EXT("code-file-extension", "The output file extension", "asm", GENERATE),
-  CODE_PRE("code-file-prefix", "The output file prefix (file name format is prefix_xxxx.ext)",
-      "test", GENERATE),
-  DATA_EXT("data-file-extension", "The data file extension", "dat", GENERATE),
-  DATA_PRE("data-file-prefix", "The data file prefix", "asm", GENERATE),
-  EXCEPT_PRE("exception-file-prefix", "The exception handler file prefix", "test_except", GENERATE),
-  CODE_LIMIT("program-length-limit", "The maximum number of instructions in output programs",
-      1000, GENERATE),
-  TRACE_LIMIT("trace-length-limit", "The maximum length of execution traces of output programs",
-      1000, GENERATE),
-  COMMENTS_ENABLED("comments-enabled", "Enables printing comments; if not specified no comments " +
-      "are printed", false, GENERATE),
-  COMMENTS_DEBUG("comments-debug", "Enables printing detailed comments, must be used together " + 
-      "with --" + COMMENTS_ENABLED.getName(), false, GENERATE);
+  INDENT_TOKEN("indent-token", "Indentation text", "\t", GENERATE),
+  COMMENT_TOKEN("comment-token", "Single-line comment text", "//", GENERATE),
+  SEPARATOR_TOKEN("separator-token", "Text used to create separators", "=", GENERATE),
+  ORIGIN_FORMAT("origin-format" , "Origin directive format", ".org 0x%x", GENERATE),
+  ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 

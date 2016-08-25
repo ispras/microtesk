@@ -204,7 +204,7 @@ public final class DataManager {
     printer.printHeaderToFile("Data");
 
     final String headerText = factory.getHeader().getText();
-    printer.printToScreen(TestSettings.getIndentToken() + headerText);
+    printer.printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + headerText);
     printer.printToFile(headerText);
 
     if (!globalData.isEmpty()) {
@@ -241,7 +241,7 @@ public final class DataManager {
     for (final DataDirective directive : directives) {
       final String text = directive.getText();
       if (directive.needsIndent()) {
-        printer.printToScreen(TestSettings.getIndentToken() + text);
+        printer.printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + text);
         printer.printToFile(text);
       } else {
         printer.printTextNoIndent(text);
@@ -380,7 +380,7 @@ public final class DataManager {
         writer = printer.newFileWriter(fileName);
         for (final DataDirective item : data) {
           if (item.needsIndent()) {
-            writer.println(TestSettings.getIndentToken() + item.getText());
+            writer.println(options.getValueAsString(Option.INDENT_TOKEN) + item.getText());
           } else {
             writer.println(item.getText());
           }

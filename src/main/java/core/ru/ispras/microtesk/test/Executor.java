@@ -182,7 +182,7 @@ public final class Executor {
     int nonExecutableCount = 0; 
 
     final int branchExecutionLimit =
-        context.getOptions().getValueAsInteger(Option.LIMIT);
+        context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
 
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
