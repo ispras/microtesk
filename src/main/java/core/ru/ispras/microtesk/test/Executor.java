@@ -206,11 +206,13 @@ public final class Executor {
       }
 
       if (call.getOrigin() != null) {
-        logText(String.format(TestSettings.getOriginFormat(), call.getOrigin()));
+        logText(String.format(
+            context.getOptions().getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
       }
 
       if (call.getAlignment() != null) {
-        logText(String.format(TestSettings.getAlignFormat(), call.getAlignment()));
+        logText(String.format(
+            context.getOptions().getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
       logOutputs(call.getOutputs());

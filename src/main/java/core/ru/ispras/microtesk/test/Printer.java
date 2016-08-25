@@ -191,11 +191,13 @@ public final class Printer {
 
     for (final ConcreteCall call : calls) {
       if (call.getOrigin() != null) {
-        printText(String.format(TestSettings.getOriginFormat(), call.getOrigin()));
+        printText(String.format(
+            options.getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
       }
 
       if (call.getAlignment() != null) {
-        printText(String.format(TestSettings.getAlignFormat(), call.getAlignment()));
+        printText(String.format(
+            options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
       printOutputs(call.getOutputs());
