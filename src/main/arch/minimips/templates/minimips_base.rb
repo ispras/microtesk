@@ -20,13 +20,13 @@ class MiniMipsBaseTemplate < Template
 
   def initialize
     super
-    # Initialize settings here 
+    # Initialize settings here
 
     # Sets the indentation token used in test programs
-    @indent_token = "\t"
+    set_option_value 'indent-token', "\t"
 
     # Sets the token used in separator lines printed into test programs
-    @separator_token = "="
+    set_option_value 'separator-token', "="
   end
 
   def pre

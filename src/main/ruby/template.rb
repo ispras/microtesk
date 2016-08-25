@@ -20,68 +20,7 @@ require_relative 'mmu_plugin'
 
 include TemplateBuilder
 
-#
-# Description:
-#
-# The Settings module describes settings used in test templates and
-# provides default values for these settings. It is includes in the
-# Template class as a mixin. The settings can be overridden for
-# specific test templates. To do this, instance variables must be
-# assigned new values in the initialize method of the corresponding
-# test template class.
-#
-module Settings
-  # Text that starts single-line comments.
-  attr_reader :sl_comment_starts_with
-
-  # Text that starts multi-line comments.
-  attr_reader :ml_comment_starts_with
-
-  # Text that terminates multi-line comments.
-  attr_reader :ml_comment_ends_with
-
-  # Indentation token.
-  attr_reader :indent_token
-
-  # Token used in separator lines.
-  attr_reader :separator_token
-
-  # Format of the directive responsible for setting origin
-  attr_reader :org_format
-
-  # Format of the directive responsible for memory alignment
-  attr_reader :align_format
-
-  # Base virtual address (required for direct access to memory)
-  attr_reader :base_virtual_address
-
-  # Base physical address (required for direct access to memory)
-  attr_reader :base_physical_address
-
-  #
-  # Assigns default values to the attributes.
-  #
-  def initialize
-    super
-
-    @sl_comment_starts_with = "//"
-    @ml_comment_starts_with = "/*"
-    @ml_comment_ends_with   = "*/"
-
-    @indent_token    = "\t"
-    @separator_token = "="
-
-    @org_format = ".org 0x%x"
-    @align_format = ".align %d"
-
-    @base_virtual_address = 0x0
-    @base_physical_address = 0x0
-  end
-
-end # Settings
-
 class Template
-  include Settings
   include MmuPlugin
 
   attr_reader :template
@@ -955,16 +894,6 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance()
 
-    engine.setOptionValue 'comment-token', sl_comment_starts_with
-    engine.setOptionValue 'indent-token', indent_token
-    engine.setOptionValue 'separator-token', separator_token
-
-    engine.setOptionValue 'origin-format', org_format
-    engine.setOptionValue 'align-format', align_format
-
-    engine.setOptionValue 'base-virtual-address', base_virtual_address
-    engine.setOptionValue 'base-physical-address', base_physical_address
-
     TemplateBuilder.define_runtime_methods engine.getMetaModel
     @template = engine.newTemplate
 
@@ -981,6 +910,18 @@ class Template
     @template.endMainSection
 
     engine.process @template
+  end
+
+  def set_option_value(name, value)
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance
+    engine.setOptionValue name, value
+  end
+
+  def get_option_value(name)
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance
+    engine.getOptionValue name
   end
 
 end # Template
