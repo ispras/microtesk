@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.IModel;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
@@ -196,6 +198,11 @@ public final class TestEngine {
     statistics = new Statistics(options.getValueAsInteger(Option.CODE_LIMIT),
                                 options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
+
+    AddressTranslator.initialize(
+        BigInteger.valueOf(options.getValueAsLong(Option.BASE_VA)),
+        BigInteger.valueOf(options.getValueAsLong(Option.BASE_PA))
+        );
 
     final Printer printer = new Printer(options, model.getStateObserver(), statistics);
     final DataManager dataManager = new DataManager(options, printer, statistics);

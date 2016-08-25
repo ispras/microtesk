@@ -18,7 +18,6 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.TestSettings;
 
 /**
  * The {@link AddressTranslator} class performs translation of addresses from virtual
@@ -39,14 +38,14 @@ public final class AddressTranslator {
   private final BigInteger basePhysicalAddress;
   private final boolean isTranslationNeeded;
 
-  public static AddressTranslator get() {
-    if (null == instance) {
-      instance = new AddressTranslator(
-          TestSettings.getBaseVirtualAddress(),
-          TestSettings.getBasePhysicalAddress()
-          );
-    }
+  public static void initialize(
+      final BigInteger baseVirtualAddress,
+      final BigInteger basePhysicalAddress) {
+    instance = new AddressTranslator(baseVirtualAddress, basePhysicalAddress);
+  }
 
+  public static AddressTranslator get() {
+    InvariantChecks.checkNotNull(instance);
     return instance;
   }
 

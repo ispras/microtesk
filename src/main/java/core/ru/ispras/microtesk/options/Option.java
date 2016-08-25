@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.options;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,8 +70,8 @@ public enum Option {
   ORIGIN_FORMAT("origin-format" , "Origin directive format", ".org 0x%x", GENERATE),
   ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE),
 
-  BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
-  BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE);
+  BASE_VA("base-virtual-address", "Base VA for memory allocation", 0x0L, GENERATE),
+  BASE_PA("base-physical-address", "Base PA for memory allocation", 0x0L, GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.TestSettings;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Call {
@@ -105,9 +104,7 @@ public final class Call {
         null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
-        Collections.singletonList(
-            new Output(false, true,
-                String.format("%s %s", TestSettings.getCommentToken(), comment))),
+        Collections.singletonList(new Output(false, true, comment)),
         false,
         null,
         null,

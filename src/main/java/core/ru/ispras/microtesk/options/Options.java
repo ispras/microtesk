@@ -31,7 +31,10 @@ public final class Options {
   public void setValue(final Option option, final Object value) {
     InvariantChecks.checkNotNull(option);
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(option.getValueClass().equals(value.getClass()));
+
+    InvariantChecks.checkTrue(
+        option.getValueClass().isAssignableFrom(value.getClass()), value.getClass().getName());
+
     options.put(option, value);
   }
 
@@ -82,6 +85,18 @@ public final class Options {
     final Object value = getValue(optionName);
     InvariantChecks.checkTrue(value instanceof Integer);
     return (Integer) value;
+  }
+
+  public long getValueAsLong(final Option option) {
+    final Object value = getValue(option);
+    InvariantChecks.checkTrue(value instanceof Long);
+    return (Long) value;
+  }
+
+  public long getValueAsLong(final String optionName) {
+    final Object value = getValue(optionName);
+    InvariantChecks.checkTrue(value instanceof Long);
+    return (Long) value;
   }
 
   public BigInteger getValueAsBigInteger(final Option option) {

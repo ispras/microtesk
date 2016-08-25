@@ -953,22 +953,19 @@ class Template
 
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
-    java_import Java::Ru.ispras.microtesk.test.TestSettings
-
     engine = TestEngine.getInstance()
 
+    engine.setOptionValue 'comment-token', sl_comment_starts_with
+    engine.setOptionValue 'indent-token', indent_token
+    engine.setOptionValue 'separator-token', separator_token
+
+    engine.setOptionValue 'origin-format', org_format
+    engine.setOptionValue 'align-format', align_format
+
+    engine.setOptionValue 'base-virtual-address', base_virtual_address
+    engine.setOptionValue 'base-physical-address', base_physical_address
+
     TemplateBuilder.define_runtime_methods engine.getMetaModel
-
-    TestSettings.setCommentToken sl_comment_starts_with
-    TestSettings.setIndentToken indent_token
-    TestSettings.setSeparatorToken separator_token
-
-    TestSettings.setOriginFormat org_format
-    TestSettings.setAlignFormat align_format
-
-    TestSettings.setBaseVirtualAddress base_virtual_address
-    TestSettings.setBasePhysicalAddress base_physical_address
-
     @template = engine.newTemplate
 
     @template.beginPreSection

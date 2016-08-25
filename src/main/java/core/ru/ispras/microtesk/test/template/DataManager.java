@@ -36,7 +36,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.Statistics;
-import ru.ispras.microtesk.test.TestSettings;
 
 public final class DataManager {
   private final Options options;
@@ -93,12 +92,12 @@ public final class DataManager {
     checkReinitialized();
 
     this.baseVirtualAddress = baseVirtualAddress != null ?
-        baseVirtualAddress : TestSettings.getBaseVirtualAddress();
+        baseVirtualAddress : BigInteger.valueOf(options.getValueAsLong(Option.BASE_VA));
 
     final BigInteger basePhysicalAddressForAllocation =
         null != baseVirtualAddress ?
         AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
-        TestSettings.getBasePhysicalAddress();
+        BigInteger.valueOf(options.getValueAsLong(Option.BASE_PA));
 
     final Memory memory = Memory.get(target);
     allocator = memory.newAllocator(
@@ -346,7 +345,8 @@ public final class DataManager {
               printAbsoluteOrg ? address : address.subtract(startAddress);
 
           dataBuilder.addText("");
-          dataBuilder.addText(String.format(TestSettings.getOriginFormat(), printedAddress));
+          dataBuilder.addText(String.format(
+              options.getValueAsString(Option.ORIGIN_FORMAT), printedAddress));
         }
 
         for (int i = 0; i < unitsInRow; i += 4) {
