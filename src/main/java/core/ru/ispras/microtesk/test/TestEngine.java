@@ -89,6 +89,14 @@ public final class TestEngine {
     initSolverPaths(SysUtils.getHomeDir());
   }
 
+  public Object getOptionValue(final String optionName) {
+    return options.getValue(optionName);
+  }
+
+  public void setOptionValue(final String optionName, final Object value) {
+    options.setValue(optionName, value);
+  }
+
   public IModel getModel() {
     return model;
   }
