@@ -19,14 +19,15 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.test.Statistics;
 
-public class JumpTestCase extends MiniMipsTest {
+public class LoadStoreTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    final Statistics statistics = run("jump.rb");
+    setVerbose(true);
+    final Statistics statistics = run("load_store.rb");
     Assert.assertNotNull(statistics);
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(0, statistics.getSequences());
-    Assert.assertEquals(17, statistics.getInstructions());
+    Assert.assertEquals(16, statistics.getInstructions());
   }
 }
