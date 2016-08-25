@@ -37,7 +37,7 @@ public final class Options {
 
   public void setValue(final String optionName, final Object value) {
     InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.valueOf(optionName.toUpperCase());
+    final Option option = Option.fromName(optionName);
     setValue(option, value);
   }
 
@@ -48,7 +48,7 @@ public final class Options {
 
   public boolean hasValue(final String optionName) {
     InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.valueOf(optionName.toUpperCase());
+    final Option option = Option.fromName(optionName);
     return hasValue(option);
   }
 
@@ -60,7 +60,7 @@ public final class Options {
 
   public Object getValue(final String optionName) {
     InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.valueOf(optionName.toUpperCase());
+    final Option option = Option.fromName(optionName);
     return getValue(option);
   }
 

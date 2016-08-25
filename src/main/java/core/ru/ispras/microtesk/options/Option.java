@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.options;
 
 import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -77,8 +77,8 @@ public enum Option {
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
   private static class Static {
-    private static final Set<String> NAMES = new HashSet<>();
-    private static final Set<String> SHORT_NAMES = new HashSet<>();
+    private static final Map<String, Option> NAMES = new HashMap<>();
+    private static final Map<String, Option> SHORT_NAMES = new HashMap<>();
   }
 
   private final String name;
@@ -112,7 +112,7 @@ public enum Option {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(description);
 
-    if (Static.NAMES.contains(name)) {
+    if (Static.NAMES.containsKey(name)) {
       throw new IllegalArgumentException(String.format("--%s is already used!", name));
     }
 
@@ -124,8 +124,8 @@ public enum Option {
     this.dependency = dependency;
     this.groupName = groupName; 
 
-    Static.SHORT_NAMES.add(shortName);
-    Static.NAMES.add(name);
+    Static.SHORT_NAMES.put(shortName, this);
+    Static.NAMES.put(name, this);
   }
 
   private static String makeUniqueShortName(final String name) {
@@ -136,12 +136,26 @@ public enum Option {
       sb.append(token.charAt(0));
     }
 
-    while (Static.SHORT_NAMES.contains(sb.toString())) {
+    while (Static.SHORT_NAMES.containsKey(sb.toString())) {
       final String lastToken = nameTokens[nameTokens.length - 1];
       sb.append(lastToken.charAt(0));
     }
 
     return sb.toString();
+  }
+
+  public static Option fromName(final String name) {
+    Option option = Static.NAMES.get(name);
+
+    if (null == option) {
+      option = Static.SHORT_NAMES.get(name);
+    }
+
+    if (null == option) {
+      throw new IllegalArgumentException("No option with such name: " + name);
+    }
+
+    return option;
   }
 
   public String getName() {
