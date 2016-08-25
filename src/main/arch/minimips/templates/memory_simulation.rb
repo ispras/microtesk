@@ -27,8 +27,8 @@ class MemorySimulationTemplate < MiniMipsBaseTemplate
     super
 
     # Memory-related settings
-    @base_virtual_address = 0x00001000
-    @base_physical_address = 0x00001000
+    set_option_value 'base-virtual-address', 0x00001000
+    set_option_value 'base-physical-address', 0x00001000
   end
 
   def pre

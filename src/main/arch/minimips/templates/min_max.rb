@@ -29,8 +29,8 @@ class MinMaxTemplate < MiniMipsBaseTemplate
   def initialize
     super
 
-    @base_virtual_address  = 0x00204000
-    @base_physical_address = 0x00204000
+    set_option_value 'base-virtual-address', 0x00204000
+    set_option_value 'base-physical-address', 0x00204000
   end
 
   def pre
