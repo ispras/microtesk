@@ -31,8 +31,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class OutputBuilder {
-  private final boolean isRuntime;
-  private final boolean isComment;
+  private final Output.Kind kind;
   private final String format;
 
   private List<Argument> args;
@@ -41,20 +40,18 @@ public final class OutputBuilder {
   /**
    * Constructs an OutputBuilder object.
    * 
-   * @param isRuntime Runtime status.
-   * @param isComment Specifies whether the given output is a comment.
+   * @param kindName Specifies the output type.
    * @param format Format string.
    * 
    * @throws IllegalArgumentException if the format parameter equals {@code null}.
    */
   OutputBuilder(
-      final boolean isRuntime,
-      final boolean isComment,
+      final String kindName,
       final String format) {
+    checkNotNull(kindName);
     checkNotNull(format);
 
-    this.isRuntime = isRuntime;
-    this.isComment = isComment;
+    this.kind = Output.Kind.valueOf(kindName.toUpperCase());
     this.format = format;
     this.args = null;
     this.markers = null;
@@ -137,11 +134,8 @@ public final class OutputBuilder {
    * @return Output object.
    */
   public Output build() {
-    if (null == args) {
-      return new Output(isRuntime, isComment, format);
-    }
-
-    return new Output(isRuntime, isComment, format, args);
+    return null == args ?
+        new Output(kind, format) : new Output(kind, format, args);
   }
 
   private void addArgument(final Argument arg) {

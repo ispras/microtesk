@@ -104,7 +104,7 @@ public final class Call {
         null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
-        Collections.singletonList(new Output(false, true, comment)),
+        Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
         false,
         null,
         null,

@@ -43,6 +43,42 @@ import ru.ispras.microtesk.utils.SharedObject;
  */
 public final class Output {
   /**
+   * The {@link Kind} enum describes the type of the output.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public static enum Kind {
+    /** Text message */
+    TEXT(false, false),
+
+    /** Message to the simulator log*/
+    TRACE(true, false),
+
+    /** Single-line comment */
+    COMMENT(false, true),
+
+    /** In-line comment */
+    COMMENT_INLINE(false, true),
+
+    /** Start of a multiline comment */
+    COMMENT_ML_START(false, true),
+
+    /** Body of a multiline comment */
+    COMMENT_ML_BODY(false, true),
+
+    /** End of a multiline comment */
+    COMMENT_ML_END(false, true);
+
+    private final boolean isRuntime;
+    private final boolean isComment;
+
+    private Kind(final boolean isRuntime, final boolean isComment) {
+      this.isRuntime = isRuntime;
+      this.isComment = isComment;
+    }
+  }
+
+  /**
    * The Argument interface is a base interface to be implemented by all objects that store format
    * arguments.
    * 
@@ -74,7 +110,7 @@ public final class Output {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-  final static class ArgumentValue implements  Argument {
+  final static class ArgumentValue implements Argument {
     private final Object value;
 
     ArgumentValue(final Object value) {
@@ -136,28 +172,26 @@ public final class Output {
     }
   }
 
-  private final boolean isRuntime;
-  private final boolean isComment;
+  private final Kind kind;
   private final String format;
   private final List<Argument> args;
 
   /**
    * Constructs an output object.
    * 
-   * @param isRuntime To the simulator or to the test program.
+   * @param kind Output type.
    * @param format Format string.
    * @param args Format arguments.
    */
   public Output(
-      final boolean isRuntime,
-      final boolean isComment,
+      final Kind kind,
       final String format,
       final List<Argument> args) {
+    checkNotNull(kind);
     checkNotNull(format);
     checkNotNull(args);
 
-    this.isRuntime = isRuntime;
-    this.isComment = isComment;
+    this.kind = kind;
     this.format = format;
     this.args = args;
   }
@@ -165,11 +199,11 @@ public final class Output {
   /**
    * Constructs an output object with no format arguments.
    * 
-   * @param isRuntime To the simulator or to the test program.
+   * @param kind Output type.
    * @param format Format string.
    */
-  public Output(final boolean isRuntime, final boolean isComment, final String format) {
-    this(isRuntime, isComment, format, Collections.<Argument>emptyList());
+  public Output(final Kind kind, final String format) {
+    this(kind, format, Collections.<Argument>emptyList());
   }
 
   /**
@@ -180,8 +214,7 @@ public final class Output {
   public Output(final Output other) {
     InvariantChecks.checkNotNull(other);
 
-    this.isRuntime = other.isRuntime;
-    this.isComment = other.isComment;
+    this.kind = other.kind;
     this.format = other.format;
     this.args = copyAllArguments(other.args);
   }
@@ -196,11 +229,11 @@ public final class Output {
    *         printed into the test program.
    */
   public boolean isRuntime() {
-    return isRuntime;
+    return kind.isRuntime;
   }
 
   public boolean isComment() {
-    return isComment;
+    return kind.isComment;
   }
 
   /**
@@ -232,7 +265,7 @@ public final class Output {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder(
-        String.format("Output (runtime: %b): \"%s\"", isRuntime, format.trim()));
+        String.format("Output (kind: %s): \"%s\"", kind, format.trim()));
 
     for (final Argument arg : args) {
       sb.append(", ");

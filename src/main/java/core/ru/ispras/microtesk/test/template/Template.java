@@ -483,8 +483,8 @@ public final class Template {
     return result;
   }
 
-  public OutputBuilder newOutput(boolean isRuntime, boolean isComment, String format) {
-    return new OutputBuilder(isRuntime, isComment, format);
+  public OutputBuilder newOutput(final String kind, String format) {
+    return new OutputBuilder(kind, format);
   }
 
   public Situation.Builder newSituation(String name) {
