@@ -16,9 +16,11 @@ package ru.ispras.microtesk.model.api.memory;
 
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -37,7 +39,12 @@ public final class MemoryLocationTestCase {
   public static final Type   BIT = Type.CARD(1);
 
   public static final int COUNT = 32;
-  
+
+  @BeforeClass
+  public static void init() {
+    AddressTranslator.initialize(BigInteger.ZERO, BigInteger.ZERO);
+  }
+
   @Test
   public void testRandom() {
     // Allocates memory

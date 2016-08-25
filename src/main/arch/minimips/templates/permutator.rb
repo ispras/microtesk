@@ -24,6 +24,9 @@ require_relative 'minimips_base'
 class PermutatorTemplate < MiniMipsBaseTemplate
 
   def run
+    # Start address
+    org 0x00020000
+
     # Ordered as is:
     sequence(:permutator => 'trivial') {
       Add reg(_), reg(_), reg(_)
