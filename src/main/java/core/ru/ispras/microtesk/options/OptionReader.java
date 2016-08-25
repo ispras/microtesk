@@ -22,18 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Config;
 
 public final class OptionReader {
-  public static void main(final String[] args) throws Exception {
-    final OptionReader reader = new OptionReader(Config.loadSettings(), args);
-    reader.read();
-
-    final Options options = reader.getOptions();
-    System.out.println(options);
-    System.out.println(reader.getHelpText());
-  }
-
   private final Map<String, String> configuration;
   private final String[] commandLineArgs;
   private final org.apache.commons.cli.Options commandLineOptions;

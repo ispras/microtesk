@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.options.Option;
@@ -98,7 +99,10 @@ public final class Printer {
   public PrintWriter newFileWriter(final String fileName) throws IOException {
     checkNotNull(fileName);
 
-    final File file = new File(TestSettings.getOutDir(), fileName);
+    final String outDir = options.hasValue(Option.OUTDIR) ?
+        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir(); 
+
+    final File file = new File(outDir, fileName);
     final File fileParent = file.getParentFile();
     if (null != fileParent) {
       fileParent.mkdirs();
