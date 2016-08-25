@@ -66,6 +66,8 @@ public enum Option {
 
   INDENT_TOKEN("indent-token", "Indentation text", "\t", GENERATE),
   COMMENT_TOKEN("comment-token", "Single-line comment text", "//", GENERATE),
+  COMMENT_TOKEN_START("comment-token-start", "Text that starts a multiline comment", "/*", GENERATE),
+  COMMENT_TOKEN_END("comment-token-end", "Text that ends a multiline comment", "*/", GENERATE),
   SEPARATOR_TOKEN("separator-token", "Text used to create separators", "=", GENERATE),
   ORIGIN_FORMAT("origin-format" , "Origin directive format", ".org 0x%x", GENERATE),
   ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE),

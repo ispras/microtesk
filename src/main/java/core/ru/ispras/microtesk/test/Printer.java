@@ -234,7 +234,20 @@ public final class Printer {
           options.getValueAsBoolean(Option.COMMENTS_ENABLED) &&
           options.getValueAsBoolean(Option.COMMENTS_DEBUG);
 
-      final String text = output.evaluate(observer);
+      String text = output.evaluate(observer);
+      switch (output.getKind()) {
+        case COMMENT:
+          text = options.getValueAsString(Option.COMMENT_TOKEN) + " " + text;
+          break;
+
+        case COMMENT_ML_START:
+          text = options.getValueAsString(Option.COMMENT_TOKEN_START) + text;
+          break;
+
+        case COMMENT_ML_END:
+          text = text + options.getValueAsString(Option.COMMENT_TOKEN_END);
+          break;
+      }
 
       if (output.isComment() && !printComment) {
         printToScreen(text);

@@ -220,6 +220,15 @@ public final class Output {
   }
 
   /**
+   * Returns the output kind.
+   * 
+   * @return Output kind.
+   */
+  public Kind getKind() {
+    return kind;
+  }
+
+  /**
    * Returns {@code true} if the stored information should be evaluated during the simulation
    * and the evaluation results should be printed to the MicroTESK simulator output or
    * {@code false} if it should be evaluated after simulation and the results should be
