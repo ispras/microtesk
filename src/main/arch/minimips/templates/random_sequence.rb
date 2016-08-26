@@ -42,7 +42,9 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
       range(:value => ls_sequence,  :bias => 35),
       range(:value => bpu_sequence, :bias => 15))
 
-    block(:combinator => 'diagonal', :compositor => 'catenation') {
+    block(:combinator => 'diagonal',
+          :compositor => 'catenation',
+          :permutator => 'random') {
       4.times {
         my_dist.next_value.add
       }

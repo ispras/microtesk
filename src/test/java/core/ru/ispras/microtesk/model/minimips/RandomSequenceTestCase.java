@@ -19,14 +19,14 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.test.Statistics;
 
-public class RandomSituationTestCase extends MiniMipsTest {
+public class RandomSequenceTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    final Statistics statistics = run("random_situation.rb");
+    final Statistics statistics = run("random_sequence.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(10, statistics.getSequences());
-    Assert.assertEquals(55, statistics.getInstructions());
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(1, statistics.getSequences());
+    Assert.assertEquals(42, statistics.getInstructions());
   }
 }
