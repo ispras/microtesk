@@ -46,7 +46,7 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
           :compositor => 'catenation',
           :permutator => 'random') {
       4.times {
-        my_dist.next_value.add
+        my_dist.next_value.call
       }
       epilogue {
         label :exit
@@ -56,29 +56,35 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
   end
 
   def alu_sequence
-    sequence {
-      add reg(_), reg(_), reg(_)
-      sub reg(_), reg(_), reg(_)
-      AND reg(_), reg(_), reg(_)
-      OR  reg(_), reg(_), reg(_)
-    }
+    lambda do 
+      sequence {
+        add reg(_), reg(_), reg(_)
+        sub reg(_), reg(_), reg(_)
+        AND reg(_), reg(_), reg(_)
+        OR  reg(_), reg(_), reg(_)
+      }
+    end 
   end
 
   def ls_sequence
-    sequence {
-      la r=get_register, :variable
-      lw reg(_), 0, r
-      sw reg(_), 0, r
-    }
+    lambda do
+      sequence {
+        la r=reg(_), :variable
+        lw reg(_), 0, r
+        sw reg(_), 0, r
+      }
+    end
   end
 
   def bpu_sequence
-    sequence {
-      beq reg(_), reg(_), :exit
-      nop
-      bne reg(_), zero, :exit
-      nop
-    }
+    lambda do
+      sequence {
+        beq reg(_), reg(_), :exit
+        nop
+        bne reg(_), zero, :exit
+        nop
+      }
+    end
   end
 
 end
