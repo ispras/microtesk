@@ -126,7 +126,7 @@ dependencies {
   jruby 'org.jruby:jruby-complete:1.7.25'
 
   compile 'fortress:fortress:0.4.20-beta-160826'
-  compile 'testbase:testbase:+'
+  compile 'testbase:testbase:0.0.15-alpha-160826'
   compile 'jsoftfloat:jsoftfloat:1.0.2-beta-160826'
 
   checkstyle 'com.puppycrawl.tools:checkstyle:6.12.1'
