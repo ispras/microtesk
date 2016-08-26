@@ -127,7 +127,7 @@ dependencies {
 
   compile 'fortress:fortress:0.4.20-beta-160826'
   compile 'testbase:testbase:+'
-  compile 'jsoftfloat:jsoftfloat:+'
+  compile 'jsoftfloat:jsoftfloat:1.0.2-beta-160826'
 
   checkstyle 'com.puppycrawl.tools:checkstyle:6.12.1'
   pmd 'net.sourceforge.pmd:pmd-core:5.4.0'
@@ -186,7 +186,7 @@ task copyStg(type: Copy) {
 test.dependsOn copyStg
 
 task copyDistribution(type: Copy) {
-  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tgz")
+  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar.gz")
   into 'build/target'
 }
 
@@ -307,6 +307,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
   from(files { projectDir.listFiles() }.filter { File file -> file.isFile() ? file : null }) {
     into(projectName)
+    exclude('gradle-local.properties')
   }
 }
 
