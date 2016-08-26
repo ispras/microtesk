@@ -6,6 +6,18 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/08/26 MicroTESK 2.3.47 beta
+
+ - Documentation on Ruby code of test templates included into distribution
+ - Possibility to override configuration options from test templates by using
+   the set_option_value function
+ - Updated configuration options (see MicroTESK help)
+ - New configuration option 'reserve-explicit' that specifies whether
+   explicitly specified registers must be reserved
+ - New test template 'random_sequence.rb' that combines sequences based on
+   distributions
+ - Bug fixes and general improvements
+
 2016/08/12 MicroTESK 2.3.46 beta
 
  - Improved functionality of the 'prologue' and 'epilogue' constructs
