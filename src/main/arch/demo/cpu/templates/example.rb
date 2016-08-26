@@ -33,19 +33,19 @@ class ExampleTemplate < CpuBaseTemplate
     super
 
     # Sets token for a single-line comment
-    @sl_comment_starts_with = ";"
+    set_option_value 'comment-token', ";"
 
     # Sets starting token for a multi-line comment 
-    @ml_comment_starts_with = "/="
+    set_option_value 'comment-token-start', "/="
 
     # Sets terminating token for a multi-line comment
-    @ml_comment_ends_with = "=/"
+    set_option_value 'comment-token-end', "=/"
 
     # Sets the indentation token used in test programs
-    @indent_token = "  "
+    set_option_value 'indent-token', "  "
 
     # Sets the token used in separator lines printed into test programs
-    @separator_token = "-"
+    set_option_value 'separator-token', "-"
   end
 
   #
@@ -109,7 +109,7 @@ class ExampleTemplate < CpuBaseTemplate
     #mov reg(ri = 7), imm(_) do situation('imm_random', :min => 0, :max => 15) end
     add reg(5), reg(ri)
     newline
-    
+
     ############################################################################
     # Data generation
 
