@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Call;
@@ -90,7 +91,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     // Makes a copy as the abstract sequence can be modified by solver or adapter.
     List<Call> sequence = Call.copyAll(Call.expandAtomic(abstractSequence));
 
-    allocateModes(sequence);
+    allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
     sequence = expandPreparators(context, sequence);
 
     final EngineResult<?> result = engine.solve(context, sequence);
@@ -101,10 +102,11 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     return adapt(adapter, context, sequence, result.getResult());
   }
 
-  private static void allocateModes(final List<Call> abstractSequence) {
+  private static void allocateModes(
+      final List<Call> abstractSequence, final boolean markExplicitAsUsed) {
     final ModeAllocator modeAllocator = ModeAllocator.get();
     if (null != modeAllocator) {
-      modeAllocator.allocate(abstractSequence);
+      modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
     }
   }
 

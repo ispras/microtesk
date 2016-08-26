@@ -57,6 +57,8 @@ public enum Option {
   COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --" +
       COMMENTS_ENABLED.getName(), false, GENERATE),
   TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
+  RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified mode arguments",
+      false, GENERATE),
 
   CODE_EXT("code-file-extension", "Output file extension", "asm", GENERATE),
   CODE_PRE("code-file-prefix", "Output file prefix", "test", GENERATE),

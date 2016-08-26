@@ -113,19 +113,21 @@ public final class ModeAllocator {
     }
   }
 
-  public void allocate(final List<Call> sequence) {
+  public void allocate(final List<Call> sequence, final boolean markExplicitAsUsed) {
     InvariantChecks.checkNotNull(sequence);
 
     reset();
 
-    // Phase 1: mark the initialized addressing modes as 'used'.
-    for (final Call call : sequence) {
-      if (call.isExecutable()) {
-        final Primitive primitive = call.getRootOperation();
-        useInitializedModes(primitive);
-      } else if (call.isPreparatorCall()) {
-        final Primitive primitive = call.getPreparatorReference().getTarget();
-        useInitializedModes(primitive);
+    if (markExplicitAsUsed) {
+      // Phase 1: mark all explicitly initialized addressing modes as 'used'.
+      for (final Call call : sequence) {
+        if (call.isExecutable()) {
+          final Primitive primitive = call.getRootOperation();
+          useInitializedModes(primitive);
+        } else if (call.isPreparatorCall()) {
+          final Primitive primitive = call.getPreparatorReference().getTarget();
+          useInitializedModes(primitive);
+        }
       }
     }
 
