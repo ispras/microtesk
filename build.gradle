@@ -74,6 +74,7 @@ uploadArchives {
 
 release {
   failOnCommitNeeded = false
+  failOnUnversionedFiles = false
 
   versionPatterns = [
     // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
@@ -124,7 +125,7 @@ dependencies {
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
 
-  compile 'fortress:fortress:+'
+  compile 'fortress:fortress:0.4.20-beta-160826'
   compile 'testbase:testbase:+'
   compile 'jsoftfloat:jsoftfloat:+'
 
@@ -407,8 +408,9 @@ compileModels.dependsOn.add('translateCpuDemo')
 compileModels.dependsOn.add('translateVliwDemo')
 compileModels.dependsOn.add('translateMiniMips')
 
-tasks.withType(Tar){
+tasks.withType(Tar) {
   compression = Compression.GZIP
+  extension = 'tar.gz'
 }
 
 distributions {
