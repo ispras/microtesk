@@ -38,9 +38,9 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
     }
 
     my_dist = dist(
-      range(:value => alu_sequence, :bias => 30),
-      range(:value => ls_sequence,  :bias => 35),
-      range(:value => bpu_sequence, :bias => 15))
+      range(:value => lambda do alu_sequence end, :bias => 30),
+      range(:value => lambda do ls_sequence end,  :bias => 35),
+      range(:value => lambda do bpu_sequence end, :bias => 15))
 
     block(:combinator => 'diagonal',
           :compositor => 'catenation',
@@ -56,35 +56,29 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
   end
 
   def alu_sequence
-    lambda do 
-      sequence {
-        add reg(_), reg(_), reg(_)
-        sub reg(_), reg(_), reg(_)
-        AND reg(_), reg(_), reg(_)
-        OR  reg(_), reg(_), reg(_)
-      }
-    end 
+    sequence {
+      add reg(_), reg(_), reg(_)
+      sub reg(_), reg(_), reg(_)
+      AND reg(_), reg(_), reg(_)
+      OR  reg(_), reg(_), reg(_)
+    }
   end
 
   def ls_sequence
-    lambda do
-      sequence {
-        la r=reg(_), :variable
-        lw reg(_), 0, r
-        sw reg(_), 0, r
-      }
-    end
+    sequence {
+      la r=reg(_), :variable
+      lw reg(_), 0, r
+      sw reg(_), 0, r
+    }
   end
 
   def bpu_sequence
-    lambda do
-      sequence {
-        beq reg(_), reg(_), :exit
-        nop
-        bne reg(_), zero, :exit
-        nop
-      }
-    end
+    sequence {
+      beq reg(_), reg(_), :exit
+      nop
+      bne reg(_), zero, :exit
+      nop
+    }
   end
 
 end
