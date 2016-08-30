@@ -47,6 +47,7 @@ apply plugin: 'pmd'
 apply plugin: 'jacoco'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'eclipse'
 
 repositories {
   maven {
@@ -144,6 +145,40 @@ dependencies {
   pmd 'net.sourceforge.pmd:pmd-core:5.4.0'
   pmd 'net.sourceforge.pmd:pmd-java:5.4.0'
   findbugs 'com.google.code.findbugs:findbugs:3.0.1'
+}
+
+configurations {
+  noEclipse
+}
+
+dependencies {
+  noEclipse z3 
+  noEclipse cvc4
+}
+
+eclipse {
+  classpath {
+    downloadJavadoc=false
+    downloadSources=true
+
+    minusConfigurations += [ configurations.noEclipse ]
+    sourceSets -= [ sourceSets.main, sourceSets.test ]
+
+    file {
+      withXml {
+        def node = it.asNode()
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/java/core'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/resources/core'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/test/java/core'])
+
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/java/plugins/mmu'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/resources/plugins/mmu'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/test/java/plugins/mmu'])
+
+        node.appendNode('classpathentry', [kind: 'src', path: 'build/generated-src/antlr/main'])
+      }
+    }
+  }
 }
 
 task getZ3(type: Copy) {
