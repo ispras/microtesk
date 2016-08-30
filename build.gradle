@@ -199,6 +199,9 @@ test.dependsOn copyStg
 task copyDistribution(type: Copy) {
   from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar.gz")
   into 'build/target'
+  eachFile {FileCopyDetails details ->
+    details.path = (details.path - "microtesk-${project.version}")
+  }
 }
 
 copyDistribution.dependsOn distTar
@@ -207,7 +210,7 @@ test.dependsOn copyDistribution
 test {
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
-  environment 'MICROTESK_HOME', "${project.projectDir}/build/target/microtesk-${project.version}"
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
   testLogging.showStandardStreams = true
   ignoreFailures = true
   forkEvery = 1
