@@ -196,15 +196,21 @@ task copyStg(type: Copy) {
 
 test.dependsOn copyStg
 
+task cleanDistribution(type: Delete) {
+  delete "${project.projectDir}/build/target"
+}
+
 task copyDistribution(type: Copy) {
   from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar.gz")
-  into 'build/target'
+  into "${project.projectDir}/build/target"
   eachFile {FileCopyDetails details ->
     details.path = (details.path - "microtesk-${project.version}")
   }
 }
 
+copyDistribution.dependsOn cleanDistribution
 copyDistribution.dependsOn distTar
+assemble.dependsOn copyDistribution
 test.dependsOn copyDistribution
 
 test {
