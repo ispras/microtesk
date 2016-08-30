@@ -4,37 +4,33 @@
 
  Building MicroTESK from command line:
 
- 1. To build the project, run the following command:
+ To build the project, the following commands can be used:
 
-    ant
-
- 2. To clean the project folder, run the same command with the "clean" key:
-
-    ant clean 
+  gradle assemble - building the distribution package
+  gradle test     - running unit tests
+  gradle build    - building the distribution package and running unit tests
+  gradle release  - building the distribution package, running unit tests,
+                    creating tags, and publishing the distribution package
+                    into the build repository
 
 --------------------------------------------------------------------------------
 
  Working with MicroTESK in the Eclipse IDE:
 
- 1. Create a workspace located in the "<microtesk>/trunk" directory.
+ 1. Run command 'gradle eclipse' to generate the Eclipse project and classpath
+    files.
+
+ 2. Create a workspace located in the "<microtesk>/trunk" directory.
 
     Use the menu item "File/Switch Workspace...".
     Browse the directory.
 
- 2. Import an existing project called "microtesk" into the workspace.
+ 3. Import an existing project called "microtesk" into the workspace.
 
     Use the menu item "File/Import...".
     Choose "General/Existing Projects into Workspace".
     Select the "<microtesk>/trunk/microtesk" folder as the root directory.
     Select the "microtesk" project located in this directory.
     Press the "Finish" button: the project will be opened in the Eclipse IDE.
- 
- 3. Run the "build.xml" building script.
-
-    Run 'ant -f setup.xml' from the "<microtesk>/trunk/microtesk" folder.
-    Right-click the "build.xml" file in Package Explorer.
-    Select "Run As/Ant Build" from the context menu.
-    Ant will run ANRLR to generate the needed code translation classes and
-    build the project.
 
 --------------------------------------------------------------------------------
