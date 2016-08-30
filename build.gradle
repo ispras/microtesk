@@ -152,7 +152,7 @@ configurations {
 }
 
 dependencies {
-  noEclipse z3 
+  noEclipse z3
   noEclipse cvc4
 }
 
