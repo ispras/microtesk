@@ -32,7 +32,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MemoryAllocator {
   private final MemoryDevice memory;
 
