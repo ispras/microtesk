@@ -23,7 +23,6 @@ import org.stringtemplate.v4.STGroup;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface STBuilder {
   /**
    * Performs initialization of the template of the target class based on templates described in the
@@ -34,6 +33,5 @@ public interface STBuilder {
    * 
    * @return Fully initialized template object.
    */
-
   ST build(STGroup group);
 }

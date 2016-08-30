@@ -34,7 +34,6 @@ import ru.ispras.microtesk.SysUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class STFileGenerator implements FileGenerator {
   private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
     private void report(final String s) {
@@ -75,7 +74,6 @@ public final class STFileGenerator implements FileGenerator {
    *        of the hierarchy to child groups.
    * @param templateBuilder Builder that is responsible for initialization of the template.
    */
-
   public STFileGenerator(
       final String outputFile,
       final String[] templateGroupFiles,
@@ -94,7 +92,6 @@ public final class STFileGenerator implements FileGenerator {
    * 
    * @throws IOException It is raised if the methods fails to create the target file.
    */
-
   @Override
   public void generate() throws IOException {
     final STGroup group = loadTemplateGroups();
@@ -108,7 +105,6 @@ public final class STFileGenerator implements FileGenerator {
    * 
    * @return A hierarchy of template groups.
    */
-
   private STGroup loadTemplateGroups() {
     STGroup parentGroup = null;
     for (final String groupFile : templateGroupFiles) {
@@ -131,7 +127,6 @@ public final class STFileGenerator implements FileGenerator {
    * @param template An initialized file template.
    * @throws IOException It is raised if the methods fails to create the target file.
    */
-
   private void saveTemplate(final ST template) throws IOException {
     final File file = new File(outputFile);
 
