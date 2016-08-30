@@ -17,8 +17,9 @@
 
  Working with MicroTESK in the Eclipse IDE:
 
- 1. Run command 'gradle eclipse' to generate the Eclipse project and classpath
-    files.
+ 1. Generate the Eclipse project and classpath files with Gradle.
+
+    Execute the "gradle eclipse" command in the command line terminal.
 
  2. Create a workspace located in the "<microtesk>/trunk" directory.
 
