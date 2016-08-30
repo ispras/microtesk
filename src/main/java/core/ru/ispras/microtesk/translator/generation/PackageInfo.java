@@ -19,46 +19,39 @@ package ru.ispras.microtesk.translator.generation;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class PackageInfo {
   private PackageInfo() {}
 
   /**
    * Extension for Java-files.
    */
-
   public static final String JAVA_EXT = ".java";
 
   /**
    * Path to the folder that stores common templates (building blocks) to be reused in other
    * templates.
    */
-
   public static final String COMMON_TEMPLATE_DIR = "stg/";
 
   /**
    * Path to the folder that stores string templates (building blocks) for generating
    * model classes based on nML specifications.
    */
-
   public static final String NML_TEMPLATE_DIR = "stg/nml/";
 
   /**
    * The root folder for generated models.
    */
-
   public static final String DEFAULT_OUTDIR = "./output";
 
   /**
    * The name of the root package for generated models.
    */
-
   public static final String MODEL_PACKAGE = "ru.ispras.microtesk.model";
 
   /**
    * The folder where the root package for generated models is located.
    */
-
   public static final String getModelOutDir(final String outDir) {
     return outDir + "/" + nameToPath(MODEL_PACKAGE);
   }
@@ -68,7 +61,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static final String MODEL_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s";
 
   /**
@@ -76,7 +68,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static String getModelFileFormat(final String outDir) {
     return getModelOutDir(outDir) + "/%s/Model.java";
   }
@@ -87,7 +78,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static final String SHARED_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.shared";
 
   /**
@@ -96,7 +86,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static final String SHARED_CLASS_FORMAT = SHARED_PACKAGE_FORMAT + ".Shared";
 
   /**
@@ -105,7 +94,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static String getSharedFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(SHARED_CLASS_FORMAT) + JAVA_EXT;
   }
@@ -115,7 +103,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static final String MODE_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.mode";
 
   /**
@@ -123,7 +110,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name, mode name.
    */
-
   public static final String MODE_CLASS_FORMAT = MODE_PACKAGE_FORMAT + ".%s";
 
   /**
@@ -131,7 +117,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name, mode name.
    */
-
   public static String getModeFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(MODE_CLASS_FORMAT) + JAVA_EXT;
   }
@@ -141,7 +126,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-
   public static final String OP_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.op";
 
   /**
@@ -149,7 +133,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name, op name.
    */
-
   public static final String OP_CLASS_FORMAT = OP_PACKAGE_FORMAT + ".%s";
 
   /**
@@ -157,7 +140,6 @@ public final class PackageInfo {
    * 
    * Format parameters: model name, op name.
    */
-
   public static String getOpFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(OP_CLASS_FORMAT) + JAVA_EXT;
   }
@@ -168,7 +150,6 @@ public final class PackageInfo {
    * @param name The name of a package or a class.
    * @return The path for the source name.
    */
-
   private static String nameToPath(final String name) {
     return name.replace('.', '/');
   }
