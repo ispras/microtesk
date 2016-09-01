@@ -78,7 +78,7 @@ public final class PackageInfo {
    * 
    * Format parameters: model name.
    */
-  public static final String SHARED_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s.shared";
+  public static final String SHARED_PACKAGE_FORMAT = MODEL_PACKAGE + ".%s";
 
   /**
    * Format string for the name of the class that holds information on the microprocessor state and
