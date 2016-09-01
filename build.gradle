@@ -137,11 +137,13 @@ dependencies {
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
   compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
+  compile 'org.apache.velocity:velocity:1.7'
 
   compile 'fortress:fortress:0.4.20-beta-160826'
   compile 'testbase:testbase:0.0.15-alpha-160826'
   compile 'jsoftfloat:jsoftfloat:1.0.2-beta-160826'
   compile 'coverage:coverage:+'
+  compile 'aspectrace:aspectrace:+'
 
   checkstyle 'com.puppycrawl.tools:checkstyle:6.12.1'
   pmd 'net.sourceforge.pmd:pmd-core:5.4.0'
