@@ -240,6 +240,7 @@ task cleanDistribution(type: Delete) {
 }
 
 task copyDistribution(type: Copy) {
+  includeEmptyDirs = false
   from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar.gz")
   into "${project.projectDir}/build/target"
   eachFile {FileCopyDetails details ->
