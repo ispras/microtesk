@@ -15,16 +15,15 @@
 package ru.ispras.microtesk.translator.generation;
 
 /**
- * The PackageInfo class holds information on package structure and names of generated Java classes.
+ * The {@link PackageInfo} class holds information on package structure and names of
+ * generated Java classes.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class PackageInfo {
   private PackageInfo() {}
 
-  /**
-   * Extension for Java-files.
-   */
+  /** Extension for Java-files. */
   public static final String JAVA_EXT = ".java";
 
   /**
