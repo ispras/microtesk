@@ -14,12 +14,11 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
@@ -57,7 +56,7 @@ public final class MetaArgument implements MetaData {
         Collections.singleton(Immediate.TYPE_NAME),
         dataType
         );
-    checkNotNull(dataType);
+    InvariantChecks.checkNotNull(dataType);
   }
 
   /**
@@ -78,10 +77,10 @@ public final class MetaArgument implements MetaData {
       final String name,
       final Set<String> typeNames,
       final Type dataType) {
-    checkNotNull(kind);
-    checkNotNull(mode);
-    checkNotNull(name);
-    checkNotEmpty(typeNames);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotEmpty(typeNames);
 
     this.kind = kind;
     this.mode = mode;
