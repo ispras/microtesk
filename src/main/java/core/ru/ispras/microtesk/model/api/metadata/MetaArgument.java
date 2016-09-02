@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,11 +18,13 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.model.api.instruction.Immediate;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**
@@ -36,6 +38,27 @@ public final class MetaArgument implements MetaData {
   private final String name;
   private final Set<String> typeNames;
   private final Type dataType;
+
+  /**
+   * Constructs a meta argument object for an immediate argument.
+   * 
+   * @param name argument name.
+   * @param dataType the data type associated with the argument.
+   * 
+   * @throws IllegalArgumentException if any argument is {@code null}.
+   */
+  public MetaArgument(
+      final String name,
+      final Type dataType) {
+    this(
+        ArgumentKind.IMM,
+        ArgumentMode.IN,
+        name,
+        Collections.singleton(Immediate.TYPE_NAME),
+        dataType
+        );
+    checkNotNull(dataType);
+  }
 
   /**
    * Constructs a meta argument object.
