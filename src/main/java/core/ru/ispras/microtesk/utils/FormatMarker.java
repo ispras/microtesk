@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class FormatMarker {
   /** Token for %d. Used for decimal numbers. */
   public static final FormatMarker DEC = new FormatMarker("d");
@@ -73,7 +72,6 @@ public final class FormatMarker {
    * 
    * @return Token identifier.
    */
-
   public String getTokenId() {
     return tokenId;
   }
@@ -83,7 +81,6 @@ public final class FormatMarker {
    * 
    * @return Regular expression.
    */
-
   public String getRegExpr() {
     return regExpr;
   }
@@ -96,7 +93,6 @@ public final class FormatMarker {
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-
   public static List<FormatMarker> extractMarkers(final String format) {
     InvariantChecks.checkNotNull(format);
 
