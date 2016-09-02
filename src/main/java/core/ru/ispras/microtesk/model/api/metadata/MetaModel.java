@@ -33,6 +33,21 @@ public final class MetaModel {
   private final Map<String, MetaLocationStore> memory;
 
   public MetaModel(
+      final Map<String, MetaAddressingMode> modes,
+      final Map<String, MetaGroup> modeGroups,
+      final Map<String, MetaOperation> operations,
+      final Map<String, MetaGroup> operationGroups,
+      final Map<String, MetaLocationStore> registers,
+      final Map<String, MetaLocationStore> memory) {
+    this.modes = modes;
+    this.modeGroups = modeGroups;
+    this.operations = operations;
+    this.operationGroups = operationGroups;
+    this.registers = registers;
+    this.memory = memory;
+  }
+
+  public MetaModel(
       final Collection<MetaAddressingMode> modes,
       final Collection<MetaGroup> modeGroups,
       final Collection<MetaOperation> operations,
