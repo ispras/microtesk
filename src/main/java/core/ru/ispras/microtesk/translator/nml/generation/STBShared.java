@@ -37,11 +37,9 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class STBShared implements STBuilder {
-  public final String modelName;
   public final Ir ir;
 
-  public STBShared(Ir ir, String modelName) {
-    this.modelName = modelName;
+  public STBShared(final Ir ir) {
     this.ir = ir;
   }
 
@@ -50,7 +48,7 @@ final class STBShared implements STBuilder {
   }
 
   private void buildHeader(ST t) {
-    t.add("pack", String.format(SHARED_PACKAGE_FORMAT, modelName));
+    t.add("pack", String.format(SHARED_PACKAGE_FORMAT, ir.getModelName()));
 
     t.add("imps", BigInteger.class.getName());
 

@@ -28,7 +28,7 @@ final class GeneratorFactory {
 
   public GeneratorFactory(String outDir, String modelName) {
     this.outDir = outDir;
-    this.modelName = modelName.toLowerCase();
+    this.modelName = modelName;
   }
 
   public FileGenerator createModelGenerator(Ir ir) {
@@ -40,7 +40,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "Model.stg"
     };
 
-    final STBuilder modelBuilder = new STBModel(modelName, ir);
+    final STBuilder modelBuilder = new STBModel(ir);
     return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
   }
 
@@ -53,7 +53,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
-    final STBuilder builder = new STBShared(ir, modelName);
+    final STBuilder builder = new STBShared(ir);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 

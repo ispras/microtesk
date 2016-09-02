@@ -40,20 +40,16 @@ final class STBModel implements STBuilder {
   public static final String SHARED_VARIABLES = "__VARIABLES";
   public static final String SHARED_LABELS = "__LABELS";
 
-  private final String modelName;
   private final Ir ir;
 
-  public STBModel(
-      final String modelName,
-      final Ir ir) {
-    this.modelName = modelName;
+  public STBModel(final Ir ir) {
     this.ir = ir;
   }
 
   @Override
   public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("model");
-    t.add("pack", String.format(MODEL_PACKAGE_FORMAT, modelName));
+    t.add("pack", String.format(MODEL_PACKAGE_FORMAT, ir.getModelName()));
 
     t.add("imps", ProcessorModel.class.getName());
     t.add("imps", MetaModelPrinter.class.getName());
@@ -61,13 +57,13 @@ final class STBModel implements STBuilder {
     t.add("imps", AddressingMode.class.getName());
     t.add("imps", Operation.class.getName());
 
-    t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
+    t.add("simps", String.format(SHARED_CLASS_FORMAT, ir.getModelName()));
 
     t.add("base", ProcessorModel.class.getSimpleName());
 
     final ST tc = group.getInstanceOf("constructor");
 
-    tc.add("name", modelName);
+    tc.add("name", ir.getModelName());
     tc.add("reg", SHARED_REGISTERS);
     tc.add("mem", SHARED_MEMORY);
     tc.add("var", SHARED_VARIABLES);
@@ -98,7 +94,7 @@ final class STBModel implements STBuilder {
     tc.add("ogs", opGroupNames);
 
     if (!opNames.isEmpty() || !opGroupNames.isEmpty()) {
-      t.add("imps", String.format(OP_CLASS_FORMAT, modelName, "*"));
+      t.add("imps", String.format(OP_CLASS_FORMAT, ir.getModelName(), "*"));
     }
   }
 
@@ -118,7 +114,7 @@ final class STBModel implements STBuilder {
     tc.add("mgs", modeGroupNames);
 
     if (!modeNames.isEmpty() || !modeGroupNames.isEmpty()) {
-      t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
+      t.add("imps", String.format(MODE_CLASS_FORMAT, ir.getModelName(), "*"));
     }
   }
 }
