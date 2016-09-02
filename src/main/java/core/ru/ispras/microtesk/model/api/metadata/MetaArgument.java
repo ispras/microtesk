@@ -70,7 +70,7 @@ public final class MetaArgument implements MetaData {
    * @param dataType the data type associated with the argument.
    * 
    * @throws IllegalArgumentException if any argument except for {@code dataType}
-   *         it {@code null}; if the set of type names is empty.
+   *         is {@code null}; if the set of type names is empty.
    */
   public MetaArgument(
       final ArgumentKind kind,
