@@ -22,7 +22,6 @@ import java.io.IOException;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface FileGenerator {
   /**
    * Runs generation of a class file.
@@ -30,6 +29,5 @@ public interface FileGenerator {
    * @throws IOException if the generator failed to generate the needed
    *         file due to an I/O problem.
    */
-
   void generate() throws IOException;
 }
