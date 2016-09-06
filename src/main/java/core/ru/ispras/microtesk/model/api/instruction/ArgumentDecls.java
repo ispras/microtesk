@@ -45,7 +45,7 @@ public final class ArgumentDecls {
    * 
    * @param name
    * @param type
-   * @return
+   * @return This object.
    */
   public ArgumentDecls add(
       final String name,
@@ -76,7 +76,7 @@ public final class ArgumentDecls {
    * @param name
    * @param mode
    * @param info
-   * @return
+   * @return This object.
    */
   public ArgumentDecls add(
       final String name,
@@ -108,7 +108,7 @@ public final class ArgumentDecls {
    * 
    * @param name
    * @param info
-   * @return
+   * @return This object.
    */
   public ArgumentDecls add(
       final String name,
