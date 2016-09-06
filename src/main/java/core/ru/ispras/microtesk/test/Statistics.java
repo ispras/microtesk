@@ -59,7 +59,8 @@ public final class Statistics {
 
   private int sequences;
   private long instructions;
-  private long traceLength;
+  private long totalTraceLength;
+  private long sequenceTraceLength;
 
   private final long programLengthLimit;
   private final long traceLengthLimit;
@@ -80,7 +81,8 @@ public final class Statistics {
 
     this.sequences = 0;
     this.instructions = 0;
-    this.traceLength = 0;
+    this.totalTraceLength = 0;
+    this.sequenceTraceLength = 0;
 
     this.programLengthLimit = programLengthLimit;
     this.traceLengthLimit = traceLengthLimit;
@@ -116,7 +118,7 @@ public final class Statistics {
   public void incPrograms() {
     programs++;
     programLength = 0;
-    traceLength = 0;
+    sequenceTraceLength = 0;
   }
 
   public void decPrograms() {
@@ -126,7 +128,7 @@ public final class Statistics {
 
   public void incSequences() {
     sequences++;
-    traceLength = 0;
+    sequenceTraceLength = 0;
   }
 
   public void incInstructions() {
@@ -135,13 +137,14 @@ public final class Statistics {
   }
 
   public void incTraceLength() {
-    traceLength++;
+    totalTraceLength++;
+    sequenceTraceLength++;
   }
 
   public long getTotalTime() {
     if (0 == totalTime) {
       saveTotalTime();
-    }  
+    }
 
     return totalTime;
   }
@@ -177,12 +180,16 @@ public final class Statistics {
     return programLength;
   }
 
+  public long getTotalTraceLength() {
+    return totalTraceLength;
+  }
+
   public boolean isProgramLengthLimitExceeded() {
     return programLength >= programLengthLimit;
   }
 
   public boolean isTraceLengthLimitExceeded() {
-    return traceLength >= traceLengthLimit;
+    return sequenceTraceLength >= traceLengthLimit;
   }
 
   public static String timeToString(long time) {
