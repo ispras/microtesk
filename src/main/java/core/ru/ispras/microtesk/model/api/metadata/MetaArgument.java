@@ -63,7 +63,7 @@ public final class MetaArgument implements MetaData {
    * Constructs a meta argument object.
    * 
    * @param kind the kind of object associated with the argument.
-   * @param usageKind the usage mode of the argument.
+   * @param mode the usage mode of the argument.
    * @param name argument name.
    * @param typeNames the set of of type names associated with the argument.
    * @param dataType the data type associated with the argument.
