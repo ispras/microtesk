@@ -33,7 +33,7 @@ public interface Solver<T> {
   /**
    * Checks whether the equation clause is satisfiable and returns a solution (if required).
    * 
-   * @param the solver mode.
+   * @param mode the solver mode.
    * @return {@code SAT} if the equation clause is satisfiable; {@code UNSAT} otherwise.
    */
   SolverResult<T> solve(Mode mode);
