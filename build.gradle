@@ -363,6 +363,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     into(projectName)
     include('src/')
     include('config/')
+    include('gradle/')
   }
 
   from(files { projectDir.listFiles() }.filter { File file -> file.isFile() ? file : null }) {
