@@ -223,7 +223,7 @@ public final class LabelManager {
    * Adds information about a label to the table of label targets.
    * 
    * @param label Label to be registered.
-   * @param position Address associated with the label.
+   * @param address Address associated with the label.
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
@@ -255,8 +255,8 @@ public final class LabelManager {
    * supposed that all labels in the collection point to the same address.
    * 
    * @param labels Collection of labels to be registered.
-   * @param position Position in the sequence of the instruction the labels in the collection point
-   *        to.
+   * @param address Address the labels in the collection point to.
+   * @param sequenceIndex Index of the sequence.
    * 
    * @throws IllegalArgumentException if the {@code label} parameter is {@code null}.
    * @throws IllegalArgumentException if an object in the {@code labels} collection is not a
