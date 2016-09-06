@@ -171,7 +171,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @param value Constant value.
    * @throws SemanticException if the value expression is {@code null}.
    */
-
   protected final void newConstant(
       final CommonTree id,
       final Node value) throws SemanticException {
@@ -188,7 +187,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @return Constant value.
    * @throws SemanticException if the constant is not defined.
    */
-
   protected final Node getConstant(final CommonTree id) throws SemanticException {
     final Constant constant = ir.getConstants().get(id.getText());
 
@@ -210,7 +208,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    *        or addressing mode arguments).
    * @throws SemanticException 
    */
-
   protected void newExtern(
       final CommonTree id,
       final CommonTree aliasId,
@@ -277,13 +274,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * Creates an Address IR object and adds it to the MMU IR.
    * 
    * @param addressId Address identifier.
-   * @param widthExpr Address width expression.
+   * @param type Address Address type.
+   * @param memberChain Member chain.
    * @return New Address IR object.
    * @throws SemanticException (1) if the width expression is {@code null}; (2) if the width
    * expression cannot be reduced to a constant integer value; (3) if the width value is beyond
    * the Java Integer allowed range; (4) if the width value is less or equal 0. 
    */
-
   protected final Address newAddress(final CommonTree addressId,
                                      final Type type,
                                      final List<CommonTree> memberChain) throws SemanticException {
@@ -348,7 +345,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * @throws SemanticException (1) if the size expression is {@code null}, (2) if
      * the size expression cannot be evaluated to a positive integer value (Java int).
      */
-
     public void addField(
         final CommonTree fieldId,
         final Node sizeExpr,
@@ -667,7 +663,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * @param addressArgType Address argument type (identifier).
      * @throws SemanticException if the specified address type is not defined.
      */
-
     public BufferBuilder(
         final CommonTree id,
         final CommonTree addressArgId,
@@ -1234,7 +1229,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * cannot be reduced to constant integer values; (4) if the range start
      * value is greater than the range end value.
      */
-
     public Segment buildSegment(final Node rangeStartExpr,
                                 final Node rangeEndExpr) throws SemanticException {
       final BigInteger rangeStart = extractBigInteger(where, rangeStartExpr, "Range start");
@@ -1416,10 +1410,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * 
    * @param operatorId Operator identifier.
    * @param operands Array of operands. 
-   * @return
+   * @return Expression
    * @throws RecognitionException
    */
-
   protected final Node newExpression(
       final CommonTree operatorId, final Node ... operands) throws RecognitionException {
     final String ERR_NO_OPERATOR = "The %s operator is not supported.";
@@ -1468,7 +1461,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @return New expression.
    * @throws RecognitionException
    */
-
   protected final Node newCondExpression(
       final CommonTree id,
       final List<Pair<Node, Node>> blocks) throws RecognitionException {
