@@ -23,8 +23,8 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
- * The {@link UnknownValue} class describes an unknown immediate value to be specified as an
- * argument of an addressing mode or operation. A corresponding concrete value must be produced
+ * The {@link UnknownImmediateValue} class describes an unknown immediate value to be specified as
+ * an argument of an addressing mode or operation. A corresponding concrete value must be produced
  * as a result of test data generation for some test situation linked to the primitive (MODE or OP)
  * this unknown value is passed to an argument. The generated concrete value is assigned to the
  * object via the {@code setValue} method. 
