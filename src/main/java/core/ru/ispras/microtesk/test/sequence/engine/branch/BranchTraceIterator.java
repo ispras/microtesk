@@ -20,7 +20,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@BranchTraceIterator} implements an iterator of execution traces for a given branch structure.
+ * {@link BranchTraceIterator} implements an iterator of execution traces for a given branch
+ * structure.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
