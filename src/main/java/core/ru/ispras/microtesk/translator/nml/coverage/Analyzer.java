@@ -78,7 +78,7 @@ public final class Analyzer implements TranslatorHandler<Ir> {
       final File genDir = new File(FileUtils.getNormalizedPath(targetDir));
 
       if (!genDir.exists()) {
-        genDir.mkdir();
+        genDir.mkdirs();
       }
 
       final PrintWriter out = new PrintWriter(
