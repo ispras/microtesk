@@ -139,7 +139,7 @@ public final class BlockId {
   /**
    * Checks whether the current block is a root block (has no parent).
    * 
-   * @return {@code true} is this is a root block or {@false} otherwise.
+   * @return {@code true} is this is a root block or {@code false} otherwise.
    */
   public boolean isRoot() {
     return null == parentId();
