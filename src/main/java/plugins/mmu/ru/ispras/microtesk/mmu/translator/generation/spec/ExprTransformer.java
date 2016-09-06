@@ -36,20 +36,19 @@ import ru.ispras.microtesk.utils.FortressUtils;
  * Class {@link ExprTransformer} transforms operations that involve shifts and 
  * bit masks into concatenation-based expressions. The shift amount and the bitmask
  * value must be constants. In addition, the transformer helps get rid of nested 
- * bit field extraction operations ({@link StandardOperation.BVEXTRACT}) by replacing
+ * bit field extraction operations ({@link StandardOperation#BVEXTRACT}) by replacing
  * them with a single bit field extraction. Supported operations include:
  * <ol>
- * <li>{@link StandardOperation.BVZEROEXT}
- * <li>{@link StandardOperation.BVLSHL}
- * <li>{@link StandardOperation.BVASHL}
- * <li>{@link StandardOperation.BVLSHR}
- * <li>{@link StandardOperation.BVAND}
- * <li>{@link StandardOperation.BVOR}
+ * <li>{@link StandardOperation#BVZEROEXT}
+ * <li>{@link StandardOperation#BVLSHL}
+ * <li>{@link StandardOperation#BVASHL}
+ * <li>{@link StandardOperation#BVLSHR}
+ * <li>{@link StandardOperation#BVAND}
+ * <li>{@link StandardOperation#BVOR}
  * </ol>
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class ExprTransformer {
   private final NodeTransformer transformer;
 
