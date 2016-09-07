@@ -105,10 +105,10 @@ public final class Executor {
    *        self-checks that contain references to labels defined in epilogue).
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
-   * @throws ConfigurationException if during the interaction with the microprocessor model an error
-   *         caused by an invalid format of the request has occurred (typically, it happens when
-   *         evaluating an {@link Output} object causes an invalid request to the model state
-   *         observer).
+   * @throws GenerationAbortedException if during the interaction with the microprocessor model
+   *         an error caused by an invalid format of the request has occurred (typically, it
+   *         happens when evaluating an {@link Output} object causes an invalid request to the
+   *         model state observer).
    */
   public void execute(
       final ExecutorCode executorCode,
