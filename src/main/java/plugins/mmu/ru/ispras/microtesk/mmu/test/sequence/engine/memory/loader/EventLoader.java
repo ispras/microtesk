@@ -84,7 +84,7 @@ public final class EventLoader implements Loader {
    * Appends the addresses and entries to be accessed to reach the buffer access event specified in
    * the constructor.
    * 
-   * @param addresses the addresses to be accessed.
+   * @param addressesAndEntries the addresses to be accessed.
    */
   public void addAddressesAndEntries(final List<AddressAndEntry> addressesAndEntries) {
     InvariantChecks.checkNotNull(addressesAndEntries);
