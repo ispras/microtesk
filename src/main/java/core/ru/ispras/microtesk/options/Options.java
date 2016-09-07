@@ -32,10 +32,21 @@ public final class Options {
     InvariantChecks.checkNotNull(option);
     InvariantChecks.checkNotNull(value);
 
-    InvariantChecks.checkTrue(
-        option.getValueClass().isAssignableFrom(value.getClass()), value.getClass().getName());
+    if (option.getValueClass().isAssignableFrom(value.getClass())) {
+      options.put(option, value);
+      return;
+    }
 
-    options.put(option, value);
+    if (option.getValueClass().equals(BigInteger.class) && value instanceof Number) {
+      options.put(option, BigInteger.valueOf(((Number) value).longValue()));
+      return;
+    }
+
+    throw new IllegalArgumentException(String.format(
+        "Illegal value type: %s, expected: %s",
+        value.getClass().getSimpleName(),
+        option.getValueClass().getSimpleName()
+        ));
   }
 
   public void setValue(final String optionName, final Object value) {
