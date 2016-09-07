@@ -657,7 +657,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     /**
      * Constructs a builder for a Buffer object.
-     *    
+     * 
      * @param id Buffer identifier.
      * @param addressArgId Address argument identifier. 
      * @param addressArgType Address argument type (identifier).
