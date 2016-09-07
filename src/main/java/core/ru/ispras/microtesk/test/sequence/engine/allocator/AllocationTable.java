@@ -161,7 +161,7 @@ public final class AllocationTable<T, V> {
    * 
    * @param object the object to be checked.
    * @return {@code true} if the object exists; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@object} does not exist (i.e. it is unknown).
+   * @throws IllegalArgumentException if {@code object} does not exist (i.e. it is unknown).
    */
   public boolean exists(final T object) {
     InvariantChecks.checkNotNull(object);
