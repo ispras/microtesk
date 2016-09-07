@@ -62,7 +62,6 @@ public final class AddressObject {
   /**
    * Constructs uninitialized test data for the given access of the given memory subsystem.
    * 
-   * @param memory the MMU specification.
    * @param access the memory access.
    * @throws IllegalArgumentException if some parameters are null.
    */
@@ -206,7 +205,6 @@ public final class AddressObject {
    * Adds the entry to the set of entries to be written to the given buffer.
    * 
    * @param buffer the buffer to be prepared.
-   * @param entryId the internal address of the entry.
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
