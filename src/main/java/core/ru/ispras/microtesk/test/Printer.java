@@ -57,8 +57,7 @@ public final class Printer {
    * 
    * @param observer Model state observer to evaluate outputs.
    * 
-   * @throws IllegalArgumentException if the observer or commentToken parameter is null.
-   * @throws IOException if failed to open the specified file for writing.
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
   public Printer(
       final Options options,
