@@ -64,9 +64,9 @@ public final class Executor {
   /**
    * Constructs an Executor object.
    * 
-   * @param logExecution Specifies whether printing to the simulator log is enabled.
+   * @param context Generatio engine context.
    * 
-   * @throws IllegalArgumentException if the {@code observer} parameter is {@code null}.
+   * @throws IllegalArgumentException if the argument is {@code null}.
    */
   public Executor(final EngineContext context) {
     InvariantChecks.checkNotNull(context);
@@ -97,8 +97,9 @@ public final class Executor {
    * Executes the specified sequence of instruction calls (concrete calls) and prints information
    * about important events to the simulator log.
    * 
-   * @param sequence Sequence of executable (concrete) instruction calls.
-   * @param sequenceIndex
+   * @param executorCode Execution context that contains all code of the current test program.
+   * @param sequenceCode Sequence of executable (concrete) instruction calls.
+   * @param sequenceIndex Sequence index.
    * @param abortOnUndefinedLabel Aborts generation when a reference to an undefined label is
    *        detected. This is the default behavior, which can changed in special cases (e.g.
    *        self-checks that contain references to labels defined in epilogue).
