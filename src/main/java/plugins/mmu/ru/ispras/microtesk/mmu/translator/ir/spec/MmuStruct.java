@@ -39,7 +39,6 @@ public class MmuStruct {
    * Constructs an MmuStruct object.
    * 
    * @param name structure name.
-   * @param buffer buffer associated with the structure.
    * @param variables field variables.
    * 
    * @throws IllegalArgumentException if {@code name} equals {@code null} or
