@@ -1454,8 +1454,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * Creates a conditional expression of the following kind:<p>
    * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}. 
    * 
-   * @param id Token that marks location of the construction in code, 
-   * @param blocks Pairs <condition expression>/<value expression>
+   * @param id Token that marks location of the construction in code.
+   * @param blocks Pairs [code condition expression, value expression].
    * @return New expression.
    * @throws RecognitionException
    */
