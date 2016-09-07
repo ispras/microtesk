@@ -126,8 +126,8 @@ configurations {
   jruby
 }
 
-configurations.compile {
-  resolutionStrategy.cacheDynamicVersionsFor 10, 'minutes'
+configurations.all {
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 dependencies {
@@ -143,11 +143,11 @@ dependencies {
   compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
   compile 'org.apache.velocity:velocity:1.7'
 
-  compile 'fortress:fortress:0.4.20-beta-160826'
-  compile 'testbase:testbase:0.0.15-alpha-160826'
-  compile 'jsoftfloat:jsoftfloat:1.0.2-beta-160826'
-  compile 'coverage:coverage:+'
-  compile 'aspectrace:aspectrace:+'
+  compile ('fortress:fortress:0.4.20-beta-160826') { changing = true }
+  compile ('testbase:testbase:0.0.15-alpha-160826') { changing = true }
+  compile ('jsoftfloat:jsoftfloat:1.0.2-beta-160826') { changing = true }
+  compile ('coverage:coverage:+') { changing = true }
+  compile ('aspectrace:aspectrace:+') { changing = true }
 
   checkstyle 'com.puppycrawl.tools:checkstyle:6.12.1'
   pmd 'net.sourceforge.pmd:pmd-core:5.4.0'
