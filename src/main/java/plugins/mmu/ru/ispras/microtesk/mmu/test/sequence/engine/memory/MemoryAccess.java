@@ -38,7 +38,6 @@ public final class MemoryAccess {
    * 
    * @param type the memory access type.
    * @param path the memory access path.
-   * @param settings the generator settings.
    * @return a memory access or {@code null} if it cannot be constructed
    */
   public static MemoryAccess create(
