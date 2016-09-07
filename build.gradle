@@ -126,6 +126,10 @@ configurations {
   jruby
 }
 
+configurations.compile {
+  resolutionStrategy.cacheDynamicVersionsFor 10, 'minutes'
+}
+
 dependencies {
   testCompile 'junit:junit:4.11'
   testCompile 'hamcrest:hamcrest-core:1.3'
@@ -459,16 +463,16 @@ task rdocJar(type: Jar) {
   from "${project.projectDir}/build/tmp/rdoc/doc"
 }
 
-distTar.dependsOn.add('rdocJar')
-rdocJar.dependsOn.add('runRDoc')
-runRDoc.dependsOn.add('copyFilesForRDoc')
-copyFilesForRDoc.dependsOn.add('cleanFilesForRDoc')
+distTar.dependsOn rdocJar
+rdocJar.dependsOn runRDoc
+runRDoc.dependsOn copyFilesForRDoc
+copyFilesForRDoc.dependsOn cleanFilesForRDoc
 
-distTar.dependsOn.add('jarModels')
-jarModels.dependsOn.add('compileModels')
-compileModels.dependsOn.add('translateCpuDemo')
-compileModels.dependsOn.add('translateVliwDemo')
-compileModels.dependsOn.add('translateMiniMips')
+distTar.dependsOn jarModels
+jarModels.dependsOn compileModels
+compileModels.dependsOn translateCpuDemo
+compileModels.dependsOn translateVliwDemo
+compileModels.dependsOn translateMiniMips
 
 tasks.withType(Tar) {
   compression = Compression.GZIP
