@@ -381,9 +381,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
+task copyEtc(type: Copy) {
+  from "${project.projectDir}/src/main/etc"
+  into "${project.projectDir}/build/target/etc"
+}
+
 task translateCpuDemo(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
   main = mainClassName
   args = [
     '-t',
@@ -393,9 +399,12 @@ task translateCpuDemo(type: JavaExec) {
   ]
 }
 
+translateCpuDemo.dependsOn copyEtc
+
 task translateVliwDemo(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
   main = mainClassName
   args = [
     '-t',
@@ -405,9 +414,12 @@ task translateVliwDemo(type: JavaExec) {
   ]
 }
 
+translateVliwDemo.dependsOn copyEtc
+
 task translateMiniMips(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
   main = mainClassName
   args = [
     '-t',
@@ -417,6 +429,8 @@ task translateMiniMips(type: JavaExec) {
     'build/generated-src/models'
   ]
 }
+
+translateMiniMips.dependsOn copyEtc
 
 task compileModels(type: JavaCompile) {
   source = fileTree(dir: 'build/generated-src/models/src', include: '**/*.java')
