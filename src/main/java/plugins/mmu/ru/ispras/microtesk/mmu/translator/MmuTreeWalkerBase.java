@@ -658,7 +658,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     /**
      * Constructs a builder for a Buffer object.
      *    
-     * @param bufferId Buffer identifier.
+     * @param id Buffer identifier.
      * @param addressArgId Address argument identifier. 
      * @param addressArgType Address argument type (identifier).
      * @throws SemanticException if the specified address type is not defined.
@@ -1218,9 +1218,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     /**
      * Creates a segment IR object and adds it to the MMU IR.
      * 
-     * @param segmentId Segment identifier.
-     * @param addressArgId Address argument identifier. 
-     * @param addressArgType Address argument type (identifier).
      * @param rangeStartExpr Range start expression.
      * @param rangeEndExpr Range and expression.
      * @return New Segment IR object.
@@ -1229,8 +1226,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * cannot be reduced to constant integer values; (4) if the range start
      * value is greater than the range end value.
      */
-    public Segment buildSegment(final Node rangeStartExpr,
-                                final Node rangeEndExpr) throws SemanticException {
+    public Segment buildSegment(
+        final Node rangeStartExpr,
+        final Node rangeEndExpr) throws SemanticException {
       final BigInteger rangeStart = extractBigInteger(where, rangeStartExpr, "Range start");
       final BigInteger rangeEnd = extractBigInteger(where, rangeEndExpr, "Range end");
 
