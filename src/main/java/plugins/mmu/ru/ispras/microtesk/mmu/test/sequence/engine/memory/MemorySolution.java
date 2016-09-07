@@ -165,7 +165,6 @@ public final class MemorySolution {
    * Adds the entry to the set of entries to be written to the given device.
    * 
    * @param device the MMU device (buffer).
-   * @param internalAddress the internal address of the entry (index).
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
