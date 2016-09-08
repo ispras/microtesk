@@ -84,7 +84,7 @@ public final class EngineContext {
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
-    this.address = options.getValueAsLong(Option.BASE_VA);
+    this.address = options.getValueAsBigInteger(Option.BASE_VA).longValue();
   }
 
   public Options getOptions() {

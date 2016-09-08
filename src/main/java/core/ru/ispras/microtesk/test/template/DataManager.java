@@ -92,12 +92,12 @@ public final class DataManager {
     checkReinitialized();
 
     this.baseVirtualAddress = baseVirtualAddress != null ?
-        baseVirtualAddress : BigInteger.valueOf(options.getValueAsLong(Option.BASE_VA));
+        baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);
 
     final BigInteger basePhysicalAddressForAllocation =
         null != baseVirtualAddress ?
         AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
-        BigInteger.valueOf(options.getValueAsLong(Option.BASE_PA));
+        options.getValueAsBigInteger(Option.BASE_PA);
 
     final Memory memory = Memory.get(target);
     allocator = memory.newAllocator(

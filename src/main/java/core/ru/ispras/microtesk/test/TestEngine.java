@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,8 +199,8 @@ public final class TestEngine {
     statistics.pushActivity(Statistics.Activity.PARSING);
 
     AddressTranslator.initialize(
-        BigInteger.valueOf(options.getValueAsLong(Option.BASE_VA)),
-        BigInteger.valueOf(options.getValueAsLong(Option.BASE_PA))
+        options.getValueAsBigInteger(Option.BASE_VA),
+        options.getValueAsBigInteger(Option.BASE_PA)
         );
 
     final Printer printer = new Printer(options, model.getStateObserver(), statistics);
