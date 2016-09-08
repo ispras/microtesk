@@ -29,12 +29,6 @@ class Template
 
   def initialize
     super
-
-    java_import Java::Ru.ispras.microtesk.test.TestEngine
-    engine = TestEngine.getInstance()
-
-    TemplateBuilder.define_runtime_methods engine.getMetaModel
-    @template = engine.newTemplate
   end
 
   def self.template_classes
@@ -899,6 +893,9 @@ class Template
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance()
+
+    TemplateBuilder.define_runtime_methods engine.getMetaModel
+    @template = engine.newTemplate
 
     @template.beginPreSection
     pre
