@@ -406,14 +406,14 @@ public final class ExprFactory extends WalkerFactoryBase {
       return isSigned ? signExtend(w, src, type) : zeroExtend(w, src, type);
     }
 
-    final Node from = NodeValue.newInteger(0);
+    final Node lo = NodeValue.newInteger(0);
     from.setUserData(NodeInfo.newConst(null));
 
-    final Node to = NodeValue.newInteger(newBitSize - 1);
+    final Node hi = NodeValue.newInteger(newBitSize - 1);
     to.setUserData(NodeInfo.newConst(null));
 
     final Node node = new NodeOperation(
-        StandardOperation.BVEXTRACT, from, to, src.getNode());
+        StandardOperation.BVEXTRACT, hi, lo, src.getNode());
 
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.COERCE, type);
     node.setUserData(nodeInfo);
