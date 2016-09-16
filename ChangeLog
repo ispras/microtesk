@@ -6,6 +6,10 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/09/16 MicroTESK 2.3.50 beta
+
+ - Bug fix in ExprFactory
+
 2016/09/09 MicroTESK 2.3.49 beta
 
  - Bug fixes and general improvements
