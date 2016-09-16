@@ -407,10 +407,10 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final Node lo = NodeValue.newInteger(0);
-    from.setUserData(NodeInfo.newConst(null));
+    lo.setUserData(NodeInfo.newConst(null));
 
     final Node hi = NodeValue.newInteger(newBitSize - 1);
-    to.setUserData(NodeInfo.newConst(null));
+    hi.setUserData(NodeInfo.newConst(null));
 
     final Node node = new NodeOperation(
         StandardOperation.BVEXTRACT, hi, lo, src.getNode());
