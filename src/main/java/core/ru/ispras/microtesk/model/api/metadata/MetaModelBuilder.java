@@ -73,9 +73,21 @@ public class MetaModelBuilder {
     modes.put(mode.getName(), mode);
   }
 
+  public final void addModeGroup(final MetaGroup group) {
+    InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkTrue(group.getKind() == MetaGroup.Kind.MODE);
+    modeGroups.put(group.getName(), group);
+  }
+
   public final void addOperaton(final MetaOperation operation) {
     InvariantChecks.checkNotNull(operation);
     operations.put(operation.getName(), operation);
+  }
+
+  public final void addOperatonGroup(final MetaGroup group) {
+    InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkTrue(group.getKind() == MetaGroup.Kind.OP);
+    modeGroups.put(group.getName(), group);
   }
 
   public final MetaModel build() {
