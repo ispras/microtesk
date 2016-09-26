@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.api.metadata;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -89,6 +90,9 @@ public class MetaModelBuilder {
   }
 
   public static Map<String, MetaArgument> toMap(final MetaArgument... args) {
-    return MetaDataUtils.toMap(Arrays.asList(args));
+    return args.length > 0 ?
+        MetaDataUtils.toMap(Arrays.asList(args)) :
+        Collections.<String, MetaArgument>emptyMap()
+        ;
   }
 }
