@@ -32,9 +32,9 @@ import ru.ispras.microtesk.utils.StringUtils;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MetaArgument implements MetaData {
+  private final String name;
   private final ArgumentKind kind;
   private final ArgumentMode mode;
-  private final String name;
   private final Set<String> typeNames;
   private final Type dataType;
 
@@ -42,29 +42,75 @@ public final class MetaArgument implements MetaData {
    * Constructs a meta argument object for an immediate argument.
    * 
    * @param name argument name.
-   * @param dataType the data type associated with the argument.
+   * @param type the data type associated with the argument.
    * 
    * @throws IllegalArgumentException if any argument is {@code null}.
    */
   public MetaArgument(
       final String name,
-      final Type dataType) {
+      final Type type) {
     this(
+        name,
         ArgumentKind.IMM,
         ArgumentMode.IN,
-        name,
         Collections.singleton(Immediate.TYPE_NAME),
-        dataType
+        type
         );
-    InvariantChecks.checkNotNull(dataType);
+    InvariantChecks.checkNotNull(type);
+  }
+
+  /**
+   * Constructs a meta argument object for an addressing mode argument.
+   * 
+   * @param name argument name.
+   * @param type object describing the argument type.
+   * @param mode the usage mode of the argument.
+   * 
+   * @throws IllegalArgumentException if any argument is {@code null}.
+   */
+  public MetaArgument(
+      final String name,
+      final MetaAddressingMode type,
+      final ArgumentMode mode) {
+    this(
+        name,
+        ArgumentKind.MODE,
+        mode,
+        type != null ? Collections.singleton(type.getName()) : null,
+        type != null ? type.getDataType() : null
+        );
+    InvariantChecks.checkNotNull(type);
+  }
+
+  /**
+   * Constructs a meta argument object for an operation argument.
+   * 
+   * @param name argument name.
+   * @param type object describing the argument type.
+   * @param mode the usage mode of the argument.
+   * 
+   * @throws IllegalArgumentException if any argument is {@code null}.
+   */
+  public MetaArgument(
+      final String name,
+      final MetaOperation type,
+      final ArgumentMode mode) {
+    this(
+        name,
+        ArgumentKind.OP,
+        mode,
+        type != null ? Collections.singleton(type.getName()) : null,
+        null
+        );
+    InvariantChecks.checkNotNull(type);
   }
 
   /**
    * Constructs a meta argument object.
    * 
+   * @param name argument name.
    * @param kind the kind of object associated with the argument.
    * @param mode the usage mode of the argument.
-   * @param name argument name.
    * @param typeNames the set of of type names associated with the argument.
    * @param dataType the data type associated with the argument.
    * 
@@ -72,21 +118,31 @@ public final class MetaArgument implements MetaData {
    *         is {@code null}; if the set of type names is empty.
    */
   public MetaArgument(
+      final String name,
       final ArgumentKind kind,
       final ArgumentMode mode,
-      final String name,
       final Set<String> typeNames,
       final Type dataType) {
+    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(mode);
-    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotEmpty(typeNames);
 
+    this.name = name;
     this.kind = kind;
     this.mode = mode;
-    this.name = name;
     this.typeNames = typeNames;
     this.dataType = dataType;
+  }
+
+  /**
+   * Returns the name of the argument.
+   * 
+   * @return Argument name.
+   */
+  @Override
+  public String getName() {
+    return name;
   }
 
   /**
@@ -105,16 +161,6 @@ public final class MetaArgument implements MetaData {
    */
   public ArgumentMode getMode() {
     return mode;
-  }
-
-  /**
-   * Returns the name of the argument.
-   * 
-   * @return Argument name.
-   */
-  @Override
-  public String getName() {
-    return name;
   }
 
   /**

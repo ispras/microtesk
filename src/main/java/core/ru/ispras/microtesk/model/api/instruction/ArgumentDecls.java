@@ -170,7 +170,7 @@ public final class ArgumentDecls {
       this.dataType = dataType;
 
       this.metaData = new MetaArgument(
-          kind, mode, name, typeNames, dataType);
+          name, kind, mode, typeNames, dataType);
     }
 
     public final String getName() {
