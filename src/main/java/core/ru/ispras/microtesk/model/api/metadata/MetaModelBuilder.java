@@ -60,6 +60,13 @@ public class MetaModelBuilder {
     memory.put(name, new MetaLocationStore(name, dataType, count));
   }
 
+  public final void addMemory(
+      final String name,
+      final Type dataType, 
+      final long count) {
+    addMemory(name, dataType, BigInteger.valueOf(count));
+  }
+
   public final void addMode(final MetaAddressingMode mode) {
     InvariantChecks.checkNotNull(mode);
     modes.put(mode.getName(), mode);
