@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -39,6 +40,23 @@ public final class MetaGroup implements MetaData {
   private final Kind kind;
   private final String name;
   private final Collection<? extends MetaData> items;
+
+  /**
+   * Constructs a {@code MetaGroup} object.
+   * 
+   * @param kind Kind of items being grouped.
+   * @param name Group name.
+   * @param items Items being grouped.
+   * 
+   * @throws IllegalArgumentException if any parameter is {@code null};
+   *         if the collection of items is empty.
+   */
+  public MetaGroup(
+      final Kind kind,
+      final String name,
+      final MetaData... items) {
+    this(kind, name, Arrays.asList(items));
+  }
 
   /**
    * Constructs a {@code MetaGroup} object.
