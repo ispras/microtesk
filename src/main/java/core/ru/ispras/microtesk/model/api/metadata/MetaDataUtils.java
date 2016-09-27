@@ -128,6 +128,16 @@ public final class MetaDataUtils {
     return sb.toString();
   }
 
+  /**
+   * Takes a collection of {@link MetaData} objects and creates a string
+   * that consists of their names separated with the specified separator string.
+   * The order of objects is preserved. If objects in the collection represent
+   * groups, they are processed recursively to create a list of their items.
+   * 
+   * @param c Collection of {@code MetaData} objects.
+   * @return String containing a list of {@code MetaData} object names or
+   *         empty string of the collection is empty.
+   */
   public static String toNameListStringRecursive(
       final Collection<? extends MetaData> c, final String sep) {
     InvariantChecks.checkNotNull(c);
