@@ -1,0 +1,80 @@
+/*
+ * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group MetaModel;
+
+source_file(
+  file,
+  pack,
+  name,
+  ext,
+  impls,
+  imps,
+  simps,
+  members,
+  instance) ::= <<
+<header(file)>
+<package(pack)>
+<if(simps)><static_imports(simps)><endif>
+<if(imps)><imports(imps)><endif>
+<class_javadoc(name)>
+<class_ext(["public", "final"],
+       name,
+       ext,
+       impls,
+       members,
+       instance)>
+>>
+
+location(name, type, size)  ::= <<
+"<name>", <type>, <size>
+>>
+
+list(args) ::= <<
+<args: { a | <a>}; separator=",\n">
+>>
+
+field_object(name, type, args) ::= <<
+public final <type> <name> = <new_object(type, args)>;<\n>
+>>
+
+new_object(type, args) ::= <<
+new <type>(
+    <list(args)>
+    )
+>>
+
+arg_list(args) ::= <<
+toMap(
+    <list(args)>
+    )
+>>
+
+argument(name, type) ::= <<
+>>
+
+metamodel_constructor(
+  name,
+  registers,
+  memories,
+  modes,
+  operations) ::= <<
+public <name>() {
+  <registers: { r | addRegister(<r>);}; separator="\n"><\n>
+  <memories: { m | addMemory(<m>);}; separator="\n"><\n>
+  <modes: { m | addMode(<m>);}; separator="\n"><\n>
+  <operations: { o | addOperation(<o>);}; separator="\n">
+}
+>>
+
