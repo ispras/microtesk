@@ -26,6 +26,11 @@ import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 
 public class MetaDataGenerator implements TranslatorHandler<Ir> {
+  private static final String[] TEMPLATE_GROUPS  = new String[] { 
+    PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+    PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
+    }; 
+
   private final Translator<Ir> translator;
 
   public MetaDataGenerator(final Translator<Ir> translator) {
@@ -41,24 +46,34 @@ public class MetaDataGenerator implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
 
-    final String outputFile = String.format("%s/%s/metadata/%s.java",
-        PackageInfo.getModelOutDir(getOutDir()),
-        ir.getModelName(),
-        STBMetaData.CLASS_NAME
-        );
+    generatePrimitives(ir);
+    generateModel(ir);
+  }
 
-    final String[] templateGroups = new String[] { 
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
-        };
+  private void generatePrimitives(final Ir ir) {
+    // TODO Auto-generated method stub
+  }
+
+  private void generateModel(final Ir ir) {
+    final String outputFile =
+        getFileName(ir.getModelName(), STBModel.CLASS_NAME);
 
     final FileGenerator generator =
-        new STFileGenerator(outputFile, templateGroups, new STBMetaData(ir));
+        new STFileGenerator(outputFile, TEMPLATE_GROUPS, new STBModel(ir));
 
     try {
       generator.generate();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String getFileName(final String modelName, final String className) {
+    return String.format(
+        "%s/%s/metadata/%s.java",
+        PackageInfo.getModelOutDir(getOutDir()),
+        modelName,
+        className
+        );
   }
 }
