@@ -273,7 +273,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.IS_NAN, Type.BOOLEAN);
-    final Node node = new NodeOperation(Operator.IS_NAN, operand.getNode());
+    final Node node = new NodeOperation(Operator.IS_NAN, DataType.BOOLEAN, operand.getNode());
 
     node.setUserData(nodeInfo);
     return new Expr(node);
@@ -288,7 +288,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.IS_SIGN_NAN, Type.BOOLEAN);
-    final Node node = new NodeOperation(Operator.IS_SIGN_NAN, operand.getNode());
+    final Node node = new NodeOperation(Operator.IS_SIGN_NAN, DataType.BOOLEAN, operand.getNode());
 
     node.setUserData(nodeInfo);
     return new Expr(node);
