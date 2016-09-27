@@ -432,6 +432,21 @@ task translateMiniMips(type: JavaExec) {
 
 translateMiniMips.dependsOn copyEtc
 
+task translateX86(type: JavaExec) {
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
+  main = mainClassName
+  args = [
+    '-t',
+    'src/main/arch/demo/x86/model/x86.nml',
+    '-od',
+    'build/generated-src/models'
+  ]
+}
+
+translateX86.dependsOn copyEtc
+
 task compileModels(type: JavaCompile) {
   source = fileTree(dir: 'build/generated-src/models/src', include: '**/*.java')
   destinationDir = file('build/classes/models')
@@ -487,6 +502,7 @@ jarModels.dependsOn compileModels
 compileModels.dependsOn translateCpuDemo
 compileModels.dependsOn translateVliwDemo
 compileModels.dependsOn translateMiniMips
+compileModels.dependsOn translateX86
 
 tasks.withType(Tar) {
   compression = Compression.GZIP
