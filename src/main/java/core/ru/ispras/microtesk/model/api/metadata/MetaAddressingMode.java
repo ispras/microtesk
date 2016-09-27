@@ -92,6 +92,7 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Data type.
    */
+  @Override
   public Type getDataType() {
     return dataType;
   }
@@ -101,7 +102,7 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Collection of addressing mode arguments.
    */
-  public Iterable<MetaArgument> getArguments() {
+  public Collection<MetaArgument> getArguments() {
     return args.values();
   }
 

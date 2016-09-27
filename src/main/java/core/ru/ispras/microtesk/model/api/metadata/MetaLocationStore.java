@@ -57,6 +57,7 @@ public final class MetaLocationStore implements MetaData {
    * 
    * @return Item data type.
    */
+  @Override
   public Type getDataType() {
     return dataType;
   }

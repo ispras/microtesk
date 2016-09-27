@@ -106,6 +106,30 @@ public final class MetaArgument implements MetaData {
   }
 
   /**
+   * Constructs a meta argument object for an group.
+   * 
+   * @param name argument name.
+   * @param type object describing the argument type.
+   * @param mode the usage mode of the argument.
+   * 
+   * @throws IllegalArgumentException if any argument is {@code null}.
+   */
+  public MetaArgument(
+      final String name,
+      final MetaGroup type,
+      final ArgumentMode mode) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(mode);
+
+    this.name = name;
+    this.kind = type.getKind() == MetaGroup.Kind.OP ? ArgumentKind.OP : ArgumentKind.MODE;
+    this.mode = mode;
+    this.typeNames = MetaDataUtils.toNameSet(type.getItems());
+    this.dataType = type.getDataType();
+  }
+
+  /**
    * Constructs a meta argument object.
    * 
    * @param name argument name.
@@ -146,6 +170,18 @@ public final class MetaArgument implements MetaData {
   }
 
   /**
+   * Returns the data type associated with the argument. Applicable
+   * to immediate values and addressing modes. For operations,
+   * it returns {@code null}.
+   * 
+   * @return Argument data type.
+   */
+  @Override
+  public Type getDataType() {
+    return dataType;
+  }
+
+  /**
    * Returns the kind of object associated with the argument.
    * 
    * @return Argument kind.
@@ -183,17 +219,6 @@ public final class MetaArgument implements MetaData {
    */
   public boolean isTypeAccepted(final String typeName) {
     return typeNames.contains(typeName);
-  }
-
-  /**
-   * Returns the data type associated with the argument. Applicable
-   * to immediate values and addressing modes. For operations,
-   * it returns {@code null}.
-   * 
-   * @return Argument data type.
-   */
-  public Type getDataType() {
-    return dataType;
   }
 
   @Override

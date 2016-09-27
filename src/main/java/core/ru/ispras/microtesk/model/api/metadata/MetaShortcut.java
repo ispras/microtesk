@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.microtesk.model.api.data.Type;
 
 /**
  * The MetaShortcut class describes a shortcut way to refer to an operation in some specific
@@ -54,6 +55,11 @@ public final class MetaShortcut implements MetaData {
   @Override
   public String getName() {
     return operation.getName();
+  }
+
+  @Override
+  public Type getDataType() {
+    return null;
   }
 
   /**

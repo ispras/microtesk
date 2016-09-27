@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import ru.ispras.microtesk.model.api.data.Type;
+
 /**
  * The MetaData interface is a common interface to be implemented by metadata object. It is needed
  * to work with collections of different metadata objects in a uniform way.
@@ -27,4 +29,12 @@ public interface MetaData {
    * @return Metadata element name.
    */
   String getName();
+
+  /**
+   * Returns the type associated with the metadata element or {@code null}
+   * if the element has no type.
+   * 
+   * @return type of the metadata element or {@code null} if the element has no type.
+   */
+  Type getDataType();
 }

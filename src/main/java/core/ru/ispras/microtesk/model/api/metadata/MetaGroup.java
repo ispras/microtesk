@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.data.Type;
 
 /**
  * The {@code MetaGroup} class describes a group of metadata items
@@ -40,6 +41,7 @@ public final class MetaGroup implements MetaData {
   private final Kind kind;
   private final String name;
   private final Collection<? extends MetaData> items;
+  private final Type dataType;
 
   /**
    * Constructs a {@code MetaGroup} object.
@@ -79,6 +81,7 @@ public final class MetaGroup implements MetaData {
     this.kind = kind;
     this.name = name;
     this.items = Collections.unmodifiableCollection(items);
+    this.dataType = items.iterator().next().getDataType();
   }
 
   /**
@@ -98,6 +101,11 @@ public final class MetaGroup implements MetaData {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public Type getDataType() {
+    return dataType;
   }
 
   /**

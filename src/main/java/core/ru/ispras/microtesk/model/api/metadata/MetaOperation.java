@@ -20,6 +20,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 import java.util.Map;
 
+import ru.ispras.microtesk.model.api.data.Type;
+
 /**
  * The MetaOperation class stores information on the given operation.
  * 
@@ -110,6 +112,11 @@ public final class MetaOperation implements MetaData {
    */
   public String getTypeName() {
     return typeName;
+  }
+
+  @Override
+  public Type getDataType() {
+    return null;
   }
 
   /**
