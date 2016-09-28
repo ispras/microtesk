@@ -116,7 +116,7 @@ public class MetaOperation implements MetaData {
         );
   }
 
-  protected void addArgument(final MetaArgument argument) {
+  protected final void addArgument(final MetaArgument argument) {
     InvariantChecks.checkNotNull(argument);
     args.put(argument.getName(), argument);
   }
