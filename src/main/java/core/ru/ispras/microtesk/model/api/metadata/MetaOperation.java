@@ -121,6 +121,12 @@ public class MetaOperation implements MetaData {
     args.put(argument.getName(), argument);
   }
 
+  protected final void addShortcut(final String contextName, final MetaOperation operation) {
+    InvariantChecks.checkNotNull(contextName);
+    InvariantChecks.checkNotNull(operation);
+    shortcuts.put(contextName, new MetaShortcut(contextName, operation));
+  }
+
   /**
    * Returns the operation name.
    * 
