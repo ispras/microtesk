@@ -85,7 +85,7 @@ class_ext(modifs, name, ext, impls, members, instance) ::= <<
 <modif_list(modifs)>class <name><base_class(ext)><intf_list(impls)> {
   <if(instance)><singleton(name, instance)><endif>
   <members; separator="\n">
-}<\n>
+}
 >>
 
 class_const(type, name, value) ::= <<
@@ -130,5 +130,5 @@ source_file(file, pack, name, ext, impls, imps, simps, members, instance) ::= <<
        ext,
        impls,
        members,
-       instance)>
+       instance)><\n>
 >>

@@ -23,6 +23,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
@@ -71,10 +72,11 @@ final class STBOperation implements STBuilder {
 
     buildFlags(info, stConstructor);
     STBAddressingMode.buildArguments(group, stConstructor, primitive);
-    buildShortcuts(group, st, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);
+
+    buildShortcuts(group, st, stConstructor, primitive);
   }
 
   private static void buildFlags(
@@ -124,12 +126,38 @@ final class STBOperation implements STBuilder {
     stConstructor.add("args", shortcut.getEntry().isRoot());
 
     buildFlags(shortcut.getInfo(), stConstructor);
+    buildArguments(group, stConstructor, shortcut);
 
     stShortcut.add("members", "");
     stShortcut.add("members", stConstructor);
 
     st.add("members", "");
     st.add("members", stShortcut);
+  }
+
+  private static void buildArguments(
+      final STGroup group,
+      final ST stConstructor,
+      final Shortcut shortcut) {
+    for (final Shortcut.Argument argument : shortcut.getArguments()) {
+      final String name = argument.getUniqueName();
+      final Primitive type = argument.getType();
+      final ArgumentMode mode = argument.getSource().getInfo().getArgUsage(argument.getName());
+
+      final ST stArgument = group.getInstanceOf("add_argument");
+
+      stArgument.add("type", MetaArgument.class.getSimpleName());
+      stArgument.add("args", "\"" + name + "\"");
+
+      if (type.getKind() == Primitive.Kind.IMM) {
+        stArgument.add("args", type.getName());
+      } else {
+        stArgument.add("args", type.getName() + ".get()");
+        stArgument.add("args", String.format("%s.%s", ArgumentMode.class.getSimpleName(), mode));
+      }
+
+      stConstructor.add("stmts", stArgument);
+    }
   }
 
   public static void buildShortcut(
