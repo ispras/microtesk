@@ -18,26 +18,7 @@ location(name, type, size)  ::= <<
 "<name>", <type>, <size>
 >>
 
-list(args) ::= <<
-<args: { a | <a>}; separator=",\n">
->>
-
-field_object(name, type, args) ::= <<
-public final <type> <name> = <new_object(type, args)>;<\n>
->>
-
-new_object(type, args) ::= <<
-new <type>(
-    <list(args)>
-    )
->>
-
-metamodel_constructor(
-  name,
-  registers,
-  memories,
-  modes,
-  operations) ::= <<
+metamodel_constructor(name, registers, memories, modes, operations) ::= <<
 public <name>() {
   <registers: { r | addRegister(<r>);}; separator="\n"><\n>
   <memories: { m | addMemory(<m>);}; separator="\n"><\n>
@@ -46,10 +27,15 @@ public <name>() {
 }
 >>
 
-constructor(name, args) ::= <<
+constructor(name, args, stmts) ::= <<
 private <name>() {
   super(
-      <list(args)>
+      <args: { a | <a>}; separator=",\n">
       );
+  <stmts: { stmt | <stmt>;}; separator="\n">
 }
+>>
+
+add_argument(type, args) ::= <<
+addArgument(new <type>(<args: { a | <a>}; separator=", ">)
 >>
