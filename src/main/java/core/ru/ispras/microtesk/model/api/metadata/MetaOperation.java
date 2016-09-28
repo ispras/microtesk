@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -88,6 +89,36 @@ public class MetaOperation implements MetaData {
     this.load = load;
     this.store = store;
     this.blockSize = blockSize;
+  }
+
+  protected MetaOperation(
+      final String name,
+      final String typeName,
+      final boolean isRoot,
+      final boolean branch,
+      final boolean conditionalBranch,
+      final boolean exception,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
+    this(
+        name,
+        typeName,
+        isRoot,
+        new LinkedHashMap<String, MetaArgument>(),
+        new LinkedHashMap<String, MetaShortcut>(),
+        branch,
+        conditionalBranch,
+        exception,
+        load,
+        store,
+        blockSize
+        );
+  }
+
+  protected void addArgument(final MetaArgument argument) {
+    InvariantChecks.checkNotNull(argument);
+    args.put(argument.getName(), argument);
   }
 
   /**
