@@ -21,6 +21,7 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -31,11 +32,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 public final class MetaDataGenerator implements TranslatorHandler<Ir> {
-  private static final String[] TEMPLATE_GROUPS  = new String[] { 
-    PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-    PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
-    }; 
-
   private final Translator<Ir> translator;
   private Ir ir;
 
@@ -84,25 +80,32 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   }
 
   private void generateGroup(final PrimitiveOR item) {
-    // TODO Auto-generated method stub
-    
+    //generateFile(item.getName(), new STBGroup(item));
   }
 
   private void generateAddressingMode(final PrimitiveAND item) {
-    // TODO Auto-generated method stub
-    
+    //generateFile(item.getName(), new STBAddressingMode(item));
   }
 
   private void generateOperation(final PrimitiveAND item) {
-    // TODO Auto-generated method stub
-    
+    //generateFile(item.getName(), new STBOperation(item));
   }
 
   private void generateModel() {
     InvariantChecks.checkNotNull(ir);
+    generateFile(STBModel.CLASS_NAME, new STBModel(ir));
+  }
+
+  private void generateFile(
+      final String className,
+      final STBuilder templateBuilder) {
+    final String[] templateGroups = new String[] {
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
+        };
 
     final FileGenerator generator = new STFileGenerator(
-        getFileName(STBModel.CLASS_NAME), TEMPLATE_GROUPS, new STBModel(ir));
+        getFileName(className), templateGroups, templateBuilder);
 
     try {
       generator.generate();
@@ -111,16 +114,12 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private String getModelName() {
-    InvariantChecks.checkNotNull(ir);
-    return ir.getModelName();
-  }
-
   private String getFileName(final String className) {
+    InvariantChecks.checkNotNull(ir);
     return String.format(
         "%s/%s/metadata/%s.java",
         PackageInfo.getModelOutDir(getOutDir()),
-        getModelName(),
+        ir.getModelName(),
         className
         );
   }
