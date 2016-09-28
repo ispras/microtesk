@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.metadata;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -74,6 +75,31 @@ public class MetaAddressingMode implements MetaData {
     this.load = load;
     this.store = store;
     this.blockSize = blockSize;
+  }
+
+  protected MetaAddressingMode(
+      final String name,
+      final Type dataType,
+      final boolean exception,
+      final boolean memoryReference,
+      final boolean load,
+      final boolean store,
+      final int blockSize) {
+    this(
+        name,
+        dataType,
+        new LinkedHashMap<String, MetaArgument>(),
+        exception,
+        memoryReference,
+        load,
+        store,
+        blockSize
+        );
+  }
+
+  protected void addArgument(final MetaArgument argument) {
+    InvariantChecks.checkNotNull(argument);
+    args.put(argument.getName(), argument);
   }
 
   /**
