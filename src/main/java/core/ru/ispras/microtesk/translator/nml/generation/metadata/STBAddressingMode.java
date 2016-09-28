@@ -54,7 +54,9 @@ final class STBAddressingMode implements STBuilder {
     st.add("name", primitive.getName());
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", modelName));
     st.add("ext", MetaAddressingMode.class.getSimpleName());
+    st.add("imps", ArgumentMode.class.getName());
     st.add("imps", MetaAddressingMode.class.getName());
+    st.add("imps", MetaArgument.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, modelName));
     st.add("instance", "instance");
@@ -84,7 +86,7 @@ final class STBAddressingMode implements STBuilder {
     stConstructor.add("args", "\"" + name + "\"");
   }
 
-  public static void buildFlags(
+  private static void buildFlags(
       final PrimitiveInfo info,
       final ST stConstructor) {
     InvariantChecks.checkNotNull(info);
@@ -115,9 +117,11 @@ final class STBAddressingMode implements STBuilder {
 
       stArgument.add("type", MetaArgument.class.getSimpleName());
       stArgument.add("args", "\"" + name + "\"");
-      stArgument.add("args", type.getName());
 
-      if (type.getKind() != Primitive.Kind.IMM) {
+      if (type.getKind() == Primitive.Kind.IMM) {
+        stArgument.add("args", type.getName());
+      } else {
+        stArgument.add("args", type.getName() + ".get()");
         stArgument.add("args", String.format("%s.%s", ArgumentMode.class.getSimpleName(), mode));
       }
 

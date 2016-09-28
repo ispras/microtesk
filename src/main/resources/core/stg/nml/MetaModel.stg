@@ -37,5 +37,5 @@ private <name>() {
 >>
 
 add_argument(type, args) ::= <<
-addArgument(new <type>(<args: { a | <a>}; separator=", ">)
+addArgument(new <type>(<args: { a | <a>}; separator=", ">))
 >>

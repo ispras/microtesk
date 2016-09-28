@@ -18,6 +18,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -49,7 +51,11 @@ final class STBOperation implements STBuilder {
     st.add("name", primitive.getName());
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", modelName));
     st.add("ext", MetaOperation.class.getSimpleName());
+    st.add("imps", ArgumentMode.class.getName());
+    st.add("imps", MetaArgument.class.getName());
     st.add("imps", MetaOperation.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, modelName));
     st.add("instance", "instance");
   }
 
@@ -62,13 +68,24 @@ final class STBOperation implements STBuilder {
     stConstructor.add("args", "\"" + primitive.getName() + "\"");
     stConstructor.add("args", primitive.isRoot());
 
-    stConstructor.add("args", info.isBranch());
-    stConstructor.add("args", info.isConditionalBranch());
-
-    STBAddressingMode.buildFlags(info, stConstructor);
+    buildFlags(info, stConstructor);
     STBAddressingMode.buildArguments(group, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);
+  }
+
+  private static void buildFlags(
+      final PrimitiveInfo info,
+      final ST stConstructor) {
+    InvariantChecks.checkNotNull(info);
+    InvariantChecks.checkNotNull(stConstructor);
+
+    stConstructor.add("args", info.isBranch());
+    stConstructor.add("args", info.isConditionalBranch());
+    stConstructor.add("args", info.canThrowException());
+    stConstructor.add("args", info.isLoad());
+    stConstructor.add("args", info.isStore());
+    stConstructor.add("args", info.getBlockSize());
   }
 }
