@@ -18,10 +18,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ArgumentMode;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaModelBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -52,12 +50,12 @@ public final class STBModel implements STBuilder {
     return st;
   }
 
-  private void buildHeader(ST st) {
+  private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
     st.add("ext", MetaModelBuilder.class.getSimpleName());
-    st.add("imps", String.format("%s.*", MetaModel.class.getPackage().getName()));
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("imps", MetaModelBuilder.class.getName());
     st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, ir.getModelName()));
   }
 
