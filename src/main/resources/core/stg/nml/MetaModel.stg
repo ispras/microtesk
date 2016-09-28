@@ -61,9 +61,6 @@ toMap(
     )
 >>
 
-argument(name, type) ::= <<
->>
-
 metamodel_constructor(
   name,
   registers,
@@ -73,8 +70,8 @@ metamodel_constructor(
 public <name>() {
   <registers: { r | addRegister(<r>);}; separator="\n"><\n>
   <memories: { m | addMemory(<m>);}; separator="\n"><\n>
-  <modes: { m | addMode(<m>);}; separator="\n"><\n>
-  <operations: { o | addOperation(<o>);}; separator="\n">
+  <modes: { m | // addMode(<m>);}; separator="\n"><\n>
+  <operations: { o | // addOperation(<o>);}; separator="\n">
 }
 >>
 

@@ -24,6 +24,8 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 
 public class MetaDataGenerator implements TranslatorHandler<Ir> {
   private static final String[] TEMPLATE_GROUPS  = new String[] { 
@@ -51,7 +53,13 @@ public class MetaDataGenerator implements TranslatorHandler<Ir> {
   }
 
   private void generatePrimitives(final Ir ir) {
-    // TODO Auto-generated method stub
+    final IrWalker walker = new IrWalker(ir);
+    final Visitor visitor = new Visitor();
+    walker.visit(visitor, IrWalker.Direction.LINEAR);
+  }
+
+  private static final class Visitor extends IrVisitorDefault {
+    
   }
 
   private void generateModel(final Ir ir) {

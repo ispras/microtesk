@@ -30,8 +30,6 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 public final class STBModel implements STBuilder {
@@ -59,7 +57,6 @@ public final class STBModel implements STBuilder {
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
     st.add("ext", MetaModelBuilder.class.getSimpleName());
     st.add("imps", String.format("%s.*", MetaModel.class.getPackage().getName()));
-    st.add("imps", ArgumentMode.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, ir.getModelName()));
   }
@@ -103,32 +100,13 @@ public final class STBModel implements STBuilder {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.isOrRule()) {
-        onGroup((PrimitiveOR) item);
-        return;
-      }
-
       if (item.getKind() == Primitive.Kind.MODE) {
-        onAddressingMode((PrimitiveAND) item);
+        stConstructor.add("modes", item.getName()  + ".get()");
       } else if (item.getKind() == Primitive.Kind.OP) {
-        onOperation((PrimitiveAND) item);
+        stConstructor.add("operations", item.getName() + ".get()");
       } else {
         throw new IllegalArgumentException("Unknown kind: " + item.getKind());
       }
-    }
-
-    private void onAddressingMode(final PrimitiveAND primitive) {
-      InvariantChecks.checkNotNull(primitive);
-      InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.MODE);
-    }
-
-    private void onOperation(final PrimitiveAND primitive) {
-      InvariantChecks.checkNotNull(primitive);
-      InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.OP);
-    }
-
-    private void onGroup(final PrimitiveOR primitive) {
-      InvariantChecks.checkNotNull(primitive);
     }
   }
 }
