@@ -56,6 +56,7 @@ final class STBModel implements STBuilder {
     t.add("imps", ModelStatePrinter.class.getName());
     t.add("imps", AddressingMode.class.getName());
     t.add("imps", Operation.class.getName());
+    t.add("imps", String.format(MODEL_PACKAGE_FORMAT + ".metadata.MetaModel", ir.getModelName()));
 
     t.add("simps", String.format(SHARED_CLASS_FORMAT, ir.getModelName()));
 
