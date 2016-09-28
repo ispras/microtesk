@@ -34,6 +34,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaModelBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
@@ -86,6 +87,27 @@ public abstract class ProcessorModel implements IModel, CallFactory {
       new MemoryStore(registers).getMetaData(),
       new MemoryStore(memory).getMetaData()
     );
+  }
+
+  public ProcessorModel(
+      final String name,
+      final MetaModelBuilder metaModelBuilder,
+      final AddressingMode.IInfo[] modes,
+      final AddressingMode.IInfo[] modeGroups,
+      final Operation.IInfo[] ops,
+      final Operation.IInfo[] opGroups,
+      final Memory[] registers,
+      final Memory[] memory,
+      final Memory[] variables,
+      final Label[] labels) {
+    this.name = name;
+
+    this.modes = new AddressingModeStore(modes);
+    this.ops = new OperationStore(ops);
+
+    this.observer = new ModelStateObserver(registers, memory, labels);
+    this.resetter = new Resetter(variables);
+    this.metaModel = metaModelBuilder.build();
   }
 
   private static List<MetaGroup> modeGroupsToList(final AddressingMode.IInfo[] modeGroups) {
