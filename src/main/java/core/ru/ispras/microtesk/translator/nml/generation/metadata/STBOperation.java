@@ -71,7 +71,7 @@ final class STBOperation implements STBuilder {
 
     buildFlags(info, stConstructor);
     STBAddressingMode.buildArguments(group, stConstructor, primitive);
-    //buildShortcuts(group, st, stConstructor, primitive);
+    buildShortcuts(group, st, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);
@@ -80,9 +80,6 @@ final class STBOperation implements STBuilder {
   private static void buildFlags(
       final PrimitiveInfo info,
       final ST stConstructor) {
-    InvariantChecks.checkNotNull(info);
-    InvariantChecks.checkNotNull(stConstructor);
-
     stConstructor.add("args", info.isBranch());
     stConstructor.add("args", info.isConditionalBranch());
     stConstructor.add("args", info.canThrowException());
@@ -96,24 +93,36 @@ final class STBOperation implements STBuilder {
       final ST st,
       final ST stConstructor,
       final PrimitiveAND primitive) {
-    InvariantChecks.checkNotNull(group);
-    InvariantChecks.checkNotNull(st);
-    InvariantChecks.checkNotNull(stConstructor);
-    InvariantChecks.checkNotNull(primitive);
-
     if (!primitive.getShortcuts().isEmpty()) {
       stConstructor.add("stmts", "");
     }
 
     for (final Shortcut shortcut : primitive.getShortcuts()) {
+      buildShortcutClass(group, st, shortcut);
       for (final String contextName: shortcut.getContextName()) {
-        final ST stShortcut = group.getInstanceOf("add_shortcut");
-
-        stShortcut.add("context", contextName);
-        stShortcut.add("operation", shortcut.getName());
-
-        stConstructor.add("stmts", stShortcut);
+        buildShortcut(group, stConstructor, shortcut, contextName);
       }
     }
+  }
+
+  private static void buildShortcutClass(
+      final STGroup group,
+      final ST st,
+      final Shortcut shortcut) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public static void buildShortcut(
+      final STGroup group,
+      final ST stConstructor,
+      final Shortcut shortcut,
+      final String contextName) {
+    final ST stShortcut = group.getInstanceOf("add_shortcut");
+
+    stShortcut.add("context", contextName);
+    stShortcut.add("operation", shortcut.getName());
+
+    //stConstructor.add("stmts", stShortcut);
   }
 }

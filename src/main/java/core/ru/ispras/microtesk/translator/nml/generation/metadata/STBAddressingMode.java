@@ -89,9 +89,6 @@ final class STBAddressingMode implements STBuilder {
   private static void buildFlags(
       final PrimitiveInfo info,
       final ST stConstructor) {
-    InvariantChecks.checkNotNull(info);
-    InvariantChecks.checkNotNull(stConstructor);
-
     stConstructor.add("args", info.canThrowException());
     stConstructor.add("args", info.isMemoryReference());
     stConstructor.add("args", info.isLoad());
