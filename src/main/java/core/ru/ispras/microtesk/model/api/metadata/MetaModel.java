@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,10 +17,12 @@ package ru.ispras.microtesk.model.api.metadata;
 import java.util.Collection;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
- * The MetaModel class stores information on the model and provides methods to access it. The
- * information includes the list of instructions, the list of memory resources (registers, memory)
- * and the list of test situations (behavioral properties of the instructions).
+ * The {@link MetaModel} class stores information on the model and provides methods to access it.
+ * The information includes the list of instructions, the list of memory resources (registers,
+ * memory) and the list of test situations (behavioral properties of the instructions).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -39,6 +41,13 @@ public final class MetaModel {
       final Map<String, MetaGroup> operationGroups,
       final Map<String, MetaLocationStore> registers,
       final Map<String, MetaLocationStore> memory) {
+    InvariantChecks.checkNotNull(modes);
+    InvariantChecks.checkNotNull(modeGroups);
+    InvariantChecks.checkNotNull(operations);
+    InvariantChecks.checkNotNull(operationGroups);
+    InvariantChecks.checkNotNull(registers);
+    InvariantChecks.checkNotNull(memory);
+
     this.modes = modes;
     this.modeGroups = modeGroups;
     this.operations = operations;
@@ -54,12 +63,14 @@ public final class MetaModel {
       final Collection<MetaGroup> operationGroups,
       final Collection<MetaLocationStore> registers,
       final Collection<MetaLocationStore> memory) {
-    this.modes = MetaDataUtils.toMap(modes);
-    this.modeGroups = MetaDataUtils.toMap(modeGroups); 
-    this.operations = MetaDataUtils.toMap(operations);
-    this.operationGroups = MetaDataUtils.toMap(operationGroups);
-    this.registers = MetaDataUtils.toMap(registers);
-    this.memory = MetaDataUtils.toMap(memory);
+    this(
+        MetaDataUtils.toMap(modes),
+        MetaDataUtils.toMap(modeGroups),
+        MetaDataUtils.toMap(operations),
+        MetaDataUtils.toMap(operationGroups),
+        MetaDataUtils.toMap(registers),
+        MetaDataUtils.toMap(memory)
+        );
   }
 
   /**
