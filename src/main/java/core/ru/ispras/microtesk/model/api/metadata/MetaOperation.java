@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,20 +14,17 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
 /**
- * The MetaOperation class stores information on the given operation.
+ * The {@link MetaOperation} class stores information on the given operation.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MetaOperation implements MetaData {
+public class MetaOperation implements MetaData {
   private final String name;
   private final String typeName;
   private final boolean isRoot;
@@ -56,17 +53,17 @@ public final class MetaOperation implements MetaData {
       final boolean load,
       final boolean store,
       final int blockSize) {
-    checkNotNull(name);
-    checkNotNull(typeName);
-    checkNotNull(args);
-    checkNotNull(shortcuts);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(typeName);
+    InvariantChecks.checkNotNull(args);
+    InvariantChecks.checkNotNull(shortcuts);
 
     if (!branch) {
-      checkFalse(conditionalBranch);
+      InvariantChecks.checkFalse(conditionalBranch);
     }
 
     if (conditionalBranch) {
-      checkTrue(branch);
+      InvariantChecks.checkTrue(branch);
     }
 
     this.name = name;
@@ -99,7 +96,7 @@ public final class MetaOperation implements MetaData {
    * @return The operation name.
    */
   @Override
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
@@ -110,12 +107,12 @@ public final class MetaOperation implements MetaData {
    * 
    * @return The operation type name (for composite operation the name of the topmost operation).
    */
-  public String getTypeName() {
+  public final String getTypeName() {
     return typeName;
   }
 
   @Override
-  public Type getDataType() {
+  public final Type getDataType() {
     return null;
   }
 
@@ -125,7 +122,7 @@ public final class MetaOperation implements MetaData {
    * 
    * @return {@code true} if it is a root operation or {@code false} otherwise.
    */
-  public boolean isRoot() {
+  public final boolean isRoot() {
     return isRoot;
   }
 
@@ -134,7 +131,7 @@ public final class MetaOperation implements MetaData {
    * 
    * @return Collection of operation arguments.
    */
-  public Iterable<MetaArgument> getArguments() {
+  public final Iterable<MetaArgument> getArguments() {
     return args.values();
   }
 
@@ -144,7 +141,7 @@ public final class MetaOperation implements MetaData {
    * @param name Argument name.
    * @return Argument with the specified name or {@code null} if no such argument is defined.
    */
-  public MetaArgument getArgument(final String name) {
+  public final MetaArgument getArgument(final String name) {
     return args.get(name);
   }
 
@@ -153,7 +150,7 @@ public final class MetaOperation implements MetaData {
    * 
    * @return A collection of shortcuts.
    */
-  public Iterable<MetaShortcut> getShortcuts() {
+  public final Iterable<MetaShortcut> getShortcuts() {
     return shortcuts.values();
   }
 
@@ -163,7 +160,7 @@ public final class MetaOperation implements MetaData {
    * @param contextName Context name.
    * @return Shortcut for the given context or {@code null} if no such shortcut exists.
    */
-  public MetaShortcut getShortcut(final String contextName) {
+  public final MetaShortcut getShortcut(final String contextName) {
     return shortcuts.get(contextName);
   }
 
@@ -174,7 +171,7 @@ public final class MetaOperation implements MetaData {
    * 
    * @return {@code true} if it the operation has root shortcuts or {@code false} otherwise.
    */
-  public boolean hasRootShortcuts() {
+  public final boolean hasRootShortcuts() {
     return hasRootShortcuts;
   }
 
@@ -184,7 +181,7 @@ public final class MetaOperation implements MetaData {
    * @return {@code true} if the operation is a branch operation
    * or {@code false} otherwise.
    */
-  public boolean isBranch() {
+  public final boolean isBranch() {
     return branch;
   }
 
@@ -195,7 +192,7 @@ public final class MetaOperation implements MetaData {
    * @return {@code true} if the operation is a conditional branch operation
    * or {@code false} otherwise.
    */
-  public boolean isConditionalBranch() {
+  public final boolean isConditionalBranch() {
     return conditionalBranch;
   }
 
@@ -205,7 +202,7 @@ public final class MetaOperation implements MetaData {
    * @return {@code true} if the operation can throw an exception
    * or {@code false} otherwise.
    */
-  public boolean canThrowException() {
+  public final boolean canThrowException() {
     return exception;
   }
 
@@ -221,7 +218,7 @@ public final class MetaOperation implements MetaData {
    * @return {@code true} if the operation performs a memory load action
    * or {@code false} otherwise.
    */
-  public boolean isLoad() {
+  public final boolean isLoad() {
     return load;
   }
 
@@ -237,7 +234,7 @@ public final class MetaOperation implements MetaData {
    * @return {@code true} if the operation performs a memory store action
    * or {@code false} otherwise.
    */
-  public boolean isStore() {
+  public final boolean isStore() {
     return store;
   }
 
@@ -247,7 +244,7 @@ public final class MetaOperation implements MetaData {
    * 
    * @return Size of memory block in bits.
    */
-  public int getBlockSize() {
+  public final int getBlockSize() {
     return blockSize;
   }
 }

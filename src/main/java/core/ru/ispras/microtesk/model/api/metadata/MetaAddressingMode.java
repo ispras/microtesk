@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,10 @@
 
 package ru.ispras.microtesk.model.api.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collection;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
@@ -28,7 +27,7 @@ import ru.ispras.microtesk.utils.StringUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MetaAddressingMode implements MetaData {
+public class MetaAddressingMode implements MetaData {
   private final String name;
   private final Type dataType;
   private final Map<String, MetaArgument> args;
@@ -64,8 +63,8 @@ public final class MetaAddressingMode implements MetaData {
       final boolean load,
       final boolean store,
       final int blockSize) {
-    checkNotNull(name);
-    checkNotNull(args);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(args);
 
     this.name = name;
     this.dataType = dataType;
@@ -83,7 +82,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return Mode name.
    */
   @Override
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
@@ -93,7 +92,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return Data type.
    */
   @Override
-  public Type getDataType() {
+  public final Type getDataType() {
     return dataType;
   }
 
@@ -102,7 +101,7 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Collection of addressing mode arguments.
    */
-  public Collection<MetaArgument> getArguments() {
+  public final Collection<MetaArgument> getArguments() {
     return args.values();
   }
 
@@ -113,7 +112,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return Argument with the specified name or {@code null} if no such
    *         argument is defined.
    */
-  public MetaArgument getArgument(final String name) {
+  public final MetaArgument getArgument(final String name) {
     return args.get(name);
   }
 
@@ -122,7 +121,7 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Collection of argument names.
    */
-  public Collection<String> getArgumentNames() {
+  public final Collection<String> getArgumentNames() {
     return args.keySet();
   }
 
@@ -132,7 +131,7 @@ public final class MetaAddressingMode implements MetaData {
    * @param name Argument name.
    * @return {@code true} if the argument is defined of {@code false} otherwise.
    */
-  public boolean isArgumentDefined(final String name) {
+  public final boolean isArgumentDefined(final String name) {
     return args.containsKey(name);
   }
 
@@ -142,7 +141,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode can throw an exception
    * or {@code false} otherwise.
    */
-  public boolean canThrowException() {
+  public final boolean canThrowException() {
     return exception;
   }
 
@@ -153,7 +152,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode provides an reference to memory
    * or {@code false} otherwise.
    */
-  public boolean isMemoryReference() {
+  public final boolean isMemoryReference() {
     return memoryReference;
   }
 
@@ -165,7 +164,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode performs a memory load action
    * or {@code false} otherwise.
    */
-  public boolean isLoad() {
+  public final boolean isLoad() {
     return load;
   }
 
@@ -177,7 +176,7 @@ public final class MetaAddressingMode implements MetaData {
    * @return {@code true} if the addressing mode performs a memory store action
    * or {@code false} otherwise.
    */
-  public boolean isStore() {
+  public final boolean isStore() {
     return store;
   }
 
@@ -187,12 +186,12 @@ public final class MetaAddressingMode implements MetaData {
    * 
    * @return Size of memory block in bits.
    */
-  public int getBlockSize() {
+  public final int getBlockSize() {
     return blockSize;
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return String.format("%s (%s)", name, StringUtils.toString(getArgumentNames(), ", "));
   }
 }
