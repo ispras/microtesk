@@ -26,18 +26,23 @@ import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
-public class MetaDataGenerator implements TranslatorHandler<Ir> {
+public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   private static final String[] TEMPLATE_GROUPS  = new String[] { 
     PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
     PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
     }; 
 
   private final Translator<Ir> translator;
+  private Ir ir;
 
   public MetaDataGenerator(final Translator<Ir> translator) {
     InvariantChecks.checkNotNull(translator);
     this.translator = translator;
+    this.ir = null;
   }
 
   private String getOutDir() {
@@ -47,27 +52,57 @@ public class MetaDataGenerator implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
+    this.ir = ir;
 
-    generatePrimitives(ir);
-    generateModel(ir);
+    generatePrimitives();
+    generateModel();
   }
 
-  private void generatePrimitives(final Ir ir) {
+  private void generatePrimitives() {
+    InvariantChecks.checkNotNull(ir);
     final IrWalker walker = new IrWalker(ir);
     final Visitor visitor = new Visitor();
     walker.visit(visitor, IrWalker.Direction.LINEAR);
   }
 
-  private static final class Visitor extends IrVisitorDefault {
+  private final class Visitor extends IrVisitorDefault {
+    @Override
+    public void onPrimitiveBegin(final Primitive item) {
+      if (item.isOrRule()) {
+        generateGroup((PrimitiveOR) item);
+        return;
+      }
+
+      if (item.getKind() == Primitive.Kind.MODE) {
+        generateAddressingMode((PrimitiveAND) item);
+      } else if (item.getKind() == Primitive.Kind.OP) {
+        generateOperation((PrimitiveAND) item);
+      } else {
+        throw new IllegalArgumentException("Unknown kind: " + item.getKind());
+      }
+    }
+  }
+
+  private void generateGroup(final PrimitiveOR item) {
+    // TODO Auto-generated method stub
     
   }
 
-  private void generateModel(final Ir ir) {
-    final String outputFile =
-        getFileName(ir.getModelName(), STBModel.CLASS_NAME);
+  private void generateAddressingMode(final PrimitiveAND item) {
+    // TODO Auto-generated method stub
+    
+  }
 
-    final FileGenerator generator =
-        new STFileGenerator(outputFile, TEMPLATE_GROUPS, new STBModel(ir));
+  private void generateOperation(final PrimitiveAND item) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  private void generateModel() {
+    InvariantChecks.checkNotNull(ir);
+
+    final FileGenerator generator = new STFileGenerator(
+        getFileName(STBModel.CLASS_NAME), TEMPLATE_GROUPS, new STBModel(ir));
 
     try {
       generator.generate();
@@ -76,11 +111,16 @@ public class MetaDataGenerator implements TranslatorHandler<Ir> {
     }
   }
 
-  private String getFileName(final String modelName, final String className) {
+  private String getModelName() {
+    InvariantChecks.checkNotNull(ir);
+    return ir.getModelName();
+  }
+
+  private String getFileName(final String className) {
     return String.format(
         "%s/%s/metadata/%s.java",
         PackageInfo.getModelOutDir(getOutDir()),
-        modelName,
+        getModelName(),
         className
         );
   }
