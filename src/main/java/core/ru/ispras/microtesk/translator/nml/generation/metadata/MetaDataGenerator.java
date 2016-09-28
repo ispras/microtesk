@@ -50,8 +50,8 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
 
-    // generatePrimitives();
-    // generateModel();
+    generatePrimitives();
+    generateModel();
   }
 
   private void generatePrimitives() {
@@ -80,15 +80,15 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   }
 
   private void generateGroup(final PrimitiveOR item) {
-    generateFile(item.getName(), new STBGroup(ir.getModelName(), item));
+    generateFile(item.getName(), new STBGroup(getModelName(), item));
   }
 
   private void generateAddressingMode(final PrimitiveAND item) {
-    //generateFile(item.getName(), new STBAddressingMode(item));
+    generateFile(item.getName(), new STBAddressingMode(getModelName(), item));
   }
 
   private void generateOperation(final PrimitiveAND item) {
-    //generateFile(item.getName(), new STBOperation(item));
+    generateFile(item.getName(), new STBOperation(getModelName(), item));
   }
 
   private void generateModel() {
@@ -119,8 +119,13 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
     return String.format(
         "%s/%s/metadata/%s.java",
         PackageInfo.getModelOutDir(getOutDir()),
-        ir.getModelName(),
+        getModelName(),
         className
         );
+  }
+
+  private String getModelName() {
+    InvariantChecks.checkNotNull(ir);
+    return ir.getModelName();
   }
 }
