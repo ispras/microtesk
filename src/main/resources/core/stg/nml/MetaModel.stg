@@ -14,29 +14,6 @@
 
 group MetaModel;
 
-source_file(
-  file,
-  pack,
-  name,
-  ext,
-  impls,
-  imps,
-  simps,
-  members,
-  instance) ::= <<
-<header(file)>
-<package(pack)>
-<if(simps)><static_imports(simps)><endif>
-<if(imps)><imports(imps)><endif>
-<class_javadoc(name)>
-<class_ext(["public", "final"],
-       name,
-       ext,
-       impls,
-       members,
-       instance)>
->>
-
 location(name, type, size)  ::= <<
 "<name>", <type>, <size>
 >>
@@ -55,12 +32,6 @@ new <type>(
     )
 >>
 
-arg_list(args) ::= <<
-toMap(
-    <list(args)>
-    )
->>
-
 metamodel_constructor(
   name,
   registers,
@@ -70,8 +41,15 @@ metamodel_constructor(
 public <name>() {
   <registers: { r | addRegister(<r>);}; separator="\n"><\n>
   <memories: { m | addMemory(<m>);}; separator="\n"><\n>
-  <modes: { m | // addMode(<m>);}; separator="\n"><\n>
-  <operations: { o | // addOperation(<o>);}; separator="\n">
+  <modes: { m | addMode(<m>);}; separator="\n"><\n>
+  <operations: { o | addOperation(<o>);}; separator="\n">
 }
 >>
 
+constructor(name, args) ::= <<
+private <name>() {
+  super(
+      <list(args)>
+      );
+}
+>>

@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
-public final class STBModel implements STBuilder {
+final class STBModel implements STBuilder {
   public static final String CLASS_NAME = "MetaModel";
 
   private final Ir ir;

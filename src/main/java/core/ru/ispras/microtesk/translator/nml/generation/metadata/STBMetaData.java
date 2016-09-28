@@ -39,7 +39,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
-public final class STBMetaData implements STBuilder {
+final class STBMetaData implements STBuilder {
   public static final String CLASS_NAME = "ModelMetaData";
 
   private final Ir ir;

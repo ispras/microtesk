@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MetaGroup implements MetaData {
+public class MetaGroup implements MetaData {
   /**
    * Specifies the kind of stored items.
    */
@@ -89,7 +89,7 @@ public final class MetaGroup implements MetaData {
    * 
    * @return Item kind.
    */
-  public Kind getKind() {
+  public final Kind getKind() {
     return kind;
   }
 
@@ -99,12 +99,12 @@ public final class MetaGroup implements MetaData {
    * @return Group name.
    */
   @Override
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
   @Override
-  public Type getDataType() {
+  public final Type getDataType() {
     return dataType;
   }
 
@@ -113,7 +113,7 @@ public final class MetaGroup implements MetaData {
    * 
    * @return Items being grouped (an {@link Iterable} object).
    */
-  public Collection<? extends MetaData> getItems() {
+  public final Collection<? extends MetaData> getItems() {
     return items;
   }
 }
