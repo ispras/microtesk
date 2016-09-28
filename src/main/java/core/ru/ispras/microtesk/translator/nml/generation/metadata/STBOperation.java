@@ -109,8 +109,27 @@ final class STBOperation implements STBuilder {
       final STGroup group,
       final ST st,
       final Shortcut shortcut) {
-    // TODO Auto-generated method stub
-    
+    final String name = getShortcutName(shortcut);
+    final ST stShortcut = group.getInstanceOf("class_ext");
+
+    stShortcut.add("modifs", new String[] {"private", "static", "final"});
+    stShortcut.add("name", name);
+    stShortcut.add("ext", MetaOperation.class.getSimpleName());
+    stShortcut.add("instance", "instance");
+
+    final ST stConstructor = group.getInstanceOf("constructor");
+    STBAddressingMode.buildName(name, stConstructor);
+
+    stConstructor.add("args", "\"" + shortcut.getEntry().getName() + "\"");
+    stConstructor.add("args", shortcut.getEntry().isRoot());
+
+    buildFlags(shortcut.getInfo(), stConstructor);
+
+    stShortcut.add("members", "");
+    stShortcut.add("members", stConstructor);
+
+    st.add("members", "");
+    st.add("members", stShortcut);
   }
 
   public static void buildShortcut(
@@ -121,8 +140,12 @@ final class STBOperation implements STBuilder {
     final ST stShortcut = group.getInstanceOf("add_shortcut");
 
     stShortcut.add("context", contextName);
-    stShortcut.add("operation", shortcut.getName());
+    stShortcut.add("operation", getShortcutName(shortcut) + ".get()");
 
-    //stConstructor.add("stmts", stShortcut);
+    stConstructor.add("stmts", stShortcut);
+  }
+
+  private static String getShortcutName(final Shortcut shortcut) {
+    return shortcut.getEntry().getName() + "_" + shortcut.getTarget().getName();
   }
 }
