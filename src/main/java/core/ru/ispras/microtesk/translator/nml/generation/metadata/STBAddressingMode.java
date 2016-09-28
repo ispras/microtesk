@@ -64,17 +64,48 @@ final class STBAddressingMode implements STBuilder {
     final PrimitiveInfo info = primitive.getInfo();
 
     final ST stConstructor = group.getInstanceOf("constructor");
+    buildName(primitive.getName(), stConstructor);
 
-    stConstructor.add("name", primitive.getName());
-    stConstructor.add("args", "\"" + primitive.getName() + "\"");
     stConstructor.add("args",
         primitive.getReturnType() != null ? primitive.getReturnType().getJavaText() : "null");
+
+    buildFlags(info, stConstructor);
+    buildArguments(group, stConstructor, primitive);
+
+    st.add("members", "");
+    st.add("members", stConstructor);
+  }
+
+  public static void buildName(final String name, final ST stConstructor) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(stConstructor);
+
+    stConstructor.add("name", name);
+    stConstructor.add("args", "\"" + name + "\"");
+  }
+
+  public static void buildFlags(
+      final PrimitiveInfo info,
+      final ST stConstructor) {
+    InvariantChecks.checkNotNull(info);
+    InvariantChecks.checkNotNull(stConstructor);
+
     stConstructor.add("args", info.canThrowException());
     stConstructor.add("args", info.isMemoryReference());
     stConstructor.add("args", info.isLoad());
     stConstructor.add("args", info.isStore());
     stConstructor.add("args", info.getBlockSize());
+  }
 
+  public static void buildArguments(
+      final STGroup group,
+      final ST stConstructor,
+      final PrimitiveAND primitive) {
+    InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkNotNull(stConstructor);
+    InvariantChecks.checkNotNull(primitive);
+
+    final PrimitiveInfo info = primitive.getInfo();
     for (final Map.Entry<String, Primitive> entry : primitive.getArguments().entrySet()) {
       final String name = entry.getKey();
       final Primitive type = entry.getValue();
@@ -92,8 +123,5 @@ final class STBAddressingMode implements STBuilder {
 
       stConstructor.add("stmts", stArgument);
     }
-
-    st.add("members", "");
-    st.add("members", stConstructor);
   }
 }

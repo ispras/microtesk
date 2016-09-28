@@ -14,18 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 
@@ -62,35 +57,16 @@ final class STBOperation implements STBuilder {
     final PrimitiveInfo info = primitive.getInfo();
 
     final ST stConstructor = group.getInstanceOf("constructor");
+    STBAddressingMode.buildName(primitive.getName(), stConstructor);
 
-    stConstructor.add("name", primitive.getName());
-    stConstructor.add("args", "\"" + primitive.getName() + "\"");
     stConstructor.add("args", "\"" + primitive.getName() + "\"");
     stConstructor.add("args", primitive.isRoot());
+
     stConstructor.add("args", info.isBranch());
     stConstructor.add("args", info.isConditionalBranch());
-    stConstructor.add("args", info.canThrowException());
-    stConstructor.add("args", info.isLoad());
-    stConstructor.add("args", info.isStore());
-    stConstructor.add("args", info.getBlockSize());
 
-    for (final Map.Entry<String, Primitive> entry : primitive.getArguments().entrySet()) {
-      final String name = entry.getKey();
-      final Primitive type = entry.getValue();
-      final ArgumentMode mode = info.getArgUsage(name);
-
-      final ST stArgument = group.getInstanceOf("add_argument");
-
-      stArgument.add("type", MetaArgument.class.getSimpleName());
-      stArgument.add("args", "\"" + name + "\"");
-      stArgument.add("args", type.getName());
-
-      if (type.getKind() != Primitive.Kind.IMM) {
-        stArgument.add("args", String.format("%s.%s", ArgumentMode.class.getSimpleName(), mode));
-      }
-
-      stConstructor.add("stmts", stArgument);
-    }
+    STBAddressingMode.buildFlags(info, stConstructor);
+    STBAddressingMode.buildArguments(group, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);
