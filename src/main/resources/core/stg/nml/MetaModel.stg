@@ -32,10 +32,14 @@ private <name>() {
   super(
       <args: { a | <a>}; separator=",\n">
       );
-  <stmts: { stmt | <stmt>;}; separator="\n">
+  <stmts: { stmt | <stmt>}; separator="\n">
 }
 >>
 
 add_argument(type, args) ::= <<
-addArgument(new <type>(<args: { a | <a>}; separator=", ">))
+addArgument(new <type>(<args: { a | <a>}; separator=", ">));
+>>
+
+add_shortcut(context, operation) ::= <<
+addShortcut("<context>", <operation>);
 >>

@@ -25,6 +25,7 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
 final class STBOperation implements STBuilder {
   private final String modelName;
@@ -70,6 +71,7 @@ final class STBOperation implements STBuilder {
 
     buildFlags(info, stConstructor);
     STBAddressingMode.buildArguments(group, stConstructor, primitive);
+    //buildShortcuts(group, st, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);
@@ -87,5 +89,31 @@ final class STBOperation implements STBuilder {
     stConstructor.add("args", info.isLoad());
     stConstructor.add("args", info.isStore());
     stConstructor.add("args", info.getBlockSize());
+  }
+
+  private static void buildShortcuts(
+      final STGroup group,
+      final ST st,
+      final ST stConstructor,
+      final PrimitiveAND primitive) {
+    InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkNotNull(st);
+    InvariantChecks.checkNotNull(stConstructor);
+    InvariantChecks.checkNotNull(primitive);
+
+    if (!primitive.getShortcuts().isEmpty()) {
+      stConstructor.add("stmts", "");
+    }
+
+    for (final Shortcut shortcut : primitive.getShortcuts()) {
+      for (final String contextName: shortcut.getContextName()) {
+        final ST stShortcut = group.getInstanceOf("add_shortcut");
+
+        stShortcut.add("context", contextName);
+        stShortcut.add("operation", shortcut.getName());
+
+        stConstructor.add("stmts", stShortcut);
+      }
+    }
   }
 }
