@@ -96,11 +96,6 @@ final class STBOperation extends STBPrimitiveBase {
           break;
 
         case MODE:
-          final ArgumentMode usageKind = op.getInfo().getArgUsage(argName); 
-          t.add("arg_tnames", String.format("%s.%s, %s.INFO", 
-              ArgumentMode.class.getSimpleName(), usageKind.name(), argType.getName()));
-          break;
-
         case OP:
           t.add("arg_tnames", String.format("%s.INFO", argType.getName()));
           break;
@@ -185,11 +180,6 @@ final class STBOperation extends STBPrimitiveBase {
             break;
 
           case MODE:
-            final ArgumentMode usageKind = arg.getSource().getInfo().getArgUsage(arg.getName());
-            shortcutST.add("arg_tnames", String.format("%s.%s, %s.INFO", 
-                ArgumentMode.class.getSimpleName(), usageKind.name(), argType.getName()));
-            break;
-
           case OP:
             shortcutST.add("arg_tnames", String.format("%s.INFO", argType.getName()));
             break;

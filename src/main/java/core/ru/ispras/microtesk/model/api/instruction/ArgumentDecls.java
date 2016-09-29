@@ -21,7 +21,6 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.ArgumentKind;
-import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 
 /**
@@ -44,16 +43,13 @@ public final class ArgumentDecls {
    * @param type
    * @return This object.
    */
-  public ArgumentDecls add(
-      final String name,
-      final Type type) {
+  public ArgumentDecls add(final String name, final Type type) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(type);
 
     final Argument argument = new Argument(
         name,
         ArgumentKind.IMM,
-        ArgumentMode.IN,
         type) {
 
       @Override
@@ -70,22 +66,16 @@ public final class ArgumentDecls {
    * Adds an addressing-mode-based argument.
    * 
    * @param name
-   * @param mode
    * @param info
    * @return This object.
    */
-  public ArgumentDecls add(
-      final String name,
-      final ArgumentMode mode, // IN/OUT/INOUT/NA (if no return type)
-      final AddressingMode.IInfo info) {
+  public ArgumentDecls add(final String name, final AddressingMode.IInfo info) {
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(info);
 
     final Argument argument = new Argument(
         name,
         ArgumentKind.MODE,
-        mode,
         info.getType()) {
 
       @Override
@@ -105,16 +95,13 @@ public final class ArgumentDecls {
    * @param info
    * @return This object.
    */
-  public ArgumentDecls add(
-      final String name,
-      final Operation.IInfo info) {
+  public ArgumentDecls add(final String name, final Operation.IInfo info) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(info);
 
     final Argument argument = new Argument(
         name,
         ArgumentKind.OP,
-        ArgumentMode.NA,
         null) {
 
       @Override
@@ -134,17 +121,11 @@ public final class ArgumentDecls {
   static abstract class Argument {
     private final String name;
     private final ArgumentKind kind;
-    private final ArgumentMode mode;
     private final Type dataType;
 
-    private Argument(
-        final String name,
-        final ArgumentKind kind,
-        final ArgumentMode mode,
-        final Type dataType) {
+    private Argument(final String name, final ArgumentKind kind, final Type dataType) {
       this.name = name;
       this.kind = kind;
-      this.mode = mode;
       this.dataType = dataType;
     }
 
@@ -156,10 +137,6 @@ public final class ArgumentDecls {
       return kind;
     }
 
-    public final ArgumentMode getMode() {
-      return mode;
-    }
-
     public final Type getType() {
       return dataType;
     }
@@ -169,10 +146,9 @@ public final class ArgumentDecls {
     @Override
     public String toString() {
       return String.format(
-          "Argument [name=%s, kind=%s, mode=%s, dataType=%s]",
+          "Argument [name=%s, kind=%s, dataType=%s]",
           name,
           kind,
-          mode,
           dataType
           );
     }
