@@ -86,12 +86,7 @@ public abstract class AddressingMode extends Primitive {
         final Class<?> modeClass,
         final String name,
         final Type type,
-        final ArgumentDecls decls,
-        final boolean exception,
-        final boolean memoryReference,
-        final boolean load,
-        final boolean store,
-        final int blockSize) {
+        final ArgumentDecls decls) {
       this.modeClass = modeClass;
       this.name = name;
       this.type = type; 

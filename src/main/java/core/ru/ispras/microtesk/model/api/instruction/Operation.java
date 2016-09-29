@@ -94,14 +94,7 @@ public abstract class Operation extends Primitive {
     public InfoAndRule(
         final Class<?> opClass,
         final String name,
-        final boolean isRoot,
         final ArgumentDecls decls,
-        final boolean isBranch,
-        final boolean isConditionalBranch,
-        final boolean canThrowException,
-        final boolean load,
-        final boolean store,
-        final int blockSize,
         final Shortcuts shortcuts) {
       this.opClass = opClass;
       this.name = name;
@@ -112,25 +105,11 @@ public abstract class Operation extends Primitive {
     public InfoAndRule(
         final Class<?> opClass,
         final String name,
-        final boolean isRoot,
-        final ArgumentDecls decls,
-        final boolean isBranch,
-        final boolean isConditionalBranch,
-        final boolean canThrowException,
-        final boolean load,
-        final boolean store,
-        final int blockSize) {
+        final ArgumentDecls decls) {
       this(
           opClass,
           name,
-          isRoot,
           decls,
-          isBranch,
-          isConditionalBranch,
-          canThrowException,
-          load,
-          store,
-          blockSize,
           new Shortcuts()
           );
     }

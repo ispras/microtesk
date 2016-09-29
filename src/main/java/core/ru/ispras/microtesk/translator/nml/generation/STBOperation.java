@@ -81,14 +81,6 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
 
     t.add("base", Operation.class.getSimpleName());
-    t.add("is_root", op.isRoot());
-
-    t.add("branch", op.getInfo().isBranch());
-    t.add("cond_branch", op.getInfo().isConditionalBranch());
-    t.add("except", op.getInfo().canThrowException());
-    t.add("load", op.getInfo().isLoad());
-    t.add("store", op.getInfo().isStore());
-    t.add("blocksize", op.getInfo().getBlockSize());
   }
 
   private void buildArguments(final STGroup group, final ST t) {
@@ -180,15 +172,7 @@ final class STBOperation extends STBPrimitiveBase {
       final ST shortcutST = group.getInstanceOf("shortcut");
 
       shortcutST.add("name", op.getName());
-      shortcutST.add("is_root", shortcut.getEntry().isRoot());
-
       shortcutST.add("entry", shortcut.getEntry().getName());
-      shortcutST.add("branch", shortcut.getInfo().isBranch());
-      shortcutST.add("cond_branch", shortcut.getInfo().isConditionalBranch());
-      shortcutST.add("except", shortcut.getInfo().canThrowException());
-      shortcutST.add("load", shortcut.getInfo().isLoad());
-      shortcutST.add("store", shortcut.getInfo().isStore());
-      shortcutST.add("blocksize", shortcut.getInfo().getBlockSize()); 
 
       for (final Shortcut.Argument arg : shortcut.getArguments()) {
         final Primitive argType = arg.getType();
