@@ -42,14 +42,6 @@ public abstract class Operation extends Primitive {
      */
     String getName();
 
-    /**
-     * Checks whether the current operation is a root. An operation is a root if it does not have
-     * parents.
-     * 
-     * @return {@code true} if it is a root operation or {@code false} otherwise.
-     */
-    boolean isRoot();
-
     Map<String, OperationBuilder> createBuilders();
 
     Map<String, OperationBuilder> createBuildersForShortcut(String contextName);
@@ -96,7 +88,6 @@ public abstract class Operation extends Primitive {
   public static abstract class InfoAndRule implements IInfo, Factory<Operation> {
     private final Class<?> opClass;
     private final String name;
-    private final boolean isRoot;
     private final ArgumentDecls decls;
     private final Shortcuts shortcuts;
 
@@ -114,7 +105,6 @@ public abstract class Operation extends Primitive {
         final Shortcuts shortcuts) {
       this.opClass = opClass;
       this.name = name;
-      this.isRoot = isRoot;
       this.decls = decls;
       this.shortcuts = shortcuts;
     }
@@ -148,11 +138,6 @@ public abstract class Operation extends Primitive {
     @Override
     public final String getName() {
       return name;
-    }
-
-    @Override
-    public final boolean isRoot() {
-      return isRoot;
     }
 
     @Override
@@ -197,17 +182,6 @@ public abstract class Operation extends Primitive {
     @Override
     public String getName() {
       return name;
-    }
-
-    @Override
-    public boolean isRoot() {
-      for (final IInfo child : childs) {
-        if (!child.isRoot()) {
-          return false;
-        }
-      }
-
-      return true;
     }
 
     @Override
