@@ -20,7 +20,6 @@ package ru.ispras.microtesk.model.api;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class ExecutionException extends RuntimeException {
   private static final long serialVersionUID = 3218257121771089034L;
 
