@@ -32,7 +32,7 @@ public class MetaOperation implements MetaData {
 
   private final Map<String, MetaArgument> args;
   private final Map<String, MetaShortcut> shortcuts;
-  private final boolean hasRootShortcuts;
+  private boolean hasRootShortcuts;
 
   private final boolean branch;
   private final boolean conditionalBranch;
@@ -124,6 +124,11 @@ public class MetaOperation implements MetaData {
   protected final void addShortcut(final String contextName, final MetaOperation operation) {
     InvariantChecks.checkNotNull(contextName);
     InvariantChecks.checkNotNull(operation);
+
+    if (operation.isRoot) {
+      hasRootShortcuts = true;
+    }
+
     shortcuts.put(contextName, new MetaShortcut(contextName, operation));
   }
 
