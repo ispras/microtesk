@@ -48,6 +48,7 @@ private static final Operation.IInfo[] __OP_GROUPS = new Operation.IInfo[] {
 public Model() {
   super(
       NAME,
+      new MetaModel(),
       __MODES,
       __MODE_GROUPS,
       __OPS,
