@@ -81,11 +81,6 @@ public abstract class AddressingMode extends Primitive {
     private final String name;
     private final Type type;
     private final ArgumentDecls decls;
-    private final boolean exception;
-    private final boolean memoryReference;
-    private final boolean load;
-    private final boolean store;
-    private final int blockSize;
 
     public InfoAndRule(
         final Class<?> modeClass,
@@ -101,12 +96,6 @@ public abstract class AddressingMode extends Primitive {
       this.name = name;
       this.type = type; 
       this.decls = decls;
-      this.exception = exception;
-
-      this.memoryReference = memoryReference;
-      this.load = load;
-      this.store = store;
-      this.blockSize = blockSize;
     }
 
     @Override
