@@ -79,6 +79,33 @@ public final class MetaDataUtils {
   }
 
   /**
+   * Takes a collection of {@link MetaData} objects and creates a set containing
+   * names of their elements. If an object in the collection is represented by a group,
+   * its elements are added to the set in a recursive manner. The order of objects is preserved.
+   * 
+   * @param c Collection of {@code MetaData} objects.
+   * @return Set of {@code MetaData} object names.
+   */
+  public static Set<String> toNameSetRecursive(final Collection<? extends MetaData> c) {
+    InvariantChecks.checkNotNull(c);
+
+    if (c.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    final Set<String> names = new LinkedHashSet<>();
+    for (final MetaData item : c) {
+      if (item instanceof MetaGroup) {
+        names.addAll(toNameSetRecursive(((MetaGroup) item).getItems()));
+      } else {
+        names.add(item.getName());
+      }
+    }
+
+    return names;
+  }
+
+  /**
    * Takes a collection of {@link MetaData} objects and creates a list containing
    * their names. The order of objects is preserved.
    * 

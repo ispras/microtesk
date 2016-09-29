@@ -125,7 +125,7 @@ public final class MetaArgument implements MetaData {
     this.name = name;
     this.kind = type.getKind() == MetaGroup.Kind.OP ? ArgumentKind.OP : ArgumentKind.MODE;
     this.mode = mode;
-    this.typeNames = MetaDataUtils.toNameSet(type.getItems());
+    this.typeNames = MetaDataUtils.toNameSetRecursive(type.getItems());
     this.dataType = type.getDataType();
   }
 
