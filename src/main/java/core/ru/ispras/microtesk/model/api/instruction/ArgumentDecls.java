@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,15 +17,12 @@ package ru.ispras.microtesk.model.api.instruction;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaDataUtils;
 
 /**
  * The {@link ArgumentDecls} class is aimed to specify declarations of
@@ -57,7 +54,6 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.IMM,
         ArgumentMode.IN,
-        Collections.singleton(Immediate.TYPE_NAME),
         type) {
 
       @Override
@@ -90,7 +86,6 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.MODE,
         mode,
-        MetaDataUtils.toNameSet(info.getMetaData()),
         info.getType()) {
 
       @Override
@@ -120,7 +115,6 @@ public final class ArgumentDecls {
         name,
         ArgumentKind.OP,
         ArgumentMode.NA,
-        MetaDataUtils.toNameSet(info.getMetaData()),
         null) {
 
       @Override
@@ -133,17 +127,6 @@ public final class ArgumentDecls {
     return this;
   }
 
-  public Map<String, MetaArgument> getMetaData() {
-    final Map<String, MetaArgument> metaData =
-        new LinkedHashMap<>(decls.size());
-
-    for (final Argument p : decls.values()) {
-      metaData.put(p.getName(), p.getMetaData());
-    }
-
-    return metaData;
-  }
-
   public Map<String, Argument> getDecls() {
     return Collections.unmodifiableMap(decls);
   }
@@ -152,25 +135,17 @@ public final class ArgumentDecls {
     private final String name;
     private final ArgumentKind kind;
     private final ArgumentMode mode;
-    private final Set<String> typeNames;
     private final Type dataType;
-    private final MetaArgument metaData;
 
     private Argument(
         final String name,
         final ArgumentKind kind,
         final ArgumentMode mode,
-        final Set<String> typeNames,
         final Type dataType) {
       this.name = name;
       this.kind = kind;
       this.mode = mode;
-
-      this.typeNames = typeNames;
       this.dataType = dataType;
-
-      this.metaData = new MetaArgument(
-          name, kind, mode, typeNames, dataType);
     }
 
     public final String getName() {
@@ -189,20 +164,15 @@ public final class ArgumentDecls {
       return dataType;
     }
 
-    public final MetaArgument getMetaData() {
-      return metaData;
-    }
-
     public abstract boolean isSupported(final Primitive o);
 
     @Override
     public String toString() {
       return String.format(
-          "Argument [name=%s, kind=%s, mode=%s, typeNames=%s, dataType=%s]",
+          "Argument [name=%s, kind=%s, mode=%s, dataType=%s]",
           name,
           kind,
           mode,
-          typeNames,
           dataType
           );
     }

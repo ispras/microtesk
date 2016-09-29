@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,17 +14,11 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaData;
-import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 
 /**
  * The AddressingMode abstract class is the base class for all classes that simulate behavior
@@ -65,16 +59,6 @@ public abstract class AddressingMode extends Primitive {
     Map<String, AddressingModeBuilder> createBuilders();
 
     /**
-     * Returns a collection of meta data objects describing the addressing mode (or the group of
-     * addressing modes) the info object refers to. In the case, when there is a single addressing
-     * mode, the collection will contain only one item.
-     * 
-     * @return A collection of meta data objects for an addressing mode or a group of addressing
-     *         modes.
-     */
-    Collection<MetaAddressingMode> getMetaData();
-
-    /**
      * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
      * the specified addressing mode. This method is used in runtime checks to make sure that the
      * object composition in the model is valid.
@@ -103,8 +87,6 @@ public abstract class AddressingMode extends Primitive {
     private final boolean store;
     private final int blockSize;
 
-    private MetaAddressingMode metaData;
-
     public InfoAndRule(
         final Class<?> modeClass,
         final String name,
@@ -119,7 +101,6 @@ public abstract class AddressingMode extends Primitive {
       this.name = name;
       this.type = type; 
       this.decls = decls;
-      this.metaData = null;
       this.exception = exception;
 
       this.memoryReference = memoryReference;
@@ -142,31 +123,6 @@ public abstract class AddressingMode extends Primitive {
     public final Map<String, AddressingModeBuilder> createBuilders() {
       final AddressingModeBuilder builder = new AddressingModeBuilder(name, this, decls);
       return Collections.singletonMap(name, builder);
-    }
-
-    @Override
-    public final Collection<MetaAddressingMode> getMetaData() {
-      return Collections.singletonList(getMetaDataItem());
-    }
-
-    public MetaAddressingMode getMetaDataItem() {
-      if (null == metaData) {
-        metaData = createMetaData();
-      }
-      return metaData;
-    }
-
-    private MetaAddressingMode createMetaData() {
-      return new MetaAddressingMode(
-          name,
-          type,
-          decls.getMetaData(),
-          exception,
-          memoryReference,
-          load,
-          store,
-          blockSize
-          );
     }
 
     @Override
@@ -213,17 +169,6 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public Collection<MetaAddressingMode> getMetaData() {
-      final List<MetaAddressingMode> result = new ArrayList<>();
-
-      for (final IInfo i : childs) {
-        result.addAll(i.getMetaData());
-      }
-
-      return Collections.unmodifiableCollection(result);
-    }
-
-    @Override
     public boolean isSupported(final AddressingMode mode) {
       for (final IInfo i : childs) {
         if (i.isSupported(mode)) {
@@ -232,20 +177,6 @@ public abstract class AddressingMode extends Primitive {
       }
 
       return false;
-    }
-
-    public MetaGroup getMetaDataGroup() {
-      final List<MetaData> items = new ArrayList<>();
-
-      for (final IInfo i : childs) {
-        if (i instanceof AddressingMode.InfoAndRule) {
-          items.add(((AddressingMode.InfoAndRule) i).getMetaDataItem());
-        } else {
-          items.add(((AddressingMode.InfoOrRule) i).getMetaDataGroup());
-        }
-      }
-
-      return new MetaGroup(MetaGroup.Kind.MODE, name, items);
     }
   }
 }
