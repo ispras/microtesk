@@ -20,7 +20,6 @@ package ru.ispras.microtesk.model.api.tarmac;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public enum RecordKind {
   /**
    * Instruction trace:<p>
