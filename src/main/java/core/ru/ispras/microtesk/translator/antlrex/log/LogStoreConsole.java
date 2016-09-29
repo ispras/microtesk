@@ -20,7 +20,7 @@ package ru.ispras.microtesk.translator.antlrex.log;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class LogStoreConsole implements LogStore {
+public final class LogStoreConsole implements LogStore {
   public static LogStore INSTANCE = new LogStoreConsole();
 
   private LogStoreConsole() {}
