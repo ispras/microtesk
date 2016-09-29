@@ -100,9 +100,10 @@ final class STBOperation implements STBuilder {
     }
 
     for (final Shortcut shortcut : primitive.getShortcuts()) {
-      buildShortcutClass(group, st, shortcut);
+      final String className = getShortcutClassName(shortcut);
+      buildShortcutClass(group, st, shortcut, className);
       for (final String contextName: shortcut.getContextName()) {
-        buildShortcut(group, stConstructor, shortcut, contextName);
+        buildShortcut(group, stConstructor, className, contextName);
       }
     }
   }
@@ -110,17 +111,19 @@ final class STBOperation implements STBuilder {
   private static void buildShortcutClass(
       final STGroup group,
       final ST st,
-      final Shortcut shortcut) {
-    final String name = getShortcutName(shortcut);
+      final Shortcut shortcut,
+      final String className) {
     final ST stShortcut = group.getInstanceOf("class_ext");
 
     stShortcut.add("modifs", new String[] {"private", "static", "final"});
-    stShortcut.add("name", name);
+    stShortcut.add("name", className);
     stShortcut.add("ext", MetaOperation.class.getSimpleName());
     stShortcut.add("instance", "instance");
 
     final ST stConstructor = group.getInstanceOf("constructor");
-    STBAddressingMode.buildName(name, stConstructor);
+
+    stConstructor.add("name", className);
+    stConstructor.add("args", "\"" + shortcut.getName() + "\"");
 
     stConstructor.add("args", "\"" + shortcut.getEntry().getName() + "\"");
     stConstructor.add("args", shortcut.getEntry().isRoot());
@@ -163,17 +166,17 @@ final class STBOperation implements STBuilder {
   public static void buildShortcut(
       final STGroup group,
       final ST stConstructor,
-      final Shortcut shortcut,
+      final String className,
       final String contextName) {
     final ST stShortcut = group.getInstanceOf("add_shortcut");
 
     stShortcut.add("context", contextName);
-    stShortcut.add("operation", getShortcutName(shortcut) + ".get()");
+    stShortcut.add("operation", className + ".get()");
 
     stConstructor.add("stmts", stShortcut);
   }
 
-  private static String getShortcutName(final Shortcut shortcut) {
+  private static String getShortcutClassName(final Shortcut shortcut) {
     return shortcut.getEntry().getName() + "_" + shortcut.getTarget().getName();
   }
 }
