@@ -47,11 +47,7 @@ public final class ArgumentDecls {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(type);
 
-    final Argument argument = new Argument(
-        name,
-        ArgumentKind.IMM,
-        type) {
-
+    final Argument argument = new Argument(name, ArgumentKind.IMM, type) {
       @Override
       public boolean isSupported(final Primitive o) {
         return false;
@@ -73,11 +69,7 @@ public final class ArgumentDecls {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(info);
 
-    final Argument argument = new Argument(
-        name,
-        ArgumentKind.MODE,
-        info.getType()) {
-
+    final Argument argument = new Argument(name, ArgumentKind.MODE, info.getType()) {
       @Override
       public boolean isSupported(final Primitive o) {
         return (o instanceof AddressingMode) && info.isSupported((AddressingMode) o);
@@ -99,11 +91,7 @@ public final class ArgumentDecls {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(info);
 
-    final Argument argument = new Argument(
-        name,
-        ArgumentKind.OP,
-        null) {
-
+    final Argument argument = new Argument(name, ArgumentKind.OP, null) {
       @Override
       public boolean isSupported(final Primitive o) {
         return (o instanceof Operation) && info.isSupported((Operation) o);
