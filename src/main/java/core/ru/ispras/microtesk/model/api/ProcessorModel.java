@@ -43,8 +43,8 @@ import ru.ispras.microtesk.model.api.state.Resetter;
 public abstract class ProcessorModel implements IModel, CallFactory {
   private final String name;
 
-  private final AddressingModeStore modes;
-  private final OperationStore ops;
+  private final Map<String, AddressingMode.IInfo> modes;
+  private final Map<String, Operation.IInfo> ops;
 
   private final ModelStateObserver observer;
   private final Resetter resetter;
@@ -63,8 +63,15 @@ public abstract class ProcessorModel implements IModel, CallFactory {
       final Label[] labels) {
     this.name = name;
 
-    this.modes = new AddressingModeStore(modes);
-    this.ops = new OperationStore(ops);
+    this.modes = new HashMap<>(modes.length);
+    for (final AddressingMode.IInfo i : modes) {
+      this.modes.put(i.getName(), i);
+    }
+
+    this.ops = new HashMap<>(ops.length);
+    for (final Operation.IInfo i : ops) {
+      this.ops.put(i.getName(), i);
+    }
 
     this.observer = new ModelStateObserver(registers, memory, labels);
     this.resetter = new Resetter(variables);
@@ -100,7 +107,7 @@ public abstract class ProcessorModel implements IModel, CallFactory {
 
     final String ERROR_FORMAT = "The %s addressing mode is not defined.";
 
-    final AddressingMode.IInfo modeInfo = modes.getModeInfo(name);
+    final AddressingMode.IInfo modeInfo = modes.get(name);
     if (null == modeInfo) {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
     }
@@ -123,7 +130,7 @@ public abstract class ProcessorModel implements IModel, CallFactory {
 
     final String ERROR_FORMAT = "The %s operation is not defined.";
 
-    final Operation.IInfo opInfo = ops.getOpInfo(name);
+    final Operation.IInfo opInfo = ops.get(name);
     if (null == opInfo) {
       throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
     }
@@ -148,35 +155,5 @@ public abstract class ProcessorModel implements IModel, CallFactory {
   public InstructionCall newCall(final Operation op) {
     InvariantChecks.checkNotNull(op);
     return new InstructionCall(resetter, op);
-  }
-
-  private static final class AddressingModeStore {
-    private final Map<String, AddressingMode.IInfo> items;
-
-    public AddressingModeStore(final AddressingMode.IInfo[] modes) {
-      this.items = new HashMap<>(modes.length);
-      for (AddressingMode.IInfo i : modes) {
-        items.put(i.getName(), i);
-      }
-    }
-
-    public AddressingMode.IInfo getModeInfo(final String name) {
-      return items.get(name);
-    }
-  }
-
-  private static final class OperationStore {
-    private final Map<String, Operation.IInfo> items;
-
-    public OperationStore(final Operation.IInfo[] ops) {
-      this.items = new HashMap<>(ops.length);
-      for (Operation.IInfo i : ops) {
-        items.put(i.getName(), i);
-      }
-    }
-
-    public Operation.IInfo getOpInfo(final String name) {
-      return items.get(name);
-    }
   }
 }
