@@ -23,7 +23,6 @@ import java.util.Map;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public enum TypeId {
 
   INT (1, true) {
