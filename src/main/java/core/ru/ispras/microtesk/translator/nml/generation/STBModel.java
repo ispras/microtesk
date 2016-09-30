@@ -81,40 +81,28 @@ final class STBModel implements STBuilder {
 
   private void addOperations(final ST t, final ST tc) {
     final List<String> opNames = new ArrayList<>();
-    final List<String> opGroupNames = new ArrayList<>();
-
     for (final Primitive op : ir.getOps().values()) {
-      if (op.isOrRule()) {
-        opGroupNames.add(op.getName());
-      } else {
+      if (!op.isOrRule()) {
         opNames.add(op.getName());
       }
     }
 
     tc.add("ops", opNames);
-    tc.add("ogs", opGroupNames);
-
-    if (!opNames.isEmpty() || !opGroupNames.isEmpty()) {
+    if (!opNames.isEmpty()) {
       t.add("imps", String.format(OP_CLASS_FORMAT, ir.getModelName(), "*"));
     }
   }
 
   private void addAddressingModes(final ST t, final ST tc) {
     final List<String> modeNames = new ArrayList<>();
-    final List<String> modeGroupNames = new ArrayList<>();
-
     for (final Primitive m : ir.getModes().values()) {
-      if (m.isOrRule()) {
-        modeGroupNames.add(m.getName());
-      } else {
+      if (!m.isOrRule()) {
         modeNames.add(m.getName());
       }
     }
 
     tc.add("modes", modeNames);
-    tc.add("mgs", modeGroupNames);
-
-    if (!modeNames.isEmpty() || !modeGroupNames.isEmpty()) {
+    if (!modeNames.isEmpty()) {
       t.add("imps", String.format(MODE_CLASS_FORMAT, ir.getModelName(), "*"));
     }
   }
