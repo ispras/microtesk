@@ -26,23 +26,15 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-constructor(name, reg, mem, var, lab, stat, modes, mgs, ops, ogs) ::= <<
+constructor(name, reg, mem, var, lab, stat, modes, ops) ::= <<
 <class_string_const("String", "NAME", name)>
 
 private static final AddressingMode.IInfo[] __MODES = new AddressingMode.IInfo[] {
   <modes:{m |<m>.INFO}; separator=",\n">
 };
 
-private static final AddressingMode.IInfo[] __MODE_GROUPS = new AddressingMode.IInfo[] {
-  <mgs:{m |<m>.INFO}; separator=",\n">
-};
-
 private static final Operation.IInfo[] __OPS = new Operation.IInfo[] {
   <ops:{op |<op>.INFO}; separator=",\n">
-};
-
-private static final Operation.IInfo[] __OP_GROUPS = new Operation.IInfo[] {
-  <ogs:{op |<op>.INFO}; separator=",\n">
 };
 
 public Model() {
@@ -50,9 +42,7 @@ public Model() {
       NAME,
       new MetaModel(),
       __MODES,
-      __MODE_GROUPS,
       __OPS,
-      __OP_GROUPS,
       <reg>,
       <mem>,
       <var>,
