@@ -52,7 +52,7 @@ class MiniMipsBaseTemplate < Template
     exception_handler {
       section(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
         trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
-        mfc0 ra, cop0(14)
+        mfc0 ra, rcop0(14)
         addi ra, ra, 4
         jr ra 
         nop
