@@ -132,7 +132,7 @@ public abstract class Primitive {
    * @return Memory location.
    */
   public Location access() {
-    Logger.error(UNDEFINED_ATTR + "nill is returned.", "access", getName());
+    Logger.error(UNDEFINED_ATTR + "null is returned.", "access", getName());
     return null;
   }
 

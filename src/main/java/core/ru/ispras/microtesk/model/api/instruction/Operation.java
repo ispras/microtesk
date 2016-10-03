@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,9 +40,9 @@ public abstract class Operation extends Primitive {
      */
     String getName();
 
-    Map<String, OperationBuilder> createBuilders();
+    OperationBuilder createBuilder();
 
-    Map<String, OperationBuilder> createBuildersForShortcut(String contextName);
+    OperationBuilder createBuilderForShortcut(String contextName);
 
     /**
      * Checks if the current operation (or group of operations) implements (or contains) the
@@ -125,20 +123,18 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public final Map<String, OperationBuilder> createBuilders() {
-      final OperationBuilder builder = new OperationBuilder(name, this, decls);
-      return Collections.singletonMap(name, builder);
+    public final OperationBuilder createBuilder() {
+      return new OperationBuilder(name, this, decls);
     }
 
-    public final Map<String, OperationBuilder> createBuildersForShortcut(
-        final String contextName) {
-
+    @Override
+    public final OperationBuilder createBuilderForShortcut(final String contextName) {
       final IInfo shortcut = shortcuts.getShortcut(contextName);
       if (null == shortcut) {
         return null;
       }
 
-      return shortcut.createBuilders();
+      return shortcut.createBuilder();
     }
   }
 
@@ -175,17 +171,12 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public Map<String, OperationBuilder> createBuilders() {
-      final Map<String, OperationBuilder> result = new HashMap<>();
-      for (final IInfo i : childs) {
-        result.putAll(i.createBuilders());
-      }
-
-      return Collections.unmodifiableMap(result);
+    public OperationBuilder createBuilder() {
+      return null;
     }
 
     @Override
-    public Map<String, OperationBuilder> createBuildersForShortcut(final String contextName) {
+    public OperationBuilder createBuilderForShortcut(final String contextName) {
       return null;
     }
   }

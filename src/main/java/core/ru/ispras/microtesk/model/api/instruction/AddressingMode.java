@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.ispras.microtesk.model.api.data.Type;
 
 /**
@@ -51,12 +47,12 @@ public abstract class AddressingMode extends Primitive {
     Type getType();
 
     /**
-     * Returns a table of builder for the addressing mode (or the group of addressing modes)
+     * Returns a builder for the addressing mode (or the group of addressing modes)
      * described by the current info object.
      * 
-     * @return A table of addressing mode builders (key is the mode name, value is the builder).
+     * @return A builder for the addressing mode described by the current info object.
      */
-    Map<String, AddressingModeBuilder> createBuilders();
+    AddressingModeBuilder createBuilder();
 
     /**
      * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
@@ -104,9 +100,8 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public final Map<String, AddressingModeBuilder> createBuilders() {
-      final AddressingModeBuilder builder = new AddressingModeBuilder(name, this, decls);
-      return Collections.singletonMap(name, builder);
+    public final AddressingModeBuilder createBuilder() {
+      return new AddressingModeBuilder(name, this, decls);
     }
 
     @Override
@@ -142,14 +137,8 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public Map<String, AddressingModeBuilder> createBuilders() {
-      final Map<String, AddressingModeBuilder> result = new HashMap<>();
-
-      for (final IInfo i : childs) {
-        result.putAll(i.createBuilders());
-      }
-
-      return Collections.unmodifiableMap(result);
+    public AddressingModeBuilder createBuilder() {
+      return null;
     }
 
     @Override

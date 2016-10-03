@@ -103,21 +103,13 @@ public abstract class ProcessorModel implements IModel, CallFactory {
   public final AddressingModeBuilder newMode(final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
-    final String ERROR_FORMAT = "The %s addressing mode is not defined.";
-
     final AddressingMode.IInfo modeInfo = modes.get(name);
     if (null == modeInfo) {
-      throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
+      throw new UnsupportedTypeException(
+          String.format("The %s addressing mode is not defined.", name));
     }
 
-    final Map<String, AddressingModeBuilder> builders = modeInfo.createBuilders();
-    final AddressingModeBuilder result = builders.get(name);
-
-    if (null == result) {
-      throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
-    }
-
-    return result;
+    return modeInfo.createBuilder();
   }
 
   // CallFactory
@@ -126,23 +118,14 @@ public abstract class ProcessorModel implements IModel, CallFactory {
       throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
-    final String ERROR_FORMAT = "The %s operation is not defined.";
-
     final Operation.IInfo opInfo = ops.get(name);
     if (null == opInfo) {
-      throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
+      throw new UnsupportedTypeException(String.format("The %s operation is not defined.", name));
     }
 
-    Map<String, OperationBuilder> builders = null;
-
-    builders = opInfo.createBuildersForShortcut(contextName);
-    if (null == builders) {
-      builders = opInfo.createBuilders();
-    }
-
-    final OperationBuilder result = builders.get(name);
+    OperationBuilder result = opInfo.createBuilderForShortcut(contextName);
     if (null == result) {
-      throw new UnsupportedTypeException(String.format(ERROR_FORMAT, name));
+      result = opInfo.createBuilder();
     }
 
     return result;
