@@ -15,13 +15,13 @@
 package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
+import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
-import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
 
 public interface CallFactory {
-  AddressingModeBuilder newMode(String name) throws ConfigurationException;
-  OperationBuilder newOp(String name, String contextName) throws ConfigurationException;
+  PrimitiveBuilder<AddressingMode> newMode(String name) throws ConfigurationException;
+  PrimitiveBuilder<Operation> newOp(String name, String contextName) throws ConfigurationException;
   InstructionCall newCall(Operation op);
 }

@@ -40,9 +40,9 @@ public abstract class Operation extends Primitive {
      */
     String getName();
 
-    OperationBuilder createBuilder();
+    PrimitiveBuilder<Operation> createBuilder();
 
-    OperationBuilder createBuilderForShortcut(String contextName);
+    PrimitiveBuilder<Operation> createBuilderForShortcut(String contextName);
 
     /**
      * Checks if the current operation (or group of operations) implements (or contains) the
@@ -123,12 +123,12 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public final OperationBuilder createBuilder() {
-      return new OperationBuilder(name, this, decls);
+    public final PrimitiveBuilder<Operation> createBuilder() {
+      return new PrimitiveBuilder<>(name, this, decls);
     }
 
     @Override
-    public final OperationBuilder createBuilderForShortcut(final String contextName) {
+    public final PrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
       final IInfo shortcut = shortcuts.getShortcut(contextName);
       if (null == shortcut) {
         return null;
@@ -171,12 +171,12 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public OperationBuilder createBuilder() {
+    public PrimitiveBuilder<Operation> createBuilder() {
       return null;
     }
 
     @Override
-    public OperationBuilder createBuilderForShortcut(final String contextName) {
+    public PrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
       return null;
     }
   }

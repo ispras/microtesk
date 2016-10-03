@@ -21,10 +21,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.AddressingModeBuilder;
-import ru.ispras.microtesk.model.api.instruction.OperationBuilder;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -100,7 +99,8 @@ public abstract class ProcessorModel implements IModel, CallFactory {
 
   // CallFactory
   @Override
-  public final AddressingModeBuilder newMode(final String name) throws ConfigurationException {
+  public final PrimitiveBuilder<AddressingMode> newMode(
+      final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
     final AddressingMode.IInfo modeInfo = modes.get(name);
@@ -114,8 +114,8 @@ public abstract class ProcessorModel implements IModel, CallFactory {
 
   // CallFactory
   @Override
-  public final OperationBuilder newOp(final String name, final String contextName)
-      throws ConfigurationException {
+  public final PrimitiveBuilder<Operation> newOp(
+      final String name, final String contextName) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
     final Operation.IInfo opInfo = ops.get(name);
@@ -123,7 +123,7 @@ public abstract class ProcessorModel implements IModel, CallFactory {
       throw new UnsupportedTypeException(String.format("The %s operation is not defined.", name));
     }
 
-    OperationBuilder result = opInfo.createBuilderForShortcut(contextName);
+    PrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
     if (null == result) {
       result = opInfo.createBuilder();
     }

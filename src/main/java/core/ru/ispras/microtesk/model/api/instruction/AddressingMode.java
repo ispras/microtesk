@@ -52,7 +52,7 @@ public abstract class AddressingMode extends Primitive {
      * 
      * @return A builder for the addressing mode described by the current info object.
      */
-    AddressingModeBuilder createBuilder();
+    PrimitiveBuilder<AddressingMode> createBuilder();
 
     /**
      * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
@@ -100,8 +100,8 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public final AddressingModeBuilder createBuilder() {
-      return new AddressingModeBuilder(name, this, decls);
+    public final PrimitiveBuilder<AddressingMode> createBuilder() {
+      return new PrimitiveBuilder<>(name, this, decls);
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public AddressingModeBuilder createBuilder() {
+    public PrimitiveBuilder<AddressingMode> createBuilder() {
       return null;
     }
 
