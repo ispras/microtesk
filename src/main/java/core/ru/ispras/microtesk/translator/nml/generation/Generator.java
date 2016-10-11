@@ -52,7 +52,7 @@ public final class Generator implements TranslatorHandler<Ir> {
       generateModes();
       generateOps();
       generateModel();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -68,20 +68,20 @@ public final class Generator implements TranslatorHandler<Ir> {
   }
 
   private void generateModes() throws IOException {
-    for (Primitive m : ir.getModes().values()) {
+    for (final Primitive m : ir.getModes().values()) {
       final FileGenerator mode = m.isOrRule() ? 
-        factory.createAddressingModeOr((PrimitiveOR) m) :
-        factory.createAddressingMode((PrimitiveAND) m);
+          factory.createAddressingModeOr((PrimitiveOR) m) :
+          factory.createAddressingMode((PrimitiveAND) m);
 
       mode.generate();
     }
   }
 
   private void generateOps() throws IOException {
-    for (Primitive o : ir.getOps().values()) {
+    for (final Primitive o : ir.getOps().values()) {
       final FileGenerator op = o.isOrRule() ? 
-        factory.createOperationOr((PrimitiveOR) o) :
-        factory.createOperation((PrimitiveAND) o);
+          factory.createOperationOr((PrimitiveOR) o) :
+          factory.createOperation((PrimitiveAND) o);
 
       op.generate();
     }
