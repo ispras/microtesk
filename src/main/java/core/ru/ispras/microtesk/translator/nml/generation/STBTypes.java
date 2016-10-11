@@ -29,24 +29,27 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class STBTypes implements STBuilder {
+  public static final String CLASS_NAME = "TypeDefs";
   private final Ir ir;
 
   public STBTypes(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkFalse(ir.getTypes().isEmpty());
     this.ir = ir;
   }
 
   private void buildHeader(final ST st) {
-    st.add("name", "TypeDefs");
+    st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
 
     st.add("imps", BigInteger.class.getName());
     st.add("imps", TypeId.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+
+    st.add("members", String.format("private %s() {}", CLASS_NAME));
+    st.add("members", "");
   }
 
-  private void buildTypes(final STGroup group, final ST t) {
+  private void buildTypes(final STGroup group, final ST st) {
     for (final Map.Entry<String, Type> type : ir.getTypes().entrySet()) {
       final ST tType = group.getInstanceOf("type_alias");
 
@@ -56,7 +59,7 @@ final class STBTypes implements STBuilder {
       tType.add("name", name);
       tType.add("alias", String.format("Type.def(\"%s\", %s)", name, javaText));
 
-      t.add("members", tType);
+      st.add("members", tType);
     }
   }
 

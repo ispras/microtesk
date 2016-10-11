@@ -57,6 +57,19 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
+  public FileGenerator createTypesGenerator(Ir ir) {
+    final String outputFileName = String.format(
+        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBTypes.CLASS_NAME);
+
+    final String[] templateGroups = new String[] {
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
+    };
+
+    final STBuilder builder = new STBTypes(ir);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
+  }
+
   public FileGenerator createAddressingModeOr(PrimitiveOR mode) {
     final String outputFileName =
       String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());

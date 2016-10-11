@@ -57,7 +57,7 @@ final class STBOperation implements STBuilder {
     st.add("imps", MetaArgument.class.getName());
     st.add("imps", MetaOperation.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
-    st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, modelName));
+    st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
     st.add("instance", "instance");
   }
 
