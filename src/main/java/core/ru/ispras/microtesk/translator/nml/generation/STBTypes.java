@@ -38,7 +38,11 @@ final class STBTypes implements STBuilder {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+
     st.add("members", String.format("private %s() {}", CLASS_NAME));
+    if (!ir.getTypes().isEmpty()) {
+      st.add("members", "");
+    }
   }
 
   private void buildTypes(final STGroup group, final ST st) {
