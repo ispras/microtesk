@@ -25,7 +25,6 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -53,7 +52,6 @@ final class STBShared implements STBuilder {
     t.add("imps", BigInteger.class.getName());
 
     if (!ir.getTypes().isEmpty() || !ir.getMemory().isEmpty()) {
-      t.add("imps", TypeId.class.getName());
       t.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     }
 
@@ -78,24 +76,6 @@ final class STBShared implements STBuilder {
 
     if (!isAdded) {
       insertEmptyLine(t);
-    }
-  }
-
-  private void buildTypes(STGroup group, ST t) {
-    if (!ir.getTypes().isEmpty()) {
-      insertEmptyLine(t);
-    }
-
-    for (Map.Entry<String, Type> type : ir.getTypes().entrySet()) {
-      final ST tType = group.getInstanceOf("type_alias");
-      
-      final String name = type.getKey();
-      final String javaText = type.getValue().getJavaText();
-
-      tType.add("name", name);
-      tType.add("alias", String.format("Type.def(\"%s\", %s)", name, javaText));
-
-      t.add("members", tType);
     }
   }
 
@@ -145,7 +125,7 @@ final class STBShared implements STBuilder {
 
     final Type typeExpr = memory.getType();
     if (null != typeExpr.getAlias()) {
-      tMemory.add("type", typeExpr.getAlias());
+      tMemory.add("type", "TypeDefs." + typeExpr.getAlias());
     } else {
       final ST tNewType = group.getInstanceOf("new_type");
       tNewType.add("typeid", typeExpr.getTypeId());
@@ -205,7 +185,6 @@ final class STBShared implements STBuilder {
 
     buildHeader(t);
     buildLetStrings(group, t);
-    buildTypes(group, t);
     buildMemory(group, t);
     buildLabels(group, t);
 

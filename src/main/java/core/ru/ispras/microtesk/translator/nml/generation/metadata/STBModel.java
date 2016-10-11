@@ -56,7 +56,7 @@ final class STBModel implements STBuilder {
     st.add("ext", MetaModelBuilder.class.getSimpleName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("imps", MetaModelBuilder.class.getName());
-    st.add("simps", String.format(PackageInfo.SHARED_CLASS_FORMAT, ir.getModelName()));
+    st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", ir.getModelName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {
