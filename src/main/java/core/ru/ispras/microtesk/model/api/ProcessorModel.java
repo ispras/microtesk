@@ -17,13 +17,8 @@ package ru.ispras.microtesk.model.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
-import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -39,14 +34,10 @@ import ru.ispras.microtesk.model.api.state.Resetter;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class ProcessorModel implements IModel, CallFactory {
+public abstract class ProcessorModel implements IModel {
   private final String name;
-
-  private final Map<String, AddressingMode.IInfo> modes;
-  private final Map<String, Operation.IInfo> ops;
-
+  private final CallFactory callFactory;
   private final ModelStateObserver observer;
-  private final Resetter resetter;
   private final MetaModel metaModel;
 
   public ProcessorModel(
@@ -60,18 +51,18 @@ public abstract class ProcessorModel implements IModel, CallFactory {
       final Label[] labels) {
     this.name = name;
 
-    this.modes = new HashMap<>(modes.length);
-    for (final AddressingMode.IInfo i : modes) {
-      this.modes.put(i.getName(), i);
+    final Map<String, AddressingMode.IInfo> modeMap = new HashMap<>(modes.length);
+    for (final AddressingMode.IInfo mode : modes) {
+      modeMap.put(mode.getName(), mode);
     }
 
-    this.ops = new HashMap<>(ops.length);
-    for (final Operation.IInfo i : ops) {
-      this.ops.put(i.getName(), i);
+    final Map<String, Operation.IInfo> opMap = new HashMap<>(ops.length);
+    for (final Operation.IInfo op : ops) {
+      opMap.put(op.getName(), op);
     }
 
+    this.callFactory = new CallFactory(new Resetter(variables), modeMap, opMap);
     this.observer = new ModelStateObserver(registers, memory, labels);
-    this.resetter = new Resetter(variables);
     this.metaModel = metaModelBuilder.build();
   }
 
@@ -94,47 +85,6 @@ public abstract class ProcessorModel implements IModel, CallFactory {
   // IModel
   @Override
   public final CallFactory getCallFactory() {
-    return this;
-  }
-
-  // CallFactory
-  @Override
-  public final PrimitiveBuilder<AddressingMode> newMode(
-      final String name) throws ConfigurationException {
-    InvariantChecks.checkNotNull(name);
-
-    final AddressingMode.IInfo modeInfo = modes.get(name);
-    if (null == modeInfo) {
-      throw new UnsupportedTypeException(
-          String.format("The %s addressing mode is not defined.", name));
-    }
-
-    return modeInfo.createBuilder();
-  }
-
-  // CallFactory
-  @Override
-  public final PrimitiveBuilder<Operation> newOp(
-      final String name, final String contextName) throws ConfigurationException {
-    InvariantChecks.checkNotNull(name);
-
-    final Operation.IInfo opInfo = ops.get(name);
-    if (null == opInfo) {
-      throw new UnsupportedTypeException(String.format("The %s operation is not defined.", name));
-    }
-
-    PrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
-    if (null == result) {
-      result = opInfo.createBuilder();
-    }
-
-    return result;
-  }
-
-  // CallFactory
-  @Override
-  public InstructionCall newCall(final Operation op) {
-    InvariantChecks.checkNotNull(op);
-    return new InstructionCall(resetter, op);
+    return callFactory;
   }
 }
