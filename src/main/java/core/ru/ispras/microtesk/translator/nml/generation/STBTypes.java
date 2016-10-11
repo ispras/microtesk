@@ -1,0 +1,72 @@
+/*
+ * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package ru.ispras.microtesk.translator.nml.generation;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
+
+import java.math.BigInteger;
+import java.util.Map;
+
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+
+import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+final class STBTypes implements STBuilder {
+  private final Ir ir;
+
+  public STBTypes(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkFalse(ir.getTypes().isEmpty());
+    this.ir = ir;
+  }
+
+  private void buildHeader(final ST st) {
+    st.add("name", "TypeDefs");
+    st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
+
+    st.add("imps", BigInteger.class.getName());
+    st.add("imps", TypeId.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+  }
+
+  private void buildTypes(final STGroup group, final ST t) {
+    for (final Map.Entry<String, Type> type : ir.getTypes().entrySet()) {
+      final ST tType = group.getInstanceOf("type_alias");
+
+      final String name = type.getKey();
+      final String javaText = type.getValue().getJavaText();
+
+      tType.add("name", name);
+      tType.add("alias", String.format("Type.def(\"%s\", %s)", name, javaText));
+
+      t.add("members", tType);
+    }
+  }
+
+  @Override
+  public ST build(final STGroup group) {
+    final ST st = group.getInstanceOf("source_file");
+
+    buildHeader(st);
+    buildTypes(group, st);
+
+    return st;
+  }
+}
