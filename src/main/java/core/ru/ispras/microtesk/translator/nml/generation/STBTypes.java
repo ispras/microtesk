@@ -14,16 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
-
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -40,13 +37,12 @@ final class STBTypes implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
-
-    st.add("imps", BigInteger.class.getName());
-    st.add("imps", TypeId.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
 
     st.add("members", String.format("private %s() {}", CLASS_NAME));
-    st.add("members", "");
+    if (!ir.getTypes().isEmpty()) {
+      st.add("members", "");
+    }
   }
 
   private void buildTypes(final STGroup group, final ST st) {
