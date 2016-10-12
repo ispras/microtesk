@@ -23,6 +23,8 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
 public abstract class Core {
@@ -44,11 +46,11 @@ public abstract class Core {
     this.labelMap.put(label.getName(), label);
   }
 
-  public final LocationAccessor access(final String name) {
-    return access(name, BigInteger.ZERO);
+  public final LocationAccessor accessLocation(final String name) {
+    return accessLocation(name, BigInteger.ZERO);
   }
 
-  public final LocationAccessor access(final String name, final BigInteger index) {
+  public final LocationAccessor accessLocation(final String name, final BigInteger index) {
     InvariantChecks.checkNotNull(name);
 
     final Label label = labelMap.get(name);
@@ -75,5 +77,28 @@ public abstract class Core {
       variable.reset();
     }
   }
-}
 
+  public final MemoryAllocator newAllocator(
+      final String storageId,
+      final int addressableUnitBitSize,
+      final BigInteger baseAddress) {
+    final Memory storage = getStorage(storageId);
+    return storage.newAllocator(addressableUnitBitSize, baseAddress);
+  }
+
+  public final MemoryDevice setHandler(
+      final String storageId,
+      final MemoryDevice handler) {
+    final Memory storage = getStorage(storageId);
+    return storage.setHandler(handler);
+  }
+
+  private Memory getStorage(final String id) {
+    final Memory storage = storageMap.get(id);
+    if (null == storage) {
+      throw new IllegalArgumentException(
+          String.format("The %s storage is not defined in the model.", id));
+    }
+    return storage;
+  }
+}
