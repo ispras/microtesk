@@ -46,29 +46,26 @@ public abstract class Core {
     this.labelMap.put(label.getName(), label);
   }
 
-  public final LocationAccessor accessLocation(final String name) {
-    return accessLocation(name, BigInteger.ZERO);
+  public final LocationAccessor accessLocation(final String storageId) {
+    return accessLocation(storageId, BigInteger.ZERO);
   }
 
-  public final LocationAccessor accessLocation(final String name, final BigInteger index) {
-    InvariantChecks.checkNotNull(name);
+  public final LocationAccessor accessLocation(
+      final String storageId,
+      final BigInteger index) {
+    InvariantChecks.checkNotNull(storageId);
 
-    final Label label = labelMap.get(name);
+    final Label label = labelMap.get(storageId);
     if (null != label) {
       if (null != index && !index.equals(BigInteger.ZERO)) {
         throw new IllegalArgumentException(
-            String.format("The %d index is invalid for the %s storage.", index, name));
+            String.format("The %d index is invalid for the %s storage.", index, storageId));
       }
 
       return label.access();
     }
 
-    final Memory storage = storageMap.get(name);
-    if (null == storage) {
-      throw new IllegalArgumentException(
-          String.format("The %s storage is not defined in the model.", name));
-    }
-
+    final Memory storage = getStorage(storageId);
     return storage.access(index);
   }
 
@@ -93,11 +90,11 @@ public abstract class Core {
     return storage.setHandler(handler);
   }
 
-  private Memory getStorage(final String id) {
-    final Memory storage = storageMap.get(id);
+  private Memory getStorage(final String storageId) {
+    final Memory storage = storageMap.get(storageId);
     if (null == storage) {
       throw new IllegalArgumentException(
-          String.format("The %s storage is not defined in the model.", id));
+          String.format("The %s storage is not defined in the model.", storageId));
     }
     return storage;
   }
