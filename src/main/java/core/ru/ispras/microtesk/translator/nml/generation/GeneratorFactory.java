@@ -57,7 +57,7 @@ final class GeneratorFactory {
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
-  public FileGenerator createTypesGenerator(Ir ir) {
+  public FileGenerator createTypesGenerator(final Ir ir) {
     final String outputFileName = String.format(
         "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBTypes.CLASS_NAME);
 
@@ -67,6 +67,19 @@ final class GeneratorFactory {
     };
 
     final STBuilder builder = new STBTypes(ir);
+    return new STFileGenerator(outputFileName, templateGroups, builder);
+  }
+
+  public FileGenerator createCoreGenerator(final Ir ir) {
+    final String outputFileName = String.format(
+        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBCore.CLASS_NAME);
+
+    final String[] templateGroups = new String[] {
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
+    };
+
+    final STBuilder builder = new STBCore(ir);
     return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 

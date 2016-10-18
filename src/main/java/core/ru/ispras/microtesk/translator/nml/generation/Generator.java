@@ -50,6 +50,7 @@ public final class Generator implements TranslatorHandler<Ir> {
     try {
       generateShared();
       generateTypes();
+      generateCore();
       generateModes();
       generateOps();
       generateModel();
@@ -71,6 +72,11 @@ public final class Generator implements TranslatorHandler<Ir> {
   private void generateTypes() throws IOException {
     final FileGenerator types = factory.createTypesGenerator(ir);
     types.generate();
+  }
+
+  private void generateCore() throws IOException {
+    final FileGenerator core = factory.createCoreGenerator(ir);
+    core.generate();
   }
 
   private void generateModes() throws IOException {
