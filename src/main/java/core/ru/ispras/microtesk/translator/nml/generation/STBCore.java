@@ -20,8 +20,6 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.memory.Label;
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -46,8 +44,9 @@ final class STBCore implements STBuilder {
 
     st.add("imps", BigInteger.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.Core.class.getName());
-    st.add("imps", Memory.class.getName());
-    st.add("imps", Label.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.memory.Label.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.memory.Memory.class.getName());
   }
 
   private void buildBody(final STGroup group, final ST st) {
