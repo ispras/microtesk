@@ -87,4 +87,6 @@ public abstract class ProcessorModel implements IModel {
   public final CallFactory getCallFactory() {
     return callFactory;
   }
+
+  protected abstract Core newCore();
 }

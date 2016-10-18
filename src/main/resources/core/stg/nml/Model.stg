@@ -48,6 +48,10 @@ public Model() {
       <var>,
       <lab>
       );
+}<\n>
+@Override
+protected CoreX newCore() {
+  return new CoreX();
 }
 >>
 
