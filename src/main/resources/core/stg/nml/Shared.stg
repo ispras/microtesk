@@ -84,19 +84,14 @@ new <type>(<items; separator=", ">)
 core(class, names, types, labels) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
 public <class>() {
-  this(
-      <types; separator=",\n">
-      );
+  <names, types:{n, t| this.<n> = <t>;}; separator="\n"><\n>
+  registerAll();
 }<\n>
 public <class>(final <class> other) {
-  this(
-      <names:{n | other.<n>}; separator=",\n">
-      );
+  <names:{n | this.<n> = other.<n>;}; separator="\n"><\n>
+  registerAll();
 }<\n>
-private <class>(
-    <names:{n | final Memory <n>}; separator=",\n">) {
-  <names:{n | this.<n> = <n>;}; separator="\n"><\n>
+private void registerAll() {
   <names:{n | addStorage(<n>);}; separator="\n">
   <if(labels)><\n><labels:{l | addLabel(<l>);}; separator="\n"><endif>
-}
->>
+}>>
