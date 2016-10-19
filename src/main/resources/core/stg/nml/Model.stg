@@ -50,8 +50,8 @@ public Model() {
       );
 }<\n>
 @Override
-protected CoreX newCore() {
-  return new CoreX();
+protected PE newPE() {
+  return new PE();
 }
 >>
 

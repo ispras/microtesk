@@ -28,11 +28,11 @@ import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-final class STBCore implements STBuilder {
-  public static final String CLASS_NAME = "CoreX";
+final class STBProcElement implements STBuilder {
+  public static final String CLASS_NAME = "PE";
   private final Ir ir;
 
-  public STBCore(final Ir ir) {
+  public STBProcElement(final Ir ir) {
     this.ir = ir;
   }
 
@@ -40,10 +40,10 @@ final class STBCore implements STBuilder {
     st.add("name", CLASS_NAME);
 
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
-    st.add("ext", ru.ispras.microtesk.model.api.Core.class.getSimpleName());
+    st.add("ext", ru.ispras.microtesk.model.api.PEState.class.getSimpleName());
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", ru.ispras.microtesk.model.api.Core.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Label.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Memory.class.getName());

@@ -89,7 +89,7 @@ public abstract class ProcessorModel implements IModel {
     return callFactory;
   }
 
-  protected abstract Core newCore();
+  protected abstract PEState newPE();
 
   public final void printInformation() {
     final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(getMetaData());

@@ -75,7 +75,7 @@ public final class Generator implements TranslatorHandler<Ir> {
   }
 
   private void generateCore() throws IOException {
-    final FileGenerator core = factory.createCoreGenerator(ir);
+    final FileGenerator core = factory.createPEGenerator(ir);
     core.generate();
   }
 

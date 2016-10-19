@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.state.LocationAccessor;
 
-public abstract class Core {
+public abstract class PEState {
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
   private final List<Memory> variables = new ArrayList<>();
@@ -75,7 +75,7 @@ public abstract class Core {
     }
   }
 
-  public final MemoryAllocator newAllocator(
+  public final MemoryAllocator newMemoryAllocator(
       final String storageId,
       final int addressableUnitBitSize,
       final BigInteger baseAddress) {
@@ -83,7 +83,7 @@ public abstract class Core {
     return storage.newAllocator(addressableUnitBitSize, baseAddress);
   }
 
-  public final MemoryDevice setHandler(
+  public final MemoryDevice setMemoryHandler(
       final String storageId,
       final MemoryDevice handler) {
     final Memory storage = getStorage(storageId);
