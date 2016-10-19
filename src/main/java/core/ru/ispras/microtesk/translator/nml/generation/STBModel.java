@@ -26,8 +26,6 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
-import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -52,8 +50,6 @@ final class STBModel implements STBuilder {
     t.add("pack", String.format(MODEL_PACKAGE_FORMAT, ir.getModelName()));
 
     t.add("imps", ProcessorModel.class.getName());
-    t.add("imps", MetaModelPrinter.class.getName());
-    t.add("imps", ModelStatePrinter.class.getName());
     t.add("imps", AddressingMode.class.getName());
     t.add("imps", Operation.class.getName());
     t.add("imps", String.format(

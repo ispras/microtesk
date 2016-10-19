@@ -22,7 +22,9 @@ import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.state.Resetter;
 
 /**
@@ -88,4 +90,12 @@ public abstract class ProcessorModel implements IModel {
   }
 
   protected abstract Core newCore();
+
+  public final void printInformation() {
+    final MetaModelPrinter metaModelPrinter = new MetaModelPrinter(getMetaData());
+    metaModelPrinter.printAll();
+
+    final ModelStatePrinter modelStatePrinter = new ModelStatePrinter(this);
+    modelStatePrinter.printRegisters();
+  }
 }
