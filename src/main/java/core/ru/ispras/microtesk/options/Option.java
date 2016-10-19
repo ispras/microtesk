@@ -76,7 +76,9 @@ public enum Option {
   ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE),
 
   BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
-  BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE);
+  BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE),
+
+  PE_NUMBER("pe-number", "Number of processing elements to be used", 1, GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
