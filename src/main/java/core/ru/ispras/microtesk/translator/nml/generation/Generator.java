@@ -54,6 +54,7 @@ public final class Generator implements TranslatorHandler<Ir> {
       generateModes();
       generateOps();
       generateModel();
+      generateModel2();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
@@ -61,6 +62,11 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void generateModel() throws IOException {
     final FileGenerator model = factory.createModelGenerator(ir);
+    model.generate();
+  }
+
+  private void generateModel2() throws IOException {
+    final FileGenerator model = factory.createModelGenerator2(ir);
     model.generate();
   }
 
