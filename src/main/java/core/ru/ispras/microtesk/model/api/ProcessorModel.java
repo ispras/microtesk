@@ -22,7 +22,6 @@ import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.metadata.MetaModelBuilder;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 import ru.ispras.microtesk.model.api.state.Resetter;
 
@@ -42,7 +41,7 @@ public abstract class ProcessorModel implements IModel {
 
   public ProcessorModel(
       final String name,
-      final MetaModelBuilder metaModelBuilder,
+      final MetaModel metaModel,
       final AddressingMode.IInfo[] modes,
       final Operation.IInfo[] ops,
       final Memory[] registers,
@@ -63,7 +62,7 @@ public abstract class ProcessorModel implements IModel {
 
     this.callFactory = new CallFactory(new Resetter(variables), modeMap, opMap);
     this.observer = new ModelStateObserver(registers, memory, labels);
-    this.metaModel = metaModelBuilder.build();
+    this.metaModel = metaModel;
   }
 
   public final String getName() {

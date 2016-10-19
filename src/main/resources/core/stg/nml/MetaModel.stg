@@ -19,11 +19,14 @@ location(name, type, size)  ::= <<
 >>
 
 metamodel_constructor(name, registers, memories, modes, operations) ::= <<
-public <name>() {
-  <registers: { r | addRegister(<r>);}; separator="\n"><\n>
-  <memories: { m | addMemory(<m>);}; separator="\n"><\n>
-  <modes: { m | addMode(<m>);}; separator="\n"><\n>
-  <operations: { o | addOperation(<o>);}; separator="\n">
+private <name>() {}<\n>
+public static MetaModel newMetaModel() {
+  final MetaModelBuilder builder = new MetaModelBuilder();<\n>
+  <registers: { r | builder.addRegister(<r>);}; separator="\n"><\n>
+  <memories: { m | builder.addMemory(<m>);}; separator="\n"><\n>
+  <modes: { m | builder.addMode(<m>);}; separator="\n"><\n>
+  <operations: { o | builder.addOperation(<o>);}; separator="\n"><\n>
+  return builder.build();
 }
 >>
 

@@ -21,7 +21,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
-public class MetaModelBuilder {
+public final class MetaModelBuilder {
   private final Map<String, MetaLocationStore> registers;
   private final Map<String, MetaLocationStore> memory;
   private final Map<String, MetaAddressingMode> modes;
@@ -38,57 +38,57 @@ public class MetaModelBuilder {
     this.operationGroups = new LinkedHashMap<>();
   }
 
-  public final void addRegister(
+  public void addRegister(
       final String name,
       final Type dataType, 
       final BigInteger count) {
     registers.put(name, new MetaLocationStore(name, dataType, count));
   }
 
-  public final void addRegister(
+  public void addRegister(
       final String name,
       final Type dataType, 
       final long count) {
     addRegister(name, dataType, BigInteger.valueOf(count));
   }
 
-  public final void addMemory(
+  public void addMemory(
       final String name,
       final Type dataType, 
       final BigInteger count) {
     memory.put(name, new MetaLocationStore(name, dataType, count));
   }
 
-  public final void addMemory(
+  public void addMemory(
       final String name,
       final Type dataType, 
       final long count) {
     addMemory(name, dataType, BigInteger.valueOf(count));
   }
 
-  public final void addMode(final MetaAddressingMode mode) {
+  public void addMode(final MetaAddressingMode mode) {
     InvariantChecks.checkNotNull(mode);
     modes.put(mode.getName(), mode);
   }
 
-  public final void addMode(final MetaGroup group) {
+  public void addMode(final MetaGroup group) {
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkTrue(group.getKind() == MetaGroup.Kind.MODE);
     modeGroups.put(group.getName(), group);
   }
 
-  public final void addOperation(final MetaOperation operation) {
+  public void addOperation(final MetaOperation operation) {
     InvariantChecks.checkNotNull(operation);
     operations.put(operation.getName(), operation);
   }
 
-  public final void addOperation(final MetaGroup group) {
+  public void addOperation(final MetaGroup group) {
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkTrue(group.getKind() == MetaGroup.Kind.OP);
     operationGroups.put(group.getName(), group);
   }
 
-  public final MetaModel build() {
+  public MetaModel build() {
     return new MetaModel(
         modes,
         modeGroups,

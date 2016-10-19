@@ -40,7 +40,7 @@ private static final Operation.IInfo[] __OPS = new Operation.IInfo[] {
 public Model() {
   super(
       NAME,
-      new MetaModel(),
+      MetaModelFactory.newMetaModel(),
       __MODES,
       __OPS,
       <reg>,

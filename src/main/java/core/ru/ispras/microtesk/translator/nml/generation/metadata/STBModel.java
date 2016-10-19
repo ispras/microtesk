@@ -20,7 +20,6 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.memory.Memory;
-import ru.ispras.microtesk.model.api.metadata.MetaModelBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
@@ -31,7 +30,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 final class STBModel implements STBuilder {
-  public static final String CLASS_NAME = "MetaModel";
+  public static final String CLASS_NAME = "MetaModelFactory";
 
   private final Ir ir;
 
@@ -53,9 +52,9 @@ final class STBModel implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
-    st.add("ext", MetaModelBuilder.class.getSimpleName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
-    st.add("imps", MetaModelBuilder.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.metadata.MetaModel.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.metadata.MetaModelBuilder.class.getName());
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", ir.getModelName()));
   }
 
