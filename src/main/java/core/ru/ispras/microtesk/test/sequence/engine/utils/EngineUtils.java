@@ -41,7 +41,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.CallFactory;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -346,9 +346,8 @@ public final class EngineUtils {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      final CallFactory callFactory = engineContext.getModel().getCallFactory();
       final Operation op = makeOp(engineContext, rootOp);
-      final InstructionCall executable = callFactory.newCall(op);
+      final InstructionCall executable = engineContext.getModel().newCall(op);
 
       return new ConcreteCall(abstractCall, executable, labelRefs);
     } finally {
@@ -362,17 +361,16 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkNotNull(instructionName);
 
-    final CallFactory callFactory = engineContext.getModel().getCallFactory();
-
+    final Model model = engineContext.getModel();
     final Operation operation;
     try {
-      final PrimitiveBuilder<Operation> operationBuilder = callFactory.newOp(instructionName, null);
+      final PrimitiveBuilder<Operation> operationBuilder = model.newOp(instructionName, null);
       operation = operationBuilder.build();
     } catch (final ConfigurationException e) {
       return null;
     }
 
-    final InstructionCall executable = callFactory.newCall(operation);
+    final InstructionCall executable = model.newCall(operation);
     return new ConcreteCall(executable);
   }
 
@@ -417,8 +415,8 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkMode(abstractMode);
 
-    final CallFactory callFactory = engineContext.getModel().getCallFactory();
-    final PrimitiveBuilder<AddressingMode> builder = callFactory.newMode(abstractMode.getName());
+    final PrimitiveBuilder<AddressingMode> builder =
+        engineContext.getModel().newMode(abstractMode.getName());
 
     for (Argument arg : abstractMode.getArguments().values()) {
       final String argName = arg.getName();
@@ -468,11 +466,11 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkOp(abstractOp);
 
-    final CallFactory callFactory = engineContext.getModel().getCallFactory();
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 
-    final PrimitiveBuilder<Operation> builder = callFactory.newOp(name, context);
+    final PrimitiveBuilder<Operation> builder =
+        engineContext.getModel().newOp(name, context);
 
     for (Argument arg : abstractOp.getArguments().values()) {
       final String argName = arg.getName();

@@ -30,7 +30,7 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Model implements CallFactory {
+public final class Model {
   private final String name;
   private final MetaModel metaData;
   private final PEState peState;
@@ -117,15 +117,5 @@ public final class Model implements CallFactory {
    */
   public ModelStateObserver getStateObserver() {
     return getPE();
-  }
-
-  /**
-   * Returns a factory for creating instances of operations, addressing modes and instruction calls
-   * that can be simulated with the model.
-   * 
-   * @return Call factory.
-   */
-  public CallFactory getCallFactory() {
-    return this;
   }
 }
