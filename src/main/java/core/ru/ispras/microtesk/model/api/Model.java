@@ -23,7 +23,6 @@ import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 
 /**
  * The {@link Model} class implements an ISA model and provides its facilities to external users.
