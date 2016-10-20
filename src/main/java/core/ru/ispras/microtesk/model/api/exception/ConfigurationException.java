@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.model.api.exception;
 
-public class ConfigurationException extends MicroTESKException {
+public class ConfigurationException extends Exception {
   private static final long serialVersionUID = -7710697576919321538L;
 
   public ConfigurationException() {}
