@@ -26,7 +26,6 @@ import ru.ispras.microtesk.model.api.data.Data;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MemoryDeviceWrapper implements MemoryDevice {
   private final Memory memory;
   private final int addressBitSize;
