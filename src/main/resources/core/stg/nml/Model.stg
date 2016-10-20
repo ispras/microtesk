@@ -60,3 +60,15 @@ debug_block() ::= <<
   new Model().printInformation();
 }
 >>
+
+model_constructor(class, name, modes, ops) ::= <<
+public <class>() {
+  super(
+      "<name>",
+      MetaModelFactory.newMetaModel(),
+      new PE()
+      );<\n>
+  <modes:{m |addMode(<m>.INFO);}; separator="\n"><\n>
+  <ops:{op |addOperation(<op>.INFO);}; separator="\n">
+}
+>>
