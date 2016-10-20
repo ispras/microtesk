@@ -37,7 +37,7 @@ import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.state.Reader;
+import ru.ispras.microtesk.model.api.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;

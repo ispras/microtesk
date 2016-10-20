@@ -30,7 +30,7 @@ final class STBExtern implements STBuilder {
   public static final String CLASS_NAME = "Extern";
 
   public static final Class<?> READER_CLASS =
-      ru.ispras.microtesk.model.api.state.Reader.class;
+      ru.ispras.microtesk.model.api.Reader.class;
 
   private final String packageName;
   private final Map<String, Variable> externs;
