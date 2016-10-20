@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 /**
@@ -78,7 +79,7 @@ public abstract class Primitive {
    * 
    * @return Assembly text.
    */
-  public String syntax() {
+  public String syntax(final PEState peState) {
     Logger.error(UNDEFINED_ATTR + EMPTY_STR, "syntax", getName());
     return "";
   }
@@ -93,7 +94,7 @@ public abstract class Primitive {
    * 
    * @return Binary text.
    */
-  public String image() {
+  public String image(final PEState peState) {
     Logger.error(UNDEFINED_ATTR + EMPTY_STR + " Primitive size will be 0.", "image", getName());
     return "";
   }
@@ -101,10 +102,10 @@ public abstract class Primitive {
   /**
    * Runs execution of the current primitive's action.
    */
-  public final void execute() {
+  public final void execute(final PEState peState) {
     try {
       CALL_STACK.push(this);
-      action();
+      action(peState);
     } finally {
       CALL_STACK.pop();
     }
@@ -117,7 +118,7 @@ public abstract class Primitive {
    * explicitly specified action attribute. This method does not do any useful work
    * and should never be called. It is needed only to let inherited classes compile.
    */
-  protected void action() {
+  protected void action(final PEState peState) {
     Logger.error(UNDEFINED_ATTR + "No action will be performed.", "action", getName());
   }
 
@@ -131,7 +132,7 @@ public abstract class Primitive {
    * 
    * @return Memory location.
    */
-  public Location access() {
+  public Location access(final PEState peState) {
     Logger.error(UNDEFINED_ATTR + "null is returned.", "access", getName());
     return null;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.model.api.ModelBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 
 public final class SysUtils {
@@ -37,13 +38,16 @@ public final class SysUtils {
     return System.getProperty("user.dir");
   }
 
-  public static IModel loadModel(final String modelName) {
+  public static Model loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
     final String modelClassName = String.format(
         "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
 
-    return (IModel) loadFromModel(modelClassName);
+    final ModelBuilder modelBuilder =
+        (ModelBuilder) loadFromModel(modelClassName);
+
+    return null != modelBuilder ? modelBuilder.build() : null;
   }
 
   public static Object loadFromModel(final String className) {

@@ -141,7 +141,7 @@ public final class BindingBuilder {
 
             try {
                 final AddressingMode mode = makeMode(engineContext, arg);
-                final Location location = mode.access();
+                final Location location = mode.access(engineContext.getModel().getPE());
 
                 if (location.isInitialized()) {
                   bindingValue = NodeValue.newBitVector(

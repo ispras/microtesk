@@ -48,7 +48,7 @@ body(name, type, param_names, param_types, attrs, ret) ::= <<
 <class_const("IInfo", "INFO", "new Info()")><\n>
 <mode_constructor(name, param_names)><\n>
 <attrs; separator="\n\n">
-<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>.setName(syntax());}, true)><endif>
+<if(ret)><\n><mode_attribute("access", "Location", ret:{e|return <e>.setName(syntax(pe__));}, true)><endif>
 >>
 
 info_body(name, type, param_names, param_types) ::= <<
@@ -88,7 +88,8 @@ public final Immediate <param_name>;
 
 mode_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>() {
+<endif>public <rettype> <name>(final PEState peState) {
+  final PE pe__ = (PE) peState;
   <stmts; separator="\n">
 }
 >>

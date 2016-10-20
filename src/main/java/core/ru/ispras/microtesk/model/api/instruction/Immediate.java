@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.memory.Location;
@@ -41,7 +42,7 @@ public final class Immediate extends Primitive {
   }
 
   @Override
-  public Location access() {
+  public Location access(final PEState peState) {
     return location;
   }
 

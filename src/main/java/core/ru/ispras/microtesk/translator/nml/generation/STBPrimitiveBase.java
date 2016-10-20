@@ -161,13 +161,13 @@ final class StatementBuilder {
   private void addStatement(StatementAttributeCall stmt) {
     final String attrName = stmt.getAttributeName();
     if (null != stmt.getCalleeName()) {
-      addStatement(String.format("%s.%s();", stmt.getCalleeName(),
+      addStatement(String.format("%s.%s(pe__);", stmt.getCalleeName(),
           attrName.equals("action") ? "execute" : attrName));
     } else if(null != stmt.getCalleeInstance()) {
-      addStatement(String.format("%s.%s();", PrinterInstance.toString(stmt.getCalleeInstance()),
+      addStatement(String.format("%s.%s(pe__);", PrinterInstance.toString(stmt.getCalleeInstance()),
           attrName.equals("action") ? "execute" : attrName));
     } else {
-      addStatement(String.format("%s();", attrName));
+      addStatement(String.format("%s(pe__);", attrName));
     }
   }
 

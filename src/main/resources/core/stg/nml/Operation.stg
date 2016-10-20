@@ -171,7 +171,8 @@ this.<name> = <name>;
 
 op_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>() {
+<endif>public <rettype> <name>(final PEState peState) {
+  final PE pe__ = (PE) peState;
   <stmts; separator="\n">
 }
 >>

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
@@ -40,7 +40,7 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
  */
 public final class EngineContext {
   private final Options options;
-  private final IModel model;
+  private final Model model;
   private final LabelManager labelManager;
   private final DataManager dataManager;
   private final PreparatorStore preparators;
@@ -59,7 +59,7 @@ public final class EngineContext {
 
   public EngineContext(
       final Options options,
-      final IModel model,
+      final Model model,
       final DataManager dataManager,
       final GeneratorSettings settings,
       final Statistics statistics) {
@@ -91,7 +91,7 @@ public final class EngineContext {
     return options;
   }
 
-  public IModel getModel() {
+  public Model getModel() {
     return model;
   }
 

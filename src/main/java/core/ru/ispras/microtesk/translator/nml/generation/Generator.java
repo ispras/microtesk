@@ -48,12 +48,12 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void generate() {
     try {
-      generateShared();
+      //generateShared();
       generateTypes();
       generateCore();
       generateModes();
       generateOps();
-      generateModel();
+      //generateModel();
       generateModel2();
     } catch (final IOException e) {
       throw new RuntimeException(e);

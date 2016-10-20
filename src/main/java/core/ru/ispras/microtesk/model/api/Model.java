@@ -17,6 +17,8 @@ package ru.ispras.microtesk.model.api;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -60,20 +62,27 @@ public final class Model implements IModel, CallFactory {
     return peState;
   }
 
-  public PrimitiveBuilder<AddressingMode> newMode(final String name) {
+  public PrimitiveBuilder<AddressingMode> newMode(
+      final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
     final AddressingMode.IInfo modeInfo = modes.get(name);
-    InvariantChecks.checkNotNull(modeInfo, name);
+    if (null == modeInfo) {
+      throw new UnsupportedTypeException(
+          String.format("The %s addressing mode is not defined.", name));
+    }
 
     return modeInfo.createBuilder();
   }
 
-  public PrimitiveBuilder<Operation> newOp(final String name, final String contextName) {
+  public PrimitiveBuilder<Operation> newOp(
+      final String name, final String contextName) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
     final Operation.IInfo opInfo = ops.get(name);
-    InvariantChecks.checkNotNull(opInfo, name);
+    if (null == opInfo) {
+      throw new UnsupportedTypeException(String.format("The %s operation is not defined.", name));
+    }
 
     PrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
     if (null == result) {
@@ -85,7 +94,7 @@ public final class Model implements IModel, CallFactory {
 
   public InstructionCall newCall(final Operation op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(null, op);
+    return new InstructionCall(peState, op);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.model.api.instruction;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.state.Resetter;
+import ru.ispras.microtesk.model.api.PEState;
 
 /**
  * The InstructionCall class provides methods to run execution simulation
@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.state.Resetter;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class InstructionCall {
-  private final Resetter resetter;
+  private final PEState peState;
   private final Operation instruction;
   private final String image;
   private final int byteSize;
@@ -39,14 +39,16 @@ public final class InstructionCall {
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
   public InstructionCall(
-      final Resetter resetter,
+      final PEState peState,
       final Operation instruction) {
-    InvariantChecks.checkNotNull(resetter);
+    InvariantChecks.checkNotNull(peState);
     InvariantChecks.checkNotNull(instruction);
 
-    this.resetter = resetter;
+    this.peState = peState;
     this.instruction = instruction;
-    this.image = instruction.image();
+
+    peState.resetVariables();
+    this.image = instruction.image(peState);
 
     final int bitSize = image.length();
     this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
@@ -56,8 +58,8 @@ public final class InstructionCall {
    * Runs simulation of a corresponding instruction described within the model.
    */
   public void execute() {
-    resetter.reset();
-    instruction.execute();
+    peState.resetVariables();
+    instruction.execute(peState);
   }
 
   /**
@@ -67,7 +69,8 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    return instruction.syntax();
+    peState.resetVariables();
+    return instruction.syntax(peState);
   }
 
   /**

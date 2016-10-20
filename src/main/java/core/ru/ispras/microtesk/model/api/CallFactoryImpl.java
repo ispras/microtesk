@@ -76,6 +76,6 @@ public final class CallFactoryImpl implements CallFactory {
 
   public InstructionCall newCall(final Operation op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(resetter, op);
+    return new InstructionCall(null, op);
   }
 }

@@ -203,7 +203,7 @@ public final class EngineUtils {
         if (arg.getKind() == Argument.Kind.MODE) {
           try {
             final AddressingMode concreteMode = makeMode(engineContext, arg);
-            if (concreteMode.access().isInitialized()) {
+            if (concreteMode.access(engineContext.getModel().getPE()).isInitialized()) {
               continue;
             }
           } catch (ConfigurationException e) {

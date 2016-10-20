@@ -94,6 +94,7 @@ final class STBProcElement implements STBuilder {
       tMemory.add("alias", false);
     } else {
       if (Alias.Kind.LOCATION == alias.getKind()) {
+        PrinterLocation.addPE = false;
         tMemory.add("alias", PrinterLocation.toString(alias.getLocation()));
       } else {
         tMemory.add("alias", String.format("%s, %d, %d",

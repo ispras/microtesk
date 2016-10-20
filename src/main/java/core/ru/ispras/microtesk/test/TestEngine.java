@@ -33,7 +33,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -72,13 +72,13 @@ public final class TestEngine {
   }
 
   private final Options options;
-  private final IModel model;
+  private final Model model;
   private Statistics statistics;
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
 
-  private TestEngine(final Options options, final IModel model) {
+  private TestEngine(final Options options, final Model model) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
 
@@ -98,7 +98,7 @@ public final class TestEngine {
     options.setValue(optionName, value);
   }
 
-  public IModel getModel() {
+  public Model getModel() {
     return model;
   }
 
@@ -139,7 +139,7 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
-    final IModel model = SysUtils.loadModel(modelName);
+    final Model model = SysUtils.loadModel(modelName);
     if (null == model) {
       reportAborted("Failed to load the %s model.", modelName);
       return null;

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
@@ -24,19 +25,33 @@ public final class PrinterLocation {
   private static final String CONCAT_FORMAT = "Location.concat(%s)";
 
   private PrinterLocation() {}
+  public static boolean addPE = true; 
 
   public static String toString(Location location) {
-    if (location instanceof LocationConcat) {
-      return toString((LocationConcat) location);
-    }
-    return toString((LocationAtom) location);
+    final String result = location instanceof LocationConcat ?
+        toString((LocationConcat) location) :
+        toString((LocationAtom) location);
+
+    addPE = true;
+    return result;
   }
 
   private static String toString(LocationAtom location) {
     final StringBuilder sb = new StringBuilder();
+
+    if (addPE && location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY) {
+      sb.append("pe__.");
+    }
+
     sb.append(location.getName());
 
-    final String indexText = ExprPrinter.toString(location.getIndex());
+    final String indexText;
+    if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
+      indexText = "pe__";
+    } else {
+      indexText = ExprPrinter.toString(location.getIndex());
+    }
+
     sb.append(String.format(ACCESS_FORMAT, indexText));
 
     if (null != location.getBitfield()) {

@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 final class STBModel2 implements STBuilder {
-  public final static String CLASS_NAME = "Model2";
+  public final static String CLASS_NAME = "Model";
   private final Ir ir;
 
   public STBModel2(final Ir ir) {

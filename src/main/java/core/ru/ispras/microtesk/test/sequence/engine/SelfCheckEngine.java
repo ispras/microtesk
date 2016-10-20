@@ -70,7 +70,7 @@ public final class SelfCheckEngine {
     final AddressingMode concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
 
     final BitVector value =
-        concreteMode.access().load().getRawData();
+        concreteMode.access(engineContext.getModel().getPE()).load().getRawData();
 
     Logger.debug("Expected value is 0x%s", value.toHexString());
 

@@ -20,7 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.CallFactory;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
@@ -38,9 +38,9 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
  */
 
 public final class Reader {
-  private static IModel model = null;
+  private static Model model = null;
 
-  public static void setModel(final IModel model) {
+  public static void setModel(final Model model) {
     InvariantChecks.checkNotNull(model);
     Reader.model = model;
   }
@@ -115,7 +115,7 @@ public final class Reader {
 
     @Override
     public BitVector value() {
-      final Location location = mode.access();
+      final Location location = mode.access(model.getPE());
       return new LocationValue(location).value();
     }
   }
