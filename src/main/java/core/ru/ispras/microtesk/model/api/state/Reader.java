@@ -35,7 +35,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Reader {
   private static Model model = null;
 
