@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,6 +26,11 @@ import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
 
+/**
+ * The {@link Model} class implements an ISA model and provides its facilities to external users.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Model implements IModel, CallFactory {
   private final String name;
   private final MetaModel metaData;
