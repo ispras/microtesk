@@ -31,7 +31,7 @@ import ru.ispras.microtesk.model.api.state.ModelStateObserver;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Model implements IModel, CallFactory {
+public final class Model implements CallFactory {
   private final String name;
   private final MetaModel metaData;
   private final PEState peState;
@@ -55,10 +55,20 @@ public final class Model implements IModel, CallFactory {
     this.ops = ops;
   }
 
+  /**
+   * Returns the name of the modeled microprocessor design.
+   * 
+   * @return name Microprocessor design name.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Returns a meta description of the model.
+   * 
+   * @return An meta data object (provides access to model's meta data).
+   */
   public MetaModel getMetaData() {
     return metaData;
   }
@@ -102,12 +112,20 @@ public final class Model implements IModel, CallFactory {
     return new InstructionCall(peState, op);
   }
 
-  @Override
+  /**
+   * Returns a model state monitor object that allows getting information on the current state of
+   * the microprocessor mode (current register values, value in memory locations, etc)
+   */
   public ModelStateObserver getStateObserver() {
     return getPE();
   }
 
-  @Override
+  /**
+   * Returns a factory for creating instances of operations, addressing modes and instruction calls
+   * that can be simulated with the model.
+   * 
+   * @return Call factory.
+   */
   public CallFactory getCallFactory() {
     return this;
   }

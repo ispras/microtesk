@@ -18,14 +18,14 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.IModel;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.metadata.MetaLocationStore;
 
 public final class ModelStatePrinter {
-  private final IModel model;
+  private final Model model;
 
-  public ModelStatePrinter(final IModel model) {
+  public ModelStatePrinter(final Model model) {
     InvariantChecks.checkNotNull(model);
     this.model = model;
   }
