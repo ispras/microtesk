@@ -23,7 +23,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MemoryRegion {
   private final BigInteger from;
   private BigInteger to;
