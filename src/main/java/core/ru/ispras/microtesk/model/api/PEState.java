@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
@@ -47,19 +48,20 @@ public abstract class PEState implements ModelStateObserver {
     this.labelMap.put(label.getName(), label);
   }
 
-  public final LocationAccessor accessLocation(final String storageId) {
+  public final LocationAccessor accessLocation(
+      final String storageId) throws ConfigurationException {
     return accessLocation(storageId, BigInteger.ZERO);
   }
 
   public final LocationAccessor accessLocation(
       final String storageId,
-      final BigInteger index) {
+      final BigInteger index) throws ConfigurationException {
     InvariantChecks.checkNotNull(storageId);
 
     final Label label = labelMap.get(storageId);
     if (null != label) {
       if (null != index && !index.equals(BigInteger.ZERO)) {
-        throw new IllegalArgumentException(
+        throw new ConfigurationException(
             String.format("The %d index is invalid for the %s storage.", index, storageId));
       }
 
@@ -93,22 +95,22 @@ public abstract class PEState implements ModelStateObserver {
   public final MemoryAllocator newMemoryAllocator(
       final String storageId,
       final int addressableUnitBitSize,
-      final BigInteger baseAddress) {
+      final BigInteger baseAddress) throws ConfigurationException {
     final Memory storage = getStorage(storageId);
     return storage.newAllocator(addressableUnitBitSize, baseAddress);
   }
 
   public final MemoryDevice setMemoryHandler(
       final String storageId,
-      final MemoryDevice handler) {
+      final MemoryDevice handler) throws ConfigurationException {
     final Memory storage = getStorage(storageId);
     return storage.setHandler(handler);
   }
 
-  private Memory getStorage(final String storageId) {
+  private Memory getStorage(final String storageId) throws ConfigurationException {
     final Memory storage = storageMap.get(storageId);
     if (null == storage) {
-      throw new IllegalArgumentException(
+      throw new ConfigurationException(
           String.format("The %s storage is not defined in the model.", storageId));
     }
     return storage;

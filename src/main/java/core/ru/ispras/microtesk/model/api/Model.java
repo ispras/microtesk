@@ -18,7 +18,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.exception.UnsupportedTypeException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
@@ -83,7 +82,7 @@ public final class Model implements CallFactory {
 
     final AddressingMode.IInfo modeInfo = modes.get(name);
     if (null == modeInfo) {
-      throw new UnsupportedTypeException(
+      throw new ConfigurationException(
           String.format("The %s addressing mode is not defined.", name));
     }
 
@@ -96,7 +95,7 @@ public final class Model implements CallFactory {
 
     final Operation.IInfo opInfo = ops.get(name);
     if (null == opInfo) {
-      throw new UnsupportedTypeException(String.format("The %s operation is not defined.", name));
+      throw new ConfigurationException(String.format("The %s operation is not defined.", name));
     }
 
     PrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
