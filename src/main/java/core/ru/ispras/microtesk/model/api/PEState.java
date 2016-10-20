@@ -70,6 +70,20 @@ public abstract class PEState implements ModelStateObserver {
     return storage.access(index);
   }
 
+  @Override
+  public final void resetState() {
+    for (final Memory memory : storageMap.values()) {
+      memory.reset();
+    }
+  }
+
+  @Override
+  public final void setUseTempState(boolean value) {
+    for (final Memory memory : storageMap.values()) {
+      memory.setUseTempCopy(value);
+    }
+  }
+
   public final void resetVariables() {
     for (final Memory variable : variables) {
       variable.reset();
