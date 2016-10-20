@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.state;
+package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;

@@ -25,7 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 

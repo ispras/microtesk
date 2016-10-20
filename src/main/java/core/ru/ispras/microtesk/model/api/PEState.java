@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.api.memory.Label;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 public abstract class PEState implements ModelStateObserver {
   private final Map<String, Memory> storageMap = new HashMap<>();

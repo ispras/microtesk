@@ -16,7 +16,7 @@ package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 public interface ModelStateObserver {
   LocationAccessor accessLocation(String name) throws ConfigurationException;

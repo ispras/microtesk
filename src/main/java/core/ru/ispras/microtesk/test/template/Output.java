@@ -23,7 +23,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.ModelStateObserver;
 import ru.ispras.microtesk.utils.SharedObject;
 

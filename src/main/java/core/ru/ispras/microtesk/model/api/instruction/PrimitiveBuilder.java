@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.data.Type;
 
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 /**
  * The {@link PrimitiveBuilder} class is responsible for creating and initializing

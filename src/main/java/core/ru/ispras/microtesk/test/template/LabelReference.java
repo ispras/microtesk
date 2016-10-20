@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.state.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an
