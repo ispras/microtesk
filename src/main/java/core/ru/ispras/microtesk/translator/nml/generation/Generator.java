@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -48,13 +48,11 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void generate() {
     try {
-      //generateShared();
       generateTypes();
       generateCore();
       generateModes();
       generateOps();
-      //generateModel();
-      generateModel2();
+      generateModel();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
@@ -63,16 +61,6 @@ public final class Generator implements TranslatorHandler<Ir> {
   private void generateModel() throws IOException {
     final FileGenerator model = factory.createModelGenerator(ir);
     model.generate();
-  }
-
-  private void generateModel2() throws IOException {
-    final FileGenerator model = factory.createModelGenerator2(ir);
-    model.generate();
-  }
-
-  private void generateShared() throws IOException {
-    final FileGenerator shared = factory.createSharedGenerator(ir);
-    shared.generate();
   }
 
   private void generateTypes() throws IOException {

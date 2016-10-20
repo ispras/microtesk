@@ -33,7 +33,7 @@ final class GeneratorFactory {
 
   public FileGenerator createModelGenerator(Ir ir) {
     final String outputFileName = String.format(
-        PackageInfo.getModelFileFormat(outDir), modelName);
+        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBModel.CLASS_NAME);
 
     final String[] templateGroups = new String[] { 
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
@@ -42,32 +42,6 @@ final class GeneratorFactory {
 
     final STBuilder modelBuilder = new STBModel(ir);
     return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
-  }
-
-  public FileGenerator createModelGenerator2(Ir ir) {
-    final String outputFileName = String.format(
-        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBModel2.CLASS_NAME);
-
-    final String[] templateGroups = new String[] { 
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "Model.stg"
-    };
-
-    final STBuilder modelBuilder = new STBModel2(ir);
-    return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
-  }
-
-  public FileGenerator createSharedGenerator(Ir ir) {
-    final String outputFileName =
-        String.format(PackageInfo.getSharedFileFormat(outDir), modelName);
-
-    final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
-    };
-
-    final STBuilder builder = new STBShared(ir);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createTypesGenerator(final Ir ir) {

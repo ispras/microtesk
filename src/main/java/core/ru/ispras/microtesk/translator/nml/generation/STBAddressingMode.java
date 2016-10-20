@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_PACKAGE_FORMAT;
-import static ru.ispras.microtesk.translator.generation.PackageInfo.SHARED_CLASS_FORMAT;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -62,7 +61,6 @@ final class STBAddressingMode extends STBPrimitiveBase {
     t.add("imps", ru.ispras.microtesk.model.api.memory.Location.class.getName());
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
-    //t.add("simps", String.format(SHARED_CLASS_FORMAT, modelName));
     t.add("base",  AddressingMode.class.getSimpleName());
   }
 

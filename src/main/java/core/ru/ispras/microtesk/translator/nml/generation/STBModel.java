@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.generation;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.MODEL_PACKAGE_FORMAT;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_CLASS_FORMAT;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_CLASS_FORMAT;
-import static ru.ispras.microtesk.translator.generation.PackageInfo.SHARED_CLASS_FORMAT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,72 +24,55 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.ProcessorModel;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 final class STBModel implements STBuilder {
-  public static final String SHARED_REGISTERS = "__REGISTERS";
-  public static final String SHARED_MEMORY = "__MEMORY";
-  public static final String SHARED_VARIABLES = "__VARIABLES";
-  public static final String SHARED_LABELS = "__LABELS";
-
+  public final static String CLASS_NAME = "Model";
   private final Ir ir;
 
   public STBModel(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }
 
   @Override
   public ST build(final STGroup group) {
-    final ST t = group.getInstanceOf("model");
-    t.add("pack", String.format(MODEL_PACKAGE_FORMAT, ir.getModelName()));
+    final ST st = group.getInstanceOf("source_file");
 
-    t.add("imps", ProcessorModel.class.getName());
-    t.add("imps", AddressingMode.class.getName());
-    t.add("imps", Operation.class.getName());
-    t.add("imps", String.format(
+    buildHeader(st);
+    buildBody(st, group);
+
+    return st;
+  }
+
+  private void buildHeader(final ST st) {
+    st.add("name", CLASS_NAME);
+    st.add("pack", String.format(MODEL_PACKAGE_FORMAT, ir.getModelName()));
+    st.add("ext", ru.ispras.microtesk.model.api.ModelBuilder.class.getSimpleName());
+
+    st.add("imps", ru.ispras.microtesk.model.api.ModelBuilder.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.instruction.AddressingMode.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.instruction.Operation.class.getName());
+    st.add("imps", String.format(
         MODEL_PACKAGE_FORMAT + ".metadata.MetaModelFactory", ir.getModelName()));
-
-    t.add("simps", String.format(SHARED_CLASS_FORMAT, ir.getModelName()));
-
-    t.add("base", ProcessorModel.class.getSimpleName());
-
-    final ST tc = group.getInstanceOf("constructor");
-
-    tc.add("name", ir.getModelName());
-    tc.add("reg", SHARED_REGISTERS);
-    tc.add("mem", SHARED_MEMORY);
-    tc.add("var", SHARED_VARIABLES);
-    tc.add("lab", SHARED_LABELS);
-
-    addAddressingModes(t, tc);
-    addOperations(t, tc);
-
-    t.add("members", tc);
-    t.add("members", group.getInstanceOf("debug_block"));
-
-    return t;
   }
 
-  private void addOperations(final ST t, final ST tc) {
-    final List<String> opNames = new ArrayList<>();
-    for (final Primitive op : ir.getOps().values()) {
-      if (!op.isOrRule()) {
-        opNames.add(op.getName());
-      }
-    }
+  private void buildBody(final ST st, final STGroup group) {
+    final ST stConstructor = group.getInstanceOf("model_constructor");
 
-    tc.add("ops", opNames);
-    if (!opNames.isEmpty()) {
-      t.add("imps", String.format(OP_CLASS_FORMAT, ir.getModelName(), "*"));
-    }
+    stConstructor.add("class", CLASS_NAME);
+    stConstructor.add("name", ir.getModelName());
+
+    addModes(st, stConstructor);
+    addOperations(st, stConstructor);
+
+    st.add("members", stConstructor);
   }
 
-  private void addAddressingModes(final ST t, final ST tc) {
+  private void addModes(final ST st, final ST stConstructor) {
     final List<String> modeNames = new ArrayList<>();
     for (final Primitive m : ir.getModes().values()) {
       if (!m.isOrRule()) {
@@ -98,9 +80,23 @@ final class STBModel implements STBuilder {
       }
     }
 
-    tc.add("modes", modeNames);
+    stConstructor.add("modes", modeNames);
     if (!modeNames.isEmpty()) {
-      t.add("imps", String.format(MODE_CLASS_FORMAT, ir.getModelName(), "*"));
+      st.add("imps", String.format(MODE_CLASS_FORMAT, ir.getModelName(), "*"));
+    }
+  }
+
+  private void addOperations(final ST st, final ST stConstructor) {
+    final List<String> opNames = new ArrayList<>();
+    for (final Primitive op : ir.getOps().values()) {
+      if (!op.isOrRule()) {
+        opNames.add(op.getName());
+      }
+    }
+
+    stConstructor.add("ops", opNames);
+    if (!opNames.isEmpty()) {
+      st.add("imps", String.format(OP_CLASS_FORMAT, ir.getModelName(), "*"));
     }
   }
 }
