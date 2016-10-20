@@ -24,6 +24,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaModelPrinter;
 import ru.ispras.microtesk.model.api.state.ModelStateObserver;
+import ru.ispras.microtesk.model.api.state.ModelStateObserverImpl;
 import ru.ispras.microtesk.model.api.state.ModelStatePrinter;
 import ru.ispras.microtesk.model.api.state.Resetter;
 
@@ -62,8 +63,8 @@ public abstract class ProcessorModel implements IModel {
       opMap.put(op.getName(), op);
     }
 
-    this.callFactory = new CallFactory(new Resetter(variables), modeMap, opMap);
-    this.observer = new ModelStateObserver(registers, memory, labels);
+    this.callFactory = new CallFactoryImpl(new Resetter(variables), modeMap, opMap);
+    this.observer = new ModelStateObserverImpl(registers, memory, labels);
     this.metaModel = metaModel;
   }
 
