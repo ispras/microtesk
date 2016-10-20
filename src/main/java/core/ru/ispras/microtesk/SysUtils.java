@@ -25,19 +25,45 @@ import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.ModelBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 
+/**
+ * The {@link SysUtils} class provides utility methods to interact with the environment.
+ *  
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class SysUtils {
+  /** Name of the environment variable that stores the path to MicroTESK home folder. */
   public static final String MICROTESK_HOME = "MICROTESK_HOME";
 
   private SysUtils() {}
 
+  /**
+   * Returns the path to MicroTESK home folder.
+   * 
+   * @return Path to MicroTESK home folder or {@code null} if the MICROTESK_HOME
+   *         variable that stores this information is not defined in the system.
+   */
   public static String getHomeDir() {
     return System.getenv(MICROTESK_HOME);
   }
 
+  /**
+   * Results current directory path.
+   * 
+   * @return Results current directory path.
+   */
   public static String getCurrentDir() {
     return System.getProperty("user.dir");
   }
 
+  /**
+   * Loads a model with the specified name from {@code models.jar}.
+   * 
+   * @param modelName Model name.
+   * @return New model instance or {@code null} if the model class is not found or
+   *         cannot be instantiated.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
   public static Model loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
@@ -50,6 +76,16 @@ public final class SysUtils {
     return null != modelBuilder ? modelBuilder.build() : null;
   }
 
+  /**
+   * Loads a class with the specified name from {@code models.jar}. Prints messages
+   * if any errors occur.
+   * 
+   * @param className Name of the class to be loaded.
+   * @return New instance of the specified class or {@code null} if the class is
+   *         not found or cannot be instantiated.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
 
@@ -100,6 +136,16 @@ public final class SysUtils {
     return instance;
   }
 
+  /**
+   * Loads a plug-in implemented by the specified class from {@code microtesk.jar}.
+   * Prints a message if any error occur.
+   * 
+   * @param className Name of the plug-in class.
+   * @return New plug-in instance or {@code null} if the class is not found
+   *        or cannot be instantiated.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
   public static Plugin loadPlugin(final String className) {
     InvariantChecks.checkNotNull(className);
 
@@ -113,6 +159,14 @@ public final class SysUtils {
     }
   }
 
+  /**
+   * Returns an URL for the specified resource file stored in {@code microtesk.jar}.
+   * 
+   * @param resourceName Resource file name.
+   * @return URL for the specified resource file.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
   public static URL getResourceUrl(final String resourceName) {
     InvariantChecks.checkNotNull(resourceName);
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
