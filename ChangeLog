@@ -6,6 +6,9 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/10/21 MicroTESK 2.3.52 beta
+ - Refactoring in the ISA simulator
+
 2016/09/30 MicroTESK 2.3.51 beta
 
  - Refactoring: meta model as a separate entity
