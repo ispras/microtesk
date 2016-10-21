@@ -16,10 +16,10 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.instruction.Operation.IInfo;
 
 public abstract class PrimitiveInfoAnd extends PrimitiveInfo
                                        implements PrimitiveFactory<Primitive> {
@@ -62,6 +62,14 @@ public abstract class PrimitiveInfoAnd extends PrimitiveInfo
   @Override
   public final boolean isSupported(final Primitive primitive) {
     return objectClass.equals(primitive.getClass());
+  }
+
+  public Set<String> getArgumentNames() {
+    return arguments.keySet();
+  }
+
+  public PrimitiveInfo getArgument(final String name) {
+    return arguments.get(name);
   }
 
   /*
