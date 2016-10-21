@@ -83,7 +83,7 @@ public abstract class Operation extends Primitive {
    * 
    * @author Andrei Tatarnikov
    */
-  public static abstract class InfoAndRule implements IInfo, Factory<Operation> {
+  public static abstract class InfoAndRule implements IInfo, PrimitiveFactory<Operation> {
     private final Class<?> opClass;
     private final String name;
     private final ArgumentDecls decls;

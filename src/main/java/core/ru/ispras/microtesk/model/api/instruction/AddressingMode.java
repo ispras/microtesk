@@ -72,7 +72,7 @@ public abstract class AddressingMode extends Primitive {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-  protected static abstract class InfoAndRule implements IInfo, Factory<AddressingMode> {
+  protected static abstract class InfoAndRule implements IInfo, PrimitiveFactory<AddressingMode> {
     private final Class<?> modeClass;
     private final String name;
     private final Type type;

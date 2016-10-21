@@ -35,7 +35,7 @@ import ru.ispras.microtesk.model.api.memory.LocationAccessor;
  */
 public class PrimitiveBuilder<T extends Primitive> {
   private final String primitiveName;
-  private final Primitive.Factory<T> factory;
+  private final PrimitiveFactory<T> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
   private final Map<String, Primitive> args;
 
@@ -48,7 +48,7 @@ public class PrimitiveBuilder<T extends Primitive> {
    */
   public PrimitiveBuilder(
       final String name,
-      final Primitive.Factory<T> factory,
+      final PrimitiveFactory<T> factory,
       final ArgumentDecls decls) {
     this.primitiveName = name;
     this.factory = factory;
