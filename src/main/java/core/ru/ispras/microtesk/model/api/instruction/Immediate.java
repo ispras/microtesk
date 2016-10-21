@@ -49,4 +49,17 @@ public final class Immediate extends Primitive {
   public Type getType() {
     return location.getType();
   }
+
+  public static final class Info extends PrimitiveInfo {
+    public Info(final Type type) {
+      super(PrimitiveKind.IMM, TYPE_NAME, type);
+      InvariantChecks.checkNotNull(type);
+    }
+
+    @Override
+    public boolean isSupported(final Primitive primitive) {
+      return primitive instanceof Immediate &&
+             getType().equals(((Immediate) primitive).getType());
+    }
+  }
 }
