@@ -21,11 +21,11 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
-public abstract class PrimitiveInfoAnd extends PrimitiveInfo
-                                       implements PrimitiveFactory<Primitive> {
+public abstract class PrimitiveInfoAnd<T extends Primitive> extends PrimitiveInfo
+                                                            implements PrimitiveFactory<T> {
   private final Class<?> objectClass;
   private final Map<String, PrimitiveInfo> arguments;
-  private final Map<String, PrimitiveInfoAnd> shortcuts;
+  private final Map<String, PrimitiveInfoAnd<T>> shortcuts;
 
   protected PrimitiveInfoAnd(
       final PrimitiveKind kind,
@@ -52,7 +52,7 @@ public abstract class PrimitiveInfoAnd extends PrimitiveInfo
     arguments.put(name, info);
   }
 
-  protected final void addShortcut(final PrimitiveInfoAnd info, final String... contexts) {
+  protected final void addShortcut(final PrimitiveInfoAnd<T> info, final String... contexts) {
     for (final String context : contexts) {
       InvariantChecks.checkFalse(shortcuts.containsKey(context));
       shortcuts.put(context, info);
@@ -72,18 +72,19 @@ public abstract class PrimitiveInfoAnd extends PrimitiveInfo
     return arguments.get(name);
   }
 
-  /*
-  public final PrimitiveBuilder<Operation> createBuilder() {
+  public final PrimitiveBuilder<T> createBuilder() {
+    /*
     return new PrimitiveBuilder<>(name, this, decls);
+    */
+    return null;
   }
 
-  public final PrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
-    final PrimitiveInfoAnd shortcut = shortcuts.get(contextName);
+  public final PrimitiveBuilder<T> createBuilderForShortcut(final String contextName) {
+    final PrimitiveInfoAnd<T> shortcut = shortcuts.get(contextName);
     if (null == shortcut) {
       return null;
     }
 
     return shortcut.createBuilder();
   }
-  */
 }
