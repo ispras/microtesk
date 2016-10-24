@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
+/**
+ * Specifies the kind of the object described by the ISA primitive.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public enum IsaPrimitiveKind {
   /** Immediate value */
   IMM,
