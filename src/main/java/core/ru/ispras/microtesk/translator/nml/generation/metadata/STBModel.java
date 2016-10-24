@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
+import java.math.BigInteger;
+
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -52,6 +54,7 @@ final class STBModel implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
+    st.add("imps", BigInteger.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.metadata.MetaModel.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.metadata.MetaModelBuilder.class.getName());

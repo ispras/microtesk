@@ -124,7 +124,7 @@ public final class Format {
         sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
       }
 
-      sb.append(String.format("%s(peState)", callInfo.getAttributeName()));
+      sb.append(String.format("%s(pe__)", callInfo.getAttributeName()));
       return sb.toString();
     }
 
