@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
@@ -44,13 +44,13 @@ final class STBOperationOr implements STBuilder {
 
     t.add("name", op.getName());
     t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
-
-    t.add("imps", Operation.class.getName());
-    t.add("base", Operation.class.getSimpleName());
+    t.add("base", IsaPrimitive.class.getSimpleName());
+    t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
 
     final List<String> opNames = new ArrayList<String>(op.getORs().size());
-    for (Primitive p : op.getORs())
+    for (Primitive p : op.getORs()) {
       opNames.add(p.getName());
+    }
 
     t.add("ops", opNames);
     return t;

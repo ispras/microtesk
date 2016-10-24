@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
@@ -67,7 +67,7 @@ public final class SelfCheckEngine {
     Logger.debug("Processing %s...", check);
 
     final Primitive abstractMode = check.getMode().getModePrimitive();
-    final AddressingMode concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
+    final IsaPrimitive concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
 
     final BitVector value =
         concreteMode.access(engineContext.getModel().getPE()).load().getRawData();

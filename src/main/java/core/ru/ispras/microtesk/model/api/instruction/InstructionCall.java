@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.PEState;
  */
 public final class InstructionCall {
   private final PEState peState;
-  private final Operation instruction;
+  private final IsaPrimitive instruction;
   private final String image;
   private final int byteSize;
 
@@ -40,7 +40,7 @@ public final class InstructionCall {
    */
   public InstructionCall(
       final PEState peState,
-      final Operation instruction) {
+      final IsaPrimitive instruction) {
     InvariantChecks.checkNotNull(peState);
     InvariantChecks.checkNotNull(instruction);
 

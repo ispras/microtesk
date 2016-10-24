@@ -18,16 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveInfoAnd;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 public class ModelBuilder {
   private final String name;
   private final MetaModel metaModel;
   private final PEState peState;
-  private final Map<String, AddressingMode.IInfo> modes;
-  private final Map<String, Operation.IInfo> ops;
+  private final Map<String, IsaPrimitiveInfoAnd> modes;
+  private final Map<String, IsaPrimitiveInfoAnd> ops;
 
   protected ModelBuilder(
       final String name,
@@ -44,12 +43,12 @@ public class ModelBuilder {
     this.ops = new HashMap<>();
   }
 
-  public final void addMode(final AddressingMode.IInfo mode) {
+  public final void addMode(final IsaPrimitiveInfoAnd mode) {
     InvariantChecks.checkNotNull(mode);
     modes.put(mode.getName(), mode);
   }
 
-  public final void addOperation(final Operation.IInfo op) {
+  public final void addOperation(final IsaPrimitiveInfoAnd op) {
     InvariantChecks.checkNotNull(op);
     ops.put(op.getName(), op);
   }

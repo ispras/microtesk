@@ -43,9 +43,8 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
@@ -202,7 +201,7 @@ public final class EngineUtils {
       if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
         if (arg.getKind() == Argument.Kind.MODE) {
           try {
-            final AddressingMode concreteMode = makeMode(engineContext, arg);
+            final IsaPrimitive concreteMode = makeMode(engineContext, arg);
             if (concreteMode.access(engineContext.getModel().getPE()).isInitialized()) {
               continue;
             }
@@ -346,7 +345,7 @@ public final class EngineUtils {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      final Operation op = makeOp(engineContext, rootOp);
+      final IsaPrimitive op = makeOp(engineContext, rootOp);
       final InstructionCall executable = engineContext.getModel().newCall(op);
 
       return new ConcreteCall(abstractCall, executable, labelRefs);
@@ -362,9 +361,9 @@ public final class EngineUtils {
     checkNotNull(instructionName);
 
     final Model model = engineContext.getModel();
-    final Operation operation;
+    final IsaPrimitive operation;
     try {
-      final IsaPrimitiveBuilder<Operation> operationBuilder = model.newOp(instructionName, null);
+      final IsaPrimitiveBuilder operationBuilder = model.newOp(instructionName, null);
       operation = operationBuilder.build();
     } catch (final ConfigurationException e) {
       return null;
@@ -399,7 +398,7 @@ public final class EngineUtils {
     return ((LabelValue) argument.getValue()).getValue();
   }
 
-  public static AddressingMode makeMode(
+  public static IsaPrimitive makeMode(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -409,13 +408,13 @@ public final class EngineUtils {
     return makeMode(engineContext, abstractMode);
   }
 
-  public static AddressingMode makeMode(
+  public static IsaPrimitive makeMode(
       final EngineContext engineContext,
       final Primitive abstractMode) throws ConfigurationException {
     checkNotNull(engineContext);
     checkMode(abstractMode);
 
-    final IsaPrimitiveBuilder<AddressingMode> builder =
+    final IsaPrimitiveBuilder builder =
         engineContext.getModel().newMode(abstractMode.getName());
 
     for (Argument arg : abstractMode.getArguments().values()) {
@@ -450,7 +449,7 @@ public final class EngineUtils {
     return builder.build();
   }
 
-  public static Operation makeOp(
+  public static IsaPrimitive makeOp(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -460,7 +459,7 @@ public final class EngineUtils {
     return makeOp(engineContext, abstractOp);
   }
 
-  public static Operation makeOp(
+  public static IsaPrimitive makeOp(
       final EngineContext engineContext,
       final Primitive abstractOp) throws ConfigurationException {
     checkNotNull(engineContext);
@@ -469,7 +468,7 @@ public final class EngineUtils {
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 
-    final IsaPrimitiveBuilder<Operation> builder =
+    final IsaPrimitiveBuilder builder =
         engineContext.getModel().newOp(name, context);
 
     for (Argument arg : abstractOp.getArguments().values()) {

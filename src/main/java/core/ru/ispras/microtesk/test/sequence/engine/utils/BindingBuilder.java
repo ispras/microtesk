@@ -30,7 +30,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
@@ -140,7 +140,7 @@ public final class BindingBuilder {
             Node bindingValue = null;
 
             try {
-                final AddressingMode mode = makeMode(engineContext, arg);
+                final IsaPrimitive mode = makeMode(engineContext, arg);
                 final Location location = mode.access(engineContext.getModel().getPE());
 
                 if (location.isInitialized()) {

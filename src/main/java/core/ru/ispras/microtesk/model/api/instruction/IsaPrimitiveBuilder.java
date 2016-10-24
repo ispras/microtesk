@@ -18,8 +18,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 
@@ -33,10 +33,8 @@ import ru.ispras.microtesk.model.api.memory.LocationAccessor;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
-  private final String primitiveName;
-  private final IsaPrimitiveFactory<T> factory;
-  private final Map<String, ArgumentDecls.Argument> decls;
+public class IsaPrimitiveBuilder {
+  private final IsaPrimitiveInfoAnd info;
   private final Map<String, IsaPrimitive> args;
 
   /**
@@ -46,13 +44,10 @@ public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
    * @param factory The factory for creating the specified primitive.
    * @param decls The table of argument declarations.
    */
-  public IsaPrimitiveBuilder(
-      final String name,
-      final IsaPrimitiveFactory<T> factory,
-      final ArgumentDecls decls) {
-    this.primitiveName = name;
-    this.factory = factory;
-    this.decls = decls.getDecls();
+  public IsaPrimitiveBuilder(final IsaPrimitiveInfoAnd info) {
+    InvariantChecks.checkNotNull(info);
+
+    this.info = info;
     this.args = new HashMap<>();
   }
 
@@ -68,20 +63,20 @@ public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final ArgumentDecls.Argument decl = decls.get(name);
-    if (decl.getKind() != ArgumentKind.IMM) {
+    final IsaPrimitiveInfo argInfo = info.getArgument(name);
+    if (argInfo.getKind() != IsaPrimitiveKind.IMM) {
       throw new ConfigurationException(
-          "The %s argument of %s must be an immediate value.", name, primitiveName);
+          "The %s argument of %s must be an immediate value.", name, info.getName());
     }
 
-    final Type type = decl.getType();
+    final Type type = argInfo.getType();
     final Data data = Data.valueOf(type, value);
 
     if (Data.isLossOfSignificantBits(type, value)) {
       Logger.warning(
          "The value of the %s argument (= %d) of %s " +
          "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
-         name, value, primitiveName, type, data.bigIntegerValue()
+         name, value, info.getName(), type, data.bigIntegerValue()
          );
     }
 
@@ -94,53 +89,14 @@ public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
 
   public void setArgument(
       final String name,
-      final AddressingMode value) throws ConfigurationException {
+      final IsaPrimitive value) throws ConfigurationException {
     checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final ArgumentDecls.Argument decl = decls.get(name);
-
-    if (decl.getKind() != ArgumentKind.MODE) {
+    final IsaPrimitiveInfo argInfo = info.getArgument(name);
+    if (!argInfo.isSupported(value)) {
       throw new ConfigurationException(
-          "The %s argument of %s must be an addressing mode.",
-          name,
-          primitiveName
-          );
-    }
-
-    if (!decl.isSupported(value)) {
-      throw new ConfigurationException(
-          "The %s argument of %s has an incompatible type.",
-          name,
-          primitiveName
-          );
-    }
-
-    args.put(name, value);
-  }
-
-  public void setArgument(
-      final String name,
-      final Operation value) throws ConfigurationException {
-    checkUndeclaredArgument(name);
-    checkReassignment(name);
-
-    final ArgumentDecls.Argument decl = decls.get(name);
-
-    if (decl.getKind() != ArgumentKind.OP) {
-      throw new ConfigurationException(
-          "The %s argument of %s must be an operation.",
-          name,
-          primitiveName
-          );
-    }
-
-    if (!decl.isSupported(value)) {
-      throw new ConfigurationException(
-          "The %s argument of %s has an incompatible type.",
-          name,
-          primitiveName
-          );
+          "The %s argument of %s has an incompatible type.", name, info.getName());
     }
 
     args.put(name, value);
@@ -153,40 +109,30 @@ public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
    * @throws ConfigurationException Exception that informs of an error that occurs on attempt to
    *         build an object due to incorrect configuration.
    */
-  public T build() throws ConfigurationException {
+  public IsaPrimitive build() throws ConfigurationException {
     checkInitialized();
-    return factory.create(args);
+    return info.create(args);
   }
 
   private void checkUndeclaredArgument(final String name) throws ConfigurationException {
-    if (!decls.containsKey(name)) {
+    if (null == info.getArgument(name)) {
       throw new ConfigurationException(
-          "%s does not have an argument called %s.",
-          primitiveName,
-          name
-          );
+          "%s does not have an argument called %s.", info.getName(), name);
     }
   }
 
   private void checkReassignment(final String name) throws ConfigurationException {
     if (args.containsKey(name)) {
       throw new ConfigurationException(
-          "The value of the %s argument has already been assigned for " +
-          "the current instance of %s.",
-          name,
-          primitiveName
-          );
+          "The value of the %s argument of %s has already been assigned.", name, info.getName());
     }
   }
 
   private void checkInitialized() throws ConfigurationException {
-    for (final String name : decls.keySet()) {
+    for (final String name : info.getArgumentNames()) {
       if (!args.containsKey(name)) {
         throw new ConfigurationException(
-            "The % argument of the current instance of %s is not initialized.",
-            name,
-            primitiveName
-            );
+            "The %s argument of %s is not initialized.", name, info.getName());
       }
     }
   }

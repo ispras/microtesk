@@ -20,7 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
@@ -68,9 +68,9 @@ public final class Reader {
     final MetaAddressingMode metaMode = model.getMetaData().getAddressingMode(name);
     InvariantChecks.checkNotNull(metaMode);
 
-    final AddressingMode mode;
+    final IsaPrimitive mode;
     try {
-      final IsaPrimitiveBuilder<AddressingMode> modeBuilder = model.newMode(name);
+      final IsaPrimitiveBuilder modeBuilder = model.newMode(name);
 
       int argIndex = 0;
       for (final String argName : metaMode.getArgumentNames()) {
@@ -102,9 +102,9 @@ public final class Reader {
   }
 
   private static final class ModeValue implements Value<BitVector> {
-    private final AddressingMode mode;
+    private final IsaPrimitive mode;
 
-    private ModeValue(final AddressingMode mode) {
+    private ModeValue(final IsaPrimitive mode) {
       InvariantChecks.checkNotNull(mode);
       this.mode = mode;
     }

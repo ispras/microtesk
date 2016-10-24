@@ -23,7 +23,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -57,11 +57,11 @@ final class STBAddressingMode extends STBPrimitiveBase {
     t.add("imps", ru.ispras.microtesk.model.api.Execution.class.getName());
     t.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
-    t.add("imps", String.format("%s.*", AddressingMode.class.getPackage().getName()));
+    t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
     t.add("imps", ru.ispras.microtesk.model.api.memory.Location.class.getName());
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
-    t.add("base",  AddressingMode.class.getSimpleName());
+    t.add("base",  IsaPrimitive.class.getSimpleName());
   }
 
   private void buildArguments(final STGroup group, final ST t) {

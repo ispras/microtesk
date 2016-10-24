@@ -26,9 +26,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.instruction.Immediate;
-import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
@@ -78,11 +77,11 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
-    t.add("imps", String.format("%s.*", Operation.class.getPackage().getName()));
+    t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
-    t.add("base", Operation.class.getSimpleName());
+    t.add("base", IsaPrimitive.class.getSimpleName());
   }
 
   private void buildArguments(final STGroup group, final ST t) {
@@ -112,12 +111,12 @@ final class STBOperation extends STBPrimitiveBase {
       if (Primitive.Kind.MODE == argType.getKind()) {
         importModeDependencies(t);
         t.add("arg_types",
-            argType.isOrRule() ? AddressingMode.class.getSimpleName() : argType.getName());
+            argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else if (Primitive.Kind.OP == argType.getKind()) {
         t.add( "arg_types",
-            argType.isOrRule() ? Operation.class.getSimpleName() : argType.getName());
+            argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else // if Primitive.Kind.IMM == oa.getKind()
@@ -195,10 +194,10 @@ final class STBOperation extends STBPrimitiveBase {
         if (Primitive.Kind.MODE == argType.getKind()) {
           importModeDependencies(t);
           shortcutST.add("arg_types",
-              argType.isOrRule() ? AddressingMode.class.getSimpleName() : argType.getName());
+              argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
         } else if (Primitive.Kind.OP == argType.getKind()) {
           shortcutST.add("arg_types",
-              argType.isOrRule() ? Operation.class.getSimpleName() : argType.getName());
+              argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
         } else // if Primitive.Kind.IMM == oa.getKind()
         {
           importImmDependencies(t);

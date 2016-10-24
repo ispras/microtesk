@@ -21,11 +21,10 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
-public abstract class IsaPrimitiveInfoAnd<T extends IsaPrimitive> extends IsaPrimitiveInfo
-                                                            implements IsaPrimitiveFactory<T> {
+public abstract class IsaPrimitiveInfoAnd extends IsaPrimitiveInfo {
   private final Class<?> objectClass;
   private final Map<String, IsaPrimitiveInfo> arguments;
-  private final Map<String, IsaPrimitiveInfoAnd<T>> shortcuts;
+  private final Map<String, IsaPrimitiveInfoAnd> shortcuts;
 
   protected IsaPrimitiveInfoAnd(
       final IsaPrimitiveKind kind,
@@ -52,7 +51,7 @@ public abstract class IsaPrimitiveInfoAnd<T extends IsaPrimitive> extends IsaPri
     arguments.put(name, info);
   }
 
-  protected final void addShortcut(final IsaPrimitiveInfoAnd<T> info, final String... contexts) {
+  protected final void addShortcut(final IsaPrimitiveInfoAnd info, final String... contexts) {
     for (final String context : contexts) {
       InvariantChecks.checkFalse(shortcuts.containsKey(context));
       shortcuts.put(context, info);
@@ -72,19 +71,33 @@ public abstract class IsaPrimitiveInfoAnd<T extends IsaPrimitive> extends IsaPri
     return arguments.get(name);
   }
 
-  public final IsaPrimitiveBuilder<T> createBuilder() {
-    /*
-    return new PrimitiveBuilder<>(name, this, decls);
-    */
-    return null;
+  public final IsaPrimitiveBuilder createBuilder() {
+    return new IsaPrimitiveBuilder(this);
   }
 
-  public final IsaPrimitiveBuilder<T> createBuilderForShortcut(final String contextName) {
-    final IsaPrimitiveInfoAnd<T> shortcut = shortcuts.get(contextName);
+  public final IsaPrimitiveBuilder createBuilderForShortcut(final String contextName) {
+    final IsaPrimitiveInfoAnd shortcut = shortcuts.get(contextName);
     if (null == shortcut) {
       return null;
     }
 
     return shortcut.createBuilder();
+  }
+
+  public abstract IsaPrimitive create(final Map<String, IsaPrimitive> args);
+
+  /**
+   * Extracts an argument from a table.
+   * 
+   * @param name Argument name.
+   * @param args Table of arguments.
+   * @return Argument.
+   * 
+   * @throws IllegalArgumentException if there is no such argument in the table.
+   */
+  public static IsaPrimitive getArgument(final String name, final Map<String, IsaPrimitive> args) {
+    final IsaPrimitive arg = args.get(name);
+    InvariantChecks.checkNotNull(arg);
+    return arg;
   }
 }

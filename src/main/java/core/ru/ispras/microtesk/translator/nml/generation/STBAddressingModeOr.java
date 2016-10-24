@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
@@ -44,9 +44,8 @@ final class STBAddressingModeOr implements STBuilder {
 
     t.add("name", mode.getName());
     t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
-
-    t.add("imps", AddressingMode.class.getName());
-    t.add("base", AddressingMode.class.getSimpleName());
+    t.add("base", IsaPrimitive.class.getSimpleName());
+    t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
 
     final List<String> modeNames = new ArrayList<String>(mode.getORs().size());
     for (Primitive p : mode.getORs())

@@ -44,7 +44,7 @@ public abstract class Operation<A extends Address & Data> {
   }
 
   private static String getCurrentOperation() {
-    return ru.ispras.microtesk.model.api.instruction.Operation.getCurrentOperation();
+    return ru.ispras.microtesk.model.api.instruction.IsaPrimitive.getCurrentOperation();
   }
 
   @SuppressWarnings("unchecked")

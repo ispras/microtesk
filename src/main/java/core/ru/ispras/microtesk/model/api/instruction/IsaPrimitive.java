@@ -16,9 +16,7 @@ package ru.ispras.microtesk.model.api.instruction;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Map;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.memory.Location;
@@ -118,21 +116,6 @@ public abstract class IsaPrimitive {
   public Location access(final PEState peState) {
     Logger.error(UNDEFINED_ATTR + "null is returned.", "access", getName());
     return null;
-  }
-
-  /**
-   * Extracts an argument from a table.
-   * 
-   * @param name Argument name.
-   * @param args Table of arguments.
-   * @return Argument.
-   * 
-   * @throws IllegalArgumentException if there is no such argument in the table.
-   */
-  protected static IsaPrimitive getArgument(final String name, final Map<String, IsaPrimitive> args) {
-    final IsaPrimitive arg = args.get(name);
-    InvariantChecks.checkNotNull(arg);
-    return arg;
   }
 
   private static final String UNDEFINED_ATTR =

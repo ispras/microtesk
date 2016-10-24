@@ -18,9 +18,9 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.model.api.instruction.Operation;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveInfoAnd;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
@@ -33,15 +33,15 @@ public final class Model {
   private final String name;
   private final MetaModel metaData;
   private final PEState peState;
-  private final Map<String, AddressingMode.IInfo> modes;
-  private final Map<String, Operation.IInfo> ops;
+  private final Map<String, IsaPrimitiveInfoAnd> modes;
+  private final Map<String, IsaPrimitiveInfoAnd> ops;
 
   protected Model(
       final String name,
       final MetaModel metaData,
       final PEState peState,
-      final Map<String, AddressingMode.IInfo> modes,
-      final Map<String, Operation.IInfo> ops) {
+      final Map<String, IsaPrimitiveInfoAnd> modes,
+      final Map<String, IsaPrimitiveInfoAnd> ops) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(metaData);
     InvariantChecks.checkNotNull(peState);
@@ -75,11 +75,11 @@ public final class Model {
     return peState;
   }
 
-  public IsaPrimitiveBuilder<AddressingMode> newMode(
+  public IsaPrimitiveBuilder newMode(
       final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
-    final AddressingMode.IInfo modeInfo = modes.get(name);
+    final IsaPrimitiveInfoAnd modeInfo = modes.get(name);
     if (null == modeInfo) {
       throw new ConfigurationException(
           String.format("The %s addressing mode is not defined.", name));
@@ -88,16 +88,16 @@ public final class Model {
     return modeInfo.createBuilder();
   }
 
-  public IsaPrimitiveBuilder<Operation> newOp(
+  public IsaPrimitiveBuilder newOp(
       final String name, final String contextName) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
-    final Operation.IInfo opInfo = ops.get(name);
+    final IsaPrimitiveInfoAnd opInfo = ops.get(name);
     if (null == opInfo) {
       throw new ConfigurationException(String.format("The %s operation is not defined.", name));
     }
 
-    IsaPrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
+    IsaPrimitiveBuilder result = opInfo.createBuilderForShortcut(contextName);
     if (null == result) {
       result = opInfo.createBuilder();
     }
@@ -105,7 +105,7 @@ public final class Model {
     return result;
   }
 
-  public InstructionCall newCall(final Operation op) {
+  public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
     return new InstructionCall(peState, op);
   }
