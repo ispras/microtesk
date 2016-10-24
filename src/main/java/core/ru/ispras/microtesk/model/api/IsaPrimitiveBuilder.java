@@ -60,10 +60,9 @@ public class IsaPrimitiveBuilder {
   public LocationAccessor setArgument(
       final String name,
       final BigInteger value) throws ConfigurationException {
-    checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final IsaPrimitiveInfo argInfo = info.getArgument(name);
+    final IsaPrimitiveInfo argInfo = getArgumentInfo(name);
     if (argInfo.getKind() != IsaPrimitiveKind.IMM) {
       throw new ConfigurationException(
           "The %s argument of %s must be an immediate value.", name, info.getName());
@@ -90,10 +89,9 @@ public class IsaPrimitiveBuilder {
   public void setArgument(
       final String name,
       final IsaPrimitive value) throws ConfigurationException {
-    checkUndeclaredArgument(name);
     checkReassignment(name);
 
-    final IsaPrimitiveInfo argInfo = info.getArgument(name);
+    final IsaPrimitiveInfo argInfo = getArgumentInfo(name);
     if (!argInfo.isSupported(value)) {
       throw new ConfigurationException(
           "The %s argument of %s has an incompatible type.", name, info.getName());
@@ -114,11 +112,13 @@ public class IsaPrimitiveBuilder {
     return info.create(args);
   }
 
-  private void checkUndeclaredArgument(final String name) throws ConfigurationException {
-    if (null == info.getArgument(name)) {
+  private IsaPrimitiveInfo getArgumentInfo(final String name) throws ConfigurationException {
+    final IsaPrimitiveInfo argInfo = info.getArgument(name);
+    if (null == argInfo) {
       throw new ConfigurationException(
           "%s does not have an argument called %s.", info.getName(), name);
     }
+    return argInfo;
   }
 
   private void checkReassignment(final String name) throws ConfigurationException {
