@@ -203,7 +203,7 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_PA)
         );
 
-    final Printer printer = new Printer(options, model.getStateObserver(), statistics);
+    final Printer printer = new Printer(options, model.getPE(), statistics);
     final DataManager dataManager = new DataManager(options, printer, statistics);
  
     final EngineContext context = new EngineContext(
@@ -425,7 +425,7 @@ public final class TestEngine {
 
         // Clean up all the state
         engineContext.getDataManager().resetLocalData();
-        engineContext.getModel().getStateObserver().resetState();
+        engineContext.getModel().getPE().resetState();
         engineContext.getLabelManager().reset();
         executorCode = null;
 

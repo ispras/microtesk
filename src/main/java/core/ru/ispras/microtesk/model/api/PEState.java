@@ -27,7 +27,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
-public abstract class PEState implements ModelStateObserver {
+public abstract class PEState {
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
   private final List<Memory> variables = new ArrayList<>();
@@ -70,14 +70,12 @@ public abstract class PEState implements ModelStateObserver {
     return storage.access(index);
   }
 
-  @Override
   public final void resetState() {
     for (final Memory memory : storageMap.values()) {
       memory.reset();
     }
   }
 
-  @Override
   public final void setUseTempState(boolean value) {
     for (final Memory memory : storageMap.values()) {
       memory.setUseTempCopy(value);

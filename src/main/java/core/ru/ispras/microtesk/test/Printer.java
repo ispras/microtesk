@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import java.util.List;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.ModelStateObserver;
+import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -43,7 +43,7 @@ public final class Printer {
   private final static int LINE_WIDTH = 100;
 
   private final Options options;
-  private final ModelStateObserver observer;
+  private final PEState observer;
   private final Statistics statistics;
 
   private String separator;
@@ -61,7 +61,7 @@ public final class Printer {
    */
   public Printer(
       final Options options,
-      final ModelStateObserver observer,
+      final PEState observer,
       final Statistics statistics) {
     checkNotNull(options);
     checkNotNull(observer);

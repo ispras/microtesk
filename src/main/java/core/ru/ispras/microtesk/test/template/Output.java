@@ -24,7 +24,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.ModelStateObserver;
+import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
@@ -89,12 +89,12 @@ public final class Output {
      * Evaluates the format argument using the model state observer and returns the resulting
      * object.
      * 
-     * @param observer Model state observer.
+     * @param peState PE state information.
      * @return Object storing the evaluation result (some data object).
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
      *         access to the model state.
      */
-    Object evaluate(ModelStateObserver observer) throws ConfigurationException;
+    Object evaluate(PEState peState) throws ConfigurationException;
 
     /**
      * Creates a copy.
@@ -118,7 +118,7 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final ModelStateObserver observer) {
+    public Object evaluate(final PEState peState) {
       if (value instanceof Value) {
         return ((Value) value).getValue();
       }
@@ -156,8 +156,8 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final ModelStateObserver observer) throws ConfigurationException {
-      final LocationAccessor accessor = observer.accessLocation(name, index);
+    public Object evaluate(final PEState peState) throws ConfigurationException {
+      final LocationAccessor accessor = peState.accessLocation(name, index);
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
 
@@ -249,22 +249,22 @@ public final class Output {
    * Evaluates the stored information using the model state observer to read the state of the model
    * (if required) and returns resulting text.
    * 
-   * @param observer Model state observer.
+   * @param peState PE state information.
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect
    *         request to the model state observer.
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
-  public String evaluate(final ModelStateObserver observer) throws ConfigurationException {
+  public String evaluate(final PEState peState) throws ConfigurationException {
     if (args.isEmpty()) {
       return format;
     }
 
-    checkNotNull(observer);
+    checkNotNull(peState);
 
     final List<Object> values = new ArrayList<>(args.size());
     for (final Argument argument : args) {
-      final Object value = argument.evaluate(observer);
+      final Object value = argument.evaluate(peState);
       values.add(value);
     }
 

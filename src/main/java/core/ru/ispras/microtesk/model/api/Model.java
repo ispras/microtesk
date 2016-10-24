@@ -108,12 +108,4 @@ public final class Model {
     InvariantChecks.checkNotNull(op);
     return new InstructionCall(peState, op);
   }
-
-  /**
-   * Returns a model state monitor object that allows getting information on the current state of
-   * the microprocessor mode (current register values, value in memory locations, etc)
-   */
-  public ModelStateObserver getStateObserver() {
-    return getPE();
-  }
 }

@@ -24,8 +24,8 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.ModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.options.Option;
@@ -85,8 +85,8 @@ public final class Executor {
     this.listener = listener;
   }
 
-  private ModelStateObserver getStateObserver() {
-    return context.getModel().getStateObserver();
+  private PEState getStateObserver() {
+    return context.getModel().getPE();
   }
 
   private LocationAccessor getPC() throws ConfigurationException {
