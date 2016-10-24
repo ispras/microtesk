@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.ModelStateObserver;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;

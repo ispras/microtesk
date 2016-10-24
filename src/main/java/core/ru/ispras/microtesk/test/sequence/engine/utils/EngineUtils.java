@@ -42,7 +42,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;

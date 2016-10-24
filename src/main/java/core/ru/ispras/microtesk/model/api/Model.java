@@ -17,7 +17,6 @@ package ru.ispras.microtesk.model.api;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
 import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveInfoAnd;

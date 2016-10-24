@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.exception;
+package ru.ispras.microtesk.model.api;
 
 public class ConfigurationException extends Exception {
   private static final long serialVersionUID = -7710697576919321538L;

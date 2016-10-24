@@ -34,7 +34,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.Reader;

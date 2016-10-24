@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.exception.ConfigurationException;
+import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.SelfCheck;
