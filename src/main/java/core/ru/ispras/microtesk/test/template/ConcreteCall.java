@@ -20,7 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ExecutionException;
-import ru.ispras.microtesk.model.api.instruction.InstructionCall;
+import ru.ispras.microtesk.model.api.InstructionCall;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 
 public final class ConcreteCall {

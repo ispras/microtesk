@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.instruction;
+package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
 import java.util.HashMap;

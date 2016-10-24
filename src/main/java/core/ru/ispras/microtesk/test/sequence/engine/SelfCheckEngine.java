@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;

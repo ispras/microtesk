@@ -12,20 +12,26 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.instruction;
+package ru.ispras.microtesk.model.api;
 
-/**
- * Specifies the kind of the object described by the ISA primitive.
- * 
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
-public enum IsaPrimitiveKind {
-  /** Immediate value */
-  IMM,
+public final class IsaPrimitiveInfoOr extends IsaPrimitiveInfo {
+  private final IsaPrimitiveInfo[] items;
 
-  /** Addressing mode */
-  MODE,
+  public IsaPrimitiveInfoOr(
+      final IsaPrimitiveKind kind,
+      final String name,
+      final IsaPrimitiveInfo... items) {
+    super(kind, name, items[0].getType());
+    this.items = items;
+  }
 
-  /** Operation */
-  OP;
+  @Override
+  public final boolean isSupported(final IsaPrimitive primitive) {
+    for (final IsaPrimitiveInfo info : items) {
+      if (info.isSupported(primitive)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

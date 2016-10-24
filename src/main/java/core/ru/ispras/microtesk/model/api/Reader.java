@@ -19,8 +19,6 @@ import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
-import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
-import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;

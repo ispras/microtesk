@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.instruction.Immediate;
+import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveInfoAnd;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 public class ModelBuilder {

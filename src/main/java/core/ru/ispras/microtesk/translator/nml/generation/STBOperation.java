@@ -26,8 +26,8 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.instruction.IsaPrimitive;
-import ru.ispras.microtesk.model.api.instruction.Immediate;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
