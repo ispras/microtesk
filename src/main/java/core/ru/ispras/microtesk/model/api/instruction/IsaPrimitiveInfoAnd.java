@@ -21,14 +21,14 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
-public abstract class PrimitiveInfoAnd<T extends Primitive> extends PrimitiveInfo
-                                                            implements PrimitiveFactory<T> {
+public abstract class IsaPrimitiveInfoAnd<T extends IsaPrimitive> extends IsaPrimitiveInfo
+                                                            implements IsaPrimitiveFactory<T> {
   private final Class<?> objectClass;
-  private final Map<String, PrimitiveInfo> arguments;
-  private final Map<String, PrimitiveInfoAnd<T>> shortcuts;
+  private final Map<String, IsaPrimitiveInfo> arguments;
+  private final Map<String, IsaPrimitiveInfoAnd<T>> shortcuts;
 
-  protected PrimitiveInfoAnd(
-      final PrimitiveKind kind,
+  protected IsaPrimitiveInfoAnd(
+      final IsaPrimitiveKind kind,
       final String name,
       final Class<?> objectClass,
       final Type type) {
@@ -46,13 +46,13 @@ public abstract class PrimitiveInfoAnd<T extends Primitive> extends PrimitiveInf
     arguments.put(name, new Immediate.Info(type));
   }
 
-  protected final void addArgument(final String name, final PrimitiveInfo info) {
+  protected final void addArgument(final String name, final IsaPrimitiveInfo info) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(info);
     arguments.put(name, info);
   }
 
-  protected final void addShortcut(final PrimitiveInfoAnd<T> info, final String... contexts) {
+  protected final void addShortcut(final IsaPrimitiveInfoAnd<T> info, final String... contexts) {
     for (final String context : contexts) {
       InvariantChecks.checkFalse(shortcuts.containsKey(context));
       shortcuts.put(context, info);
@@ -60,7 +60,7 @@ public abstract class PrimitiveInfoAnd<T extends Primitive> extends PrimitiveInf
   }
 
   @Override
-  public final boolean isSupported(final Primitive primitive) {
+  public final boolean isSupported(final IsaPrimitive primitive) {
     return objectClass.equals(primitive.getClass());
   }
 
@@ -68,19 +68,19 @@ public abstract class PrimitiveInfoAnd<T extends Primitive> extends PrimitiveInf
     return arguments.keySet();
   }
 
-  public PrimitiveInfo getArgument(final String name) {
+  public IsaPrimitiveInfo getArgument(final String name) {
     return arguments.get(name);
   }
 
-  public final PrimitiveBuilder<T> createBuilder() {
+  public final IsaPrimitiveBuilder<T> createBuilder() {
     /*
     return new PrimitiveBuilder<>(name, this, decls);
     */
     return null;
   }
 
-  public final PrimitiveBuilder<T> createBuilderForShortcut(final String contextName) {
-    final PrimitiveInfoAnd<T> shortcut = shortcuts.get(contextName);
+  public final IsaPrimitiveBuilder<T> createBuilderForShortcut(final String contextName) {
+    final IsaPrimitiveInfoAnd<T> shortcut = shortcuts.get(contextName);
     if (null == shortcut) {
       return null;
     }

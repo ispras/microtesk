@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
 import ru.ispras.microtesk.model.api.instruction.Operation;
-import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 /**
@@ -75,7 +75,7 @@ public final class Model {
     return peState;
   }
 
-  public PrimitiveBuilder<AddressingMode> newMode(
+  public IsaPrimitiveBuilder<AddressingMode> newMode(
       final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
@@ -88,7 +88,7 @@ public final class Model {
     return modeInfo.createBuilder();
   }
 
-  public PrimitiveBuilder<Operation> newOp(
+  public IsaPrimitiveBuilder<Operation> newOp(
       final String name, final String contextName) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
 
@@ -97,7 +97,7 @@ public final class Model {
       throw new ConfigurationException(String.format("The %s operation is not defined.", name));
     }
 
-    PrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
+    IsaPrimitiveBuilder<Operation> result = opInfo.createBuilderForShortcut(contextName);
     if (null == result) {
       result = opInfo.createBuilder();
     }

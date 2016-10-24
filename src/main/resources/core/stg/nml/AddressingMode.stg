@@ -68,7 +68,7 @@ public AddressingMode create(final <data_map_type()> args) {
 >>
 
 data_map_type() ::= <<
-Map\<String, Primitive>
+Map\<String, IsaPrimitive>
 >>
 
 param_decls(param_names, param_types) ::= <<

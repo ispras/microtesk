@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.api.memory.Location;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Immediate extends Primitive {
+public final class Immediate extends IsaPrimitive {
   public static final String TYPE_NAME = "#IMM";
 
   private final Location location;
@@ -50,14 +50,14 @@ public final class Immediate extends Primitive {
     return location.getType();
   }
 
-  public static final class Info extends PrimitiveInfo {
+  public static final class Info extends IsaPrimitiveInfo {
     public Info(final Type type) {
-      super(PrimitiveKind.IMM, TYPE_NAME, type);
+      super(IsaPrimitiveKind.IMM, TYPE_NAME, type);
       InvariantChecks.checkNotNull(type);
     }
 
     @Override
-    public boolean isSupported(final Primitive primitive) {
+    public boolean isSupported(final IsaPrimitive primitive) {
       return primitive instanceof Immediate &&
              getType().equals(((Immediate) primitive).getType());
     }

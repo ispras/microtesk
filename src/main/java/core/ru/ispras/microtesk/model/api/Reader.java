@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
-import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
@@ -70,7 +70,7 @@ public final class Reader {
 
     final AddressingMode mode;
     try {
-      final PrimitiveBuilder<AddressingMode> modeBuilder = model.newMode(name);
+      final IsaPrimitiveBuilder<AddressingMode> modeBuilder = model.newMode(name);
 
       int argIndex = 0;
       for (final String argName : metaMode.getArgumentNames()) {

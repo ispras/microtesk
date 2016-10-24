@@ -46,7 +46,7 @@ import ru.ispras.microtesk.model.api.exception.ConfigurationException;
 import ru.ispras.microtesk.model.api.instruction.AddressingMode;
 import ru.ispras.microtesk.model.api.instruction.Operation;
 import ru.ispras.microtesk.model.api.instruction.InstructionCall;
-import ru.ispras.microtesk.model.api.instruction.PrimitiveBuilder;
+import ru.ispras.microtesk.model.api.instruction.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -364,7 +364,7 @@ public final class EngineUtils {
     final Model model = engineContext.getModel();
     final Operation operation;
     try {
-      final PrimitiveBuilder<Operation> operationBuilder = model.newOp(instructionName, null);
+      final IsaPrimitiveBuilder<Operation> operationBuilder = model.newOp(instructionName, null);
       operation = operationBuilder.build();
     } catch (final ConfigurationException e) {
       return null;
@@ -415,7 +415,7 @@ public final class EngineUtils {
     checkNotNull(engineContext);
     checkMode(abstractMode);
 
-    final PrimitiveBuilder<AddressingMode> builder =
+    final IsaPrimitiveBuilder<AddressingMode> builder =
         engineContext.getModel().newMode(abstractMode.getName());
 
     for (Argument arg : abstractMode.getArguments().values()) {
@@ -469,7 +469,7 @@ public final class EngineUtils {
     final String name = abstractOp.getName();
     final String context = abstractOp.getContextName();
 
-    final PrimitiveBuilder<Operation> builder =
+    final IsaPrimitiveBuilder<Operation> builder =
         engineContext.getModel().newOp(name, context);
 
     for (Argument arg : abstractOp.getArguments().values()) {

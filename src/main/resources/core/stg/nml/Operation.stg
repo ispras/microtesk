@@ -78,7 +78,7 @@ Info() {
   );
 }<\n>
 @Override
-public Operation create(final Map\<String, Primitive> args) {
+public Operation create(final Map\<String, IsaPrimitive> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return new <name>(<arg_names :{n | <n>}; separator=", ">);
 }
@@ -127,7 +127,7 @@ shortcut_body(name, entry, arg_names, arg_tnames, arg_types, op_tree) ::= <<
   );
 }<\n>
 @Override
-public Operation create(final Map\<String, Primitive> args) {
+public Operation create(final Map\<String, IsaPrimitive> args) {
   <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
   return <op_param(op_tree)>;
 }

@@ -24,7 +24,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Operation extends Primitive {
+public abstract class Operation extends IsaPrimitive {
   /**
    * The IInfo interface provides information on an operation object or a group of operation object
    * united by an OR rule. This information is needed for runtime checks to make sure that
@@ -40,9 +40,9 @@ public abstract class Operation extends Primitive {
      */
     String getName();
 
-    PrimitiveBuilder<Operation> createBuilder();
+    IsaPrimitiveBuilder<Operation> createBuilder();
 
-    PrimitiveBuilder<Operation> createBuilderForShortcut(String contextName);
+    IsaPrimitiveBuilder<Operation> createBuilderForShortcut(String contextName);
 
     /**
      * Checks if the current operation (or group of operations) implements (or contains) the
@@ -83,7 +83,7 @@ public abstract class Operation extends Primitive {
    * 
    * @author Andrei Tatarnikov
    */
-  public static abstract class InfoAndRule implements IInfo, PrimitiveFactory<Operation> {
+  public static abstract class InfoAndRule implements IInfo, IsaPrimitiveFactory<Operation> {
     private final Class<?> opClass;
     private final String name;
     private final ArgumentDecls decls;
@@ -123,12 +123,12 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public final PrimitiveBuilder<Operation> createBuilder() {
-      return new PrimitiveBuilder<>(name, this, decls);
+    public final IsaPrimitiveBuilder<Operation> createBuilder() {
+      return new IsaPrimitiveBuilder<>(name, this, decls);
     }
 
     @Override
-    public final PrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
+    public final IsaPrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
       final IInfo shortcut = shortcuts.getShortcut(contextName);
       if (null == shortcut) {
         return null;
@@ -171,12 +171,12 @@ public abstract class Operation extends Primitive {
     }
 
     @Override
-    public PrimitiveBuilder<Operation> createBuilder() {
+    public IsaPrimitiveBuilder<Operation> createBuilder() {
       return null;
     }
 
     @Override
-    public PrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
+    public IsaPrimitiveBuilder<Operation> createBuilderForShortcut(final String contextName) {
       return null;
     }
   }

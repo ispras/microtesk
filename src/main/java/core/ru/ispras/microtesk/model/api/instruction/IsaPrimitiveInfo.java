@@ -17,13 +17,13 @@ package ru.ispras.microtesk.model.api.instruction;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Type;
 
-public abstract class PrimitiveInfo {
-  private final PrimitiveKind kind;
+public abstract class IsaPrimitiveInfo {
+  private final IsaPrimitiveKind kind;
   private final String name;
   private final Type type;
 
-  public PrimitiveInfo(
-      final PrimitiveKind kind,
+  public IsaPrimitiveInfo(
+      final IsaPrimitiveKind kind,
       final String name,
       final Type type) {
     InvariantChecks.checkNotNull(kind);
@@ -34,7 +34,7 @@ public abstract class PrimitiveInfo {
     this.type = type;
   }
 
-  public final PrimitiveKind getKind() {
+  public final IsaPrimitiveKind getKind() {
     return kind;
   }
 
@@ -46,5 +46,5 @@ public abstract class PrimitiveInfo {
     return type;
   }
 
-  public abstract boolean isSupported(final Primitive primitive);
+  public abstract boolean isSupported(final IsaPrimitive primitive);
 }

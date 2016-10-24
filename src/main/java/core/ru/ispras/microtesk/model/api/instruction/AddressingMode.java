@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.api.data.Type;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class AddressingMode extends Primitive {
+public abstract class AddressingMode extends IsaPrimitive {
   /**
    * The IInfo interface provides information on an addressing mode object or a group of addressing
    * mode object united by an OR rule. This information is needed to instantiate a concrete
@@ -52,7 +52,7 @@ public abstract class AddressingMode extends Primitive {
      * 
      * @return A builder for the addressing mode described by the current info object.
      */
-    PrimitiveBuilder<AddressingMode> createBuilder();
+    IsaPrimitiveBuilder<AddressingMode> createBuilder();
 
     /**
      * Checks if the current addressing mode (or group of addressing modes) implements (or contains)
@@ -72,7 +72,7 @@ public abstract class AddressingMode extends Primitive {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-  protected static abstract class InfoAndRule implements IInfo, PrimitiveFactory<AddressingMode> {
+  protected static abstract class InfoAndRule implements IInfo, IsaPrimitiveFactory<AddressingMode> {
     private final Class<?> modeClass;
     private final String name;
     private final Type type;
@@ -100,8 +100,8 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public final PrimitiveBuilder<AddressingMode> createBuilder() {
-      return new PrimitiveBuilder<>(name, this, decls);
+    public final IsaPrimitiveBuilder<AddressingMode> createBuilder() {
+      return new IsaPrimitiveBuilder<>(name, this, decls);
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class AddressingMode extends Primitive {
     }
 
     @Override
-    public PrimitiveBuilder<AddressingMode> createBuilder() {
+    public IsaPrimitiveBuilder<AddressingMode> createBuilder() {
       return null;
     }
 

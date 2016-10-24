@@ -28,16 +28,16 @@ import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 
 /**
- * The {@link PrimitiveBuilder} class is responsible for creating and initializing
+ * The {@link IsaPrimitiveBuilder} class is responsible for creating and initializing
  * instances of nML primitives (addressing modes and operations).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class PrimitiveBuilder<T extends Primitive> {
+public class IsaPrimitiveBuilder<T extends IsaPrimitive> {
   private final String primitiveName;
-  private final PrimitiveFactory<T> factory;
+  private final IsaPrimitiveFactory<T> factory;
   private final Map<String, ArgumentDecls.Argument> decls;
-  private final Map<String, Primitive> args;
+  private final Map<String, IsaPrimitive> args;
 
   /**
    * Creates a builder for a primitive described with the specified parameters.
@@ -46,9 +46,9 @@ public class PrimitiveBuilder<T extends Primitive> {
    * @param factory The factory for creating the specified primitive.
    * @param decls The table of argument declarations.
    */
-  public PrimitiveBuilder(
+  public IsaPrimitiveBuilder(
       final String name,
-      final PrimitiveFactory<T> factory,
+      final IsaPrimitiveFactory<T> factory,
       final ArgumentDecls decls) {
     this.primitiveName = name;
     this.factory = factory;

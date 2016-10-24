@@ -24,14 +24,14 @@ import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 /**
- * The {@link Primitive} class implements base functionality of addressing modes
+ * The {@link IsaPrimitive} class implements base functionality of addressing modes
  * and operations.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Primitive {
+public abstract class IsaPrimitive {
   /** Tracks execution of primitives. */
-  private static final Deque<Primitive> CALL_STACK = new LinkedList<>();
+  private static final Deque<IsaPrimitive> CALL_STACK = new LinkedList<>();
 
   /**
    * Returns the name of the currently executed primitive or an empty
@@ -129,8 +129,8 @@ public abstract class Primitive {
    * 
    * @throws IllegalArgumentException if there is no such argument in the table.
    */
-  protected static Primitive getArgument(final String name, final Map<String, Primitive> args) {
-    final Primitive arg = args.get(name);
+  protected static IsaPrimitive getArgument(final String name, final Map<String, IsaPrimitive> args) {
+    final IsaPrimitive arg = args.get(name);
     InvariantChecks.checkNotNull(arg);
     return arg;
   }

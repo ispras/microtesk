@@ -14,13 +14,24 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-public enum PrimitiveKind {
-  /** Immediate value */
-  IMM,
+public final class IsaPrimitiveInfoOr extends IsaPrimitiveInfo {
+  private final IsaPrimitiveInfo[] items;
 
-  /** Addressing mode */
-  MODE,
+  public IsaPrimitiveInfoOr(
+      final IsaPrimitiveKind kind,
+      final String name,
+      final IsaPrimitiveInfo... items) {
+    super(kind, name, items[0].getType());
+    this.items = items;
+  }
 
-  /** Operation */
-  OP;
+  @Override
+  public final boolean isSupported(final IsaPrimitive primitive) {
+    for (final IsaPrimitiveInfo info : items) {
+      if (info.isSupported(primitive)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

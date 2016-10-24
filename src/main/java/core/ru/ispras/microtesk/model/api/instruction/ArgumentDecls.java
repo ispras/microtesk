@@ -49,7 +49,7 @@ public final class ArgumentDecls {
 
     final Argument argument = new Argument(name, ArgumentKind.IMM, type) {
       @Override
-      public boolean isSupported(final Primitive o) {
+      public boolean isSupported(final IsaPrimitive o) {
         return false;
       }
     };
@@ -71,7 +71,7 @@ public final class ArgumentDecls {
 
     final Argument argument = new Argument(name, ArgumentKind.MODE, info.getType()) {
       @Override
-      public boolean isSupported(final Primitive o) {
+      public boolean isSupported(final IsaPrimitive o) {
         return (o instanceof AddressingMode) && info.isSupported((AddressingMode) o);
       }
     };
@@ -93,7 +93,7 @@ public final class ArgumentDecls {
 
     final Argument argument = new Argument(name, ArgumentKind.OP, null) {
       @Override
-      public boolean isSupported(final Primitive o) {
+      public boolean isSupported(final IsaPrimitive o) {
         return (o instanceof Operation) && info.isSupported((Operation) o);
       }
     };
@@ -129,7 +129,7 @@ public final class ArgumentDecls {
       return dataType;
     }
 
-    public abstract boolean isSupported(final Primitive o);
+    public abstract boolean isSupported(final IsaPrimitive o);
 
     @Override
     public String toString() {

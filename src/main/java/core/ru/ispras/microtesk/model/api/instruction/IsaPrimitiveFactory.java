@@ -14,24 +14,21 @@
 
 package ru.ispras.microtesk.model.api.instruction;
 
-public final class PrimitiveInfoOr extends PrimitiveInfo {
-  private final PrimitiveInfo[] items;
+import java.util.Map;
 
-  public PrimitiveInfoOr(
-      final PrimitiveKind kind,
-      final String name,
-      final PrimitiveInfo... items) {
-    super(kind, name, items[0].getType());
-    this.items = items;
-  }
-
-  @Override
-  public final boolean isSupported(final Primitive primitive) {
-    for (final PrimitiveInfo info : items) {
-      if (info.isSupported(primitive)) {
-        return true;
-      }
-    }
-    return false;
-  }
+/**
+ * The {@link IsaPrimitiveFactory} interface is a base interface for factories
+ * that create instances addressing modes and operations and initialize them
+ * with the provided arguments.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+public interface IsaPrimitiveFactory<T extends IsaPrimitive> {
+  /**
+   * Creates a primitive instance.
+   * 
+   * @param args A table of arguments (key is the argument name, value is the argument value).
+   * @return The addressing mode object.
+   */
+  T create(final Map<String, IsaPrimitive> args);
 }
