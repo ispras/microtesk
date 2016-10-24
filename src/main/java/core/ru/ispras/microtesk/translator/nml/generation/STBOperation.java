@@ -24,7 +24,6 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.model.api.Immediate;
@@ -72,7 +71,6 @@ final class STBOperation extends STBPrimitiveBase {
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
-    t.add("imps", ArgumentMode.class.getName());
     t.add("imps", ru.ispras.microtesk.model.api.Execution.class.getName());
     t.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));

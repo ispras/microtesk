@@ -20,10 +20,10 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.model.api.ArgumentKind;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.Immediate;
+import ru.ispras.microtesk.model.api.IsaPrimitiveKind;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.utils.StringUtils;
  */
 public final class MetaArgument implements MetaData {
   private final String name;
-  private final ArgumentKind kind;
+  private final IsaPrimitiveKind kind;
   private final ArgumentMode mode;
   private final Set<String> typeNames;
   private final Type dataType;
@@ -51,7 +51,7 @@ public final class MetaArgument implements MetaData {
       final Type type) {
     this(
         name,
-        ArgumentKind.IMM,
+        IsaPrimitiveKind.IMM,
         ArgumentMode.IN,
         Collections.singleton(Immediate.TYPE_NAME),
         type
@@ -74,7 +74,7 @@ public final class MetaArgument implements MetaData {
       final ArgumentMode mode) {
     this(
         name,
-        ArgumentKind.MODE,
+        IsaPrimitiveKind.MODE,
         mode,
         type != null ? Collections.singleton(type.getName()) : null,
         type != null ? type.getDataType() : null
@@ -97,7 +97,7 @@ public final class MetaArgument implements MetaData {
       final ArgumentMode mode) {
     this(
         name,
-        ArgumentKind.OP,
+        IsaPrimitiveKind.OP,
         mode,
         type != null ? Collections.singleton(type.getName()) : null,
         null
@@ -123,7 +123,7 @@ public final class MetaArgument implements MetaData {
     InvariantChecks.checkNotNull(mode);
 
     this.name = name;
-    this.kind = type.getKind() == MetaGroup.Kind.OP ? ArgumentKind.OP : ArgumentKind.MODE;
+    this.kind = type.getKind() == MetaGroup.Kind.OP ? IsaPrimitiveKind.OP : IsaPrimitiveKind.MODE;
     this.mode = mode;
     this.typeNames = MetaDataUtils.toNameSetRecursive(type.getItems());
     this.dataType = type.getDataType();
@@ -143,7 +143,7 @@ public final class MetaArgument implements MetaData {
    */
   public MetaArgument(
       final String name,
-      final ArgumentKind kind,
+      final IsaPrimitiveKind kind,
       final ArgumentMode mode,
       final Set<String> typeNames,
       final Type dataType) {
@@ -186,7 +186,7 @@ public final class MetaArgument implements MetaData {
    * 
    * @return Argument kind.
    */
-  public ArgumentKind getKind() {
+  public IsaPrimitiveKind getKind() {
     return kind;
   }
 
