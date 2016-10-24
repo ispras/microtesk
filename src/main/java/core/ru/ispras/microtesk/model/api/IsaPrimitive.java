@@ -61,7 +61,7 @@ public abstract class IsaPrimitive {
    * @return Assembly text.
    */
   public String syntax(final PEState peState) {
-    Logger.error(UNDEFINED_ATTR + EMPTY_STR, "syntax", getName());
+    reportUndefined("syntax", "Empty string will be returned");
     return "";
   }
 
@@ -76,7 +76,7 @@ public abstract class IsaPrimitive {
    * @return Binary text.
    */
   public String image(final PEState peState) {
-    Logger.error(UNDEFINED_ATTR + EMPTY_STR + " Primitive size will be 0.", "image", getName());
+    reportUndefined("image", "Empty string will be returned, primitive size will be 0");
     return "";
   }
 
@@ -100,7 +100,7 @@ public abstract class IsaPrimitive {
    * and should never be called. It is needed only to let inherited classes compile.
    */
   protected void action(final PEState peState) {
-    Logger.error(UNDEFINED_ATTR + "No action will be performed.", "action", getName());
+    reportUndefined("action", "No action will be performed");
   }
 
   /**
@@ -114,13 +114,16 @@ public abstract class IsaPrimitive {
    * @return Memory location.
    */
   public Location access(final PEState peState) {
-    Logger.error(UNDEFINED_ATTR + "null is returned.", "access", getName());
+    reportUndefined("access", "null will be returned");
     return null;
   }
 
-  private static final String UNDEFINED_ATTR =
-      "The '%s' attribute is not defined for the '%s' primitive.";
-
-  private static final String EMPTY_STR =
-      " An empty string is returned.";
+  private void reportUndefined(final String attrName, final String message) {
+    Logger.error(
+        "The '%s' attribute is undefined for the '%s' primitive. %s.",
+        attrName,
+        getName(),
+        message
+        );
+  }
 }
