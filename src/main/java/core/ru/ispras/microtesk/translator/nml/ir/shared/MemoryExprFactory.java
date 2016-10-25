@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import java.math.BigInteger;
 
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -37,6 +38,11 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       final Expr sizeExpr,
       final boolean shared,
       final Alias alias) throws SemanticException {
+
+    if (shared && kind == Memory.Kind.VAR) {
+      Logger.warning(
+          "%s: Variable %s cannot be shared. The keyword will be ignored.", where, name);
+    }
 
     final BigInteger size = sizeExpr != null ?
         sizeExpr.bigIntegerValue() : BigInteger.ONE;
