@@ -25,7 +25,8 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngine;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestEngine;
@@ -82,7 +83,7 @@ public final class MmuPlugin implements Plugin {
     spec = mmu;
   }
 
-  public static MmuModel getModel() {
+  public static MmuModel getMmuModel() {
     if (null != model) {
       return model;
     }
@@ -101,6 +102,15 @@ public final class MmuPlugin implements Plugin {
 
     model = mmuModel;
     return model;
+  }
+
+  private static Model getModel() {
+    final TestEngine testEngine = TestEngine.getInstance();
+    if (null == testEngine) {
+      throw new IllegalStateException("TestEngine is not initialized.");
+    }
+
+    return testEngine.getModel();
   }
 
   @Override
@@ -134,18 +144,21 @@ public final class MmuPlugin implements Plugin {
 
   @Override
   public void initializeGenerationEnvironment() {
-    final MmuModel model = getModel();
-    if (null == model) {
+    final MmuModel mmuModel = getMmuModel();
+    if (null == mmuModel) {
       // MMU model is not provided.
       return;
     }
 
-    final MemoryDevice mmuDevice = model.getMmuDevice();
+    final Model model = getModel(); 
+    final MemoryDevice mmuDevice = mmuModel.getMmuDevice();
+    final String memoryId = mmuModel.getStorageDeviceId();
 
-    final String memoryId = model.getStorageDeviceId(); 
-    final Memory memory = Memory.get(memoryId);
-
-    final MemoryDevice storageDevice = memory.setHandler(mmuDevice);
-    model.setStorageDevice(storageDevice);
+    try {
+      final MemoryDevice storageDevice = model.getPE().setMemoryHandler(memoryId, mmuDevice);
+      mmuModel.setStorageDevice(storageDevice);
+    } catch (final ConfigurationException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

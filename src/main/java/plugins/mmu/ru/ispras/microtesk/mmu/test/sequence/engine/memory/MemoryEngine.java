@@ -279,7 +279,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         hitCheckers.put(addressType, new Predicate<Long>() {
           @Override
           public boolean test(final Long address) {
-            final MmuModel model = MmuPlugin.getModel();
+            final MmuModel model = MmuPlugin.getMmuModel();
             final MmuSubsystem memory = MmuPlugin.getSpecification();
 
             for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
