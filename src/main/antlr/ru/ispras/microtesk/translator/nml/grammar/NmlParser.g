@@ -120,7 +120,7 @@ startRule
 
 procSpec
     :  letDef
-    |  typeDef 
+    |  typeDef
     |  memDef
     |  modeDef
     |  opDef
@@ -163,8 +163,8 @@ typeDef
 /*===============================================================================================*/
 
 memDef
-    : (MEM|REG|VAR)^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);} RIGHT_HOOK!
-                                      {declare($id, NmlSymbolKind.MEMORY, false);} alias?
+    : SHARED? (MEM|REG|VAR)^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);}
+                                   RIGHT_HOOK! {declare($id, NmlSymbolKind.MEMORY, false);} alias?
     ;
 
 sizeType

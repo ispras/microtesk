@@ -157,7 +157,7 @@ typeExpr returns [Type res]
 /*======================================================================================*/
 
 memDef
-    :  ^(MEM id=ID st=sizeType al=alias?)
+    :  ^(MEM SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
@@ -169,7 +169,7 @@ getIR().add($id.text, expr);
     ;
 
 regDef
-    :  ^(REG id=ID st=sizeType al=alias?)
+    :  ^(REG SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
@@ -181,7 +181,7 @@ getIR().add($id.text, expr);
     ;
 
 varDef
-    :  ^(VAR id=ID st=sizeType al=alias?)
+    :  ^(VAR SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
