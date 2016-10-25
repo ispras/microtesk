@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,16 +15,12 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 
 public abstract class Memory {
-  private static final Map<String, Memory> INSTANCES = new HashMap<>();
-
   private final Kind kind;
   private final String name;
   private final Type type;
@@ -49,28 +45,18 @@ public abstract class Memory {
       final String name,
       final Type type,
       final BigInteger length) {
-    checkDefined(name);
-
-    final Memory result;
     switch (kind) {
       case MEM:
-        result = new PhysicalMemory(name, type, length);
-        break;
+        return new PhysicalMemory(name, type, length);
 
       case REG:
-        result = new RegisterFile(name, type, length);
-        break;
+        return new RegisterFile(name, type, length);
 
       case VAR:
-        result = new VariableArray(name, type, length);
-        break;
-
-      default:
-        throw new IllegalArgumentException("Unknown kind: " + kind);
+        return new VariableArray(name, type, length);
     }
 
-    INSTANCES.put(name, result);
-    return result;
+    throw new IllegalArgumentException("Unknown kind: " + kind);
   }
 
   public static Memory def(
@@ -91,12 +77,7 @@ public abstract class Memory {
     if (null == alias) {
       return def(kind, name, type, length);
     }
-
-    checkDefined(name);
-    final Memory result = new AliasForLocation(kind, name, type, length, alias);
-
-    INSTANCES.put(name, result);
-    return result;
+    return new AliasForLocation(kind, name, type, length, alias);
   }
 
   public static Memory def(
@@ -118,26 +99,7 @@ public abstract class Memory {
       final Memory memory,
       final int min,
       final int max) {
-    checkDefined(name);
-    final Memory result = new AliasForMemory(kind, name, type, length, memory, min, max);
-
-    INSTANCES.put(name, result);
-    return result;
-  }
-
-  private static void checkDefined(final String name) {
-    if (INSTANCES.containsKey(name)) {
-      throw new IllegalArgumentException(name + " is already defined!");
-    }
-  }
-
-  public static Memory get(final String name) {
-    final Memory result = INSTANCES.get(name);
-    if (null == result) {
-      throw new IllegalArgumentException(name + " is not defined!");
-    }
-
-    return result;
+    return new AliasForMemory(kind, name, type, length, memory, min, max);
   }
 
   protected Memory(
