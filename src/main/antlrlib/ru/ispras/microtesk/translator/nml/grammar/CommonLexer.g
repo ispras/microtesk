@@ -207,7 +207,7 @@ FLOAT_TO_INT   : 'float_to_int'   { pp(); };
 FLOAT_TO_FLOAT : 'float_to_float' { pp(); };
 
 //==================================================================================================
-// Special Function Names
+// Special Function Names and Other Keywords
 //==================================================================================================
 
 FORMAT        : 'format'      { pp(); };
@@ -219,6 +219,7 @@ UNDEFINED     : 'undefined'   { pp(); };
 
 ASSERT        : 'assert'      { pp(); };
 FUNCTION      : 'function'    { pp(); };
+SHARED        : 'shared'      { pp(); };
 
 //==================================================================================================
 // Identifier
