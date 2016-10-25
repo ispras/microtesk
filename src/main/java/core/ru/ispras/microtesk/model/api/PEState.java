@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
 
 public abstract class PEState {
   private final Map<String, Memory> storageMap = new HashMap<>();
@@ -101,6 +102,12 @@ public abstract class PEState {
       final MemoryDevice handler) throws ConfigurationException {
     final Memory storage = getStorage(storageId);
     return storage.setHandler(handler);
+  }
+
+  public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(
+      final String storageId) throws ConfigurationException {
+    final Memory storage = getStorage(storageId);
+    return new MemoryDeviceWrapper(storage);
   }
 
   private Memory getStorage(final String storageId) throws ConfigurationException {
