@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
-import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
+import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.utils.SparseArray;
 
 public abstract class RegisterMapping<D extends Data, A extends Address>
@@ -138,7 +138,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
-    this.storage = MemoryDeviceWrapper.newWrapperFor(name);
+    this.storage = TestEngine.getInstance().getModel().getPE().newMemoryDeviceWrapperFor(name);
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
 
     this.associativity = associativity;

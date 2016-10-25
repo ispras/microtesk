@@ -104,10 +104,13 @@ public abstract class PEState {
     return storage.setHandler(handler);
   }
 
-  public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(
-      final String storageId) throws ConfigurationException {
-    final Memory storage = getStorage(storageId);
-    return new MemoryDeviceWrapper(storage);
+  public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(final String storageId) {
+    try {
+      final Memory storage = getStorage(storageId);
+      return new MemoryDeviceWrapper(storage);
+    } catch (final ConfigurationException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   private Memory getStorage(final String storageId) throws ConfigurationException {
