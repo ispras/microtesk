@@ -204,7 +204,7 @@ public final class TestEngine {
         );
 
     final Printer printer = new Printer(options, model.getPE(), statistics);
-    final DataManager dataManager = new DataManager(options, printer, statistics);
+    final DataManager dataManager = new DataManager(model, options, printer, statistics);
  
     final EngineContext context = new EngineContext(
         options,

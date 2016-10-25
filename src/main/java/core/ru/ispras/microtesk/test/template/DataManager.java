@@ -27,8 +27,9 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
-import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.Statistics;
 
 public final class DataManager {
+  private final Model model;
   private final Options options;
   private final Printer printer;
   private final Statistics statistics;
@@ -54,11 +56,17 @@ public final class DataManager {
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
-  public DataManager(final Options options, final Printer printer, final Statistics statistics) {
+  public DataManager(
+      final Model model,
+      final Options options,
+      final Printer printer,
+      final Statistics statistics) {
+    InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(printer);
     InvariantChecks.checkNotNull(statistics);
 
+    this.model = model;
     this.options = options;
     this.printer = printer;
     this.statistics = statistics;
@@ -84,7 +92,7 @@ public final class DataManager {
       final String text,
       final String target,
       final int addressableUnitBitSize,
-      final BigInteger baseVirtualAddress) {
+      final BigInteger baseVirtualAddress) throws ConfigurationException {
     InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
@@ -99,9 +107,8 @@ public final class DataManager {
         AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
         options.getValueAsBigInteger(Option.BASE_PA);
 
-    final Memory memory = Memory.get(target);
-    allocator = memory.newAllocator(
-        addressableUnitBitSize, basePhysicalAddressForAllocation);
+    allocator = model.getPE().newMemoryAllocator(
+        target, addressableUnitBitSize, basePhysicalAddressForAllocation);
 
     factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize, text);
     return factoryBuilder;
