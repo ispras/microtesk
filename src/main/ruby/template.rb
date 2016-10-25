@@ -1021,6 +1021,14 @@ class DataManager
     @template.rand from, to
   end
 
+  def dist(*ranges)
+    @template.dist *ranges
+  end
+
+  def range(attrs = {})
+    @template.range attrs
+  end
+
   def define_type(attrs)
     id   = get_attribute attrs, :id
     text = get_attribute attrs, :text
