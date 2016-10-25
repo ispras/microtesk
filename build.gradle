@@ -143,7 +143,7 @@ dependencies {
   compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
   compile 'org.apache.velocity:velocity:1.7'
 
-  compile ('fortress:fortress:0.4.20-beta-160826') { changing = true }
+  compile ('fortress:fortress:0.4.21-beta-161025') { changing = true }
   compile ('testbase:testbase:0.0.15-alpha-160826') { changing = true }
   compile ('jsoftfloat:jsoftfloat:1.0.2-beta-160826') { changing = true }
   compile ('coverage:coverage:+') { changing = true }
