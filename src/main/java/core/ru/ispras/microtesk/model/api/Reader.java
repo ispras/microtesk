@@ -20,7 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
 import ru.ispras.microtesk.model.api.memory.Location;
-import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 
 /**
@@ -45,10 +45,12 @@ public final class Reader {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(index);
 
-    final Memory memory = Memory.get(name);
-    InvariantChecks.checkFalse(memory.getKind() == Memory.Kind.VAR);
-
-    final Location location = memory.access(index);
+    final LocationAccessor location;
+    try {
+      location = model.getPE().accessLocation(name, index);
+    } catch (final ConfigurationException e) {
+      throw new IllegalArgumentException(e);
+    }
     return new LocationValue(location);
   }
 
@@ -84,9 +86,9 @@ public final class Reader {
   }
 
   private static final class LocationValue implements Value<BitVector> {
-    private final Location location;
+    private final LocationAccessor location;
 
-    private LocationValue(final Location location) {
+    private LocationValue(final LocationAccessor location) {
       InvariantChecks.checkNotNull(location);
       this.location = location;
     }
