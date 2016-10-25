@@ -32,15 +32,17 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
   public MemoryExpr createMemory(
       final Where where,
       final Memory.Kind kind,
+      final String name,
       final Type type,
       final Expr sizeExpr,
+      final boolean shared,
       final Alias alias) throws SemanticException {
 
     final BigInteger size = sizeExpr != null ?
         sizeExpr.bigIntegerValue() : BigInteger.ONE;
 
     if (null == alias) {
-      return new MemoryExpr(kind, type, size, null);
+      return new MemoryExpr(kind, name, type, size, shared, null);
     }
 
     final BigInteger bitSize = size.multiply(BigInteger.valueOf(type.getBitSize()));
@@ -61,7 +63,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
           ));
     }
 
-    return new MemoryExpr(kind, type, size, alias);
+    return new MemoryExpr(kind, name, type, size, shared, alias);
   }
 
   public Alias createAlias(

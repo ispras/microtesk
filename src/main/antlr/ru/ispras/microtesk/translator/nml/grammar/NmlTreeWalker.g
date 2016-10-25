@@ -157,36 +157,36 @@ typeExpr returns [Type res]
 /*======================================================================================*/
 
 memDef
-    :  ^(MEM SHARED? id=ID st=sizeType al=alias?)
+    :  ^(MEM sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = 
-   factory.createMemory(where($id), Memory.Kind.MEM, $st.type, $st.size, $al.res);
+final MemoryExpr expr = factory.createMemory(
+    where($id), Memory.Kind.MEM, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
 getIR().add($id.text, expr);
 }
     ;
 
 regDef
-    :  ^(REG SHARED? id=ID st=sizeType al=alias?)
+    :  ^(REG sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr =
-   factory.createMemory(where($id), Memory.Kind.REG, $st.type, $st.size, $al.res);
+final MemoryExpr expr = factory.createMemory(
+    where($id), Memory.Kind.REG, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
 getIR().add($id.text, expr);
 }
     ;
 
 varDef
-    :  ^(VAR SHARED? id=ID st=sizeType al=alias?)
+    :  ^(VAR sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
 final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr =
-   factory.createMemory(where($id), Memory.Kind.VAR, $st.type, $st.size, $al.res);
+final MemoryExpr expr = factory.createMemory(
+    where($id), Memory.Kind.VAR, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
 getIR().add($id.text, expr);
 }

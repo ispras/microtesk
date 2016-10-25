@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,27 +21,39 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 
 public final class MemoryExpr {
   private final Memory.Kind kind;
+  private final String name;
   private final Type type;
   private final BigInteger size;
+  private final boolean shared;
   private final Alias alias;
 
   MemoryExpr(
       final Memory.Kind kind,
+      final String name,
       final Type type,
       final BigInteger size,
+      final boolean shared,
       final Alias alias) {
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(size);
     InvariantChecks.checkGreaterThan(size, BigInteger.ZERO);
 
-    this.size = size;
-    this.type = type;
     this.kind = kind;
+    this.name = name;
+    this.type = type;
+    this.size = size;
+    this.shared = shared;
     this.alias = alias;
   }
 
   public Memory.Kind getKind() {
     return kind;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public Type getType() {
@@ -52,6 +64,10 @@ public final class MemoryExpr {
     return size;
   }
 
+  public boolean isShared() {
+    return shared;
+  }
+
   public Alias getAlias() {
     return alias;
   }
@@ -59,6 +75,12 @@ public final class MemoryExpr {
   @Override
   public String toString() {
     return String.format(
-        "MemoryExpr [kind=%s, type=%s, size=%s]", kind, type, size);
+        "MemoryExpr [kind=%s, name=%s, type=%s, size=%s, shared=%b]",
+        kind,
+        name,
+        type,
+        size,
+        shared
+        );
   }
 }
