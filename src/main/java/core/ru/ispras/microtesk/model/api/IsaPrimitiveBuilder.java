@@ -40,9 +40,7 @@ public class IsaPrimitiveBuilder {
   /**
    * Creates a builder for a primitive described with the specified parameters.
    * 
-   * @param name The name of the primitive.
-   * @param factory The factory for creating the specified primitive.
-   * @param decls The table of argument declarations.
+   * @param info Information on the primitive to be built.
    */
   public IsaPrimitiveBuilder(final IsaPrimitiveInfoAnd info) {
     InvariantChecks.checkNotNull(info);
