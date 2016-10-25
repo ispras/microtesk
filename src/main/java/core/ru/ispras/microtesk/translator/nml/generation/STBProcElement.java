@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import java.math.BigInteger;
-import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -55,9 +54,17 @@ final class STBProcElement implements STBuilder {
     final ST tCore = group.getInstanceOf("core");
     tCore.add("class", CLASS_NAME);
 
-    for (final Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet()) {
-      tCore.add("names", mem.getKey());
-      tCore.add("types", buildMemoryLine(group, mem.getKey(), mem.getValue()));
+    for (final MemoryExpr memory : ir.getMemory().values()) {
+      tCore.add("names", memory.getName());
+
+      final ST stMemoryDef = buildMemoryLine(group, memory);
+      tCore.add("defs", stMemoryDef);
+
+      if (null != memory.getAlias()) {
+        tCore.add("copies", stMemoryDef);
+      } else {
+        tCore.add("copies", "other." + memory.getName() + (memory.isShared() ? "" : ".copy()"));
+      } 
     }
 
     for (final LetLabel label : ir.getLabels().values()) {
@@ -75,11 +82,10 @@ final class STBProcElement implements STBuilder {
 
   private ST buildMemoryLine(
       final STGroup group,
-      final String name,
       final MemoryExpr memory) {
     final ST tMemory = group.getInstanceOf("new_memory");
 
-    tMemory.add("name", name);
+    tMemory.add("name", memory.getName());
     tMemory.add("kind", memory.getKind());
 
     final Type typeExpr = memory.getType();

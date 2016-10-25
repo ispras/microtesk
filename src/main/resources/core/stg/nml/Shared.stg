@@ -81,14 +81,14 @@ new_resetter(type, items) ::= <<
 new <type>(<items; separator=", ">)
 >>
 
-core(class, names, types, labels) ::= <<
+core(class, names, defs, copies, labels) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
 public <class>() {
-  <names, types:{n, t| this.<n> = <t>;}; separator="\n"><\n>
+  <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
   registerAll();
 }<\n>
 public <class>(final <class> other) {
-  <names:{n | this.<n> = other.<n>;}; separator="\n"><\n>
+  <names, copies:{n, c | this.<n> = <c>;}; separator="\n"><\n>
   registerAll();
 }<\n>
 private void registerAll() {

@@ -169,6 +169,10 @@ public abstract class Memory {
     return addressBitSize;
   }
 
+  public final Memory copy() {
+    return this;
+  }
+
   public final Location access() {
     return access(0);
   }
