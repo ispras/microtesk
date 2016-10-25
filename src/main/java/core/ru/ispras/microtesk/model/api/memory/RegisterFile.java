@@ -91,6 +91,12 @@ final class RegisterFile extends Memory {
   }
 
   @Override
+  public Memory copy() {
+    // FIXME: NEED PROPER IMPLEMENTATION
+    return this;
+  }
+
+  @Override
   public void reset() {
     for (final RegisterAtom atom : atoms) {
       atom.reset();

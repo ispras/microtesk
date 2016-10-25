@@ -169,10 +169,6 @@ public abstract class Memory {
     return addressBitSize;
   }
 
-  public final Memory copy() {
-    return this;
-  }
-
   public final Location access() {
     return access(0);
   }
@@ -182,6 +178,7 @@ public abstract class Memory {
   public abstract Location access(BigInteger address);
   public abstract Location access(Data address);
 
+  public abstract Memory copy();
   public abstract void reset();
 
   @Override

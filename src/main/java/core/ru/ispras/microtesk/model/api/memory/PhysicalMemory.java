@@ -104,6 +104,12 @@ final class PhysicalMemory extends Memory {
   }
 
   @Override
+  public Memory copy() {
+    // FIXME: NEED PROPER IMPLEMENTATION
+    return this;
+  }
+
+  @Override
   public void reset() {
     storage.reset();
   }

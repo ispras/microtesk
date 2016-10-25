@@ -103,6 +103,11 @@ final class AliasForMemory extends Memory {
   }
 
   @Override
+  public Memory copy() {
+    throw new UnsupportedOperationException("Copying of aliases is not supported.");
+  }
+
+  @Override
   public void reset() {
     // Does not work for aliases (and should not be called)
   }

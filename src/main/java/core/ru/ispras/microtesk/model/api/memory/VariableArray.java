@@ -43,10 +43,28 @@ final class VariableArray extends Memory {
 
     for (int index = 0; index < count; ++index) {
       final BitVector value = BitVector.newEmpty(type.getBitSize());
-      this.values.add(value);
+      final Location location = Location.newLocationForAtom(type, new VariableAtom(value));
 
-      final Location.Atom atom = new VariableAtom(value);
-      final Location location = Location.newLocationForAtom(type, atom);
+      this.values.add(value);
+      this.locations.add(location);
+    }
+  }
+
+  private VariableArray(final VariableArray other) {
+    super(other);
+
+    final int count = other.locations.size();
+    InvariantChecks.checkTrue(other.locations.size() == other.values.size());
+
+    this.locations = new ArrayList<>(count);
+    this.values = new ArrayList<>(count);
+
+    for (int index = 0; index < count; ++index) {
+      final Type type = other.locations.get(index).getType();
+      final BitVector value = other.values.get(index).copy();
+      final Location location = Location.newLocationForAtom(type, new VariableAtom(value));
+
+      this.values.add(value);
       this.locations.add(location);
     }
   }
@@ -69,6 +87,11 @@ final class VariableArray extends Memory {
   @Override
   public Location access(final Data index) {
     return access(index.getRawData().intValue());
+  }
+
+  @Override
+  public Memory copy() {
+    return new VariableArray(this);
   }
 
   @Override
