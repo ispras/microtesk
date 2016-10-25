@@ -56,7 +56,7 @@ public abstract class Memory {
         return new VariableArray(name, type, length);
     }
 
-    throw new IllegalArgumentException("Unknown kind: " + kind);
+    throw new IllegalArgumentException("Unknown memory kind: " + kind);
   }
 
   public static Memory def(
@@ -119,6 +119,17 @@ public abstract class Memory {
     this.length = length;
     this.isAlias = isAlias;
     this.addressBitSize = MemoryStorage.calculateAddressSize(length);
+  }
+
+  protected Memory(final Memory other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.kind = other.kind;
+    this.name = other.name;
+    this.type = other.type;
+    this.length = other.length;
+    this.isAlias = other.isAlias;
+    this.addressBitSize = other.addressBitSize;
   }
 
   public MemoryAllocator newAllocator(
