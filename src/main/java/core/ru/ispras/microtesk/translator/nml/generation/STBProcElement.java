@@ -49,13 +49,15 @@ final class STBProcElement implements STBuilder {
     st.add("imps", ru.ispras.microtesk.model.api.memory.Memory.class.getName());
   }
 
-  private void buildBody(final STGroup group, final ST st) {
+  private void buildBody(
+      final STGroup group,
+      final ST st) {
     final ST tCore = group.getInstanceOf("core");
     tCore.add("class", CLASS_NAME);
 
     for (final Map.Entry<String, MemoryExpr> mem : ir.getMemory().entrySet()) {
       tCore.add("names", mem.getKey());
-      buildMemoryLine(group, tCore, mem.getKey(), mem.getValue());
+      tCore.add("types", buildMemoryLine(group, mem.getKey(), mem.getValue()));
     }
 
     for (final LetLabel label : ir.getLabels().values()) {
@@ -71,7 +73,10 @@ final class STBProcElement implements STBuilder {
     st.add("members", tCore);
   }
 
-  private void buildMemoryLine(STGroup group, ST t, String name, MemoryExpr memory) {
+  private ST buildMemoryLine(
+      final STGroup group,
+      final String name,
+      final MemoryExpr memory) {
     final ST tMemory = group.getInstanceOf("new_memory");
 
     tMemory.add("name", name);
@@ -102,7 +107,7 @@ final class STBProcElement implements STBuilder {
       }
     }
 
-    t.add("types", tMemory);
+    return tMemory;
   }
 
   @Override
