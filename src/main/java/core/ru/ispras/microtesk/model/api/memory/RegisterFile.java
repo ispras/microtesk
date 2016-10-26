@@ -66,6 +66,25 @@ final class RegisterFile extends Memory {
     return new Pair<>(locations, atoms);
   }
 
+  private RegisterFile(final RegisterFile other) {
+    super(other);
+
+    final int count = other.locations.size();
+    InvariantChecks.checkTrue(other.locations.size() == other.atoms.size());
+
+    this.locations = new ArrayList<>(count);
+    this.atoms = new ArrayList<>(count);
+
+    for (int index = 0; index < count; ++index) {
+      final Type type = other.locations.get(index).getType();
+      final RegisterAtom atom = new RegisterAtom(other.atoms.get(index));
+      final Location location = Location.newLocationForAtom(type, atom);
+
+      this.atoms.add(atom);
+      this.locations.add(location);
+    }
+  }
+
   @Override
   public Location access(final int index) {
     if (null != tempLocations) {
@@ -92,8 +111,7 @@ final class RegisterFile extends Memory {
 
   @Override
   public Memory copy() {
-    // FIXME: NEED PROPER IMPLEMENTATION
-    return this;
+    return new RegisterFile(this);
   }
 
   @Override
@@ -153,6 +171,14 @@ final class RegisterFile extends Memory {
       this.flags = flags;
       this.bitSize = bitSize;
       this.startBitPos = startBitPos;
+    }
+
+    private RegisterAtom(final RegisterAtom other) {
+      this.value = other.value.copy();
+      // Flags are reset for the new copy.
+      this.flags = BitVector.newEmpty(other.bitSize);
+      this.bitSize = other.bitSize;
+      this.startBitPos = other.startBitPos;
     }
 
     @Override
