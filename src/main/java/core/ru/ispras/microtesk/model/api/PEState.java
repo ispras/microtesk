@@ -28,6 +28,11 @@ import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
 
+/**
+ * The {@link PEState} class holds information on the state of a PE.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+  */
 public abstract class PEState {
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
@@ -46,6 +51,14 @@ public abstract class PEState {
     InvariantChecks.checkNotNull(label);
     this.labelMap.put(label.getName(), label);
   }
+
+  /**
+   * Creates a new copy of PE state. Shared resources can be shared or cloned.
+   * 
+   * @param shared Specifies whether resources marked as shared must be shared or cloned.
+   * @return New copy.
+   */
+  public abstract PEState copy(boolean shared);
 
   public final LocationAccessor accessLocation(
       final String storageId) throws ConfigurationException {

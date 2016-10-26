@@ -62,9 +62,13 @@ final class STBProcElement implements STBuilder {
 
       if (null != memory.getAlias()) {
         tCore.add("copies", stMemoryDef);
+      } else if (memory.isShared()){
+        tCore.add("copies",
+            String.format("shared ? other.%1$s : other.%1$s.copy()", memory.getName()));
       } else {
-        tCore.add("copies", "other." + memory.getName() + (memory.isShared() ? "" : ".copy()"));
-      } 
+        tCore.add("copies",
+            String.format("other.%s.copy()", memory.getName()));
+      }
     }
 
     for (final LetLabel label : ir.getLabels().values()) {

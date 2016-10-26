@@ -87,11 +87,16 @@ public <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
   registerAll();
 }<\n>
-public <class>(final <class> other) {
+private <class>(final <class> other, final boolean shared) {
   <names, copies:{n, c | this.<n> = <c>;}; separator="\n"><\n>
   registerAll();
 }<\n>
 private void registerAll() {
   <names:{n | addStorage(<n>);}; separator="\n">
   <if(labels)><\n><labels:{l | addLabel(<l>);}; separator="\n"><endif>
-}>>
+}<\n>
+@Override
+public PEState copy(final boolean shared) {
+  return new <class>(this, shared);
+}
+>>
