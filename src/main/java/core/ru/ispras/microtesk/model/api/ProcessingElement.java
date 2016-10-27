@@ -15,9 +15,7 @@
 package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -40,15 +38,10 @@ public abstract class ProcessingElement {
 
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
-  private final List<Memory> variables = new ArrayList<>();
 
   protected final void addStorage(final Memory storage) {
     InvariantChecks.checkNotNull(storage);
     this.storageMap.put(storage.getName(), storage);
-
-    if (Memory.Kind.VAR == storage.getKind()) {
-      variables.add(storage);
-    }
   }
 
   protected final void addLabel(final Label label) {
@@ -97,12 +90,6 @@ public abstract class ProcessingElement {
   public final void setUseTempState(boolean value) {
     for (final Memory memory : storageMap.values()) {
       memory.setUseTempCopy(value);
-    }
-  }
-
-  public final void resetVariables() {
-    for (final Memory variable : variables) {
-      variable.reset();
     }
   }
 

@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -53,6 +54,10 @@ final class STBProcessingElement implements STBuilder {
     tCore.add("class", CLASS_NAME);
 
     for (final MemoryExpr memory : ir.getMemory().values()) {
+      if (memory.getKind() == Memory.Kind.VAR) {
+        continue;
+      }
+
       tCore.add("names", memory.getName());
 
       final ST stMemoryDef = buildMemoryLine(group, memory);

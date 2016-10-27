@@ -36,7 +36,7 @@ type SWORD = int(16)
 type DWORD = card(32)
 type INDEX = card(REG_INDEX_SIZE)
 
-var program_counter[1, ADDR] // Program counter
+reg program_counter[1, ADDR] // Program counter
 
 // Informs that IP is a program counter. This information 
 // is needed to handle control transfer ops.
