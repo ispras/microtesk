@@ -24,6 +24,7 @@ import ru.ispras.microtesk.MicroTESK;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**
@@ -61,8 +62,16 @@ public abstract class TemplateTest implements Logger.Listener {
     options.put(option, value);
   }
 
+  private void setDefaultCodeFileNamePrefix(final String file) {
+    final String fileName = FileUtils.getShortFileNameNoExt(file);
+    if (!options.containsKey(Option.CODE_PRE)) {
+      setCommandLineOption(Option.CODE_PRE, fileName);
+    }
+  }
+
   public final Statistics run(final String file) {
     InvariantChecks.checkNotNull(file);
+    setDefaultCodeFileNamePrefix(file);
 
     Logger.setListener(this);
     MicroTESK.main(makeArgs(file));
