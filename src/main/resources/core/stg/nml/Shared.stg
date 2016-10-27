@@ -67,10 +67,13 @@ temporary_variables(class, names, defs) ::= <<
 private <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n">
 }<\n>
-public static final class <name>Factory implements Factory {
+private static final class <name>Factory implements Factory {
   @Override
   public <name> create() {
     return new <name>();
   }
+}<\n>
+public static Factory newFactory() {
+  return new <name>Factory();
 }
 >>
