@@ -81,7 +81,7 @@ new_resetter(type, items) ::= <<
 new <type>(<items; separator=", ">)
 >>
 
-core(class, names, defs, copies, labels) ::= <<
+processing_element(class, names, defs, copies, labels) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
 public <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
@@ -98,5 +98,12 @@ private void registerAll() {
 @Override
 public ProcessingElement copy(final boolean shared) {
   return new <class>(this, shared);
+}
+>>
+
+temporary_variables(class, names, defs) ::= <<
+<names:{n | public final Memory <n>;}; separator="\n"><\n>
+public <class>() {
+  <names, defs:{n, d | this.<n> = <d>;}; separator="\n">
 }
 >>

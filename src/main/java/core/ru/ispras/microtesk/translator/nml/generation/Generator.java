@@ -49,7 +49,8 @@ public final class Generator implements TranslatorHandler<Ir> {
   private void generate() {
     try {
       generateTypes();
-      generateCore();
+      generateProcessingElement();
+      generateTemporaryVariables();
       generateModes();
       generateOps();
       generateModel();
@@ -68,8 +69,13 @@ public final class Generator implements TranslatorHandler<Ir> {
     types.generate();
   }
 
-  private void generateCore() throws IOException {
+  private void generateProcessingElement() throws IOException {
     final FileGenerator core = factory.createPEGenerator(ir);
+    core.generate();
+  }
+
+  private void generateTemporaryVariables() throws IOException {
+    final FileGenerator core = factory.createTempVarGenerator(ir);
     core.generate();
   }
 

@@ -19,27 +19,25 @@ import java.math.BigInteger;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-final class STBProcessingElement implements STBuilder {
-  public static final String CLASS_NAME = "PE";
+final class STBTemporaryVariables implements STBuilder {
+  public static final String CLASS_NAME = "TempVars";
   private final Ir ir;
 
-  public STBProcessingElement(final Ir ir) {
+  public STBTemporaryVariables(final Ir ir) {
     this.ir = ir;
   }
 
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
-
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
-    st.add("ext", ru.ispras.microtesk.model.api.ProcessingElement.class.getSimpleName());
 
     st.add("imps", BigInteger.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.ProcessingElement.class.getName());
@@ -49,34 +47,18 @@ final class STBProcessingElement implements STBuilder {
   }
 
   private void buildBody(final STGroup group, final ST st) {
-    final ST tCore = group.getInstanceOf("processing_element");
+    final ST tCore = group.getInstanceOf("temporary_variables");
     tCore.add("class", CLASS_NAME);
 
     for (final MemoryExpr memory : ir.getMemory().values()) {
+      if (memory.getKind() != Memory.Kind.VAR) {
+        continue;
+      }
+
       tCore.add("names", memory.getName());
 
       final ST stMemoryDef = buildMemoryLine(group, memory);
       tCore.add("defs", stMemoryDef);
-
-      if (null != memory.getAlias()) {
-        tCore.add("copies", stMemoryDef);
-      } else if (memory.isShared()){
-        tCore.add("copies",
-            String.format("shared ? other.%1$s : other.%1$s.copy()", memory.getName()));
-      } else {
-        tCore.add("copies",
-            String.format("other.%s.copy()", memory.getName()));
-      }
-    }
-
-    for (final LetLabel label : ir.getLabels().values()) {
-      final ST tNewLabel = group.getInstanceOf("new_label");
-
-      tNewLabel.add("name", label.getName());
-      tNewLabel.add("memory", label.getMemoryName());
-      tNewLabel.add("index", label.getIndex());
-
-      tCore.add("labels", tNewLabel);
     }
 
     st.add("members", tCore);
