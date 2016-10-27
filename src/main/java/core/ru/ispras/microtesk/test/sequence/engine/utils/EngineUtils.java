@@ -202,7 +202,8 @@ public final class EngineUtils {
         if (arg.getKind() == Argument.Kind.MODE) {
           try {
             final IsaPrimitive concreteMode = makeMode(engineContext, arg);
-            if (concreteMode.access(engineContext.getModel().getPE()).isInitialized()) {
+            final Model model = engineContext.getModel();
+            if (concreteMode.access(model.getPE(), model.newTempVars()).isInitialized()) {
               continue;
             }
           } catch (ConfigurationException e) {

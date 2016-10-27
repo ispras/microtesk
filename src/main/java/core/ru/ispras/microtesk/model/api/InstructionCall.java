@@ -49,9 +49,7 @@ public final class InstructionCall {
     this.processingElement = processingElement;
     this.tempVarFactory = tempVarFactory;
     this.instruction = instruction;
-
-    processingElement.resetVariables();
-    this.image = instruction.image(processingElement);
+    this.image = instruction.image(tempVarFactory.create());
 
     final int bitSize = image.length();
     this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
@@ -61,8 +59,7 @@ public final class InstructionCall {
    * Runs simulation of a corresponding instruction described within the model.
    */
   public void execute() {
-    processingElement.resetVariables();
-    instruction.execute(processingElement);
+    instruction.execute(processingElement, tempVarFactory.create());
   }
 
   /**
@@ -72,8 +69,7 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    processingElement.resetVariables();
-    return instruction.syntax(processingElement);
+    return instruction.syntax(tempVarFactory.create());
   }
 
   /**

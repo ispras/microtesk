@@ -160,15 +160,24 @@ final class StatementBuilder {
 
   private void addStatement(StatementAttributeCall stmt) {
     final String attrName = stmt.getAttributeName();
+    final boolean usePE = !attrName.equals(Attribute.INIT_NAME) &&
+                          !attrName.equals(Attribute.IMAGE_NAME) &&
+                          !attrName.equals(Attribute.SYNTAX_NAME);
+    final boolean isAction = attrName.equals(Attribute.ACTION_NAME);
+
+    final String methodName;
     if (null != stmt.getCalleeName()) {
-      addStatement(String.format("%s.%s(pe__);", stmt.getCalleeName(),
-          attrName.equals("action") ? "execute" : attrName));
+      methodName = String.format("%s.%s",
+          stmt.getCalleeName(), isAction ? "execute" : attrName);
     } else if(null != stmt.getCalleeInstance()) {
-      addStatement(String.format("%s.%s(pe__);", PrinterInstance.toString(stmt.getCalleeInstance()),
-          attrName.equals("action") ? "execute" : attrName));
+      methodName = String.format("%s.%s",
+          PrinterInstance.toString(stmt.getCalleeInstance()), isAction ? "execute" : attrName);
     } else {
-      addStatement(String.format("%s(pe__);", attrName));
+      methodName = attrName;
     }
+
+    final String arguments = usePE ? "pe__, vars__" : "vars__";
+    addStatement(String.format("%s(%s);", methodName, arguments));
   }
 
   private void addStatement(StatementFormat stmt) {

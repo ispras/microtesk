@@ -31,6 +31,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ArgumentMode;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.Location;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
@@ -141,7 +142,8 @@ public final class BindingBuilder {
 
             try {
                 final IsaPrimitive mode = makeMode(engineContext, arg);
-                final Location location = mode.access(engineContext.getModel().getPE());
+                final Model model = engineContext.getModel();
+                final Location location = mode.access(model.getPE(), model.newTempVars());
 
                 if (location.isInitialized()) {
                   bindingValue = NodeValue.newBitVector(

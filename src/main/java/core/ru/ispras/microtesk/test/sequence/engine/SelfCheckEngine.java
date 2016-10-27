@@ -22,6 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
@@ -68,9 +69,10 @@ public final class SelfCheckEngine {
 
     final Primitive abstractMode = check.getMode().getModePrimitive();
     final IsaPrimitive concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
+    final Model model = engineContext.getModel();
 
     final BitVector value =
-        concreteMode.access(engineContext.getModel().getPE()).load().getRawData();
+        concreteMode.access(model.getPE(), model.newTempVars()).load().getRawData();
 
     Logger.debug("Expected value is 0x%s", value.toHexString());
 

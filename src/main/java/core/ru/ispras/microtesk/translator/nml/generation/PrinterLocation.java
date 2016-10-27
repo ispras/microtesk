@@ -14,10 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
@@ -42,7 +44,9 @@ public final class PrinterLocation {
     final StringBuilder sb = new StringBuilder();
 
     if (addPE && location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY) {
-      sb.append("pe__.");
+      final boolean isVar =
+          ((LocationSourceMemory) location.getSource()).getKind() == Memory.Kind.VAR;
+      sb.append(isVar ? "vars__." : "pe__.");
     }
 
     sb.append(location.getName());
@@ -51,7 +55,7 @@ public final class PrinterLocation {
     if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
       final boolean isImm = 
           ((LocationSourcePrimitive) location.getSource()).getKind() == Primitive.Kind.IMM;
-      indexText = isImm ? "" : "pe__" ;
+      indexText = isImm ? "" : "pe__, vars__" ;
     } else {
       indexText = ExprPrinter.toString(location.getIndex());
     }

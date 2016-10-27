@@ -172,10 +172,11 @@ this.<name> = <name>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-op_attribute(name, rettype, stmts, override) ::= <<
+op_attribute(name, rettype, stmts, override, usePE) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>(final ProcessingElement processingElement) {
-  final PE pe__ = (PE) processingElement;
+<endif>public <rettype> <name>(<if(usePE)>final ProcessingElement procElem, <endif>final TemporaryVariables tempVars) {
+  <if(usePE)>final PE pe__ = (PE) procElem;<endif>
+  final TempVars vars__ = (TempVars) tempVars;
   <stmts; separator="\n">
 }
 >>

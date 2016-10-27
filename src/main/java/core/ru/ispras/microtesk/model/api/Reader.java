@@ -110,7 +110,7 @@ public final class Reader {
 
     @Override
     public BitVector value() {
-      final Location location = mode.access(model.getPE());
+      final Location location = mode.access(model.getPE(), model.newTempVars());
       return new LocationValue(location).value();
     }
   }

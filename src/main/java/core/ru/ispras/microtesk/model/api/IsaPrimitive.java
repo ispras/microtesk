@@ -59,7 +59,7 @@ public abstract class IsaPrimitive {
    * 
    * @return Assembly text.
    */
-  public String syntax(final ProcessingElement processingElement) {
+  public String syntax(final TemporaryVariables temporaryVariables) {
     reportUndefined("syntax", "Empty string will be returned");
     return "";
   }
@@ -74,7 +74,7 @@ public abstract class IsaPrimitive {
    * 
    * @return Binary text.
    */
-  public String image(final ProcessingElement processingElement) {
+  public String image(final TemporaryVariables temporaryVariables) {
     reportUndefined("image", "Empty string will be returned, primitive size will be 0");
     return "";
   }
@@ -82,10 +82,12 @@ public abstract class IsaPrimitive {
   /**
    * Runs execution of the current primitive's action.
    */
-  public final void execute(final ProcessingElement processingElement) {
+  public final void execute(
+      final ProcessingElement processingElement,
+      final TemporaryVariables temporaryVariables) {
     try {
       CALL_STACK.push(this);
-      action(processingElement);
+      action(processingElement, temporaryVariables);
     } finally {
       CALL_STACK.pop();
     }
@@ -98,7 +100,9 @@ public abstract class IsaPrimitive {
    * explicitly specified action attribute. This method does not do any useful work
    * and should never be called. It is needed only to let inherited classes compile.
    */
-  protected void action(final ProcessingElement processingElement) {
+  protected void action(
+      final ProcessingElement processingElement,
+      final TemporaryVariables temporaryVariables) {
     reportUndefined("action", "No action will be performed");
   }
 
@@ -112,7 +116,9 @@ public abstract class IsaPrimitive {
    * 
    * @return Memory location.
    */
-  public Location access(final ProcessingElement processingElement) {
+  public Location access(
+      final ProcessingElement processingElement,
+      final TemporaryVariables temporaryVariables) {
     reportUndefined("access", "null will be returned");
     return null;
   }

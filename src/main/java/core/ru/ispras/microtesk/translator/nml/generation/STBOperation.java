@@ -77,6 +77,7 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
+    t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
     t.add("base", IsaPrimitive.class.getSimpleName());
@@ -138,6 +139,9 @@ final class STBOperation extends STBPrimitiveBase {
 
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
+      attrST.add("usePE",
+          Attribute.Kind.ACTION == attr.getKind() &&
+          !attr.getName().equals(Attribute.INIT_NAME));
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (Statement stmt : attr.getStatements()) {
