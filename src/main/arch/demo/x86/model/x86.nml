@@ -97,15 +97,15 @@ reg IP[WORD]
 reg FLAGS[1, WORD]
 
 // Flags
-var CF[BIT] alias = FLAGS<0>
-var PF[BIT] alias = FLAGS<2>
-var AF[BIT] alias = FLAGS<4>
-var ZF[BIT] alias = FLAGS<6>
-var SF[BIT] alias = FLAGS<7>
-var TF[BIT] alias = FLAGS<8>
-var IF[BIT] alias = FLAGS<9>
-var DF[BIT] alias = FLAGS<10>
-var OF[BIT] alias = FLAGS<11>
+reg CF[BIT] alias = FLAGS<0>
+reg PF[BIT] alias = FLAGS<2>
+reg AF[BIT] alias = FLAGS<4>
+reg ZF[BIT] alias = FLAGS<6>
+reg SF[BIT] alias = FLAGS<7>
+reg TF[BIT] alias = FLAGS<8>
+reg IF[BIT] alias = FLAGS<9>
+reg DF[BIT] alias = FLAGS<10>
+reg OF[BIT] alias = FLAGS<11>
 
 // A memory line
 mem M[MEM_SIZE, BYTE]
