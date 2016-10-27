@@ -42,6 +42,10 @@ public final class Immediate extends IsaPrimitive {
 
   @Override
   public Location access(final ProcessingElement processingElement) {
+    return access();
+  }
+
+  public Location access() {
     return location;
   }
 
