@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -30,6 +31,10 @@ public final class LocationSourceMemory implements LocationSource {
   @Override
   public NmlSymbolKind getSymbolKind() {
     return NmlSymbolKind.MEMORY;
+  }
+
+  public Memory.Kind getKind() {
+    return memory.getKind();
   }
 
   @Override
