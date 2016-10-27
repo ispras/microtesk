@@ -15,12 +15,16 @@
 package ru.ispras.microtesk.test.testutils;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.MicroTESK;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The {@link TemplateTest} class is a base class for all JUnit test
@@ -31,7 +35,7 @@ import ru.ispras.microtesk.test.TestEngine;
 public abstract class TemplateTest implements Logger.Listener {
   private final String arch;
   private final String path;
-  private boolean verbose;
+  private final Map<Option, String> options;
 
   public TemplateTest(final String arch, final String path) {
     InvariantChecks.checkNotNull(arch);
@@ -39,11 +43,22 @@ public abstract class TemplateTest implements Logger.Listener {
 
     this.arch = arch;
     this.path = path;
-    this.verbose = false;
+    this.options = new EnumMap<>(Option.class);
+
+    setCommandLineOption(Option.GENERATE);
   }
 
-  public void setVerbose(boolean value) {
-    this.verbose = value;
+  public final void setVerbose(final boolean value) {
+    setCommandLineOption(Option.VERBOSE, value ? "" : null);
+  }
+
+  public final void setCommandLineOption(final Option option) {
+    setCommandLineOption(option, "");
+  }
+
+  public void setCommandLineOption(final Option option, final String value) {
+    InvariantChecks.checkNotNull(option);
+    options.put(option, value);
   }
 
   public final Statistics run(final String file) {
@@ -59,14 +74,23 @@ public abstract class TemplateTest implements Logger.Listener {
   private String[] makeArgs(final String file) {
     final ArrayList<String> args = new ArrayList<>();
 
-    args.add("-g");
-    if (verbose) {
-      args.add("-v");
+    for (final Map.Entry<Option, String> entry : options.entrySet()) {
+      final Option option = entry.getKey();
+      final String value = entry.getValue();
+
+      if (null != value) {
+        args.add("-" + option.getShortName());
+      }
+
+      if (null != value && !value.isEmpty()) {
+        args.add(value);
+      }
     }
 
     args.add(arch);
     args.add(path + "/" + file);
 
+    Logger.message("Command line: " + StringUtils.toString(args, " "));
     return args.toArray(new String[args.size()]);
   }
 }
