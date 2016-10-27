@@ -27,11 +27,11 @@ import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
-final class STBProcElement implements STBuilder {
+final class STBProcessingElement implements STBuilder {
   public static final String CLASS_NAME = "PE";
   private final Ir ir;
 
-  public STBProcElement(final Ir ir) {
+  public STBProcessingElement(final Ir ir) {
     this.ir = ir;
   }
 
