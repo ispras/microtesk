@@ -89,8 +89,8 @@ public final Immediate <param_name>;
 
 mode_attribute(name, rettype, stmts, override) ::= <<
 <if(override)>@Override
-<endif>public <rettype> <name>(final PEState peState) {
-  final PE pe__ = (PE) peState;
+<endif>public <rettype> <name>(final ProcessingElement processingElement) {
+  final PE pe__ = (PE) processingElement;
   <stmts; separator="\n">
 }
 >>

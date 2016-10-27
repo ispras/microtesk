@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.PEState;
 
 /**
  * The InstructionCall class provides methods to run execution simulation
@@ -24,7 +23,7 @@ import ru.ispras.microtesk.model.api.PEState;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class InstructionCall {
-  private final PEState peState;
+  private final ProcessingElement processingElement;
   private final IsaPrimitive instruction;
   private final String image;
   private final int byteSize;
@@ -39,16 +38,16 @@ public final class InstructionCall {
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
   public InstructionCall(
-      final PEState peState,
+      final ProcessingElement processingElement,
       final IsaPrimitive instruction) {
-    InvariantChecks.checkNotNull(peState);
+    InvariantChecks.checkNotNull(processingElement);
     InvariantChecks.checkNotNull(instruction);
 
-    this.peState = peState;
+    this.processingElement = processingElement;
     this.instruction = instruction;
 
-    peState.resetVariables();
-    this.image = instruction.image(peState);
+    processingElement.resetVariables();
+    this.image = instruction.image(processingElement);
 
     final int bitSize = image.length();
     this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
@@ -58,8 +57,8 @@ public final class InstructionCall {
    * Runs simulation of a corresponding instruction described within the model.
    */
   public void execute() {
-    peState.resetVariables();
-    instruction.execute(peState);
+    processingElement.resetVariables();
+    instruction.execute(processingElement);
   }
 
   /**
@@ -69,8 +68,8 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    peState.resetVariables();
-    return instruction.syntax(peState);
+    processingElement.resetVariables();
+    return instruction.syntax(processingElement);
   }
 
   /**

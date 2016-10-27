@@ -23,21 +23,21 @@ import ru.ispras.microtesk.model.api.metadata.MetaModel;
 public class ModelBuilder {
   private final String name;
   private final MetaModel metaModel;
-  private final PEState peState;
+  private final ProcessingElement processingElement;
   private final Map<String, IsaPrimitiveInfoAnd> modes;
   private final Map<String, IsaPrimitiveInfoAnd> ops;
 
   protected ModelBuilder(
       final String name,
       final MetaModel metaModel,
-      final PEState peState) {
+      final ProcessingElement processingElement) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(metaModel);
-    InvariantChecks.checkNotNull(peState);
+    InvariantChecks.checkNotNull(processingElement);
 
     this.name = name;
     this.metaModel = metaModel;
-    this.peState = peState;
+    this.processingElement = processingElement;
     this.modes = new HashMap<>();
     this.ops = new HashMap<>();
   }
@@ -53,6 +53,6 @@ public class ModelBuilder {
   }
 
   public final Model build() {
-    return new Model(name, metaModel, peState, modes, ops);
+    return new Model(name, metaModel, processingElement, modes, ops);
   }
 }

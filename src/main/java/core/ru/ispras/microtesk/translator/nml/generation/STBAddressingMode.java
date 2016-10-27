@@ -55,7 +55,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
     t.add("imps", ru.ispras.microtesk.model.api.Execution.class.getName());
-    t.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
+    t.add("imps", ru.ispras.microtesk.model.api.ProcessingElement.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
     t.add("imps", ru.ispras.microtesk.model.api.memory.Location.class.getName());

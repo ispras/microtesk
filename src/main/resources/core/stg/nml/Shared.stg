@@ -96,7 +96,7 @@ private void registerAll() {
   <if(labels)><\n><labels:{l | addLabel(<l>);}; separator="\n"><endif>
 }<\n>
 @Override
-public PEState copy(final boolean shared) {
+public ProcessingElement copy(final boolean shared) {
   return new <class>(this, shared);
 }
 >>

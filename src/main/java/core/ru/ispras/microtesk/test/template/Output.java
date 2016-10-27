@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.PEState;
+import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
@@ -94,7 +92,7 @@ public final class Output {
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
      *         access to the model state.
      */
-    Object evaluate(PEState peState) throws ConfigurationException;
+    Object evaluate(ProcessingElement processingElement) throws ConfigurationException;
 
     /**
      * Creates a copy.
@@ -118,7 +116,7 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final PEState peState) {
+    public Object evaluate(final ProcessingElement processingElement) {
       if (value instanceof Value) {
         return ((Value) value).getValue();
       }
@@ -156,8 +154,9 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final PEState peState) throws ConfigurationException {
-      final LocationAccessor accessor = peState.accessLocation(name, index);
+    public Object evaluate(
+        final ProcessingElement processingElement) throws ConfigurationException {
+      final LocationAccessor accessor = processingElement.accessLocation(name, index);
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
 
@@ -187,9 +186,9 @@ public final class Output {
       final Kind kind,
       final String format,
       final List<Argument> args) {
-    checkNotNull(kind);
-    checkNotNull(format);
-    checkNotNull(args);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(format);
+    InvariantChecks.checkNotNull(args);
 
     this.kind = kind;
     this.format = format;
@@ -249,22 +248,22 @@ public final class Output {
    * Evaluates the stored information using the model state observer to read the state of the model
    * (if required) and returns resulting text.
    * 
-   * @param peState PE state information.
+   * @param processingElement PE state information.
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect
    *         request to the model state observer.
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
-  public String evaluate(final PEState peState) throws ConfigurationException {
+  public String evaluate(final ProcessingElement processingElement) throws ConfigurationException {
     if (args.isEmpty()) {
       return format;
     }
 
-    checkNotNull(peState);
+    InvariantChecks.checkNotNull(processingElement);
 
     final List<Object> values = new ArrayList<>(args.size());
     for (final Argument argument : args) {
-      final Object value = argument.evaluate(peState);
+      final Object value = argument.evaluate(processingElement);
       values.add(value);
     }
 

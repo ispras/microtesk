@@ -39,10 +39,10 @@ final class STBProcElement implements STBuilder {
     st.add("name", CLASS_NAME);
 
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
-    st.add("ext", ru.ispras.microtesk.model.api.PEState.class.getSimpleName());
+    st.add("ext", ru.ispras.microtesk.model.api.ProcessingElement.class.getSimpleName());
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", ru.ispras.microtesk.model.api.PEState.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.ProcessingElement.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Label.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Memory.class.getName());

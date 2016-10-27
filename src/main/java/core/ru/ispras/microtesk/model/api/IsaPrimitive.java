@@ -18,7 +18,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.PEState;
 import ru.ispras.microtesk.model.api.memory.Location;
 
 /**
@@ -60,7 +59,7 @@ public abstract class IsaPrimitive {
    * 
    * @return Assembly text.
    */
-  public String syntax(final PEState peState) {
+  public String syntax(final ProcessingElement processingElement) {
     reportUndefined("syntax", "Empty string will be returned");
     return "";
   }
@@ -75,7 +74,7 @@ public abstract class IsaPrimitive {
    * 
    * @return Binary text.
    */
-  public String image(final PEState peState) {
+  public String image(final ProcessingElement processingElement) {
     reportUndefined("image", "Empty string will be returned, primitive size will be 0");
     return "";
   }
@@ -83,10 +82,10 @@ public abstract class IsaPrimitive {
   /**
    * Runs execution of the current primitive's action.
    */
-  public final void execute(final PEState peState) {
+  public final void execute(final ProcessingElement processingElement) {
     try {
       CALL_STACK.push(this);
-      action(peState);
+      action(processingElement);
     } finally {
       CALL_STACK.pop();
     }
@@ -99,7 +98,7 @@ public abstract class IsaPrimitive {
    * explicitly specified action attribute. This method does not do any useful work
    * and should never be called. It is needed only to let inherited classes compile.
    */
-  protected void action(final PEState peState) {
+  protected void action(final ProcessingElement processingElement) {
     reportUndefined("action", "No action will be performed");
   }
 
@@ -113,7 +112,7 @@ public abstract class IsaPrimitive {
    * 
    * @return Memory location.
    */
-  public Location access(final PEState peState) {
+  public Location access(final ProcessingElement processingElement) {
     reportUndefined("access", "null will be returned");
     return null;
   }
