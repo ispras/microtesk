@@ -80,6 +80,10 @@ public final class Model {
     return processingElement;
   }
 
+  public TemporaryVariables newTempVars() {
+    return tempVarFactory.create();
+  }
+
   public IsaPrimitiveBuilder newMode(
       final String name) throws ConfigurationException {
     InvariantChecks.checkNotNull(name);
