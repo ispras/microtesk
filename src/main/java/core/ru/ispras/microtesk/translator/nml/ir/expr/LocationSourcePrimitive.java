@@ -32,6 +32,10 @@ public final class LocationSourcePrimitive implements LocationSource {
     return NmlSymbolKind.ARGUMENT;
   }
 
+  public Primitive.Kind getKind() {
+    return primitive.getKind();
+  }
+
   @Override
   public Type getType() {
     return primitive.getReturnType();
