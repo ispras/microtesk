@@ -24,6 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class InstructionCall {
   private final ProcessingElement processingElement;
+  private final TemporaryVariables.Factory tempVarFactory;
   private final IsaPrimitive instruction;
   private final String image;
   private final int byteSize;
@@ -39,11 +40,14 @@ public final class InstructionCall {
    */
   public InstructionCall(
       final ProcessingElement processingElement,
+      final TemporaryVariables.Factory tempVarFactory,
       final IsaPrimitive instruction) {
     InvariantChecks.checkNotNull(processingElement);
+    InvariantChecks.checkNotNull(tempVarFactory);
     InvariantChecks.checkNotNull(instruction);
 
     this.processingElement = processingElement;
+    this.tempVarFactory = tempVarFactory;
     this.instruction = instruction;
 
     processingElement.resetVariables();

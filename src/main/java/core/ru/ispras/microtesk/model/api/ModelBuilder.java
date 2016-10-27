@@ -63,7 +63,7 @@ public class ModelBuilder {
     return new Model(
         name,
         metaModel,
-        procElemFactory.create(),
+        procElemFactory,
         tempVarFactory,
         modes,
         ops

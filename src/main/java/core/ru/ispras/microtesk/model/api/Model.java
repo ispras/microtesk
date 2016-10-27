@@ -28,31 +28,34 @@ public final class Model {
   private final String name;
   private final MetaModel metaData;
 
-  private final ProcessingElement processingElement;
+  private final ProcessingElement.Factory procElemFactory;
   private final TemporaryVariables.Factory tempVarFactory;
 
   private final Map<String, IsaPrimitiveInfoAnd> modes;
   private final Map<String, IsaPrimitiveInfoAnd> ops;
 
+  private final ProcessingElement processingElement;
+
   protected Model(
       final String name,
       final MetaModel metaData,
-      final ProcessingElement processingElement,
+      final ProcessingElement.Factory procElemFactory,
       final TemporaryVariables.Factory tempVarFactory,
       final Map<String, IsaPrimitiveInfoAnd> modes,
       final Map<String, IsaPrimitiveInfoAnd> ops) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(metaData);
 
-    InvariantChecks.checkNotNull(processingElement);
+    InvariantChecks.checkNotNull(procElemFactory);
     InvariantChecks.checkNotNull(tempVarFactory);
 
     this.name = name;
     this.metaData = metaData;
-    this.processingElement = processingElement;
+    this.procElemFactory = procElemFactory;
     this.tempVarFactory = tempVarFactory;
     this.modes = modes;
     this.ops = ops;
+    this.processingElement = procElemFactory.create();
   }
 
   /**
@@ -109,6 +112,7 @@ public final class Model {
 
   public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(processingElement, op);
+    return new InstructionCall(
+        processingElement, tempVarFactory, op);
   }
 }
