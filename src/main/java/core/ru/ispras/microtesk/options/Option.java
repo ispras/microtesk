@@ -176,7 +176,7 @@ public enum Option {
     final StringBuilder sb = new StringBuilder(description);
 
     if (null != dependency) {
-      sb.append(String.format(" [works with --%s]", dependency.getShortName()));
+      sb.append(String.format(" [works with -%s]", dependency.getShortName()));
     }
 
     sb.append(", default=");
