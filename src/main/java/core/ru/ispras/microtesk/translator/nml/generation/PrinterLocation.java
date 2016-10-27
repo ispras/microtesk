@@ -18,6 +18,8 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
   private static final String ACCESS_FORMAT = ".access(%s)";
@@ -47,7 +49,9 @@ public final class PrinterLocation {
 
     final String indexText;
     if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
-      indexText = "pe__";
+      final boolean isImm = 
+          ((LocationSourcePrimitive) location.getSource()).getKind() == Primitive.Kind.IMM;
+      indexText = isImm ? "" : "pe__" ;
     } else {
       indexText = ExprPrinter.toString(location.getIndex());
     }
