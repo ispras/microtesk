@@ -69,12 +69,14 @@ public abstract class TemplateTest implements Logger.Listener {
     }
   }
 
-  public final Statistics run(final String file) {
+  public Statistics run(final String file) {
     InvariantChecks.checkNotNull(file);
+
     setDefaultCodeFileNamePrefix(file);
+    final String[] args = makeArgs(file);
 
     Logger.setListener(this);
-    MicroTESK.main(makeArgs(file));
+    MicroTESK.main(args);
     Logger.setListener(null);
 
     return TestEngine.getInstance().getStatistics();
