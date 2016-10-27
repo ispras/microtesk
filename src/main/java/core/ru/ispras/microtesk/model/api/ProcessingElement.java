@@ -34,6 +34,10 @@ import ru.ispras.microtesk.model.api.memory.MemoryDeviceWrapper;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
   */
 public abstract class ProcessingElement {
+  public interface Factory {
+    ProcessingElement create();
+  }
+
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
   private final List<Memory> variables = new ArrayList<>();

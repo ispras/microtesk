@@ -24,7 +24,7 @@ public class ModelBuilder {
   private final String name;
   private final MetaModel metaModel;
 
-  private final ProcessingElement processingElement;
+  private final ProcessingElement.Factory procElemFactory;
   private final TemporaryVariables.Factory tempVarFactory;
 
   private final Map<String, IsaPrimitiveInfoAnd> modes;
@@ -33,17 +33,17 @@ public class ModelBuilder {
   protected ModelBuilder(
       final String name,
       final MetaModel metaModel,
-      final ProcessingElement processingElement,
+      final ProcessingElement.Factory procElemFactory,
       final TemporaryVariables.Factory tempVarFactory) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(metaModel);
 
-    InvariantChecks.checkNotNull(processingElement);
+    InvariantChecks.checkNotNull(procElemFactory);
     InvariantChecks.checkNotNull(tempVarFactory);
 
     this.name = name;
     this.metaModel = metaModel;
-    this.processingElement = processingElement;
+    this.procElemFactory = procElemFactory;
     this.tempVarFactory = tempVarFactory;
     this.modes = new HashMap<>();
     this.ops = new HashMap<>();
@@ -63,7 +63,7 @@ public class ModelBuilder {
     return new Model(
         name,
         metaModel,
-        processingElement,
+        procElemFactory.create(),
         tempVarFactory,
         modes,
         ops

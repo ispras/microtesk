@@ -14,10 +14,6 @@
 
 group Shared;
 
-let(name, type, value) ::= <<
-<class_const(type, name, value)>
->>
-
 type(name, typeid, size) ::= <<
 <class_const("Type", name, new_type(typeid, size))>
 >>
@@ -44,7 +40,7 @@ new Label("<name>", <memory>, <index>)
 
 processing_element(class, names, defs, copies, labels) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
-public <class>() {
+private <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
   registerAll();
 }<\n>
@@ -59,7 +55,8 @@ private void registerAll() {
 @Override
 public ProcessingElement copy(final boolean shared) {
   return new <class>(this, shared);
-}
+}<\n>
+<factory()>
 >>
 
 temporary_variables(class, names, defs) ::= <<
@@ -67,6 +64,10 @@ temporary_variables(class, names, defs) ::= <<
 private <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n">
 }<\n>
+<factory()>
+>>
+
+factory() ::= <<
 private static final class <name>Factory implements Factory {
   @Override
   public <name> create() {

@@ -31,7 +31,7 @@ public <class>() {
   super(
       "<name>",
       MetaModelFactory.newMetaModel(),
-      new PE(),
+      PE.newFactory(),
       TempVars.newFactory()
       );<\n>
   <modes:{m |addMode(<m>.INFO);}; separator="\n"><\n>
