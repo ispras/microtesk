@@ -38,9 +38,10 @@ final class STBTemporaryVariables implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT, ir.getModelName()));
+    st.add("impls", ru.ispras.microtesk.model.api.TemporaryVariables.class.getSimpleName());
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", ru.ispras.microtesk.model.api.ProcessingElement.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.TemporaryVariables.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Label.class.getName());
     st.add("imps", ru.ispras.microtesk.model.api.memory.Memory.class.getName());

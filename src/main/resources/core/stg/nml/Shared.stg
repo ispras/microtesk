@@ -64,7 +64,13 @@ public ProcessingElement copy(final boolean shared) {
 
 temporary_variables(class, names, defs) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
-public <class>() {
+private <class>() {
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n">
+}<\n>
+public static final class <name>Factory implements Factory {
+  @Override
+  public <name> create() {
+    return new <name>();
+  }
 }
 >>
