@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,10 +28,10 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestEngine;
 
 /**
+ * The {@link MemoryStorage} implements a memory storage.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MemoryStorage implements MemoryDevice {
   private String id;
   private boolean isReadOnly;
@@ -48,8 +47,8 @@ public final class MemoryStorage implements MemoryDevice {
   // Default value to be returned when reading an unallocated address.
   private final BitVector defaultRegion;
 
-  private final Map<BitVector, Map<Integer, Block>> addressMap;
-  private Map<BitVector, Map<Integer, Block>> tempAddressMap = null;
+  private final Map<BitVector, Area> addressMap;
+  private Map<BitVector, Area> tempAddressMap = null;
 
   private final static class Index {
     private static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
@@ -103,13 +102,52 @@ public final class MemoryStorage implements MemoryDevice {
     }
   }
 
+  private final class Area {
+    private final Map<Integer, Block> blocks;
+
+    public Area() {
+      this.blocks = new TreeMap<>();
+    }
+
+    public Area(final Area other) {
+      this.blocks = new TreeMap<>(other.blocks);
+    }
+
+    public MemoryStorage getOwner() {
+      return MemoryStorage.this;
+    }
+
+    public Block get(final int index) {
+      return blocks.get(index);
+    }
+
+    public Block put(final int index, final Block block) {
+      return blocks.put(index, block);
+    }
+
+    public void reset() {
+      for (final Block block : blocks.values()) {
+        block.reset();
+      }
+    }
+  }
+
   private final class Block {
     private final BitVector storage;
-    private final BitSet initFlags;
+    private final BitVector initFlags;
 
     public Block() {
       storage = BitVector.newEmpty(blockBitSize);
-      initFlags = new BitSet();
+      initFlags = BitVector.newEmpty(REGIONS_IN_BLOCK);
+    }
+
+    public Block(final Block other) {
+      this.storage = other.storage.copy();
+      this.initFlags = other.initFlags.copy();
+    }
+
+    public MemoryStorage getOwner() {
+      return MemoryStorage.this;
     }
 
     public void reset() {
@@ -125,11 +163,11 @@ public final class MemoryStorage implements MemoryDevice {
       final BitVector mapping = getRegionMapping(index);
       mapping.assign(data);
 
-      initFlags.set(index, true);
+      initFlags.setBit(index, true);
     }
 
     public boolean isInitialized(final int index) {
-      return initFlags.get(index);
+      return initFlags.getBit(index);
     }
 
     private BitVector getRegionMapping(final int index) {
@@ -159,6 +197,23 @@ public final class MemoryStorage implements MemoryDevice {
 
     this.defaultRegion = BitVector.unmodifiable(BitVector.newEmpty(regionBitSize));
     this.addressMap = new HashMap<>();
+  }
+
+  public MemoryStorage(final MemoryStorage other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.id = other.id;
+    this.isReadOnly = other.isReadOnly;
+    this.isAddressCheckNeeded = other.isAddressCheckNeeded;
+
+    this.regionCount = other.regionCount;
+    this.regionBitSize = other.regionBitSize;
+    this.addressBitSize = other.addressBitSize;
+    this.blockBitSize = other.blockBitSize;
+    this.defaultRegion = other.defaultRegion;
+
+    this.addressMap = new HashMap<>(other.addressMap);
+    this.tempAddressMap = null;
   }
 
   @Override
@@ -198,7 +253,7 @@ public final class MemoryStorage implements MemoryDevice {
     }
   }
 
-  private Map<BitVector, Map<Integer, Block>> getAddressMap() {
+  private Map<BitVector, Area> getAddressMap() {
     return null != tempAddressMap ? tempAddressMap : addressMap;
   }
 
@@ -267,7 +322,7 @@ public final class MemoryStorage implements MemoryDevice {
     InvariantChecks.checkNotNull(address);
     final Index index = new Index(address, addressBitSize);
 
-    final Map<Integer, Block> area = getAddressMap().get(index.area);
+    final Area area = getAddressMap().get(index.area);
     if (null == area) {
       return false;
     }
@@ -297,7 +352,7 @@ public final class MemoryStorage implements MemoryDevice {
     checkAddress(address, false);
 
     final Index index = new Index(address, addressBitSize);
-    final Map<Integer, Block> area = getAddressMap().get(index.area);
+    final Area area = getAddressMap().get(index.area);
     if (null == area) {
       return defaultRegion;
     }
@@ -334,18 +389,18 @@ public final class MemoryStorage implements MemoryDevice {
 
     final Index index = new Index(address, addressBitSize);
 
-    Map<Integer, Block> area = getAddressMap().get(index.area);
+    Area area = getAddressMap().get(index.area);
     Block block = null;
 
-    if (null == area) {
-      area = new TreeMap<>();
+    if (null == area || !isOwned(area)) {
+      area = null == area ? new Area() : new Area(area);
       getAddressMap().put(index.area, area);
     } else {
       block = area.get(index.block);
     }
 
-    if (null == block) {
-      block = new Block();
+    if (null == block || !isOwned(block)) {
+      block = null == block ? new Block() : new Block(block);
       area.put(index.block, block);
     }
 
@@ -353,10 +408,8 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   public void reset() {
-    for (final Map<Integer, Block> area : getAddressMap().values()) {
-      for (final Block block : area.values()) {
-        block.reset();
-      }
+    for (final Area area : getAddressMap().values()) {
+      area.reset();
     }
   }
 
@@ -391,5 +444,13 @@ public final class MemoryStorage implements MemoryDevice {
       throw new GenerationAbortedException(String.format(
           "Address 0x%x does not match any data region.", addressValue));
     }
+  }
+
+  private boolean isOwned(final Block block) {
+    return block.getOwner() == this;
+  }
+
+  private boolean isOwned(final Area area) {
+    return area.getOwner() == this;
   }
 }

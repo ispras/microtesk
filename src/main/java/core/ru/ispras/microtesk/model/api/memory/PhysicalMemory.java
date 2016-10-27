@@ -60,6 +60,16 @@ final class PhysicalMemory extends Memory {
     storage.setAddressCheckNeeded(!isLogical);
   }
 
+  private PhysicalMemory(final PhysicalMemory other) {
+    super(other);
+
+    this.storage = new MemoryStorage(other.storage);
+    this.handler = other.handler;
+    this.usingTempStorage = false;
+    this.addressableUnitsInData = other.addressableUnitsInData;
+    this.isLogical = other.isLogical;
+  }
+
   @Override
   public final MemoryAllocator newAllocator(
       final int addressableUnitBitSize,
@@ -105,8 +115,7 @@ final class PhysicalMemory extends Memory {
 
   @Override
   public Memory copy() {
-    // FIXME: NEED PROPER IMPLEMENTATION
-    return this;
+    return new PhysicalMemory(this);
   }
 
   @Override

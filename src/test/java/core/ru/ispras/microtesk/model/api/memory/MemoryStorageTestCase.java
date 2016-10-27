@@ -93,4 +93,35 @@ public final class MemoryStorageTestCase {
       assertEquals(data, ms.read(address));
     }
   }
+
+  @Test
+  public void testCopy() {
+    final int regionBitSize = 64;
+    final BigInteger regionCount = BigInteger.valueOf(2).pow(61);
+
+    final MemoryStorage storage1 = new MemoryStorage(regionCount, regionBitSize);
+
+    assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xDEADBEEF));
+    assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xBAADF00D));
+
+    storage1.write(0xDEADBEEF, BitVector.valueOf(0x10L, regionBitSize));
+    storage1.write(0xBAADF00D, BitVector.valueOf(0x20L, regionBitSize));
+
+    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
+    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
+
+    final MemoryStorage storage2 = new MemoryStorage(storage1);
+
+    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage2.read(0xDEADBEEF));
+    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage2.read(0xBAADF00D));
+
+    storage2.write(0xDEADBEEF, BitVector.valueOf(0xFFFF10L, regionBitSize));
+    storage2.write(0xBAADF00D, BitVector.valueOf(0xF0F020L, regionBitSize));
+
+    assertEquals(BitVector.valueOf(0xFFFF10L, regionBitSize), storage2.read(0xDEADBEEF));
+    assertEquals(BitVector.valueOf(0xF0F020L, regionBitSize), storage2.read(0xBAADF00D));
+
+    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
+    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
+  }
 }
