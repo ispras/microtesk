@@ -23,7 +23,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class InstructionCall {
-  private final ProcessingElement processingElement;
   private final TemporaryVariables.Factory tempVarFactory;
   private final IsaPrimitive instruction;
   private final String image;
@@ -39,14 +38,11 @@ public final class InstructionCall {
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
   public InstructionCall(
-      final ProcessingElement processingElement,
       final TemporaryVariables.Factory tempVarFactory,
       final IsaPrimitive instruction) {
-    InvariantChecks.checkNotNull(processingElement);
     InvariantChecks.checkNotNull(tempVarFactory);
     InvariantChecks.checkNotNull(instruction);
 
-    this.processingElement = processingElement;
     this.tempVarFactory = tempVarFactory;
     this.instruction = instruction;
     this.image = instruction.image(tempVarFactory.create());
@@ -58,7 +54,8 @@ public final class InstructionCall {
   /**
    * Runs simulation of a corresponding instruction described within the model.
    */
-  public void execute() {
+  public void execute(final ProcessingElement processingElement) {
+    InvariantChecks.checkNotNull(processingElement);
     instruction.execute(processingElement, tempVarFactory.create());
   }
 

@@ -160,6 +160,6 @@ public final class Model {
 
   public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(getPE(), tempVarFactory, op);
+    return new InstructionCall(tempVarFactory, op);
   }
 }

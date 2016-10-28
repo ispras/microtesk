@@ -252,7 +252,7 @@ public final class Executor {
       }
 
       notifyBeforeExecute(call);
-      final String exception = call.execute();
+      final String exception = call.execute(context.getModel().getPE());
       notifyAfterExecute(call);
       Tarmac.setEnabled(false);
 

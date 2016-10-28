@@ -21,6 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ExecutionException;
 import ru.ispras.microtesk.model.api.InstructionCall;
+import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 
 public final class ConcreteCall {
@@ -131,14 +132,14 @@ public final class ConcreteCall {
    * @return exception name if was interrupted.
    */
 
-  public String execute() {
+  public String execute(final ProcessingElement processingElement) {
     if (!isExecutable()) {
       return null;
     }
 
     try {
       ++executionCount;
-      executable.execute();
+      executable.execute(processingElement);
     } catch (final ExecutionException e) {
       return e.getMessage();
     }

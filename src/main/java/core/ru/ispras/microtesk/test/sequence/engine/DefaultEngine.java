@@ -28,6 +28,7 @@ import java.util.Set;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.SelfCheck;
@@ -116,20 +117,26 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
-  private void registerCall(final ConcreteCall call, final LabelManager labelManager) {
+  private void registerCall(
+      final ProcessingElement processingElement,
+      final ConcreteCall call,
+      final LabelManager labelManager) {
     checkNotNull(call);
 
     patchLabels(call, labelManager);
-    call.execute();
+    call.execute(processingElement);
 
     sequenceBuilder.add(call);
   }
 
-  private void registerPrologueCall(final ConcreteCall call, final LabelManager labelManager) {
+  private void registerPrologueCall(
+      final ProcessingElement processingElement,
+      final ConcreteCall call,
+      final LabelManager labelManager) {
     checkNotNull(call);
 
     patchLabels(call, labelManager);
-    call.execute();
+    call.execute(processingElement);
 
     sequenceBuilder.addToPrologue(call);
   }
@@ -165,7 +172,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
 
     final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-    registerCall(concreteCall, context.getLabelManager());
+    registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
   }
 
   private void processSituations(
@@ -193,7 +200,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     for (final Call abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-      registerPrologueCall(concreteCall, context.getLabelManager());
+      registerPrologueCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
     }
   }
 }
