@@ -50,6 +50,15 @@ public abstract class IsaPrimitive {
   }
 
   /**
+   * Perform initialization of temporary variables that can be used in other attributes
+   * (action, syntax, image). This attribute is implicitly called inside of the above mentioned
+   * attributes. When needed, it can be called explicitly by other primitives.
+   */
+  public void init(final TemporaryVariables tempVars) {
+    // By default, do nothing.
+  }
+
+  /**
    * Returns assembly format of the specified primitive.
    * 
    * <p>Default implementation is provided to allow using primitives that
