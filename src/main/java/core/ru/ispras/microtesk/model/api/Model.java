@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.model.api;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -34,7 +37,9 @@ public final class Model {
   private final Map<String, IsaPrimitiveInfoAnd> modes;
   private final Map<String, IsaPrimitiveInfoAnd> ops;
 
-  private final ProcessingElement processingElement;
+  private List<ProcessingElement> procElems;
+  private ProcessingElement activeProcElem;
+  private ProcessingElement activeProcElemTemp;
 
   protected Model(
       final String name,
@@ -55,7 +60,13 @@ public final class Model {
     this.tempVarFactory = tempVarFactory;
     this.modes = modes;
     this.ops = ops;
-    this.processingElement = procElemFactory.create();
+
+    this.procElems = Collections.emptyList();
+    this.activeProcElem = null;
+    this.activeProcElemTemp = null;
+
+    setPENumber(1);
+    setActivePE(0);
   }
 
   /**
@@ -77,7 +88,40 @@ public final class Model {
   }
 
   public ProcessingElement getPE() {
-    return processingElement;
+    InvariantChecks.checkNotNull(activeProcElem);
+    return null != activeProcElemTemp ? activeProcElemTemp : activeProcElem;
+  }
+
+  public void setPENumber(final int number) {
+    InvariantChecks.checkGreaterThanZero(number);
+    procElems = new ArrayList<>(number);
+
+    final ProcessingElement procElem = procElemFactory.create();
+    procElems.add(procElem);
+
+    for (int index = 1; index < number; ++index) {
+      procElems.add(procElem.copy(true));
+    }
+  }
+
+  public int getPENumber() {
+    return procElems.size();
+  }
+
+  public void setActivePE(final int index) {
+    InvariantChecks.checkBounds(0, getPENumber());
+    activeProcElem = procElems.get(index);
+    activeProcElemTemp = null;
+  }
+
+  public void setUseTempState(final boolean useTempState) {
+    if (useTempState) {
+      InvariantChecks.checkNotNull(activeProcElem);
+      InvariantChecks.checkTrue(null == activeProcElemTemp);
+      activeProcElemTemp = activeProcElem.copy(false);
+    } else {
+      activeProcElemTemp = null;
+    }
   }
 
   public TemporaryVariables newTempVars() {
@@ -116,7 +160,6 @@ public final class Model {
 
   public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(
-        processingElement, tempVarFactory, op);
+    return new InstructionCall(getPE(), tempVarFactory, op);
   }
 }
