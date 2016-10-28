@@ -6,6 +6,11 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
+2016/10/28 MicroTESK 2.4.0 beta
+ - Basic facilities for multicore generation (untested)
+ - nML: the 'init' attribute was made public
+ - Refactoring in the ISA simulator
+
 2016/10/21 MicroTESK 2.3.52 beta
  - Refactoring in the ISA simulator
 
