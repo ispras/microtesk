@@ -38,7 +38,8 @@ public final class Attribute {
       Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
           SYNTAX_NAME,
           IMAGE_NAME,
-          ACTION_NAME
+          ACTION_NAME,
+          INIT_NAME
           )));
 
   private final String name;
