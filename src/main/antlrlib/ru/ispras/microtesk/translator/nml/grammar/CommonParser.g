@@ -320,9 +320,16 @@ statement
 attributeCallStatement
     :  ID
     |  ID DOT^ attributeCall
-    |  {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT)}? ID DOT^ ID
     |  instance DOT attributeCall -> ^(INSTANCE_CALL instance attributeCall)
+       // TODO: This is a hack to make it work somehow (calling 'init' externally like 'action')
+    |  {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT)}? ID DOT^ ID
+    |  {isDeclaredAs(input.LT(1), NmlSymbolKind.MODE) || isDeclaredAs(input.LT(1), NmlSymbolKind.OP)}?
+       ID LEFT_PARENTH (instance_arg2 (COMMA instance_arg2)*)? RIGHT_PARENTH DOT ID ->
+       ^(INSTANCE_CALL ^(INSTANCE ID instance_arg2*) ID)
     ;
+
+// TODO: Hack to overcome rule conflict at the price of limitations and ugliness
+instance_arg2 : argument | constant;
 
 attributeCall
     :  ACTION
