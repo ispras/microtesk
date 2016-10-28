@@ -320,6 +320,7 @@ statement
 attributeCallStatement
     :  ID
     |  ID DOT^ attributeCall
+    |  {isDeclaredAs(input.LT(1), NmlSymbolKind.ARGUMENT)}? ID DOT^ ID
     |  instance DOT attributeCall -> ^(INSTANCE_CALL instance attributeCall)
     ;
 
