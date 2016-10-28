@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
 
 2016/10/28 MicroTESK 2.4.0 beta
- - Basic facilities for multicore generation (untested)
+ - Basic facilities for multicore generation (untested, untested)
  - nML: the 'init' attribute was made public
  - Refactoring in the ISA simulator
 
