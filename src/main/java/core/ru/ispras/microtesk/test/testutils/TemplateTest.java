@@ -62,6 +62,11 @@ public abstract class TemplateTest implements Logger.Listener {
     options.put(option, value);
   }
 
+  public final String getCommandLineOption(final Option option) {
+    InvariantChecks.checkNotNull(option);
+    return options.get(option);
+  }
+
   private void setDefaultCodeFileNamePrefix(final String file) {
     final String fileName = FileUtils.getShortFileNameNoExt(file);
     if (!options.containsKey(Option.CODE_PRE)) {
