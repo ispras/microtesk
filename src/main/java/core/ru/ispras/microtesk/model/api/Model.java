@@ -64,9 +64,6 @@ public final class Model {
     this.procElems = Collections.emptyList();
     this.activeProcElem = null;
     this.activeProcElemTemp = null;
-
-    setPENumber(1);
-    setActivePE(0);
   }
 
   /**

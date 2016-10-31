@@ -42,6 +42,11 @@ public final class Options {
       return;
     }
 
+    if (option.getValueClass().equals(Integer.class) && value instanceof Long) {
+      options.put(option, Integer.valueOf(((Long) value).intValue()));
+      return;
+    }
+
     throw new IllegalArgumentException(String.format(
         "Illegal value type: %s, expected: %s",
         value.getClass().getSimpleName(),

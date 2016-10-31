@@ -73,17 +73,25 @@ public final class TestEngine {
 
   private final Options options;
   private final Model model;
+  private final List<Plugin> plugins;
+
   private Statistics statistics;
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
 
-  private TestEngine(final Options options, final Model model) {
+  private TestEngine(
+      final Options options,
+      final Model model,
+      final List<Plugin> plugins) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
+    InvariantChecks.checkNotNull(plugins);
 
     this.options = options;
     this.model = model;
+    this.plugins = plugins;
+
     this.statistics = null;
 
     Reader.setModel(model);
@@ -145,17 +153,7 @@ public final class TestEngine {
       return null;
     }
 
-    instance = new TestEngine(options, model);
-
-    try {
-      for (final Plugin plugin : plugins) {
-        plugin.initializeGenerationEnvironment();
-      }
-    } catch (final GenerationAbortedException e) {
-      reportAborted(e.getMessage());
-      return null;
-    }
-
+    instance = new TestEngine(options, model, plugins);
     return instance.processTemplate(templateFile);
   }
 
@@ -194,6 +192,16 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
+    final int instanceNumber = options.getValueAsInteger(Option.INSTANCE_NUMBER);
+    Logger.message("Instance number: %d", instanceNumber);
+
+    model.setPENumber(instanceNumber);
+    model.setActivePE(0);
+
+    for (final Plugin plugin : plugins) {
+      plugin.initializeGenerationEnvironment();
+    }
+ 
     statistics = new Statistics(options.getValueAsInteger(Option.CODE_LIMIT),
                                 options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
