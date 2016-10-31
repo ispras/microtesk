@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -47,6 +49,22 @@ public abstract class ProcessingElement {
   protected final void addLabel(final Label label) {
     InvariantChecks.checkNotNull(label);
     this.labelMap.put(label.getName(), label);
+  }
+
+  protected static List<ProcessingElement> newInstances(final Factory factory, final int number) {
+    InvariantChecks.checkNotNull(factory);
+    InvariantChecks.checkGreaterThanZero(number);
+
+    final List<ProcessingElement> result = new ArrayList<>(number);
+
+    final ProcessingElement processingElement = factory.create();
+    result.add(processingElement);
+
+    for (int index = 1; index < number; ++index) {
+      result.add(processingElement.copy(true));
+    }
+
+    return result;
   }
 
   /**

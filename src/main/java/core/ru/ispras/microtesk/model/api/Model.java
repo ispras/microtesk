@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.model.api;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,14 +90,7 @@ public final class Model {
 
   public void setPENumber(final int number) {
     InvariantChecks.checkGreaterThanZero(number);
-    procElems = new ArrayList<>(number);
-
-    final ProcessingElement procElem = procElemFactory.create();
-    procElems.add(procElem);
-
-    for (int index = 1; index < number; ++index) {
-      procElems.add(procElem.copy(true));
-    }
+    procElems = ProcessingElement.newInstances(procElemFactory, number);
   }
 
   public int getPENumber() {
