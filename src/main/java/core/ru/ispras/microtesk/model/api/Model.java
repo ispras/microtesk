@@ -95,7 +95,7 @@ public final class Model {
   public void setPENumber(final int number) {
     InvariantChecks.checkGreaterThanZero(number);
     procElems = ProcessingElement.newInstances(procElemFactory, number);
-    initializeProcessingElements();
+    initializePEs();
   }
 
   public int getPENumber() {
@@ -157,7 +157,7 @@ public final class Model {
     return new InstructionCall(tempVarFactory, op);
   }
 
-  private void initializeProcessingElements() {
+  private void initializePEs() {
     Logger.debugHeader("Initializing Processing Elements");
 
     final String instantiate = "instantiate";
