@@ -35,7 +35,7 @@ public final class Model {
   private final MetaModel metaData;
 
   private final ProcessingElement.Factory procElemFactory;
-  private final TemporaryVariables.Factory tempVarFactory;
+  private final TemporaryVariables tempVars;
 
   private final Map<String, IsaPrimitiveInfoAnd> modes;
   private final Map<String, IsaPrimitiveInfoAnd> ops;
@@ -60,7 +60,7 @@ public final class Model {
     this.name = name;
     this.metaData = metaData;
     this.procElemFactory = procElemFactory;
-    this.tempVarFactory = tempVarFactory;
+    this.tempVars = tempVarFactory.create();
     this.modes = modes;
     this.ops = ops;
 
@@ -118,8 +118,8 @@ public final class Model {
     }
   }
 
-  public TemporaryVariables newTempVars() {
-    return tempVarFactory.create();
+  public TemporaryVariables getTempVars() {
+    return tempVars;
   }
 
   public IsaPrimitiveBuilder newMode(
@@ -154,7 +154,7 @@ public final class Model {
 
   public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
-    return new InstructionCall(tempVarFactory, op);
+    return new InstructionCall(tempVars, op);
   }
 
   private void initializePEs() {
@@ -180,7 +180,7 @@ public final class Model {
           argumentIndex++;
         }
         final IsaPrimitive primitive = builder.build();
-        primitive.execute(procElems.get(index), newTempVars());
+        primitive.execute(procElems.get(index), tempVars);
       } catch(final ConfigurationException e) {
         throw new IllegalStateException(e);
       }

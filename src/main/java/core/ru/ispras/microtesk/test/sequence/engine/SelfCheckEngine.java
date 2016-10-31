@@ -72,7 +72,7 @@ public final class SelfCheckEngine {
     final Model model = engineContext.getModel();
 
     final BitVector value =
-        concreteMode.access(model.getPE(), model.newTempVars()).load().getRawData();
+        concreteMode.access(model.getPE(), model.getTempVars()).load().getRawData();
 
     Logger.debug("Expected value is 0x%s", value.toHexString());
 

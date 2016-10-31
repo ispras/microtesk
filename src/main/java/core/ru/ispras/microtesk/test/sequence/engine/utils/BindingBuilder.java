@@ -143,7 +143,7 @@ public final class BindingBuilder {
             try {
                 final IsaPrimitive mode = makeMode(engineContext, arg);
                 final Model model = engineContext.getModel();
-                final Location location = mode.access(model.getPE(), model.newTempVars());
+                final Location location = mode.access(model.getPE(), model.getTempVars());
 
                 if (location.isInitialized()) {
                   bindingValue = NodeValue.newBitVector(

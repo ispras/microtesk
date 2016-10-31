@@ -17,13 +17,13 @@ package ru.ispras.microtesk.model.api;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * The InstructionCall class provides methods to run execution simulation
- * of some instruction within the processor model.
+ * The {@link InstructionCall} class provides methods to run execution
+ * simulation of some instruction within the processor model.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class InstructionCall {
-  private final TemporaryVariables.Factory tempVarFactory;
+  private final TemporaryVariables tempVars;
   private final IsaPrimitive instruction;
   private final String image;
   private final int byteSize;
@@ -38,14 +38,16 @@ public final class InstructionCall {
    * @throws IllegalArgumentException if any of the parameters equals {@code null}.
    */
   public InstructionCall(
-      final TemporaryVariables.Factory tempVarFactory,
+      final TemporaryVariables tempVars,
       final IsaPrimitive instruction) {
-    InvariantChecks.checkNotNull(tempVarFactory);
+    InvariantChecks.checkNotNull(tempVars);
     InvariantChecks.checkNotNull(instruction);
 
-    this.tempVarFactory = tempVarFactory;
+    this.tempVars = tempVars;
     this.instruction = instruction;
-    this.image = instruction.image(tempVarFactory.create());
+
+    tempVars.reset();
+    this.image = instruction.image(tempVars);
 
     final int bitSize = image.length();
     this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
@@ -56,7 +58,8 @@ public final class InstructionCall {
    */
   public void execute(final ProcessingElement processingElement) {
     InvariantChecks.checkNotNull(processingElement);
-    instruction.execute(processingElement, tempVarFactory.create());
+    tempVars.reset();
+    instruction.execute(processingElement, tempVars);
   }
 
   /**
@@ -66,7 +69,8 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    return instruction.syntax(tempVarFactory.create());
+    tempVars.reset();
+    return instruction.syntax(tempVars);
   }
 
   /**
