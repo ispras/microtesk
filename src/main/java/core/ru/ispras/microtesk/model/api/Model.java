@@ -14,12 +14,16 @@
 
 package ru.ispras.microtesk.model.api;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 
 /**
  * The {@link Model} class implements an ISA model and provides its facilities to external users.
@@ -91,6 +95,7 @@ public final class Model {
   public void setPENumber(final int number) {
     InvariantChecks.checkGreaterThanZero(number);
     procElems = ProcessingElement.newInstances(procElemFactory, number);
+    initializeProcessingElements();
   }
 
   public int getPENumber() {
@@ -150,5 +155,35 @@ public final class Model {
   public InstructionCall newCall(final IsaPrimitive op) {
     InvariantChecks.checkNotNull(op);
     return new InstructionCall(tempVarFactory, op);
+  }
+
+  private void initializeProcessingElements() {
+    Logger.debugHeader("Initializing Processing Elements");
+
+    final String instantiate = "instantiate";
+    final MetaOperation metaData = getMetaData().getOperation(instantiate);
+
+    if (null == metaData) { // instantiate is undefined
+      return;
+    }
+
+    for (int index = 0; index < procElems.size(); ++index) {
+      try {
+        final IsaPrimitiveBuilder builder = newOp(instantiate, null);
+        int argumentIndex = 0;
+        for (final MetaArgument argument : metaData.getArguments()) {
+          if (argumentIndex > 0) {
+            Logger.warning("Operation '%s' has more than 1 argument.", instantiate);
+          }
+
+          builder.setArgument(argument.getName(), BigInteger.valueOf(index));
+          argumentIndex++;
+        }
+        final IsaPrimitive primitive = builder.build();
+        primitive.execute(procElems.get(index), newTempVars());
+      } catch(final ConfigurationException e) {
+        throw new IllegalStateException(e);
+      }
+    }
   }
 }
