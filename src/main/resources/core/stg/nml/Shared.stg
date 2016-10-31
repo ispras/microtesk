@@ -62,7 +62,8 @@ public ProcessingElement copy(final boolean shared) {
 temporary_variables(class, names, defs) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
 private <class>() {
-  <names, defs:{n, d | this.<n> = <d>;}; separator="\n">
+  <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
+  <names:{n | addVariable(<n>);}; separator="\n">
 }<\n>
 <factory()>
 >>

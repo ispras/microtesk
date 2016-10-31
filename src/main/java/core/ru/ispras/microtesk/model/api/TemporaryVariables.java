@@ -14,8 +14,27 @@
 
 package ru.ispras.microtesk.model.api;
 
-public interface TemporaryVariables {
-  interface Factory {
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.memory.Memory;
+
+public abstract class TemporaryVariables {
+  public interface Factory {
     TemporaryVariables create();
+  }
+
+  private final List<Memory> variables = new ArrayList<>();
+
+  protected final void addVariable(final Memory variable) {
+    InvariantChecks.checkNotNull(variable);
+    variables.add(variable);
+  }
+
+  public final void reset() {
+    for (final Memory variable : variables) {
+      variable.reset();
+    }
   }
 }
