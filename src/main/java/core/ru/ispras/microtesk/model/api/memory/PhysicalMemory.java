@@ -86,7 +86,6 @@ final class PhysicalMemory extends Memory {
     InvariantChecks.checkFalse(isLogical);
 
     this.handler = handler;
-
     return storage;
   }
 
