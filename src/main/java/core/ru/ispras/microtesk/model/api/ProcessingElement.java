@@ -120,10 +120,13 @@ public abstract class ProcessingElement {
   }
 
   public final MemoryDevice setMemoryHandler(
-      final String storageId,
-      final MemoryDevice handler) throws ConfigurationException {
-    final Memory storage = getStorage(storageId);
-    return storage.setHandler(handler);
+      final String storageId, final MemoryDevice handler) {
+    try {
+      final Memory storage = getStorage(storageId);
+      return storage.setHandler(handler);
+    } catch (final ConfigurationException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(final String storageId) {
