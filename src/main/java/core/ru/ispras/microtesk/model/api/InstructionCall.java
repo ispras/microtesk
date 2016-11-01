@@ -45,8 +45,6 @@ public final class InstructionCall {
 
     this.tempVars = tempVars;
     this.instruction = instruction;
-
-    tempVars.reset();
     this.image = instruction.image(tempVars);
 
     final int bitSize = image.length();
@@ -58,7 +56,6 @@ public final class InstructionCall {
    */
   public void execute(final ProcessingElement processingElement) {
     InvariantChecks.checkNotNull(processingElement);
-    tempVars.reset();
     instruction.execute(processingElement, tempVars);
   }
 
@@ -69,7 +66,6 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    tempVars.reset();
     return instruction.syntax(tempVars);
   }
 
