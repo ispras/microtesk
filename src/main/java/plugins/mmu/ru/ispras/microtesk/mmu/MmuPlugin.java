@@ -25,7 +25,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAdapter;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngine;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -154,11 +153,7 @@ public final class MmuPlugin implements Plugin {
     final MemoryDevice mmuDevice = mmuModel.getMmuDevice();
     final String memoryId = mmuModel.getStorageDeviceId();
 
-    try {
-      final MemoryDevice storageDevice = model.getPE().setMemoryHandler(memoryId, mmuDevice);
-      mmuModel.setStorageDevice(storageDevice);
-    } catch (final ConfigurationException e) {
-      throw new IllegalStateException(e);
-    }
+    final MemoryDevice storageDevice = model.getPE().setMemoryHandler(memoryId, mmuDevice);
+    mmuModel.setStorageDevice(storageDevice);
   }
 }
