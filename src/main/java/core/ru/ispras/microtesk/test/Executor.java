@@ -167,7 +167,13 @@ public final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-    executeCalls(executorCode, startIndex, endIndex);
+
+    for (int index = 0; index < context.getModel().getPENumber(); index++) {
+      Logger.debugHeader("Instance %d", index);
+      context.getModel().setActivePE(index);
+      executeCalls(executorCode, startIndex, endIndex);
+    }
+
     context.getStatistics().popActivity();
   }
 
