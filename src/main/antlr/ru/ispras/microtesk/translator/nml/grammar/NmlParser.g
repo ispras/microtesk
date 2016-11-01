@@ -204,7 +204,7 @@ modeReturn
 /*===============================================================================================*/
 
 opDef
-    :  OP^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.OP);} opSpecPart
+    :  OP^ id=(ID | EXCEPTION) {declareAndPushSymbolScope($id, NmlSymbolKind.OP);} opSpecPart
     ;  finally   {popSymbolScope();}
 
 opSpecPart

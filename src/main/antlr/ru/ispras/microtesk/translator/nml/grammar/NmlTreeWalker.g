@@ -267,7 +267,7 @@ modeReturn returns [Expr res]
 /*======================================================================================*/
 
 opDef
-    :  ^(OP id=ID {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text]
+    :  ^(OP id=(ID | EXCEPTION) {pushSymbolScope(id);} sp=opSpecPart[where($id), $id.text]
 {
 checkNotNull($id, $sp.res, $opDef.text);
 getIR().add($id.text, $sp.res);
