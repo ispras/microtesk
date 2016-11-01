@@ -31,7 +31,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  *
  * @param <A> the address type.
  */
-
 public abstract class Operation<A extends Address & Data> {
   public abstract void init(final A address);
 

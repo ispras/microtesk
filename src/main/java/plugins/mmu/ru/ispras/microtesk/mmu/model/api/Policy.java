@@ -23,7 +23,6 @@ import ru.ispras.fortress.randomizer.Randomizer;
  * 
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  */
-
 public abstract class Policy {
   /** The associativity. */
   protected final int associativity;
@@ -33,7 +32,6 @@ public abstract class Policy {
    * 
    * @param associativity the buffer associativity.
    */
-
   protected Policy(final int associativity) {
     if (associativity <= 0) {
       throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
@@ -47,7 +45,6 @@ public abstract class Policy {
    * 
    * @param index the line being hit.
    */
-
   public abstract void accessLine(int index);
 
   /**
@@ -55,7 +52,6 @@ public abstract class Policy {
    * 
    * @return the line to be replaced.
    */
-
   public abstract int chooseVictim();
 }
 
@@ -68,15 +64,12 @@ public abstract class Policy {
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 final class PolicyRandom extends Policy {
-
   /**
    * Constructs a random data replacement controller.
    * 
    * @param associativity the buffer associativity.
    */
-
   PolicyRandom(final int associativity) {
     super(associativity);
   }
@@ -101,7 +94,6 @@ final class PolicyRandom extends Policy {
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 final class PolicyFIFO extends Policy {
   /** Keeps line indices in the order of their usage. */
   private LinkedList<Integer> fifo = new LinkedList<Integer>();
@@ -111,7 +103,6 @@ final class PolicyFIFO extends Policy {
    * 
    * @param associativity the buffer associativity.
    */
-
   PolicyFIFO(final int associativity) {
     super(associativity);
 
@@ -150,7 +141,6 @@ final class PolicyFIFO extends Policy {
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 final class PolicyLRU extends Policy {
   /** Maps index to time. */
   private int times[];
@@ -162,7 +152,6 @@ final class PolicyLRU extends Policy {
    * 
    * @param associativity the buffer associativity.
    */
-
   PolicyLRU(final int associativity) {
     super(associativity);
 
@@ -203,7 +192,6 @@ final class PolicyLRU extends Policy {
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 final class PolicyPLRU extends Policy {
   /** The PLRU bits. */
   private int bits;
@@ -215,7 +203,6 @@ final class PolicyPLRU extends Policy {
    * 
    * @param associativity the buffer associativity.
    */
-
   PolicyPLRU(final int associativity) {
     super(associativity);
 

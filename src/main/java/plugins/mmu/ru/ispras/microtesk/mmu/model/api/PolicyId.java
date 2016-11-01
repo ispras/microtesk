@@ -19,13 +19,10 @@ package ru.ispras.microtesk.mmu.model.api;
  * 
  * @author Tatiana Sergeeva
  */
-
 public enum PolicyId {
-
   /**
    * The random data replacement policy.
    */
-
   RANDOM {
     @Override
     public Policy newPolicy(final int associativity) {
@@ -36,7 +33,6 @@ public enum PolicyId {
   /**
    * The FIFO (First In - First Out) data replacement policy.
    */
-
   FIFO {
     @Override
     public Policy newPolicy(final int associativity) {
@@ -47,7 +43,6 @@ public enum PolicyId {
   /**
    * The LRU (Least Recently Used) data replacement policy.
    */
-
   LRU {
     @Override
     public Policy newPolicy(final int associativity) {
@@ -58,7 +53,6 @@ public enum PolicyId {
   /**
    * The PLRU (Pseudo Least Recently Used) data replacement policy.
    */
-
   PLRU {
     @Override
     public Policy newPolicy(final int associativity) {
@@ -69,7 +63,6 @@ public enum PolicyId {
   /**
    * The NONE policy. Means no data replacement is allowed.
    */
-
   NONE {
     @Override
     public Policy newPolicy(final int associativity) {

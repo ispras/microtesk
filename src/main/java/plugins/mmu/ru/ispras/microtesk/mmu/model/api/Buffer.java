@@ -22,16 +22,13 @@ package ru.ispras.microtesk.mmu.model.api;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 public interface Buffer<D, A> {
-
   /**
    * Checks whether the given address causes a hit.
    * 
    * @param address the data address.
    * @return {@code true} if the address causes a hit; {@code false} otherwise.
    */
-
   boolean isHit(final A address);
 
   /**
@@ -40,7 +37,6 @@ public interface Buffer<D, A> {
    * @param address the data address.
    * @return the data object if the address causes a hit; {@code null} otherwise.
    */
-
   D getData(final A address);
 
   /**
@@ -51,6 +47,5 @@ public interface Buffer<D, A> {
    * 
    * @return the old data if they exist; {@code null} otherwise.
    */
-
   D setData(final A address, final D data);
 }

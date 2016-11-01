@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface BufferObserver {
   /**
    * Checks whether the given address causes a hit.
@@ -30,6 +29,5 @@ public interface BufferObserver {
    * @param address Address to be checked.
    * @return {@code true} if the address causes a hit; {@code false} otherwise.
    */
-
   boolean isHit(BitVector address);
 }

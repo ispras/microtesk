@@ -29,7 +29,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @param <D> Data type.
  * @param <A> Address type.
  */
-
 public abstract class MmuMapping<D extends Data, A extends Address & Data>
     implements Buffer<D, A>, BufferObserver {
 

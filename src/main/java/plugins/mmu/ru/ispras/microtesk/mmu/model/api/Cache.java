@@ -35,7 +35,6 @@ import ru.ispras.microtesk.utils.SparseArray;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public abstract class Cache<D extends Data, A extends Address>
     implements Buffer<D, A>, BufferObserver {
   /** The table of associative sets. */
@@ -51,7 +50,6 @@ public abstract class Cache<D extends Data, A extends Address>
   /**
    * Proxy class is used to simply code of assignment expressions.  
    */
-
   public final class Proxy {
     private final A address;
 
@@ -77,7 +75,6 @@ public abstract class Cache<D extends Data, A extends Address>
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    */
-
   public Cache(
       final BigInteger length,
       final int associativity,

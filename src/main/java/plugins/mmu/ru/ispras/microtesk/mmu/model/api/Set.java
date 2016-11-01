@@ -28,7 +28,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
   /** The array of cache lines. */
   private final List<Buffer<D, A>> lines = new ArrayList<>();
@@ -43,7 +42,6 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
    * @param policyId the identifier of the data replacement policy.
    * @param matcher the data-address matcher.
    */
-
   public Set(
       final int associativity,
       final PolicyId policyId,
@@ -94,7 +92,6 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
    * @param address the data address.
    * @return the line associated with the given address if it exists; {@code null} otherwise.
    */
-
   private Buffer<D, A> getLine(final A address) {
     int index = -1;
 

@@ -23,7 +23,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface Data {
   BitVector asBitVector();
 }

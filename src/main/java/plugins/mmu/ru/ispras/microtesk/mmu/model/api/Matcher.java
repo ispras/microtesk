@@ -22,9 +22,7 @@ package ru.ispras.microtesk.mmu.model.api;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-
 public interface Matcher<D, A extends Address> {
-
   /**
    * Checks whether the given data and the given address are matching each other.
    * 
@@ -33,6 +31,5 @@ public interface Matcher<D, A extends Address> {
    * @return <code>true</code> if the data and address are matching each other;
    *         <code>false</code> otherwise.
    */
-
   boolean areMatching(final D data, final A address);
 }
