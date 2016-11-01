@@ -153,7 +153,7 @@ public final class MmuPlugin implements Plugin {
     final MemoryDevice mmuDevice = mmuModel.getMmuDevice();
     final String memoryId = mmuModel.getStorageDeviceId();
 
-    final MemoryDevice storageDevice = model.getPE().setMemoryHandler(memoryId, mmuDevice);
+    final MemoryDevice storageDevice = model.setMemoryHandler(memoryId, mmuDevice);
     mmuModel.setStorageDevice(storageDevice);
   }
 }

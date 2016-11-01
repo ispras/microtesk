@@ -433,7 +433,7 @@ public final class TestEngine {
 
         // Clean up all the state
         engineContext.getDataManager().resetLocalData();
-        engineContext.getModel().getPE().resetState();
+        engineContext.getModel().resetState();
         engineContext.getLabelManager().reset();
         executorCode = null;
 

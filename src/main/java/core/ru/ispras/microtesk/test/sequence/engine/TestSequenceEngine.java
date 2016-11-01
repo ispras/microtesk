@@ -56,7 +56,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
     Logger.debugHeader("Processing Abstract Sequence");
     context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
-    context.getModel().getPE().setUseTempState(true);
+    context.getModel().setUseTempState(true);
 
     try {
       final EngineResult<AdapterResult> result = solve(context, abstractSequence);
@@ -64,7 +64,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
       return result.getResult();
     } finally {
-      context.getModel().getPE().setUseTempState(false);
+      context.getModel().setUseTempState(false);
       context.getStatistics().popActivity(); // PROCESSING
     }
   }
@@ -142,10 +142,10 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
 
         try {
-          engineContext.getModel().getPE().setUseTempState(true);
+          engineContext.getModel().setUseTempState(true);
           return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
         } finally {
-          engineContext.getModel().getPE().setUseTempState(false);
+          engineContext.getModel().setUseTempState(false);
         }
       }
 

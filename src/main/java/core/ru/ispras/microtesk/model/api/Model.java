@@ -19,8 +19,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
@@ -43,6 +46,9 @@ public final class Model {
   private List<ProcessingElement> procElems;
   private ProcessingElement activeProcElem;
   private ProcessingElement activeProcElemTemp;
+
+  private final MemoryDevice memoryCallback;
+  private Pair<String, MemoryDevice> memoryHandler;
 
   protected Model(
       final String name,
@@ -67,6 +73,9 @@ public final class Model {
     this.procElems = Collections.emptyList();
     this.activeProcElem = null;
     this.activeProcElemTemp = null;
+
+    this.memoryCallback = new MemoryCallback();
+    this.memoryHandler = null;
   }
 
   /**
@@ -85,6 +94,10 @@ public final class Model {
    */
   public MetaModel getMetaData() {
     return metaData;
+  }
+
+  public TemporaryVariables getTempVars() {
+    return tempVars;
   }
 
   public ProcessingElement getPE() {
@@ -108,18 +121,40 @@ public final class Model {
     activeProcElemTemp = null;
   }
 
-  public void setUseTempState(final boolean useTempState) {
-    if (useTempState) {
+  public void setUseTempState(final boolean value) {
+    if (value) {
       InvariantChecks.checkNotNull(activeProcElem);
       InvariantChecks.checkTrue(null == activeProcElemTemp);
       activeProcElemTemp = activeProcElem.copy(false);
+      if (null != memoryHandler) { 
+        activeProcElemTemp.setMemoryHandler(memoryHandler.first, memoryHandler.second);
+      }
     } else {
       activeProcElemTemp = null;
     }
+
+    if (null != memoryHandler) {
+      memoryHandler.second.useTemporaryContext(value);
+    }
   }
 
-  public TemporaryVariables getTempVars() {
-    return tempVars;
+  public void resetState() {
+    for (final ProcessingElement procElem : procElems) {
+      procElem.resetState();
+    }
+    activeProcElemTemp = null;
+  }
+
+  public final MemoryDevice setMemoryHandler(final String id, final MemoryDevice handler) {
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(handler);
+
+    for (final ProcessingElement procElem : procElems) {
+      procElem.setMemoryHandler(id, handler);
+    }
+
+    memoryHandler = new Pair<>(id, handler);
+    return memoryCallback;
   }
 
   public IsaPrimitiveBuilder newMode(
@@ -184,6 +219,42 @@ public final class Model {
       } catch(final ConfigurationException e) {
         throw new IllegalStateException(e);
       }
+    }
+  }
+
+  private final class MemoryCallback implements MemoryDevice {
+    private MemoryDevice getMemory() {
+      return getPE().getMemory();
+    }
+
+    @Override
+    public int getAddressBitSize() {
+      return getMemory().getAddressBitSize();
+    }
+
+    @Override
+    public int getDataBitSize() {
+      return getMemory().getDataBitSize();
+    }
+
+    @Override
+    public BitVector load(final BitVector address) {
+      return getMemory().load(address);
+    }
+
+    @Override
+    public void store(final BitVector address, final BitVector data) {
+      getMemory().store(address, data);
+    }
+
+    @Override
+    public boolean isInitialized(final BitVector address) {
+      return getMemory().isInitialized(address);
+    }
+
+    @Override
+    public void useTemporaryContext(final boolean value) {
+      getMemory().useTemporaryContext(value);
     }
   }
 }

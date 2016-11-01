@@ -40,6 +40,7 @@ public abstract class ProcessingElement {
 
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
+  private MemoryDevice memory = null;
 
   protected final void addStorage(final Memory storage) {
     InvariantChecks.checkNotNull(storage);
@@ -99,15 +100,9 @@ public abstract class ProcessingElement {
     return storage.access(index);
   }
 
-  public final void resetState() {
+  protected final void resetState() {
     for (final Memory memory : storageMap.values()) {
       memory.reset();
-    }
-  }
-
-  public final void setUseTempState(boolean value) {
-    for (final Memory memory : storageMap.values()) {
-      memory.setUseTempCopy(value);
     }
   }
 
@@ -119,14 +114,18 @@ public abstract class ProcessingElement {
     return storage.newAllocator(addressableUnitBitSize, baseAddress);
   }
 
-  public final MemoryDevice setMemoryHandler(
+  protected final void setMemoryHandler(
       final String storageId, final MemoryDevice handler) {
     try {
       final Memory storage = getStorage(storageId);
-      return storage.setHandler(handler);
+      memory = storage.setHandler(handler);
     } catch (final ConfigurationException e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  protected MemoryDevice getMemory() {
+    return memory;
   }
 
   public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(final String storageId) {
