@@ -57,7 +57,7 @@ var     NIA[WORD] // Next instruction address
 var JMPADDR[WORD] // Jump address
 
 // Flag that specifies whether control is to be transferred to the jump address
-var BRANCH[BIT]  
+var BRANCH[BIT]
 
 ////////////////////////////////////////////////////////////////////////////////
 // Temporary Variables (For Storing Intermediate Calculation Results)
@@ -518,8 +518,9 @@ op vliw (c1: channel1, c2: channel2)
   image  = format("%s%s", c1.image, c2.image)
   action = {
     NIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
+    BRANCH = 0;
 
-    // Invariant: register GPR[0] always holds zero  
+    // Invariant: register GPR[0] always holds zero
     GPR[0] = coerce(WORD, 0);
     c1.action;
 
@@ -528,7 +529,7 @@ op vliw (c1: channel1, c2: channel2)
     c2.action;
 
     if BRANCH == 0 then
-      // If the flag is not set, proceeds to the next instruction 
+      // If the flag is not set, proceeds to the next instruction
       CIA = CIA + 2 * INSTRUCTION_WORD_SIZE;
     else
       // Otherwise, transfers control to the jump address
