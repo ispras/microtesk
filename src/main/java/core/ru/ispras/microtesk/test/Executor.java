@@ -58,13 +58,13 @@ public final class Executor {
   }
 
   private final EngineContext context;
-  private Map<String, List<ConcreteCall>> exceptionHandlers;
+  private List<Map<String, List<ConcreteCall>>> exceptionHandlers;
   private Listener listener;
 
   /**
    * Constructs an Executor object.
    * 
-   * @param context Generatio engine context.
+   * @param context Generation engine context.
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
@@ -72,13 +72,13 @@ public final class Executor {
     InvariantChecks.checkNotNull(context);
 
     this.context = context;
-    this.exceptionHandlers = null;
+    this.exceptionHandlers = new ArrayList<>();
     this.listener = null;
   }
 
   public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
     InvariantChecks.checkNotNull(handlers);
-    this.exceptionHandlers = handlers;
+    this.exceptionHandlers.add(handlers);
   }
 
   public void setListener(final Listener listener) {
@@ -137,7 +137,9 @@ public final class Executor {
     }
 
     if (executorCode.getCallCount() == 0) {
-      registerExceptionHandlers(executorCode, context.getLabelManager(), exceptionHandlers);
+      for (final Map<String, List<ConcreteCall>> handler: exceptionHandlers) {
+        registerExceptionHandlers(executorCode, context.getLabelManager(), handler);
+      }
     }
 
     final List<ConcreteCall> sequenceCode =

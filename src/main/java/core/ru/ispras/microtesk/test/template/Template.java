@@ -75,7 +75,7 @@ public final class Template {
   private BufferPreparatorBuilder bufferPreparatorBuilder;
   private StreamPreparatorBuilder streamPreparatorBuilder;
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
-  private boolean isExceptionHandlerDefined;
+  private final Set<String> definedExceptionHandlers;
 
   private final Deque<BlockBuilder> blockBuilders;
   private CallBuilder callBuilder;
@@ -105,7 +105,7 @@ public final class Template {
     this.bufferPreparatorBuilder = null;
     this.streamPreparatorBuilder = null;
     this.exceptionHandlerBuilder = null;
-    this.isExceptionHandlerDefined = false;
+    this.definedExceptionHandlers = new LinkedHashSet<>();
 
     this.blockBuilders = new LinkedList<>();
     this.callBuilder = null;
@@ -884,11 +884,14 @@ public final class Template {
   }
 
   public ExceptionHandlerBuilder beginExceptionHandler(final String id) {
+    InvariantChecks.checkNotNull(id);
+
     endBuildingCall();
     Logger.debug("Begin exception handler");
 
-    if (isExceptionHandlerDefined) {
-      throw new IllegalStateException("Exception handler is already defined.");
+    if (definedExceptionHandlers.contains(id)) {
+      throw new IllegalStateException(
+          String.format("Exception handler %s is already defined.", id));
     }
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
@@ -908,7 +911,7 @@ public final class Template {
     exceptionHandlerBuilder = null;
 
     processor.defineExceptionHandler(handler);
-    isExceptionHandlerDefined = true;
+    definedExceptionHandlers.add(handler.getId());
   }
 
   public DataSectionBuilder beginData(final boolean isGlobalArgument, final boolean isSeparateFile) {

@@ -139,7 +139,6 @@ public final class ExecutorCode {
 
   public void addHanderAddress(final String id, final long address) {
     InvariantChecks.checkNotNull(id);
-    final Long previous = handlerAddresses.put(id, address);
-    InvariantChecks.checkTrue(null == previous);
+    handlerAddresses.put(id, address);
   }
 }
