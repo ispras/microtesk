@@ -445,8 +445,9 @@ public final class TestEngine {
     @Override
     public void defineExceptionHandler(final ExceptionHandler handler) {
       final String exceptionFileName = String.format(
-          "%s.%s",
+          "%s%s.%s",
           engineContext.getOptions().getValueAsString(Option.EXCEPT_PRE),
+          handler.getId().isEmpty() ? "" : "_" + handler.getId(),
           engineContext.getOptions().getValueAsString(Option.CODE_EXT));
 
       Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
