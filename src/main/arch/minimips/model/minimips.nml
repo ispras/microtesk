@@ -682,7 +682,17 @@ op la(rd : REG, addr : WORD)
   }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Special Operation to Initialize Processing Element Instances 
+// Special Operation to Handle Exceptions
+
+op exception()
+image  = ""
+syntax = ""
+action = {
+  CIA = 0x380;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Special Operation to Initialize Processing Element Instances
 
 op instantiate(pid: WORD)
 action = {
