@@ -194,6 +194,9 @@ public final class Executor {
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
 
+    final ConcreteCall exceptionCall =
+        EngineUtils.makeSpecialConcreteCall(context, "exception");
+
     while (code.isInBounds(index) ||
            null != invalidCall && invalidCall.getExecutionCount() == 0) {
 
@@ -296,36 +299,31 @@ public final class Executor {
         }
 
         // If no label references are found within the delay slot we try to use PC to jump
-        final long nextAddress = getPC().getValue().longValue();
-        if (code.hasAddress(nextAddress)) {
-          logText(String.format("Jump to address: 0x%x", nextAddress));
-          final int nextIndex = code.getCallIndex(nextAddress);
-          index = nextIndex;
-        } else if (null != invalidCall) {
-          index = -1;
-        } else {
-          throw new GenerationAbortedException(String.format(
-              "Simulation error. There is no executable code at 0x%x", nextAddress));
-        }
+        index = getCallIndex(code, getPC().getValue().longValue(), null != invalidCall);
       } else {
         // EXCEPTION IS DETECTED
 
         // Resets labels to jump (they are no longer needed after being used).
         labelRefs = null;
 
-        if (code.hasHandler(exception)) {
-          final long handlerAddress = code.getHandlerAddress(exception);
-          final int handlerIndex = code.getCallIndex(handlerAddress);
-
-          logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
-          index = handlerIndex;
-        } else if (call == invalidCall) {
-          Logger.error(
-              "Exception handler for %s is not found. Execution will be terminated.", exception);
+        if (null != exceptionCall) { // op exception is defined and must do all dispatching job
+          exceptionCall.execute(context.getModel().getPE());
+          index = getCallIndex(code, getPC().getValue().longValue(), null != invalidCall);
         } else {
-          Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
-          if (index == endIndex) break;
-          index = getNextCallIndex(code, index, null != invalidCall);
+          if (code.hasHandler(exception)) {
+            final long handlerAddress = code.getHandlerAddress(exception);
+            final int handlerIndex = code.getCallIndex(handlerAddress);
+
+            logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
+            index = handlerIndex;
+          } else if (call == invalidCall) {
+            Logger.error(
+                "Exception handler for %s is not found. Execution will be terminated.", exception);
+          } else {
+            Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
+            if (index == endIndex) break;
+            index = getNextCallIndex(code, index, null != invalidCall);
+          }
         }
       }
     }
@@ -356,6 +354,25 @@ public final class Executor {
     if (!isInvalidCallHandled) {
       throw new GenerationAbortedException(String.format(
           "Simulation error. There is no executable code at 0x%x", nextAddress));
+    }
+
+    return -1;
+  }
+
+  private static int getCallIndex(
+      final ExecutorCode code,
+      final long address,
+      final boolean isInvalidCallHandled) {
+    InvariantChecks.checkNotNull(code);
+
+    if (code.hasAddress(address)) {
+      logText(String.format("Jump to address: 0x%x", address));
+      return code.getCallIndex(address);
+    }
+
+    if (!isInvalidCallHandled) {
+      throw new GenerationAbortedException(String.format(
+          "Simulation error. There is no executable code at 0x%x", address));
     }
 
     return -1;
@@ -532,7 +549,7 @@ public final class Executor {
    * 
    * @param text Text to be printed.
    */
-  private void logText(final String text) {
+  private static void logText(final String text) {
     if (text != null) {
       Logger.debug(text);
     }
