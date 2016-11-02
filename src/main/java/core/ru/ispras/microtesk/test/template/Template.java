@@ -883,7 +883,7 @@ public final class Template {
     groupVariates.put(name, variate);
   }
 
-  public ExceptionHandlerBuilder beginExceptionHandler() {
+  public ExceptionHandlerBuilder beginExceptionHandler(final String id) {
     endBuildingCall();
     Logger.debug("Begin exception handler");
 
@@ -896,7 +896,7 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    exceptionHandlerBuilder = new ExceptionHandlerBuilder("");
+    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id);
     return exceptionHandlerBuilder;
   }
 

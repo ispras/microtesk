@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,10 +58,10 @@ public final class ExceptionHandlerBuilder {
   }
 
   public void setInstances(final int indexMin, final int indexMax) {
-    InvariantChecks.checkGreaterThanZero(indexMin);
+    InvariantChecks.checkGreaterOrEqZero(indexMin);
     InvariantChecks.checkTrue(indexMin <= indexMax);
 
-    instances = new LinkedHashSet<>();
+    instances = new TreeSet<>();
     for (int index = indexMin; index <= indexMax; index++) {
       instances.add(index);
     }
@@ -68,7 +69,7 @@ public final class ExceptionHandlerBuilder {
 
   public void setInstances(final Collection<Integer> indices) {
     InvariantChecks.checkNotNull(indices);
-    instances = new LinkedHashSet<>(indices);
+    instances = new TreeSet<>(indices);
   }
 
   public void beginSection(final BigInteger address, final String exception) {
