@@ -93,6 +93,6 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    return new ExceptionHandler(id, instanceIndex, sections);
+    return new ExceptionHandler(id, Collections.singleton(instanceIndex), sections);
   }
 }

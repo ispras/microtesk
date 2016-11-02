@@ -63,18 +63,19 @@ public final class ExceptionHandler {
   }
 
   private final String id;
-  private final int instanceIndex;
+  private final Set<Integer> instances;
   private final List<Section> sections;
 
   protected ExceptionHandler(
       final String id,
-      final int instanceIndex,
+      final Set<Integer> instances,
       final List<Section> sections) {
     InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(instances);
     InvariantChecks.checkNotNull(sections);
 
     this.id = id;
-    this.instanceIndex = instanceIndex;
+    this.instances = Collections.unmodifiableSet(instances);
     this.sections = Collections.unmodifiableList(sections);
   }
 
@@ -82,8 +83,8 @@ public final class ExceptionHandler {
     return id;
   }
 
-  public int getInstanceIndex() {
-    return instanceIndex;
+  public Set<Integer> getInstances() {
+    return instances;
   }
 
   public List<Section> getSections() {
