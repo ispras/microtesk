@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,8 +89,8 @@ public final class Template {
   public Template(final EngineContext context, final Processor processor) {
     Logger.debugHeader("Started Processing Template");
 
-    checkNotNull(context);
-    checkNotNull(processor);
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(processor);
 
     this.context = context;
 
@@ -196,7 +193,7 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = new BlockBuilder(true);
     rootBlockBuilder.setSequence(true);
 
-    checkTrue(blockBuilders.isEmpty());
+    InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
 
     this.callBuilder = new CallBuilder(getCurrentBlockId());
@@ -207,7 +204,7 @@ public final class Template {
     callBuilder = null;
 
     final BlockBuilder rootBuilder = blockBuilders.pop();
-    checkTrue(blockBuilders.isEmpty());
+    InvariantChecks.checkTrue(blockBuilders.isEmpty());
 
     return rootBuilder;
   }
@@ -217,7 +214,7 @@ public final class Template {
   }
 
   public BlockBuilder beginBlock() {
-    checkTrue(!blockBuilders.isEmpty());
+    InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
     final BlockBuilder parent = blockBuilders.peek();
@@ -231,7 +228,7 @@ public final class Template {
   }
 
   public BlockHolder endBlock() {
-    checkTrue(blockBuilders.size() > 1);
+    InvariantChecks.checkTrue(blockBuilders.size() > 1);
     endBuildingCall();
 
     Logger.debug("End block: " + getCurrentBlockId());
@@ -254,11 +251,11 @@ public final class Template {
   }
 
   private void processExternalCode() {
-    checkTrue(blockBuilders.size() == 1);
+    InvariantChecks.checkTrue(blockBuilders.size() == 1);
     endBuildingCall();
 
     final BlockBuilder rootBuilder = blockBuilders.pop();
-    checkTrue(rootBuilder.isExternal());
+    InvariantChecks.checkTrue(rootBuilder.isExternal());
 
     if (!rootBuilder.isEmpty()) {
       final Block rootBlock = rootBuilder.build();
@@ -277,7 +274,7 @@ public final class Template {
     private boolean isAddedToUnused;
 
     private BlockHolder(final Block block) {
-      checkNotNull(block);
+      InvariantChecks.checkNotNull(block);
       this.block = block;
 
       if (block.getBlockId().isRoot()) {
@@ -373,7 +370,7 @@ public final class Template {
   }
 
   private void addCall(final Call call) {
-    checkNotNull(call);
+    InvariantChecks.checkNotNull(call);
 
     if (!call.isEmpty()) {
       if (null != preparatorBuilder) {
@@ -392,14 +389,14 @@ public final class Template {
 
   public PrimitiveBuilder newOperationBuilder(final String name) {
     Logger.debug("Operation: " + name);
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
 
     return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(final String name) {
     Logger.debug("Addressing mode: " + name);
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
 
     final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
     if (null == metaData) {
@@ -426,7 +423,7 @@ public final class Template {
   }
 
   public void freeAllocatedMode(final Primitive mode, final boolean freeAll) {
-    checkNotNull(mode);
+    InvariantChecks.checkNotNull(mode);
 
     if (mode.getKind() != Primitive.Kind.MODE) {
       throw new GenerationAbortedException(
@@ -492,18 +489,18 @@ public final class Template {
   }
 
   public void setDefaultSituation(final String name, final Situation situation) {
-    checkNotNull(situation);
+    InvariantChecks.checkNotNull(situation);
     setDefaultSituation(name, new VariateSingleValue<>(situation));
   }
 
   public void setDefaultSituation(final String name, final Variate<Situation> situation) {
-    checkNotNull(name);
-    checkNotNull(situation);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(situation);
     defaultSituations.put(name, situation);
   }
 
   public Variate<Situation> getDefaultSituation(final String name) {
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
     return defaultSituations.get(name);
   }
 
@@ -512,7 +509,7 @@ public final class Template {
     endBuildingCall();
 
     Logger.debug("Begin preparator: %s", targetName);
-    checkNotNull(targetName);
+    InvariantChecks.checkNotNull(targetName);
 
     if (null != preparatorBuilder) {
       throw new IllegalStateException(String.format(
@@ -520,10 +517,10 @@ public final class Template {
           targetName, preparatorBuilder.getTargetName()));
     }
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
     if (null == targetMode) {
@@ -600,8 +597,8 @@ public final class Template {
       final Value value,
       final String preparatorName,
       final String variantName) {
-    checkNotNull(targetMode);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(targetMode);
+    InvariantChecks.checkNotNull(value);
 
     if (value instanceof LazyValue &&
         null == preparatorBuilder &&
@@ -617,7 +614,7 @@ public final class Template {
     final MetaAddressingMode metaTargetMode =
         metaModel.getAddressingMode(targetMode.getName());
 
-    checkNotNull(
+    InvariantChecks.checkNotNull(
         metaTargetMode, "No such addressing mode: " + targetMode.getName());
 
     final int valueBitSize =
@@ -637,10 +634,10 @@ public final class Template {
     Logger.debug("Begin stream preparator(data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
     if (null == dataMode) {
@@ -763,12 +760,12 @@ public final class Template {
     endBuildingCall();
 
     Logger.debug("Begin buffer preparator: %s", bufferId);
-    checkNotNull(bufferId);
+    InvariantChecks.checkNotNull(bufferId);
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     bufferPreparatorBuilder = new BufferPreparatorBuilder(bufferId);
     return bufferPreparatorBuilder;
@@ -835,7 +832,7 @@ public final class Template {
   }
 
   private static Map<String, Variate<String>> newVariatesForGroups(final MetaModel model) {
-    checkNotNull(model);
+    InvariantChecks.checkNotNull(model);
 
     final Map<String, Variate<String>> result = new HashMap<>();
     for (final MetaGroup group : model.getAddressingModeGroups()) {
@@ -850,7 +847,7 @@ public final class Template {
   }
 
   private static Variate<String> newVariateForGroup(final MetaGroup group) {
-    checkNotNull(group);
+    InvariantChecks.checkNotNull(group);
 
     final VariateBuilder<String> builder = new VariateBuilder<>();
     for (final MetaData item : group.getItems()) {
@@ -865,7 +862,7 @@ public final class Template {
   }
 
   private Variate<String> getGroupVariate(final String name) {
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
 
     final Variate<String> variate = groupVariates.get(name);
     if (null == variate) {
@@ -876,8 +873,8 @@ public final class Template {
   }
 
   public void defineGroup(final String name, final Variate<String> variate) {
-    checkNotNull(name);
-    checkNotNull(variate);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(variate);
 
     if (groupVariates.containsKey(name)) {
       throw new IllegalStateException(String.format("%s group is already defined", name));
@@ -894,10 +891,10 @@ public final class Template {
       throw new IllegalStateException("Exception handler is already defined.");
     }
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     exceptionHandlerBuilder = new ExceptionHandlerBuilder();
     return exceptionHandlerBuilder;
@@ -961,10 +958,10 @@ public final class Template {
     endBuildingCall();
     Logger.debug("Begin Test Case Level Prologue");
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     blockBuilders.peek().setPrologue(true);
   }
@@ -977,7 +974,7 @@ public final class Template {
     currentBlockBuilder.setPrologue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      checkTrue(globalPrologue.isEmpty(), "Global test case level prologue is already defined");
+      InvariantChecks.checkTrue(globalPrologue.isEmpty(), "Global test case level prologue is already defined");
       globalPrologue = currentBlockBuilder.getPrologue();
     }
   }
@@ -986,10 +983,10 @@ public final class Template {
     endBuildingCall();
     Logger.debug("Begin Test Case Level Epilogue");
 
-    checkTrue(null == preparatorBuilder);
-    checkTrue(null == bufferPreparatorBuilder);
-    checkTrue(null == streamPreparatorBuilder);
-    checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     blockBuilders.peek().setEpilogue(true);
   }
@@ -1002,7 +999,7 @@ public final class Template {
     currentBlockBuilder.setEpilogue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      checkTrue(globalEpilogue.isEmpty(), "Global test case level epilogue is already defined");
+      InvariantChecks.checkTrue(globalEpilogue.isEmpty(), "Global test case level epilogue is already defined");
       globalEpilogue = currentBlockBuilder.getEpilogue();
     }
   }
