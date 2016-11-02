@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -480,7 +481,7 @@ public final class TestEngine {
           printer.printCommentToFile(fileWriter,
               String.format("Exceptions: %s", section.getExceptions()));
 
-          final String org = String.format(".org 0x%x", section.getAddress());
+          final String org = String.format(".org 0x%x", section.getOrigin());
           Logger.debug(org);
           printer.printToFile(fileWriter, org);
           printer.printSequence(fileWriter, concreteSequence);
@@ -585,9 +586,11 @@ public final class TestEngine {
     concreteSequenceBuilder.add(concreteCalls);
 
     final TestSequence result = concreteSequenceBuilder.build();
-    final long address = section.getAddress().longValue();
-    result.setAddress(address);
 
+    final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
+    final BigInteger address = baseVa.add(section.getOrigin());
+
+    result.setAddress(address.longValue());
     return result;
   }
 
