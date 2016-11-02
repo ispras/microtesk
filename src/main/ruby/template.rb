@@ -711,7 +711,24 @@ class Template
   # -------------------------------------------------------------------------- #
 
   def exception_handler(attrs = {}, &contents)
-    builder = @template.beginExceptionHandler
+    if attrs.has_key?(:id)
+      id = attrs[:id]
+    else
+      id = ''
+    end
+
+    builder = @template.beginExceptionHandler id
+    if attrs.has_key?(:instance)
+      instance = attrs[:instance]
+    else
+      instance = 0..(get_option_value('instance-number').to_i - 1)
+    end
+
+    if instance.is_a?(Range)
+      builder.setInstances instance.min, instance.max
+    else
+      builder.setInstances instance
+    end
 
     exception_handler_object = ExceptionHandler.new self, builder
     exception_handler_object.instance_eval &contents
