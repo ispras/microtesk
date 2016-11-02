@@ -33,22 +33,42 @@ import ru.ispras.microtesk.Logger;
  */
 public final class ExceptionHandlerBuilder {
   private final String id;
-  private final int instanceIndex;
+  private Set<Integer> instances;
   private final List<ExceptionHandler.Section> sections;
 
   private BigInteger address;
   private Set<String> exceptions; 
   private List<Call> calls;
 
-  public ExceptionHandlerBuilder(final String id, final int instanceIndex) {
+  public ExceptionHandlerBuilder(final String id) {
     InvariantChecks.checkNotNull(id);
 
     this.id = id;
-    this.instanceIndex = instanceIndex;
+    this.instances = null;
     this.sections = new ArrayList<>();
     this.exceptions = null;
     this.address = null;
     this.calls = null;
+  }
+
+  public void setInstances(final int index) {
+    InvariantChecks.checkGreaterThanZero(index);
+    instances = Collections.singleton(index);
+  }
+
+  public void setInstances(final int indexMin, final int indexMax) {
+    InvariantChecks.checkGreaterThanZero(indexMin);
+    InvariantChecks.checkTrue(indexMin <= indexMax);
+
+    instances = new LinkedHashSet<>();
+    for (int index = indexMin; index <= indexMax; index++) {
+      instances.add(index);
+    }
+  }
+
+  public void setInstances(final Collection<Integer> indices) {
+    InvariantChecks.checkNotNull(indices);
+    instances = new LinkedHashSet<>(indices);
   }
 
   public void beginSection(final BigInteger address, final String exception) {
@@ -93,6 +113,6 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    return new ExceptionHandler(id, Collections.singleton(instanceIndex), sections);
+    return new ExceptionHandler(id, instances, sections);
   }
 }

@@ -896,7 +896,7 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    exceptionHandlerBuilder = new ExceptionHandlerBuilder("", 0);
+    exceptionHandlerBuilder = new ExceptionHandlerBuilder("");
     return exceptionHandlerBuilder;
   }
 
