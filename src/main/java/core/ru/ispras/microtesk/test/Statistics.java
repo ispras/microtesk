@@ -16,7 +16,6 @@
 package ru.ispras.microtesk.test;
 
 import java.util.ArrayDeque;
-import java.util.Date;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.Map;
@@ -69,7 +68,7 @@ public final class Statistics {
     this.activities = new ArrayDeque<>();
     this.timeMetrics = new EnumMap<>(Activity.class);
 
-    this.startTime = new Date().getTime();
+    this.startTime = System.currentTimeMillis();
     this.totalTime = 0;
 
     for (final Activity activity : Activity.values()) {
@@ -89,17 +88,17 @@ public final class Statistics {
   }
 
   public void saveTotalTime() {
-    this.totalTime = new Date().getTime() - startTime;
+    this.totalTime = System.currentTimeMillis() - startTime;
   }
 
   public void pushActivity(final Activity activity) {
     InvariantChecks.checkNotNull(activity);
-    activities.push(new Pair<>(activity, new Date().getTime()));
+    activities.push(new Pair<>(activity, System.currentTimeMillis()));
   }
 
   public void popActivity() {
     final Pair<Activity, Long> activity = activities.pop();
-    final long value = new Date().getTime() - activity.second;
+    final long value = System.currentTimeMillis() - activity.second;
 
     // Increases metric associated with current activity
     addToTimeMetric(activity.first, value);
