@@ -31,26 +31,26 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class ExceptionHandler {
 
   public static final class Section {
-    private final BigInteger address;
+    private final BigInteger origin;
     private final Set<String> exceptions;
     private final List<Call> calls;
 
     protected Section(
-        final BigInteger address,
+        final BigInteger origin,
         final Set<String> exceptions,
         final List<Call> calls) {
       InvariantChecks.checkNotNull(exceptions);
-      InvariantChecks.checkNotNull(address);
-      InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
+      InvariantChecks.checkNotNull(origin);
+      InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
       InvariantChecks.checkNotNull(calls);
 
-      this.address = address;
+      this.origin = origin;
       this.exceptions = Collections.unmodifiableSet(exceptions);
       this.calls = Collections.unmodifiableList(calls);
     }
 
-    public BigInteger getAddress() {
-      return address;
+    public BigInteger getOrigin() {
+      return origin;
     }
 
     public Set<String> getExceptions() {
