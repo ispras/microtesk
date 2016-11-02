@@ -52,7 +52,7 @@ public final class ExceptionHandlerBuilder {
   }
 
   public void setInstances(final int index) {
-    InvariantChecks.checkGreaterThanZero(index);
+    InvariantChecks.checkGreaterOrEqZero(index);
     instances = Collections.singleton(index);
   }
 
