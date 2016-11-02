@@ -37,7 +37,7 @@ public final class ExceptionHandlerBuilder {
   private Set<Integer> instances;
   private final List<ExceptionHandler.Section> sections;
 
-  private BigInteger address;
+  private BigInteger origin;
   private Set<String> exceptions; 
   private List<Call> calls;
 
@@ -48,7 +48,7 @@ public final class ExceptionHandlerBuilder {
     this.instances = null;
     this.sections = new ArrayList<>();
     this.exceptions = null;
-    this.address = null;
+    this.origin = null;
     this.calls = null;
   }
 
@@ -72,34 +72,34 @@ public final class ExceptionHandlerBuilder {
     instances = new TreeSet<>(indices);
   }
 
-  public void beginSection(final BigInteger address, final String exception) {
+  public void beginSection(final BigInteger origin, final String exception) {
     InvariantChecks.checkNotNull(exception);
-    beginSection(address, Collections.singletonList(exception));
+    beginSection(origin, Collections.singletonList(exception));
   }
 
-  public void beginSection(final BigInteger address, final Collection<String> exceptions) {
-    InvariantChecks.checkNotNull(address);
-    InvariantChecks.checkGreaterThan(address, BigInteger.ZERO);
+  public void beginSection(final BigInteger origin, final Collection<String> exceptions) {
+    InvariantChecks.checkNotNull(origin);
+    InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
     InvariantChecks.checkNotEmpty(exceptions);
 
-    Logger.debug("Exception handler: .org 0x%x for %s", address, exceptions);
+    Logger.debug("Exception handler: .org 0x%x for %s", origin, exceptions);
 
-    InvariantChecks.checkTrue(this.address == null);
+    InvariantChecks.checkTrue(this.origin == null);
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    this.address = address;
+    this.origin = origin;
     this.exceptions = new LinkedHashSet<>(exceptions);
     this.calls = new ArrayList<>();
   }
 
   public void endSection() {
     final ExceptionHandler.Section section =
-        new ExceptionHandler.Section(address, exceptions, calls);
+        new ExceptionHandler.Section(origin, exceptions, calls);
 
     this.sections.add(section);
 
-    this.address = null;
+    this.origin = null;
     this.exceptions = null;
     this.calls = null;
   }
@@ -110,7 +110,7 @@ public final class ExceptionHandlerBuilder {
   }
 
   public ExceptionHandler build() {
-    InvariantChecks.checkTrue(this.address == null);
+    InvariantChecks.checkTrue(this.origin == null);
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
