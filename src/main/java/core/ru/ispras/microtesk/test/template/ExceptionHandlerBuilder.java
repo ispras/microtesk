@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,14 +25,26 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
+/**
+ * The {@link ExceptionHandlerBuilder} class builds the template representation
+ * of exception handlers.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class ExceptionHandlerBuilder {
+  private final String id;
+  private final int instanceIndex;
   private final List<ExceptionHandler.Section> sections;
 
   private BigInteger address;
   private Set<String> exceptions; 
   private List<Call> calls;
 
-  public ExceptionHandlerBuilder() {
+  public ExceptionHandlerBuilder(final String id, final int instanceIndex) {
+    InvariantChecks.checkNotNull(id);
+
+    this.id = id;
+    this.instanceIndex = instanceIndex;
     this.sections = new ArrayList<>();
     this.exceptions = null;
     this.address = null;
@@ -81,6 +93,6 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    return new ExceptionHandler(sections);
+    return new ExceptionHandler(id, instanceIndex, sections);
   }
 }

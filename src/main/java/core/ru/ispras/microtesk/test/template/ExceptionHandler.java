@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,6 +21,13 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link ExceptionHandler} class holds template descriptions of
+ * handers of certain exception types to be executed on certain processing
+ * element instance.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class ExceptionHandler {
 
   public static final class Section {
@@ -55,11 +62,28 @@ public final class ExceptionHandler {
     }
   }
 
+  private final String id;
+  private final int instanceIndex;
   private final List<Section> sections;
 
-  protected ExceptionHandler(final List<Section> sections) {
+  protected ExceptionHandler(
+      final String id,
+      final int instanceIndex,
+      final List<Section> sections) {
+    InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(sections);
+
+    this.id = id;
+    this.instanceIndex = instanceIndex;
     this.sections = Collections.unmodifiableList(sections);
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public int getInstanceIndex() {
+    return instanceIndex;
   }
 
   public List<Section> getSections() {
