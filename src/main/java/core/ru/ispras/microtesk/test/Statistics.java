@@ -12,7 +12,6 @@
  * the License.
  */
 
-
 package ru.ispras.microtesk.test;
 
 import java.util.ArrayDeque;
@@ -68,7 +67,7 @@ public final class Statistics {
     this.activities = new ArrayDeque<>();
     this.timeMetrics = new EnumMap<>(Activity.class);
 
-    this.startTime = System.currentTimeMillis();
+    this.startTime = getCurrentTime();
     this.totalTime = 0;
 
     for (final Activity activity : Activity.values()) {
@@ -87,18 +86,22 @@ public final class Statistics {
     this.traceLengthLimit = traceLengthLimit;
   }
 
+  private static long getCurrentTime() {
+    return System.currentTimeMillis();
+  }
+
   public void saveTotalTime() {
-    this.totalTime = System.currentTimeMillis() - startTime;
+    this.totalTime = getCurrentTime() - startTime;
   }
 
   public void pushActivity(final Activity activity) {
     InvariantChecks.checkNotNull(activity);
-    activities.push(new Pair<>(activity, System.currentTimeMillis()));
+    activities.push(new Pair<>(activity, getCurrentTime()));
   }
 
   public void popActivity() {
     final Pair<Activity, Long> activity = activities.pop();
-    final long value = System.currentTimeMillis() - activity.second;
+    final long value = getCurrentTime() - activity.second;
 
     // Increases metric associated with current activity
     addToTimeMetric(activity.first, value);
