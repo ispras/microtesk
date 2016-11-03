@@ -121,6 +121,7 @@ startRule
 procSpec
     :  letDef
     |  typeDef
+    |  structDef
     |  memDef
     |  modeDef
     |  opDef
@@ -157,6 +158,28 @@ typeDef
 // identifierList
 //  :  ID^ (ASSIGN! CARD_CONST)? (COMMA! identifierList)?
 //  ;
+
+/*===============================================================================================*/
+/* Struct rules                                                                                  */
+/*===============================================================================================*/
+
+structDef
+    : STRUCT^ id=ID { declare($id, NmlSymbolKind.STRUCT, false); }
+      LEFT_PARENTH! structFields RIGHT_PARENTH!
+    ;
+
+structFields
+    : structField (COMMA! structField)*
+    ;
+
+structField
+    : ID COLON! structType
+    ;
+
+structType
+    : {isDeclaredAs(input.LT(1), NmlSymbolKind.STRUCT)}? ID -> ^(STRUCT ID)
+    | typeExpr
+    ;
 
 /*===============================================================================================*/
 /* Memory storage (memory, registers, variables)                                                 */

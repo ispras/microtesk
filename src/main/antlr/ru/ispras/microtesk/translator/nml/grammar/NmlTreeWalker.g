@@ -101,6 +101,7 @@ procSpec
 }
     :  letDef
     |  typeDef
+    |  structDef
     |  memDef
     |  regDef
     |  varDef
@@ -150,6 +151,23 @@ typeExpr returns [Type res]
     |   ^(t=FLOAT n=sizeExpr m=sizeExpr)
             { $res=getTypeFactory().newFloat(where($t), $n.res, $m.res); }
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
+    ;
+
+/*======================================================================================*/
+/* Struct Rules                                                                         */
+/*======================================================================================*/
+
+structDef
+    : ^(STRUCT id=ID structFields)
+    ;
+
+structFields
+    : (fieldId=ID type=structType)+
+    ;
+
+structType
+    : ^(STRUCT ID)
+    | typeExpr
     ;
 
 /*======================================================================================*/

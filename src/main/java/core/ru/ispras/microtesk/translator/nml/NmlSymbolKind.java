@@ -54,5 +54,7 @@ public enum NmlSymbolKind {
   /** Attribute of a mode or an operation (e.g. syntax, format, image). */
   ATTRIBUTE,
 
-  FUNCTION
+  FUNCTION,
+
+  STRUCT
 }
