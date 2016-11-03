@@ -187,8 +187,9 @@ aliasExpr
 /*===============================================================================================*/
 
 modeDef
-    :  MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);} modeSpecPart
-    ;  finally     {popSymbolScope();}
+    :  MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);}
+       modeSpecPart
+    ;  finally {popSymbolScope();}
 
 modeSpecPart
     :  andRule modeReturn? attrDefList
@@ -204,8 +205,9 @@ modeReturn
 /*===============================================================================================*/
 
 opDef
-    :  OP^ id=(ID | EXCEPTION) {declareAndPushSymbolScope($id, NmlSymbolKind.OP);} opSpecPart
-    ;  finally   {popSymbolScope();}
+    :  PSEUDO? OP^ id=(ID | EXCEPTION) {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
+       opSpecPart
+    ;  finally {popSymbolScope();}
 
 opSpecPart
     :  andRule attrDefList

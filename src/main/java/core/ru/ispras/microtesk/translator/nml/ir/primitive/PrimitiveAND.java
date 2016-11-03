@@ -35,12 +35,14 @@ public final class PrimitiveAND extends Primitive {
   protected PrimitiveAND(
       final String name,
       final Kind kind,
+      final boolean pseudo,
       final Expr retExpr,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) {
     super(
         name,
         kind,
+        pseudo,
         false,
         getReturnType(retExpr),
         getAttrNames(attrs)

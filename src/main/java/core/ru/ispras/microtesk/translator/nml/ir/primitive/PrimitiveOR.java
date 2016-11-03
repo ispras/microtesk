@@ -24,12 +24,13 @@ public final class PrimitiveOR extends Primitive {
 
   public PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
     super(
-      name,
-      kind,
-      true,
-      getReturnType(ors),
-      (null == ors) || ors.isEmpty() ? null : ors.get(0).getAttrNames()
-    );
+        name,
+        kind,
+        false,
+        true,
+        getReturnType(ors),
+        (null == ors) || ors.isEmpty() ? null : ors.get(0).getAttrNames()
+        );
 
     this.ors = ors;
   }

@@ -34,6 +34,7 @@ public class Primitive {
 
   private final String name;
   private final Kind kind;
+  private final boolean pseudo;
   private final boolean isOrRule;
   private final Type returnType;
   private final Set<String> attrNames;
@@ -42,11 +43,13 @@ public class Primitive {
   Primitive(
       final String name,
       final Kind kind,
+      final boolean pseudo,
       final boolean isOrRule,
       final Type returnType,
       final Set<String> attrNames) {
     this.name = name;
     this.kind = kind;
+    this.pseudo = pseudo;
     this.isOrRule = isOrRule;
     this.returnType = returnType;
     this.attrNames = attrNames;
@@ -56,6 +59,7 @@ public class Primitive {
   Primitive(final Primitive source) {
     this.name = source.name;
     this.kind = source.kind;
+    this.pseudo = source.pseudo;
     this.isOrRule = source.isOrRule;
     this.returnType = source.returnType;
     this.attrNames = source.attrNames;
@@ -106,6 +110,10 @@ public class Primitive {
 
   public final boolean isOrRule() {
     return isOrRule;
+  }
+
+  public final boolean isPseudo() {
+    return pseudo;
   }
 
   public final Type getReturnType() {
