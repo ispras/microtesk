@@ -101,7 +101,7 @@ public final class Model {
   }
 
   public ProcessingElement getPE() {
-    InvariantChecks.checkNotNull(activeProcElem);
+    InvariantChecks.checkNotNull(activeProcElem, "No active processing element is set.");
     return null != activeProcElemTemp ? activeProcElemTemp : activeProcElem;
   }
 
