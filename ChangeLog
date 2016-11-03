@@ -6,7 +6,13 @@
  2015/09/04 MicroTESK 2.3 beta
 --------------------------------------------------------------------------------
 
-2016/10/28 MicroTESK 2.4.0 beta
+2016/11/03 MicroTESK 2.4.1 beta
+ - Performance optimization: variables are not reset
+ - Simulation on multiple instances is debugged
+ - Improvements in exception handling facilities
+ - Bug fixes and general improvements
+
+2016/10/28 MicroTESK 2.4.0 alpha
  - Basic facilities for multicore generation (untested, untested)
  - nML: the 'init' attribute was made public
  - Refactoring in the ISA simulator
