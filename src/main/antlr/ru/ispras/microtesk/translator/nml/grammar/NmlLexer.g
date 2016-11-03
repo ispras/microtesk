@@ -75,6 +75,7 @@ VAR       : 'var'       { pp(); };
 ALIAS     : 'alias'     { pp(); };
 MODE      : 'mode'      { pp(); };
 OP        : 'op'        { pp(); };
+PSEUDO    : 'pseudo'    { pp(); };
 
 /* Standard Attributes */
 SYNTAX    : 'syntax'    { pp(); };
