@@ -25,7 +25,7 @@ import ru.ispras.microtesk.utils.SparseArray;
 public abstract class RegisterMapping<D extends Data, A extends Address>
     implements Buffer<D, A>, BufferObserver {
 
-  private final MemoryDevice storage;
+  private final String name;
 
   private final int associativity;
   private final PolicyId policyId;
@@ -59,12 +59,14 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
+      final MemoryDevice storage = getRegisterDevice();
       this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
       currentRegisterIndex = currentRegisterIndex.add(BigInteger.ONE);
     }
 
     @Override
     public boolean isHit(final A address) {
+      final MemoryDevice storage = getRegisterDevice();
       if (!storage.isInitialized(registerIndex)) {
         return false;
       }
@@ -77,18 +79,21 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
 
     @Override
     public D getData(final A address) {
+      final MemoryDevice storage = getRegisterDevice();
       final BitVector rawData = storage.load(registerIndex);
       return newData(rawData); 
     }
 
     @Override
     public D setData(final A address, final D data) {
+      final MemoryDevice storage = getRegisterDevice();
       storage.store(registerIndex, data.asBitVector());
       return null;
     }
 
     @Override
     public String toString() {
+      final MemoryDevice storage = getRegisterDevice();
       final BitVector value = storage.load(registerIndex);
       return String.format("RegisterMappedLine [data=%s]", newData(value));
     }
@@ -138,7 +143,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
-    this.storage = TestEngine.getInstance().getModel().getPE().newMemoryDeviceWrapperFor(name);
+    this.name = name;
+
+    final MemoryDevice storage = getRegisterDevice();
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
 
     this.associativity = associativity;
@@ -156,6 +163,10 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
       final BitVector setIndex = BitVector.valueOf(index, storage.getAddressBitSize());
       sets.set(setIndex, set);
     }
+  }
+
+  private MemoryDevice getRegisterDevice() {
+    return TestEngine.getInstance().getModel().getPE().getMemoryDevice(name);
   }
 
   @Override

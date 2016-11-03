@@ -40,6 +40,8 @@ public abstract class ProcessingElement {
 
   private final Map<String, Memory> storageMap = new HashMap<>();
   private final Map<String, Label> labelMap = new HashMap<>();
+  private final Map<String, MemoryDevice> deviceMap = new HashMap<>();
+
   private MemoryDevice memory = null;
 
   protected final void addStorage(final Memory storage) {
@@ -128,13 +130,21 @@ public abstract class ProcessingElement {
     return memory;
   }
 
-  public final MemoryDeviceWrapper newMemoryDeviceWrapperFor(final String storageId) {
-    try {
-      final Memory storage = getStorage(storageId);
-      return new MemoryDeviceWrapper(storage);
-    } catch (final ConfigurationException e) {
-      throw new IllegalArgumentException(e);
+  public final MemoryDevice getMemoryDevice(final String deviceId) {
+    InvariantChecks.checkNotNull(deviceId);
+
+    MemoryDevice device = deviceMap.get(deviceId);
+    if (null == device) {
+      try {
+        final Memory storage = getStorage(deviceId);
+        device = new MemoryDeviceWrapper(storage);
+        deviceMap.put(deviceId, device);
+      } catch (final ConfigurationException e) {
+        throw new IllegalArgumentException(e);
+      }
     }
+
+    return device;
   }
 
   private Memory getStorage(final String storageId) throws ConfigurationException {
