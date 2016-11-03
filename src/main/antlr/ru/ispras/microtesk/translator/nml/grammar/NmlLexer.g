@@ -76,6 +76,7 @@ ALIAS     : 'alias'     { pp(); };
 MODE      : 'mode'      { pp(); };
 OP        : 'op'        { pp(); };
 PSEUDO    : 'pseudo'    { pp(); };
+STRUCT    : 'struct'    { pp(); };
 
 /* Standard Attributes */
 SYNTAX    : 'syntax'    { pp(); };
