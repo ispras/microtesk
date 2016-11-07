@@ -59,10 +59,10 @@ public final class SysUtils {
    * Loads a model with the specified name from {@code models.jar}.
    * 
    * @param modelName Model name.
-   * @return New model instance or {@code null} if the model class is not found or
-   *         cannot be instantiated.
+   * @return New model instance.
    * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
+   * @throws IllegalArgumentException if the model name is {@code null} or
+   *         if for some reason it cannot be loaded.
    */
   public static Model loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
@@ -77,41 +77,36 @@ public final class SysUtils {
   }
 
   /**
-   * Loads a class with the specified name from {@code models.jar}. Prints messages
-   * if any errors occur.
+   * Loads a class with the specified name from {@code models.jar}.
    * 
    * @param className Name of the class to be loaded.
-   * @return New instance of the specified class or {@code null} if the class is
-   *         not found or cannot be instantiated.
+   * @return New instance of the specified class.
    * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
+   * @throws IllegalArgumentException if the class name is {@code null} or
+   *         if for some reason the class cannot be loaded.
    */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
 
     final String homeDir = getHomeDir();
     if (null == homeDir) {
-      Logger.error("The %s environment variable is not defined.", MICROTESK_HOME);
-      return null;
+      throw new IllegalArgumentException(String.format(
+          "The %s environment variable is not defined.", MICROTESK_HOME));
     }
 
     final String modelsJarPath = Paths.get(homeDir, "lib", "jars", "models.jar").toString();
-    if (null == modelsJarPath) {
-      return null;
-    }
-
     final File file = new File(modelsJarPath);
     if (!file.exists()) {
-      Logger.error("File %s does not exist.", modelsJarPath);
-      return null;
+      throw new IllegalArgumentException(String.format(
+          "File %s does not exist.", modelsJarPath));
     }
 
     final URL url;
     try {
       url = file.toURI().toURL();
     } catch (final MalformedURLException e) {
-      Logger.error("Failed to create an URL for file %s. Reason: %s", modelsJarPath, e.getMessage());
-      return null;
+      throw new IllegalArgumentException(String.format(
+          "Failed to create an URL for file %s. Reason: %s", modelsJarPath, e.getMessage()));
     }
 
     final URL[] urls = new URL[] {url};
@@ -121,16 +116,16 @@ public final class SysUtils {
     try {
       cls = cl.loadClass(className);
     } catch (final ClassNotFoundException e) {
-      Logger.error("Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage());
-      return null;
+      throw new IllegalArgumentException(String.format(
+          "Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage()));
     }
 
     final Object instance;
     try {
       instance = cls.newInstance();
     } catch (final InstantiationException | IllegalAccessException e) {
-      Logger.error("Failed to create an instance of %s. Reason: %s", className, e.getMessage());
-      return null;
+      throw new IllegalArgumentException(String.format(
+          "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
     }
 
     return instance;
@@ -138,13 +133,12 @@ public final class SysUtils {
 
   /**
    * Loads a plug-in implemented by the specified class from {@code microtesk.jar}.
-   * Prints a message if any error occur.
    * 
    * @param className Name of the plug-in class.
-   * @return New plug-in instance or {@code null} if the class is not found
-   *        or cannot be instantiated.
+   * @return New plug-in instance.
    * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
+   * @throws IllegalArgumentException if the class name is {@code null} or
+   *         if  for some reason the class cannot be loaded.
    */
   public static Plugin loadPlugin(final String className) {
     InvariantChecks.checkNotNull(className);
@@ -154,8 +148,8 @@ public final class SysUtils {
       final Class<?> pluginClass = loader.loadClass(className);
       return (Plugin) pluginClass.newInstance();
     } catch(final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-      Logger.error("Failed to load %s. Reason: %s", className, e.getMessage());
-      return null;
+      throw new IllegalArgumentException(
+          String.format("Failed to load %s. Reason: %s", className, e.getMessage()));
     }
   }
 
