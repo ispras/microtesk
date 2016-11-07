@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
@@ -143,9 +144,11 @@ public final class MmuPlugin implements Plugin {
 
   @Override
   public void initializeGenerationEnvironment() {
-    final MmuModel mmuModel = getMmuModel();
-    if (null == mmuModel) {
-      // MMU model is not provided.
+    final MmuModel mmuModel;
+    try {
+      mmuModel = getMmuModel();
+    } catch (final Exception e) {
+      Logger.warning("Failed to load the MMU model. Physical memory will be accessed directly.");
       return;
     }
 
