@@ -20,7 +20,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 
 public final class Struct {
   public static final class Field {
@@ -41,7 +40,7 @@ public final class Struct {
 
   private final Map<String, Field> fields;
   private int bitSize;
-  private TypeId typeId;
+  private final TypeId typeId;
 
   public Struct() {
     this.fields = new LinkedHashMap<>();
@@ -55,11 +54,6 @@ public final class Struct {
 
     fields.put(name, new Field(type, bitSize));
     bitSize += type.getBitSize();
-
-    final TypeId castTypeId = TypeCast.getCastTypeId(typeId, type.getTypeId());
-    if (null != castTypeId) {
-      typeId = castTypeId;
-    }
   }
 
   public Field getField(final String name) {
