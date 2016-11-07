@@ -148,8 +148,11 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
-    final Model model = SysUtils.loadModel(modelName);
-    if (null == model) {
+    final Model model;
+    try {
+      model = SysUtils.loadModel(modelName);
+    } catch (final Exception e) {
+      Logger.error(e.getMessage());
       reportAborted("Failed to load the %s model.", modelName);
       return null;
     }
