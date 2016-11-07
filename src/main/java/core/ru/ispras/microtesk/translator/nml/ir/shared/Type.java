@@ -22,6 +22,11 @@ import ru.ispras.microtesk.model.api.data.TypeId;
 public final class Type {
   public final static Type BOOLEAN = new Type(TypeId.BOOL, 1);
 
+  public static Type STRUCT(final Struct struct) {
+    InvariantChecks.checkNotNull(struct);
+    return new Type(struct);
+  }
+
   public static Type INT(final int bitSize) {
     InvariantChecks.checkGreaterThanZero(bitSize);
     return new Type(TypeId.INT, bitSize);
