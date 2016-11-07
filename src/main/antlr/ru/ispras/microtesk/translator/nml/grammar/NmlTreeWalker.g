@@ -158,16 +158,19 @@ typeExpr returns [Type res]
 /*======================================================================================*/
 
 structDef
-    : ^(STRUCT id=ID structFields)
+    : ^(STRUCT id=ID str=structFields)
+{
+checkNotNull($id, $str.res, $str.text);
+getIR().add($id.text, $str.res);
+}
     ;
 
-structFields
-    : (fieldId=ID type=structType)+
-    ;
-
-structType
-    : ^(STRUCT ID)
-    | typeExpr
+structFields returns [Type res]
+@init {final Struct struct = new Struct();}
+    : (id=ID te=typeExpr {
+checkNotNull($id, $te.res, $te.text);
+struct.addField($id.text, $te.res);
+})+ {$res = Type.STRUCT(struct);}
     ;
 
 /*======================================================================================*/

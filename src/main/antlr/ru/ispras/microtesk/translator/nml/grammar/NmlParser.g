@@ -164,7 +164,7 @@ typeDef
 /*===============================================================================================*/
 
 structDef
-    : STRUCT^ id=ID { declare($id, NmlSymbolKind.STRUCT, false); }
+    : STRUCT^ id=ID { declare($id, NmlSymbolKind.TYPE, false); }
       LEFT_PARENTH! structFields RIGHT_PARENTH!
     ;
 
@@ -173,12 +173,7 @@ structFields
     ;
 
 structField
-    : ID COLON! structType
-    ;
-
-structType
-    : {isDeclaredAs(input.LT(1), NmlSymbolKind.STRUCT)}? ID -> ^(STRUCT ID)
-    | typeExpr
+    : ID COLON! typeExpr
     ;
 
 /*===============================================================================================*/
