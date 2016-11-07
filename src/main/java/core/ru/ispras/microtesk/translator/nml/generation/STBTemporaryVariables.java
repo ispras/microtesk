@@ -57,45 +57,11 @@ final class STBTemporaryVariables implements STBuilder {
 
       tCore.add("names", memory.getName());
 
-      final ST stMemoryDef = buildMemoryLine(group, memory);
+      final ST stMemoryDef = STBProcessingElement.buildMemoryLine(group, memory);
       tCore.add("defs", stMemoryDef);
     }
 
     st.add("members", tCore);
-  }
-
-  private ST buildMemoryLine(final STGroup group, final MemoryExpr memory) {
-    final ST tMemory = group.getInstanceOf("new_memory");
-
-    tMemory.add("name", memory.getName());
-    tMemory.add("kind", memory.getKind());
-
-    final Type typeExpr = memory.getType();
-    if (null != typeExpr.getAlias()) {
-      tMemory.add("type", "TypeDefs." + typeExpr.getAlias());
-    } else {
-      final ST tNewType = group.getInstanceOf("new_type");
-      tNewType.add("typeid", typeExpr.getTypeId());
-      tNewType.add("size", typeExpr.getBitSize());
-      tMemory.add("type", tNewType);
-    }
-
-    tMemory.add("size", ExprPrinter.bigIntegerToString(memory.getSize(), 16));
-
-    final Alias alias = memory.getAlias();
-    if (null == alias) {
-      tMemory.add("alias", false);
-    } else {
-      if (Alias.Kind.LOCATION == alias.getKind()) {
-        PrinterLocation.addPE = false;
-        tMemory.add("alias", PrinterLocation.toString(alias.getLocation()));
-      } else {
-        tMemory.add("alias", String.format("%s, %d, %d",
-            alias.getName(), alias.getMin(), alias.getMax()));
-      }
-    }
-
-    return tMemory;
   }
 
   @Override

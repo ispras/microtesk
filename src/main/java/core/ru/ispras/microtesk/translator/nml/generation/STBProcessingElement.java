@@ -87,7 +87,7 @@ final class STBProcessingElement implements STBuilder {
     st.add("members", tCore);
   }
 
-  private ST buildMemoryLine(final STGroup group, final MemoryExpr memory) {
+  public static ST buildMemoryLine(final STGroup group, final MemoryExpr memory) {
     final ST tMemory = group.getInstanceOf("new_memory");
 
     tMemory.add("name", memory.getName());
@@ -103,7 +103,12 @@ final class STBProcessingElement implements STBuilder {
       tMemory.add("type", tNewType);
     }
 
-    tMemory.add("size", ExprPrinter.bigIntegerToString(memory.getSize(), 16));
+    final BigInteger memorySize = memory.getSize();
+    if (memorySize.compareTo(BigInteger.ONE.shiftLeft(10)) > 0) {
+      tMemory.add("size", ExprPrinter.bigIntegerToString(memorySize, 16));
+    } else {
+      tMemory.add("size", memorySize);
+    }
 
     final Alias alias = memory.getAlias();
     if (null == alias) {
