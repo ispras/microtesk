@@ -39,6 +39,6 @@ public abstract class CpuTest extends TemplateTest {
 
   private boolean isExpectedError(final String message) {
     return message.contains(
-        "Failed to load the ru.ispras.microtesk.model.cpu.mmu.sim.Model class");
+        "Failed to load the MMU model. Physical memory will be accessed directly.");
   }
 }

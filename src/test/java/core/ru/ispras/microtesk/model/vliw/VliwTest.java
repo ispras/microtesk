@@ -39,6 +39,6 @@ public abstract class VliwTest extends TemplateTest {
 
   protected boolean isExpectedError(final String message) {
     return message.contains(
-        "Error: Failed to load the ru.ispras.microtesk.model.vliw.mmu.sim.Model class");
+        "Failed to load the MMU model. Physical memory will be accessed directly.");
   }
 }
