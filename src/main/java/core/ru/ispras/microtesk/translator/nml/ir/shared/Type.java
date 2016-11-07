@@ -42,6 +42,7 @@ public final class Type {
     return new Type(
         TypeId.FLOAT,
         null,
+        null,
         bitSize,
         new int[] {fracBitSize, expBitSize}
         );
@@ -52,12 +53,14 @@ public final class Type {
 
   private final TypeId typeId;
   private final String aliasName;
+  private final Struct struct;
   private final int bitSize;
   private final int[] fieldSizes;
 
   private Type(
       final TypeId typeId,
       final String aliasName,
+      final Struct struct,
       final int bitSize,
       final int[] fieldSizes) {
     InvariantChecks.checkNotNull(typeId);
@@ -66,6 +69,7 @@ public final class Type {
 
     this.typeId = typeId;
     this.aliasName = aliasName;
+    this.struct = struct;
     this.bitSize = bitSize;
     this.fieldSizes = fieldSizes;
   }
@@ -73,16 +77,21 @@ public final class Type {
   private Type(final Type type, final String aliasName) {
     this.typeId = type.typeId;
     this.aliasName = aliasName;
+    this.struct = type.struct;
     this.bitSize = type.bitSize;
     this.fieldSizes = type.fieldSizes;
   }
 
+  private Type(final Struct struct) {
+    this(struct.getTypeId(), null, struct, struct.getBitSize(), new int[] {struct.getBitSize()});
+  }
+
   private Type(final TypeId typeId, final int bitSize) {
-    this(typeId, null, bitSize, new int[] {bitSize});
+    this(typeId, null, null, bitSize, new int[] {bitSize});
   }
 
   private Type(final TypeId typeId, final int... fieldSizes) {
-    this(typeId, null, getTotalSize(fieldSizes), fieldSizes);
+    this(typeId, null, null, getTotalSize(fieldSizes), fieldSizes);
   }
 
   private static int getTotalSize(final int... fieldSizes) {
@@ -122,6 +131,10 @@ public final class Type {
 
   public String getAlias() {
     return aliasName;
+  }
+
+  public Struct getStruct() {
+    return struct;
   }
 
   public String getJavaText() {
