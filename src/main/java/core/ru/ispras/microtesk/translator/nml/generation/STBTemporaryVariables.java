@@ -23,9 +23,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class STBTemporaryVariables implements STBuilder {
   public static final String CLASS_NAME = "TempVars";
