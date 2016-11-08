@@ -943,8 +943,8 @@ $res = getExprFactory().repeat(where($count.start), $count.res, $value.res);
     ;
 
 locationAtom returns [Expr res]
-@init {final List<String> fields = new ArrayList<>();}
-    :  ^(LOCATION_INDEX id=ID e=indexExpr (a=ID{fields.add($a.text);})*)
+    :  ^(LOCATION_INDEX id=ID e=indexExpr
+       {final List<String> fields = new ArrayList<>();}(a=ID{fields.add($a.text);})*)
 {
 checkNotNull($e.start, $e.res, $e.text);
 $res = getLocationFactory().location(where($id), $id.text, $e.res, fields);
@@ -953,7 +953,8 @@ $res = getLocationFactory().location(where($id), $id.text, $e.res, fields);
 {
 $res = getLocationFactory().location(where($id), $id.text);
 }
-    |  ^(DOT id=ID {final List<String> args = new ArrayList<>();} (a=ID{args.add($a.text);})+)
+    |  ^(DOT id=ID {final List<String> args = new ArrayList<>();}
+       (a=ID{args.add($a.text);})+)
 {
 $res = getLocationFactory().location(where($id), $id.text, args);
 }
