@@ -68,6 +68,8 @@ public final class MicroTESK {
 
       if (options.getValueAsBoolean(Option.GENERATE)) {
         generate(options, arguments, plugins);
+      } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
+        disassemble(options, arguments);
       } else {
         translate(options, arguments);
       }
@@ -158,6 +160,10 @@ public final class MicroTESK {
         Logger.error("Failed to copy %s to %s", extensionDir, outDir);
       }
     }
+  }
+
+  private static void disassemble(final Options options, final String[] arguments) {
+    Logger.error("Dissambling is not currently supported.");
   }
 
   private static void generate(
