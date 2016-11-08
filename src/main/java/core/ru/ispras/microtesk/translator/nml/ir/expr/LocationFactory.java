@@ -23,6 +23,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -38,7 +39,9 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.Struct;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+import ru.ispras.microtesk.utils.StringUtils;
 
 public final class LocationFactory extends WalkerFactoryBase {
   private static final String OUT_OF_BOUNDS =
@@ -71,7 +74,11 @@ public final class LocationFactory extends WalkerFactoryBase {
     return newLocationExpr(result);
   }
 
-  public Expr location(Where where, String name, Expr index) throws SemanticException {
+  public Expr location(
+      final Where where, 
+      final String name,
+      final Expr index,
+      final List<String> fields) throws SemanticException {
     checkNotNull(index);
 
     final Symbol symbol = findSymbol(where, name);
@@ -82,7 +89,31 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
-    final LocationAtom result = creator.create();
+    LocationAtom result = creator.create();
+
+    if (!fields.isEmpty()) {
+      final Type type = result.getType();
+      final Struct struct = type.getStruct();
+
+      if (null == struct) {
+        raiseError(where, String.format("%s does not have fields.", name));
+      }
+
+      final Struct.Field field = struct.getField(fields);
+      if (null == field) {
+        raiseError(where, String.format(
+            "%s does not have field %s", name, StringUtils.toString(fields, ".")));
+      }
+
+      final Expr from = new Expr(NodeValue.newInteger(field.getMin()));
+      from.setNodeInfo(NodeInfo.newConst(null));
+
+      final Expr to = new Expr(NodeValue.newInteger(field.getMax()));
+      to.setNodeInfo(NodeInfo.newConst(null));
+
+      result = LocationAtom.createBitfield(result, from, to, field.getType());
+    }
+
     return newLocationExpr(result);
   }
 

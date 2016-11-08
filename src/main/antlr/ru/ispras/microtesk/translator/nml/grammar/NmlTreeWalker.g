@@ -926,10 +926,11 @@ locationVal returns [Expr res]
 checkNotNull($la.start, $la.res, $la.text);
 checkNotNull($je1.start, $je1.res, $je1.text);
 
-if (null == $je2.res)
-    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res);
-else
-    $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
+if (null == $je2.res) {
+  $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res);
+} else {
+  $res = getLocationFactory().bitfield(where($node), $la.res, $je1.res, $je2.res);
+}
 }
     |  la=locationAtom
 {
@@ -942,10 +943,11 @@ $res = getExprFactory().repeat(where($count.start), $count.res, $value.res);
     ;
 
 locationAtom returns [Expr res]
-    :  ^(LOCATION_INDEX id=ID e=indexExpr)
+@init {final List<String> fields = new ArrayList<>();}
+    :  ^(LOCATION_INDEX id=ID e=indexExpr (a=ID{fields.add($a.text);})*)
 {
 checkNotNull($e.start, $e.res, $e.text);
-$res = getLocationFactory().location(where($id), $id.text, $e.res);
+$res = getLocationFactory().location(where($id), $id.text, $e.res, fields);
 }
     |  id=ID
 {
