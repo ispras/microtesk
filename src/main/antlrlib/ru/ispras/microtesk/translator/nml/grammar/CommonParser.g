@@ -259,7 +259,7 @@ locationVal
 
 locationAtom
     :  ID
-    |  ID LEFT_HOOK expr RIGHT_HOOK -> ^(LOCATION_INDEX ID expr)
+    |  ID LEFT_HOOK expr RIGHT_HOOK (DOT ID)* -> ^(LOCATION_INDEX ID expr ID*)
     |  ID (DOT ID)+ -> ^(DOT ID ID+)
     |  instance (DOT ID)? -> ^(INSTANCE_CALL instance ID?)
     ;
