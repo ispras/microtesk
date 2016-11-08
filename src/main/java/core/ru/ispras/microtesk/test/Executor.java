@@ -438,16 +438,13 @@ public final class Executor {
           continue;
         }
 
-        if (handlerSet.contains(handlerCalls)) {
-          continue;
-        }
-
         code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
 
-        registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
-        code.addCalls(handlerCalls);
-
-        handlerSet.add(handlerCalls);
+        if (!handlerSet.contains(handlerCalls)) {
+          registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+          code.addCalls(handlerCalls);
+          handlerSet.add(handlerCalls);
+        }
       }
     }
   }
