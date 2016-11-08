@@ -57,16 +57,18 @@ public final class LocationFactory extends WalkerFactoryBase {
     super(context);
   }
 
-  public Expr location(Where where, String name) throws SemanticException {
+  public Expr location(
+      final Where where,
+      final String name) throws SemanticException {
     final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
-    if ((NmlSymbolKind.MEMORY != kind) && (NmlSymbolKind.ARGUMENT != kind)) {
-      raiseError(
-        where,
-        new SymbolTypeMismatch(
-          name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
-      );
+    if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
+       raiseError(
+           where,
+           new SymbolTypeMismatch(
+               name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
+           );
     }
 
     final LocationCreator creator = (NmlSymbolKind.MEMORY == kind) ?
@@ -132,6 +134,24 @@ public final class LocationFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final List<String> fields) throws SemanticException {
+
+    final Symbol symbol = findSymbol(where, name);
+    final Enum<?> kind = symbol.getKind();
+
+    if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
+      raiseError(
+          where,
+          new SymbolTypeMismatch(
+              name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
+          );
+    }
+
+    if (NmlSymbolKind.MEMORY == kind) {
+      final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, null);
+      final LocationAtom location = namedField(where, creator.create(), fields);
+      return newLocationExpr(location);
+    }
+
     final Primitive argument = getThisArgs().get(name);
     if (null == argument) {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
