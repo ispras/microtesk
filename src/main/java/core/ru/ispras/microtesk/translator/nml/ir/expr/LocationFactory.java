@@ -92,68 +92,92 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
-    LocationAtom result = creator.create();
+    final LocationAtom location = namedField(where, creator.create(), fields);
 
-    if (!fields.isEmpty()) {
-      final Type type = result.getType();
-      final Struct struct = type.getStruct();
-
-      if (null == struct) {
-        raiseError(where, String.format("%s does not have fields.", name));
-      }
-
-      final Struct.Field field = struct.getField(fields);
-      if (null == field) {
-        raiseError(where, String.format(
-            "%s does not have field %s", name, StringUtils.toString(fields, ".")));
-      }
-
-      final Expr from = new Expr(NodeValue.newInteger(field.getMin()));
-      from.setNodeInfo(NodeInfo.newConst(null));
-
-      final Expr to = new Expr(NodeValue.newInteger(field.getMax()));
-      to.setNodeInfo(NodeInfo.newConst(null));
-
-      result = createBitfield(where, result, from, to, field.getType());
-    }
-
-    return newLocationExpr(result);
+    return newLocationExpr(location);
   }
 
-  public Expr location(Where where, String name, List<String> argNames) throws SemanticException {
-    Primitive argument = getThisArgs().get(name);
+  private LocationAtom namedField(
+      final Where where,
+      final LocationAtom location,
+      final List<String> fields) throws SemanticException {
+    if (fields.isEmpty()) {
+      return location;
+    }
+
+    final Type type = location.getType();
+    final Struct struct = type.getStruct();
+
+    if (null == struct) {
+      raiseError(where, String.format(
+          "%s does not have named fields.", location.toString()));
+    }
+
+    final Struct.Field field = struct.getField(fields);
+    if (null == field) {
+      raiseError(where, String.format(
+          "%s does not have field named %s", location.toString(), StringUtils.toString(fields, ".")));
+    }
+
+    final Expr from = new Expr(NodeValue.newInteger(field.getMin()));
+    from.setNodeInfo(NodeInfo.newConst(null));
+
+    final Expr to = new Expr(NodeValue.newInteger(field.getMax()));
+    to.setNodeInfo(NodeInfo.newConst(null));
+
+    return createBitfield(where, location, from, to, field.getType());
+  }
+
+  public Expr location(
+      final Where where,
+      final String name,
+      final List<String> fields) throws SemanticException {
+    final Primitive argument = getThisArgs().get(name);
     if (null == argument) {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
     }
 
-    final StringBuilder nameBuilder = new StringBuilder(name);
-    for (final String argName : argNames) {
-      nameBuilder.append('.');
-      nameBuilder.append(argName);
+    final LocationAtom location = argumentField(where, argument, name, fields);
+    return newLocationExpr(location);
+  }
 
-      if (!(argument instanceof PrimitiveAND)) {
-        raiseError(where, String.format(
-            "Cannot access arguments of %s (%s). It must be an AND-rule.",
-            argument.getName(),
-            nameBuilder.toString()
-            ));
-      }
-
-      argument = ((PrimitiveAND) argument).getArguments().get(argName);
-      if (null == argument) {
-        raiseError(where, new UndefinedPrimitive(nameBuilder.toString(), NmlSymbolKind.ARGUMENT));
-      }
+  private LocationAtom argumentField(
+      final Where where,
+      final Primitive argument,
+      final String argumentName,
+      final List<String> fields) throws SemanticException {
+    if (argument.getKind() == Primitive.Kind.IMM) {
+      final LocationAtom location = LocationAtom.createPrimitiveBased(argumentName, argument);
+      return namedField(where, location, fields);
     }
 
-    if (Primitive.Kind.IMM != argument.getKind()) {
+    if (fields.isEmpty()) {
       raiseError(where, String.format(
-          "%s is inaccessible. External access is allowed only to immediate arguments.",
-          nameBuilder.toString())
+          "%s cannot be uses as a value. Only immediate arguments are allowed.",
+          argumentName)
           );
     }
 
-    final Location location = LocationAtom.createPrimitiveBased(nameBuilder.toString(), argument);
-    return newLocationExpr(location);
+    final String nestedArgumentName = fields.get(0);
+    final String nestedArgrumentFullName = argumentName + "." + nestedArgumentName;
+
+    if (!(argument instanceof PrimitiveAND)) {
+      raiseError(where, String.format(
+          "Cannot access arguments of %s (%s). It must be an AND-rule.",
+          argument.getName(),
+          nestedArgrumentFullName
+          ));
+    }
+
+    final Primitive nestedArgument =
+        ((PrimitiveAND) argument).getArguments().get(nestedArgumentName);
+
+    if (null == nestedArgument) {
+      raiseError(where, new UndefinedPrimitive(nestedArgrumentFullName, NmlSymbolKind.ARGUMENT));
+    }
+
+    return argumentField(
+        where, nestedArgument, nestedArgrumentFullName, fields.subList(1, fields.size()));
   }
 
   public Expr bitfield(
