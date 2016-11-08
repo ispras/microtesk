@@ -28,6 +28,7 @@ public enum Option {
   VERBOSE("verbose", "Enables printing diagnostic messages", false),
   TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
   GENERATE("generate", "Generates test programs", false, null, "task"),
+  DISASSEMBLE("disassemble", "Disassembles binary files", false, null, "task"),
   OUTDIR("output-dir", "Directory to place generated files", "./output"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
