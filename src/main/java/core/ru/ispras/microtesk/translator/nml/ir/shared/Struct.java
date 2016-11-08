@@ -35,7 +35,7 @@ public final class Struct {
     public int getBitSize() { return type.getBitSize(); }
 
     public int getMin() { return offset; }
-    public int getMax() { return offset + getBitSize(); }
+    public int getMax() { return offset + getBitSize() - 1; }
   }
 
   private final Map<String, Field> fields;
