@@ -23,8 +23,11 @@ import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -111,7 +114,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final Expr to = new Expr(NodeValue.newInteger(field.getMax()));
       to.setNodeInfo(NodeInfo.newConst(null));
 
-      result = LocationAtom.createBitfield(result, from, to, field.getType());
+      result = createBitfield(where, result, from, to, field.getType());
     }
 
     return newLocationExpr(result);
@@ -164,7 +167,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final Type bitfieldType = location.getType().resize(1);
-    final Location result = LocationAtom.createBitfield(location, pos, pos, bitfieldType);
+    final Location result = createBitfield(where, location, pos, pos, bitfieldType);
 
     return newLocationExpr(result);
   }
@@ -192,7 +195,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(toPos - fromPos) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(LocationAtom.createBitfield(location, from, to, bitfieldType));
+      return newLocationExpr(createBitfield(where, location, from, to, bitfieldType));
     }
 
     final Expr.Reduced reducedFrom = from.reduce();
@@ -209,11 +212,46 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(LocationAtom.createBitfield(location, from, to, bitfieldType));
+      return newLocationExpr(createBitfield(where, location, from, to, bitfieldType));
     }
 
     raiseError(where, FAILED_TO_CALCULATE_SIZE);
     return null;
+  }
+
+  private LocationAtom createBitfield(
+      final Where where,
+      final LocationAtom location,
+      final Expr from,
+      final Expr to,
+      final Type type) throws SemanticException {
+    final LocationAtom.Bitfield bitfield = location.getBitfield();
+
+    if (null == bitfield) {
+      return LocationAtom.createBitfield(location, from, to, type);
+    }
+
+    if (!(bitfield.getFrom().isConstant() && bitfield.getTo().isConstant())) {
+      // Currently, an existing bitfield means a field of a structure, which has fixed boundaries.
+      // Other cases are unexpected.
+      raiseError(where, "Fixed bitfield boundaries are required for " + location.toString());
+    }
+
+    final Node oldNodeFrom = bitfield.getFrom().getNode();
+    final Node newNodeFrom = new NodeOperation(StandardOperation.ADD, from.getNode(), oldNodeFrom);
+    final Node newNodeTo = new NodeOperation(StandardOperation.ADD, to.getNode(), oldNodeFrom);
+
+    final Expr newFrom = new Expr(Transformer.reduce(newNodeFrom));
+    newFrom.setNodeInfo(newFrom.isConstant() ?
+        NodeInfo.newConst(null) :
+        NodeInfo.newOperator(Operator.PLUS, from.getNodeInfo().getType()));
+
+    final Expr newTo = new Expr(Transformer.reduce(newNodeTo));
+    newTo.setNodeInfo(newTo.isConstant() ?
+        NodeInfo.newConst(null) :
+        NodeInfo.newOperator(Operator.PLUS, to.getNodeInfo().getType()));
+
+    return LocationAtom.createBitfield(location, newFrom, newTo, type);
   }
 
   private void checkBitfieldBounds(Where w, int position, int size) throws SemanticException {
