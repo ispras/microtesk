@@ -164,16 +164,16 @@ typeDef
 /*===============================================================================================*/
 
 structDef
-    : STRUCT^ id=ID { declare($id, NmlSymbolKind.TYPE, false); }
-      LEFT_PARENTH! structFields RIGHT_PARENTH!
+    :  STRUCT^ id=ID { declare($id, NmlSymbolKind.TYPE, false); }
+       LEFT_PARENTH! structFields RIGHT_PARENTH!
     ;
 
 structFields
-    : structField (COMMA! structField)*
+    :  structField (COMMA! structField)*
     ;
 
 structField
-    : ID COLON! typeExpr
+    :  ID COLON! typeExpr
     ;
 
 /*===============================================================================================*/
@@ -181,8 +181,8 @@ structField
 /*===============================================================================================*/
 
 memDef
-    : SHARED? (MEM|REG|VAR)^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);}
-                                   RIGHT_HOOK! {declare($id, NmlSymbolKind.MEMORY, false);} alias?
+    :  SHARED? (MEM|REG|VAR)^ id=ID LEFT_HOOK! st=sizeType {checkNotNull($st.start, $st.tree);}
+                                    RIGHT_HOOK! {declare($id, NmlSymbolKind.MEMORY, false);} alias?
     ;
 
 sizeType
