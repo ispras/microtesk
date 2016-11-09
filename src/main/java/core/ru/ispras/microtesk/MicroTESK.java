@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.solver.Environment;
+import ru.ispras.microtesk.decoder.Disassembler;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
@@ -163,7 +164,16 @@ public final class MicroTESK {
   }
 
   private static void disassemble(final Options options, final String[] arguments) {
-    Logger.error("Dissambling is not currently supported.");
+    if (arguments.length != 2) {
+      Logger.error("Wrong number of generator arguments. Two arguments are required.");
+      Logger.message("Argument format: <model name>, <input file>");
+      return;
+    }
+
+    final String modelName = arguments[0];
+    final String inputFile = arguments[1];
+
+    Disassembler.disassemble(options, modelName, inputFile);
   }
 
   private static void generate(
