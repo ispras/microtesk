@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * The {@link Statistics} class provides utility methods to work with files.
+ * The {@link FileUtils} class provides utility methods to work with files.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
