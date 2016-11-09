@@ -218,25 +218,36 @@ public final class MicroTESK {
       return;
     }
 
-    final long time = statistics.getTotalTime();
-    final long rate = statistics.getRate();
+    final long totalTime = statistics.getTotalTime();
+    final long genTime = totalTime - statistics.getTimeMetric(Statistics.Activity.INITIALIZING);
+    final long genRate = (1000 * statistics.getInstructions()) / genTime;
 
     Logger.message("Generation Statistics");
-    Logger.message("Generation time: %s", Statistics.timeToString(time));
-    Logger.message("Generation rate: %d instructions/second", rate);
+    Logger.message("Generation time: %s", Statistics.timeToString(genTime));
+    Logger.message("Generation rate: %d instructions/second", genRate);
 
     Logger.message("Programs/stimuli/instructions: %d/%d/%d",
         statistics.getPrograms(), statistics.getSequences(), statistics.getInstructions());
 
     if (options.getValueAsBoolean(Option.TIME_STATISTICS)) {
       Logger.message(System.lineSeparator() + "Time Statistics");
+
+      Logger.message("Total time: %s", Statistics.timeToString(totalTime));
+      Logger.message(statistics.getTimeMetricText(Statistics.Activity.INITIALIZING));
+
+      final long genPercentage = (genTime * 10000) / totalTime;
+      Logger.message("Generation time: %s (%d.%d%%)",
+          Statistics.timeToString(genTime), genPercentage / 100, genPercentage % 100);
+
       for (final Statistics.Activity activity : Statistics.Activity.values()) {
-        Logger.message(statistics.getTimeMetricText(activity));
+        if (activity != Statistics.Activity.INITIALIZING) {
+          Logger.message("  " + statistics.getTimeMetricText(activity));
+        }
       }
     }
 
     final long rateLimit = options.getValueAsInteger(Option.RATE_LIMIT);
-    if (rate < rateLimit && statistics.getInstructions() >= 1000) { 
+    if (genRate < rateLimit && statistics.getInstructions() >= 1000) { 
       // Makes sense only for sequences of significant length (>= 1000)
       Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
       System.exit(-1);

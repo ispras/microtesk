@@ -156,10 +156,6 @@ public final class Statistics {
     return totalTime;
   }
 
-  public long getRate() {
-    return (1000 * instructions) / getTotalTime();
-  }
-
   public long getTimeMetric(final Activity activity) {
     InvariantChecks.checkNotNull(activity);
     return timeMetrics.get(activity);
@@ -167,8 +163,9 @@ public final class Statistics {
 
   public String getTimeMetricText(final Activity activity) {
     final long metric = getTimeMetric(activity);
-    final long percentage = (metric * 100) / getTotalTime();
-    return String.format("%s: %s (%d%%)",  activity.getText(), timeToString(metric), percentage);
+    final long percentage = (metric * 10000) / getTotalTime();
+    return String.format("%s: %s (%d.%d%%)",
+        activity.getText(), timeToString(metric), percentage / 100, percentage % 100);
   }
 
   public int getPrograms() {

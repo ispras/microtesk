@@ -75,8 +75,7 @@ public final class TestEngine {
   private final Options options;
   private final Model model;
   private final List<Plugin> plugins;
-
-  private Statistics statistics;
+  private final Statistics statistics;
 
   // Architecture-specific settings
   private static GeneratorSettings settings;
@@ -84,16 +83,17 @@ public final class TestEngine {
   private TestEngine(
       final Options options,
       final Model model,
-      final List<Plugin> plugins) {
+      final List<Plugin> plugins,
+      final Statistics statistics) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(plugins);
+    InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
     this.model = model;
     this.plugins = plugins;
-
-    this.statistics = null;
+    this.statistics = statistics;
 
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
@@ -148,6 +148,9 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
+    final Statistics statistics = new Statistics();
+    statistics.pushActivity(Statistics.Activity.INITIALIZING);
+
     final Model model;
     try {
       model = SysUtils.loadModel(modelName);
@@ -157,7 +160,7 @@ public final class TestEngine {
       return null;
     }
 
-    instance = new TestEngine(options, model, plugins);
+    instance = new TestEngine(options, model, plugins, statistics);
     return instance.processTemplate(templateFile);
   }
 
@@ -206,7 +209,7 @@ public final class TestEngine {
       plugin.initializeGenerationEnvironment();
     }
 
-    statistics = new Statistics();
+    statistics.popActivity();
     statistics.setProgramLengthLimit(options.getValueAsInteger(Option.CODE_LIMIT));
     statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
