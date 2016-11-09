@@ -239,7 +239,13 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(toPos - fromPos) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(createBitfield(where, location, from, to, bitfieldType));
+      return newLocationExpr(createBitfield(
+          where,
+          location,
+          fromPos < toPos ? from : to,
+          fromPos > toPos ? from : to,
+          bitfieldType
+          ));
     }
 
     final Expr.Reduced reducedFrom = from.reduce();
@@ -256,7 +262,13 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(createBitfield(where, location, from, to, bitfieldType));
+      return newLocationExpr(createBitfield(
+          where,
+          location,
+          reducedFrom.constant < reducedTo.constant ? from : to,
+          reducedFrom.constant > reducedTo.constant ? from : to,
+          bitfieldType
+          ));
     }
 
     raiseError(where, FAILED_TO_CALCULATE_SIZE);
@@ -266,13 +278,13 @@ public final class LocationFactory extends WalkerFactoryBase {
   private LocationAtom createBitfield(
       final Where where,
       final LocationAtom location,
-      final Expr from,
-      final Expr to,
+      final Expr low,
+      final Expr high,
       final Type type) throws SemanticException {
     final LocationAtom.Bitfield bitfield = location.getBitfield();
 
     if (null == bitfield) {
-      return LocationAtom.createBitfield(location, from, to, type);
+      return LocationAtom.createBitfield(location, high, low, type);
     }
 
     if (!(bitfield.getFrom().isConstant() && bitfield.getTo().isConstant())) {
@@ -281,21 +293,21 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, "Fixed bitfield boundaries are required for " + location.toString());
     }
 
-    final Node oldNodeFrom = bitfield.getFrom().getNode();
-    final Node newNodeFrom = new NodeOperation(StandardOperation.ADD, from.getNode(), oldNodeFrom);
-    final Node newNodeTo = new NodeOperation(StandardOperation.ADD, to.getNode(), oldNodeFrom);
+    final Node oldNodeLow = bitfield.getTo().getNode();
+    final Node newNodeLow = new NodeOperation(StandardOperation.ADD, low.getNode(), oldNodeLow);
+    final Node newNodeHigh = new NodeOperation(StandardOperation.ADD, high.getNode(), oldNodeLow);
 
-    final Expr newFrom = new Expr(Transformer.reduce(newNodeFrom));
-    newFrom.setNodeInfo(newFrom.isConstant() ?
+    final Expr newLow = new Expr(Transformer.reduce(newNodeLow));
+    newLow.setNodeInfo(newLow.isConstant() ?
         NodeInfo.newConst(null) :
-        NodeInfo.newOperator(Operator.PLUS, from.getNodeInfo().getType()));
+        NodeInfo.newOperator(Operator.PLUS, low.getNodeInfo().getType()));
 
-    final Expr newTo = new Expr(Transformer.reduce(newNodeTo));
-    newTo.setNodeInfo(newTo.isConstant() ?
+    final Expr newHigh = new Expr(Transformer.reduce(newNodeHigh));
+    newHigh.setNodeInfo(newHigh.isConstant() ?
         NodeInfo.newConst(null) :
-        NodeInfo.newOperator(Operator.PLUS, to.getNodeInfo().getType()));
+        NodeInfo.newOperator(Operator.PLUS, high.getNodeInfo().getType()));
 
-    return LocationAtom.createBitfield(location, newFrom, newTo, type);
+    return LocationAtom.createBitfield(location, newHigh, newLow, type);
   }
 
   private void checkBitfieldBounds(Where w, int position, int size) throws SemanticException {
