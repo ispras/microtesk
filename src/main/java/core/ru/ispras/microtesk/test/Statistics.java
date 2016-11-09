@@ -96,6 +96,10 @@ public final class Statistics {
   }
 
   public void saveTotalTime() {
+    while (!activities.isEmpty()) {
+      popActivity();
+    }
+
     this.totalTime = getCurrentTime() - startTime;
   }
 
