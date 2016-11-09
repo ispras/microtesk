@@ -77,7 +77,7 @@ public final class ClassifierEventBased implements Classifier<MemoryAccessPath> 
    * @return the classes of memory access pairs.
    */
   public static Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>>
-    getBuffersAndEvents(final Collection<MemoryAccessPath> paths) {
+    getBuffersAndEvents(final Iterable<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);
 
     final Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>> result =
@@ -98,7 +98,7 @@ public final class ClassifierEventBased implements Classifier<MemoryAccessPath> 
   }
 
   @Override
-  public List<Set<MemoryAccessPath>> classify(final Collection<MemoryAccessPath> paths) {
+  public List<Set<MemoryAccessPath>> classify(final Iterable<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(paths);
     return new ArrayList<>(getBuffersAndEvents(paths).values());
   }

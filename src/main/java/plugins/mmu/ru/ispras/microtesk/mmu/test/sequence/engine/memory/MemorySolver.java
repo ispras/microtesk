@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -760,9 +761,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Satisfying dependencies may lead to changing the memory access path.
     if (correctAddr(addrObject)) {
-      final Collection<MemoryAccessPath> paths =
+      final Iterable<MemoryAccessPath> paths =
           CoverageExtractor.get().getEnabledPaths(memory, access.getType(), constraints);
-      final Collection<MemoryAccessPath> variants =
+      final Iterable<MemoryAccessPath> variants =
           MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints.getIntegers());
 
       boolean pathFound = false;
@@ -1000,23 +1001,32 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
 
     // Select normal paths that affect the parent buffer.
-    final Collection<MemoryAccessPath> normalPaths =
+    final Iterable<MemoryAccessPath> normalPaths =
         CoverageExtractor.get().getNormalPaths(memory, parent, constraints);
     // The normal paths satisfying the user-defined constraints are of greater priority.
-    final Collection<MemoryAccessPath> bestPaths =
+    final Iterable<MemoryAccessPath> bestPaths =
         MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints.getIntegers());
 
-    Logger.debug("Getting normal paths: target=%s, buffer=%s, normal=%d",
-        memory.getTargetBuffer(), parent, normalPaths.size());
+    Logger.debug("Getting normal paths: target=%s, buffer=%s",
+        memory.getTargetBuffer(), parent);
 
+    /* TODO Support Iterable<> in Randomizer.choos()
     final MemoryAccessPath normalPath = Randomizer.get().choose(
         bestPaths.isEmpty() ? normalPaths : bestPaths);
+    */
+    // ^^^ Take first for now
+    Iterator<MemoryAccessPath> it = bestPaths.iterator();
+    final boolean hasBestPaths = it.hasNext();
+    if (!hasBestPaths) {
+      it = normalPaths.iterator();
+    }
+    final MemoryAccessPath normalPath = it.next();
 
     final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath);
     InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.
-    final AddressObject normalAddrObject = constructAddr(normalAccess, !bestPaths.isEmpty());
+    final AddressObject normalAddrObject = constructAddr(normalAccess, hasBestPaths);
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());

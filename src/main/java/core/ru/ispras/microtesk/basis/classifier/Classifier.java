@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.classifier;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -24,5 +23,5 @@ import java.util.Set;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Classifier<T> {
-  List<Set<T>> classify(Collection<T> objects);
+  List<Set<T>> classify(Iterable<T> objects);
 }

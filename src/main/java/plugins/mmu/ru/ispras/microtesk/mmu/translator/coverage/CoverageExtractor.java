@@ -92,7 +92,7 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public Collection<MemoryAccessPath> getEnabledPaths(
+  public Iterable<MemoryAccessPath> getEnabledPaths(
       final MmuSubsystem memory,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
@@ -115,7 +115,7 @@ public final class CoverageExtractor {
     return getEnabledPaths(memory, paths, constraints);
   }
 
-  public Collection<MemoryAccessPath> getNormalPaths(
+  public Iterable<MemoryAccessPath> getNormalPaths(
       final MmuSubsystem memory,
       final MmuBuffer buffer,
       final MemoryAccessConstraints constraints) {
@@ -133,7 +133,7 @@ public final class CoverageExtractor {
     if (paths == null) {
       final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
       final Collection<MemoryAccessPath> allPaths = extractor.getPaths(null);
-      final Collection<MemoryAccessPath> enabledPaths =
+      final Iterable<MemoryAccessPath> enabledPaths =
           getEnabledPaths(memory, allPaths, constraints);
 
       paths = new ArrayList<>();
@@ -182,9 +182,9 @@ public final class CoverageExtractor {
     return true;
   }
 
-  private static Collection<MemoryAccessPath> getEnabledPaths(
+  private static Iterable<MemoryAccessPath> getEnabledPaths(
       final MmuSubsystem memory,
-      final Collection<MemoryAccessPath> paths,
+      final Iterable<MemoryAccessPath> paths,
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(paths);
@@ -194,14 +194,13 @@ public final class CoverageExtractor {
       return paths;
     }
 
-    final Collection<MemoryAccessPath> enabledPaths = new ArrayList<>(paths.size());
-
-    for (final MemoryAccessPath path : paths) {
-      if (isEnabledPath(memory, path, constraints)) {
-        enabledPaths.add(path);
+    final Predicate<MemoryAccessPath> predicate = new Predicate<MemoryAccessPath>() {
+      @Override
+      public boolean evaluate(final MemoryAccessPath path) {
+        return isEnabledPath(memory, path, constraints);
       }
-    }
-
-    return enabledPaths;
+    };
+    return new FilterIterable<>(paths, predicate);
   }
 }
+

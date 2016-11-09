@@ -133,18 +133,18 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
           constraints, accessConstraints != null ? accessConstraints.get(index) : null);
 
-      final Collection<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
+      final Iterable<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
           MmuPlugin.getSpecification(), accessType, currentConstraints);
 
-      final Collection<MemoryAccessPath> feasiblePaths = currentConstraints != null ?
+      final Iterable<MemoryAccessPath> feasiblePaths = currentConstraints != null ?
           MemoryEngineUtils.getFeasiblePaths(paths, currentConstraints.getIntegers()) : paths;
 
-      Logger.debug("Composing memory access paths size(%s)=%d", accessType, feasiblePaths.size());
+      // Logger.debug("Composing memory access paths size(%s)=%d", accessType, feasiblePaths.size());
       Logger.debug("Composing memory access paths %s=%s", accessType, feasiblePaths);
 
       final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
 
-      Logger.debug("Composing memory access classes size(%s)=%d", accessType, accessPathClasses.size());
+      // Logger.debug("Composing memory access classes size(%s)=%d", accessType, accessPathClasses.size());
       Logger.debug("Composing memory access classes %s=%s", accessType, accessPathClasses);
 
       this.accessPathClasses.add(accessPathClasses);

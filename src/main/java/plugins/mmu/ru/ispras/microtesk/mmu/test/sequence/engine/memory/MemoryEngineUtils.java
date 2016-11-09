@@ -33,6 +33,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
+import ru.ispras.microtesk.mmu.translator.coverage.FilterIterable;
+import ru.ispras.microtesk.mmu.translator.coverage.Predicate;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -76,26 +78,24 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  public static Collection<MemoryAccessPath> getFeasiblePaths(
-      final Collection<MemoryAccessPath> paths,
+  public static Iterable<MemoryAccessPath> getFeasiblePaths(
+      final Iterable<MemoryAccessPath> paths,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
     InvariantChecks.checkNotNull(paths);
     InvariantChecks.checkNotNull(constraints);
 
-    final Collection<MemoryAccessPath> result = new ArrayList<>(paths.size());
-
-    for (final MemoryAccessPath path : paths) {
-      if (isFeasiblePath(path, constraints)) {
-        result.add(path);
+    final Predicate<MemoryAccessPath> predicate = new Predicate<MemoryAccessPath>() {
+      @Override
+      public boolean evaluate(final MemoryAccessPath path) {
+        return isFeasiblePath(path, constraints);
       }
-    }
-
-    return result;
+    };
+    return new FilterIterable<>(paths, predicate);
   }
 
-  public static Collection<MemoryAccessPath> getSimilarPaths(
+  public static Iterable<MemoryAccessPath> getSimilarPaths(
       final MemoryAccessPath path,
-      final Collection<MemoryAccessPath> paths) {
+      final Iterable<MemoryAccessPath> paths) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(paths);
 
@@ -107,15 +107,15 @@ public final class MemoryEngineUtils {
     return pathClasses.get(pathSkeleton);
   }
 
-  public static Collection<MemoryAccessPath> getFeasibleSimilarPaths(
+  public static Iterable<MemoryAccessPath> getFeasibleSimilarPaths(
       final MemoryAccessPath path,
-      final Collection<MemoryAccessPath> paths,
+      final Iterable<MemoryAccessPath> paths,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(paths);
     InvariantChecks.checkNotNull(constraints);
 
-    final Collection<MemoryAccessPath> similarPaths = getSimilarPaths(path, paths);
+    final Iterable<MemoryAccessPath> similarPaths = getSimilarPaths(path, paths);
     InvariantChecks.checkNotNull(similarPaths);
 
     return getFeasiblePaths(similarPaths, constraints);

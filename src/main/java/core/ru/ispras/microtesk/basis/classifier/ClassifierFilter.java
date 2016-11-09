@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.basis.classifier;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,7 @@ public final class ClassifierFilter<T> implements Classifier<T> {
   }
 
   @Override
-  public List<Set<T>> classify(final Collection<T> objects) {
+  public List<Set<T>> classify(final Iterable<T> objects) {
     InvariantChecks.checkNotNull(objects);
 
     final List<Set<T>> classes1 = classifier.classify(objects);
