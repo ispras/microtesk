@@ -205,7 +205,7 @@ public final class Statistics {
   }
 
   public void setTraceLengthLimit(final long value) {
-    this.totalTraceLength = value;
+    this.traceLengthLimit = value;
   }
 
   public static String timeToString(long time) {
