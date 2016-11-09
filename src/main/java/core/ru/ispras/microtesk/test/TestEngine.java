@@ -205,9 +205,10 @@ public final class TestEngine {
     for (final Plugin plugin : plugins) {
       plugin.initializeGenerationEnvironment();
     }
- 
-    statistics = new Statistics(options.getValueAsInteger(Option.CODE_LIMIT),
-                                options.getValueAsInteger(Option.TRACE_LIMIT));
+
+    statistics = new Statistics();
+    statistics.setProgramLengthLimit(options.getValueAsInteger(Option.CODE_LIMIT));
+    statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
 
     AddressTranslator.initialize(
