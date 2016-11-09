@@ -136,7 +136,7 @@ dependencies {
   testRuntime z3
   testRuntime cvc4
 
-  antlr 'org.antlr:antlr:3.5'
+  antlr 'org.antlr:antlr:3.5.2'
   compile 'commons-cli:commons-cli:1.2'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
