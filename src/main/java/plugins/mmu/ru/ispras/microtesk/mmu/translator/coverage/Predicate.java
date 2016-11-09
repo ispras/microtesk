@@ -38,7 +38,6 @@ public interface Predicate<T> {
      * @return true or false
      * @throws ClassCastException (runtime) if the input is the wrong class
      * @throws IllegalArgumentException (runtime) if the input is invalid
-     * @throws FunctorException (runtime) if the predicate encounters a problem
      */
     boolean evaluate(T object);
 
