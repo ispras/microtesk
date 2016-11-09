@@ -30,11 +30,12 @@ import ru.ispras.fortress.util.Pair;
  */
 public final class Statistics {
   public static enum Activity {
-    PARSING    ("Template parsing time"),
-    SEQUENCING ("Sequence construction time"),
-    PROCESSING ("Sequence concretization time"),
-    SIMULATING ("Simulation time"),
-    PRINTING   ("Printing time");
+    INITIALIZING("Initialization time"),
+    PARSING     ("Template parsing time"),
+    SEQUENCING  ("Sequence construction time"),
+    PROCESSING  ("Sequence concretization time"),
+    SIMULATING  ("Simulation time"),
+    PRINTING    ("Printing time");
 
     private final String text;
 
@@ -60,8 +61,12 @@ public final class Statistics {
   private long totalTraceLength;
   private long sequenceTraceLength;
 
-  private final long programLengthLimit;
-  private final long traceLengthLimit;
+  private long programLengthLimit;
+  private long traceLengthLimit;
+
+  public Statistics() {
+    this(0L, 0L);
+  }
 
   public Statistics(final long programLengthLimit, final long traceLengthLimit) {
     this.activities = new ArrayDeque<>();
@@ -192,6 +197,14 @@ public final class Statistics {
 
   public boolean isTraceLengthLimitExceeded() {
     return sequenceTraceLength >= traceLengthLimit;
+  }
+
+  public void setProgramLengthLimit(final long value) {
+    this.programLengthLimit = value;
+  }
+
+  public void setTraceLengthLimit(final long value) {
+    this.totalTraceLength = value;
   }
 
   public static String timeToString(long time) {
