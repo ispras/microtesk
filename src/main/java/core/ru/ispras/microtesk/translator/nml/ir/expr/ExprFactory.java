@@ -217,7 +217,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "The type of an expression to be concatenated must be card or int.");
     }
 
-    final TypeId typeId =
+    final TypeId typeId = 
         left.isTypeOf(TypeId.CARD) || right.isTypeOf(TypeId.CARD) ? TypeId.CARD : TypeId.INT;
 
     final List<Node> operands = new ArrayList<>();

@@ -39,7 +39,7 @@ public class Concat64TestCase {
         );
 
     final Location rtemp = Location.concat(
-        temp.access().bitField(63, 32), temp.access().bitField(31, 0));
+        temp.access().bitField(31, 0), temp.access().bitField(63, 32));
 
     trace("rtemp=%s", rtemp.load().getRawData().toHexString());
     assertEquals(
@@ -47,7 +47,8 @@ public class Concat64TestCase {
         rtemp.load().getRawData()
         );
 
-    temp.access().store(Location.concat(temp.access().bitField(63, 32), temp.access().bitField(31, 0)).load());
+    temp.access().store(Location.concat(
+        temp.access().bitField(31, 0), temp.access().bitField(63, 32)).load());
 
     trace("temp =%s", temp.access().load().getRawData().toHexString());
     assertEquals(

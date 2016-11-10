@@ -91,8 +91,7 @@ public final class MemoryLocationTestCase {
           final BitVector current = field.load().getRawData();
 
           assertEquals(expected, current);
-          
-          fields[fieldIndex] = field;
+          fields[fieldCount - fieldIndex - 1] = field;
         }
 
         final Location concat = Location.concat(fields);

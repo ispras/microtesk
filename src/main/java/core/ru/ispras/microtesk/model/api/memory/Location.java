@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -28,6 +28,10 @@ import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 
+/**
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Location implements LocationAccessor {
 
   protected interface Atom {
@@ -312,6 +316,12 @@ public final class Location implements LocationAccessor {
     return bitField(index.getRawData().intValue());
   }
 
+  /**
+   * Concatenates the specified locations.
+   * 
+   * @param locations Locations, format is [high, ..., low].
+   * @return Concatenated location.
+   */
   public static Location concat(final Location... locations) {
     InvariantChecks.checkNotEmpty(locations);
 
@@ -322,8 +332,10 @@ public final class Location implements LocationAccessor {
     int newBitSize = 0;
     final List<Atom> newAtoms = new ArrayList<>();
 
-    for (final Location location : locations) {
+    for (int index = locations.length - 1; index >= 0; index--) {
+      final Location location = locations[index];
       InvariantChecks.checkNotNull(location);
+
       newBitSize += location.getBitSize();
       newAtoms.addAll(location.atoms);
     }

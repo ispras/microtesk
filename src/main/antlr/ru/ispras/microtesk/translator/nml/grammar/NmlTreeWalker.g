@@ -912,7 +912,7 @@ locationExpr [int depth] returns [Expr res]
 checkNotNull($left.start,  $left.res,  $left.text);
 checkNotNull($right.start, $right.res, $right.text);
 
-$res = getLocationFactory().concat(where($node), $left.res, $right.res);
+$res = getExprFactory().concat(where($node), $left.res, $right.res);
 })
     |  value=locationVal
 {
