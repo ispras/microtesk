@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -56,11 +57,13 @@ public final class ExprPrinter extends MapBasedPrinter {
   private final boolean asLocation;
   private final Map<Operator, OperationDescription> operatorMap;
   private final Map<Enum<?>, String> castOperatorMap;
+  private final Deque<Enum<?>> operatorStack;
 
   protected ExprPrinter(final boolean asLocation) {
     this.asLocation = asLocation;
     this.operatorMap = new EnumMap<>(Operator.class);
     this.castOperatorMap = new HashMap<>();
+    this.operatorStack = new ArrayDeque<>();
 
     addMapping(StandardOperation.EQ,     "", ".equals(", ")");
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
@@ -123,6 +126,9 @@ public final class ExprPrinter extends MapBasedPrinter {
 
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
+
+    addMapping(StandardOperation.BVCONCAT,
+        "Location.concat(", ", ", ")");
 
     addMapping(Operator.SQRT,        "", "", ".sqrt()");
     addMapping(Operator.IS_NAN,      "", "", ".isNan()");
@@ -228,6 +234,7 @@ public final class ExprPrinter extends MapBasedPrinter {
       coercionStack.push(coercionCount);
 
       super.onOperationBegin(expr);
+      operatorStack.push(expr.getOperationId());
     }
 
     @Override
@@ -236,6 +243,7 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       final int coercionCount = coercionStack.pop();
       appendCloseBrackets(coercionCount);
+      operatorStack.pop();
     }
 
     @Override
@@ -278,6 +286,10 @@ public final class ExprPrinter extends MapBasedPrinter {
       }
 
       super.onOperandEnd(operation, operand, index);
+
+      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT)) {
+        appendText(".load()");
+      }
     }
 
     @Override
@@ -323,7 +335,10 @@ public final class ExprPrinter extends MapBasedPrinter {
       final int coercionCount = appendCoercions(nodeInfo);
       final String text = PrinterLocation.toString(source);
 
-      appendText(asLocation ? text : text + ".load()");
+      final boolean isConcatOperand =
+          operatorStack.peek() == StandardOperation.BVCONCAT;
+
+      appendText(asLocation || isConcatOperand ? text : text + ".load()");
       appendCloseBrackets(coercionCount);
     }
 
