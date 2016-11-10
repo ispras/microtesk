@@ -46,7 +46,7 @@ reg CIA[WORD]
 reg PID[WORD]
 
 // Physical memory. Shared between PEs, word-addressable
-shared mem M [2 ** 30, WORD] // or 2**32 bytes
+shared mem M[2 ** 30, WORD] // or 2**32 bytes
 
 ////////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
