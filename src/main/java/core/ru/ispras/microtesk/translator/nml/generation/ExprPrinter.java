@@ -242,6 +242,12 @@ public final class ExprPrinter extends MapBasedPrinter {
       super.onOperationEnd(expr);
 
       final int coercionCount = coercionStack.pop();
+
+      if (coercionCount > 0 &&
+          ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) {
+        appendText(".load()");
+      }
+
       appendCloseBrackets(coercionCount);
       operatorStack.pop();
     }
@@ -287,7 +293,8 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       super.onOperandEnd(operation, operand, index);
 
-      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT)) {
+      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT) &&
+         !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
         appendText(".load()");
       }
     }
