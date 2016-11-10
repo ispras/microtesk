@@ -45,7 +45,7 @@ type COND_CODE = card(3)
 
 reg GPR[2 ** REG_INDEX_SIZE, WORD]
 reg FPR[2 ** REG_INDEX_SIZE, SINGLE]
-mem   M[2 ** 31, BYTE]
+shared mem M[2 ** 30, WORD] // or 2**32 bytes
 
 reg  CIA[WORD] // Current instruction address
 reg FCCR[1, WORD] // FP Condition Codes register
@@ -231,20 +231,14 @@ op LW (base : R, rt : R, offset : SHORT)
   syntax = format("LW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("100011%s%s%s", base.image, rt.image, offset)
   action = {
-    rt = M[base + sign_extend(WORD, offset) + 3]
-       ::M[base + sign_extend(WORD, offset) + 2]
-       ::M[base + sign_extend(WORD, offset) + 1]
-       ::M[base + sign_extend(WORD, offset)];
+    rt = M[(base + sign_extend(WORD, offset)) >> 2];
   }
 
 op SW (base : R, rt : R, offset : SHORT)
   syntax = format("SW %s, %d(%s)", rt.syntax, offset, base.syntax)
   image  = format("101011%s%s%s", base.image, rt.image, offset)
   action = {
-    M[base + sign_extend(WORD, offset) + 3]::
-    M[base + sign_extend(WORD, offset) + 2]::
-    M[base + sign_extend(WORD, offset) + 1]::
-    M[base + sign_extend(WORD, offset)] = rt;
+    M[(base + sign_extend(WORD, offset)) >> 2] = rt;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
