@@ -239,9 +239,13 @@ public final class Location implements LocationAccessor {
     writeData(rawData, true);
   }
 
-  public Location assign(final Location source) {
+  public void store(final Location source) {
     InvariantChecks.checkNotNull(source);
     store(source.load());
+  }
+
+  public Location assign(final Location source) {
+    store(source);
     return this;
   }
 
@@ -306,11 +310,6 @@ public final class Location implements LocationAccessor {
     InvariantChecks.checkTrue(index.getRawData().getBitSize() <= Integer.SIZE);
 
     return bitField(index.getRawData().intValue());
-  }
-
-  public Location concat(final Location other) {
-    InvariantChecks.checkNotNull(other);
-    return Location.concat(this, other);
   }
 
   public static Location concat(final Location... locations) {
