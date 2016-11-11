@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2016/11/11 MicroTESK 2.4.2 beta
+ - Support for structures (the 'struct' keyword) in nML
+ - Improved timing statistics
+ - Bug fixes and general improvements
+
 2016/11/03 MicroTESK 2.4.1 beta
  - Performance optimization: variables are not reset
  - Simulation on multiple instances is debugged
