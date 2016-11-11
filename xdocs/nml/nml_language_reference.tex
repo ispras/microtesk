@@ -443,8 +443,32 @@ Here is the list of predefined nML operators:
 
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \lstinputlisting{examples/test.nml}
+\section{Special Functions}
+
+TODO:\\
+
+\textbf{format(format-string, args*)}:
+Used to put together the string values of the \textbf{\textit{syntax}} and \textbf{\textit{image}}
+attributes. The format string is a variation of the printf format string well known from C.
+It may contain alphanumeric characters, blanks, tabs ('\textbackslash t'), newlines
+('\textbackslash n'), and format directives of the form \%nC, where n is an optional field size
+and C is one of the following characters:
+
+\begin{itemize}
+
+\item  d This takes an Integer or Cardinal argument from the argument list and formats it as a
+         decimal number.
+
+\item  x This takes a Cardinal argument and formats it as a hexadecimal number.
+
+\item  b This takes a Cardinal argument and formats it as a binary number. It may also take a
+         binary string, i.e. a string containing only 1s, 0s and (ignored) whitespace.
+
+\item  s This takes a string argument and incorporates it as a whole.
+
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -455,6 +479,7 @@ Here is the list of predefined nML operators:
 \section{References}
 
 % Related nML publications/documents
+% \lstinputlisting{examples/test.nml}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
