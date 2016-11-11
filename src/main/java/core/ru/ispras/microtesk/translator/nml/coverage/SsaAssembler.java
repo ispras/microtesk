@@ -632,11 +632,4 @@ public final class SsaAssembler {
     return scope.create(String.format("__tmp_%d", numTemps++),
                         type.valueUninitialized());
   }
-
-  private static String dotConc(String lhs, String rhs) {
-    if (lhs.isEmpty()) {
-      return rhs;
-    }
-    return lhs + "." + rhs;
-  }
 }
