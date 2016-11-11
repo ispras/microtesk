@@ -50,6 +50,7 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -181,7 +182,7 @@ public final class TestBase {
     final Map<String, String> context = query.getContext();
     final String name = context.get(TestBaseContext.INSTRUCTION);
     final String situation = context.get(TestBaseContext.TESTCASE);
-    final Pair<String, String> pair = Utility.splitOnFirst(situation, '.');
+    final Pair<String, String> pair = StringUtils.splitOnFirst(situation, '.');
 
     for (Map.Entry<String, String> entry : context.entrySet()) {
       if (entry.getValue().equals(name)) {

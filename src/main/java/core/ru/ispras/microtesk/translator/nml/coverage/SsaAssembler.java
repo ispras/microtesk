@@ -44,6 +44,7 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class Prefix {
   public final String context;
@@ -66,7 +67,7 @@ final class Prefix {
   }
 
   public static String popPrefix(final String prefix) {
-    final Pair<String, String> splitted = Utility.splitOnLast(prefix, '.');
+    final Pair<String, String> splitted = StringUtils.splitOnLast(prefix, '.');
     if (splitted.second.isEmpty()) {
       return "";
     }
@@ -300,7 +301,7 @@ public final class SsaAssembler {
     @Override
     public Node apply(Node node) {
       final Pair<String, String> pair =
-          Utility.splitOnLast(variableOperand(0, node).getName(), '.');
+          StringUtils.splitOnLast(variableOperand(0, node).getName(), '.');
 
       return linkMacro(prefix,
                        pair.second,
@@ -343,7 +344,7 @@ public final class SsaAssembler {
         final Map<String, String> extension = new HashMap<>();
         for (final Map.Entry<String, String> entry : buildingContext.entrySet()) {
           final Pair<String, String> pair =
-              Utility.splitOnLast(entry.getKey(), '.');
+              StringUtils.splitOnLast(entry.getKey(), '.');
           if (pair.first.equals(srcPrefix.context)) {
             final Prefix argPrefix = inner.pushAll(pair.second);
             extension.put(argPrefix.context, entry.getValue());
@@ -491,7 +492,7 @@ public final class SsaAssembler {
 
       private Node rebaseLocal(NodeVariable node) {
         final Pair<String, String> pair =
-            Utility.splitOnFirst(node.getName(), '.');
+            StringUtils.splitOnFirst(node.getName(), '.');
 
         return changes.rebase(dotConc(prefix.expression, pair.second),
                               node.getData(),

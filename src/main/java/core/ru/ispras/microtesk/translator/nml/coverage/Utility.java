@@ -18,29 +18,8 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
-import ru.ispras.fortress.util.Pair;
 
 public final class Utility {
-  public static Pair<String, String> splitOnLast(String name, char c) {
-    final int index = name.lastIndexOf(c);
-    if (index < 0) {
-      return new Pair<>(name, "");
-    }
-    return splitOnIndex(name, index);
-  }
-
-  public static Pair<String, String> splitOnFirst(String name, char c) {
-    final int index = name.indexOf(c);
-    if (index < 0) {
-      return new Pair<>("", name);
-    }
-    return splitOnIndex(name, index);
-  }
-
-  private static Pair<String, String> splitOnIndex(String name, int index) {
-    return new Pair<>(name.substring(0, index), name.substring(index + 1));
-  }
-
   public static String prettyString(Node node) {
     return prettyString(node, 0);
   }

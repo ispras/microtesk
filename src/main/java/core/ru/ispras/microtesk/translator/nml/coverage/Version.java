@@ -18,6 +18,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class Version {
   public static boolean hasVersion(Node node) {
@@ -40,7 +41,7 @@ final class Version {
       return false;
     }
     final NodeVariable var = (NodeVariable) node;
-    final Pair<String, String> pair = Utility.splitOnLast(var.getName(), '!');
+    final Pair<String, String> pair = StringUtils.splitOnLast(var.getName(), '!');
     try {
       /*final int version = */Integer.valueOf(pair.second);
     } catch (NumberFormatException e) {
@@ -59,7 +60,7 @@ final class Version {
   }
 
   private static Pair<String, Integer> splitVersionedName(String name) {
-    final Pair<String, String> pair = Utility.splitOnLast(name, '!');
+    final Pair<String, String> pair = StringUtils.splitOnLast(name, '!');
     return new Pair<>(pair.first, Integer.valueOf(pair.second));
   }
 }

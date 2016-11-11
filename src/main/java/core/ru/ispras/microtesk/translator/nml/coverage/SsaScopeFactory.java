@@ -23,6 +23,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.utils.StringUtils;
 
 public final class SsaScopeFactory {
   private static final SsaScope EMPTY_SCOPE = new SsaScope() {
@@ -193,7 +194,7 @@ class SsaVariableScope implements SsaScope {
   }
 
   public static Pair<String, Integer> splitName(String name) {
-    final Pair<String, String> splitted = Utility.splitOnLast(name, '!');
+    final Pair<String, String> splitted = StringUtils.splitOnLast(name, '!');
     if (splitted.second.isEmpty()) {
       return new Pair<>(splitted.first, 1);
     }

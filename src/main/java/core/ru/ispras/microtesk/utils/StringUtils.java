@@ -17,6 +17,7 @@ package ru.ispras.microtesk.utils;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link StringUtils} class provides utility methods to deal with strings.
@@ -53,5 +54,22 @@ public final class StringUtils {
     }
 
     return sb.toString();
+  }
+
+  public static Pair<String, String> splitOnLast(final String str, final char c) {
+    InvariantChecks.checkNotNull(str);
+    return splitOnIndex(str, str.lastIndexOf(c));
+  }
+
+  public static Pair<String, String> splitOnFirst(final String str, final char c) {
+    InvariantChecks.checkNotNull(str);
+    return splitOnIndex(str, str.indexOf(c));
+  }
+
+  private static Pair<String, String> splitOnIndex(final String str, final int index) {
+    if (index < 0) {
+      return new Pair<>("", str);
+    }
+    return new Pair<>(str.substring(0, index), str.substring(index + 1));
   }
 }
