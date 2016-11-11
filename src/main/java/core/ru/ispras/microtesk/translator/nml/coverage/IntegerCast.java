@@ -147,11 +147,6 @@ public final class IntegerCast {
            node.getDataType() == DataType.INTEGER;
   }
 
-  public static boolean nodeIsBitVector(Node node) {
-    return (node.getKind() == Node.Kind.VALUE || node.getKind() == Node.Kind.VARIABLE) &&
-           node.getDataType().getTypeId() == DataTypeId.BIT_VECTOR;
-  }
-
   public static DataType findCommonType(final Collection<? extends Node> nodes) {
     DataType common = DataType.UNKNOWN;
     for (final Node node : nodes) {
