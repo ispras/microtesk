@@ -15,10 +15,8 @@
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -34,7 +32,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
@@ -120,21 +117,18 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
     }
 
     private void markVariables(final Location location, final ArgumentMode mode) {
-      final List<LocationAtom> locations = location instanceof LocationAtom ?
-          Collections.singletonList((LocationAtom) location) :
-          ((LocationConcat) location).getLocations();
+      InvariantChecks.checkTrue(location instanceof LocationAtom);
+      final LocationAtom atom = (LocationAtom) location;
 
-      for (final LocationAtom atom : locations) {
-        markVariable(atom.getName(), mode);
+      markVariable(atom.getName(), mode);
 
-        if (null != atom.getIndex()) {
-          markVariables(atom.getIndex(), ArgumentMode.IN);
-        }
+      if (null != atom.getIndex()) {
+        markVariables(atom.getIndex(), ArgumentMode.IN);
+      }
 
-        if (null != atom.getBitfield()) {
-          markVariables(atom.getBitfield().getFrom(), ArgumentMode.IN);
-          markVariables(atom.getBitfield().getTo(), ArgumentMode.IN);
-        }
+      if (null != atom.getBitfield()) {
+        markVariables(atom.getBitfield().getFrom(), ArgumentMode.IN);
+        markVariables(atom.getBitfield().getTo(), ArgumentMode.IN);
       }
     }
 

@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -316,29 +315,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
   }
 
-  public Expr concat(final Where w, final Expr leftExpr, final Expr rightExpr) {
-    checkNotNull(leftExpr);
-    checkNotNull(rightExpr);
-
-    final LocationAtom left = extractLocationAtom(leftExpr);
-    final Location right = extractLocation(rightExpr);
-
-    final int leftSize = left.getType().getBitSize();
-    final int rightSize = right.getType().getBitSize();
-    final int concatSize = leftSize + rightSize;
-
-    final Type concatType = left.getType().resize(concatSize);
-
-    if (right instanceof LocationAtom) {
-      return newLocationExpr(new LocationConcat(concatType, Arrays.asList((LocationAtom) right, left)));
-    }
-
-    final List<LocationAtom> concatenated = new ArrayList<>(((LocationConcat) right).getLocations());
-    concatenated.add(left);
-
-    return newLocationExpr(new LocationConcat(concatType, concatenated));
-  }
-
   private Symbol findSymbol(Where where, String name) throws SemanticException {
     final Symbol symbol = getSymbols().resolve(name);
 
@@ -366,11 +342,6 @@ public final class LocationFactory extends WalkerFactoryBase {
   private static LocationAtom extractLocationAtom(final Expr expr) {
     InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
     return (LocationAtom) expr.getNodeInfo().getSource();
-  }
-
-  private static Location extractLocation(final Expr expr) {
-    InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
-    return (Location) expr.getNodeInfo().getSource();
   }
 }
 

@@ -29,7 +29,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -176,11 +175,8 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
   }
 
   private static boolean isMemoryReference(final Location location) {
-    if (location instanceof LocationAtom) {
-      return isMemoryReference((LocationAtom) location);
-    } else {
-      return isMemoryReference((LocationConcat) location);
-    }
+    InvariantChecks.checkTrue(location instanceof LocationAtom);
+    return isMemoryReference((LocationAtom) location);
   }
 
   private static boolean isMemoryReference(final LocationAtom locationAtom) {
@@ -203,15 +199,6 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       }
     }
 
-    return false;
-  }
-
-  private static boolean isMemoryReference(final LocationConcat locationConcat) { 
-    for (final LocationAtom locationAtom : locationConcat.getLocations()) {
-      if (isMemoryReference(locationAtom)) {
-        return true;
-      }
-    }
     return false;
   }
 }

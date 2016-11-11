@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -26,17 +26,16 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 public final class PrinterLocation {
   private static final String ACCESS_FORMAT = ".access(%s)";
   private static final String BITFIELD_FORMAT = ".bitField(%s, %s)";
-  private static final String CONCAT_FORMAT = "Location.concat(%s)";
 
   private PrinterLocation() {}
   public static boolean addPE = true; 
 
   public static String toString(Location location) {
-    final String result = location instanceof LocationConcat ?
-        toString((LocationConcat) location) :
-        toString((LocationAtom) location);
+    InvariantChecks.checkTrue(location instanceof LocationAtom);
 
+    final String result = toString((LocationAtom) location);
     addPE = true;
+
     return result;
   }
 
@@ -71,18 +70,5 @@ public final class PrinterLocation {
     }
 
     return sb.toString();
-  }
-
-  private static String toString(LocationConcat location) {
-    final StringBuilder sb = new StringBuilder();
-
-    for (LocationAtom la : location.getLocations()) {
-      if (sb.length() > 0) {
-        sb.append(", ");
-      }
-      sb.append(toString(la));
-    }
-
-    return String.format(CONCAT_FORMAT, sb.toString());
   }
 }

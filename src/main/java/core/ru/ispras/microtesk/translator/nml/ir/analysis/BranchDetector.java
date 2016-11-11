@@ -15,9 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
-import java.util.List;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -32,7 +30,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -133,15 +130,12 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
       InvariantChecks.checkTrue(nodeInfo.isLocation());
       final Location location = (Location) nodeInfo.getSource();
 
-      final List<LocationAtom> locations = location instanceof LocationAtom ?
-          Collections.singletonList((LocationAtom) location) :
-          ((LocationConcat) location).getLocations();
+      InvariantChecks.checkTrue(location instanceof LocationAtom);
+      final LocationAtom atom = (LocationAtom) location;
 
-      for (final LocationAtom atom : locations) {
-        if (!inquirer.isPC(atom)) {
-          basedOnExternalParameters = true;
-          setStatus(Status.ABORT);
-        }
+      if (!inquirer.isPC(atom)) {
+        basedOnExternalParameters = true;
+        setStatus(Status.ABORT);
       }
     }
   }
