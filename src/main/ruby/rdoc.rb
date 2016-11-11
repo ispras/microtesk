@@ -21,5 +21,6 @@ begin
   r.document(ARGV)
 rescue RDoc::RDocError => e
   $stderr.puts e.message
+  $stderr.puts e.backtrace
   exit(1)
 end
