@@ -41,6 +41,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ArgumentModeDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ExceptionDetector;
+import ru.ispras.microtesk.translator.nml.ir.analysis.ImageAnalyzer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
@@ -67,6 +68,7 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new Analyzer(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
+    addHandler(new ImageAnalyzer());
 
     // Generate Java code of the ISA model
     addHandler(new MetaDataGenerator(this));
