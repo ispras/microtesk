@@ -30,6 +30,12 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 
+/**
+ * The {@link ImageAnalyzer} class analyzes the image format of addressing modes
+ * and operations to find out how to decode instructions.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class ImageAnalyzer implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
@@ -103,12 +109,23 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     private void onStatementFormat(
         final PrimitiveAND primitive, final StatementFormat stmt) {
-      
+      // TODO: analyze image format here
     }
 
     private void onStatementAttributeCall(
         final PrimitiveAND andRule, final StatementAttributeCall stmt) {
-      
+      if (stmt.getAttributeName().equals(Attribute.INIT_NAME)) {
+        // Calls to 'init' are ignored so far.
+        return;
+      }
+
+      if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
+        // TODO: derive all properties from the reference primitive.
+        return;
+      }
+
+      InvariantChecks.checkTrue(false,
+          "Illegal attribute call: " + stmt.getAttributeName());
     }
 
     @Override
