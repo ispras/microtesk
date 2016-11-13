@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -23,12 +24,14 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Format.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 /**
  * The {@link ImageAnalyzer} class analyzes the image format of addressing modes
@@ -109,7 +112,9 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     private void onStatementFormat(
         final PrimitiveAND primitive, final StatementFormat stmt) {
-      // TODO: analyze image format here
+      // null means call to the 'format' function (not 'trace' or anything else).
+      InvariantChecks.checkTrue(null == stmt.getFunction());
+      analyzeImage(stmt.getFormat(), stmt.getMarkers(), stmt.getArguments());
     }
 
     private void onStatementAttributeCall(
@@ -136,6 +141,14 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     @Override
     public void onFormat(final StatementFormat stmt) {
       throw new UnsupportedOperationException();
+    }
+
+    private void analyzeImage(
+        final String format,
+        final List<FormatMarker> markers,
+        final List<Argument> arguments) {
+      // TODO: Analyze image here
+      //System.out.println("  " + format);
     }
   }
 }
