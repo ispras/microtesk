@@ -16,13 +16,12 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 
 public final class StatementAssignment extends Statement {
-  private final Location left;
+  private final Expr left;
   private final Expr right;
 
-  StatementAssignment(final Location left, final Expr right) {
+  StatementAssignment(final Expr left, final Expr right) {
     super(Kind.ASSIGN);
 
     InvariantChecks.checkNotNull(left);
@@ -32,7 +31,7 @@ public final class StatementAssignment extends Statement {
     this.right = right;
   }
 
-  public Location getLeft() {
+  public Expr getLeft() {
     return left;
   }
 
