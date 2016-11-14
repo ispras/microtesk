@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -98,7 +103,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       MemoryAccessStatus status = MemoryAccessStatus.NO;
 
       final Expr right = stmt.getRight();
-      final Location left = stmt.getLeft();
+      final Expr left = stmt.getLeft();
 
       if (isMemoryReference(right)) {
         final int bitSize = right.getNodeInfo().getType().getBitSize();
@@ -107,7 +112,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       }
 
       if (isMemoryReference(left)) {
-        final int bitSize = left.getType().getBitSize();
+        final int bitSize = left.getNodeInfo().getType().getBitSize();
         status = status.merge(new MemoryAccessStatus(false, true, bitSize));
       }
 
@@ -140,9 +145,17 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       }
     }
 
-    private void addLoadTarget(final Location location) {
+    private void addLoadTarget(final Expr expr) {
       final Context context = contexts.peek();
-      context.loadTargets.add(location);
+      context.loadTargets.addAll(getLocations(expr));
+    }
+
+    private List<Location> getLocations(final Expr expr) {
+      final MemoryReferenceCollector visitor = new MemoryReferenceCollector();
+      final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+
+      walker.visit(expr.getNode());
+      return visitor.getLocations();
     }
 
     private boolean isLoadTarget(final Expr expr) {
@@ -166,17 +179,11 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
   private static boolean isMemoryReference(final Expr expr) {
     InvariantChecks.checkNotNull(expr);
 
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-    if (!nodeInfo.isLocation()) {
-      return false;
-    }
+    final MemoryReferenceDetector visitor = new MemoryReferenceDetector();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
 
-    return isMemoryReference((Location) nodeInfo.getSource()); 
-  }
-
-  private static boolean isMemoryReference(final Location location) {
-    InvariantChecks.checkTrue(location instanceof LocationAtom);
-    return isMemoryReference((LocationAtom) location);
+    walker.visit(expr.getNode());
+    return visitor.isDetected();
   }
 
   private static boolean isMemoryReference(final LocationAtom locationAtom) {
@@ -200,5 +207,70 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     }
 
     return false;
+  }
+
+  private static final class MemoryReferenceDetector extends ExprTreeVisitorDefault {
+    private boolean detected = false;
+
+    public boolean isDetected() {
+      return detected;
+    }
+
+    @Override
+    public void onVariable(final NodeVariable variable) {
+      final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
+      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+
+      if (isMemoryReference(location)) {
+        detected = true;
+        setStatus(Status.ABORT);
+      }
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation node) {
+      if (node.getOperationId() != StandardOperation.BVCONCAT) {
+        setStatus(Status.SKIP);
+      }
+    }
+
+    @Override
+    public void onOperationEnd(final NodeOperation node) {
+      if (node.getOperationId() != StandardOperation.BVCONCAT) {
+        setStatus(Status.OK);
+      }
+    }
+  }
+
+  private static final class MemoryReferenceCollector extends ExprTreeVisitorDefault {
+    private final List<Location> locations = new ArrayList<>();
+
+    public List<Location> getLocations() {
+      return locations;
+    }
+
+    @Override
+    public void onVariable(final NodeVariable variable) {
+      final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
+      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+
+      if (isMemoryReference(location)) {
+        locations.add(location);
+      }
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation node) {
+      if (node.getOperationId() != StandardOperation.BVCONCAT) {
+        setStatus(Status.SKIP);
+      }
+    }
+
+    @Override
+    public void onOperationEnd(final NodeOperation node) {
+      if (node.getOperationId() != StandardOperation.BVCONCAT) {
+        setStatus(Status.OK);
+      }
+    }
   }
 }
