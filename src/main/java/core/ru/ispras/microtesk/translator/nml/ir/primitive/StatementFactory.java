@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,12 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -29,7 +35,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
-import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
@@ -48,6 +53,9 @@ public final class StatementFactory extends WalkerFactoryBase {
   private static final String UNDEFINED_ATTR =
       "The %s attribute of the %s object is not defined or is not accessible in this context.";
 
+  private static final String INVALID_LHS =
+      "The left side of an expression must be a variable or a concatenation of variables.";
+
   public StatementFactory(final WalkerContext context) {
     super(context);
   }
@@ -56,28 +64,14 @@ public final class StatementFactory extends WalkerFactoryBase {
       final Where where,
       final Expr leftExpr,
       final Expr right) throws SemanticException {
-    InvariantChecks.checkTrue(leftExpr.getNodeInfo().isLocation());
+    checkAssignableLocation(where, leftExpr);
 
-    final Location left = (Location) leftExpr.getNodeInfo().getSource();
-    if (left instanceof LocationAtom) {
-      final LocationAtom atom = (LocationAtom) left;
-      if (atom.getSource() instanceof LocationSourcePrimitive) {
-        final LocationSourcePrimitive source =
-            (LocationSourcePrimitive) atom.getSource();
+    final NodeInfo leftInfo = leftExpr.getNodeInfo();
+    final Type leftType = leftInfo.getType();
 
-        if (source.getPrimitive().getKind() == Primitive.Kind.IMM) {
-          raiseError(where, String.format(
-              "'%s' is an input argument and it cannot be assigned a value.",
-              atom.getName()
-              ));
-        }
-      }
-    }
-
-    final Type leftType = left.getType();
     if (right.isConstant()) {
       final Expr castRight = TypeCast.castConstantTo(right, leftType);
-      return new StatementAssignment(left, castRight);
+      return new StatementAssignment(leftExpr, castRight);
     }
 
     if (right.getNodeInfo().getType() == null) {
@@ -96,7 +90,68 @@ public final class StatementFactory extends WalkerFactoryBase {
       }
     }
 
-    return new StatementAssignment(left, right);
+    return new StatementAssignment(leftExpr, right);
+  }
+
+  private void checkAssignableLocation(
+      final Where where, final Expr expr) throws SemanticException {
+    final LocationChecker visitor = new LocationChecker();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+
+    walker.visit(expr.getNode());
+    if (!visitor.isValid()) {
+      raiseError(where, visitor.getErrorMessage());
+    }
+  }
+
+  private static final class LocationChecker extends ExprTreeVisitorDefault {
+    private String errorMessage = "";
+
+    public boolean isValid() {
+      return getStatus() != Status.ABORT;
+    }
+
+    public String getErrorMessage() {
+      return errorMessage;
+    }
+
+    @Override
+    public void onVariable(final NodeVariable variable) {
+      final Expr node = new Expr(variable);
+      final NodeInfo nodeInfo = node.getNodeInfo();
+
+      InvariantChecks.checkTrue(nodeInfo.isLocation());
+      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+
+      if (isImmediate(location)) {
+        errorMessage = String.format(
+            "'%s' is an input argument and it cannot be assigned a value.", location.getName());
+        setStatus(Status.ABORT);
+      }
+    }
+
+    private boolean isImmediate(final LocationAtom location) { 
+      if (!(location.getSource() instanceof LocationSourcePrimitive)) {
+        return false;
+      }
+
+      final LocationSourcePrimitive source = (LocationSourcePrimitive) location.getSource();
+      return source.getPrimitive().getKind() == Primitive.Kind.IMM;
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation node) {
+      if (node.getOperationId() != StandardOperation.BVCONCAT) {
+        errorMessage = INVALID_LHS;
+        setStatus(Status.ABORT);
+      }
+    }
+
+    @Override
+    public void onValue(final NodeValue value) {
+      errorMessage = INVALID_LHS; 
+      setStatus(Status.ABORT);
+    }
   }
 
   public Statement createCondition(List<StatementCondition.Block> blocks) {
