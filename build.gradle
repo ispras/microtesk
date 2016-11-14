@@ -120,6 +120,11 @@ unix {
 macOs {
   z3 = 'z3:z3:4.3.2.7c12ab47165a-x64-osx-10.8.2:@zip'
   z3path = 'tools/z3/bin/z3'
+
+  // Currently, no suitable CVC4 for OS X is available. For now Unix binaries
+  // are specified here. These temp values are required for the build to complete.
+  cvc4 = 'cvc4:cvc4:2015-05-12-x86_64-linux-opt:@bin'
+  cvc4path = 'tools/cvc4-unix.bin'
 }
 
 configurations {
