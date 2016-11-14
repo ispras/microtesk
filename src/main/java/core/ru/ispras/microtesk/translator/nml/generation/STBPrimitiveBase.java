@@ -128,7 +128,8 @@ final class StatementBuilder {
 
   private void addStatement(StatementAssignment stmt) {
     addStatement(
-        String.format("%s.store(%s);", PrinterLocation.toString(stmt.getLeft()),
+        String.format("%s.store(%s);",
+        ExprPrinter.toString(stmt.getLeft(), true),
         ExprPrinter.toString(stmt.getRight()))
         );
   }
