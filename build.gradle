@@ -507,7 +507,7 @@ jarModels.dependsOn compileModels
 compileModels.dependsOn translateCpuDemo
 compileModels.dependsOn translateVliwDemo
 compileModels.dependsOn translateMiniMips
-//compileModels.dependsOn translateX86
+compileModels.dependsOn translateX86
 
 tasks.withType(Tar) {
   compression = Compression.GZIP
