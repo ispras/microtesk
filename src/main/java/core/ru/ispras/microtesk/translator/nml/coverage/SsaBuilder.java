@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
+import static ru.ispras.microtesk.translator.nml.coverage.Expression.CONCAT;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.NOT;
@@ -38,6 +39,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -253,29 +255,27 @@ final class SsaBuilder {
     return arg;
   }
 
-  /*
-  // LocationConcat is no longer used
-  private LValue[] fetchConcatLValues(LocationConcat conc) {
-    final LValue[] lhs = new LValue[conc.getLocations().size()];
-    for (int i = 0; i < lhs.length; ++i)
-      lhs[i] = createLValue(conc.getLocations().get(i));
-
+  private LValue[] fetchConcatLValues(final List<Node> values) {
+    final LValue[] lhs = new LValue[values.size()];
+    for (int i = 0; i < lhs.length; ++i) {
+      lhs[i] = createLValue(locationFromNodeVariable(values.get(i)));
+    }
     return lhs;
   }
-  */
 
   private void convertAssignment(StatementAssignment s) {
-    assign(s.getLeft(), s.getRight().getNode());
+    assign(s.getLeft().getNode(), s.getRight().getNode());
   }
 
-  private void assign(Location loc, Node value) {
+  private void assign(final Node lhs, final Node value) {
     acquireBlockBuilder();
     final Node rhs = convertExpression(value);
-    if (loc instanceof LocationAtom) {
-      assignToAtom((LocationAtom) loc, rhs);
-    } /*else if (loc instanceof LocationConcat) { // LocationConcat is no longer used
-      assignToConcat((LocationConcat) loc, rhs);
-    }*/ else {
+    final LocationAtom loc = locationFromNodeVariable(lhs);
+    if (loc != null) {
+      assignToAtom(loc, rhs);
+    } else if (ExprUtils.isOperation(lhs, StandardOperation.BVCONCAT)) {
+      assignToConcat(((NodeOperation) lhs).getOperands(), rhs);
+    } else {
       throw new IllegalArgumentException("Unknown Location subtype");
     }
   }
@@ -411,9 +411,7 @@ final class SsaBuilder {
     return subvector;
   }
 
-  /*
-  // LocationConcat is no longer used.
-  private void assignToConcat(LocationConcat lhs, Node value) {
+  private void assignToConcat(final List<Node> lhs, final Node value) {
     final LValue[] lvalues = fetchConcatLValues(lhs);
     final Node[] arg = new Node[lvalues.length];
 
@@ -426,7 +424,6 @@ final class SsaBuilder {
     }
     addToContext(EQ(CONCAT(arg), value));
   }
-  */
 
   private void convertCondition(StatementCondition s) {
     acquireBlockBuilder();
@@ -795,11 +792,11 @@ final class SsaBuilder {
    * @return Location object if correct instance is attached to node,
    * null otherwise.
    */
-  private static Location locationFromNodeVariable(Node node) {
+  private static LocationAtom locationFromNodeVariable(Node node) {
     final NodeInfo info = getNodeInfo(node);
     if (node.getKind() == Node.Kind.VARIABLE && info != null) {
       if (info.getSource() instanceof Location)
-        return (Location) info.getSource();
+        return (LocationAtom) info.getSource();
     }
     return null;
   }
@@ -875,7 +872,7 @@ final class SsaBuilder {
     final Location loc = locationFromNodeVariable(expr.getNode());
     if (loc != null) {
       builder.assign(
-          locationFromNodeVariable(expr.getNode()),
+          expr.getNode(),
           builder.createOutput(
               expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
                                   expr.getNode().getDataType().valueUninitialized())
