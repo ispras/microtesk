@@ -100,7 +100,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
     }
 
     private boolean isPCAssignment(final StatementAssignment stmt) {
-      final Location left = stmt.getLeft();
+      final Expr left = stmt.getLeft();
       final Expr right = stmt.getRight();
 
       if (!inquirer.isPC(left)) {
