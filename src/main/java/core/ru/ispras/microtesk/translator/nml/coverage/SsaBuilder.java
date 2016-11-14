@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.CONCAT;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EQ;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.NOT;
@@ -54,7 +53,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationConcat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -255,6 +253,8 @@ final class SsaBuilder {
     return arg;
   }
 
+  /*
+  // LocationConcat is no longer used
   private LValue[] fetchConcatLValues(LocationConcat conc) {
     final LValue[] lhs = new LValue[conc.getLocations().size()];
     for (int i = 0; i < lhs.length; ++i)
@@ -262,6 +262,7 @@ final class SsaBuilder {
 
     return lhs;
   }
+  */
 
   private void convertAssignment(StatementAssignment s) {
     assign(s.getLeft(), s.getRight().getNode());
@@ -272,9 +273,9 @@ final class SsaBuilder {
     final Node rhs = convertExpression(value);
     if (loc instanceof LocationAtom) {
       assignToAtom((LocationAtom) loc, rhs);
-    } else if (loc instanceof LocationConcat) {
+    } /*else if (loc instanceof LocationConcat) { // LocationConcat is no longer used
       assignToConcat((LocationConcat) loc, rhs);
-    } else {
+    }*/ else {
       throw new IllegalArgumentException("Unknown Location subtype");
     }
   }
@@ -410,6 +411,8 @@ final class SsaBuilder {
     return subvector;
   }
 
+  /*
+  // LocationConcat is no longer used.
   private void assignToConcat(LocationConcat lhs, Node value) {
     final LValue[] lvalues = fetchConcatLValues(lhs);
     final Node[] arg = new Node[lvalues.length];
@@ -423,6 +426,7 @@ final class SsaBuilder {
     }
     addToContext(EQ(CONCAT(arg), value));
   }
+  */
 
   private void convertCondition(StatementCondition s) {
     acquireBlockBuilder();
@@ -744,8 +748,8 @@ final class SsaBuilder {
         if (loc instanceof LocationAtom) {
           final LValue lval = createLValue((LocationAtom) loc);
           return IntegerCast.cast(createRValue(lval), lval.targetType, getCastType(in));
-        } else if (loc instanceof LocationConcat)
-          return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc)));
+        } /* else if (loc instanceof LocationConcat) // LocationConcat is no longer used
+          return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc))); */
         else
           throw new UnsupportedOperationException();
       }
