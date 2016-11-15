@@ -51,7 +51,7 @@ public final class FormatMarker {
     private static final Map<Character, Kind> INSTANCES = new HashMap<>();
 
     private static final String REG_EXPR_FORMAT = "[%%][\\d]*[%s]";
-    public static final String REG_EXPR;
+    private static final String REG_EXPR;
 
     private final char letter;
     private final boolean hasUpperCase;
@@ -72,6 +72,11 @@ public final class FormatMarker {
       this.regExpr = String.format(REG_EXPR_FORMAT, sb.toString());
     }
 
+    /**
+     * Returns the letter identifying the marker.
+     * 
+     * @return Marker letter.
+     */
     public char getLetter() {
       return letter;
     }
@@ -99,18 +104,43 @@ public final class FormatMarker {
     }
   }
 
-  private final Kind kind;
+  private static final Pattern MARKER_PATTERN = Pattern.compile(Kind.REG_EXPR);
+  private static final Pattern INTEGER_PATTERN = Pattern.compile("\\d+");
 
-  private FormatMarker(final Kind kind) {
+  private final Kind kind;
+  private final int length;
+
+  private FormatMarker(final Kind kind, final int length) {
     this.kind = kind;
+    this.length = length;
   }
 
+  /**
+   * Returns the marker kind.
+   * 
+   * @return Marker kind.
+   */
   public Kind getKind() {
     return kind;
   }
 
+  /**
+   * Check whether the marker of the specified kind.
+   * 
+   * @param kind Marker kind.
+   * @return {@code true} if the marker is of the specified kind or {@code false} otherwise.
+   */
   public boolean isKind(final Kind kind) {
     return this.kind == kind;
+  }
+
+  /**
+   * Returns the length specified in the marker.
+   * 
+   * @return Length specified in the marker or {@code 0} if no length is specified.
+   */
+  public int getLength() {
+    return length;
   }
 
   /**
@@ -144,23 +174,38 @@ public final class FormatMarker {
 
     final List<FormatMarker> result = new ArrayList<>();
 
-    final Matcher matcher = Pattern.compile(Kind.REG_EXPR).matcher(format);
+    final Matcher matcher = MARKER_PATTERN.matcher(format);
     while (matcher.find()) {
       final String token = matcher.group();
-      result.add(getFormatMarker(token));
+      final FormatMarker marker = getFormatMarker(token);
+      result.add(marker);
     }
 
     return result;
   }
 
   private static FormatMarker getFormatMarker(final String token) {
-    for (final Kind kind : Kind.values()) {
-      final Matcher matcher = Pattern.compile(kind.regExpr).matcher(token);
-      if (matcher.matches()) {
-        return new FormatMarker(kind);
-      }
+    final char letter = token.charAt(token.length() - 1);
+    final Kind kind = Kind.fromLetter(letter);
+
+    if (null == kind) {
+      throw new IllegalArgumentException("Illegal token: " + token);
     }
 
-    throw new IllegalStateException("Illegal token: " + token);
+    final int length;
+    final Matcher matcher = INTEGER_PATTERN.matcher(token);
+
+    if (matcher.find()) {
+      length = Integer.parseInt(matcher.group());
+    } else {
+      length = 0;
+    }
+
+    return new FormatMarker(kind, length);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("FormatMarker [kind=%s, length=%s]", kind, length);
   }
 }
