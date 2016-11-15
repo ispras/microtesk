@@ -31,6 +31,7 @@ public final class Format {
   public static interface Argument {
     boolean isConvertibleTo(FormatMarker kind);
     String convertTo(FormatMarker kind);
+    int getBinaryLength();
   }
 
   public static Argument createArgument(final String str) {
@@ -45,7 +46,7 @@ public final class Format {
     return new AttributeCallBasedArgument(call);
   }
 
-  private static final class ExprBasedArgument implements Argument {
+  public static final class ExprBasedArgument implements Argument {
     private final Expr expr;
 
     public ExprBasedArgument(final Expr expr) {
@@ -110,6 +111,11 @@ public final class Format {
       return String.format(
           "%s.%s", ExprPrinter.toString(expr), methodName);
     }
+
+    @Override
+    public int getBinaryLength() {
+      return expr.getNode().getDataType().getSize();
+    }
   }
 
   private static final class AttributeCallBasedArgument implements Argument {
@@ -160,6 +166,11 @@ public final class Format {
 
       return String.format("Integer.valueOf(%s, 2)", getCallText());
     }
+
+    @Override
+    public int getBinaryLength() {
+      return 0;
+    }
   }
 
   private static final class StringBasedArgument implements Argument {
@@ -178,6 +189,11 @@ public final class Format {
     public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
       return String.format("\"%s\"", string);
+    }
+
+    @Override
+    public int getBinaryLength() {
+      return string.length();
     }
   }
 
@@ -202,6 +218,11 @@ public final class Format {
       assert isConvertibleTo(kind);
       return String.format("%s ? %s : %s",
           ExprPrinter.toString(expr), left.convertTo(kind), right.convertTo(kind));
+    }
+
+    @Override
+    public int getBinaryLength() {
+      return 0;
     }
   }
 

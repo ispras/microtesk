@@ -224,6 +224,25 @@ public final class StatementFactory extends WalkerFactoryBase {
       raiseError(where, String.format(WRONG_FORMAT_ARG_SPEC, markers.size(), args.size()));
     }
 
+    for (int index = 0; index < markers.size(); ++index) {
+      final FormatMarker marker = markers.get(index);
+      final Format.Argument argument = args.get(index);
+
+      if (marker.isKind(FormatMarker.Kind.BIN) || marker.isKind(FormatMarker.Kind.STR)) {
+        final int markerLength = marker.getLength();
+        final int argumentLength = argument.getBinaryLength();
+
+        if (markerLength != 0 && argumentLength != 0 && markerLength != argumentLength) {
+          raiseError(where, String.format(
+              "Length specified by the %s format marker mismatches the actual data size. " +
+              "Expected length is %d.",
+              format.substring(marker.getStart(), marker.getEnd()),
+              argumentLength
+              ));
+        }
+      }
+    }
+
     return new StatementFormat(format, markers, args);
   }
 
