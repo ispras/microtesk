@@ -394,6 +394,7 @@ $res = getPrimitiveFactory().createExpression("syntax", stmt);
 }
     |  ae=attrExpr
 {
+checkNotNull($ae.start, $ae.res, $ae.text);
 $res = getPrimitiveFactory().createExpression("syntax", $ae.res);
 }
     ;
@@ -406,6 +407,7 @@ $res = getPrimitiveFactory().createExpression("image", stmt);
 }
     |  ae=attrExpr
 {
+checkNotNull($ae.start, $ae.res, $ae.text);
 $res = getPrimitiveFactory().createExpression("image", $ae.res);
 }
     ;
