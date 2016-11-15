@@ -110,9 +110,18 @@ public final class FormatMarker {
   private final Kind kind;
   private final int length;
 
-  private FormatMarker(final Kind kind, final int length) {
+  private final int start;
+  private final int end;
+
+  private FormatMarker(
+      final Kind kind,
+      final int length,
+      final int start,
+      final int end) {
     this.kind = kind;
     this.length = length;
+    this.start = start;
+    this.end = end;
   }
 
   /**
@@ -141,6 +150,26 @@ public final class FormatMarker {
    */
   public int getLength() {
     return length;
+  }
+
+  /**
+   * Returns the start position of the marker (first character of the marker)
+   * in the format string.
+   * 
+   * @return Start position of the marker in the format string.
+   */
+  public int getStart() {
+    return start;
+  }
+
+  /**
+   * Returns the end position of the marker (first character after the marker)
+   * in the format string.
+   * 
+   * @return End position of the marker in the format string.
+   */
+  public int getEnd() {
+    return end;
   }
 
   /**
@@ -177,14 +206,17 @@ public final class FormatMarker {
     final Matcher matcher = MARKER_PATTERN.matcher(format);
     while (matcher.find()) {
       final String token = matcher.group();
-      final FormatMarker marker = getFormatMarker(token);
+      final FormatMarker marker = newFormatMarker(token, matcher.start(), matcher.end());
       result.add(marker);
     }
 
     return result;
   }
 
-  private static FormatMarker getFormatMarker(final String token) {
+  private static FormatMarker newFormatMarker(
+      final String token,
+      final int start,
+      final int end) {
     final char letter = token.charAt(token.length() - 1);
     final Kind kind = Kind.fromLetter(letter);
 
@@ -201,11 +233,11 @@ public final class FormatMarker {
       length = 0;
     }
 
-    return new FormatMarker(kind, length);
+    return new FormatMarker(kind, length, start, end);
   }
 
   @Override
   public String toString() {
-    return String.format("FormatMarker [kind=%s, length=%s]", kind, length);
+    return String.format("%s:%d[%d, %d)", kind, length, start, end);
   }
 }
