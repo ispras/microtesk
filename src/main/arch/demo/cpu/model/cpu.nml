@@ -62,7 +62,7 @@ var DEST[BYTE]
 // An addressing mode for an immediate value. 
 mode IMM(i: BYTE) = i         // Value expression
   syntax = format("[%d]", i)  // Textual format
-  image  = format("11%4b", i) // Binary format
+  image  = format("11%8b", i) // Binary format
 
 // An addressing mode for a register access.
 mode REG(i: NIBBLE) = GPR[i]
@@ -72,7 +72,7 @@ mode REG(i: NIBBLE) = GPR[i]
 // An addressing mode for a memory access.
 mode MEM(i: INDEX) = M[i]
   syntax = format("(%d)", i)
-  image  = format("%6b", i)
+  image  = format("%8b", i)
 
 // Addressing modes are united into groups.
 mode OPRNDL = MEM | REG
