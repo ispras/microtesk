@@ -122,7 +122,8 @@ public final class OutputBuilder {
     checkNotNull(name);
 
     final FormatMarker marker = getMarker(getArgumentCount());
-    final boolean isBinaryText = FormatMarker.STR == marker || FormatMarker.BIN == marker;
+    final boolean isBinaryText =
+        marker.isKind(FormatMarker.Kind.STR) || marker.isKind(FormatMarker.Kind.BIN);
 
     addArgument(new ArgumentLocation(name, index, isBinaryText));
     return this;

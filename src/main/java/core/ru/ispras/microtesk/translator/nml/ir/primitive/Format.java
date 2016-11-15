@@ -54,7 +54,7 @@ public final class Format {
 
     @Override
     public boolean isConvertibleTo(final FormatMarker marker) {
-      if (FormatMarker.STR == marker) {
+      if (marker.isKind(FormatMarker.Kind.STR)) {
         return true;
       }
 
@@ -62,11 +62,11 @@ public final class Format {
     }
 
     private boolean isModelConvertibleTo(final FormatMarker marker) {
-      if (FormatMarker.BIN == marker) {
+      if (marker.isKind(FormatMarker.Kind.BIN)) {
         return true;
       }
 
-      assert ((FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
+      assert (marker.isKind(FormatMarker.Kind.DEC) || marker.isKind(FormatMarker.Kind.HEX));
       final Node node = expr.getNode();
 
       if (node.isType(DataTypeId.BIT_VECTOR) ||
@@ -90,16 +90,21 @@ public final class Format {
       }
 
       final String methodName;
-      if (FormatMarker.BIN == marker) {
-        methodName = "toBinString()";
-      } else if (FormatMarker.STR == marker) {
-        methodName = "toString()";
-      } else if (FormatMarker.HEX == marker) {
-        methodName = "bigIntegerValue(false)";
-      } else if (FormatMarker.DEC == marker) {
-        methodName = "bigIntegerValue()";
-      } else {
-        throw new IllegalArgumentException("Unsupported marker: " + marker);
+      switch (marker.getKind()) {
+        case BIN:
+          methodName = "toBinString()";
+          break;
+        case STR:
+          methodName = "toString()";
+          break;
+        case HEX:
+          methodName = "bigIntegerValue(false)";
+          break;
+        case DEC:
+          methodName = "bigIntegerValue()";
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported marker kind: " + marker.getKind());
       }
 
       return String.format(
@@ -129,8 +134,8 @@ public final class Format {
     }
 
     @Override
-    public boolean isConvertibleTo(FormatMarker marker) {
-      if (FormatMarker.STR == marker) {
+    public boolean isConvertibleTo(final FormatMarker marker) {
+      if (marker.isKind(FormatMarker.Kind.STR)) {
         return true;
       }
 
@@ -138,7 +143,10 @@ public final class Format {
         return false;
       }
 
-      assert ((FormatMarker.BIN == marker) || (FormatMarker.DEC == marker) || (FormatMarker.HEX == marker));
+      assert (marker.isKind(FormatMarker.Kind.BIN) ||
+              marker.isKind(FormatMarker.Kind.DEC) ||
+              marker.isKind(FormatMarker.Kind.HEX));
+
       return true;
     }
 
@@ -146,7 +154,7 @@ public final class Format {
     public String convertTo(final FormatMarker marker) {
       assert isConvertibleTo(marker);
 
-      if ((FormatMarker.STR == marker) || (FormatMarker.BIN == marker)) {
+      if (marker.isKind(FormatMarker.Kind.STR) || marker.isKind(FormatMarker.Kind.BIN)) {
         return getCallText();
       }
 
@@ -162,8 +170,8 @@ public final class Format {
     }
 
     @Override
-    public boolean isConvertibleTo(final FormatMarker kind) {
-      return FormatMarker.STR == kind;
+    public boolean isConvertibleTo(final FormatMarker marker) {
+      return marker.isKind(FormatMarker.Kind.STR);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,43 +30,87 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class FormatMarker {
-  /** Token for %d. Used for decimal numbers. */
-  public static final FormatMarker DEC = new FormatMarker("d");
+  /**
+   * The {@link Kind} enumeration describes supported types of format markers.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public static enum Kind {
+    /** Marker %d. Used for decimal numbers. */
+    DEC('d', false),
 
-  /** Token for %b. Used for binary values (nML semantics, different from Java). */
-  public static final FormatMarker BIN = new FormatMarker("b");
+    /** Marker %b. Used for binary values (nML semantics, different from Java). */
+    BIN('b', false),
 
-  /** Token for %x. Used for hexadecimal numbers. */
-  public static final FormatMarker HEX = new FormatMarker("x|X");
+    /** Marker %x. Used for hexadecimal numbers. */
+    HEX('x', true),
 
-  /** Token for %s. Used for string values. */
-  public static final FormatMarker STR = new FormatMarker("s");
+    /** Marker %s. Used for string values. When applied to locations, works as {@link Kind#BIN}. */
+    STR('s', true);
 
-  private static final FormatMarker[] ALL_ARR = {DEC, BIN, HEX, STR};
-  private static final FormatMarker ALL = new FormatMarker(ALL_ARR);
+    private static final Map<Character, Kind> INSTANCES = new HashMap<>();
 
-  private static final String FORMAT = "[%%][\\d]*[%s]";
-  private final String tokenId;
-  private final String regExpr;
+    private static final String REG_EXPR_FORMAT = "[%%][\\d]*[%s]";
+    public static final String REG_EXPR;
 
-  private FormatMarker(final String tokenId) {
-    this.tokenId = tokenId;
-    this.regExpr = String.format(FORMAT, tokenId);
-  }
+    private final char letter;
+    private final boolean hasUpperCase;
+    private final String regExpr;
 
-  private FormatMarker(final FormatMarker[] markers) {
-    this(buildTokenId(markers));
-  }
+    private Kind(final char letter, final boolean hasUpperCase) {
+      this.letter = Character.toLowerCase(letter);
+      this.hasUpperCase = hasUpperCase;
 
-  private static String buildTokenId(final FormatMarker[] markers) {
-    final StringBuilder sb = new StringBuilder();
-    for (final FormatMarker m : markers) {
-      if (0 != sb.length()) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(letter);
+
+      if (hasUpperCase) {
         sb.append('|');
+        sb.append(Character.toUpperCase(letter));
       }
-      sb.append(m.tokenId);
+
+      this.regExpr = String.format(REG_EXPR_FORMAT, sb.toString());
     }
-    return sb.toString();
+
+    public char getLetter() {
+      return letter;
+    }
+
+    static {
+      for (final Kind kind : values()) {
+        INSTANCES.put(kind.letter, kind);
+        if (kind.hasUpperCase) {
+          INSTANCES.put(Character.toUpperCase(kind.letter), kind);
+        }
+      }
+
+      REG_EXPR = String.format(
+          REG_EXPR_FORMAT, StringUtils.toString(INSTANCES.keySet(), "|"));
+    }
+
+    /**
+     * Returns the marker kind that correspond to the specified letter.
+     * 
+     * @param letter Marker letter.
+     * @return Marker kind for the letter or {@code null} if there no such marker is supported.
+     */
+    public static Kind fromLetter(final char letter) {
+      return INSTANCES.get(letter);
+    }
+  }
+
+  private final Kind kind;
+
+  private FormatMarker(final Kind kind) {
+    this.kind = kind;
+  }
+
+  public Kind getKind() {
+    return kind;
+  }
+
+  public boolean isKind(final Kind kind) {
+    return this.kind == kind;
   }
 
   /**
@@ -73,7 +119,7 @@ public final class FormatMarker {
    * @return Token identifier.
    */
   public String getTokenId() {
-    return tokenId;
+    return String.valueOf(kind.letter);
   }
 
   /**
@@ -82,7 +128,7 @@ public final class FormatMarker {
    * @return Regular expression.
    */
   public String getRegExpr() {
-    return regExpr;
+    return kind.regExpr;
   }
 
   /**
@@ -98,7 +144,7 @@ public final class FormatMarker {
 
     final List<FormatMarker> result = new ArrayList<>();
 
-    final Matcher matcher = Pattern.compile(ALL.regExpr).matcher(format);
+    final Matcher matcher = Pattern.compile(Kind.REG_EXPR).matcher(format);
     while (matcher.find()) {
       final String token = matcher.group();
       result.add(getFormatMarker(token));
@@ -108,10 +154,10 @@ public final class FormatMarker {
   }
 
   private static FormatMarker getFormatMarker(final String token) {
-    for (final FormatMarker m : ALL_ARR) {
-      final Matcher matcher = Pattern.compile(m.regExpr).matcher(token);
+    for (final Kind kind : Kind.values()) {
+      final Matcher matcher = Pattern.compile(kind.regExpr).matcher(token);
       if (matcher.matches()) {
-        return m;
+        return new FormatMarker(kind);
       }
     }
 

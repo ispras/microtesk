@@ -346,9 +346,9 @@ abstract class STBCommon {
       InvariantChecks.checkTrue(isFound);
       final int markerEnd = matcher.end();
 
-      if (isBitVector && marker != FormatMarker.DEC) {
+      if (isBitVector && !marker.isKind(FormatMarker.Kind.DEC)) {
         sbFormat.append(searchFormat.substring(0, markerEnd - 1));
-        sbFormat.append(FormatMarker.STR.getTokenId());
+        sbFormat.append(FormatMarker.Kind.STR.getLetter());
       } else {
         sbFormat.append(searchFormat.substring(0, markerEnd));
       }
@@ -356,16 +356,21 @@ abstract class STBCommon {
       formatIndex = formatIndex + markerEnd;
 
       final String suffix;
-      if (marker == FormatMarker.BIN) {
-        suffix = isBitVector ? ".toBinString()" : "";
-      } else if (marker == FormatMarker.DEC) { 
-        suffix = isBitVector ? ".bigIntegerValue(false)" : "";
-      } else if (marker == FormatMarker.HEX) {
-        suffix = isBitVector ? ".toHexString()" : "";
-      } else if (marker == FormatMarker.STR) {
-        suffix = isBitVector ? ".toString()" : "";
-      } else {
-        throw new IllegalStateException("Unknown format marker: " + marker);
+      switch(marker.getKind()) {
+        case BIN:
+          suffix = isBitVector ? ".toBinString()" : "";
+          break;
+        case DEC:
+          suffix = isBitVector ? ".bigIntegerValue(false)" : "";
+          break;
+        case HEX:
+          suffix = isBitVector ? ".toHexString()" : "";
+          break;
+        case STR:
+          suffix = isBitVector ? ".toString()" : "";
+          break;
+        default:
+          throw new IllegalStateException("Unknown format marker kind: " + marker.getKind());
       }
 
       sbArgs.append(", ");
