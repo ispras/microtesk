@@ -234,7 +234,7 @@ public final class StatementFactory extends WalkerFactoryBase {
 
         if (markerLength != 0 && argumentLength != 0 && markerLength != argumentLength) {
           raiseError(where, String.format(
-              "Length specified by the %s format marker mismatches the actual data size. " +
+              "Length specified by the %s format marker mismatches the actual data type. " +
               "Expected length is %d.",
               format.substring(marker.getStart(), marker.getEnd()),
               argumentLength
