@@ -9,12 +9,12 @@
   <setting name="exception-file-prefix" value="boot"/>
   <setting name="program-length-limit" value="10000"/>
   <setting name="trace-length-limit" value="100000"/>
-  <setting name="comments-enabled" value="true"/>
-  <setting name="comments-debug" value="true"/>
-  <setting name="default-test-data" value="true"/>
+  <setting name="comments-enabled" value=""/>
+  <setting name="comments-debug" value=""/>
+  <setting name="default-test-data" value=""/>
   <setting name="reserve-explicit" value="true"/>
   <setting
     name="arch-dirs"
-    value="cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml:x86=arch/demo/x86/settings.xml"
+    value="mips64=arch/mips64/settings.xml:cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
   />
 </settings>

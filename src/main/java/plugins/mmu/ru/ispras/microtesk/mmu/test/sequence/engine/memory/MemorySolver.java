@@ -759,43 +759,54 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath path = access.getPath();
     final AddressObject addrObject = solution.getAddressObject(j);
 
-    // Satisfying dependencies may lead to changing the memory access path.
-    if (correctAddr(addrObject)) {
+    Logger.debug("Correct[%d]: %s", j, access);
+
+    correctAddr(addrObject);
+
+    // Satisfying dependencies may change the memory access path.
+    boolean pathFound = false;
+
+    // Check whether the original path is still valid.
+    if (!(pathFound = refineAddr(path, addrObject, true))) {
+      // Find some similar path.
       final Iterable<MemoryAccessPath> paths =
           CoverageExtractor.get().getEnabledPaths(memory, access.getType(), constraints);
       final Iterable<MemoryAccessPath> variants =
           MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints.getIntegers());
 
-      boolean pathFound = false;
+      for (final MemoryAccessPath variant : variants) {
+        // The original path has been checked already.
+        if (path == variant) {
+          continue;
+        }
 
-      if (!(pathFound = refineAddr(path, addrObject, true))) {
-        for (final MemoryAccessPath variant : variants) {
-          if (path == variant) {
-            continue;
-          }
-
-          if (pathFound = refineAddr(variant, addrObject, true)) {
-            // Update the memory access path in the address object.
-            addrObject.setPath(variant);
-            break;
-          }
+        if (pathFound = refineAddr(variant, addrObject, true)) {
+          // Update the memory access path in the address object.
+          Logger.debug("Path has been changed to a similar one: %s", variant);
+          addrObject.setPath(variant);
+          break;
         }
       }
+    }
 
-      if (!pathFound) {
-        return new SolverResult<MemorySolution>(
-            String.format("No feasible variant found: %s", variants));
-      }
+    if (!pathFound) {
+      Logger.debug("Feasible variant has not been found");
+      return new SolverResult<MemorySolution>("No feasible variant found");
     }
 
     return new SolverResult<MemorySolution>(solution);
   }
 
   private SolverResult<MemorySolution> fill(final int j) {
+    final MemoryAccess access = structure.getAccess(j);
     final AddressObject addrObject = solution.getAddressObject(j);
     final Map<MmuBuffer, Map<Long, EntryObject>> pathEntries = addrObject.getEntries();
 
+    Logger.debug("Fill[%d]: %s", j, access);
+
     for (final MmuBuffer buffer : pathEntries.keySet()) {
+      Logger.debug("Fill[%d]: %s", j, buffer);
+
       for (final EntryObject entryObject : pathEntries.get(buffer).values()) {
         // Fill the entry according to the path constraints.
         final MmuEntry entry = entryObject.getEntry();
@@ -1104,6 +1115,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
+
     Logger.debug("Refine address: VA=%x, PA=%x", va, pa);
 
     // Fix the address tags and indices.
@@ -1137,7 +1149,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
-        new ArrayList<>(this.constraints.getIntegers()) : new ArrayList<IntegerConstraint<IntegerField>>();
+        new ArrayList<>(this.constraints.getIntegers()) :
+        new ArrayList<IntegerConstraint<IntegerField>>();
 
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       final IntegerField field = entry.getKey();
@@ -1158,8 +1171,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final BigInteger vaCorrection = values.get(vaVar);
     final BigInteger paCorrection = values.get(paVar);
 
+    Logger.debug("Refine address (before): VA=%x, PA=%x", va, pa);
+
     va |= vaCorrection != null ? vaCorrection.longValue() : 0;
     pa |= paCorrection != null ? paCorrection.longValue() : 0;
+
+    Logger.debug("Refine address (after): VA=%x, PA=%x", va, pa);
 
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
@@ -1196,7 +1213,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * 
    * Returns {@code true} if the address has been corrected.
    */
-  private boolean correctAddr(final AddressObject addrObject) {
+  private void correctAddr(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
 
     correctOffset(addrObject);
@@ -1207,30 +1224,34 @@ public final class MemorySolver implements Solver<MemorySolution> {
     long va = addrObject.getAddress(vaType);
     long pa = addrObject.getAddress(paType);
 
-    boolean addressCorrected = false;
+    Logger.debug("Correct address (before): VA=%x, PA=%x", va, pa);
+
     boolean regionFound = false;
 
     for (final RegionSettings region : settings.getMemory().getRegions()) {
+      // Iterate through the enabled PA regions.
       if (!region.isEnabled() || region.getType() != RegionSettings.Type.DATA) {
         continue;
       }
 
+      // Here is a region that contains the given PA.
       if (region.checkAddress(pa)) {
-        boolean vaOk = false;
+        boolean leaveVaUnchanged = false;
 
         final Collection<MmuSegment> segments = new ArrayList<>();
 
+        // Iterate through the VA segments that can be used to access the PA region.
         for (final AccessSettings regionAccess : region.getAccesses()) {
           final MmuSegment segment = memory.getSegment(regionAccess.getSegment());
           InvariantChecks.checkNotNull(segment);
 
           if (segment.checkVa(va)) {
-            // The segment may remain unchanged (it can represent the physical address).
+            // The existing segment may remain unchanged (it can represent the PA).
             if (segment.isMapped()) {
-              // The virtual address may remain unchanged.
-              vaOk = true;
+              // VA may remain unchanged.
+              leaveVaUnchanged = true;
             } else {
-              // The virtual address should be recalculated.
+              // VA should be recalculated.
               segments.clear();
               segments.add(segment);
             }
@@ -1244,15 +1265,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
           }
         }
 
-        if (!vaOk) {
+        if (!leaveVaUnchanged) {
           // The virtual address should be recalculated.
           final MmuSegment segment = Randomizer.get().choose(segments);
 
           // An adapter should take into account additional attributes (e.g., CP in XKPHYS).
           va = segment.checkVa(va) ? segment.getVa(pa, segment.getRest(va)) : segment.getVa(pa);
           addrObject.setAddress(vaType, va);
-
-          addressCorrected = true;
         }
 
         regionFound = true;
@@ -1261,7 +1280,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     InvariantChecks.checkTrue(regionFound);
-    return addressCorrected;
+    Logger.debug("Correct address (after): VA=%x, PA=%x", va, pa);
   }
 
   /**
@@ -1293,8 +1312,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         path, constraints, IntegerVariableInitializer.ZEROS /* IntegerVariableInitializer.RANDOM */);
-    InvariantChecks.checkNotNull(values);
-    InvariantChecks.checkFalse(values.isEmpty());
+    InvariantChecks.checkTrue(values != null && !values.isEmpty(), constraints.toString());
 
     // Set the entry fields.
     entry.setValid(true);
