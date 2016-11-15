@@ -24,7 +24,7 @@ import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
@@ -50,37 +50,37 @@ public final class IrInquirer {
     return visitor.isDetected();
   }
 
-  public boolean isPC(final LocationAtom location) {
+  public boolean isPC(final Location location) {
     InvariantChecks.checkNotNull(location);
     return isRegister(location) && (isExplicitPC(location) || isLabelledAsPC(location));
   }
 
-  public static boolean isRegister(final LocationAtom location) {
+  public static boolean isRegister(final Location location) {
     InvariantChecks.checkNotNull(location);
 
     final MemoryExpr memory = getMemoryExpr(location);
     return memory != null && memory.getKind() == Memory.Kind.REG;
   }
 
-  public static boolean isMemory(final LocationAtom location) {
+  public static boolean isMemory(final Location location) {
     InvariantChecks.checkNotNull(location);
 
     final MemoryExpr memory = getMemoryExpr(location);
     return memory != null && memory.getKind() == Memory.Kind.MEM;
   }
 
-  private static MemoryExpr getMemoryExpr(final LocationAtom location) {
+  private static MemoryExpr getMemoryExpr(final Location location) {
     if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
       return null;
     }
     return ((LocationSourceMemory) location.getSource()).getMemory();
   }
 
-  private static boolean isExplicitPC(final LocationAtom location) {
+  private static boolean isExplicitPC(final Location location) {
     return location.getName().equals(PC_LABEL);
   }
 
-  private boolean isLabelledAsPC(final LocationAtom location) {
+  private boolean isLabelledAsPC(final Location location) {
     if (!ir.getLabels().containsKey(PC_LABEL)) {
       return false;
     }
@@ -115,7 +115,7 @@ public final class IrInquirer {
     @Override
     public void onVariable(final NodeVariable variable) {
       final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
-      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+      final Location location = (Location) nodeInfo.getSource();
 
       if (isPC(location)) {
         detected = true;

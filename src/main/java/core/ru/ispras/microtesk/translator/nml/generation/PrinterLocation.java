@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -30,16 +29,8 @@ public final class PrinterLocation {
   private PrinterLocation() {}
   public static boolean addPE = true; 
 
-  public static String toString(Location location) {
-    InvariantChecks.checkTrue(location instanceof LocationAtom);
-
-    final String result = toString((LocationAtom) location);
-    addPE = true;
-
-    return result;
-  }
-
-  private static String toString(LocationAtom location) {
+  public static String toString(final Location location) {
+    InvariantChecks.checkNotNull(location);
     final StringBuilder sb = new StringBuilder();
 
     if (addPE && location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY) {
@@ -62,13 +53,14 @@ public final class PrinterLocation {
     sb.append(String.format(ACCESS_FORMAT, indexText));
 
     if (null != location.getBitfield()) {
-      final LocationAtom.Bitfield bitfield = location.getBitfield();
+      final Location.Bitfield bitfield = location.getBitfield();
       sb.append(String.format(BITFIELD_FORMAT,
           ExprPrinter.toString(bitfield.getFrom()),
           ExprPrinter.toString(bitfield.getTo()))
-      );
+          );
     }
 
+    addPE = true;
     return sb.toString();
   }
 }

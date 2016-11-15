@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -121,7 +121,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       final NodeInfo nodeInfo = node.getNodeInfo();
 
       InvariantChecks.checkTrue(nodeInfo.isLocation());
-      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+      final Location location = (Location) nodeInfo.getSource();
 
       if (isImmediate(location)) {
         errorMessage = String.format(
@@ -130,7 +130,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       }
     }
 
-    private boolean isImmediate(final LocationAtom location) { 
+    private boolean isImmediate(final Location location) { 
       if (!(location.getSource() instanceof LocationSourcePrimitive)) {
         return false;
       }

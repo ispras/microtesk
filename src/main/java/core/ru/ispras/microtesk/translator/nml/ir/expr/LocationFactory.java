@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -74,7 +74,7 @@ public final class LocationFactory extends WalkerFactoryBase {
         new MemoryBasedLocationCreator(this, where, name, null) :
         new ArgumentBasedLocationCreator(this, where, name);
 
-    final LocationAtom result = creator.create();
+    final Location result = creator.create();
     return newLocationExpr(result);
   }
 
@@ -93,14 +93,14 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
-    final LocationAtom location = namedField(where, creator.create(), fields);
+    final Location location = namedField(where, creator.create(), fields);
 
     return newLocationExpr(location);
   }
 
-  private LocationAtom namedField(
+  private Location namedField(
       final Where where,
-      final LocationAtom location,
+      final Location location,
       final List<String> fields) throws SemanticException {
     if (fields.isEmpty()) {
       return location;
@@ -147,7 +147,7 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     if (NmlSymbolKind.MEMORY == kind) {
       final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, null);
-      final LocationAtom location = namedField(where, creator.create(), fields);
+      final Location location = namedField(where, creator.create(), fields);
       return newLocationExpr(location);
     }
 
@@ -156,17 +156,17 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
     }
 
-    final LocationAtom location = argumentField(where, argument, name, fields);
+    final Location location = argumentField(where, argument, name, fields);
     return newLocationExpr(location);
   }
 
-  private LocationAtom argumentField(
+  private Location argumentField(
       final Where where,
       final Primitive argument,
       final String argumentName,
       final List<String> fields) throws SemanticException {
     if (argument.getKind() == Primitive.Kind.IMM) {
-      final LocationAtom location = LocationAtom.createPrimitiveBased(argumentName, argument);
+      final Location location = Location.createPrimitiveBased(argumentName, argument);
       return namedField(where, location, fields);
     }
 
@@ -204,7 +204,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     checkNotNull(variable);
     checkNotNull(pos);
 
-    final LocationAtom location = extractLocationAtom(variable);
+    final Location location = extractLocation(variable);
     if (pos.isConstant()) {
       checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
     }
@@ -222,7 +222,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     checkNotNull(from);
     checkNotNull(to);
 
-    final LocationAtom location = extractLocationAtom(variable);
+    final Location location = extractLocation(variable);
     if (from.isConstant() != to.isConstant()) {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
     }
@@ -274,16 +274,16 @@ public final class LocationFactory extends WalkerFactoryBase {
     return null;
   }
 
-  private LocationAtom createBitfield(
+  private Location createBitfield(
       final Where where,
-      final LocationAtom location,
+      final Location location,
       final Expr low,
       final Expr high,
       final Type type) throws SemanticException {
-    final LocationAtom.Bitfield bitfield = location.getBitfield();
+    final Location.Bitfield bitfield = location.getBitfield();
 
     if (null == bitfield) {
-      return LocationAtom.createBitfield(location, high, low, type);
+      return Location.createBitfield(location, high, low, type);
     }
 
     if (!(bitfield.getFrom().isConstant() && bitfield.getTo().isConstant())) {
@@ -306,7 +306,7 @@ public final class LocationFactory extends WalkerFactoryBase {
         NodeInfo.newConst(null) :
         NodeInfo.newOperator(Operator.PLUS, high.getNodeInfo().getType()));
 
-    return LocationAtom.createBitfield(location, newHigh, newLow, type);
+    return Location.createBitfield(location, newHigh, newLow, type);
   }
 
   private void checkBitfieldBounds(Where w, int position, int size) throws SemanticException {
@@ -339,15 +339,15 @@ public final class LocationFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
-  private static LocationAtom extractLocationAtom(final Expr expr) {
+  private static Location extractLocation(final Expr expr) {
     InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
-    return (LocationAtom) expr.getNodeInfo().getSource();
+    return (Location) expr.getNodeInfo().getSource();
   }
 }
 
 
 interface LocationCreator {
-  public LocationAtom create() throws SemanticException;
+  public Location create() throws SemanticException;
 }
 
 
@@ -365,7 +365,7 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
   }
 
   @Override
-  public LocationAtom create() throws SemanticException {
+  public Location create() throws SemanticException {
     final MemoryExpr memory = findMemory();
 
     // Checking bounds for constant values.
@@ -378,7 +378,7 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
       }
     }
 
-    return LocationAtom.createMemoryBased(name, memory, index);
+    return Location.createMemoryBased(name, memory, index);
   }
 
   private MemoryExpr findMemory() throws SemanticException {
@@ -406,14 +406,14 @@ final class ArgumentBasedLocationCreator extends WalkerFactoryBase implements Lo
   }
 
   @Override
-  public LocationAtom create() throws SemanticException {
+  public Location create() throws SemanticException {
     final Primitive primitive = findArgument();
 
     if ((Primitive.Kind.MODE != primitive.getKind()) && (Primitive.Kind.IMM != primitive.getKind())) {
       raiseError(where, String.format(UNEXPECTED_PRIMITIVE, name, primitive.getKind()));
     }
 
-    return LocationAtom.createPrimitiveBased(name, primitive);
+    return Location.createPrimitiveBased(name, primitive);
   }
 
   private Primitive findArgument() throws SemanticException {

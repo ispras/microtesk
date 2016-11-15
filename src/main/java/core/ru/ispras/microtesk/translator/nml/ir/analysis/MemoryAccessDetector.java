@@ -33,7 +33,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -186,7 +185,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     return visitor.isDetected();
   }
 
-  private static boolean isMemoryReference(final LocationAtom locationAtom) {
+  private static boolean isMemoryReference(final Location locationAtom) {
     if ((locationAtom.getSource() instanceof LocationSourceMemory)) {
       final LocationSourceMemory source = (LocationSourceMemory) locationAtom.getSource();
       final BigInteger memorySize = source.getMemory().getSize();
@@ -219,7 +218,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     @Override
     public void onVariable(final NodeVariable variable) {
       final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
-      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+      final Location location = (Location) nodeInfo.getSource();
 
       if (isMemoryReference(location)) {
         detected = true;
@@ -252,7 +251,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     @Override
     public void onVariable(final NodeVariable variable) {
       final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
-      final LocationAtom location = (LocationAtom) nodeInfo.getSource();
+      final Location location = (Location) nodeInfo.getSource();
 
       if (isMemoryReference(location)) {
         locations.add(location);

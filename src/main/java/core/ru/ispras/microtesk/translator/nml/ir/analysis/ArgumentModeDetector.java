@@ -31,7 +31,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
@@ -117,9 +116,7 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
     }
 
     private void markVariables(final Location location, final ArgumentMode mode) {
-      InvariantChecks.checkTrue(location instanceof LocationAtom);
-      final LocationAtom atom = (LocationAtom) location;
-
+      final Location atom = (Location) location;
       markVariable(atom.getName(), mode);
 
       if (null != atom.getIndex()) {

@@ -54,7 +54,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -270,7 +269,7 @@ final class SsaBuilder {
   private void assign(final Node lhs, final Node value) {
     acquireBlockBuilder();
     final Node rhs = convertExpression(value);
-    final LocationAtom loc = locationFromNodeVariable(lhs);
+    final Location loc = locationFromNodeVariable(lhs);
     if (loc != null) {
       assignToAtom(loc, rhs);
     } else if (ExprUtils.isOperation(lhs, StandardOperation.BVCONCAT)) {
@@ -280,7 +279,7 @@ final class SsaBuilder {
     }
   }
 
-  private void assignToAtom(LocationAtom lhs, Node value) {
+  private void assignToAtom(Location lhs, Node value) {
     final LValue lvalue = createLValue(lhs);
     if (lvalue.isArray()) {
       addToContext(EQ(updateArrayElement(lvalue), value));
@@ -588,8 +587,8 @@ final class SsaBuilder {
 
       case PRIMITIVE:
         if (parameter.getKind() == Primitive.Kind.IMM) {
-          final LocationAtom atom =
-              LocationAtom.createPrimitiveBased(arg.getName(), arg.getPrimitive());
+          final Location atom =
+              Location.createPrimitiveBased(arg.getName(), arg.getPrimitive());
           final Node value = createRValue(createLValue(atom));
           operands.add(value);
         } else {
@@ -668,7 +667,7 @@ final class SsaBuilder {
     }
   }
 
-  private LValue createLValue(LocationAtom atom) {
+  private LValue createLValue(Location atom) {
     String name = atom.getName();
     switch (atom.getSource().getSymbolKind()) {
     case ARGUMENT:
@@ -679,7 +678,7 @@ final class SsaBuilder {
       final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
       final Alias alias = memory.getAlias();
       if (alias != null) {
-        return createLValue((LocationAtom) alias.getLocation());
+        return createLValue((Location) alias.getLocation());
       }
       break;
 
@@ -717,7 +716,7 @@ final class SsaBuilder {
     return new LValue(base, macro, index, null, null, baseType, sourceType, targetType);
   }
 
-  private static boolean isModeArgument(LocationAtom atom) {
+  private static boolean isModeArgument(Location atom) {
     if (atom.getSource() instanceof LocationSourcePrimitive) {
       final LocationSourcePrimitive source = (LocationSourcePrimitive) atom.getSource();
       return source.getPrimitive().getKind() == Primitive.Kind.MODE;
@@ -742,8 +741,8 @@ final class SsaBuilder {
       @Override
       public Node apply(Node in) {
         final Location loc = locationFromNodeVariable(in);
-        if (loc instanceof LocationAtom) {
-          final LValue lval = createLValue((LocationAtom) loc);
+        if (loc instanceof Location) {
+          final LValue lval = createLValue((Location) loc);
           return IntegerCast.cast(createRValue(lval), lval.targetType, getCastType(in));
         } /* else if (loc instanceof LocationConcat) // LocationConcat is no longer used
           return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc))); */
@@ -792,11 +791,11 @@ final class SsaBuilder {
    * @return Location object if correct instance is attached to node,
    * null otherwise.
    */
-  private static LocationAtom locationFromNodeVariable(Node node) {
+  private static Location locationFromNodeVariable(Node node) {
     final NodeInfo info = getNodeInfo(node);
     if (node.getKind() == Node.Kind.VARIABLE && info != null) {
       if (info.getSource() instanceof Location)
-        return (LocationAtom) info.getSource();
+        return (Location) info.getSource();
     }
     return null;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,7 +29,6 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationAtom;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -130,10 +129,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
       InvariantChecks.checkTrue(nodeInfo.isLocation());
       final Location location = (Location) nodeInfo.getSource();
 
-      InvariantChecks.checkTrue(location instanceof LocationAtom);
-      final LocationAtom atom = (LocationAtom) location;
-
-      if (!inquirer.isPC(atom)) {
+      if (!inquirer.isPC(location)) {
         basedOnExternalParameters = true;
         setStatus(Status.ABORT);
       }
