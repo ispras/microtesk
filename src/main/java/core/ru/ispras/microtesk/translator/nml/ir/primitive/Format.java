@@ -118,7 +118,7 @@ public final class Format {
     }
   }
 
-  private static final class AttributeCallBasedArgument implements Argument {
+  public static final class AttributeCallBasedArgument implements Argument {
     private final StatementAttributeCall callInfo;
 
     public AttributeCallBasedArgument(final StatementAttributeCall callInfo) {
@@ -171,9 +171,21 @@ public final class Format {
     public int getBinaryLength() {
       return 0;
     }
+
+    public String getCalleeName() {
+      return callInfo.getCalleeName();
+    }
+
+    public String getAttributeName() {
+      return callInfo.getAttributeName();
+    }
+
+    public Instance getCalleeInstance() {
+      return callInfo.getCalleeInstance();
+    }
   }
 
-  private static final class StringBasedArgument implements Argument {
+  public static final class StringBasedArgument implements Argument {
     private final String string;
 
     private StringBasedArgument(final String string) {
@@ -197,10 +209,18 @@ public final class Format {
     }
   }
 
-  private static final class TernaryConditionalArgument implements Argument {
+  public static final class TernaryConditionalArgument implements Argument {
     private final Expr expr;
     private final Argument left;
     private final Argument right;
+
+    public Argument getLeft() {
+      return left;
+    }
+
+    public Argument getRight() {
+      return right;
+    }
 
     private TernaryConditionalArgument(final Expr expr, final Argument left, final Argument right) {
       this.expr = expr;
