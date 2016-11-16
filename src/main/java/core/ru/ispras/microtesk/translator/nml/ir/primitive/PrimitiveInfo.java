@@ -33,6 +33,9 @@ public final class PrimitiveInfo {
 
   private Map<String, ArgumentMode> argsUsage;
 
+  private Integer maxImageSize;
+  private Boolean imageSizeFixed;
+
   public PrimitiveInfo() {
     this.exception = false;
     this.branch = false;
@@ -42,6 +45,8 @@ public final class PrimitiveInfo {
     this.store = null;
     this.blockSize = null;
     this.argsUsage = new HashMap<>();
+    this.maxImageSize = null;
+    this.imageSizeFixed = null;
   }
 
   public PrimitiveInfo(final PrimitiveInfo other) {
@@ -61,35 +66,12 @@ public final class PrimitiveInfo {
     return exception;
   }
 
-  public boolean isBranch() {
-    return branch;
-  }
-
-  public boolean isConditionalBranch() {
-    return conditionalBranch;
-  }
-
-  public boolean isMemoryReference() {
-    return memoryReference;
-  }
-
-  public boolean isLoad() {
-    checkInitialized(load, "load");
-    return load;
-  }
-
-  public boolean isStore() {
-    checkInitialized(store, "store");
-    return store;
-  }
-
-  public int getBlockSize() {
-    checkInitialized(blockSize, "blockSize");
-    return blockSize;
-  }
-
   public void setCanThrowException(final boolean value) {
     this.exception = value;
+  }
+
+  public boolean isBranch() {
+    return branch;
   }
 
   public void setBranch(final boolean value) {
@@ -100,6 +82,10 @@ public final class PrimitiveInfo {
     }
   }
 
+  public boolean isConditionalBranch() {
+    return conditionalBranch;
+  }
+
   public void setConditionalBranch(final boolean value) {
     this.conditionalBranch = value;
 
@@ -108,8 +94,17 @@ public final class PrimitiveInfo {
     }
   }
 
+  public boolean isMemoryReference() {
+    return memoryReference;
+  }
+
   public void setMemoryReference(final boolean value) {
     this.memoryReference = value;
+  }
+
+  public boolean isLoad() {
+    checkInitialized(load, "load");
+    return load;
   }
 
   public void setLoad(final boolean value) {
@@ -117,9 +112,19 @@ public final class PrimitiveInfo {
     this.load = value;
   }
 
+  public boolean isStore() {
+    checkInitialized(store, "store");
+    return store;
+  }
+
   public void setStore(final boolean value) {
     checkReinitialized(store, "store");
     this.store = value;
+  }
+
+  public int getBlockSize() {
+    checkInitialized(blockSize, "blockSize");
+    return blockSize;
   }
 
   public void setBlockSize(final int value) {
@@ -164,11 +169,33 @@ public final class PrimitiveInfo {
         String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
+  public int getMaxImageSize() {
+    checkInitialized(maxImageSize, "maxImageSize");
+    return maxImageSize;
+  }
+
+  public void setMaxImageSize(final int value) {
+    InvariantChecks.checkGreaterOrEqZero(value);
+    checkReinitialized(maxImageSize, "maxImageSize");
+    this.maxImageSize = value;
+  }
+
+  public boolean isImageSizeFixed() {
+    checkInitialized(imageSizeFixed, "imageSizeFixed");
+    return imageSizeFixed;
+  }
+
+  public void setImageSizeFixed(final boolean value) {
+    checkReinitialized(imageSizeFixed, "imageSizeFixed");
+    this.imageSizeFixed = value;
+  }
+
   @Override
   public String toString() {
     return String.format(
         "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, " +
-        "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s]",
+        "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s, " +
+        "maxImageSize=%s, imageSizeFixed=%s]",
         exception,
         branch,
         conditionalBranch,
@@ -176,7 +203,9 @@ public final class PrimitiveInfo {
         load,
         store,
         blockSize,
-        argsUsage
+        argsUsage,
+        maxImageSize,
+        imageSizeFixed
         );
   }
 
