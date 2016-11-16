@@ -223,7 +223,8 @@ modeReturn
 /*===============================================================================================*/
 
 opDef
-    :  PSEUDO? OP^ id=(ID | EXCEPTION) {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
+    :  (PSEUDO | INTERNAL)? OP^ id=(ID | EXCEPTION)
+       {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
        opSpecPart
     ;  finally {popSymbolScope();}
 
