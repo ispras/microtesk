@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -213,7 +214,11 @@ public final class StatementFactory extends WalkerFactoryBase {
       final List<Format.Argument> args) throws SemanticException {
 
     if (null == args) {
-      return new StatementFormat(format, null, null);
+      return new StatementFormat(
+          format,
+          Collections.<FormatMarker>emptyList(),
+          Collections.<Format.Argument>emptyList()
+          );
     }
 
     // TODO: Temporary hack to support labels. 
@@ -253,7 +258,11 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     final String FUNCTION_NAME = "trace"; 
     if (null == args) {
-      return new StatementFormat(FUNCTION_NAME, format, null, null);
+      return new StatementFormat(
+          FUNCTION_NAME,
+          format,
+          Collections.<FormatMarker>emptyList(),
+          Collections.<Format.Argument>emptyList());
     }
 
     final List<FormatMarker> markers = FormatMarker.extractMarkers(format);
