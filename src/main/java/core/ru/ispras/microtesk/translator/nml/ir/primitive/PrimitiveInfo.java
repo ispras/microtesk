@@ -169,6 +169,10 @@ public final class PrimitiveInfo {
         String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
+  public boolean isMaxImageSizeInitialized() {
+    return maxImageSize != null;
+  }
+
   public int getMaxImageSize() {
     checkInitialized(maxImageSize, "maxImageSize");
     return maxImageSize;
@@ -176,7 +180,6 @@ public final class PrimitiveInfo {
 
   public void setMaxImageSize(final int value) {
     InvariantChecks.checkGreaterOrEqZero(value);
-    checkReinitialized(maxImageSize, "maxImageSize");
     this.maxImageSize = value;
   }
 
@@ -186,7 +189,6 @@ public final class PrimitiveInfo {
   }
 
   public void setImageSizeFixed(final boolean value) {
-    checkReinitialized(imageSizeFixed, "imageSizeFixed");
     this.imageSizeFixed = value;
   }
 
