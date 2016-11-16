@@ -211,6 +211,10 @@ public final class MicroTESK {
           TestEngine.setGeneratorSettings(settings);
         }
       }
+    } else {
+      Logger.error("Failed to start generation. The --%s option is not specified.",
+          Option.ARCH_DIRS.getName());
+      return;
     }
 
     final Statistics statistics = TestEngine.generate(options, modelName, templateFile, plugins);
