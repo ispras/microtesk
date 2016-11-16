@@ -32,6 +32,12 @@ public class Primitive {
     IMM
   }
 
+  public static enum Modifier {
+    PSEUDO,
+    INTERNAL,
+    NORMAL
+  }
+
   private final String name;
   private final Kind kind;
   private final boolean pseudo;
@@ -39,6 +45,7 @@ public class Primitive {
   private final Type returnType;
   private final Set<String> attrNames;
   private final Map<String, PrimitiveReference> parents;
+  private final PrimitiveInfo info;
 
   Primitive(
       final String name,
@@ -54,6 +61,7 @@ public class Primitive {
     this.returnType = returnType;
     this.attrNames = attrNames;
     this.parents = new HashMap<>();
+    this.info = new PrimitiveInfo();
   }
 
   Primitive(final Primitive source) {
@@ -64,6 +72,7 @@ public class Primitive {
     this.returnType = source.returnType;
     this.attrNames = source.attrNames;
     this.parents = new HashMap<>();
+    this.info = new PrimitiveInfo(source.info); 
 
     for (final Map.Entry<String, PrimitiveReference> e : source.parents.entrySet()) {
       final String id = e.getKey();
@@ -171,5 +180,9 @@ public class Primitive {
       count += ref.getReferenceCount();
     }
     return count;
+  }
+
+  public final PrimitiveInfo getInfo() {
+    return info;
   }
 }

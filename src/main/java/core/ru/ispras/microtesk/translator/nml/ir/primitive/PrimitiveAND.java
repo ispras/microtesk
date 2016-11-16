@@ -30,7 +30,6 @@ public final class PrimitiveAND extends Primitive {
   private final Map<String, Primitive> args;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
-  private final PrimitiveInfo info;
 
   protected PrimitiveAND(
       final String name,
@@ -52,7 +51,6 @@ public final class PrimitiveAND extends Primitive {
     this.args = args;
     this.attrs = Collections.unmodifiableMap(attrs);
     this.shortcuts = new ArrayList<>();
-    this.info = new PrimitiveInfo();
   }
 
   private PrimitiveAND(final PrimitiveAND other) {
@@ -62,7 +60,6 @@ public final class PrimitiveAND extends Primitive {
     this.args = new LinkedHashMap<>(other.args);
     this.attrs = other.attrs;
     this.shortcuts = other.shortcuts;
-    this.info = new PrimitiveInfo(other.info); 
   }
 
   private static Type getReturnType(final Expr retExpr) {
@@ -106,9 +103,5 @@ public final class PrimitiveAND extends Primitive {
 
   public Expr getReturnExpr() {
     return retExpr;
-  }
-
-  public PrimitiveInfo getInfo() {
-    return info;
   }
 }
