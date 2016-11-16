@@ -198,6 +198,7 @@ public final class MicroTESK {
       final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
       final String[] archDirsArray = archDirs.split(":");
 
+      boolean isFound = false;
       for (final String archDir : archDirsArray) {
         final String[] archDirArray = archDir.split("=");
 
@@ -209,11 +210,21 @@ public final class MicroTESK {
 
           final GeneratorSettings settings = SettingsParser.parse(archPath);
           TestEngine.setGeneratorSettings(settings);
+
+          isFound = true;
+          break;
         }
+      }
+
+      if (!isFound) {
+        Logger.error("Failed to start generation. " +
+                     "The --%s option does not contain path to settings for %s.",
+                     Option.ARCH_DIRS.getName(), modelName);
+        return;
       }
     } else {
       Logger.error("Failed to start generation. The --%s option is not specified.",
-          Option.ARCH_DIRS.getName());
+                    Option.ARCH_DIRS.getName());
       return;
     }
 
