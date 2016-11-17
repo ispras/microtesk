@@ -68,7 +68,7 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new Analyzer(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
-    addHandler(new ImageAnalyzer());
+    //addHandler(new ImageAnalyzer());
 
     // Generate Java code of the ISA model
     addHandler(new MetaDataGenerator(this));

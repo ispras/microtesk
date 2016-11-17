@@ -14,19 +14,23 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Format.Argument;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -47,15 +51,15 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
   }
 
   private static final class Visitor extends IrVisitorDefault {
-    private final Map<String, Primitive> visited = new HashMap<>();
+    private final Map<Primitive, Primitive> visited = new HashMap<>();
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.isPseudo() || visited.containsKey(item.getName())) {
+      if (item.getModifier() != Primitive.Modifier.NORMAL ||
+          visited.containsKey(item.getName())) {
         setStatus(Status.SKIP);
         return;
       }
-      //System.out.println(item.getName());
     }
 
     @Override
@@ -63,7 +67,31 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       if (getStatus() == Status.SKIP) {
         setStatus(Status.OK);
       } else {
-        visited.put(item.getName(), item);
+        visited.put(item, item);
+        System.out.printf(
+            "%s: (%d, %b)%n",
+            item.getName(),
+            item.getInfo().getMaxImageSize(),
+            item.getInfo().isImageSizeFixed()
+            );
+      }
+    }
+
+    @Override
+    public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
+      final PrimitiveInfo sourceInfo = item.getInfo();
+      final PrimitiveInfo targetInfo = orRule.getInfo();
+
+      if (targetInfo.isMaxImageSizeInitialized()) {
+        targetInfo.setImageSizeFixed(
+            targetInfo.isImageSizeFixed() && sourceInfo.isImageSizeFixed() &&
+            targetInfo.getMaxImageSize() == sourceInfo.getMaxImageSize());
+
+        targetInfo.setMaxImageSize(
+            Math.max(targetInfo.getMaxImageSize(), sourceInfo.getMaxImageSize()));
+      } else {
+        targetInfo.setMaxImageSize(sourceInfo.getMaxImageSize());
+        targetInfo.setImageSizeFixed(sourceInfo.isImageSizeFixed());
       }
     }
 
@@ -114,18 +142,28 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final PrimitiveAND primitive, final StatementFormat stmt) {
       // null means call to the 'format' function (not 'trace' or anything else).
       InvariantChecks.checkTrue(null == stmt.getFunction());
-      analyzeImage(stmt.getFormat(), stmt.getMarkers(), stmt.getArguments());
+      analyzeImage(
+          primitive,
+          stmt.getFormat(),
+          stmt.getMarkers(),
+          stmt.getArguments()
+          );
     }
 
     private void onStatementAttributeCall(
-        final PrimitiveAND andRule, final StatementAttributeCall stmt) {
+        final PrimitiveAND primitive, final StatementAttributeCall stmt) {
       if (stmt.getAttributeName().equals(Attribute.INIT_NAME)) {
         // Calls to 'init' are ignored so far.
         return;
       }
 
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
-        // TODO: derive all properties from the reference primitive.
+        final Primitive arg = 
+            primitive.getArguments().get(stmt.getCalleeName());
+
+        primitive.getInfo().setMaxImageSize(arg.getInfo().getMaxImageSize());
+        primitive.getInfo().setImageSizeFixed(arg.getInfo().isImageSizeFixed());
+
         return;
       }
 
@@ -144,11 +182,104 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     private void analyzeImage(
+        final PrimitiveAND primitive,
         final String format,
         final List<FormatMarker> markers,
-        final List<Argument> arguments) {
-      // TODO: Analyze image here
-      //System.out.println("  " + format);
+        final List<Format.Argument> arguments) {
+      int maxImageSize = 0;
+      boolean imageSizeFixed = true;
+
+      final List<Pair<String, Integer>> tokens = tokenize(format, markers);
+      for(final Pair<String, Integer> token : tokens) {
+        final String text = token.first;
+        final int markerIndex = token.second;
+
+        if (markerIndex == -1) {
+          maxImageSize += text.length();
+        } else {
+          final Pair<Integer, Boolean> sizeInfo =
+              getSizeInfo(primitive, arguments.get(markerIndex));
+
+          maxImageSize += sizeInfo.first;
+          imageSizeFixed = sizeInfo.second ? imageSizeFixed : false;
+        }
+      }
+
+      primitive.getInfo().setMaxImageSize(maxImageSize);
+      primitive.getInfo().setImageSizeFixed(imageSizeFixed);
+    }
+
+    private List<Pair<String, Integer>> tokenize(
+        final String text,
+        final List<FormatMarker> markers) {
+      final List<Pair<String, Integer>> result = new ArrayList<>();
+
+      int position = 0;
+      int markerIndex = 0;
+
+      for (final FormatMarker marker : markers) {
+        InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
+                                  marker.isKind(FormatMarker.Kind.STR));
+
+        if (position < marker.getStart()) {
+          result.add(new Pair<>(text.substring(position, marker.getStart()), -1));
+        }
+
+        result.add(new Pair<>(text.substring(marker.getStart(), marker.getEnd()), markerIndex));
+
+        position = marker.getEnd();
+        markerIndex++;
+      }
+
+      if (position < text.length()) {
+        result.add(new Pair<>(text.substring(position, text.length()), -1));
+      }
+
+      return result;
+    }
+
+    private Pair<Integer, Boolean> getSizeInfo(
+        final PrimitiveAND primitive,
+        final Format.Argument argument) {
+
+      if (argument instanceof Format.ExprBasedArgument) {
+        return new Pair<Integer, Boolean>(argument.getBinaryLength(), true);
+      }
+
+      if (argument instanceof Format.StringBasedArgument) {
+        return new Pair<Integer, Boolean>(argument.getBinaryLength(), true);
+      }
+
+      if (argument instanceof Format.TernaryConditionalArgument) {
+        final Format.TernaryConditionalArgument ternary =
+            (Format.TernaryConditionalArgument) argument;
+
+        final Pair<Integer, Boolean> leftInfo =
+            getSizeInfo(primitive, ternary.getLeft());
+
+        final Pair<Integer, Boolean> rightInfo =
+            getSizeInfo(primitive, ternary.getRight());
+
+        return new Pair<Integer, Boolean>(
+            Math.max(leftInfo.first, rightInfo.first),
+            leftInfo.second && rightInfo.second
+            );
+      }
+
+      if (argument instanceof Format.AttributeCallBasedArgument) {
+        final Format.AttributeCallBasedArgument attributeCall =
+            (Format.AttributeCallBasedArgument) argument;
+
+        InvariantChecks.checkTrue(attributeCall.getAttributeName().equals(Attribute.IMAGE_NAME));
+
+        final Primitive arg = 
+            primitive.getArguments().get(attributeCall.getCalleeName());
+
+        return new Pair<Integer, Boolean>(
+            arg.getInfo().getMaxImageSize(), arg.getInfo().isImageSizeFixed());
+      }
+
+      throw new IllegalArgumentException();
     }
   }
 }
