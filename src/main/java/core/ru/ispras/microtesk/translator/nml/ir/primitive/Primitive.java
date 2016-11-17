@@ -33,9 +33,18 @@ public class Primitive {
   }
 
   public static enum Modifier {
+    /** Primitives that constitute instructions (default modifier) */
+    NORMAL,
+
+    /** Operations describing pseudo instructions (are not used for decoding) */
     PSEUDO,
-    INTERNAL,
-    NORMAL
+
+    /** Special-purpose internal operations (used only by the tool, not available to users) */
+    INTERNAL;
+
+    public static Modifier fromName(final String name) {
+      return null == name ? NORMAL : valueOf(name.toUpperCase());
+    }
   }
 
   private final String name;
