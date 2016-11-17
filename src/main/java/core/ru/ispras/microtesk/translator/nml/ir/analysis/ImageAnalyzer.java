@@ -84,6 +84,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO) {
+        setStatus(Status.SKIP);
+        return;
+      }
+
       final ImageInfo sourceInfo = item.getInfo().getImageInfo();
       final ImageInfo targetInfo = orRule.getInfo().getImageInfo();
 
@@ -91,6 +96,13 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         orRule.getInfo().setImageInfo(sourceInfo);
       } else {
         orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
+      }
+    }
+
+    @Override
+    public void onAlternativeEnd(final PrimitiveOR orRule, final Primitive item) {
+      if (getStatus() == Status.SKIP) {
+        setStatus(Status.OK);
       }
     }
 
