@@ -368,12 +368,12 @@ attrs.put($attr.res.getName(), $attr.res);
     ;
 
 attrDef returns [Attribute res]
-    :  ^(id=SYNTAX {checkMemberDeclared($SYNTAX, NmlSymbolKind.ATTRIBUTE);} attr1=syntaxDef
+    :  ^(id=SYNTAX {checkMemberDeclared($SYNTAX, NmlSymbolKind.ATTRIBUTE);} attr1=syntaxDef[$id.text]
 {
 checkNotNull($attr1.start, $attr1.res, $attr1.text);
 $res = $attr1.res;
 })
-    |  ^(id=IMAGE  {checkMemberDeclared($IMAGE,  NmlSymbolKind.ATTRIBUTE);} attr2=imageDef
+    |  ^(id=IMAGE  {checkMemberDeclared($IMAGE,  NmlSymbolKind.ATTRIBUTE);} attr2=imageDef[$id.text]
 {
 checkNotNull($attr2.start, $attr2.res, $attr2.text);
 $res = $attr2.res;
@@ -391,26 +391,26 @@ $res = $attr4.res;
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
-syntaxDef returns [Attribute res]
+syntaxDef [String allowedAttr] returns [Attribute res]
     :  ^(DOT id=ID name=SYNTAX)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
 $res = getPrimitiveFactory().createExpression("syntax", stmt);
 }
-    |  ae=attrExpr
+    |  ae=attrExpr[allowedAttr]
 {
 checkNotNull($ae.start, $ae.res, $ae.text);
 $res = getPrimitiveFactory().createExpression("syntax", $ae.res);
 }
     ;
 
-imageDef returns [Attribute res]
+imageDef [String allowedAttr] returns [Attribute res]
     :  ^(DOT id=ID name=IMAGE)
 {
 final Statement stmt = getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
 $res = getPrimitiveFactory().createExpression("image", stmt);
 }
-    |  ae=attrExpr
+    |  ae=attrExpr[allowedAttr]
 {
 checkNotNull($ae.start, $ae.res, $ae.text);
 $res = getPrimitiveFactory().createExpression("image", $ae.res);
@@ -435,32 +435,35 @@ $res = factory.createAction(actionName, $seq.res);
 /* Expression-like attribute rules(format expressions in syntax and image attributes)   */
 /*======================================================================================*/
 
-attrExpr returns [Statement res]
+attrExpr [String allowedAttr] returns [Statement res]
     :  str=STRING_CONST
 {
 $res = getStatementFactory().createFormat(where($str), $str.text, null);
 }
-    |  ^(FORMAT fs=STRING_CONST (fargs=formatIdList)?)
+    |  ^(FORMAT fs=STRING_CONST (fargs=formatIdList[allowedAttr])?)
 {
 $res = getStatementFactory().createFormat(where($fs), $fs.text, $fargs.res);
 }
     ;
 
-formatIdList returns [List<Format.Argument> res]
+formatIdList [String allowedAttr] returns [List<Format.Argument> res]
 @init  {final List<Format.Argument> args = new ArrayList<>();}
 @after {$res = args;}
-    :  (fa=formatId {args.add($fa.res);})+
+    :  (fa=formatId[allowedAttr] {
+checkNotNull($fa.start, $fa.res, $fa.text);
+args.add($fa.res);
+})+
     ;
 
-formatId returns [Format.Argument res]
+formatId [String allowedAttr] returns [Format.Argument res]
     : str=STRING_CONST
 {
 $res = Format.createArgument($str.text);
 }
     | ^(SIF  {final Format.ConditionBuilder builder = new Format.ConditionBuilder();}
-       c1=logicExpr e1=formatId            {builder.addCondition($c1.res, $e1.res);}
-       (^(ELSEIF c2=logicExpr e2=formatId) {builder.addCondition($c2.res, $e2.res);})*
-       ELSE e3=formatId)                   {builder.addCondition(null,    $e3.res);}
+       c1=logicExpr e1=formatId[allowedAttr]            {builder.addCondition($c1.res, $e1.res);}
+       (^(ELSEIF c2=logicExpr e2=formatId[allowedAttr]) {builder.addCondition($c2.res, $e2.res);})*
+       ELSE e3=formatId[allowedAttr])                   {builder.addCondition(null,    $e3.res);}
 {
 $res = builder.build();
 }
@@ -470,6 +473,10 @@ $res = Format.createArgument($e.res);
 }
     |  ^(DOT id=ID name=(SYNTAX | IMAGE))
 {
+if (null != allowedAttr && !allowedAttr.equals($name.text)) {
+  raiseError(where($name),
+      "Calling " + $name.text + " inside " + allowedAttr + " is illegal.");
+}
 $res = Format.createArgument((StatementAttributeCall)
     getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
 }
@@ -624,7 +631,7 @@ $res = Arrays.asList(
     getStatementFactory().createExceptionCall(where($id), $str.text)
     );
 }
-    |  ^(id=TRACE fs=STRING_CONST (fargs=formatIdList)?)
+    |  ^(id=TRACE fs=STRING_CONST (fargs=formatIdList[null])?)
 {
 $res = Collections.singletonList(
     getStatementFactory().createTrace(where($id), $fs.text, $fargs.res));
