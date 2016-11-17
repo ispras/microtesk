@@ -27,9 +27,9 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
+import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -68,31 +68,29 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         setStatus(Status.OK);
       } else {
         visited.put(item, item);
-        System.out.println(item.getName());
-        System.out.printf(
-            "%s: (%d, %b)%n",
-            item.getName(),
-            item.getInfo().getMaxImageSize(),
-            item.getInfo().isImageSizeFixed()
-            );
+
+        /*
+        final ImageInfo imageInfo = item.getInfo().getImageInfo();
+        if (null != imageInfo) {
+          System.out.printf(
+              "%s: (%d, %b)%n",
+              item.getName(),
+              imageInfo.getMaxImageSize(),
+              imageInfo.isImageSizeFixed()
+              );
+        }*/
       }
     }
 
     @Override
     public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
-      final PrimitiveInfo sourceInfo = item.getInfo();
-      final PrimitiveInfo targetInfo = orRule.getInfo();
+      final ImageInfo sourceInfo = item.getInfo().getImageInfo();
+      final ImageInfo targetInfo = orRule.getInfo().getImageInfo();
 
-      if (targetInfo.isMaxImageSizeInitialized()) {
-        targetInfo.setImageSizeFixed(
-            targetInfo.isImageSizeFixed() && sourceInfo.isImageSizeFixed() &&
-            targetInfo.getMaxImageSize() == sourceInfo.getMaxImageSize());
-
-        targetInfo.setMaxImageSize(
-            Math.max(targetInfo.getMaxImageSize(), sourceInfo.getMaxImageSize()));
+      if (null == targetInfo) {
+        orRule.getInfo().setImageInfo(sourceInfo);
       } else {
-        targetInfo.setMaxImageSize(sourceInfo.getMaxImageSize());
-        targetInfo.setImageSizeFixed(sourceInfo.isImageSizeFixed());
+        orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
       }
     }
 
@@ -144,12 +142,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       }
 
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
-        final Primitive arg = 
-            primitive.getArguments().get(stmt.getCalleeName());
-
-        primitive.getInfo().setMaxImageSize(arg.getInfo().getMaxImageSize());
-        primitive.getInfo().setImageSizeFixed(arg.getInfo().isImageSizeFixed());
-
+        final Primitive arg = primitive.getArguments().get(stmt.getCalleeName());
+        primitive.getInfo().setImageInfo(arg.getInfo().getImageInfo());
         return;
       }
 
@@ -172,8 +166,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final String format,
         final List<FormatMarker> markers,
         final List<Format.Argument> arguments) {
-      int maxImageSize = 0;
-      boolean imageSizeFixed = true;
+      ImageInfo imageInfo = new ImageInfo(0, true); 
 
       final List<Pair<String, Integer>> tokens = tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
@@ -181,46 +174,36 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final int markerIndex = token.second;
 
         if (markerIndex == -1) {
-          maxImageSize += text.length();
+          imageInfo = imageInfo.and(new ImageInfo(text.length(), true));
         } else {
-          final Pair<Integer, Boolean> sizeInfo =
-              getSizeInfo(primitive, arguments.get(markerIndex));
-
-          maxImageSize += sizeInfo.first;
-          imageSizeFixed = sizeInfo.second ? imageSizeFixed : false;
+          final ImageInfo tokenImageInfo = getImageInfo(primitive, arguments.get(markerIndex));
+          imageInfo = imageInfo.and(tokenImageInfo);
         }
       }
 
-      primitive.getInfo().setMaxImageSize(maxImageSize);
-      primitive.getInfo().setImageSizeFixed(imageSizeFixed);
+      primitive.getInfo().setImageInfo(imageInfo);
     }
 
-    private Pair<Integer, Boolean> getSizeInfo(
+    private ImageInfo getImageInfo(
         final PrimitiveAND primitive,
         final Format.Argument argument) {
 
       if (argument instanceof Format.ExprBasedArgument) {
-        return new Pair<Integer, Boolean>(argument.getBinaryLength(), true);
+        return new ImageInfo(argument.getBinaryLength(), true);
       }
 
       if (argument instanceof Format.StringBasedArgument) {
-        return new Pair<Integer, Boolean>(argument.getBinaryLength(), true);
+        return new ImageInfo(argument.getBinaryLength(), true);
       }
 
       if (argument instanceof Format.TernaryConditionalArgument) {
         final Format.TernaryConditionalArgument ternary =
             (Format.TernaryConditionalArgument) argument;
 
-        final Pair<Integer, Boolean> leftInfo =
-            getSizeInfo(primitive, ternary.getLeft());
+        final ImageInfo leftImageInfo = getImageInfo(primitive, ternary.getLeft());
+        final ImageInfo rightImageInfo = getImageInfo(primitive, ternary.getRight());
 
-        final Pair<Integer, Boolean> rightInfo =
-            getSizeInfo(primitive, ternary.getRight());
-
-        return new Pair<Integer, Boolean>(
-            Math.max(leftInfo.first, rightInfo.first),
-            leftInfo.second && rightInfo.second
-            );
+        return leftImageInfo.or(rightImageInfo);
       }
 
       if (argument instanceof Format.AttributeCallBasedArgument) {
@@ -229,11 +212,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
         InvariantChecks.checkTrue(attributeCall.getAttributeName().equals(Attribute.IMAGE_NAME));
 
-        final Primitive arg = 
-            primitive.getArguments().get(attributeCall.getCalleeName());
-
-        return new Pair<Integer, Boolean>(
-            arg.getInfo().getMaxImageSize(), arg.getInfo().isImageSizeFixed());
+        final Primitive arg = primitive.getArguments().get(attributeCall.getCalleeName());
+        return arg.getInfo().getImageInfo();
       }
 
       throw new IllegalArgumentException();

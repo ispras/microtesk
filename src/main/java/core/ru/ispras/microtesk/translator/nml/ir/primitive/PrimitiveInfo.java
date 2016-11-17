@@ -32,9 +32,7 @@ public final class PrimitiveInfo {
   private Integer blockSize;
 
   private Map<String, ArgumentMode> argsUsage;
-
-  private Integer maxImageSize;
-  private Boolean imageSizeFixed;
+  private ImageInfo imageInfo;
 
   public PrimitiveInfo() {
     this.exception = false;
@@ -45,8 +43,7 @@ public final class PrimitiveInfo {
     this.store = null;
     this.blockSize = null;
     this.argsUsage = new HashMap<>();
-    this.maxImageSize = null;
-    this.imageSizeFixed = null;
+    this.imageInfo = null;
   }
 
   public PrimitiveInfo(final PrimitiveInfo other) {
@@ -60,6 +57,7 @@ public final class PrimitiveInfo {
     this.store = other.store;
     this.blockSize = other.blockSize;
     this.argsUsage = new HashMap<>(other.argsUsage);
+    this.imageInfo = other.imageInfo;
   }
 
   public boolean canThrowException() {
@@ -169,27 +167,12 @@ public final class PrimitiveInfo {
         String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
-  public boolean isMaxImageSizeInitialized() {
-    return maxImageSize != null;
+  public ImageInfo getImageInfo() {
+    return imageInfo;
   }
 
-  public int getMaxImageSize() {
-    checkInitialized(maxImageSize, "maxImageSize");
-    return maxImageSize;
-  }
-
-  public void setMaxImageSize(final int value) {
-    InvariantChecks.checkGreaterOrEqZero(value);
-    this.maxImageSize = value;
-  }
-
-  public boolean isImageSizeFixed() {
-    checkInitialized(imageSizeFixed, "imageSizeFixed");
-    return imageSizeFixed;
-  }
-
-  public void setImageSizeFixed(final boolean value) {
-    this.imageSizeFixed = value;
+  public void setImageInfo(final ImageInfo value) {
+    this.imageInfo = value;
   }
 
   @Override
@@ -197,7 +180,7 @@ public final class PrimitiveInfo {
     return String.format(
         "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, " +
         "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s, " +
-        "maxImageSize=%s, imageSizeFixed=%s]",
+        "imageInfo=%s]",
         exception,
         branch,
         conditionalBranch,
@@ -206,8 +189,7 @@ public final class PrimitiveInfo {
         store,
         blockSize,
         argsUsage,
-        maxImageSize,
-        imageSizeFixed
+        imageInfo
         );
   }
 
