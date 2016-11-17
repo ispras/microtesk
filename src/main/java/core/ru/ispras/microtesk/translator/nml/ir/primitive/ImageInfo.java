@@ -43,6 +43,14 @@ public final class ImageInfo {
         );
   }
 
+  public ImageInfo and(final ImageInfo other) {
+    InvariantChecks.checkNotNull(other);
+    return new ImageInfo(
+        this.maxImageSize + other.maxImageSize,
+        this.imageSizeFixed && other.imageSizeFixed
+        );
+  }
+
   @Override
   public String toString() {
     return String.format(
