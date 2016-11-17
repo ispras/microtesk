@@ -55,7 +55,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.getModifier() != Primitive.Modifier.NORMAL ||
+      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
           visited.containsKey(item.getName())) {
         setStatus(Status.SKIP);
         return;
@@ -113,16 +113,6 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
-      setStatus(Status.SKIP);
-    }
-
-    @Override
-    public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
-      setStatus(Status.OK);
-    }
-
-    @Override
     public void onStatement(
         final PrimitiveAND andRule,
         final Attribute attr,
@@ -143,12 +133,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final PrimitiveAND primitive, final StatementFormat stmt) {
       // null means call to the 'format' function (not 'trace' or anything else).
       InvariantChecks.checkTrue(null == stmt.getFunction());
-      analyzeImage(
-          primitive,
-          stmt.getFormat(),
-          stmt.getMarkers(),
-          stmt.getArguments()
-          );
+      analyzeImage(primitive, stmt.getFormat(), stmt.getMarkers(), stmt.getArguments());
     }
 
     private void onStatementAttributeCall(
@@ -210,35 +195,6 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       primitive.getInfo().setImageSizeFixed(imageSizeFixed);
     }
 
-    private List<Pair<String, Integer>> tokenize(
-        final String text,
-        final List<FormatMarker> markers) {
-      final List<Pair<String, Integer>> result = new ArrayList<>();
-
-      int position = 0;
-      int markerIndex = 0;
-
-      for (final FormatMarker marker : markers) {
-        InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
-                                  marker.isKind(FormatMarker.Kind.STR));
-
-        if (position < marker.getStart()) {
-          result.add(new Pair<>(text.substring(position, marker.getStart()), -1));
-        }
-
-        result.add(new Pair<>(text.substring(marker.getStart(), marker.getEnd()), markerIndex));
-
-        position = marker.getEnd();
-        markerIndex++;
-      }
-
-      if (position < text.length()) {
-        result.add(new Pair<>(text.substring(position, text.length()), -1));
-      }
-
-      return result;
-    }
-
     private Pair<Integer, Boolean> getSizeInfo(
         final PrimitiveAND primitive,
         final Format.Argument argument) {
@@ -282,5 +238,47 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
       throw new IllegalArgumentException();
     }
+
+    @Override
+    public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
+      setStatus(Status.SKIP);
+    }
+
+    @Override
+    public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
+      setStatus(Status.OK);
+    }
+  }
+
+  private static List<Pair<String, Integer>> tokenize(
+      final String text,
+      final List<FormatMarker> markers) {
+    InvariantChecks.checkNotNull(text);
+    InvariantChecks.checkNotNull(markers);
+
+    final List<Pair<String, Integer>> tokens = new ArrayList<>();
+
+    int position = 0;
+    int markerIndex = 0;
+
+    for (final FormatMarker marker : markers) {
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
+                                marker.isKind(FormatMarker.Kind.STR));
+
+      if (position < marker.getStart()) {
+        tokens.add(new Pair<>(text.substring(position, marker.getStart()), -1));
+      }
+
+      tokens.add(new Pair<>(text.substring(marker.getStart(), marker.getEnd()), markerIndex));
+
+      position = marker.getEnd();
+      markerIndex++;
+    }
+
+    if (position < text.length()) {
+      tokens.add(new Pair<>(text.substring(position, text.length()), -1));
+    }
+
+    return tokens;
   }
 }
