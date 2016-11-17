@@ -184,10 +184,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       primitive.getInfo().setImageInfo(imageInfo);
     }
 
-    private ImageInfo getImageInfo(
-        final PrimitiveAND primitive,
-        final Format.Argument argument) {
-
+    private ImageInfo getImageInfo(final PrimitiveAND primitive, final Format.Argument argument) {
       if (argument instanceof Format.ExprBasedArgument) {
         return new ImageInfo(argument.getBinaryLength(), true);
       }
@@ -212,11 +209,19 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
         InvariantChecks.checkTrue(attributeCall.getAttributeName().equals(Attribute.IMAGE_NAME));
 
-        final Primitive arg = primitive.getArguments().get(attributeCall.getCalleeName());
-        return arg.getInfo().getImageInfo();
+        if (null != attributeCall.getCalleeName()) {
+          final Primitive arg = primitive.getArguments().get(attributeCall.getCalleeName());
+          return arg.getInfo().getImageInfo();
+        }
+
+        if (null != attributeCall.getCalleeInstance()) {
+          return attributeCall.getCalleeInstance().getPrimitive().getInfo().getImageInfo();
+        }
+
+        throw new IllegalArgumentException("Illegal attribute call.");
       }
 
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Illegal format argument.");
     }
 
     @Override
