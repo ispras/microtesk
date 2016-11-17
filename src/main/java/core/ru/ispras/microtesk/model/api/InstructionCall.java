@@ -26,7 +26,6 @@ public final class InstructionCall {
   private final TemporaryVariables tempVars;
   private final IsaPrimitive instruction;
 
-  private String text;
   private String image;
   private int byteSize;
 
@@ -48,7 +47,6 @@ public final class InstructionCall {
     this.tempVars = tempVars;
     this.instruction = instruction;
 
-    this.text = null;
     this.image = null;
     this.byteSize = -1;
   }
@@ -68,11 +66,7 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    if (null == text) {
-      text = instruction.syntax(tempVars);
-    }
-
-    return text;
+    return instruction.syntax(tempVars);
   }
 
   /**
