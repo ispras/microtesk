@@ -163,16 +163,6 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           "Illegal attribute call: " + stmt.getAttributeName());
     }
 
-    @Override
-    public void onAttributeCallBegin(final StatementAttributeCall stmt) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void onFormat(final StatementFormat stmt) {
-      throw new UnsupportedOperationException();
-    }
-
     private void analyzeImage(
         final PrimitiveAND primitive,
         final String format,
@@ -244,6 +234,16 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     @Override
     public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
       setStatus(Status.OK);
+    }
+
+    @Override
+    public void onAttributeCallBegin(final StatementAttributeCall stmt) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void onFormat(final StatementFormat stmt) {
+      throw new UnsupportedOperationException();
     }
   }
 
