@@ -59,7 +59,7 @@ final class MemoryCoverageExtractor {
    * Returns all memory access paths for the given memory access type.
    * 
    * @param type the memory access type or {@code null}.
-   * @return the memory access paths
+   * @return the memory access paths.
    */
   public List<MemoryAccessPath> getPaths(final MemoryAccessType type) {
     final ArrayList<MemoryAccessPath> paths = new ArrayList<>();

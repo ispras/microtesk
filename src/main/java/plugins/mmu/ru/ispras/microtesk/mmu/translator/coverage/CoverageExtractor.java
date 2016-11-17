@@ -188,7 +188,6 @@ public final class CoverageExtractor {
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(paths);
-    // Parameter {@code settings} can be null.
 
     if (constraints == null) {
       return paths;
