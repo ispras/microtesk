@@ -276,7 +276,7 @@ op srlv (rd: REG, rt: REG, rs: REG)
 
 op lui (rt: REG, imm: SHORT)
   syntax = format("lui %s, 0x%x", rt.syntax, imm)
-  image = format("001111%s%s", rt.image, imm)
+  image = format("00111100000%s%s", rt.image, imm)
   action = {
     rt = coerce(WORD, imm) << 16;
   }
@@ -529,7 +529,7 @@ op jalr (rd: REG, rs: REG)
 
 op syscall ()
   syntax = format("syscall")
-  image = format("0000000000000000000000000001100")
+  image = format("00000000000000000000000000001100")
   action = {
     COP0_R[14] = CIA;
     exception("SystemCall");
