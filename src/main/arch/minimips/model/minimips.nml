@@ -682,9 +682,9 @@ pseudo op la(rd : REG, addr : WORD)
   }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Special Operation to Handle Exceptions
+// Internal Operation to Handle Exceptions
 
-op exception()
+internal op exception()
 image  = ""
 syntax = ""
 action = {
@@ -692,9 +692,9 @@ action = {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Special Operation to Initialize Processing Element Instances
+// Internal Operation to Initialize Processing Element Instances
 
-op instantiate(pid: WORD)
+internal op instantiate(pid: WORD)
 action = {
   PID = pid;
 }
