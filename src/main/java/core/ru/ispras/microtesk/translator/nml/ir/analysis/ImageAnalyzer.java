@@ -68,6 +68,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         setStatus(Status.OK);
       } else {
         visited.put(item, item);
+        System.out.println(item.getName());
         System.out.printf(
             "%s: (%d, %b)%n",
             item.getName(),
