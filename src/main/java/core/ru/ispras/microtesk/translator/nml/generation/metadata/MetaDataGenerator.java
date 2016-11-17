@@ -64,6 +64,10 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   private final class Visitor extends IrVisitorDefault {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
+      if (item.getModifier() == Primitive.Modifier.INTERNAL) {
+        return;
+      }
+
       if (item.isOrRule()) {
         generateGroup((PrimitiveOR) item);
         return;

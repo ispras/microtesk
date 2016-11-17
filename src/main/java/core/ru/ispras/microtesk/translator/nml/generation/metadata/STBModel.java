@@ -100,6 +100,10 @@ final class STBModel implements STBuilder {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
+      if (item.getModifier() == Primitive.Modifier.INTERNAL) {
+        return;
+      }
+
       if (item.getKind() == Primitive.Kind.MODE) {
         stConstructor.add("modes", item.getName()  + ".get()");
       } else if (item.getKind() == Primitive.Kind.OP) {

@@ -65,7 +65,9 @@ final class STBGroup implements STBuilder {
     stConstructor.add("args", String.format("\"%s\"", primitive.getName()));
 
     for (final Primitive item : primitive.getORs()) {
-      stConstructor.add("args", item.getName() + ".get()");
+      if (item.getModifier() != Primitive.Modifier.INTERNAL) {
+        stConstructor.add("args", item.getName() + ".get()");
+      }
     }
 
     st.add("members", "");
