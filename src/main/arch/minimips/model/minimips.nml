@@ -685,8 +685,6 @@ pseudo op la(rd : REG, addr : WORD)
 // Internal Operation to Handle Exceptions
 
 internal op exception()
-image  = ""
-syntax = ""
 action = {
   CIA = 0x380;
 }

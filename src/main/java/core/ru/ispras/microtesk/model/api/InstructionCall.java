@@ -25,8 +25,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class InstructionCall {
   private final TemporaryVariables tempVars;
   private final IsaPrimitive instruction;
-  private final String image;
-  private final int byteSize;
+
+  private String text;
+  private String image;
+  private int byteSize;
 
   /**
    * Creates an instruction call object based on an nML operation. The operation usually
@@ -45,10 +47,10 @@ public final class InstructionCall {
 
     this.tempVars = tempVars;
     this.instruction = instruction;
-    this.image = instruction.image(tempVars);
 
-    final int bitSize = image.length();
-    this.byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
+    this.text = null;
+    this.image = null;
+    this.byteSize = -1;
   }
 
   /**
@@ -66,7 +68,11 @@ public final class InstructionCall {
    * @return Text for the instruction call (assembler code).
    */
   public String getText() {
-    return instruction.syntax(tempVars);
+    if (null == text) {
+      text = instruction.syntax(tempVars);
+    }
+
+    return text;
   }
 
   /**
@@ -75,6 +81,10 @@ public final class InstructionCall {
    * @return Image (binary representation) of the instuction call.
    */
   public String getImage() {
+    if (null == image) {
+      image = instruction.image(tempVars); 
+    }
+
     return image;
   }
 
@@ -84,6 +94,11 @@ public final class InstructionCall {
    * @return Size of the instruction in bytes.
    */
   public int getByteSize() {
+    if (-1 == byteSize) {
+      final int bitSize = getImage().length();
+      byteSize = bitSize % 8 == 0 ? bitSize / 8 : bitSize / 8 + 1;
+    }
+
     return byteSize;
   }
 
