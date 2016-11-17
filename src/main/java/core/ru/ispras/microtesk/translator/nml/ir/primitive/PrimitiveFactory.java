@@ -72,16 +72,30 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   public Primitive createOp(
       final Where where,
       final String name,
-      final String modifier,
+      final String modifierName,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
+
+    final Primitive.Modifier modifier = null == modifierName ?
+        Primitive.Modifier.NORMAL :
+        Primitive.Modifier.valueOf(modifierName.toUpperCase());
+
+    if (modifier != Primitive.Modifier.INTERNAL) {
+      for (final Map.Entry<String, Primitive> entry : args.entrySet()) {
+        final Primitive.Modifier argModifier = entry.getValue().getModifier();
+        if (argModifier == Primitive.Modifier.INTERNAL) {
+          final String argName = entry.getKey();
+          raiseError(where, String.format(
+              "Argument %s of %s is not allowed to be internal.", argName, name));
+        }
+      }
+    }
 
     insertInitCalls(attrs);
     return new PrimitiveAND(
         name,
         Primitive.Kind.OP,
-        null == modifier ? Primitive.Modifier.NORMAL :
-                           Primitive.Modifier.valueOf(modifier.toUpperCase()),
+        modifier,
         null,
         args,
         attrs
