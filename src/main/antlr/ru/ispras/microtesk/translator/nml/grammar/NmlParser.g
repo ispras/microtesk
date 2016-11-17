@@ -223,10 +223,15 @@ modeReturn
 /*===============================================================================================*/
 
 opDef
-    :  (PSEUDO | INTERNAL)? OP^ id=(ID | EXCEPTION)
+    :  modifier? OP^ id=(ID | EXCEPTION)
        {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
        opSpecPart
     ;  finally {popSymbolScope();}
+
+modifier
+    :  PSEUDO
+    |  INTERNAL
+    ;
 
 opSpecPart
     :  andRule attrDefList
