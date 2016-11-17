@@ -627,7 +627,7 @@ op Operations =  add
 ////////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
-op instruction (command: Operations)
+internal op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
