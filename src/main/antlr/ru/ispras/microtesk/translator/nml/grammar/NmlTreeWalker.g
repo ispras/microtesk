@@ -288,8 +288,8 @@ modeReturn returns [Expr res]
 /*======================================================================================*/
 
 opDef
-    :  ^(OP pseudo=PSEUDO? id=(ID | EXCEPTION) {pushSymbolScope(id);}
-        sp=opSpecPart[where($id), $id.text, $pseudo != null]
+    :  ^(OP mod=modifier? id=(ID | EXCEPTION) {pushSymbolScope(id);}
+        sp=opSpecPart[where($id), $id.text, $mod.text]
 {
 checkNotNull($id, $sp.res, $opDef.text);
 getIR().add($id.text, $sp.res);
@@ -301,7 +301,12 @@ popSymbolScope();
 resetThisArgs();
 }
 
-opSpecPart [Where w, String name, boolean pseudo] returns [Primitive res]
+modifier
+    :  PSEUDO
+    |  INTERNAL
+    ;
+
+opSpecPart [Where w, String name, String mod] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
@@ -310,7 +315,7 @@ setThisArgs($andRes.res);
        attrRes=attrDefList
 {
 checkNotNull(w, $attrRes.res, $attrRes.text);
-$res = getPrimitiveFactory().createOp($w, $name, $pseudo, $andRes.res, $attrRes.res);
+$res = getPrimitiveFactory().createOp($w, $name, $mod, $andRes.res, $attrRes.res);
 }
     |  orRes=orRule
 {
