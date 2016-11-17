@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -26,13 +28,34 @@ public final class PrimitiveOR extends Primitive {
     super(
         name,
         kind,
-        Modifier.NORMAL,
+        getCommonModifier(ors),
         true,
         getReturnType(ors),
         (null == ors) || ors.isEmpty() ? null : ors.get(0).getAttrNames()
         );
 
     this.ors = ors;
+  }
+
+  private static Modifier getCommonModifier(final List<Primitive> primitives) {
+    InvariantChecks.checkNotEmpty(primitives);
+
+    final int totalCount = primitives.size();
+    final Map<Modifier, Integer> statistics = new EnumMap<>(Modifier.class);
+
+    for (final Primitive primitive : primitives) {
+      final Modifier modifier = primitive.getModifier();
+
+      final Integer oldCount = statistics.get(modifier);
+      final Integer newCount = oldCount == null ? 1 : oldCount + 1;
+
+      statistics.put(modifier, newCount);
+      if (newCount == totalCount) {
+        return modifier;
+      }
+    }
+
+    return Modifier.NORMAL;
   }
 
   public void addParentReference(final PrimitiveAND parent, final String referenceName) {
