@@ -62,7 +62,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
-        false,
+        Primitive.Modifier.NORMAL,
         retExpr,
         args,
         attrs
@@ -72,7 +72,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   public Primitive createOp(
       final Where where,
       final String name,
-      final boolean pseudo,
+      final String modifier,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
@@ -80,7 +80,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveAND(
         name,
         Primitive.Kind.OP,
-        pseudo,
+        null == modifier ? Primitive.Modifier.NORMAL :
+                           Primitive.Modifier.valueOf(modifier.toUpperCase()),
         null,
         args,
         attrs
@@ -146,7 +147,14 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   }
 
   public Primitive createImm(final Type type) {
-    return new Primitive(type.getAlias(), Primitive.Kind.IMM, false, false, type, null);
+    return new Primitive(
+        type.getAlias(),
+        Primitive.Kind.IMM,
+        Primitive.Modifier.NORMAL,
+        false,
+        type,
+        null
+        );
   }
 
   public Primitive getMode(

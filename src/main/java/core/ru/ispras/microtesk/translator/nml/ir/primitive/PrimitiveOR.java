@@ -26,7 +26,7 @@ public final class PrimitiveOR extends Primitive {
     super(
         name,
         kind,
-        false,
+        Modifier.NORMAL,
         true,
         getReturnType(ors),
         (null == ors) || ors.isEmpty() ? null : ors.get(0).getAttrNames()

@@ -40,16 +40,12 @@ public class Primitive {
     PSEUDO,
 
     /** Special-purpose internal operations (used only by the tool, not available to users) */
-    INTERNAL;
-
-    public static Modifier fromName(final String name) {
-      return null == name ? NORMAL : valueOf(name.toUpperCase());
-    }
+    INTERNAL
   }
 
   private final String name;
   private final Kind kind;
-  private final boolean pseudo;
+  private final Modifier modifier;
   private final boolean isOrRule;
   private final Type returnType;
   private final Set<String> attrNames;
@@ -59,13 +55,13 @@ public class Primitive {
   Primitive(
       final String name,
       final Kind kind,
-      final boolean pseudo,
+      final Modifier modifier,
       final boolean isOrRule,
       final Type returnType,
       final Set<String> attrNames) {
     this.name = name;
     this.kind = kind;
-    this.pseudo = pseudo;
+    this.modifier = modifier;
     this.isOrRule = isOrRule;
     this.returnType = returnType;
     this.attrNames = attrNames;
@@ -73,17 +69,17 @@ public class Primitive {
     this.info = new PrimitiveInfo();
   }
 
-  Primitive(final Primitive source) {
-    this.name = source.name;
-    this.kind = source.kind;
-    this.pseudo = source.pseudo;
-    this.isOrRule = source.isOrRule;
-    this.returnType = source.returnType;
-    this.attrNames = source.attrNames;
+  Primitive(final Primitive other) {
+    this.name = other.name;
+    this.kind = other.kind;
+    this.modifier = other.modifier;
+    this.isOrRule = other.isOrRule;
+    this.returnType = other.returnType;
+    this.attrNames = other.attrNames;
     this.parents = new HashMap<>();
-    this.info = new PrimitiveInfo(source.info); 
+    this.info = new PrimitiveInfo(other.info); 
 
-    for (final Map.Entry<String, PrimitiveReference> e : source.parents.entrySet()) {
+    for (final Map.Entry<String, PrimitiveReference> e : other.parents.entrySet()) {
       final String id = e.getKey();
       final PrimitiveReference ref = e.getValue();
 
@@ -126,12 +122,12 @@ public class Primitive {
     return kind;
   }
 
-  public final boolean isOrRule() {
-    return isOrRule;
+  public final Modifier getModifier() {
+    return modifier;
   }
 
-  public final boolean isPseudo() {
-    return pseudo;
+  public final boolean isOrRule() {
+    return isOrRule;
   }
 
   public final Type getReturnType() {
