@@ -81,10 +81,10 @@ public final class NmlTranslator extends Translator<Ir> {
   }
 
   @Override
-  protected void start(final List<String> filenames) {
+  protected boolean start(final List<String> filenames) {
     if (filenames.isEmpty()) {
       Logger.error("FILES ARE NOT SPECIFIED.");
-      return;
+      return false;
     }
 
     final String fileName = filenames.get(filenames.size() - 1);
@@ -95,8 +95,12 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final TokenSource source = startLexer(filenames);
     final Ir ir = startParserAndWalker(modelName, source);
+    if (null == ir) {
+      return false;
+    }
 
     processIr(ir);
+    return true;
   }
 
   private Ir startParserAndWalker(final String modelName, final TokenSource source) {
@@ -128,8 +132,14 @@ public final class NmlTranslator extends Translator<Ir> {
       walker.assignIR(ir);
 
       walker.startRule();
+      if (!walker.isSuccessful()) {
+        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
+        return null;
+      }
+
       return ir;
     } catch (final RecognitionException re) {
+      Logger.error(re.getMessage());
       return null;
     }
   }

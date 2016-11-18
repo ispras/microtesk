@@ -60,7 +60,7 @@ public final class MmuTranslator extends Translator<Ir> {
   }
 
   @Override
-  public void start(final List<String> fileNames) {
+  public boolean start(final List<String> fileNames) {
     InvariantChecks.checkNotNull(fileNames);
 
     final String fileName = fileNames.get(0);
@@ -94,7 +94,7 @@ public final class MmuTranslator extends Translator<Ir> {
 
       if (!parser.isCorrect()) {
         Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
-        return;
+        return false;
       }
 
       final CommonTreeNodeStream nodes = new CommonTreeNodeStream(t);
@@ -108,20 +108,23 @@ public final class MmuTranslator extends Translator<Ir> {
 
       walker.startRule();
 
-      if (!walker.isCorrect()) {
+      if (!walker.isSuccessful()) {
         Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
-        return;
+        return false;
       }
 
       if (!checkIr(ir)) {
         Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
-        return;
+        return false;
       }
 
       processIr(ir);
     } catch (final Exception e) {
       e.printStackTrace();
+      return false;
     }
+
+    return true;
   }
 
   // Performs size checks for mapped buffers.

@@ -178,7 +178,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @return {@code true} if no parsing errors were detected and {@code false} if there were errors.
    */
-  public final boolean isCorrect() {
+  public final boolean isSuccessful() {
     return getErrorCount() == 0;
   }
 
