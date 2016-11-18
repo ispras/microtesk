@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2016/11/18 MicroTESK 2.4.3 beta
+ - Support for binary masks in preparators (test templates)
+ - The 'internal' modifier for nML operation was established
+ - Bug fixes and general improvements
+
 2016/11/11 MicroTESK 2.4.2 beta
  - Support for structures (the 'struct' keyword) in nML
  - Improved timing statistics
