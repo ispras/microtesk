@@ -189,7 +189,7 @@ public final class Mask {
       }
     }
 
-    if (null != sizeText) {
+    if (null != sizeText && !sizeText.isEmpty()) {
       final int size = Integer.parseInt(sizeText);
       final int maskSize = maskText.length() * (isBinary ? 1 : 4);
 
