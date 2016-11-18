@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.utils.Mask;
 
 public final class PreparatorBuilder {
   private Where where;
@@ -34,7 +35,7 @@ public final class PreparatorBuilder {
   private final LazyData data;
 
   private String name;
-  private Preparator.Mask mask;
+  private Mask mask;
   private final List<Preparator.Argument> arguments;
 
   private final List<Call> calls;
@@ -75,12 +76,26 @@ public final class PreparatorBuilder {
     this.name = name;
   }
 
-  public void setMaskValue(final String mask) {
-    this.mask = new Preparator.Mask(mask);
+  public void setMaskValue(final String maskText) {
+    InvariantChecks.checkNotNull(maskText);
+
+    final Mask newMask = Mask.valueOf(maskText);
+    if (null == newMask) {
+      throw new IllegalArgumentException("Illegal mask format: " + maskText);
+    }
+
+    this.mask = newMask;
   }
 
-  public void setMaskCollection(final Collection<String> masks) {
-    this.mask = new Preparator.Mask(masks);
+  public void setMaskCollection(final Collection<String> maskTexts) {
+    InvariantChecks.checkNotEmpty(maskTexts);
+
+    final Mask newMask = Mask.valueOf(maskTexts);
+    if (null == newMask) {
+      throw new IllegalArgumentException("Illegal mask format: " + maskTexts);
+    }
+
+    this.mask = Mask.valueOf(maskTexts);
   }
 
   public void addArgumentValue(

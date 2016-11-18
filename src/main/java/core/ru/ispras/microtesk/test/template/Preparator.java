@@ -29,6 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.utils.Mask;
 import ru.ispras.microtesk.utils.SharedObject;
 import ru.ispras.microtesk.utils.StringUtils;
 
@@ -333,98 +334,6 @@ public final class Preparator {
     public void addCall(final Call call) {
       InvariantChecks.checkNotNull(call);
       calls.add(call);
-    }
-  }
-
-  protected static final class Mask {
-    private final List<String> masks;
-
-    public Mask(final String mask) {
-      InvariantChecks.checkNotNull(mask);
-      this.masks = Collections.singletonList(mask);
-    }
-
-    public Mask(final Collection<String> masks) {
-      InvariantChecks.checkNotEmpty(masks);
-      this.masks = new ArrayList<>(masks);
-    }
-
-    public boolean isMatch(final BitVector value) {
-      InvariantChecks.checkNotNull(value);
-
-      final String text = value.toHexString();
-      for (final String mask: masks) {
-        if (testMask(mask, text)) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    private static boolean testMask(final String mask, final String value) {
-      if (mask.length() != value.length()) {
-        return false;
-      }
-
-      final int length = mask.length();
-      for (int index = 0; index < length; ++index) {
-        final char  maskCh =  mask.charAt(index);
-        final char valueCh = value.charAt(index);
-
-        if (maskCh != valueCh && maskCh != 'x' && maskCh != 'X') {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (this == obj) {
-        return true;
-      }
-
-      if (obj == null) {
-        return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-
-      final Mask other = (Mask) obj;
-      return masks.equals(other.masks);
-    }
-
-    @Override
-    public String toString() {
-      final StringBuilder sb = new StringBuilder();
-      final boolean isSingle = masks.size() == 1;
-
-      if (!isSingle) {
-        sb.append('[');
-      }
-
-      boolean isFirst = true;
-      for (final String mask : masks) {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append(", ");
-        }
-
-        sb.append('\'');
-        sb.append(mask);
-        sb.append('\'');
-      }
-
-      if (!isSingle) {
-        sb.append(']');
-      }
-
-      return sb.toString();
     }
   }
 
