@@ -108,7 +108,7 @@ class MiniMipsBaseTemplate < Template
     # Special case: Value equals 0x00000000. In this case, it is
     # more convenient to use $zero register to reset the target.
     #
-    preparator(:target => 'REG', :mask => "00000000") {
+    preparator(:target => 'REG', :mask => "0000_0000") {
       # There are three ways (variants) to reset the target register,
       # which are chosen at random with equal probabilities. 
 
@@ -129,7 +129,7 @@ class MiniMipsBaseTemplate < Template
     # Special case: Value equals 0xFFFFFFFF. In this case, it is
     # more convenient to use $zero register to set all bits in the target register.
     #
-    preparator(:target => 'REG', :mask => "FFFFFFFF") {
+    preparator(:target => 'REG', :mask => "FFFF_FFFF") {
       nor target, zero, zero
     }
 
@@ -137,7 +137,7 @@ class MiniMipsBaseTemplate < Template
     # Special case: Higher half of value is filled with zeros. In this case,
     # it is enough to initialize only the low part.
     #
-    preparator(:target => 'REG', :mask => "0000XXXX") {
+    preparator(:target => 'REG', :mask => "0000_XXXX") {
       # Inserts a named preparator that initializes the low part.
       prepare target, value(0, 15), :name => '0000XXXX'
     }
@@ -146,7 +146,7 @@ class MiniMipsBaseTemplate < Template
     # Special case: Lower half of value is filled with zeros. In this case,
     # it is enough to initialize only the high part.
     #
-    preparator(:target => 'REG', :mask => "XXXX0000") {
+    preparator(:target => 'REG', :mask => "XXXX_0000") {
       # Inserts a named preparator that initializes the high part.
       prepare target, value(16, 31), :name => 'XXXX0000'
     }
@@ -241,7 +241,7 @@ class MiniMipsBaseTemplate < Template
     # Special case: Value equals 0x00000000. In this case, it is
     # more convenient to test the target against the $zero register.
     #
-    comparator(:target => 'REG', :mask => "00000000") {
+    comparator(:target => 'REG', :mask => "0000_0000") {
       bne zero, target, :check_failed
       nop
     }
