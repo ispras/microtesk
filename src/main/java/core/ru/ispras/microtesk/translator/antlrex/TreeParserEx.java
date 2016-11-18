@@ -30,9 +30,9 @@ import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 
 /**
- * The TreeParserEx class is an extension of the standard ANTLR TreeParser class. It provides
- * advanced error-handling facilities by overriding standard error-handling methods. This allows
- * collecting full information about errors in a special log store.
+ * The {@link TreeParserEx} class is an extension of the standard ANTLR TreeParser class. It
+ * provides advanced error-handling facilities by overriding standard error-handling methods.
+ * This allows collecting full information about errors in a special log store.
  * 
  * <p>To enable the feature in your implementation, inherit specify TreeParserEx as a base class for
  * you tree parser class (in a grammar file or in your code) add the following code to the top of
@@ -51,9 +51,8 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
  * 
  * This will enable handling custom error messages thrown by semantic actions.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class TreeParserEx extends TreeParser implements ErrorReporter {
   private LogStore log = null;
   private int errorCount = 0;
@@ -70,7 +69,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * @param state A recognizer state that is used in error recovery and can be shared among
    *        recognizers.
    */
-
   public TreeParserEx(TreeNodeStream input, RecognizerSharedState state) {
     super(input, state);
   }
@@ -80,7 +78,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param input A stream of AST nodes.
    */
-
   public TreeParserEx(TreeNodeStream input) {
     super(input);
   }
@@ -90,7 +87,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param log A log store object.
    */
-
   public final void assignLog(LogStore log) {
     this.log = log;
   }
@@ -102,7 +98,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param re A standard ANTLR exception.
    */
-
   @Override
   public final void reportError(RecognitionException re) {
     InvariantChecks.checkNotNull(log);
@@ -134,7 +129,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param se A custom exception thrown by code located in semantic actions.
    */
-
   public final void reportError(SemanticException se) {
     InvariantChecks.checkNotNull(log);
 
@@ -158,7 +152,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param errorMessage Error message text.
    */
-
   @Override
   public final void emitErrorMessage(String errorMessage) {
     tempErrorMessage = errorMessage;
@@ -169,7 +162,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @return Number of errors.
    */
-
   public final int getErrorCount() {
     return errorCount;
   }
@@ -177,7 +169,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
   /**
    * Resets (sets to zero) he counter of parsing errors.
    */
-
   public final void resetErrorCount() {
     errorCount = 0;
   }
@@ -187,7 +178,6 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @return {@code true} if no parsing errors were detected and {@code false} if there were errors.
    */
-
   public final boolean isCorrect() {
     return getErrorCount() == 0;
   }
