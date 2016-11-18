@@ -97,8 +97,11 @@ public final class AbstractPathExtractor<T> implements
         if (searchEntry.transitions.isEmpty()) {
           // Terminal actions are mapped to the empty abstract paths.
           // In turn, empty abstract paths are mapped to the empty subgraphs.
-          actionAbstractPaths.put(searchEntry.action,
-              Collections.singletonMap(Collections.emptyList(), Collections.emptySet()));
+          actionAbstractPaths.put(
+              searchEntry.action,
+              Collections.<Collection<T>, Set<MemoryGraph>>singletonMap(
+                  Collections.<T>emptyList(), Collections.<MemoryGraph>emptySet())
+              );
         } else {
           // For non-terminal actions, the abstract paths of the successive actions are composed.
           final Map<Collection<T>, Set<MemoryGraph>> abstractPaths = new HashMap<>();
