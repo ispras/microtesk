@@ -58,7 +58,7 @@ public abstract class DecoderGroup implements Decoder {
   }
 
   @Override
-  public DecoderResult decode(final BitVector image) {
+  public final DecoderResult decode(final BitVector image) {
     for (final Decoder decoder : decoders) {
       final DecoderResult result = decoder.decode(image);
       if (null != result) {
