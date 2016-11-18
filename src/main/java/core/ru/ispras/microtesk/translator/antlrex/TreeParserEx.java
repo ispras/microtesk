@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -69,7 +69,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * @param state A recognizer state that is used in error recovery and can be shared among
    *        recognizers.
    */
-  public TreeParserEx(TreeNodeStream input, RecognizerSharedState state) {
+  public TreeParserEx(final TreeNodeStream input, final RecognizerSharedState state) {
     super(input, state);
   }
 
@@ -78,7 +78,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param input A stream of AST nodes.
    */
-  public TreeParserEx(TreeNodeStream input) {
+  public TreeParserEx(final TreeNodeStream input) {
     super(input);
   }
 
@@ -87,7 +87,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param log A log store object.
    */
-  public final void assignLog(LogStore log) {
+  public final void assignLog(final LogStore log) {
     this.log = log;
   }
 
@@ -99,7 +99,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * @param re A standard ANTLR exception.
    */
   @Override
-  public final void reportError(RecognitionException re) {
+  public final void reportError(final RecognitionException re) {
     InvariantChecks.checkNotNull(log);
 
     if (re instanceof SemanticException) {
@@ -129,7 +129,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * 
    * @param se A custom exception thrown by code located in semantic actions.
    */
-  public final void reportError(SemanticException se) {
+  public final void reportError(final SemanticException se) {
     InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
@@ -153,7 +153,7 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
    * @param errorMessage Error message text.
    */
   @Override
-  public final void emitErrorMessage(String errorMessage) {
+  public final void emitErrorMessage(final String errorMessage) {
     tempErrorMessage = errorMessage;
   }
 
@@ -183,33 +183,42 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
   }
 
   @Override
-  public final void raiseError(Where where, ISemanticError error) throws SemanticException {
+  public final void raiseError(
+      final Where where,
+      final ISemanticError error) throws SemanticException {
     throw new SemanticException(where, error);
   }
 
   @Override
-  public void raiseError(Where where, String what) throws SemanticException {
+  public void raiseError(
+      final Where where,
+      final String what) throws SemanticException {
     throw new SemanticException(where, new SemanticError(what));
   }
 
-  protected final Where where(CommonTree node) {
+  protected final Where where(final CommonTree node) {
     return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
   }
 
   protected final void checkNotNull(
-      Where w, Object obj, String text) throws SemanticException {
+      final Where w,
+      final Object obj,
+      final String text) throws SemanticException {
     if (null == obj) {
       raiseError(w, new UnrecognizedStructure(text));
     }
   }
 
   protected final void checkNotNull(
-      CommonTree current, Object obj, String text) throws SemanticException {
+      final CommonTree current,
+      final Object obj,
+      final String text) throws SemanticException {
     checkNotNull(where(current), obj, text);
   }
 
   protected final void checkNotNull(
-      CommonTree current, Object obj) throws SemanticException {
+      final CommonTree current,
+      final Object obj) throws SemanticException {
     checkNotNull(where(current), obj, current.getText());
   }
 }
