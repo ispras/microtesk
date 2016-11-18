@@ -23,6 +23,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.decoder.Decoder;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -94,6 +95,16 @@ public final class Model {
    */
   public MetaModel getMetaData() {
     return metaData;
+  }
+
+  /**
+   * Returns decoder to recover instruction calls from binary data.
+   *  
+   * @return Decoder.
+   */
+  public Decoder getDecoder() {
+    // TODO
+    return null;
   }
 
   public TemporaryVariables getTempVars() {
