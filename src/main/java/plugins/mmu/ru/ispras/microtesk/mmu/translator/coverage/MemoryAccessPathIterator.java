@@ -127,4 +127,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
     return null;
   }
+
+  @Override
+  public void remove() {
+    // TODO: andrewt -> empty method to make the code compile.
+    throw new UnsupportedOperationException("Method is not implemented.");
+  }
 }
