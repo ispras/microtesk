@@ -26,6 +26,8 @@ import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
@@ -58,11 +60,16 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
 
   private void generateDecoder() {
     InvariantChecks.checkNotNull(ir);
-    generateFile("Decoder", new STBDecoderGroup(ir.getModelName(), ir.getRoots()));
+    generateFile("Decoder", new STBDecoderGroup(getModelName(), ir.getRoots()));
   }
 
   private final class Visitor extends IrVisitorDefault {
-
+    @Override
+    public void onPrimitiveBegin(final Primitive item) {
+      if (item.isOrRule()) {
+        generateFile(item.getName(), new STBDecoderGroup(getModelName(), (PrimitiveOR) item));
+      }
+    }
   }
 
   private void generateFile(

@@ -45,7 +45,7 @@ final class STBDecoderGroup implements STBuilder {
     this.items = new ArrayList<>();
 
     for (final Primitive primitive : group.getORs()) {
-      if (primitive.getInfo().getImageInfo() != null) {
+      if (null != primitive.getInfo().getImageInfo()) {
         this.items.add(primitive.getName());
       }
     }
@@ -60,11 +60,14 @@ final class STBDecoderGroup implements STBuilder {
     this.items = new ArrayList<>();
 
     ImageInfo info = new ImageInfo(0, true);
+    boolean isFirst = true;
+
     for (final Primitive primitive : roots) {
       final ImageInfo primitiveImageInfo = primitive.getInfo().getImageInfo();
       if (null != primitiveImageInfo) {
         items.add(primitive.getName());
-        info = info.or(primitiveImageInfo);
+        info = isFirst ? primitiveImageInfo : info.or(primitiveImageInfo);
+        isFirst = false;
       }
     }
 
