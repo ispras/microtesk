@@ -170,7 +170,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final List<Format.Argument> arguments) {
       ImageInfo imageInfo = new ImageInfo(0, true); 
 
-      final List<Pair<String, Integer>> tokens = tokenize(format, markers);
+      final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
         final String text = token.first;
         final int markerIndex = token.second;
@@ -245,37 +245,5 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     public void onFormat(final StatementFormat stmt) {
       throw new UnsupportedOperationException();
     }
-  }
-
-  private static List<Pair<String, Integer>> tokenize(
-      final String text,
-      final List<FormatMarker> markers) {
-    InvariantChecks.checkNotNull(text);
-    InvariantChecks.checkNotNull(markers);
-
-    final List<Pair<String, Integer>> tokens = new ArrayList<>();
-
-    int position = 0;
-    int markerIndex = 0;
-
-    for (final FormatMarker marker : markers) {
-      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
-                                marker.isKind(FormatMarker.Kind.STR));
-
-      if (position < marker.getStart()) {
-        tokens.add(new Pair<>(text.substring(position, marker.getStart()), -1));
-      }
-
-      tokens.add(new Pair<>(text.substring(marker.getStart(), marker.getEnd()), markerIndex));
-
-      position = marker.getEnd();
-      markerIndex++;
-    }
-
-    if (position < text.length()) {
-      tokens.add(new Pair<>(text.substring(position, text.length()), -1));
-    }
-
-    return tokens;
   }
 }

@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link FormatMarker} class provides facilities to identify markers within a format string.
@@ -234,6 +235,49 @@ public final class FormatMarker {
     }
 
     return new FormatMarker(kind, length, start, end);
+  }
+
+  /**
+   * Tokenizes text using the specified list of markers previously extracted from it.
+   * Tokens represent text of markers and text between them.
+   * 
+   * @param text Text to be tokenized.
+   * @param markers List of markers.
+   * @return List of tokens represented by pairs [text, marker index]. Marker index
+   *         is -1 for tokens that does not correspond to any markers.
+   * 
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   */
+  public static List<Pair<String, Integer>> tokenize(
+      final String text,
+      final List<FormatMarker> markers) {
+    InvariantChecks.checkNotNull(text);
+    InvariantChecks.checkNotNull(markers);
+
+    final List<Pair<String, Integer>> tokens = new ArrayList<>();
+
+    int position = 0;
+    int markerIndex = 0;
+
+    for (final FormatMarker marker : markers) {
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
+                                marker.isKind(FormatMarker.Kind.STR));
+
+      if (position < marker.getStart()) {
+        tokens.add(new Pair<>(text.substring(position, marker.getStart()), -1));
+      }
+
+      tokens.add(new Pair<>(text.substring(marker.getStart(), marker.getEnd()), markerIndex));
+
+      position = marker.getEnd();
+      markerIndex++;
+    }
+
+    if (position < text.length()) {
+      tokens.add(new Pair<>(text.substring(position, text.length()), -1));
+    }
+
+    return tokens;
   }
 
   @Override
