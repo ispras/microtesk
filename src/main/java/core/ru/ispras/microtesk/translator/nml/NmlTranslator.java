@@ -33,6 +33,7 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
+import ru.ispras.microtesk.translator.nml.generation.decoder.DecoderGenerator;
 import ru.ispras.microtesk.translator.nml.generation.metadata.MetaDataGenerator;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
@@ -72,6 +73,7 @@ public final class NmlTranslator extends Translator<Ir> {
 
     // Generate Java code of the ISA model
     addHandler(new MetaDataGenerator(this));
+    addHandler(new DecoderGenerator(this));
     addHandler(new Generator(this));
   }
 
