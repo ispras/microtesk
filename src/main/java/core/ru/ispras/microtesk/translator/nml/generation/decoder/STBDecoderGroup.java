@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.stringtemplate.v4.ST;
@@ -23,19 +24,31 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.decoder.DecoderGroup;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 final class STBDecoderGroup implements STBuilder {
   private final String modelName;
   private final String name;
+  private final ImageInfo imageInfo;
+  private final List<String> items;
 
   public STBDecoderGroup(final String modelName, final PrimitiveOR group) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(group);
+    InvariantChecks.checkNotNull(group.getInfo().getImageInfo());
 
     this.modelName = modelName;
     this.name = group.getName();
+    this.imageInfo = group.getInfo().getImageInfo();
+    this.items = new ArrayList<>();
+
+    for (final Primitive primitive : group.getORs()) {
+      if (primitive.getInfo().getImageInfo() != null) {
+        this.items.add(primitive.getName());
+      }
+    }
   }
 
   public STBDecoderGroup(final String modelName, final List<Primitive> roots) {
@@ -44,6 +57,18 @@ final class STBDecoderGroup implements STBuilder {
 
     this.modelName = modelName;
     this.name = "Decoder";
+    this.items = new ArrayList<>();
+
+    ImageInfo info = new ImageInfo(0, true);
+    for (final Primitive primitive : roots) {
+      final ImageInfo primitiveImageInfo = primitive.getInfo().getImageInfo();
+      if (null != primitiveImageInfo) {
+        items.add(primitive.getName());
+        info = info.or(primitiveImageInfo);
+      }
+    }
+
+    this.imageInfo = info;
   }
 
   @Override
@@ -65,7 +90,12 @@ final class STBDecoderGroup implements STBuilder {
   }
 
   private void buildBody(final ST st, final STGroup group) {
-    // TODO Auto-generated method stub
-    
+    final ST stConstructor = group.getInstanceOf("group_constructor");
+
+    stConstructor.add("name", name);
+    stConstructor.add("size", imageInfo.getMaxImageSize());
+    stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
+
+    st.add("members", stConstructor);
   }
 }

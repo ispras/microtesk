@@ -14,13 +14,22 @@
 
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
+import java.io.IOException;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.generation.FileGenerator;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
+import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 
 public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
+  private Ir ir;
 
   public DecoderGenerator(final Translator<Ir> translator) {
     InvariantChecks.checkNotNull(translator);
@@ -33,6 +42,59 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
 
   @Override
   public void processIr(final Ir ir) {
-    // TODO Auto-generated method stub
+    InvariantChecks.checkNotNull(ir);
+    this.ir = ir;
+
+    generatePrimitives();
+    generateDecoder();
+  }
+
+  private void generatePrimitives() {
+    InvariantChecks.checkNotNull(ir);
+    final IrWalker walker = new IrWalker(ir);
+    final Visitor visitor = new Visitor();
+    walker.visit(visitor, IrWalker.Direction.LINEAR);
+  }
+
+  private void generateDecoder() {
+    InvariantChecks.checkNotNull(ir);
+    generateFile("Decoder", new STBDecoderGroup(ir.getModelName(), ir.getRoots()));
+  }
+
+  private final class Visitor extends IrVisitorDefault {
+
+  }
+
+  private void generateFile(
+      final String className,
+      final STBuilder templateBuilder) {
+    final String[] templateGroups = new String[] {
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Decoder.stg"
+        };
+
+    final FileGenerator generator = new STFileGenerator(
+        getFileName(className), templateGroups, templateBuilder);
+
+    try {
+      generator.generate();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getFileName(final String className) {
+    InvariantChecks.checkNotNull(ir);
+    return String.format(
+        "%s/%s/decoder/%s.java",
+        PackageInfo.getModelOutDir(getOutDir()),
+        getModelName(),
+        className
+        );
+  }
+
+  private String getModelName() {
+    InvariantChecks.checkNotNull(ir);
+    return ir.getModelName();
   }
 }
