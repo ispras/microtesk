@@ -14,8 +14,12 @@
 
 package ru.ispras.microtesk.decoder;
 
+import java.io.File;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.options.Options;
 
 public final class Disassembler {
@@ -27,6 +31,35 @@ public final class Disassembler {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
 
+    final Model model;
+    try {
+      model = SysUtils.loadModel(modelName);
+    } catch (final Exception e) {
+      Logger.error(e.getMessage());
+      Logger.error("Failed to load the %s model. Dissambling is aborted.", modelName);
+      return;
+    }
+
+    final File source = new File(fileName);
+    if (source.exists()) {
+      Logger.error("The %s file does not exists. Dissambling is aborted.", fileName);
+      return;
+    }
+
+    //final Decoder decoder = model.getDecoder();
+
+    Logger.message(model.getName());
     Logger.error("Dissambling is not currently supported.");
   }
+
+  /*public static void copyFile(final File source, final File target) throws IOException {
+    try (final InputStream in = new FileInputStream(source);
+         final OutputStream out = new FileOutputStream(target)) {
+      final byte[] buf = new byte[1024];
+      int length;
+      while ((length = in.read(buf)) > 0) {
+        
+      }
+    }
+  }*/
 }
