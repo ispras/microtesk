@@ -15,11 +15,15 @@
 package ru.ispras.microtesk.decoder;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
 public final class Disassembler {
@@ -46,7 +50,17 @@ public final class Disassembler {
       return;
     }
 
-    //final Decoder decoder = model.getDecoder();
+    try {
+      newFile(
+          options.hasValue(Option.OUTDIR) ? options.getValueAsString(Option.OUTDIR) :
+                                            SysUtils.getHomeDir(),
+          options.getValueAsString(Option.CODE_PRE),
+          options.getValueAsString(Option.CODE_EXT)
+          );
+    } catch (final IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     Logger.message(model.getName());
     Logger.error("Dissambling is not currently supported.");
@@ -62,4 +76,21 @@ public final class Disassembler {
       }
     }
   }*/
+
+  private static PrintWriter newFile(
+      final String path,
+      final String name,
+      final String ext) throws IOException {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(ext);
+
+    final File file = new File(path, name + "." + ext);
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
+    }
+
+    return new PrintWriter(new FileWriter(file));
+  }
 }
