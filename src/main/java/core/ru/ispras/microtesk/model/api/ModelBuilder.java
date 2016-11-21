@@ -18,11 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.decoder.Decoder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 public class ModelBuilder {
   private final String name;
   private final MetaModel metaModel;
+  private final Decoder decoder;
 
   private final ProcessingElement.Factory procElemFactory;
   private final TemporaryVariables.Factory tempVarFactory;
@@ -33,6 +35,7 @@ public class ModelBuilder {
   protected ModelBuilder(
       final String name,
       final MetaModel metaModel,
+      final Decoder decoder,
       final ProcessingElement.Factory procElemFactory,
       final TemporaryVariables.Factory tempVarFactory) {
     InvariantChecks.checkNotNull(name);
@@ -43,6 +46,7 @@ public class ModelBuilder {
 
     this.name = name;
     this.metaModel = metaModel;
+    this.decoder = decoder;
     this.procElemFactory = procElemFactory;
     this.tempVarFactory = tempVarFactory;
     this.modes = new HashMap<>();
@@ -63,6 +67,7 @@ public class ModelBuilder {
     return new Model(
         name,
         metaModel,
+        decoder,
         procElemFactory,
         tempVarFactory,
         modes,

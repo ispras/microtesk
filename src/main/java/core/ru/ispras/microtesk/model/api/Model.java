@@ -37,6 +37,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 public final class Model {
   private final String name;
   private final MetaModel metaData;
+  private final Decoder decoder;
 
   private final ProcessingElement.Factory procElemFactory;
   private final TemporaryVariables tempVars;
@@ -54,18 +55,21 @@ public final class Model {
   protected Model(
       final String name,
       final MetaModel metaData,
+      final Decoder decoder,
       final ProcessingElement.Factory procElemFactory,
       final TemporaryVariables.Factory tempVarFactory,
       final Map<String, IsaPrimitiveInfoAnd> modes,
       final Map<String, IsaPrimitiveInfoAnd> ops) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(metaData);
+    InvariantChecks.checkNotNull(decoder);
 
     InvariantChecks.checkNotNull(procElemFactory);
     InvariantChecks.checkNotNull(tempVarFactory);
 
     this.name = name;
     this.metaData = metaData;
+    this.decoder = decoder;
     this.procElemFactory = procElemFactory;
     this.tempVars = tempVarFactory.create();
     this.modes = modes;
@@ -103,8 +107,7 @@ public final class Model {
    * @return Decoder.
    */
   public Decoder getDecoder() {
-    // TODO
-    return null;
+    return decoder;
   }
 
   public TemporaryVariables getTempVars() {

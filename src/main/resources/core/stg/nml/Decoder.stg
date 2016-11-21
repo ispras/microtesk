@@ -14,8 +14,9 @@
 
 group Decoder;
 
-group_constructor(name, size, is_fixed) ::= <<
+group_constructor(name, size, is_fixed, items) ::= <<
 private <name>() {
   super(<size>, <is_fixed>);
+  <items: {item | /*add(<item>.get());*/}; separator="\n">
 }
 >>

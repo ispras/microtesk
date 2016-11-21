@@ -56,6 +56,8 @@ final class STBModel implements STBuilder {
     st.add("imps", ru.ispras.microtesk.model.api.ModelBuilder.class.getName());
     st.add("imps", String.format(
         MODEL_PACKAGE_FORMAT + ".metadata.MetaModelFactory", ir.getModelName()));
+    st.add("imps", String.format(
+        MODEL_PACKAGE_FORMAT + ".decoder.Decoder", ir.getModelName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {

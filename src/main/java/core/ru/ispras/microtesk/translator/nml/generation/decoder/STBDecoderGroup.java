@@ -95,6 +95,7 @@ final class STBDecoderGroup implements STBuilder {
     stConstructor.add("name", name);
     stConstructor.add("size", imageInfo.getMaxImageSize());
     stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
+    stConstructor.add("items", items);
 
     st.add("members", stConstructor);
   }
