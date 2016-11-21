@@ -108,8 +108,7 @@ public final class Printer {
     final String separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
     separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
 
-    final String fullFileName = file.getAbsolutePath();
-    final PrintWriter writer = new PrintWriter(new FileWriter(fullFileName));
+    final PrintWriter writer = new PrintWriter(new FileWriter(file));
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       // Prints MicroTESK information to the file (as the top file header).
       printToFile(writer, separator);
