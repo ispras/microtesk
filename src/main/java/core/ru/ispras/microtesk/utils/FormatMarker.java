@@ -193,17 +193,17 @@ public final class FormatMarker {
   /**
    * Gets the list of format tokens for the specified format string.
    * 
-   * @param format Format string to be parsed.
+   * @param text Format string to be parsed.
    * @return List of extracted tokens.
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-  public static List<FormatMarker> extractMarkers(final String format) {
-    InvariantChecks.checkNotNull(format);
+  public static List<FormatMarker> extractMarkers(final String text) {
+    InvariantChecks.checkNotNull(text);
 
     final List<FormatMarker> result = new ArrayList<>();
 
-    final Matcher matcher = MARKER_PATTERN.matcher(format);
+    final Matcher matcher = MARKER_PATTERN.matcher(text);
     while (matcher.find()) {
       final String token = matcher.group();
       final FormatMarker marker = newFormatMarker(token, matcher.start(), matcher.end());
