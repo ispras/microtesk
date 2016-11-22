@@ -46,11 +46,9 @@ public final class Disassembler {
       return false;
     }
 
-    final PrintWriter writer = newWriter(
-        getOutDir(options),
-        FileUtils.getShortFileNameNoExt(fileName),
-        options.getValueAsString(Option.CODE_EXT)
-        );
+    final String fileExt = options.getValueAsString(Option.CODE_EXT);
+    final String fileShortName = FileUtils.getShortFileNameNoExt(fileName);
+    final PrintWriter writer = newWriter(getOutDir(options), fileShortName, fileExt);
     if (null == writer) {
       reader.close();
       return false;
