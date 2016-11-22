@@ -61,7 +61,10 @@ public enum Option {
   TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
   RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified mode arguments",
       false, GENERATE),
+  GENERATE_BINARY("generate-binary", "Enables generating binary files of test programs. " + 
+      "Limited functionality. Required for debugging.", false, GENERATE),
 
+  BIN_EXT("binary-file-extension", "Binary file extension", "bin", GENERATE),
   CODE_EXT("code-file-extension", "Output file extension", "asm", GENERATE),
   CODE_PRE("code-file-prefix", "Output file prefix", "test", GENERATE),
   DATA_EXT("data-file-extension", "Data file extension", "dat", GENERATE),
