@@ -173,7 +173,9 @@ public final class MicroTESK {
     final String modelName = arguments[0];
     final String inputFile = arguments[1];
 
-    Disassembler.disassemble(options, modelName, inputFile);
+    if (!Disassembler.disassemble(options, modelName, inputFile)) {
+      Logger.error("Dissambling is aborted.");
+    }
   }
 
   private static void generate(

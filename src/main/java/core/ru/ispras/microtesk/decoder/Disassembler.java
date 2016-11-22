@@ -28,7 +28,7 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class Disassembler {
-  public static void disassemble(
+  public static boolean disassemble(
       final Options options,
       final String modelName,
       final String fileName) {
@@ -36,57 +36,63 @@ public final class Disassembler {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
 
-    final Model model;
-    try {
-      model = SysUtils.loadModel(modelName);
-    } catch (final Exception e) {
-      Logger.error(e.getMessage());
-      Logger.error("Failed to load the %s model. Dissambling is aborted.", modelName);
-      return;
+    final Model model = loadModel(modelName);
+    if (null == model) {
+      return false;
     }
 
-    final File source = new File(fileName);
-    if (!source.exists()) {
-      Logger.error("The %s file does not exists. Dissambling is aborted.", fileName);
-      return;
+    final BinaryReader reader = newReader(fileName);
+    if (null == reader) {
+      return false;
     }
 
-    final PrintWriter target;
+    final PrintWriter writer;
     try {
-      target = newFile(
+      writer = newWriter(
           options.hasValue(Option.OUTDIR) ? options.getValueAsString(Option.OUTDIR) :
                                             SysUtils.getHomeDir(),
           FileUtils.getShortFileNameNoExt(fileName),
           options.getValueAsString(Option.CODE_EXT)
           );
     } catch (final IOException e) {
-      Logger.error("Failed to create input file: %s", e.getMessage());
-      Logger.error("Dissambling is aborted.");
-      return;
+      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
+      return false;
     }
 
-    /*try {
-      
+    try {
+      decode(model.getDecoder(), reader, writer);
+      return true;
     } finally {
-      target.close();
-    }*/
-
-    Logger.message(model.getName());
-    Logger.error("Dissambling is not currently supported.");
+      reader.close();
+      writer.close();
+    }
   }
 
-  /*public static void copyFile(final File source, final File target) throws IOException {
-    try (final InputStream in = new FileInputStream(source);
-         final OutputStream out = new FileOutputStream(target)) {
-      final byte[] buf = new byte[1024];
-      int length;
-      while ((length = in.read(buf)) > 0) {
-        
-      }
+  private static Model loadModel(final String modelName) {
+    try {
+      return SysUtils.loadModel(modelName);
+    } catch (final Exception e) {
+      Logger.error("Failed to load the %s model. Reason: %s.", modelName, e.getMessage());
+      return null;
     }
-  }*/
+  }
 
-  private static PrintWriter newFile(
+  private static BinaryReader newReader(final String fileName) {
+    final File file = new File(fileName);
+    if (!file.exists()) {
+      Logger.error("The %s file does not exists.", fileName);
+      return null;
+    }
+
+    try {
+      return new BinaryReader(file);
+    } catch (final IOException e) {
+      Logger.error("Failed to open input file. Reason: %s.", e.getMessage());
+      return null;
+    }
+  }
+
+  private static PrintWriter newWriter(
       final String path,
       final String name,
       final String ext) throws IOException {
@@ -101,5 +107,16 @@ public final class Disassembler {
     }
 
     return new PrintWriter(new FileWriter(file));
+  }
+
+  private static void decode(
+      final Decoder decoder,
+      final BinaryReader reader,
+      final PrintWriter writer) {
+    InvariantChecks.checkNotNull(decoder);
+    InvariantChecks.checkNotNull(reader);
+    InvariantChecks.checkNotNull(writer);
+
+    Logger.error("Dissambling is not currently supported.");
   }
 }
