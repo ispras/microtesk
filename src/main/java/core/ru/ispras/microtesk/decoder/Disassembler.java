@@ -25,6 +25,7 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.utils.FileUtils;
 
 public final class Disassembler {
   public static void disassemble(
@@ -45,22 +46,30 @@ public final class Disassembler {
     }
 
     final File source = new File(fileName);
-    if (source.exists()) {
+    if (!source.exists()) {
       Logger.error("The %s file does not exists. Dissambling is aborted.", fileName);
       return;
     }
 
+    final PrintWriter target;
     try {
-      newFile(
+      target = newFile(
           options.hasValue(Option.OUTDIR) ? options.getValueAsString(Option.OUTDIR) :
                                             SysUtils.getHomeDir(),
-          options.getValueAsString(Option.CODE_PRE),
+          FileUtils.getShortFileNameNoExt(fileName),
           options.getValueAsString(Option.CODE_EXT)
           );
     } catch (final IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Logger.error("Failed to create input file: %s", e.getMessage());
+      Logger.error("Dissambling is aborted.");
+      return;
     }
+
+    /*try {
+      
+    } finally {
+      target.close();
+    }*/
 
     Logger.message(model.getName());
     Logger.error("Dissambling is not currently supported.");
