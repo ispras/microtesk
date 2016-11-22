@@ -48,6 +48,12 @@ public final class BinaryWriter {
     return open;
   }
 
+  public void write(final String binaryText) {
+    InvariantChecks.checkNotNull(binaryText);
+    final BitVector data = BitVector.valueOf(binaryText, 2, binaryText.length());
+    write(data);
+  }
+
   public void write(final BitVector data) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(open);
