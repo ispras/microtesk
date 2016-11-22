@@ -174,7 +174,7 @@ public final class MicroTESK {
     final String inputFile = arguments[1];
 
     if (!Disassembler.disassemble(options, modelName, inputFile)) {
-      Logger.error("Dissambling is aborted.");
+      Logger.error("Disassembling is aborted.");
     }
   }
 

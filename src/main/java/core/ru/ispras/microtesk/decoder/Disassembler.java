@@ -121,7 +121,7 @@ public final class Disassembler {
     InvariantChecks.checkNotNull(reader);
     InvariantChecks.checkNotNull(writer);
 
-    Logger.error("Dissambling is not currently supported.");
+    Logger.error("Disassembling is not currently supported.");
     return false;
   }
 }
