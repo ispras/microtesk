@@ -16,10 +16,38 @@ package ru.ispras.microtesk.decoder;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
-public interface Decoder {
-  int getMaxImageSize();
-  boolean isImageSizeFixed();
-  BitVector getOpc();
-  BitVector getOpcMask();
-  DecoderResult decode(BitVector image);
+public abstract class Decoder {
+  private final int maxImageSize;
+  private final boolean imageSizeFixed;
+  private final BitVector opc;
+  private final BitVector opcMask;
+
+  protected Decoder(
+      final int maxImageSize,
+      final boolean imageSizeFixed,
+      final BitVector opc,
+      final BitVector opcMask) {
+    this.maxImageSize = maxImageSize;
+    this.imageSizeFixed = imageSizeFixed;
+    this.opc = opc;
+    this.opcMask = opcMask;
+  }
+
+  public final int getMaxImageSize() {
+    return maxImageSize;
+  }
+
+  public final boolean isImageSizeFixed() {
+    return imageSizeFixed;
+  }
+
+  public final BitVector getOpc() {
+    return opc;
+  }
+
+  public final BitVector getOpcMask() {
+    return opcMask;
+  }
+
+  public abstract DecoderResult decode(BitVector image);
 }

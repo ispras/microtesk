@@ -20,41 +20,18 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
-public abstract class DecoderGroup implements Decoder {
+public abstract class DecoderGroup extends Decoder {
   private final List<Decoder> decoders = new ArrayList<>();
-  private final int maxImageSize;
-  private final boolean imageSizeFixed;
 
   protected DecoderGroup(final int maxImageSize, final boolean imageSizeFixed) {
-    this.maxImageSize = maxImageSize;
-    this.imageSizeFixed = imageSizeFixed;
+    super(maxImageSize, imageSizeFixed, null, null);
   }
 
   protected final void add(final Decoder decoder) {
     InvariantChecks.checkNotNull(decoder);
-    InvariantChecks.checkTrue(maxImageSize >= decoder.getMaxImageSize());
-    InvariantChecks.checkTrue(imageSizeFixed ? decoder.isImageSizeFixed() : true);
+    InvariantChecks.checkTrue(getMaxImageSize() >= decoder.getMaxImageSize());
+    InvariantChecks.checkTrue(isImageSizeFixed() ? decoder.isImageSizeFixed() : true);
     decoders.add(decoder);
-  }
-
-  @Override
-  public final int getMaxImageSize() {
-    return maxImageSize;
-  }
-
-  @Override
-  public final boolean isImageSizeFixed() {
-    return imageSizeFixed;
-  }
-
-  @Override
-  public final BitVector getOpc() {
-    return null;
-  }
-
-  @Override
-  public final BitVector getOpcMask() {
-    return null;
   }
 
   @Override
