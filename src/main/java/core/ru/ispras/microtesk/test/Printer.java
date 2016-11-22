@@ -25,6 +25,7 @@ import java.util.List;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.decoder.BinaryWriter;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.options.Option;
@@ -50,7 +51,8 @@ public final class Printer {
   private int codeFileCount;
 
   private static String lastFileName = null;
-  private PrintWriter fileWritter;
+  private PrintWriter fileWritter = null;
+  private BinaryWriter binaryWriter = null;
 
   /**
    * Constructs a printer object.
@@ -86,8 +88,21 @@ public final class Printer {
         );
 
     fileWritter = newFileWriter(fileName);
-    ++codeFileCount;
 
+    if (options.getValueAsBoolean(Option.GENERATE_BINARY)) {
+      final String outDir = options.hasValue(Option.OUTDIR) ?
+          options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+
+      final String binaryFileName = String.format(
+          "%s_%04d.%s",
+          options.getValueAsString(Option.CODE_PRE),
+          codeFileCount,
+          options.getValueAsString(Option.BIN_EXT)
+          );
+      binaryWriter = new BinaryWriter(outDir, binaryFileName);
+    }
+
+    ++codeFileCount;
     lastFileName = fileName;
     return fileName;
   }
@@ -208,6 +223,13 @@ public final class Printer {
           statistics.incInstructions();
         }
       }
+
+      if (null != binaryWriter) {
+        final String image = call.getImage();
+        if (null != image && !image.isEmpty()) {
+          binaryWriter.write(image);
+        }
+      }
     }
   }
 
@@ -217,6 +239,10 @@ public final class Printer {
   public void close() {
     if (null != fileWritter) {
       fileWritter.close();
+    }
+
+    if (null != binaryWriter) {
+      binaryWriter.close();
     }
   }
 

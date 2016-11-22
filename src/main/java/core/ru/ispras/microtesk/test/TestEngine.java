@@ -300,9 +300,9 @@ public final class TestEngine {
     @Override
     public void finish() {
       try {
-        if (!needCreateNewFile) {
-          finishFile();
+        finishFile();
 
+        if (!needCreateNewFile) {
           //No instructions were added to the newly created file, it must be deleted
           if (engineContext.getStatistics().getProgramLength() == 0) {
             new File(fileName).delete();
