@@ -30,36 +30,52 @@ public final class BinaryWriter {
   private final byte[] buffer = new byte[1024];
   private int position = 0;
 
-  public BinaryWriter(final String fileName) throws IOException {
+  public BinaryWriter(final String path, final String fileName) throws IOException {
+    InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(fileName);
 
-    this.file = new File(fileName);
-    if (null != file.getParentFile()) {
-      file.mkdirs();
+    this.file = new File(path, fileName);
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
     }
 
     this.outputStream = new FileOutputStream(file);
     this.open = true;
   }
 
-  public void write(final BitVector data) throws IOException {
+  public boolean isOpen() {
+    return open;
+  }
+
+  public void write(final BitVector data) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(open);
 
-    if (position + data.getByteSize() > buffer.length) {
-      flush();
-    }
+    try {
+      if (position + data.getByteSize() > buffer.length) {
+        flush();
+      }
 
-    for (int index = 0; index < data.getByteSize(); ++index) {
-      buffer[position++] = data.getByte(index);
+      for (int index = 0; index < data.getByteSize(); ++index) {
+        buffer[position++] = data.getByte(index);
+      }
+    } catch (final IOException e) {
+      throw new IllegalStateException(e);
     }
   }
 
-  public void close() throws IOException {
-    if (open) {
+  public void close() {
+    if (!open) {
+      return;
+    }
+
+    try {
       flush();
       outputStream.close();
       open = false;
+    } catch (final IOException e) {
+      throw new IllegalStateException(e);
     }
   }
 
