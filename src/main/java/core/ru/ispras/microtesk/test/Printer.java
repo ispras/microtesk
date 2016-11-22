@@ -99,7 +99,8 @@ public final class Printer {
           codeFileCount,
           options.getValueAsString(Option.BIN_EXT)
           );
-      binaryWriter = new BinaryWriter(outDir, binaryFileName);
+
+      binaryWriter = new BinaryWriter(new File(outDir, binaryFileName));
     }
 
     ++codeFileCount;

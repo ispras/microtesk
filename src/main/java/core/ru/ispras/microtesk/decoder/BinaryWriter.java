@@ -30,16 +30,10 @@ public final class BinaryWriter {
   private final byte[] buffer = new byte[1024];
   private int position = 0;
 
-  public BinaryWriter(final String path, final String fileName) throws IOException {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(fileName);
+  public BinaryWriter(final File file) throws IOException {
+    InvariantChecks.checkNotNull(file);
 
-    this.file = new File(path, fileName);
-    final File fileParent = file.getParentFile();
-    if (null != fileParent) {
-      fileParent.mkdirs();
-    }
-
+    this.file = file;
     this.outputStream = new FileOutputStream(file);
     this.open = true;
   }
