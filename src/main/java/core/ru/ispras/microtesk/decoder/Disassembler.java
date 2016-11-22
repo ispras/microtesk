@@ -46,22 +46,18 @@ public final class Disassembler {
       return false;
     }
 
-    final PrintWriter writer;
-    try {
-      writer = newWriter(
-          options.hasValue(Option.OUTDIR) ? options.getValueAsString(Option.OUTDIR) :
-                                            SysUtils.getHomeDir(),
-          FileUtils.getShortFileNameNoExt(fileName),
-          options.getValueAsString(Option.CODE_EXT)
-          );
-    } catch (final IOException e) {
-      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
+    final PrintWriter writer = newWriter(
+        getOutDir(options),
+        FileUtils.getShortFileNameNoExt(fileName),
+        options.getValueAsString(Option.CODE_EXT)
+        );
+    if (null == writer) {
+      reader.close();
       return false;
     }
 
     try {
-      decode(model.getDecoder(), reader, writer);
-      return true;
+      return decode(model.getDecoder(), reader, writer);
     } finally {
       reader.close();
       writer.close();
@@ -75,6 +71,11 @@ public final class Disassembler {
       Logger.error("Failed to load the %s model. Reason: %s.", modelName, e.getMessage());
       return null;
     }
+  }
+
+  private static String getOutDir(final Options options) {
+    return options.hasValue(Option.OUTDIR) ?
+        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
   private static BinaryReader newReader(final String fileName) {
@@ -95,7 +96,7 @@ public final class Disassembler {
   private static PrintWriter newWriter(
       final String path,
       final String name,
-      final String ext) throws IOException {
+      final String ext) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(ext);
@@ -106,10 +107,15 @@ public final class Disassembler {
       fileParent.mkdirs();
     }
 
-    return new PrintWriter(new FileWriter(file));
+    try {
+      return new PrintWriter(new FileWriter(file));
+    } catch (final IOException e) {
+      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
+      return null;
+    }
   }
 
-  private static void decode(
+  private static boolean decode(
       final Decoder decoder,
       final BinaryReader reader,
       final PrintWriter writer) {
@@ -118,5 +124,6 @@ public final class Disassembler {
     InvariantChecks.checkNotNull(writer);
 
     Logger.error("Dissambling is not currently supported.");
+    return false;
   }
 }
