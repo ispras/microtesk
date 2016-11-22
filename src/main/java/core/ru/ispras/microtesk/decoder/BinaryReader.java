@@ -30,11 +30,9 @@ public final class BinaryReader {
   private final byte[] buffer = new byte[1024];
   private int position = 0;
 
-  public BinaryReader(final String path, final String fileName) throws IOException {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(fileName);
+  public BinaryReader(final File file) throws IOException {
+    InvariantChecks.checkNotNull(file);
 
-    final File file = new File(path, fileName);
     this.inputStream = new FileInputStream(file);
     this.open = true;
   }
