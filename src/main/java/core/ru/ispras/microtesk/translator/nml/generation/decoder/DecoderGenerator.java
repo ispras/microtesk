@@ -66,7 +66,7 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final class Visitor extends IrVisitorDefault {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.isOrRule()) {
+      if (item.isOrRule() && null != item.getInfo().getImageInfo()) {
         generateFile(item.getName(), new STBDecoderGroup(getModelName(), (PrimitiveOR) item));
       }
     }
