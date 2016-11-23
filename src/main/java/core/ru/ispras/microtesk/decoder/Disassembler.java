@@ -19,10 +19,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.model.api.TemporaryVariables;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -55,7 +58,7 @@ public final class Disassembler {
     }
 
     try {
-      return decode(model.getDecoder(), reader, writer);
+      return decode(model, reader, writer);
     } finally {
       reader.close();
       writer.close();
@@ -114,14 +117,42 @@ public final class Disassembler {
   }
 
   private static boolean decode(
-      final Decoder decoder,
+      final Model model,
       final BinaryReader reader,
       final PrintWriter writer) {
-    InvariantChecks.checkNotNull(decoder);
+    InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(reader);
     InvariantChecks.checkNotNull(writer);
 
-    Logger.error("Disassembling is not currently supported.");
-    return false;
+    final Decoder decoder = model.getDecoder();
+    final TemporaryVariables tempVars = model.getTempVars();
+
+    final int maxImageSize = decoder.getMaxImageSize();
+    final boolean imageSizeFixed = decoder.isImageSizeFixed();
+
+    InvariantChecks.checkTrue(0 == maxImageSize % 8);
+    final int byteSize = maxImageSize / 8;
+
+    BitVector data = null;
+    while ((data = reader.read(byteSize)) != null) {
+      final DecoderResult result = decoder.decode(data);
+      if (null == result) {
+        Logger.error("Unrecognized instructions encoding: %d'b%s", data.getBitSize(), data);
+        return false;
+      }
+
+      final IsaPrimitive primitive = result.getPrimitive();
+      writer.println(primitive.syntax(tempVars));
+
+      if (!imageSizeFixed) {
+        final int bitsRead = result.getBitSize();
+        InvariantChecks.checkTrue(0 == bitsRead % 8);
+
+        final int bytesRead = bitsRead / 8;
+        reader.retreat(byteSize - bytesRead);
+      }
+    }
+
+    return true;
   }
 }
