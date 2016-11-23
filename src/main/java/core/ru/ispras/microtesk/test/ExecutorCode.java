@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 public final class ExecutorCode {
@@ -121,9 +120,9 @@ public final class ExecutorCode {
     }
 
     if (!isConflictLegal) {
-      Logger.error(
+      throw new GenerationAbortedException(String.format(
           "Mapping '%s' (index %d): Address 0x%x is already used by '%s' (index %d).",
-          call.getText(), index, address, conflictCall.getText(), conflictIndex);
+          call.getText(), index, address, conflictCall.getText(), conflictIndex));
     }
   }
 
