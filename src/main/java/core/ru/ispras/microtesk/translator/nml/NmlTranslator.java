@@ -63,13 +63,13 @@ public final class NmlTranslator extends Translator<Ir> {
     // Adds the list of root operations to IR 
     addHandler(new RootDetector());
 
+    addHandler(new ImageAnalyzer());
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());
     addHandler(new Analyzer(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
-    addHandler(new ImageAnalyzer());
 
     // Generate Java code of the ISA model
     addHandler(new MetaDataGenerator(this));

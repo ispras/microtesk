@@ -20,3 +20,12 @@ private <name>() {
   <items: {item | /*add(<item>.get());*/}; separator="\n">
 }
 >>
+
+decoder_constructor(name, size, is_fixed) ::= <<
+private <name>() {
+  super(<size>, <is_fixed>, null, null);<\n>
+}<\n>
+public DecoderResult decode(final BitVector image) {
+  return null;
+}
+>>
