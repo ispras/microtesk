@@ -31,6 +31,10 @@ private <name>() {
       );
 }<\n>
 public DecoderResult decode(final BitVector image) {
+  if (!isOpcMatch(image)) {
+    return null;
+  }
+
   return null;
 }
 >>

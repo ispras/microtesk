@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.decoder;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public abstract class Decoder {
   private final int maxImageSize;
@@ -51,6 +53,17 @@ public abstract class Decoder {
 
   public final BitVector getOpcMask() {
     return opcMask;
+  }
+
+  public final boolean isOpcMatch(final BitVector image) {
+    if (null == opc) {
+      return true;
+    }
+
+    InvariantChecks.checkTrue(opc.getBitSize() == image.getBitSize());
+    final BitVector imageOpc = BitVectorMath.and(image, opcMask);
+
+    return imageOpc.equals(opc);
   }
 
   public abstract DecoderResult decode(BitVector image);
