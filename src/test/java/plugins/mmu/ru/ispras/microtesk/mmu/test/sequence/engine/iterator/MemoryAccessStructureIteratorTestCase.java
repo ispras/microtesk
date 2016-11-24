@@ -25,18 +25,18 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MmuUnderTest;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
+import ru.ispras.microtesk.mmu.translator.coverage.abstraction.AbstractionTrivial;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -74,7 +74,8 @@ public final class MemoryAccessStructureIteratorTestCase {
     }
 
     final MemoryAccessStructureIterator mmuIterator = new MemoryAccessStructureIterator(
-        accessTypes, null, new ClassifierTrivial<MemoryAccessPath>(), null);
+        new AbstractionTrivial(), accessTypes, null,
+        new MemoryAccessConstraints.Builder().build());
 
     final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
     for (final MemoryHazard.Type type : MemoryHazard.Type.values()) {

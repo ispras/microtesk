@@ -17,15 +17,12 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessType;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -44,14 +41,6 @@ public final class CoverageExtractor {
   }
 
   private final Map<MmuAddressInstance, Collection<MemoryHazard>> addressHazards = new HashMap<>();
-  private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
-  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
-
-  private final Map<MmuSubsystem, Map<MemoryAccessType, Collection<MemoryAccessPath>>> enabledPaths =
-      new HashMap<>();
-
-  private final Map<MmuSubsystem, Map<MmuBuffer, Collection<MemoryAccessPath>>> normalPaths =
-      new HashMap<>();
 
   public Collection<MemoryHazard> getHazards(final MmuAddressInstance address) {
     InvariantChecks.checkNotNull(address);
@@ -65,6 +54,8 @@ public final class CoverageExtractor {
     return coverage;
   }
 
+  private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
+
   public Collection<MemoryHazard> getHazards(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
@@ -76,6 +67,8 @@ public final class CoverageExtractor {
 
     return coverage;
   }
+
+  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
 
   public Collection<MemoryHazard> getHazards(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
@@ -92,114 +85,52 @@ public final class CoverageExtractor {
     return coverage;
   }
 
-  public Iterable<MemoryAccessPath> getEnabledPaths(
+  public MemoryAccessPathChooser getPathChooser(
       final MmuSubsystem memory,
+      final MemoryGraphAbstraction abstraction,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints) {
+      final MemoryAccessConstraints constraints,
+      final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(abstraction);
     InvariantChecks.checkNotNull(type);
-    // Parameter {@code constraints} can be null.
-
-    Map<MemoryAccessType, Collection<MemoryAccessPath>> typeToPaths = enabledPaths.get(memory);
-    if (typeToPaths == null) {
-      enabledPaths.put(memory,
-          typeToPaths = new HashMap<MemoryAccessType, Collection<MemoryAccessPath>>());
-    }
-
-    Collection<MemoryAccessPath> paths = typeToPaths.get(type);
-    if (paths == null) {
-      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      typeToPaths.put(type, paths = extractor.getPaths(type));
-    }
-
-    return getEnabledPaths(memory, paths, constraints);
+    InvariantChecks.checkNotNull(constraints);
+  
+    final MemoryTrajectoryExtractor extractor = new MemoryTrajectoryExtractor(memory);
+    final MemoryTrajectoryExtractor.Result result = extractor.apply(abstraction);
+  
+    final MemoryAccessPathChooser chooser = new MemoryAccessPathChooser(
+        memory, result.getTrajectories(), result.getGraph(), type, constraints, discardEmptyTrajectories);
+  
+    return chooser;
   }
 
-  public Iterable<MemoryAccessPath> getNormalPaths(
+  public List<MemoryAccessPathChooser> getPathChoosers(
       final MmuSubsystem memory,
-      final MmuBuffer buffer,
-      final MemoryAccessConstraints constraints) {
+      final MemoryGraphAbstraction abstraction,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(buffer);
-    // Parameter {@code constraints} can be null.
-
-    Map<MmuBuffer, Collection<MemoryAccessPath>> bufferToPaths = normalPaths.get(memory);
-    if (bufferToPaths == null) {
-      normalPaths.put(memory,
-          bufferToPaths = new HashMap<MmuBuffer, Collection<MemoryAccessPath>>());
-    }
-
-    Collection<MemoryAccessPath> paths = bufferToPaths.get(buffer);
-    if (paths == null) {
-      final MemoryCoverageExtractor extractor = new MemoryCoverageExtractor(memory);
-      final Collection<MemoryAccessPath> allPaths = extractor.getPaths(null);
-      final Iterable<MemoryAccessPath> enabledPaths =
-          getEnabledPaths(memory, allPaths, constraints);
-
-      paths = new ArrayList<>();
-      for (final MemoryAccessPath path : enabledPaths) {
-        if (path.contains(buffer) && path.contains(memory.getTargetBuffer())) {
-          paths.add(path);
-        }
-      }
-
-      bufferToPaths.put(buffer, paths);
-    }
-
-    return paths;
-  }
-
-  private static boolean isEnabledPath(
-      final MmuSubsystem memory,
-      final MemoryAccessPath path,
-      final MemoryAccessConstraints constraints) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(abstraction);
+    InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(constraints);
 
-    if (memory.getRegions().isEmpty() && path.getSegments().isEmpty()
-        || !memory.getRegions().isEmpty() && path.getRegions().isEmpty()) {
-      return false;
-    }
+    final MemoryTrajectoryExtractor extractor = new MemoryTrajectoryExtractor(memory);
+    final MemoryTrajectoryExtractor.Result result = extractor.apply(abstraction);
 
-    final Collection<BufferEventConstraint> bufferEventsConstraints =
-        constraints.getBufferEvents();
+    final List<MemoryAccessPathChooser> choosers = new ArrayList<>();
 
-    if (bufferEventsConstraints != null) {
-      for (final BufferEventConstraint constraint : bufferEventsConstraints) {
-        final MmuBuffer buffer = constraint.getBuffer();
-        InvariantChecks.checkNotNull(buffer);
-
-        final Set<BufferAccessEvent> events = constraint.getEvents();
-        InvariantChecks.checkNotNull(events);
-
-        if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
-          return false;
-        }
+    for (final Collection<Object> trajectory : result.getTrajectories()) {
+      if (discardEmptyTrajectories && trajectory.isEmpty()) {
+        continue;
       }
+
+      choosers.add(
+          new MemoryAccessPathChooser(memory, trajectory, result.getGraph(), type, constraints));
     }
 
-    return true;
-  }
-
-  private static Iterable<MemoryAccessPath> getEnabledPaths(
-      final MmuSubsystem memory,
-      final Iterable<MemoryAccessPath> paths,
-      final MemoryAccessConstraints constraints) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(paths);
-
-    if (constraints == null) {
-      return paths;
-    }
-
-    final Predicate<MemoryAccessPath> predicate = new Predicate<MemoryAccessPath>() {
-      @Override
-      public boolean evaluate(final MemoryAccessPath path) {
-        return isEnabledPath(memory, path, constraints);
-      }
-    };
-    return new FilterIterable<>(paths, predicate);
+    return choosers;
   }
 }
 

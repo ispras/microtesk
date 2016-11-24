@@ -25,21 +25,21 @@ import java.util.Map;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.classifier.Classifier;
-import ru.ispras.microtesk.basis.classifier.ClassifierTrivial;
-import ru.ispras.microtesk.basis.classifier.ClassifierUniversal;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
+import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -61,12 +61,12 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 public final class MemoryEngine implements Engine<MemorySolution> {
   public static final String ID = "memory";
 
-  public static final String PARAM_CLASSIFIER = "classifier";
-  public static final String PARAM_CLASSIFIER_TRIVIAL = "trivial";
-  public static final String PARAM_CLASSIFIER_UNIVERSAL = "universal";
-  public static final String PARAM_CLASSIFIER_EVENT_BASED = "event-based";
-  public static final Classifier<MemoryAccessPath> PARAM_CLASSIFIER_DEFAULT =
-      new ClassifierTrivial<MemoryAccessPath>();
+  public static final String PARAM_ABSTRACTION = "classifier";
+  public static final String PARAM_ABSTRACTION_TRIVIAL = "trivial";
+  public static final String PARAM_ABSTRACTION_UNIVERSAL = "universal";
+  public static final String PARAM_ABSTRACTION_EVENT_BASED = "event-based";
+  public static final MemoryGraphAbstraction PARAM_ABSTRACTION_DEFAULT =
+      MemoryGraphAbstraction.BUFFER_EVENT_PAIR;
 
   public static final String PARAM_PAGE_MASK = "page_mask";
   public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
@@ -110,20 +110,20 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return null;
   }
 
-  private static Classifier<MemoryAccessPath> getClassifier(final Object value) {
+  private static MemoryGraphAbstraction getAbstraction(final Object value) {
     final String id = value != null ? value.toString() : null;
 
-    if (PARAM_CLASSIFIER_TRIVIAL.equals(id)) {
-      return new ClassifierTrivial<MemoryAccessPath>();
+    if (PARAM_ABSTRACTION_TRIVIAL.equals(id)) {
+      return MemoryGraphAbstraction.TRIVIAL;
     }
-    if (PARAM_CLASSIFIER_UNIVERSAL.equals(id)) {
-      return new ClassifierUniversal<MemoryAccessPath>();
+    if (PARAM_ABSTRACTION_UNIVERSAL.equals(id)) {
+      return MemoryGraphAbstraction.UNIVERSAL;
     }
-    if (PARAM_CLASSIFIER_EVENT_BASED.equals(id)) {
-      return new ClassifierEventBased();
+    if (PARAM_ABSTRACTION_EVENT_BASED.equals(id)) {
+      return MemoryGraphAbstraction.BUFFER_EVENT_PAIR;
     }
 
-    return PARAM_CLASSIFIER_DEFAULT;
+    return PARAM_ABSTRACTION_DEFAULT;
   }
 
   private static long getPageMask(final Object value) {
@@ -148,7 +148,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return DataType.type(id.intValue());
   }
 
-  private Classifier<MemoryAccessPath> classifier = PARAM_CLASSIFIER_DEFAULT;
+  private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION_DEFAULT;
   private long pageMask = PARAM_PAGE_MASK_DEFAULT;
   private DataType align = PARAM_ALIGN_DEFAULT;
 
@@ -164,7 +164,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    classifier = getClassifier(attributes.get(PARAM_CLASSIFIER));
+    abstraction = getAbstraction(attributes.get(PARAM_ABSTRACTION));
     pageMask = getPageMask(attributes.get(PARAM_PAGE_MASK));
     align = getAlign(attributes.get(PARAM_ALIGN));
   }
@@ -257,7 +257,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         MmuSettingsUtils.getConstraints(MmuPlugin.getSpecification(), settings) : null;
 
     return new MemoryAccessStructureIterator(
-        accessTypes, accessConstraints, classifier, globalConstraints);
+        abstraction, accessTypes, accessConstraints, globalConstraints);
   }
 
   private Iterator<MemorySolution> getSolutionIterator(
@@ -299,7 +299,15 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         });
       }
 
-      customContext = new MemoryEngineContext(null, hitCheckers);
+      final MemoryAccessPathChooser normalPathChooser =
+          CoverageExtractor.get().getPathChooser(
+              memory,
+              MemoryGraphAbstraction.TARGET_BUFFER_ACCESS,
+              MemoryAccessType.LOAD(DataType.BYTE),
+              new MemoryAccessConstraints.Builder().build(),
+              true);
+
+      customContext = new MemoryEngineContext(null, hitCheckers, normalPathChooser);
     }
 
     return new Iterator<MemorySolution>() {

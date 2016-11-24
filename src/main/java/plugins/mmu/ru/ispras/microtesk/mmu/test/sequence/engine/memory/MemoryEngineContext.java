@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -31,14 +32,18 @@ public final class MemoryEngineContext {
   private final Iterator<MemoryAccessStructure> structureIterator;
 
   private final Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
+  private final MemoryAccessPathChooser normalPathChooser;
 
   public MemoryEngineContext(
       final Iterator<MemoryAccessStructure> structureIterator,
-      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers) {
+      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers,
+      final MemoryAccessPathChooser normalPathChooser) {
     InvariantChecks.checkNotNull(hitCheckers);
+    InvariantChecks.checkNotNull(normalPathChooser);
 
     this.structureIterator = structureIterator;
     this.hitCheckers = hitCheckers;
+    this.normalPathChooser = normalPathChooser;
   }
 
   public Iterator<MemoryAccessStructure> getStructureIterator() {
@@ -47,5 +52,9 @@ public final class MemoryEngineContext {
 
   public Map<MmuAddressInstance, Predicate<Long>> getHitCheckers() {
     return hitCheckers;
+  }
+
+  public MemoryAccessPathChooser getNormalPathChooser() {
+    return normalPathChooser;
   }
 }

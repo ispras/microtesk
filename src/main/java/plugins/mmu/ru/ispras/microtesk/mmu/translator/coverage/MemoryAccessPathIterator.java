@@ -15,11 +15,16 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemorySymbolicExecutor;
@@ -33,22 +38,92 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath> {
-  private final MemoryGraph graph;
+
+  private static final class EdgeIterator implements Iterator<MemoryGraph.Edge> {
+    final ArrayList<MemoryGraph.Edge> edges;
+
+    int index;
+    int order[];
+
+    EdgeIterator(final ArrayList<MemoryGraph.Edge> edges) {
+      InvariantChecks.checkNotNull(edges);
+
+      this.edges = edges;
+
+      this.index = 0;
+      this.order = new int[edges.size()];
+
+      for (int i = 0; i < order.length; i++) {
+        order[i] = i;
+      }
+
+      for (int i = 0; i < order.length; i++) {
+        final int j = Randomizer.get().nextIntRange(0, order.length - 1);
+        final int k = Randomizer.get().nextIntRange(0, order.length - 1);
+
+        final int temp = order[j];
+
+        order[j] = order[k];
+        order[k] = temp;
+      }
+    }
+
+    @Override
+    public boolean hasNext() {
+      return index < order.length;
+    }
+
+    @Override
+    public MemoryGraph.Edge next() {
+      InvariantChecks.checkBounds(index, order.length);
+      return edges.get(order[index++]);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
 
   private final class SearchEntry {
-    public final ArrayList<MmuTransition> transitions;
-    public final Iterator<MmuTransition> iterator;
-    public final MemorySymbolicExecutor.Result context;
+    final MmuAction action;
+    final Object label;
+    final ArrayList<MemoryGraph.Edge> edges;
+    final Iterator<MemoryGraph.Edge> iterator;
+    final MemorySymbolicExecutor.Result context;
 
-    public SearchEntry(final MmuAction action, final MemorySymbolicExecutor.Result context) {
+    SearchEntry(
+        final MmuAction action,
+        final Object label,
+        final MemorySymbolicExecutor.Result context) {
       InvariantChecks.checkNotNull(action);
+      InvariantChecks.checkNotNull(context);
 
-      // TODO: Randomize iteration order.
-      this.transitions = graph.get(action);
-      this.iterator = graph.get(action).iterator();
+      final ArrayList<MemoryGraph.Edge> edges = new ArrayList<MemoryGraph.Edge>();
+      final ArrayList<MemoryGraph.Edge> allEdges = graph.getEdges(action);
+
+      if (allEdges != null) {
+        for (final MemoryGraph.Edge edge : allEdges) {
+          if (edge.conformsTo(label)) {
+            edges.add(edge);
+          }
+        }
+      }
+
+      this.action = action;
+      this.label = label;
+      this.edges = edges;
+      this.iterator = new EdgeIterator(edges);
       this.context = context;
     }
   }
+
+  private final MmuSubsystem memory;
+  private final Iterator<Object> labels;
+  private final MemoryGraph graph;
+  private final MemoryAccessType type;
+  private final MemoryAccessConstraints constraints;
+
 
   private final Stack<SearchEntry> searchStack = new Stack<>();
   private final List<MmuTransition> currentPath = new ArrayList<>();
@@ -57,17 +132,29 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   public MemoryAccessPathIterator(
       final MmuSubsystem memory,
-      final MemoryGraph graph) {
+      final Collection<Object> trajectory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(trajectory);
     InvariantChecks.checkNotNull(graph);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(constraints);
 
+    this.memory = memory;
+    this.labels = trajectory.iterator();
     this.graph = graph;
+    this.type = type;
+    this.constraints = constraints;
 
+    final Object label = labels.hasNext() ? labels.next() : null;
     final MmuAction startAction = memory.getStartAction();
     final MemorySymbolicExecutor.Result context = new MemorySymbolicExecutor.Result();
-    final SearchEntry searchEntry = new SearchEntry(startAction, context);
+    final SearchEntry searchEntry = new SearchEntry(startAction, label, context);
 
     searchStack.push(searchEntry);
+
     this.path = getNextPath();
   }
 
@@ -84,20 +171,27 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     return result;
   }
 
+
   private MemoryAccessPath getNextPath() {
     while (!searchStack.isEmpty()) {
       final SearchEntry searchEntry = searchStack.peek();
       boolean hasTraversed = true;
 
       while (searchEntry.iterator.hasNext()) {
-        final MmuTransition transition = searchEntry.iterator.next();
+        final MemoryGraph.Edge edge = searchEntry.iterator.next();
+
+        final MmuTransition transition = edge.getTransition();
         final MmuAction targetAction = transition.getTarget();
 
-        final MemorySymbolicExecutor.Result context = searchEntry.transitions.size() == 1 ?
+        final Object label = edge.getLabel();
+        final Object nextLabel = label != null ?
+            (labels.hasNext() ? labels.next() : null) : searchEntry.label;
+
+        final MemorySymbolicExecutor.Result context = searchEntry.edges.size() == 1 ?
             searchEntry.context : new MemorySymbolicExecutor.Result(searchEntry.context);
 
-        if (MemoryEngineUtils.isFeasibleTransition(transition, context)) {
-          searchStack.push(new SearchEntry(targetAction, context));
+        if (MemoryEngineUtils.isFeasibleTransition(transition, type, context)) {
+          searchStack.push(new SearchEntry(targetAction, nextLabel, context));
           currentPath.add(transition);
 
           hasTraversed = false;
@@ -106,7 +200,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       }
 
       if (hasTraversed) {
-        final boolean isFullPath = searchEntry.transitions.isEmpty();
+        final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();
         final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
         if (isFullPath) {
@@ -120,17 +214,24 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         }
 
         if (isFullPath) {
-          return builder.build();
+          final MemoryAccessPath result = builder.build();
+
+          if (MemoryEngineUtils.isFeasiblePath(memory, result, constraints)) {
+            Logger.debug("Feasible memory access path: %s", result);
+            return result;
+          }
+
+          Logger.debug("Infeasible memory access path: %s", result);
         }
       }
     }
 
+    Logger.debug("No path found");
     return null;
   }
 
   @Override
   public void remove() {
-    // TODO: andrewt -> empty method to make the code compile.
-    throw new UnsupportedOperationException("Method is not implemented.");
+    throw new UnsupportedOperationException();
   }
 }

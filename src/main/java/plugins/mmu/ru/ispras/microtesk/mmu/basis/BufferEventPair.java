@@ -12,10 +12,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.coverage;
+package ru.ispras.microtesk.mmu.basis;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 /**

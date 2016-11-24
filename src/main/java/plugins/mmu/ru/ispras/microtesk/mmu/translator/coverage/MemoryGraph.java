@@ -15,15 +15,161 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
-public final class MemoryGraph extends HashMap<MmuAction, ArrayList<MmuTransition>> {
-  private static final long serialVersionUID = 1L;
-  
-  public MemoryGraph(final MemoryGraph graph) {
-    super(graph);
+/**
+ * {@link MemoryGraph} represents a memory subsystem's control flow graph.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
+public final class MemoryGraph {
+
+  public static final class Edge {
+    private final MmuTransition transition;
+    private final Object label;
+    private final Set<Object> nextLabels;
+
+    public Edge(
+        final MmuTransition transition,
+        final Object label,
+        final Set<Object> nextLabels) {
+      InvariantChecks.checkNotNull(transition);
+      InvariantChecks.checkNotNull(nextLabels);
+
+      this.transition = transition;
+      this.label = label;
+      this.nextLabels = nextLabels;
+    }
+
+    public MmuTransition getTransition() {
+      return transition;
+    }
+
+    public Object getLabel() {
+      return label;
+    }
+
+    public Set<Object> getNextLabels() {
+      return nextLabels;
+    }
+
+    public boolean conformsTo(final Object label) {
+      if (label == null) {
+        return this.label == null;
+      }
+
+      if (this.label != null) {
+        return this.label.equals(label);
+      }
+
+      return this.nextLabels.contains(label);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+
+      if (o == null || !(o instanceof Edge)) {
+        return false;
+      }
+
+      final Edge r = (Edge) o;
+      return transition.equals(r.transition);
+    }
+
+    @Override
+    public int hashCode() {
+      return transition.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return transition.toString();
+    }
+  }
+
+  private final Map<MmuAction, ArrayList<Edge>> edges = new LinkedHashMap<>();
+
+  public MemoryGraph() {
+  }
+
+  public ArrayList<Edge> getEdges(final MmuAction vertex) {
+    InvariantChecks.checkNotNull(vertex);
+    return edges.get(vertex);
+  }
+
+  public Set<Object> getNextLabels(final MmuAction vertex) {
+    InvariantChecks.checkNotNull(vertex);
+
+    final Set<Object> nextLabels = new LinkedHashSet<>();
+    final ArrayList<Edge> nextEdges = edges.get(vertex);
+
+    if (nextEdges == null) {
+      return nextLabels;
+    }
+
+    for (final Edge edge : nextEdges) {
+      final Object label = edge.getLabel();
+
+      if (label != null) {
+        nextLabels.add(label);
+      } else {
+        nextLabels.addAll(edge.getNextLabels());
+      }
+    }
+
+    return nextLabels;
+  }
+
+  public void addEdge(final MmuTransition transition, final Object label, final Set<Object> nextLabels) {
+    InvariantChecks.checkNotNull(transition);
+
+    final MmuAction vertex = transition.getSource();
+    final Edge edge = new Edge(transition, label, nextLabels);
+
+    ArrayList<Edge> out = edges.get(vertex);
+    if (out == null) {
+      edges.put(vertex, out = new ArrayList<>());
+    }
+
+    out.add(edge);
+  }
+
+  public void addGraph(final MemoryGraph graph) {
+    InvariantChecks.checkNotNull(graph);
+    edges.putAll(graph.edges);
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (o == null || !(o instanceof MemoryGraph)) {
+      return false;
+    }
+
+    final MemoryGraph r = (MemoryGraph) o;
+    return edges.equals(r.edges);
+  }
+
+  @Override
+  public int hashCode() {
+    return edges.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return edges.toString();
   }
 }

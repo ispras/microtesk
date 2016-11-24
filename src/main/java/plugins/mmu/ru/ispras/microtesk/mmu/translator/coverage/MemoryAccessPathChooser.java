@@ -17,30 +17,56 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.utils.function.Chooser;
 
-public final class MemoryAccessPathExtractor implements Chooser<MemoryAccessPath> {
+public final class MemoryAccessPathChooser {
   private final Collection<Iterator<MemoryAccessPath>> iterators = new ArrayList<>();
   private final Collection<MemoryAccessPath> paths = new ArrayList<>(); 
 
-  public MemoryAccessPathExtractor(
+  public MemoryAccessPathChooser(
       final MmuSubsystem memory,
-      final Set<MemoryGraph> graphs) {
+      final Collection<Object> trajectory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(graphs);
+    InvariantChecks.checkNotNull(trajectory);
+    InvariantChecks.checkNotNull(graph);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(constraints);
 
-    for (final MemoryGraph graph : graphs) {
-      iterators.add(new MemoryAccessPathIterator(memory, graph));
+    iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
+  }
+
+  public MemoryAccessPathChooser(
+      final MmuSubsystem memory,
+      final Collection<Collection<Object>> trajectories,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final boolean discardEmptyTrajectories) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(trajectories);
+    InvariantChecks.checkNotEmpty(trajectories);
+    InvariantChecks.checkNotNull(graph);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(constraints);
+
+    for (final Collection<Object> trajectory : trajectories) {
+      if (discardEmptyTrajectories && trajectory.isEmpty()) {
+        continue;
+      }
+
+      iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
     }
   }
 
-  @Override
   public MemoryAccessPath get() {
     while (!iterators.isEmpty()) {
       final Iterator<MemoryAccessPath> iterator = Randomizer.get().choose(iterators);
@@ -48,7 +74,7 @@ public final class MemoryAccessPathExtractor implements Chooser<MemoryAccessPath
       if (iterator.hasNext()) {
         final MemoryAccessPath path = iterator.next();
         InvariantChecks.checkNotNull(path);
-
+  
         paths.add(path);
         return path;
       }
@@ -56,6 +82,10 @@ public final class MemoryAccessPathExtractor implements Chooser<MemoryAccessPath
       iterators.remove(iterator);
     }
 
-    return Randomizer.get().choose(paths);
+    if (!paths.isEmpty()) {
+      return Randomizer.get().choose(paths);
+    }
+
+    return null;
   }
 }

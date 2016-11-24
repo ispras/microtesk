@@ -12,11 +12,9 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
+package ru.ispras.microtesk.mmu.basis;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.DataType;
-import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
 /**
  * {@link MemoryAccessType} describes a memory access type, which is an operation (load or store) in
@@ -33,6 +31,10 @@ public final class MemoryAccessType {
     return new MemoryAccessType(MemoryOperation.STORE, dataType);
   }
 
+  public static MemoryAccessType ANY(final DataType dataType) {
+    return new MemoryAccessType(dataType);
+  }
+
   private final MemoryOperation operation;
   private final DataType dataType;
 
@@ -41,6 +43,13 @@ public final class MemoryAccessType {
     InvariantChecks.checkNotNull(dataType);
 
     this.operation = operation;
+    this.dataType = dataType;
+  }
+
+  public MemoryAccessType(final DataType dataType) {
+    InvariantChecks.checkNotNull(dataType);
+
+    this.operation = null;
     this.dataType = dataType;
   }
 
@@ -73,6 +82,6 @@ public final class MemoryAccessType {
 
   @Override
   public String toString() {
-    return String.format("%s[%s]", operation, dataType);
+    return String.format("%s[%s]", (operation != null ? operation.toString() : "ANY"), dataType);
   }
 }

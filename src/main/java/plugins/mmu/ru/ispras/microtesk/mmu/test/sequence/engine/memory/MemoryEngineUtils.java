@@ -32,11 +32,16 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.classifier.ClassifierEventBased;
-import ru.ispras.microtesk.mmu.translator.coverage.FilterIterable;
-import ru.ispras.microtesk.mmu.translator.coverage.Predicate;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.FilterIterable;
+import ru.ispras.microtesk.utils.Predicate;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -45,6 +50,22 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  */
 public final class MemoryEngineUtils {
   private MemoryEngineUtils() {}
+
+  public static boolean isValidTransition(
+      final MmuTransition transition,
+      final MemoryAccessType type) {
+    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(type);
+
+    final MmuGuard guard = transition.getGuard();
+    final MemoryOperation operation = guard != null ? guard.getOperation() : null;
+
+    if (type.getOperation() != null && operation != null && operation != type.getOperation()) {
+      return false;
+    }
+
+    return true;
+  }
 
   public static boolean isFeasibleTransition(
       final MmuTransition transition,
@@ -66,6 +87,53 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
+  public static boolean isFeasibleTransition(
+      final MmuTransition transition,
+      final MemoryAccessType type,
+      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(partialResult);
+
+    return isValidTransition(transition, type) && isFeasibleTransition(transition, partialResult);
+  }
+
+  public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(path);
+
+    if(!memory.getRegions().isEmpty() && path.getRegions().isEmpty()) {
+      return false;
+    }
+
+    if (memory.getRegions().isEmpty() && path.getSegments().isEmpty()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean isEnabledPath(
+      final MemoryAccessPath path,
+      final Collection<BufferEventConstraint> constraints) {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(constraints);
+
+    for (final BufferEventConstraint constraint : constraints) {
+      final MmuBuffer buffer = constraint.getBuffer();
+      InvariantChecks.checkNotNull(buffer);
+
+      final Set<BufferAccessEvent> events = constraint.getEvents();
+      InvariantChecks.checkNotNull(events);
+
+      if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public static boolean isFeasiblePath(
       final MemoryAccessPath path,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
@@ -76,6 +144,37 @@ public final class MemoryEngineUtils {
         solve(path, constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
+  }
+
+  public static boolean isFeasiblePath(
+      final MmuSubsystem memory,
+      final MemoryAccessPath path,
+      final MemoryAccessConstraints constraints) {
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(constraints);
+
+    if (!isValidPath(memory, path)) {
+      return false;
+    }
+
+    final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
+
+    if (bufferEventConstraints != null) {
+      if (!isEnabledPath(path, bufferEventConstraints)) {
+        return false;
+      }
+    }
+
+    final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
+
+    if (integerConstraints != null) {
+      if (!isFeasiblePath(path, integerConstraints)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public static Iterable<MemoryAccessPath> getFeasiblePaths(
@@ -93,6 +192,7 @@ public final class MemoryEngineUtils {
     return new FilterIterable<>(paths, predicate);
   }
 
+  /* TODO: Remove
   public static Iterable<MemoryAccessPath> getSimilarPaths(
       final MemoryAccessPath path,
       final Iterable<MemoryAccessPath> paths) {
@@ -106,7 +206,9 @@ public final class MemoryEngineUtils {
 
     return pathClasses.get(pathSkeleton);
   }
+  */
 
+  /* TODO: Remove
   public static Iterable<MemoryAccessPath> getFeasibleSimilarPaths(
       final MemoryAccessPath path,
       final Iterable<MemoryAccessPath> paths,
@@ -120,6 +222,7 @@ public final class MemoryEngineUtils {
 
     return getFeasiblePaths(similarPaths, constraints);
   }
+  */
 
   public static Map<IntegerVariable, BigInteger> generateData(
       final MemoryAccessPath path,

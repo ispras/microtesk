@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.coverage;
+package ru.ispras.microtesk.utils;
 
 import java.util.Iterator;
 

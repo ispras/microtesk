@@ -21,12 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -38,7 +37,9 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterParentMi
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqualTagReplaced;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -83,7 +84,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final List<MemoryAccessType> accessTypes;
 
   /** Memory access equivalence classes. */
-  private final List<List<Set<MemoryAccessPath>>> accessPathClasses = new ArrayList<>();
+  private final List<List<MemoryAccessPathChooser>> accessPathClasses = new ArrayList<>();
 
   /** Array of indices in the dependencies array. */
   private final int[][] dependencyIndices;
@@ -107,16 +108,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private boolean hasValue;
 
   public MemoryAccessStructureIterator(
+      final MemoryGraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
-      final Classifier<MemoryAccessPath> classifier,
       final MemoryAccessConstraints constraints) {
+    InvariantChecks.checkNotNull(abstraction);
     InvariantChecks.checkNotNull(accessTypes);
+    InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotEmpty(accessTypes);
-    InvariantChecks.checkNotNull(classifier);
-    // Parameter {@code settings} can be null.
 
-    if (null != accessConstraints) {
+    if (accessConstraints != null) {
       InvariantChecks.checkTrue(accessTypes.size() == accessConstraints.size());
     }
 
@@ -133,22 +134,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
           constraints, accessConstraints != null ? accessConstraints.get(index) : null);
 
-      final Iterable<MemoryAccessPath> paths = CoverageExtractor.get().getEnabledPaths(
-          MmuPlugin.getSpecification(), accessType, currentConstraints);
+      final List<MemoryAccessPathChooser> paths = CoverageExtractor.get().getPathChoosers(
+          MmuPlugin.getSpecification(), abstraction, accessType, currentConstraints, false);
 
-      final Iterable<MemoryAccessPath> feasiblePaths = currentConstraints != null ?
-          MemoryEngineUtils.getFeasiblePaths(paths, currentConstraints.getIntegers()) : paths;
+      InvariantChecks.checkNotNull(paths);
+      InvariantChecks.checkNotEmpty(paths);
 
-      // Logger.debug("Composing memory access paths size(%s)=%d", accessType, feasiblePaths.size());
-      Logger.debug("Composing memory access paths %s=%s", accessType, feasiblePaths);
+      Logger.debug("Classifying memory access paths: %s %d classes", accessType, paths.size());
 
-      final List<Set<MemoryAccessPath>> accessPathClasses = classifier.classify(feasiblePaths);
-
-      // Logger.debug("Composing memory access classes size(%s)=%d", accessType, accessPathClasses.size());
-      Logger.debug("Composing memory access classes %s=%s", accessType, accessPathClasses);
-
-      this.accessPathClasses.add(accessPathClasses);
-      accessPathIterator.registerIterator(new IntRangeIterator(0, accessPathClasses.size() - 1));
+      this.accessPathClasses.add(paths);
+      accessPathIterator.registerIterator(new IntRangeIterator(0, paths.size() - 1));
 
       index++;
     }
@@ -325,15 +320,16 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     accesses.clear();
     for (int i = 0; i < accessTypes.size(); i++) {
-      final List<Set<MemoryAccessPath>> classes = accessPathClasses.get(i);
-      final Set<MemoryAccessPath> accessPathClass = classes.get(accessIndices.get(i));
+      final List<MemoryAccessPathChooser> classes = accessPathClasses.get(i);
+      final MemoryAccessPathChooser accessPathClass = classes.get(accessIndices.get(i));
       final MemoryAccessType accessType = accessTypes.get(i);
-      final MemoryAccessPath accessPath = Randomizer.get().choose(accessPathClass);
-      final MemoryAccess access = MemoryAccess.create(accessType, accessPath);
+      final MemoryAccessPath accessPath = accessPathClass.get();
 
-      if (access == null) {
+      if (accessPath == null) {
         return false;
       }
+
+      final MemoryAccess access = MemoryAccess.create(accessType, accessPath);
 
       accesses.add(access);
     }

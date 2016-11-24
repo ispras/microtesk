@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.ispras.microtesk.mmu.translator.coverage;
+package ru.ispras.microtesk.utils;
 
 /**
  * Defines a functor interface implemented by classes that perform a predicate

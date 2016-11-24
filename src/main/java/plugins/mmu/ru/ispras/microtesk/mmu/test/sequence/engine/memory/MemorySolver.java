@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,13 +39,14 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.AddressAndEntry;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
-import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
@@ -74,6 +74,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessStructure structure;
 
   private final Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
+  private final MemoryAccessPathChooser normalPathChooser;
   private final MemoryAccessConstraints constraints;
 
   private final long pageMask;
@@ -118,6 +119,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     this.entryIdAllocator = entryIdAllocator;
 
     this.hitCheckers = context.getHitCheckers();
+    this.normalPathChooser = context.getNormalPathChooser();
     this.constraints = MmuSettingsUtils.getConstraints(memory, settings);
 
     this.pageMask = pageMask;
@@ -768,6 +770,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Check whether the original path is still valid.
     if (!(pathFound = refineAddr(path, addrObject, true))) {
+      // TODO: This logic is temporarily disabled
+      /*
+      >>>>>>>>>> BEGIN
       // Find some similar path.
       final Iterable<MemoryAccessPath> paths =
           CoverageExtractor.get().getEnabledPaths(memory, access.getType(), constraints);
@@ -787,6 +792,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
           break;
         }
       }
+      >>>>>>>>>> END
+      */
     }
 
     if (!pathFound) {
@@ -1012,32 +1019,35 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
 
     // Select normal paths that affect the parent buffer.
-    final Iterable<MemoryAccessPath> normalPaths =
-        CoverageExtractor.get().getNormalPaths(memory, parent, constraints);
+    //final Iterable<MemoryAccessPath> normalPaths =
+    //    CoverageExtractor.get().getNormalPaths(memory, parent, constraints);
     // The normal paths satisfying the user-defined constraints are of greater priority.
-    final Iterable<MemoryAccessPath> bestPaths =
-        MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints.getIntegers());
+    //final Iterable<MemoryAccessPath> bestPaths =
+    //    MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints.getIntegers());
 
     Logger.debug("Getting normal paths: target=%s, buffer=%s",
         memory.getTargetBuffer(), parent);
 
-    /* TODO Support Iterable<> in Randomizer.choos()
+    /* TODO Support Iterable<> in Randomizer.choose()
     final MemoryAccessPath normalPath = Randomizer.get().choose(
         bestPaths.isEmpty() ? normalPaths : bestPaths);
     */
     // ^^^ Take first for now
-    Iterator<MemoryAccessPath> it = bestPaths.iterator();
-    final boolean hasBestPaths = it.hasNext();
-    if (!hasBestPaths) {
-      it = normalPaths.iterator();
-    }
-    final MemoryAccessPath normalPath = it.next();
+    //Iterator<MemoryAccessPath> it = bestPaths.iterator();
+    //final boolean hasBestPaths = it.hasNext();
+    //if (!hasBestPaths) {
+    //  it = normalPaths.iterator();
+    //}
+    //final MemoryAccessPath normalPath = it.next();
+    // ----------------------
+
+    final MemoryAccessPath normalPath = normalPathChooser.get(/*TODO: Soft Constraints*/);
 
     final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath);
     InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.
-    final AddressObject normalAddrObject = constructAddr(normalAccess, hasBestPaths);
+    final AddressObject normalAddrObject = constructAddr(normalAccess, false /*TODO: hasBestPaths*/);
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());

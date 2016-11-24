@@ -23,10 +23,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.classifier.Classifier;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -41,7 +42,7 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  */
 public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAccessStructure> {
   private List<Map<MemoryOperation, Collection<MemoryAccessType>>> accessTypeGroups;
-  private final Classifier<MemoryAccessPath> classifier;
+  private final MemoryGraphAbstraction abstraction;
   private final MemoryAccessConstraints constraints;
 
   /** Contains user-defined filters. */
@@ -55,16 +56,16 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
   public MemoryAccessStructureIteratorEx(
       final List<Collection<MemoryAccessType>> accessTypes,
       final boolean randomDataType,
-      final Classifier<MemoryAccessPath> classifier,
+      final MemoryGraphAbstraction abstraction,
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkNotEmpty(accessTypes);
-    InvariantChecks.checkNotNull(classifier);
+    InvariantChecks.checkNotNull(abstraction);
     // Parameter {@code constraints} can be null.
     // Parameter {@code settings} can be null.
 
     this.accessTypeGroups = randomDataType ? getAccessTypeGroups(accessTypes) : null;
-    this.classifier = classifier;
+    this.abstraction = abstraction;
     this.constraints = constraints;
 
     final ProductIterator<MemoryAccessType> typesIterator = new ProductIterator<>();
@@ -165,7 +166,7 @@ public final class MemoryAccessStructureIteratorEx implements Iterator<MemoryAcc
 
   private void initStructure() {
     structureIterator = new MemoryAccessStructureIterator(
-        typesIterator.value(), null, classifier, constraints);
+        abstraction, typesIterator.value(), null, constraints);
 
     structureIterator.addFilterBuilder(filterBuilder);
     structureIterator.init();
