@@ -14,17 +14,23 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ImageInfo {
   private final int maxImageSize;
   private final boolean imageSizeFixed;
+  private BitVector opc;
+  private BitVector opcMask;
 
   public ImageInfo(final int maxImageSize, final boolean imageSizeFixed) {
     InvariantChecks.checkGreaterOrEqZero(maxImageSize);
 
     this.maxImageSize = maxImageSize;
     this.imageSizeFixed = imageSizeFixed;
+    this.opc = null;
+    this.opcMask = null;
+
   }
 
   public int getMaxImageSize() {
@@ -33,6 +39,22 @@ public final class ImageInfo {
 
   public boolean isImageSizeFixed() {
     return imageSizeFixed;
+  }
+
+  public BitVector getOpc() {
+    return opc;
+  }
+
+  public void setOpc(final BitVector value) {
+    this.opc = value;
+  }
+
+  public BitVector getOpcMask() {
+    return opcMask;
+  }
+
+  public void setOpcMask(final BitVector value) {
+    this.opcMask = value;
   }
 
   public ImageInfo or(final ImageInfo other) {
@@ -54,9 +76,11 @@ public final class ImageInfo {
   @Override
   public String toString() {
     return String.format(
-        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s]",
+        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s, opc=%s, opcMask=%s]",
         maxImageSize,
-        imageSizeFixed
+        imageSizeFixed,
+        opc,
+        opcMask
         );
   }
 }

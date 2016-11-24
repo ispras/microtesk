@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -167,19 +168,50 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final String format,
         final List<FormatMarker> markers,
         final List<Format.Argument> arguments) {
-      ImageInfo imageInfo = new ImageInfo(0, true); 
+      ImageInfo imageInfo = new ImageInfo(0, true);
+      BitVector opc = null;
+      BitVector opcMask = null;
+      boolean hasOpc = false;
 
       final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
         final String text = token.first;
         final int markerIndex = token.second;
 
-        if (markerIndex == -1) {
-          imageInfo = imageInfo.and(new ImageInfo(text.length(), true));
+        final boolean isTokenOpc = markerIndex == -1;
+
+        final ImageInfo tokenImageInfo;
+        if (isTokenOpc) {
+          tokenImageInfo = new ImageInfo(text.length(), true);
         } else {
-          final ImageInfo tokenImageInfo = getImageInfo(primitive, arguments.get(markerIndex));
-          imageInfo = imageInfo.and(tokenImageInfo);
+          tokenImageInfo = getImageInfo(primitive, arguments.get(markerIndex));
         }
+        imageInfo = imageInfo.and(tokenImageInfo);
+
+        if (imageInfo.isImageSizeFixed()) {
+          final BitVector tokenOpc;
+          final BitVector tokenOpcMask = BitVector.newEmpty(tokenImageInfo.getMaxImageSize());
+
+          if (isTokenOpc) {
+            tokenOpc = BitVector.valueOf(text, 2, tokenImageInfo.getMaxImageSize());
+            tokenOpcMask.setAll();
+            hasOpc = true;
+          } else {
+            tokenOpc = BitVector.valueOf(0, tokenImageInfo.getMaxImageSize());
+            tokenOpcMask.reset();
+          }
+
+          opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
+          opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(tokenOpcMask, opcMask);
+        } else {
+          opc = null;
+          opcMask = null;
+        }
+      }
+
+      if (hasOpc && imageInfo.isImageSizeFixed()) {
+        imageInfo.setOpc(opc);
+        imageInfo.setOpcMask(opcMask);
       }
 
       primitive.getInfo().setImageInfo(imageInfo);
