@@ -25,12 +25,16 @@ public abstract class Decoder {
   protected Decoder(
       final int maxImageSize,
       final boolean imageSizeFixed,
-      final BitVector opc,
-      final BitVector opcMask) {
+      final String opc,
+      final String opcMask) {
     this.maxImageSize = maxImageSize;
     this.imageSizeFixed = imageSizeFixed;
-    this.opc = opc;
-    this.opcMask = opcMask;
+
+    this.opc = null != opc ?
+        BitVector.valueOf(opc, 2, opc.length()) : null;
+
+    this.opcMask = null != opcMask ?
+        BitVector.valueOf(opcMask, 2, opcMask.length()) : null;
   }
 
   public final int getMaxImageSize() {

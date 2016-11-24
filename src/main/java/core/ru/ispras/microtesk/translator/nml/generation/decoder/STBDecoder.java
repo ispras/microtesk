@@ -68,6 +68,12 @@ final class STBDecoder implements STBuilder {
     stConstructor.add("size", imageInfo.getMaxImageSize());
     stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
 
+    final BitVector opc = imageInfo.getOpc();
+    final BitVector opcMask = imageInfo.getOpcMask();
+
+    stConstructor.add("opc", null != opc ? opc.toBinString() : "null");
+    stConstructor.add("opc_mask", null != opcMask ? opcMask.toBinString() : "null");
+
     st.add("members", stConstructor);
   }
 }
