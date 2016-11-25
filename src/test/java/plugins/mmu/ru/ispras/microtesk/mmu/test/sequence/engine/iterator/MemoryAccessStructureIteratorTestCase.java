@@ -36,7 +36,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.coverage.abstraction.AbstractionTrivial;
+import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -74,7 +74,7 @@ public final class MemoryAccessStructureIteratorTestCase {
     }
 
     final MemoryAccessStructureIterator mmuIterator = new MemoryAccessStructureIterator(
-        new AbstractionTrivial(), accessTypes, null,
+        MemoryGraphAbstraction.TRIVIAL, accessTypes, null,
         new MemoryAccessConstraints.Builder().build());
 
     final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
