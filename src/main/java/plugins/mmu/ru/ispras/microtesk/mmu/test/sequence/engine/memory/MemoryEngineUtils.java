@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -40,8 +40,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.FilterIterable;
-import ru.ispras.microtesk.utils.Predicate;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -176,53 +174,6 @@ public final class MemoryEngineUtils {
 
     return true;
   }
-
-  public static Iterable<MemoryAccessPath> getFeasiblePaths(
-      final Iterable<MemoryAccessPath> paths,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
-    InvariantChecks.checkNotNull(paths);
-    InvariantChecks.checkNotNull(constraints);
-
-    final Predicate<MemoryAccessPath> predicate = new Predicate<MemoryAccessPath>() {
-      @Override
-      public boolean evaluate(final MemoryAccessPath path) {
-        return isFeasiblePath(path, constraints);
-      }
-    };
-    return new FilterIterable<>(paths, predicate);
-  }
-
-  /* TODO: Remove
-  public static Iterable<MemoryAccessPath> getSimilarPaths(
-      final MemoryAccessPath path,
-      final Iterable<MemoryAccessPath> paths) {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(paths);
-
-    final Map<MmuBufferAccess, BufferAccessEvent> pathSkeleton =
-        ClassifierEventBased.getBuffersAndEvents(path);
-    final Map<Map<MmuBufferAccess, BufferAccessEvent>, Set<MemoryAccessPath>> pathClasses =
-        ClassifierEventBased.getBuffersAndEvents(paths);
-
-    return pathClasses.get(pathSkeleton);
-  }
-  */
-
-  /* TODO: Remove
-  public static Iterable<MemoryAccessPath> getFeasibleSimilarPaths(
-      final MemoryAccessPath path,
-      final Iterable<MemoryAccessPath> paths,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(paths);
-    InvariantChecks.checkNotNull(constraints);
-
-    final Iterable<MemoryAccessPath> similarPaths = getSimilarPaths(path, paths);
-    InvariantChecks.checkNotNull(similarPaths);
-
-    return getFeasiblePaths(similarPaths, constraints);
-  }
-  */
 
   public static Map<IntegerVariable, BigInteger> generateData(
       final MemoryAccessPath path,
