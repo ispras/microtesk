@@ -71,8 +71,8 @@ final class STBDecoder implements STBuilder {
     final BitVector opc = imageInfo.getOpc();
     final BitVector opcMask = imageInfo.getOpcMask();
 
-    stConstructor.add("opc", null != opc ? opc.toBinString() : "null");
-    stConstructor.add("opc_mask", null != opcMask ? opcMask.toBinString() : "null");
+    stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"": "null");
+    stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
 
     st.add("members", stConstructor);
   }

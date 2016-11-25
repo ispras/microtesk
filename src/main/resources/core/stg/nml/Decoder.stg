@@ -26,8 +26,8 @@ private <name>() {
   super(
       <size>,
       <is_fixed>,
-      "<opc>",
-      "<opc_mask>"
+      <opc>,
+      <opc_mask>
       );
 }<\n>
 public DecoderResult decode(final BitVector image) {
