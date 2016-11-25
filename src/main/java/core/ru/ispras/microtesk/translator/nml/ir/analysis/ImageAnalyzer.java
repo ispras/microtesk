@@ -188,7 +188,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         }
         imageInfo = imageInfo.and(tokenImageInfo);
 
-        if (imageInfo.isImageSizeFixed()) {
+        if (imageInfo.isImageSizeFixed() && tokenImageInfo.getMaxImageSize() > 0) {
           final BitVector tokenOpc;
           final BitVector tokenOpcMask = BitVector.newEmpty(tokenImageInfo.getMaxImageSize());
 
