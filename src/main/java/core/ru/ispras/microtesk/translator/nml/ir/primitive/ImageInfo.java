@@ -14,14 +14,57 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.List;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ImageInfo {
+  public static enum TokenKind {
+    /** Image field is a mask */
+    OPC,
+
+    /** Image field is an argument (immediate or primitive) */
+    ARG,
+
+    /** Image field is an expression */
+    EXPR
+  }
+
+  public static final class Token {
+    private final TokenKind kind;
+    private final int bitSize;
+    private final String name;
+
+    public Token(final TokenKind kind, final int bitSize, final String name) {
+      this.kind = kind;
+      this.bitSize = bitSize;
+      this.name = name;
+    }
+
+    public TokenKind getKind() {
+      return kind;
+    }
+
+    public int getBitSize() {
+      return bitSize;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s(%s)->%s]", kind, bitSize, name);
+    }
+  }
+
   private final int maxImageSize;
   private final boolean imageSizeFixed;
   private BitVector opc;
   private BitVector opcMask;
+  private List<Token> tokens;
 
   public ImageInfo(final int maxImageSize, final boolean imageSizeFixed) {
     InvariantChecks.checkGreaterOrEqZero(maxImageSize);
@@ -30,6 +73,7 @@ public final class ImageInfo {
     this.imageSizeFixed = imageSizeFixed;
     this.opc = null;
     this.opcMask = null;
+    this.tokens = null;
 
   }
 
@@ -57,6 +101,14 @@ public final class ImageInfo {
     this.opcMask = value;
   }
 
+  public List<Token> getTokens() {
+    return tokens;
+  }
+
+  public void setTokens(final List<Token> tokens) {
+    this.tokens = tokens;
+  }
+
   public ImageInfo or(final ImageInfo other) {
     InvariantChecks.checkNotNull(other);
     return new ImageInfo(
@@ -76,11 +128,12 @@ public final class ImageInfo {
   @Override
   public String toString() {
     return String.format(
-        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s, opc=%s, opcMask=%s]",
+        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s, opc=%s, opcMask=%s, tokens=%s]",
         maxImageSize,
         imageSizeFixed,
         opc,
-        opcMask
+        opcMask,
+        tokens
         );
   }
 }
