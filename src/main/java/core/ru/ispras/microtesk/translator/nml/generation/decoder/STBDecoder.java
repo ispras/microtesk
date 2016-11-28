@@ -75,7 +75,7 @@ final class STBDecoder implements STBuilder {
     }
   }
 
-  public void importPrimitive(
+  private void importPrimitive(
       final ST st,
       final Primitive primitive,
       final Set<String> imported) {
