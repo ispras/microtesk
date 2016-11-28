@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,6 +17,12 @@ package ru.ispras.microtesk.model.api.data.floatx;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public enum Precision {
+  FLOAT16 (10, 5) {
+    @Override public Operations getOperations() {
+      return Float16Operations.get();
+    }
+  },
+
   FLOAT32 (23, 8) {
     @Override public Operations getOperations() {
       return Float32Operations.get();
