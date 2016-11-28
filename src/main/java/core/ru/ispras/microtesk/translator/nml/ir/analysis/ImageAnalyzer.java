@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -172,6 +173,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       BitVector opc = null;
       BitVector opcMask = null;
       boolean hasOpc = false;
+      final List<ImageInfo.Token> imageTokens = new ArrayList<>();
 
       final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
@@ -183,8 +185,10 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final ImageInfo tokenImageInfo;
         if (isTokenOpc) {
           tokenImageInfo = new ImageInfo(text.length(), true);
+          imageTokens.add(ImageInfo.Token.newOpc(text.length()));
         } else {
           tokenImageInfo = getImageInfo(primitive, arguments.get(markerIndex));
+          imageTokens.addAll(tokenImageInfo.getTokens());
         }
         imageInfo = imageInfo.and(tokenImageInfo);
 
@@ -214,6 +218,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         imageInfo.setOpcMask(opcMask);
       }
 
+      imageInfo.setTokens(imageTokens);
       primitive.getInfo().setImageInfo(imageInfo);
     }
 

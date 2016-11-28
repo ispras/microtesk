@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -36,7 +37,12 @@ public final class ImageInfo {
     private final int bitSize;
     private final String name;
 
-    public Token(final TokenKind kind, final int bitSize, final String name) {
+    public static Token newOpc(final int bitSize) {
+      InvariantChecks.checkGreaterThanZero(bitSize);
+      return new Token(TokenKind.OPC, bitSize, null);
+    }
+
+    private Token(final TokenKind kind, final int bitSize, final String name) {
       this.kind = kind;
       this.bitSize = bitSize;
       this.name = name;
@@ -73,7 +79,7 @@ public final class ImageInfo {
     this.imageSizeFixed = imageSizeFixed;
     this.opc = null;
     this.opcMask = null;
-    this.tokens = null;
+    this.tokens = Collections.emptyList();
 
   }
 
@@ -106,6 +112,7 @@ public final class ImageInfo {
   }
 
   public void setTokens(final List<Token> tokens) {
+    InvariantChecks.checkNotNull(tokens);
     this.tokens = tokens;
   }
 
