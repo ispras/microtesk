@@ -21,7 +21,7 @@ private <name>() {
 }
 >>
 
-decoder_constructor(name, size, is_fixed, opc, opc_mask) ::= <<
+decoder_constructor(name, size, is_fixed, opc, opc_mask, stmts) ::= <<
 private <name>() {
   super(
       <size>,
@@ -35,6 +35,11 @@ public DecoderResult decode(final BitVector image) {
     return null;
   }
 
-  return null;
+  <stmts: {stmt | <stmt>}; separator="\n">
 }
+>>
+
+decoder_result(name, args, size) ::= <<
+<\n>return new DecoderResult(
+    new <name>(<args; separator=", ">), <size>);
 >>

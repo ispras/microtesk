@@ -14,7 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.stringtemplate.v4.ST;
@@ -104,6 +107,11 @@ final class STBDecoder implements STBuilder {
         "Unknown primitive kind: " + primitive.getKind());
   }
 
+  private static String getPrimitiveName(final Primitive primitive) {
+    final boolean isImm = primitive.getKind() == Primitive.Kind.IMM;
+    return isImm ? Immediate.class.getSimpleName() : primitive.getName();
+  }
+
   private void buildBody(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("decoder_constructor");
 
@@ -116,6 +124,22 @@ final class STBDecoder implements STBuilder {
 
     stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"": "null");
     stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
+
+
+    final List<String> argumentNames = new ArrayList<>();
+    for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
+      final String argumentName = entry.getKey();
+      argumentNames.add(argumentName);
+
+      stConstructor.add("stmts", String.format(
+          "final %s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
+    }
+
+    final ST stResult = group.getInstanceOf("decoder_result");
+    stResult.add("name", item.getName());
+    stResult.add("args", argumentNames);
+    stResult.add("size", "image.getBitSize()");
+    stConstructor.add("stmts", stResult);
 
     st.add("members", stConstructor);
   }
