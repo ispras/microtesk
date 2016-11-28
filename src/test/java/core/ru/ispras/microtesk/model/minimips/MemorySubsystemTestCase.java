@@ -27,6 +27,6 @@ public class MemorySubsystemTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(42, statistics.getSequences());
-    Assert.assertEquals(731, statistics.getInstructions());
+    Assert.assertEquals(733, statistics.getInstructions());
   }
 }
