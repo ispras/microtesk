@@ -36,7 +36,7 @@ final class STBDecoder implements STBuilder {
     InvariantChecks.checkNotNull(item);
     InvariantChecks.checkNotNull(item.getInfo().getImageInfo());
 
-    this.name = item.getName();
+    this.name = DecoderGenerator.getDecoderName(item.getName());
     this.modelName = modelName;
     this.imageInfo = item.getInfo().getImageInfo();
   }

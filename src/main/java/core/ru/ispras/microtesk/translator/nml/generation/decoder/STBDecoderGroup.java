@@ -40,13 +40,13 @@ final class STBDecoderGroup implements STBuilder {
     InvariantChecks.checkNotNull(group.getInfo().getImageInfo());
 
     this.modelName = modelName;
-    this.name = group.getName();
+    this.name = DecoderGenerator.getDecoderName(group.getName());
     this.imageInfo = group.getInfo().getImageInfo();
     this.items = new ArrayList<>();
 
     for (final Primitive primitive : group.getORs()) {
       if (null != primitive.getInfo().getImageInfo()) {
-        this.items.add(primitive.getName());
+        this.items.add(DecoderGenerator.getDecoderName(primitive.getName()));
       }
     }
   }
@@ -56,7 +56,7 @@ final class STBDecoderGroup implements STBuilder {
     InvariantChecks.checkNotNull(roots);
 
     this.modelName = modelName;
-    this.name = "Decoder";
+    this.name = DecoderGenerator.getDecoderName(null);
     this.items = new ArrayList<>();
 
     ImageInfo info = new ImageInfo(0, true);
@@ -65,7 +65,7 @@ final class STBDecoderGroup implements STBuilder {
     for (final Primitive primitive : roots) {
       final ImageInfo primitiveImageInfo = primitive.getInfo().getImageInfo();
       if (null != primitiveImageInfo) {
-        items.add(primitive.getName());
+        items.add(DecoderGenerator.getDecoderName(primitive.getName()));
         info = isFirst ? primitiveImageInfo : info.or(primitiveImageInfo);
         isFirst = false;
       }

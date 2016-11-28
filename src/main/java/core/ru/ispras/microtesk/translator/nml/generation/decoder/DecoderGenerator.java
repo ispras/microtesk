@@ -61,7 +61,7 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
 
   private void generateDecoder() {
     InvariantChecks.checkNotNull(ir);
-    generateFile("Decoder", new STBDecoderGroup(getModelName(), ir.getRoots()));
+    generateFile(null, new STBDecoderGroup(getModelName(), ir.getRoots()));
   }
 
   private final class Visitor extends IrVisitorDefault {
@@ -103,12 +103,25 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
         "%s/%s/decoder/%s.java",
         PackageInfo.getModelOutDir(getOutDir()),
         getModelName(),
-        className
+        getDecoderName(className)
         );
   }
 
   private String getModelName() {
     InvariantChecks.checkNotNull(ir);
     return ir.getModelName();
+  }
+
+  public static String getDecoderName(final String name) {
+    final StringBuilder sb = new StringBuilder("Decoder");
+
+    if (null != name && !name.isEmpty()) {
+      sb.append(Character.toUpperCase(name.charAt(0)));
+      if (name.length() > 1) {
+        sb.append(name.substring(1, name.length()));
+      }
+    }
+
+    return sb.toString();
   }
 }
