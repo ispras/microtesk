@@ -125,7 +125,6 @@ final class STBDecoder implements STBuilder {
     stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"": "null");
     stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
 
-
     final List<String> argumentNames = new ArrayList<>();
     for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
       final String argumentName = entry.getKey();
