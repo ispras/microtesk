@@ -111,6 +111,12 @@ public final class MemoryTrajectoryExtractor {
 
         // If the target action has not been traversed, it is added to the DFS stack.
         if (!actionResults.containsKey(targetAction)) {
+          // Paranoid check.
+          for (final SearchEntry entry : searchStack) {
+            InvariantChecks.checkFalse(entry.action == searchEntry.action,
+                String.format("Loop is detected: %s", searchEntry.action));
+          }
+
           final Collection<MmuTransition> targetTransitions = memory.getTransitions(targetAction);
 
           searchStack.push(new SearchEntry(targetAction, targetTransitions));

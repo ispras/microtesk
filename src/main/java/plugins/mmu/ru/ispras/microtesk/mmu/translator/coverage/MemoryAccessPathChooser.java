@@ -16,33 +16,27 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 public final class MemoryAccessPathChooser {
+  private final MmuSubsystem memory;
+  private final Collection<Collection<Object>> trajectories;
+  private final MemoryGraph graph;
+  private final MemoryAccessType type;
+  private final MemoryAccessConstraints constraints;
+  private final boolean discardEmptyTrajectories;
+
   private final Collection<Iterator<MemoryAccessPath>> iterators = new ArrayList<>();
   private final Collection<MemoryAccessPath> paths = new ArrayList<>(); 
-
-  public MemoryAccessPathChooser(
-      final MmuSubsystem memory,
-      final Collection<Object> trajectory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
-      final MemoryAccessConstraints constraints) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(trajectory);
-    InvariantChecks.checkNotNull(graph);
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(constraints);
-
-    iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
-  }
 
   public MemoryAccessPathChooser(
       final MmuSubsystem memory,
@@ -58,6 +52,13 @@ public final class MemoryAccessPathChooser {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(constraints);
 
+    this.memory = memory;
+    this.trajectories = trajectories;
+    this.graph = graph;
+    this.type = type;
+    this.constraints = constraints;
+    this.discardEmptyTrajectories = discardEmptyTrajectories;
+
     for (final Collection<Object> trajectory : trajectories) {
       if (discardEmptyTrajectories && trajectory.isEmpty()) {
         continue;
@@ -65,6 +66,15 @@ public final class MemoryAccessPathChooser {
 
       iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
     }
+  }
+
+  public MemoryAccessPathChooser(
+      final MmuSubsystem memory,
+      final Collection<Object> trajectory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints) {
+    this(memory, Collections.<Collection<Object>>singleton(trajectory), graph, type, constraints, false);
   }
 
   public MemoryAccessPath get() {
@@ -87,5 +97,54 @@ public final class MemoryAccessPathChooser {
     }
 
     return null;
+  }
+
+  public MemoryAccessPath get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
+    InvariantChecks.checkNotNull(constraints);
+
+    if (constraints.isEmpty()) {
+      return get();
+    }
+
+    // New hard constraints & new soft constraints.
+    final Collection<MemoryAccessConstraints> strongestConstraints = constraints.getAll();
+    // Existing constraints & new hard constraints & new soft constraints.
+    strongestConstraints.add(this.constraints);
+
+    final MemoryAccessPathChooser strongestChooser =
+        new MemoryAccessPathChooser(
+            this.memory,
+            this.trajectories,
+            this.graph,
+            this.type,
+            MemoryAccessConstraints.compose(strongestConstraints),
+            this.discardEmptyTrajectories);
+
+    final MemoryAccessPath strongestPath = strongestChooser.get();
+
+    if (strongestPath != null) {
+      return strongestPath;
+    }
+
+    // New hard constraints.
+    final Collection<MemoryAccessConstraints> weakestConstraints = constraints.getHard();
+
+    if (weakestConstraints.isEmpty()) {
+      return get();
+    }
+
+    // Existing constraints & new hard constraints.
+    weakestConstraints.add(this.constraints);
+
+    final MemoryAccessPathChooser weakestChooser =
+        new MemoryAccessPathChooser(
+            this.memory,
+            this.trajectories,
+            this.graph,
+            this.type,
+            MemoryAccessConstraints.compose(weakestConstraints),
+            this.discardEmptyTrajectories);
+
+    return weakestChooser.get();
   }
 }

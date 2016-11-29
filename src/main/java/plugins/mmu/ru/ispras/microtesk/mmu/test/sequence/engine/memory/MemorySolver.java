@@ -27,6 +27,7 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
@@ -1018,30 +1019,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
 
-    // Select normal paths that affect the parent buffer.
-    //final Iterable<MemoryAccessPath> normalPaths =
-    //    CoverageExtractor.get().getNormalPaths(memory, parent, constraints);
-    // The normal paths satisfying the user-defined constraints are of greater priority.
-    //final Iterable<MemoryAccessPath> bestPaths =
-    //    MemoryEngineUtils.getFeasiblePaths(normalPaths, constraints.getIntegers());
-
     Logger.debug("Getting normal paths: target=%s, buffer=%s",
         memory.getTargetBuffer(), parent);
 
-    /* TODO Support Iterable<> in Randomizer.choose()
-    final MemoryAccessPath normalPath = Randomizer.get().choose(
-        bestPaths.isEmpty() ? normalPaths : bestPaths);
-    */
-    // ^^^ Take first for now
-    //Iterator<MemoryAccessPath> it = bestPaths.iterator();
-    //final boolean hasBestPaths = it.hasNext();
-    //if (!hasBestPaths) {
-    //  it = normalPaths.iterator();
-    //}
-    //final MemoryAccessPath normalPath = it.next();
-    // ----------------------
-
-    final MemoryAccessPath normalPath = normalPathChooser.get(/*TODO: Soft Constraints*/);
+    final MemoryAccessPath normalPath =
+        normalPathChooser.get(BiasedConstraints.<MemoryAccessConstraints>SOFT(constraints));
 
     final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath);
     InvariantChecks.checkNotNull(normalAccess);

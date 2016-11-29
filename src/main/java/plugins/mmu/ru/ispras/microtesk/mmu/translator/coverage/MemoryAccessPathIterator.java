@@ -124,7 +124,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private final MemoryAccessType type;
   private final MemoryAccessConstraints constraints;
 
-
   private final Stack<SearchEntry> searchStack = new Stack<>();
   private final List<MmuTransition> currentPath = new ArrayList<>();
 
@@ -170,7 +169,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     path = getNextPath();
     return result;
   }
-
 
   private MemoryAccessPath getNextPath() {
     while (!searchStack.isEmpty()) {
