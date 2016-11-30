@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -33,19 +34,23 @@ public final class MemoryGraph {
 
   public static final class Edge {
     private final MmuTransition transition;
-    private final Object label;
-    private final Set<Object> nextLabels;
+
+    private Object label;
+    private Set<Object> nextLabels;
 
     public Edge(
         final MmuTransition transition,
         final Object label,
         final Set<Object> nextLabels) {
       InvariantChecks.checkNotNull(transition);
-      InvariantChecks.checkNotNull(nextLabels);
 
       this.transition = transition;
       this.label = label;
       this.nextLabels = nextLabels;
+    }
+
+    public Edge(final MmuTransition transition) {
+      this(transition, null, null);
     }
 
     public MmuTransition getTransition() {
@@ -56,8 +61,16 @@ public final class MemoryGraph {
       return label;
     }
 
+    public void setLabel(final Object label) {
+      this.label = label;
+    }
+
     public Set<Object> getNextLabels() {
       return nextLabels;
+    }
+
+    public void setNextLabels(final Set<Object> nextLabels) {
+      this.nextLabels = nextLabels;
     }
 
     public boolean conformsTo(final Object label) {
@@ -144,9 +157,16 @@ public final class MemoryGraph {
     out.add(edge);
   }
 
-  public void addGraph(final MemoryGraph graph) {
-    InvariantChecks.checkNotNull(graph);
-    edges.putAll(graph.edges);
+  public void addEdge(final MmuTransition transition) {
+    addEdge(transition, null, null);
+  }
+
+  public void addEdges(final Collection<MmuTransition> transitions) {
+    InvariantChecks.checkNotNull(transitions);
+
+    for (final MmuTransition transition : transitions) {
+      addEdge(transition);
+    }
   }
 
   @Override

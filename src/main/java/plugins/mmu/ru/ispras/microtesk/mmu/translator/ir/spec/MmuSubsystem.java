@@ -278,6 +278,19 @@ public final class MmuSubsystem {
   }
 
   /**
+   * Returns the list of all transitions.
+   */
+  public List<MmuTransition> getTransitions() {
+    final List<MmuTransition> transitions = new ArrayList<>();
+
+    for (final List<MmuTransition> actionTransitions : actions.values()) {
+      transitions.addAll(actionTransitions);
+    }
+
+    return transitions;
+  }
+
+  /**
    * Returns the initial (root) action of the memory management unit.
    * 
    * @return the initial action.

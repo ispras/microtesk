@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -69,18 +68,16 @@ public final class MemoryTrajectoryExtractor {
 
   private static final class SearchEntry {
     final MmuAction action;
-    final Collection<MmuTransition> transitions;
-    final Iterator<MmuTransition> iterator;
+    final Collection<MemoryGraph.Edge> edges;
+    final Iterator<MemoryGraph.Edge> iterator;
 
-    SearchEntry(
-        final MmuAction action,
-        final Collection<MmuTransition> transitions) {
+    SearchEntry(final MmuAction action, final Collection<MemoryGraph.Edge> edges) {
       InvariantChecks.checkNotNull(action);
-      InvariantChecks.checkNotNull(transitions);
+      InvariantChecks.checkNotNull(edges);
 
       this.action = action;
-      this.transitions = transitions;
-      this.iterator = transitions.iterator();
+      this.edges = edges;
+      this.iterator = edges.iterator();
     }
   }
 
@@ -95,14 +92,18 @@ public final class MemoryTrajectoryExtractor {
   public Result apply(final MemoryGraphAbstraction abstraction) {
     InvariantChecks.checkNotNull(abstraction);
 
-    // Each action is mapped to the pair of the set of trajectories and the memory graph.
-    final Map<MmuAction, Result> actionResults = new HashMap<>();
+    // Memory graph to be labeled.
+    final MemoryGraph graph = new MemoryGraph();
+    graph.addEdges(memory.getTransitions());
+
+    // Each action is mapped to the pair of the set of trajectories.
+    final Map<MmuAction, Collection<Collection<Object>>> actionTrajectories = new HashMap<>();
 
     // Classical DFS-based graph exploration.
     final Stack<SearchEntry> searchStack = new Stack<>();
 
     final MmuAction startAction = memory.getStartAction();
-    final Collection<MmuTransition> startTransitions = memory.getTransitions(startAction);
+    final Collection<MemoryGraph.Edge> startTransitions = graph.getEdges(startAction);
 
     searchStack.push(new SearchEntry(startAction, startTransitions));
 
@@ -111,76 +112,81 @@ public final class MemoryTrajectoryExtractor {
       boolean hasTraversed = true;
 
       while (searchEntry.iterator.hasNext()) {
-        final MmuTransition transition = searchEntry.iterator.next();
+        final MemoryGraph.Edge edge = searchEntry.iterator.next();
+        final MmuTransition transition = edge.getTransition();
         final MmuAction targetAction = transition.getTarget();
 
         // If the target action has not been traversed, it is added to the DFS stack.
-        if (!actionResults.containsKey(targetAction)) {
+        if (!actionTrajectories.containsKey(targetAction)) {
           // Check whether there is a loop.
           for (final SearchEntry entry : searchStack) {
             InvariantChecks.checkFalse(entry.action == targetAction);
           }
 
-          final Collection<MmuTransition> targetTransitions = memory.getTransitions(targetAction);
+          final Collection<MemoryGraph.Edge> targetEdges = graph.getEdges(targetAction);
 
-          searchStack.push(new SearchEntry(targetAction, targetTransitions));
+          searchStack.push(new SearchEntry(targetAction,
+              targetEdges != null
+                ? targetEdges
+                : Collections.<MemoryGraph.Edge>emptyList()));
+
           hasTraversed = false;
-
           break;
         }
       }
 
       if (hasTraversed) {
-        Logger.debug("Processing action %s", searchEntry.action);
+        if (searchEntry.edges.isEmpty()) {
+          Logger.debug("Processing terminal action %s", searchEntry.action);
 
-        final Collection<Collection<Object>> trajectories = new LinkedHashSet<>();
-        final MemoryGraph graph = new MemoryGraph();
+          actionTrajectories.put(searchEntry.action,
+            Collections.<Collection<Object>>singleton(Collections.<Object>emptyList()));
+        } else {
+          Logger.debug("Processing action %s", searchEntry.action);
+          final Collection<Collection<Object>> trajectories = new LinkedHashSet<>();
 
-        final Collection<MmuAction> targetActions = new HashSet<>();
+          for (final MemoryGraph.Edge edge : searchEntry.edges) {
+            final MmuTransition transition = edge.getTransition();
+            Logger.debug("Processing transition %s", transition);
 
-        for (final MmuTransition transition : searchEntry.transitions) {
-          Logger.debug("Processing transition %s", transition);
+            final MmuAction targetAction = transition.getTarget();
+            final Collection<Collection<Object>> targetTrajectories =
+              actionTrajectories.get(targetAction);
 
-          final MmuAction targetAction = transition.getTarget();
-          final Result targetResult = actionResults.get(targetAction);
-          final MemoryGraph targetGraph = targetResult.getGraph();
+            // Perform abstraction of the transition.
+            final Object label = abstraction.apply(memory, transition);
+            Logger.debug("Transition has abstracted to %s", label);
 
-          // Perform abstraction of the transition.
-          final Object label = abstraction.apply(memory, transition);
-          Logger.debug("Transition has abstracted to %s", label);
+            final Set<Object> nextLabels = graph.getNextLabels(targetAction);
 
-          final Set<Object> nextLabels = targetGraph.getNextLabels(targetAction);
+            // Calculate trajectories.
+            if (label == null) {
+              trajectories.addAll(targetTrajectories);
+            } else {
+              for (final Collection<Object> oldTrajectory : targetTrajectories) {
+                final Collection<Object> newTrajectory = new ArrayList<>();
 
-          // Calculate trajectories.
-          if (label == null) {
-            trajectories.addAll(targetResult.getTrajectories());
-          } else {
-            for (final Collection<Object> oldTrajectory : targetResult.getTrajectories()) {
-              final Collection<Object> newTrajectory = new ArrayList<>();
+                newTrajectory.add(label);
+                newTrajectory.addAll(oldTrajectory);
 
-              newTrajectory.add(label);
-              newTrajectory.addAll(oldTrajectory);
-
-              trajectories.add(newTrajectory);
+                trajectories.add(newTrajectory);
+              }
             }
+
+            // Set labels.
+            edge.setLabel(label);
+            edge.setNextLabels(nextLabels);
           }
 
-          if (!targetActions.contains(targetAction)) {
-            graph.addGraph(targetGraph);
-            targetActions.add(targetAction);
-          }
-
-          graph.addEdge(transition, label, nextLabels);
+          Logger.debug("Action trajectories: %s", trajectories);
+          actionTrajectories.put(searchEntry.action, trajectories);
         }
-
-        Logger.debug("Action trajectories: %s", trajectories);
-        actionResults.put(searchEntry.action, new Result(trajectories, graph));
 
         // The traversed action is removed from the DFS stack.
         searchStack.pop();
       }
     }
 
-    return actionResults.get(startAction);
+    return new Result(actionTrajectories.get(startAction), graph);
   }
 }
