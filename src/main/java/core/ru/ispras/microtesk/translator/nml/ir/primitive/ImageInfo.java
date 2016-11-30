@@ -22,44 +22,11 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ImageInfo {
-  public static final class Token {
-    private final int bitSize;
-    private final Node expr;
-
-    private Token(final int bitSize, final Node expr) {
-      this.bitSize = bitSize;
-      this.expr = expr;
-    }
-
-    public int getBitSize() {
-      return bitSize;
-    }
-
-    public Node getExpr() {
-      return expr;
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%d:%s", bitSize, expr);
-    }
-  }
-
-  public static Token newOpc(final int bitSize) {
-    InvariantChecks.checkGreaterThanZero(bitSize);
-    return new Token(bitSize, null);
-  }
-
-  public static Token newField(final int bitSize, final Node expr) {
-    InvariantChecks.checkNotNull(expr);
-    return new Token(bitSize, expr);
-  }
-
   private final int maxImageSize;
   private final boolean imageSizeFixed;
   private BitVector opc;
   private BitVector opcMask;
-  private List<Token> tokens;
+  private List<Node> fields;
 
   public ImageInfo(final int maxImageSize, final boolean imageSizeFixed) {
     InvariantChecks.checkGreaterOrEqZero(maxImageSize);
@@ -68,7 +35,7 @@ public final class ImageInfo {
     this.imageSizeFixed = imageSizeFixed;
     this.opc = null;
     this.opcMask = null;
-    this.tokens = Collections.emptyList();
+    this.fields = Collections.emptyList();
 
   }
 
@@ -96,13 +63,13 @@ public final class ImageInfo {
     this.opcMask = value;
   }
 
-  public List<Token> getTokens() {
-    return tokens;
+  public List<Node> getFields() {
+    return fields;
   }
 
-  public void setTokens(final List<Token> tokens) {
-    InvariantChecks.checkNotNull(tokens);
-    this.tokens = tokens;
+  public void setFields(final List<Node> fields) {
+    InvariantChecks.checkNotNull(fields);
+    this.fields = fields;
   }
 
   public ImageInfo or(final ImageInfo other) {
@@ -124,12 +91,12 @@ public final class ImageInfo {
   @Override
   public String toString() {
     return String.format(
-        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s, opc=%s, opcMask=%s, tokens=%s]",
+        "ImageInfo [maxImageSize=%s, imageSizeFixed=%s, opc=%s, opcMask=%s, fields=%s]",
         maxImageSize,
         imageSizeFixed,
         opc,
         opcMask,
-        tokens
+        fields
         );
   }
 }

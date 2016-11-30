@@ -182,7 +182,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       BitVector opc = null;
       BitVector opcMask = null;
       boolean hasOpc = false;
-      final List<ImageInfo.Token> imageTokens = new ArrayList<>();
+      final List<Node> fields = new ArrayList<>();
 
       final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
@@ -194,12 +194,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final ImageInfo tokenImageInfo;
         if (isTokenOpc) {
           tokenImageInfo = new ImageInfo(text.length(), true);
-          imageTokens.add(ImageInfo.newOpc(text.length()));
+          fields.add(NodeValue.newString(text));
         } else {
           final Node argument = arguments.get(markerIndex);
           tokenImageInfo = getImageInfo(primitive, argument);
-          imageTokens.add(ImageInfo.newField(
-              tokenImageInfo.isImageSizeFixed() ? tokenImageInfo.getMaxImageSize() : 0, argument));
+          fields.add(argument);
         }
         imageInfo = imageInfo.and(tokenImageInfo);
 
@@ -229,7 +228,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         imageInfo.setOpcMask(opcMask);
       }
 
-      imageInfo.setTokens(imageTokens);
+      imageInfo.setFields(fields);
       primitive.getInfo().setImageInfo(imageInfo);
     }
 
