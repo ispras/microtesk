@@ -18,52 +18,41 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ImageInfo {
-  public static enum TokenKind {
-    /** Image field is a mask */
-    OPC,
-
-    /** Image field is an argument (immediate or primitive) */
-    ARG,
-
-    /** Image field is an expression */
-    EXPR
-  }
-
   public static final class Token {
-    private final TokenKind kind;
     private final int bitSize;
-    private final String name;
+    private final Node expr;
 
-    public static Token newOpc(final int bitSize) {
-      InvariantChecks.checkGreaterThanZero(bitSize);
-      return new Token(TokenKind.OPC, bitSize, null);
-    }
-
-    private Token(final TokenKind kind, final int bitSize, final String name) {
-      this.kind = kind;
+    private Token(final int bitSize, final Node expr) {
       this.bitSize = bitSize;
-      this.name = name;
-    }
-
-    public TokenKind getKind() {
-      return kind;
+      this.expr = expr;
     }
 
     public int getBitSize() {
       return bitSize;
     }
 
-    public String getName() {
-      return name;
+    public Node getExpr() {
+      return expr;
     }
 
     @Override
     public String toString() {
-      return String.format("%s(%s)->%s]", kind, bitSize, name);
+      return String.format("%d:%s", bitSize, expr);
     }
+  }
+
+  public static Token newOpc(final int bitSize) {
+    InvariantChecks.checkGreaterThanZero(bitSize);
+    return new Token(bitSize, null);
+  }
+
+  public static Token newField(final int bitSize, final Node expr) {
+    InvariantChecks.checkNotNull(expr);
+    return new Token(bitSize, expr);
   }
 
   private final int maxImageSize;

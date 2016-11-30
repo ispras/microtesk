@@ -194,10 +194,12 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final ImageInfo tokenImageInfo;
         if (isTokenOpc) {
           tokenImageInfo = new ImageInfo(text.length(), true);
-          imageTokens.add(ImageInfo.Token.newOpc(text.length()));
+          imageTokens.add(ImageInfo.newOpc(text.length()));
         } else {
-          tokenImageInfo = getImageInfo(primitive, arguments.get(markerIndex));
-          imageTokens.addAll(tokenImageInfo.getTokens());
+          final Node argument = arguments.get(markerIndex);
+          tokenImageInfo = getImageInfo(primitive, argument);
+          imageTokens.add(ImageInfo.newField(
+              tokenImageInfo.isImageSizeFixed() ? tokenImageInfo.getMaxImageSize() : 0, argument));
         }
         imageInfo = imageInfo.and(tokenImageInfo);
 
