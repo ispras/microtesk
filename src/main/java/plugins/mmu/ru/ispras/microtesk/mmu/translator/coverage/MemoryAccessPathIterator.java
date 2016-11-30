@@ -57,6 +57,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         order[i] = i;
       }
 
+      // Randomize order of traversal.
       for (int i = 0; i < order.length; i++) {
         final int j = Randomizer.get().nextIntRange(0, order.length - 1);
         final int k = Randomizer.get().nextIntRange(0, order.length - 1);
@@ -118,10 +119,15 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     }
   }
 
+  /** Memory subsystem representation. */
   private final MmuSubsystem memory;
+  /** Target trajectory. */
   private final Iterator<Object> labels;
+  /** Labeled memory graph. */
   private final MemoryGraph graph;
+  /** Memory access type. */
   private final MemoryAccessType type;
+  /** Constraints for selecting memory access paths. */
   private final MemoryAccessConstraints constraints;
 
   private final Stack<SearchEntry> searchStack = new Stack<>();
@@ -191,6 +197,11 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         if (MemoryEngineUtils.isFeasibleTransition(transition, type, context)) {
           searchStack.push(new SearchEntry(targetAction, nextLabel, context));
           currentPath.add(transition);
+
+          // Check if this is a recursive memory access.
+          if (targetAction == memory.getStartAction()) {
+            
+          }
 
           hasTraversed = false;
           break;
