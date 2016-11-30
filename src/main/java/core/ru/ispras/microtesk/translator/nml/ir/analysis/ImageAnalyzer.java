@@ -82,13 +82,9 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         /*
         final ImageInfo imageInfo = item.getInfo().getImageInfo();
         if (null != imageInfo) {
-          System.out.printf(
-              "%s: (%d, %b)%n",
-              item.getName(),
-              imageInfo.getMaxImageSize(),
-              imageInfo.isImageSizeFixed()
-              );
-        }*/
+          System.out.printf("%s: %s%n", item.getName(), imageInfo);
+        }
+        */
       }
     }
 
