@@ -178,7 +178,6 @@ public final class MemoryTrajectoryExtractor {
             edge.setNextLabels(nextLabels);
           }
 
-          Logger.debug("Action trajectories: %s", trajectories);
           actionTrajectories.put(searchEntry.action, trajectories);
         }
 
