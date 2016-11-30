@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class ExprPrinter extends MapBasedPrinter {
@@ -227,29 +229,31 @@ public final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onOperationBegin(final NodeOperation expr) {
-      InvariantChecks.checkTrue(expr.getUserData() instanceof NodeInfo);
-      final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
+      if (expr.getUserData() instanceof NodeInfo) {
+        final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
 
-      final int coercionCount = appendCoercions(nodeInfo);
-      coercionStack.push(coercionCount);
+        final int coercionCount = appendCoercions(nodeInfo);
+        coercionStack.push(coercionCount);
+        operatorStack.push(expr.getOperationId());
+      }
 
       super.onOperationBegin(expr);
-      operatorStack.push(expr.getOperationId());
     }
 
     @Override
     public void onOperationEnd(final NodeOperation expr) {
       super.onOperationEnd(expr);
 
-      final int coercionCount = coercionStack.pop();
+      if (expr.getUserData() instanceof NodeInfo) {
+        final int coercionCount = coercionStack.pop();
 
-      if (coercionCount > 0 &&
-          ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) {
-        appendText(".load()");
+        if (coercionCount > 0 && ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) {
+          appendText(".load()");
+        }
+
+        appendCloseBrackets(coercionCount);
+        operatorStack.pop();
       }
-
-      appendCloseBrackets(coercionCount);
-      operatorStack.pop();
     }
 
     @Override
@@ -257,17 +261,18 @@ public final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
-      InvariantChecks.checkTrue(operation.getUserData() instanceof NodeInfo);
-      final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
-
-      final Enum<?> opId = operation.getOperationId();
-      final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
-      final boolean isLast = (operation.getOperandCount() - 1) == index;
-
-      if ((castOperatorMap.containsKey(opId) ||
-          castOperatorMap.containsKey(innerOpId)) && !isLast) {
-        // Skips all operands but the last
-        setStatus(Status.SKIP);
+      if (operation.getUserData() instanceof NodeInfo) {
+        final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
+  
+        final Enum<?> opId = operation.getOperationId();
+        final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
+        final boolean isLast = (operation.getOperandCount() - 1) == index;
+  
+        if ((castOperatorMap.containsKey(opId) ||
+            castOperatorMap.containsKey(innerOpId)) && !isLast) {
+          // Skips all operands but the last
+          setStatus(Status.SKIP);
+        }
       }
 
       super.onOperandBegin(operation, operand, index);
@@ -278,17 +283,18 @@ public final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
-      InvariantChecks.checkTrue(operation.getUserData() instanceof NodeInfo);
-      final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
+      if (operation.getUserData() instanceof NodeInfo) {
+        final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
 
-      final Enum<?> opId = operation.getOperationId();
-      final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
-      final boolean isLast = (operation.getOperandCount() - 1) == index;
+        final Enum<?> opId = operation.getOperationId();
+        final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
+        final boolean isLast = (operation.getOperandCount() - 1) == index;
 
-      if ((castOperatorMap.containsKey(opId) ||
-           castOperatorMap.containsKey(innerOpId)) && !isLast) {
-        // Restores status
-        setStatus(Status.OK);
+        if ((castOperatorMap.containsKey(opId) ||
+            castOperatorMap.containsKey(innerOpId)) && !isLast) {
+          // Restores status
+          setStatus(Status.OK);
+        }
       }
 
       super.onOperandEnd(operation, operand, index);
@@ -301,6 +307,11 @@ public final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onValue(final NodeValue value) {
+      if (value.isType(DataTypeId.LOGIC_STRING)) {
+        appendText(String.format("\"%s\"", value.getValue()));
+        return;
+      }
+
       InvariantChecks.checkTrue(value.getUserData() instanceof NodeInfo);
       final NodeInfo nodeInfo = (NodeInfo) value.getUserData();
 
@@ -332,8 +343,24 @@ public final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onVariable(final NodeVariable variable) {
-      InvariantChecks.checkTrue(variable.getUserData() instanceof NodeInfo);
+      if (variable.isType(DataTypeId.LOGIC_STRING)) {
+        InvariantChecks.checkTrue(variable.getUserData() instanceof StatementAttributeCall);
+        final StatementAttributeCall callInfo = (StatementAttributeCall) variable.getUserData();
 
+        final StringBuilder sb = new StringBuilder();
+        if (null != callInfo.getCalleeName()) {
+          sb.append(String.format("%s.", callInfo.getCalleeName()));
+        } else if (null != callInfo.getCalleeInstance()) {
+          sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
+        }
+
+        sb.append(String.format("%s(vars__)", callInfo.getAttributeName()));
+        appendText(sb.toString());
+
+        return;
+      }
+
+      InvariantChecks.checkTrue(variable.getUserData() instanceof NodeInfo);
       final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
 
       InvariantChecks.checkTrue(nodeInfo.getSource() instanceof Location);

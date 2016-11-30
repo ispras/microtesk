@@ -622,6 +622,34 @@ public final class ExprFactory extends WalkerFactoryBase {
     return result;
   }
 
+  public Node newCondition(final Where w, final List<Pair<Node, Node>> blocks) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(blocks);
+    InvariantChecks.checkTrue(blocks.size() >= 2);
+
+    final Pair<Node, Node> elseBlock = blocks.get(blocks.size() - 1);
+    InvariantChecks.checkTrue(elseBlock.first.equals(NodeValue.newBoolean(true)));
+
+    Node result = elseBlock.second;
+
+    for (int index = blocks.size() - 2; index >= 0; index--) {
+      final Pair<Node, Node> currentBlock = blocks.get(index);
+
+      final Node condition = currentBlock.first;
+      final Node value = currentBlock.second;
+
+      if (condition.equals(NodeValue.newBoolean(true))) {
+        result = value;
+      } else if (condition.equals(NodeValue.newBoolean(false))) {
+        // result stays the same
+      } else {
+        result = new NodeOperation(StandardOperation.ITE, condition, value, result);
+      }
+    }
+
+    return result;
+  }
+
   public Expr evaluateConst(final Where w, final Expr src) throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(src);

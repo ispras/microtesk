@@ -446,8 +446,8 @@ $res = getStatementFactory().createFormat(where($fs), $fs.text, $fargs.res);
 }
     ;
 
-formatIdList [String allowedAttr] returns [List<Format.Argument> res]
-@init  {final List<Format.Argument> args = new ArrayList<>();}
+formatIdList [String allowedAttr] returns [List<Node> res]
+@init  {final List<Node> args = new ArrayList<>();}
 @after {$res = args;}
     :  (fa=formatId[allowedAttr] {
 checkNotNull($fa.start, $fa.res, $fa.text);
@@ -455,21 +455,25 @@ args.add($fa.res);
 })+
     ;
 
-formatId [String allowedAttr] returns [Format.Argument res]
+formatId [String allowedAttr] returns [Node res]
     : str=STRING_CONST
 {
-$res = Format.createArgument($str.text);
+$res = NodeValue.newString($str.text);
 }
-    | ^(SIF  {final Format.ConditionBuilder builder = new Format.ConditionBuilder();}
-       c1=logicExpr e1=formatId[allowedAttr]            {builder.addCondition($c1.res, $e1.res);}
-       (^(ELSEIF c2=logicExpr e2=formatId[allowedAttr]) {builder.addCondition($c2.res, $e2.res);})*
-       ELSE e3=formatId[allowedAttr])                   {builder.addCondition(null,    $e3.res);}
+    | ^(w=SIF
+           {final List<Pair<Node, Node>> blocks = new ArrayList<>();}
+       c1=logicExpr e1=formatId[allowedAttr]
+           {blocks.add(new Pair<>($c1.res.getNode(), $e1.res));}
+       (^(ELSEIF c2=logicExpr e2=formatId[allowedAttr])
+           {blocks.add(new Pair<>($c2.res.getNode(), $e2.res));})*
+       ELSE e3=formatId[allowedAttr])
+           {blocks.add(new Pair<>((Node) NodeValue.newBoolean(true), $e3.res));}
 {
-$res = builder.build();
+$res = getExprFactory().newCondition(where($w), blocks);
 }
     | e=dataExpr
 {
-$res = Format.createArgument($e.res);
+$res = $e.res.getNode();
 }
     |  ^(DOT id=ID name=(SYNTAX | IMAGE))
 {
@@ -477,14 +481,20 @@ if (null != allowedAttr && !allowedAttr.equals($name.text)) {
   raiseError(where($name),
       "Calling " + $name.text + " inside " + allowedAttr + " is illegal.");
 }
-$res = Format.createArgument((StatementAttributeCall)
-    getStatementFactory().createAttributeCall(where($id), $id.text, $name.text));
+final StatementAttributeCall stmt = (StatementAttributeCall)
+    getStatementFactory().createAttributeCall(where($id), $id.text, $name.text);
+$res = getStatementFactory().createCallNode(stmt);
 }
     |  ^(INSTANCE_CALL i=instance name=(SYNTAX | IMAGE))
 {
 checkNotNull($i.start, $i.res, $i.text);
-$res = Format.createArgument((StatementAttributeCall)
-    getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text));
+if (null != allowedAttr && !allowedAttr.equals($name.text)) {
+  raiseError(where($name),
+      "Calling " + $name.text + " inside " + allowedAttr + " is illegal.");
+}
+final StatementAttributeCall stmt = (StatementAttributeCall)
+    getStatementFactory().createAttributeCall(where($i.start), $i.res, $name.text);
+$res = getStatementFactory().createCallNode(stmt);
 }
     ;
 

@@ -14,12 +14,22 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -27,7 +37,6 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -168,7 +177,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final PrimitiveAND primitive,
         final String format,
         final List<FormatMarker> markers,
-        final List<Format.Argument> arguments) {
+        final List<Node> arguments) {
       ImageInfo imageInfo = new ImageInfo(0, true);
       BitVector opc = null;
       BitVector opcMask = null;
@@ -222,44 +231,89 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       primitive.getInfo().setImageInfo(imageInfo);
     }
 
-    private ImageInfo getImageInfo(final PrimitiveAND primitive, final Format.Argument argument) {
-      if (argument instanceof Format.ExprBasedArgument) {
-        return new ImageInfo(argument.getBinaryLength(), true);
+    private ImageInfo getImageInfo(final PrimitiveAND primitive, final Node argument) {
+      InvariantChecks.checkTrue(argument.isType(DataTypeId.BIT_VECTOR) ||
+                                argument.isType(DataTypeId.LOGIC_STRING), primitive.getName());
+
+      if (argument.isType(DataTypeId.BIT_VECTOR)) {
+        return new ImageInfo(argument.getDataType().getSize(), true);
       }
 
-      if (argument instanceof Format.StringBasedArgument) {
-        return new ImageInfo(argument.getBinaryLength(), true);
-      }
+      class ExprVisitor extends ExprTreeVisitorDefault {
+        private final Deque<ImageInfo> imageInfos = new ArrayDeque<>();
 
-      if (argument instanceof Format.TernaryConditionalArgument) {
-        final Format.TernaryConditionalArgument ternary =
-            (Format.TernaryConditionalArgument) argument;
-
-        final ImageInfo leftImageInfo = getImageInfo(primitive, ternary.getLeft());
-        final ImageInfo rightImageInfo = getImageInfo(primitive, ternary.getRight());
-
-        return leftImageInfo.or(rightImageInfo);
-      }
-
-      if (argument instanceof Format.AttributeCallBasedArgument) {
-        final Format.AttributeCallBasedArgument attributeCall =
-            (Format.AttributeCallBasedArgument) argument;
-
-        InvariantChecks.checkTrue(attributeCall.getAttributeName().equals(Attribute.IMAGE_NAME));
-
-        if (null != attributeCall.getCalleeName()) {
-          final Primitive arg = primitive.getArguments().get(attributeCall.getCalleeName());
-          return arg.getInfo().getImageInfo();
+        ImageInfo getImageInfo() {
+          return imageInfos.peek();
         }
 
-        if (null != attributeCall.getCalleeInstance()) {
-          return attributeCall.getCalleeInstance().getPrimitive().getInfo().getImageInfo();
+        @Override
+        public void onValue(final NodeValue value) {
+          final String text = (String)((NodeValue) value).getValue();
+          imageInfos.push(new ImageInfo(text.length(), true));
         }
 
-        throw new IllegalArgumentException("Illegal attribute call.");
+        @Override
+        public void onVariable(final NodeVariable variable) {
+          final StatementAttributeCall callInfo = (StatementAttributeCall) variable.getUserData();
+
+          InvariantChecks.checkNotNull(callInfo);
+          InvariantChecks.checkTrue(callInfo.getAttributeName().equals(Attribute.IMAGE_NAME));
+
+          if (null != callInfo.getCalleeName()) {
+            final Primitive arg = primitive.getArguments().get(callInfo.getCalleeName());
+            imageInfos.push(arg.getInfo().getImageInfo());
+            return;
+          }
+
+          if (null != callInfo.getCalleeInstance()) {
+            imageInfos.push(callInfo.getCalleeInstance().getPrimitive().getInfo().getImageInfo());
+            return;
+          }
+
+          throw new IllegalArgumentException("Illegal attribute call.");
+        }
+
+        @Override
+        public void onOperationBegin(final NodeOperation node) {
+          InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.ITE);
+        }
+
+        @Override
+        public void onOperationEnd(final NodeOperation node) {
+          imageInfos.push(imageInfos.pop().or(imageInfos.pop()));
+        }
+
+        @Override
+        public void onOperandBegin(
+            final NodeOperation operation,
+            final Node operand,
+            final int index) {
+          InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
+          if (0 == index) {
+            setStatus(Status.SKIP);
+          }
+        }
+
+        @Override
+        public void onOperandEnd(
+            final NodeOperation operation,
+            final Node operand,
+            final int index) {
+          InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
+          if (0 == index) {
+            setStatus(Status.OK);
+          }
+        }
       }
 
-      throw new IllegalArgumentException("Illegal format argument.");
+      final ExprVisitor visitor = new ExprVisitor();
+      final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+      walker.visit(argument);
+
+      final ImageInfo imageInfo = visitor.getImageInfo();
+      InvariantChecks.checkNotNull(imageInfo);
+
+      return imageInfo;
     }
 
     @Override

@@ -19,9 +19,12 @@ import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Format;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -193,7 +196,7 @@ final class StatementBuilder {
 
     final StringBuffer sb = new StringBuffer();
     for (int index = 0; index < stmt.getArguments().size(); ++index) {
-      final Format.Argument argument = stmt.getArguments().get(index);
+      final Node argument = stmt.getArguments().get(index);
       final FormatMarker marker = stmt.getMarkers().get(index);
       
       if (null == argument || null == marker) {
@@ -201,7 +204,7 @@ final class StatementBuilder {
       }
 
       sb.append(", ");
-      sb.append(argument.convertTo(marker));
+      sb.append(convertTo(argument, marker));
     }
 
     if (null == stmt.getFunction()) {
@@ -228,5 +231,41 @@ final class StatementBuilder {
 
     addStatement(String.format(
         "Execution.%s(%s);", stmt.getName(), sb.toString()));
+  }
+
+  private static String convertTo(final Node argument, final FormatMarker marker) {
+    if (argument.isType(DataTypeId.LOGIC_INTEGER)) {
+      return ExprPrinter.toString(new Expr(argument));
+    }
+
+    if (argument.isType(DataTypeId.BIT_VECTOR)) {
+      final String methodName;
+      switch (marker.getKind()) {
+        case BIN:
+          methodName = "toBinString()";
+          break;
+        case STR:
+          methodName = "toString()";
+          break;
+        case HEX:
+          methodName = "bigIntegerValue(false)";
+          break;
+        case DEC:
+          methodName = "bigIntegerValue()";
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported marker kind: " + marker.getKind());
+      }
+
+      return String.format("%s.%s", ExprPrinter.toString(new Expr(argument)), methodName);
+    }
+
+    if (argument.isType(DataTypeId.LOGIC_STRING)) {
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR) ||
+                                marker.isKind(FormatMarker.Kind.BIN));
+      return ExprPrinter.toString(new Expr(argument));
+    }
+
+    throw new IllegalArgumentException("Illegal data type: " + argument);
   }
 }

@@ -17,8 +17,11 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -194,7 +197,7 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     return StatementAttributeCall.newArgumentCall(calleeName, attributeName);
   }
-  
+
   public Statement createAttributeCall(
       final Where where,
       final Instance calleeInstance,
@@ -208,16 +211,39 @@ public final class StatementFactory extends WalkerFactoryBase {
     return StatementAttributeCall.newInstanceCall(calleeInstance, attributeName);
   }
 
+  public Node createCallNode(final StatementAttributeCall call) {
+    final StringBuilder sb = new StringBuilder();
+
+    if (null != call.getCalleeName()) {
+      sb.append(call.getCalleeName());
+    }
+
+    if (null != call.getCalleeInstance()) {
+      sb.append(call.getCalleeInstance().getPrimitive().getName());
+    }
+
+    if (sb.length() > 0) {
+      sb.append('.');
+    }
+
+    sb.append(call.getAttributeName());
+
+    final Node node = new NodeVariable(sb.toString(), DataType.STRING);
+    node.setUserData(call);
+
+    return node;
+  }
+
   public Statement createFormat(
       final Where where,
       String format,
-      final List<Format.Argument> args) throws SemanticException {
+      final List<Node> args) throws SemanticException {
 
     if (null == args) {
       return new StatementFormat(
           format,
           Collections.<FormatMarker>emptyList(),
-          Collections.<Format.Argument>emptyList()
+          Collections.<Node>emptyList()
           );
     }
 
@@ -231,11 +257,16 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     for (int index = 0; index < markers.size(); ++index) {
       final FormatMarker marker = markers.get(index);
-      final Format.Argument argument = args.get(index);
+      final Node argument = args.get(index);
 
       if (marker.isKind(FormatMarker.Kind.BIN) || marker.isKind(FormatMarker.Kind.STR)) {
+        if (argument.isType(DataTypeId.LOGIC_INTEGER)) {
+          raiseError(where, String.format("%s must be explicitly typed.", argument));
+        }
+
         final int markerLength = marker.getLength();
-        final int argumentLength = argument.getBinaryLength();
+        final int argumentLength =
+            argument.isType(DataTypeId.BIT_VECTOR) ? argument.getDataType().getSize() : 0;
 
         if (markerLength != 0 && argumentLength != 0 && markerLength != argumentLength) {
           raiseError(where, String.format(
@@ -254,7 +285,7 @@ public final class StatementFactory extends WalkerFactoryBase {
   public Statement createTrace(
       final Where where,
       final String format,
-      final List<Format.Argument> args) throws SemanticException {
+      final List<Node> args) throws SemanticException {
 
     final String FUNCTION_NAME = "trace"; 
     if (null == args) {
@@ -262,7 +293,7 @@ public final class StatementFactory extends WalkerFactoryBase {
           FUNCTION_NAME,
           format,
           Collections.<FormatMarker>emptyList(),
-          Collections.<Format.Argument>emptyList());
+          Collections.<Node>emptyList());
     }
 
     final List<FormatMarker> markers = FormatMarker.extractMarkers(format);

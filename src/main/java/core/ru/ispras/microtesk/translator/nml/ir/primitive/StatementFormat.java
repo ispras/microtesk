@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.List;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -23,13 +24,13 @@ public final class StatementFormat extends Statement {
   private final String funcName;
   private final String format;
   private final List<FormatMarker> markers;
-  private final List<Format.Argument> arguments;
+  private final List<Node> arguments;
 
   StatementFormat(
       final String funcName,
       final String format,
       final List<FormatMarker> markers,
-      final List<Format.Argument> arguments) {
+      final List<Node> arguments) {
     super(Kind.FORMAT);
 
     InvariantChecks.checkNotNull(format);
@@ -45,7 +46,7 @@ public final class StatementFormat extends Statement {
   StatementFormat(
       final String format,
       final List<FormatMarker> markers,
-      final List<Format.Argument> arguments) {
+      final List<Node> arguments) {
     this(null, format, markers, arguments);
   }
 
@@ -61,7 +62,7 @@ public final class StatementFormat extends Statement {
     return markers;
   }
 
-  public List<Format.Argument> getArguments() {
+  public List<Node> getArguments() {
     return arguments;
   }
 }
