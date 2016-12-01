@@ -42,13 +42,6 @@ public final class MemoryTrajectoryExtractor {
     private final Collection<Collection<Object>> trajectories;
     private final MemoryGraph graph;
 
-    public Result() {
-      final Collection<Object> trajectory = Collections.<Object>emptyList();
-
-      this.trajectories = Collections.<Collection<Object>>singleton(trajectory);
-      this.graph = new MemoryGraph();
-    }
-
     public Result(final Collection<Collection<Object>> trajectories, final MemoryGraph graph) {
       InvariantChecks.checkNotNull(trajectories);
       InvariantChecks.checkNotNull(graph);
@@ -93,8 +86,7 @@ public final class MemoryTrajectoryExtractor {
     InvariantChecks.checkNotNull(abstraction);
 
     // Memory graph to be labeled.
-    final MemoryGraph graph = new MemoryGraph();
-    graph.addEdges(memory.getTransitions());
+    final MemoryGraph graph = new MemoryGraph(memory);
 
     // Each action is mapped to the pair of the set of trajectories.
     final Map<MmuAction, Collection<Collection<Object>>> actionTrajectories = new HashMap<>();
@@ -155,8 +147,6 @@ public final class MemoryTrajectoryExtractor {
 
             // Perform abstraction of the transition.
             final Object label = abstraction.apply(memory, transition);
-            Logger.debug("Transition has abstracted to %s", label);
-
             final Set<Object> nextLabels = graph.getNextLabels(targetAction);
 
             // Calculate trajectories.
@@ -186,6 +176,10 @@ public final class MemoryTrajectoryExtractor {
       }
     }
 
-    return new Result(actionTrajectories.get(startAction), graph);
+    final Collection<Collection<Object>> trajectories = actionTrajectories.get(startAction);
+    Logger.debug("Number of trajectories is %d", trajectories.size());
+    Logger.debug("Trajectories are %s", trajectories);
+
+    return new Result(trajectories, graph);
   }
 }

@@ -64,9 +64,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public static final String PARAM_ABSTRACTION = "classifier";
   public static final String PARAM_ABSTRACTION_TRIVIAL = "trivial";
   public static final String PARAM_ABSTRACTION_UNIVERSAL = "universal";
-  public static final String PARAM_ABSTRACTION_EVENT_BASED = "event-based";
+  public static final String PARAM_ABSTRACTION_BUFFER_ACCESS = "buffer-access";
   public static final MemoryGraphAbstraction PARAM_ABSTRACTION_DEFAULT =
-      MemoryGraphAbstraction.BUFFER_EVENT_PAIR;
+      MemoryGraphAbstraction.BUFFER_ACCESS;
 
   public static final String PARAM_PAGE_MASK = "page_mask";
   public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
@@ -119,8 +119,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     if (PARAM_ABSTRACTION_UNIVERSAL.equals(id)) {
       return MemoryGraphAbstraction.UNIVERSAL;
     }
-    if (PARAM_ABSTRACTION_EVENT_BASED.equals(id)) {
-      return MemoryGraphAbstraction.BUFFER_EVENT_PAIR;
+    if (PARAM_ABSTRACTION_BUFFER_ACCESS.equals(id)) {
+      return MemoryGraphAbstraction.BUFFER_ACCESS;
     }
 
     return PARAM_ABSTRACTION_DEFAULT;

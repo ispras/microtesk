@@ -15,10 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.BufferEventPair;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -49,27 +46,32 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
     }
   },
 
-  BUFFER_EVENT_PAIR {
+  BUFFER_ACCESS {
     @Override
     public Object apply(final MmuSubsystem memory, final MmuTransition transition) {
       InvariantChecks.checkNotNull(transition);
 
       final MmuGuard guard = transition.getGuard();
 
-      if (guard == null) {
-        return null;
+      if (guard != null) {
+        final MmuBufferAccess access = guard.getBufferAccess();
+
+        if (access != null) {
+          return access.getBuffer();
+        }
       }
 
-      final MmuBufferAccess access = guard.getBufferAccess();
+      final MmuAction action = transition.getTarget();
 
-      if (access == null) {
-        return null;
+      if (action != null) {
+        final MmuBufferAccess access = action.getBufferAccess();
+
+        if (access != null) {
+          return access.getBuffer();
+        }
       }
 
-      final MmuBuffer buffer = access.getBuffer();
-      final BufferAccessEvent event = guard.getEvent();
-      
-      return new BufferEventPair(buffer, event);
+      return null;
     }
   },
 

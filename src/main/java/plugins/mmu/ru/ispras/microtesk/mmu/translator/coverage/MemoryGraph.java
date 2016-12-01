@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
@@ -112,7 +113,9 @@ public final class MemoryGraph {
 
   private final Map<MmuAction, ArrayList<Edge>> edges = new LinkedHashMap<>();
 
-  public MemoryGraph() {
+  public MemoryGraph(final MmuSubsystem memory) {
+    InvariantChecks.checkNotNull(memory);
+    addEdges(memory.getTransitions());
   }
 
   public ArrayList<Edge> getEdges(final MmuAction vertex) {
@@ -143,7 +146,7 @@ public final class MemoryGraph {
     return nextLabels;
   }
 
-  public void addEdge(final MmuTransition transition, final Object label, final Set<Object> nextLabels) {
+  private void addEdge(final MmuTransition transition, final Object label, final Set<Object> nextLabels) {
     InvariantChecks.checkNotNull(transition);
 
     final MmuAction vertex = transition.getSource();
@@ -157,11 +160,11 @@ public final class MemoryGraph {
     out.add(edge);
   }
 
-  public void addEdge(final MmuTransition transition) {
+  private void addEdge(final MmuTransition transition) {
     addEdge(transition, null, null);
   }
 
-  public void addEdges(final Collection<MmuTransition> transitions) {
+  private void addEdges(final Collection<MmuTransition> transitions) {
     InvariantChecks.checkNotNull(transitions);
 
     for (final MmuTransition transition : transitions) {
