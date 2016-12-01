@@ -52,7 +52,7 @@ public final class BinaryReader {
       }
     }
 
-    final byte[] bytes = Arrays.copyOfRange(buffer, position, byteSize);
+    final byte[] bytes = Arrays.copyOfRange(buffer, position, position + byteSize);
     final BitVector data = BitVector.valueOf(bytes, byteSize * 8);
 
     position += byteSize;
