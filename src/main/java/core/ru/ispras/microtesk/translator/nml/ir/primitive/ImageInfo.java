@@ -28,6 +28,16 @@ public final class ImageInfo {
   private BitVector opcMask;
   private List<Node> fields;
 
+  public ImageInfo(final ImageInfo other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.maxImageSize = other.maxImageSize;
+    this.imageSizeFixed = other.imageSizeFixed;
+    this.opc = other.opc;
+    this.opcMask = other.opcMask;
+    this.fields = other.fields;
+  }
+
   public ImageInfo(final int maxImageSize, final boolean imageSizeFixed) {
     InvariantChecks.checkGreaterOrEqZero(maxImageSize);
 
@@ -36,7 +46,6 @@ public final class ImageInfo {
     this.opc = null;
     this.opcMask = null;
     this.fields = Collections.emptyList();
-
   }
 
   public int getMaxImageSize() {
