@@ -35,11 +35,21 @@ public DecoderResult decode(final BitVector image) {
     return null;
   }
 
+  resetPosition();<\n>
   <stmts: {stmt | <stmt>}; separator="\n">
 }
 >>
 
-decoder_result(name, args, size) ::= <<
-<\n>return new DecoderResult(
-    new <name>(<args; separator=", ">), <size>);
+decoder_result(name, args) ::= <<
+<\n>return newResult(new <name>(<args; separator=", ">));
+>>
+
+decoder_opc_check(value, size) ::= <<
+if (!matchNextOpc(image, BitVector.valueOf("<value>", 2, <size>))) {
+  return null;
+}
+>>
+
+decoder_immediate(name, type) ::= <<
+<name> = readNextImmediate(image, <type>);
 >>

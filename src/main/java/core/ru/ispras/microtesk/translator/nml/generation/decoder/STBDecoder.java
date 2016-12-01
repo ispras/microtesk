@@ -23,9 +23,13 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.decoder.Decoder;
+import ru.ispras.microtesk.decoder.DecoderItem;
 import ru.ispras.microtesk.decoder.DecoderResult;
 import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -64,11 +68,13 @@ final class STBDecoder implements STBuilder {
   private void buildHeader(final ST st) {
     st.add("name", name);
     st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".decoder", modelName));
-    st.add("ext", Decoder.class.getSimpleName());
+    st.add("ext", DecoderItem.class.getSimpleName());
     st.add("instance", "instance");
-    st.add("imps", Decoder.class.getName());
+    st.add("imps", DecoderItem.class.getName());
     st.add("imps", DecoderResult.class.getName());
     st.add("imps", BitVector.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
     final Set<String> imported = new HashSet<>();
     importPrimitive(st, item, imported);
@@ -131,15 +137,64 @@ final class STBDecoder implements STBuilder {
       argumentNames.add(argumentName);
 
       stConstructor.add("stmts", String.format(
-          "final %s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
+          "%s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
+    }
+
+    for (final Node field : imageInfo.getFields()) {
+      if (ExprUtils.isValue(field)) {
+        stConstructor.add("stmts", "");
+        buildOpcCheck(stConstructor, group, field);
+      } else if (isImmediateArgument(field)) {
+        buildImmediate(stConstructor, group, field);
+      }
     }
 
     final ST stResult = group.getInstanceOf("decoder_result");
     stResult.add("name", item.getName());
     stResult.add("args", argumentNames);
-    stResult.add("size", "image.getBitSize()");
     stConstructor.add("stmts", stResult);
 
     st.add("members", stConstructor);
+  }
+
+  private void buildOpcCheck(final ST st, final STGroup group, final Node field) {
+    InvariantChecks.checkTrue(ExprUtils.isValue(field));
+    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR) ||
+                              field.isType(DataTypeId.LOGIC_STRING));
+
+    final ST stOpcCheck = group.getInstanceOf("decoder_opc_check");
+    final int size = field.isType(DataTypeId.BIT_VECTOR) ?
+        field.getDataType().getSize() : field.toString().length();
+
+    stOpcCheck.add("value", field.toString());
+    stOpcCheck.add("size", size);
+
+    st.add("stmts", stOpcCheck);
+  }
+
+  private boolean isImmediateArgument(final Node field) {
+    if (!ExprUtils.isVariable(field)) {
+      return false;
+    }
+
+    final NodeVariable variable = (NodeVariable) field;
+    return item.getArguments().containsKey(variable.getName());
+  }
+
+  private void buildImmediate(final ST st, final STGroup group, final Node field) {
+    InvariantChecks.checkTrue(ExprUtils.isVariable(field));
+
+    final String name = field.toString();
+    final Primitive primitive = item.getArguments().get(name);
+
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.IMM);
+
+    final ST stImmediate = group.getInstanceOf("decoder_immediate");
+
+    stImmediate.add("name", name);
+    stImmediate.add("type", primitive.getReturnType().getJavaText());
+
+    st.add("stmts", stImmediate);
   }
 }
