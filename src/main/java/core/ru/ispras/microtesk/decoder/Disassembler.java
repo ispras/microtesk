@@ -142,7 +142,10 @@ public final class Disassembler {
       }
 
       final IsaPrimitive primitive = result.getPrimitive();
-      writer.println(primitive.syntax(tempVars));
+      final String text = primitive.syntax(tempVars);
+
+      Logger.debug(text);
+      writer.println(text);
 
       if (!imageSizeFixed) {
         final int bitsRead = result.getBitSize();
