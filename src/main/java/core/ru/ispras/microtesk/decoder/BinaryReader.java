@@ -28,7 +28,8 @@ public final class BinaryReader {
   private boolean open;
 
   private final byte[] buffer = new byte[1024];
-  private int position = buffer.length;
+  private int lastBytesRead = 0;
+  private int position = 0;
 
   public BinaryReader(final File file) throws IOException {
     InvariantChecks.checkNotNull(file);
@@ -40,10 +41,10 @@ public final class BinaryReader {
   public BitVector read(final int byteSize) {
     InvariantChecks.checkBounds(byteSize, buffer.length);
 
-    if (position + byteSize > buffer.length) {
+    if (position + byteSize > lastBytesRead) {
       try {
-        final int bytesRead = inputStream.read(buffer, 0, buffer.length);
-        if (bytesRead <= 0) {
+        lastBytesRead = inputStream.read(buffer, 0, buffer.length);
+        if (lastBytesRead <= 0) {
           return null;
         }
         position = 0;
