@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -212,26 +211,7 @@ public final class StatementFactory extends WalkerFactoryBase {
   }
 
   public Node createCallNode(final StatementAttributeCall call) {
-    final StringBuilder sb = new StringBuilder();
-
-    if (null != call.getCalleeName()) {
-      sb.append(call.getCalleeName());
-    }
-
-    if (null != call.getCalleeInstance()) {
-      sb.append(call.getCalleeInstance().getPrimitive().getName());
-    }
-
-    if (sb.length() > 0) {
-      sb.append('.');
-    }
-
-    sb.append(call.getAttributeName());
-
-    final Node node = new NodeVariable(sb.toString(), DataType.STRING);
-    node.setUserData(call);
-
-    return node;
+    return StatementAttributeCall.createCallNode(call);
   }
 
   public Statement createFormat(

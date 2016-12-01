@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.analysis;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -161,7 +162,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
         final Primitive arg = primitive.getArguments().get(stmt.getCalleeName());
-        primitive.getInfo().setImageInfo(arg.getInfo().getImageInfo());
+
+        final ImageInfo imageInfo = new ImageInfo(arg.getInfo().getImageInfo());
+        imageInfo.setFields(Collections.singletonList(StatementAttributeCall.createCallNode(stmt)));
+
+        primitive.getInfo().setImageInfo(imageInfo);
         return;
       }
 

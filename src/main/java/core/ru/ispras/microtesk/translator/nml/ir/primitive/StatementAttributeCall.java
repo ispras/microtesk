@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class StatementAttributeCall extends Statement {
@@ -62,5 +65,31 @@ public final class StatementAttributeCall extends Statement {
 
   public Instance getCalleeInstance() {
     return calleeInstance;
+  }
+
+  public static Node createCallNode(final StatementAttributeCall call) {
+    InvariantChecks.checkNotNull(call);
+
+    InvariantChecks.checkNotNull(call);
+    final StringBuilder sb = new StringBuilder();
+
+    if (null != call.getCalleeName()) {
+      sb.append(call.getCalleeName());
+    }
+
+    if (null != call.getCalleeInstance()) {
+      sb.append(call.getCalleeInstance().getPrimitive().getName());
+    }
+
+    if (sb.length() > 0) {
+      sb.append('.');
+    }
+
+    sb.append(call.getAttributeName());
+
+    final Node node = new NodeVariable(sb.toString(), DataType.STRING);
+    node.setUserData(call);
+
+    return node;
   }
 }
