@@ -37,19 +37,19 @@ public abstract class DecoderItem extends Decoder {
 
   protected final boolean matchNextOpc(final BitVector image, final BitVector value) {
     final int newPosition = position + value.getBitSize();
-    final BitVector field = image.field(position, newPosition);
+    final BitVector field = field(image, position, newPosition - 1);
 
-    final boolean isMatch = field.equals(value);
-    if (isMatch) {
-      position = newPosition;
+    if (!field.equals(value)) {
+      return false;
     }
 
-    return isMatch;
+    position = newPosition;
+    return true;
   }
 
   protected final Immediate readNextImmediate(final BitVector image, final Type type) {
     final int newPosition = position + type.getBitSize();
-    final BitVector field = image.field(position, newPosition);
+    final BitVector field = field(image, position, newPosition - 1);
 
     position = newPosition;
     return new Immediate(new Data(type, field));
@@ -57,7 +57,7 @@ public abstract class DecoderItem extends Decoder {
 
   protected final IsaPrimitive readNextPrimitive(final BitVector image, final Decoder decoder) {
     final BitVector field =
-        image.field(position, position + decoder.getMaxImageSize());
+        field(image, position, position + decoder.getMaxImageSize() - 1);
 
     final DecoderResult result = decoder.decode(field);
     if (null == result) {
@@ -70,5 +70,10 @@ public abstract class DecoderItem extends Decoder {
 
   protected final DecoderResult newResult(final IsaPrimitive primitive) {
     return new DecoderResult(primitive, position);
+  }
+
+  private static BitVector field(final BitVector vector, final int start, final int end) {
+    final int offset = vector.getBitSize() - 1;
+    return vector.field(offset - start, offset - end);
   }
 }
