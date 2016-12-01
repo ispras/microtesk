@@ -55,6 +55,19 @@ public abstract class DecoderItem extends Decoder {
     return new Immediate(new Data(type, field));
   }
 
+  protected final IsaPrimitive readNextPrimitive(final BitVector image, final Decoder decoder) {
+    final BitVector field =
+        image.field(position, position + decoder.getMaxImageSize());
+
+    final DecoderResult result = decoder.decode(field);
+    if (null == result) {
+      return null;
+    }
+
+    position += result.getBitSize();
+    return result.getPrimitive();
+  }
+
   protected final DecoderResult newResult(final IsaPrimitive primitive) {
     return new DecoderResult(primitive, position);
   }
