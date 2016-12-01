@@ -53,3 +53,10 @@ if (!matchNextOpc(image, BitVector.valueOf("<value>", 2, <size>))) {
 decoder_immediate(name, type) ::= <<
 <name> = readNextImmediate(image, <type>);
 >>
+
+decoder_primitive(name, type, decoder) ::= <<
+<name> = (<type>) readNextPrimitive(image, <decoder>.get());
+if (null == <name>) {
+  return null;
+}
+>>

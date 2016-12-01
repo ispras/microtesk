@@ -37,6 +37,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 final class STBDecoder implements STBuilder {
   private final String name;
@@ -145,7 +146,9 @@ final class STBDecoder implements STBuilder {
         stConstructor.add("stmts", "");
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {
-        buildImmediate(stConstructor, group, field);
+        buildImmediateArgument(stConstructor, group, field);
+      } else if (isArgumentImage(field)) {
+        buildArgumentImage(stConstructor, group, field);
       }
     }
 
@@ -181,7 +184,7 @@ final class STBDecoder implements STBuilder {
     return item.getArguments().containsKey(variable.getName());
   }
 
-  private void buildImmediate(final ST st, final STGroup group, final Node field) {
+  private void buildImmediateArgument(final ST st, final STGroup group, final Node field) {
     InvariantChecks.checkTrue(ExprUtils.isVariable(field));
 
     final String name = field.toString();
@@ -196,5 +199,30 @@ final class STBDecoder implements STBuilder {
     stImmediate.add("type", primitive.getReturnType().getJavaText());
 
     st.add("stmts", stImmediate);
+  }
+
+  private boolean isArgumentImage(final Node field) {
+    if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
+      return false;
+    }
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final String name = call.getCalleeName();
+
+    return item.getArguments().containsKey(name);
+  }
+
+  private void buildArgumentImage(final ST st, final STGroup group, final Node field) {
+    final ST stPrimitive = group.getInstanceOf("decoder_primitive");
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final String name = call.getCalleeName();
+    final Primitive primitive = item.getArguments().get(name);
+
+    stPrimitive.add("name", name);
+    stPrimitive.add("type", primitive.getName());
+    stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
+
+    st.add("stmts", stPrimitive);
   }
 }
