@@ -32,6 +32,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.decoder.DecoderItem;
 import ru.ispras.microtesk.decoder.DecoderResult;
 import ru.ispras.microtesk.model.api.Immediate;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
@@ -99,6 +100,10 @@ final class STBDecoder implements STBuilder {
   private String getPrimitiveClassName(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive);
 
+    if (primitive.isOrRule()) {
+      return IsaPrimitive.class.getName();
+    }
+
     switch (primitive.getKind()) {
       case IMM:
         return Immediate.class.getName();
@@ -115,8 +120,15 @@ final class STBDecoder implements STBuilder {
   }
 
   private static String getPrimitiveName(final Primitive primitive) {
-    final boolean isImm = primitive.getKind() == Primitive.Kind.IMM;
-    return isImm ? Immediate.class.getSimpleName() : primitive.getName();
+    if (primitive.getKind() == Primitive.Kind.IMM) {
+      return Immediate.class.getSimpleName();
+    }
+
+    if (primitive.isOrRule()) {
+      return IsaPrimitive.class.getSimpleName();
+    }
+
+    return primitive.getName();
   }
 
   private void buildBody(final ST st, final STGroup group) {
@@ -220,7 +232,7 @@ final class STBDecoder implements STBuilder {
     final Primitive primitive = item.getArguments().get(name);
 
     stPrimitive.add("name", name);
-    stPrimitive.add("type", primitive.getName());
+    stPrimitive.add("type", getPrimitiveName(primitive));
     stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
 
     st.add("stmts", stPrimitive);
