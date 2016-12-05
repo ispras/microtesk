@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.model.api.data.floatx;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.softfloat.Float128;
+import ru.ispras.softfloat.Float16;
 
 final class Float16Operations implements Operations {
   private static Operations instance = null;
@@ -84,8 +86,31 @@ final class Float16Operations implements Operations {
 
   @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    switch (precision) {
+      case FLOAT32: {
+        final float float32Value =
+            ru.ispras.softfloat.Float16Operations.f16_to_f32(newFloat16(value));
+        return Float32Operations.newFloatX(float32Value);
+      }
+
+      case FLOAT64: {
+        final double float64Value =
+            ru.ispras.softfloat.Float16Operations.f16_to_f64(newFloat16(value));
+        return Float64Operations.newFloatX(float64Value);
+      }
+
+      case FLOAT128: {
+        final Float128 float128Value =
+            ru.ispras.softfloat.Float16Operations.f16_to_f128(newFloat16(value));
+        return Float128Operations.newFloatX(float128Value);
+      }
+
+      default:
+        throw new UnsupportedOperationException(String.format(
+            "Conversion from %s to %s is not supported.",
+            value.getPrecision().getText(), precision.getText())
+            );
+    }
   }
 
   @Override
@@ -110,5 +135,18 @@ final class Float16Operations implements Operations {
   public String toHexString(final FloatX arg) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException();
+  }
+
+  private static Float16 newFloat16(final FloatX value) {
+    final BitVector data = value.getData();
+    final int intValue = data.intValue() & 0x0000FFFF;
+    return new Float16(intValue);
+  }
+
+  static FloatX newFloatX(final Float16 value) {
+    return new FloatX(
+        BitVector.valueOf(value.float16b & 0x0000FFFF, 16),
+        Precision.FLOAT16
+    );
   }
 }
