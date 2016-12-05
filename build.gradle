@@ -150,7 +150,7 @@ dependencies {
 
   compile ('fortress:fortress:0.4.21-beta-161025') { changing = true }
   compile ('testbase:testbase:0.0.15-alpha-160826') { changing = true }
-  compile ('jsoftfloat:jsoftfloat:1.0.3-beta-SNAPSHOT') { changing = true }
+  compile ('jsoftfloat:jsoftfloat:1.0.3-beta-161205') { changing = true }
   compile ('coverage:coverage:+') { changing = true }
   compile ('aspectrace:aspectrace:+') { changing = true }
 
