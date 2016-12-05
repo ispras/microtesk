@@ -109,7 +109,7 @@ op add (rd: REG, rs: REG, rt: REG)
 
 op addi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image= format("000000%s%s%s", rs.image, rt.image, imm)
+  image= format("001000%s%s%s", rs.image, rt.image, imm)
   action = {
     temp = rs<31>::rs + coerce(int(33), imm);
     if temp<32> != temp<31> then
@@ -131,7 +131,7 @@ op addu (rd: REG, rs: REG, rt: REG) //unchecked addition
 
 op addiu (rt: REG, rs: REG, imm: SHORT)
   syntax = format("addiu %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%s", rs.image, rt.image, imm)
+  image = format("001001%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs + sign_extend(int(32), imm);
   }
