@@ -217,15 +217,17 @@ public final class Printer {
       printOutputs(call.getOutputs());
       printLabels(call.getLabels());
 
+      final boolean writeToFile = null != fileWritter;
       final String text = call.getText();
+
       if (null != text) {
         printText(text);
-        if (null != fileWritter) {
+        if (writeToFile) {
           statistics.incInstructions();
         }
       }
 
-      if (null != binaryWriter) {
+      if (writeToFile && null != binaryWriter) {
         final String image = call.getImage();
         if (null != image && !image.isEmpty()) {
           binaryWriter.write(image);
