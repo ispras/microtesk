@@ -393,8 +393,16 @@ public final class MemoryAllocator {
       throw new IllegalStateException(e);
     }
 
-    final int charCount = stringBytes.length + (zeroTerm ? 1 : 0);
-    final int bitSize = charCount * BitVector.BITS_IN_BYTE;
+    if (!zeroTerm) {
+      return BitVector.valueOf(
+          stringBytes, stringBytes.length * BitVector.BITS_IN_BYTE);
+    }
 
-    return BitVector.valueOf(stringBytes, bitSize);  }
+    final byte[] stringBytesZeroTerm = new byte[stringBytes.length + 1];
+    System.arraycopy(stringBytes, 0, stringBytesZeroTerm, 0, stringBytes.length);
+    stringBytesZeroTerm[stringBytesZeroTerm.length - 1] = 0;
+
+    return BitVector.valueOf(
+        stringBytesZeroTerm, stringBytesZeroTerm.length * BitVector.BITS_IN_BYTE);
+  }
 }
