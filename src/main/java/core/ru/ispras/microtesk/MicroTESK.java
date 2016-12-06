@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.fortress.solver.Environment;
 import ru.ispras.microtesk.decoder.Disassembler;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
@@ -191,10 +190,6 @@ public final class MicroTESK {
 
     final String modelName = arguments[0];
     final String templateFile = arguments[1];
-
-    TestEngine.setRandomSeed(options.getValueAsInteger(Option.RANDOM));
-    TestEngine.setSolver(options.getValueAsString(Option.SOLVER));
-    Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
     GeneratorSettings settings = null;
     if (options.hasValue(Option.ARCH_DIRS)) {

@@ -16,12 +16,7 @@ package ru.ispras.microtesk.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.jruby.embed.PathType;
@@ -44,26 +39,13 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.test.sequence.GeneratorConfig;
-import ru.ispras.microtesk.test.sequence.engine.Adapter;
-import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
-import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
-import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
-import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
-import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.Call;
-import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataManager;
-import ru.ispras.microtesk.test.template.ExceptionHandler;
-import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
-import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.microtesk.utils.StringUtils;
-import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngine {
   private static TestEngine instance = null;
@@ -155,6 +137,10 @@ public final class TestEngine {
       reportAborted("Failed to load the %s model.", modelName);
       return null;
     }
+
+    setRandomSeed(options.getValueAsInteger(Option.RANDOM));
+    setSolver(options.getValueAsString(Option.SOLVER));
+    Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
     instance = new TestEngine(model, options, settings, plugins, statistics);
     return instance.processTemplate(templateFile);
@@ -251,361 +237,6 @@ public final class TestEngine {
     }
   }
 
-  private static class TemplateProcessor implements Template.Processor {
-    private final EngineContext engineContext;
-    private final Executor executor;
-    private final Printer printer;
- 
-    private boolean needCreateNewFile = true;
-    private String fileName = null;
-
-    private TestSequence prologue = null;
-    private Block epilogueBlock = null;
-    private ExecutorCode executorCode = null;
-
-    private TemplateProcessor(final EngineContext engineContext, final Printer printer) {
-      this.engineContext = engineContext;
-      this.executor = new Executor(engineContext);
-      this.printer = printer;
-    }
-
-    @Override
-    public void process(final Section section, final Block block) {
-      InvariantChecks.checkNotNull(section);
-      InvariantChecks.checkNotNull(block);
-
-      engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-
-      try {
-        if (section == Section.PRE) {
-          prologue = makeTestSequenceForExternalBlock(engineContext, block);
-        } else if (section == Section.POST) {
-          epilogueBlock = block;
-        } else if (block.isExternal()) {
-          processExternalBlock(block);
-        } else {
-          processBlock(block);
-        }
-      } catch (final ConfigurationException | IOException e) {
-        throw new GenerationAbortedException(e.getMessage());
-      } finally {
-        engineContext.getStatistics().popActivity(); // SEQUENCING
-      }
-    }
-
-    @Override
-    public void finish() {
-      try {
-        finishFile();
-
-        if (!needCreateNewFile) {
-          //No instructions were added to the newly created file, it must be deleted
-          if (engineContext.getStatistics().getProgramLength() == 0) {
-            new File(fileName).delete();
-            engineContext.getStatistics().decPrograms();
-          }
-        }
-
-        Logger.debugHeader("Ended Processing Template");
-      } catch (final ConfigurationException e) {
-        throw new GenerationAbortedException(e.getMessage());
-      } finally {
-        engineContext.getStatistics().popActivity(); // PARSING
-        engineContext.getStatistics().saveTotalTime();
-      }
-    }
-
-    private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
-      if (needCreateNewFile) {
-        startFile();
-        needCreateNewFile = false;
-      }
-
-      final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
-      processTestSequence(sequence, "External Code", true, Label.NO_SEQUENCE_INDEX, true);
-
-      if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
-        finishFile();
-        needCreateNewFile = true;
-      }
-    }
-
-    private void processBlock(final Block block) throws ConfigurationException, IOException {
-      final Iterator<List<Call>> abstractIt = block.getIterator();
-      final TestSequenceEngine engine = getEngine(block);
-
-      for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-        final Iterator<AdapterResult> concreteIt =
-            engine.process(engineContext, abstractIt.value());
-
-        for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-          if (needCreateNewFile) {
-            startFile();
-            needCreateNewFile = false;
-          }
-
-          final TestSequence sequence = getTestSequence(concreteIt.value());
-          final int sequenceIndex = engineContext.getStatistics().getSequences();
-
-          final String sequenceId =
-              String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
-
-          processTestSequence(sequence, sequenceId, false, sequenceIndex, true);
-          processSelfChecks(sequence.getChecks(), sequenceIndex);
-
-          engineContext.getStatistics().incSequences();
-          Logger.debugHeader("");
-
-          if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
-            finishFile();
-            needCreateNewFile = true;
-          }
-        } // Concrete sequence iterator
-      } // Abstract sequence iterator
-    }
-
-    private void processSelfChecks(
-        final List<SelfCheck> selfChecks,
-        final int testCaseIndex) throws ConfigurationException {
-      InvariantChecks.checkNotNull(selfChecks);
-
-      if (!engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
-        return;
-      }
-
-      final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
-      Logger.debugHeader("Preparing %s", sequenceId);
-
-      final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-      processTestSequence(selfCheckSequence, sequenceId, true, testCaseIndex, false);
-    }
-
-    private void processTestSequence(
-        final TestSequence sequence,
-        final String sequenceId,
-        final boolean isExternal,
-        final int sequenceIndex,
-        final boolean abortOnUndefinedLabel) throws ConfigurationException {
-      Logger.debugHeader("Constructed %s", sequenceId);
-      printer.printSequence(null, sequence);
-
-      Logger.debugHeader("Executing %s", sequenceId);
-      executor.execute(
-          executorCode,
-          sequence.getAll(),
-          sequenceIndex,
-          abortOnUndefinedLabel
-          );
-
-      Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
-      printer.printSubheaderToFile(sequenceId);
-      printer.printSequence(sequence);
-    }
-
-    private void startFile() throws IOException, ConfigurationException {
-      engineContext.getStatistics().incPrograms();
-
-      fileName = printer.createNewFile();
-      Tarmac.createFile();
-
-      // Allocates global data created during generation of previous test programs
-      if (engineContext.getStatistics().getPrograms() > 1 &&
-          engineContext.getDataManager().containsDecls()) {
-        engineContext.getDataManager().reallocateGlobalData();
-      }
-
-      executorCode = new ExecutorCode();
-      processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
-    }
-
-    private void finishFile() throws ConfigurationException {
-      try {
-        final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
-        processTestSequence(sequence, "Epilogue", true, Label.NO_SEQUENCE_INDEX, true);
-
-        if (engineContext.getDataManager().containsDecls()) {
-          engineContext.getDataManager().printData(printer);
-        }
-      } finally {
-        printer.close();
-        Tarmac.closeFile();
-
-        // Clean up all the state
-        engineContext.getDataManager().resetLocalData();
-        engineContext.getModel().resetState();
-        engineContext.getLabelManager().reset();
-        executorCode = null;
-
-        // Sets the starting address for instruction allocation after the prologue
-        engineContext.setAddress(prologue.getEndAddress());
-      }
-    }
-
-    @Override
-    public void defineExceptionHandler(final ExceptionHandler handler) {
-      final String exceptionFileName = String.format(
-          "%s%s.%s",
-          engineContext.getOptions().getValueAsString(Option.EXCEPT_PRE),
-          handler.getId().isEmpty() ? "" : "_" + handler.getId(),
-          engineContext.getOptions().getValueAsString(Option.CODE_EXT));
-
-      Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
-      InvariantChecks.checkNotNull(handler);
-
-      final PrintWriter fileWriter;
-      try {
-        fileWriter = printer.newFileWriter(exceptionFileName);
-      } catch (final IOException e) {
-        throw new GenerationAbortedException(String.format(
-            "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
-      }
-
-      try {
-        final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
-        for (final ExceptionHandler.Section section : handler.getSections()) {
-          final TestSequence concreteSequence =
-              makeTestSequenceForExceptionHandler(engineContext, section);
-
-          final List<ConcreteCall> handlerCalls = concreteSequence.getAll();
-          for (final String exception : section.getExceptions()) {
-            if (null != handlers.put(exception, handlerCalls)) {
-              Logger.warning("Exception handler for %s is redefined.", exception);
-            }
-          }
-
-          fileWriter.println();
-          Logger.debug("");
-
-          printer.printCommentToFile(fileWriter,
-              String.format("Exceptions: %s", section.getExceptions()));
-
-          final String org = String.format(".org 0x%x", section.getOrigin());
-          Logger.debug(org);
-          printer.printToFile(fileWriter, org);
-          printer.printSequence(fileWriter, concreteSequence);
-        }
-
-        executor.setExceptionHandlers(handlers);
-      } catch (final ConfigurationException e) { 
-        Logger.error(e.getMessage());
-      } finally {
-        fileWriter.close();
-        Logger.debugBar();
-      }
-    }
-  }
-
-  private static TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
-    InvariantChecks.checkNotNull(block);
-
-    final String engineName;
-    final String adapterName;
-
-    if (block.isExternal()) {
-      engineName = "trivial";
-      adapterName = engineName;
-    } else {
-      engineName = block.getAttribute("engine", "default");
-      adapterName = block.getAttribute("adapter", engineName);
-    }
-
-    final Engine<?> engine = GeneratorConfig.get().getEngine(engineName);
-    InvariantChecks.checkNotNull(engine);
-
-    final Adapter<?> adapter = GeneratorConfig.get().getAdapter(adapterName);
-    InvariantChecks.checkNotNull(adapter);
-
-    if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
-      throw new IllegalStateException("Mismatched solver/adapter pair");
-    }
-
-    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
-    testSequenceEngine.configure(block.getAttributes());
-
-    return testSequenceEngine;
-  }
-
-  private static List<Call> getSingleSequence(final Block block) {
-    InvariantChecks.checkNotNull(block);
-
-    final Iterator<List<Call>> iterator = block.getIterator();
-    iterator.init();
-
-    if (!iterator.hasValue()) {
-      return Collections.emptyList();
-    }
-
-    final List<Call> result = iterator.value();
-
-    iterator.next();
-    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
-
-    return result;
-  }
-
-  private static TestSequence getTestSequence(final AdapterResult adapterResult) {
-    InvariantChecks.checkNotNull(adapterResult);
-
-    if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-      throw new GenerationAbortedException(String.format(
-          "Adapter Error: %s", adapterResult.getErrors()));
-    }
-
-    final TestSequence result = adapterResult.getResult();
-    InvariantChecks.checkNotNull(result);
-
-    return result;
-  }
-
-  private static TestSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
-    InvariantChecks.checkNotNull(iterator);
-
-    iterator.init();
-    InvariantChecks.checkTrue(iterator.hasValue());
-
-    final TestSequence result = getTestSequence(iterator.value());
-
-    iterator.next();
-    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
-
-    return result;
-  }
-
-  private static TestSequence makeTestSequenceForExceptionHandler(
-      final EngineContext engineContext,
-      final ExceptionHandler.Section section) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(section);
-
-    final List<ConcreteCall> concreteCalls =
-        EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
-
-    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
-    concreteSequenceBuilder.add(concreteCalls);
-
-    final TestSequence result = concreteSequenceBuilder.build();
-
-    final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
-    final BigInteger address = baseVa.add(section.getOrigin());
-
-    result.setAddress(address.longValue());
-    return result;
-  }
-
-  private static TestSequence makeTestSequenceForExternalBlock(
-      final EngineContext engineContext,
-      final Block block) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(block);
-    InvariantChecks.checkTrue(block.isExternal());
-
-    final TestSequenceEngine engine = getEngine(block);
-    final List<Call> abstractSequence = getSingleSequence(block);
-
-    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-    return getSingleTestSequence(iterator);
-  }
-
   private static void initSolverPaths(final String home) {
     final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
     if (null == z3Solver.getSolverPath()) {
@@ -647,11 +278,11 @@ public final class TestEngine {
     Logger.message("Generation Aborted");
   }
 
-  public static void setRandomSeed(int seed) {
+  private static void setRandomSeed(int seed) {
     Randomizer.get().setSeed(seed);
   }
 
-  public static void setSolver(final String solverName) {
+  private static void setSolver(final String solverName) {
     if ("z3".equalsIgnoreCase(solverName)) {
       TestBase.setSolverId(SolverId.Z3_TEXT);
     } else if ("cvc4".equalsIgnoreCase(solverName)) {
