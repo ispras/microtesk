@@ -76,27 +76,33 @@ public final class TestEngine {
   private final Model model;
   private final List<Plugin> plugins;
   private final Statistics statistics;
-
-  // Architecture-specific settings
-  private static GeneratorSettings settings;
+  private final GeneratorSettings settings; // Architecture-specific settings
 
   private TestEngine(
-      final Options options,
       final Model model,
+      final Options options,
+      final GeneratorSettings settings,
       final List<Plugin> plugins,
       final Statistics statistics) {
-    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(settings);
     InvariantChecks.checkNotNull(plugins);
     InvariantChecks.checkNotNull(statistics);
 
-    this.options = options;
     this.model = model;
+    this.options = options;
+    this.settings = settings;
     this.plugins = plugins;
     this.statistics = statistics;
 
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
+
+    final AllocationSettings allocation = settings.getAllocation();
+    if (allocation != null) {
+      ModeAllocator.init(allocation);
+    }
   }
 
   public Object getOptionValue(final String optionName) {
@@ -123,23 +129,13 @@ public final class TestEngine {
     return statistics;
   }
 
-  public static GeneratorSettings getGeneratorSettings() {
+  public GeneratorSettings getGeneratorSettings() {
     return settings;
-  }
-
-  public static void setGeneratorSettings(final GeneratorSettings value) {
-    InvariantChecks.checkNotNull(value);
-
-    settings = value;
-
-    final AllocationSettings allocation = value.getAllocation();
-    if (allocation != null) {
-      ModeAllocator.init(allocation);
-    }
   }
 
   public static Statistics generate(
       final Options options,
+      final GeneratorSettings settings,
       final String modelName,
       final String templateFile,
       final List<Plugin> plugins) throws Throwable {
@@ -160,7 +156,7 @@ public final class TestEngine {
       return null;
     }
 
-    instance = new TestEngine(options, model, plugins, statistics);
+    instance = new TestEngine(model, options, settings, plugins, statistics);
     return instance.processTemplate(templateFile);
   }
 

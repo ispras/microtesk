@@ -196,6 +196,7 @@ public final class MicroTESK {
     TestEngine.setSolver(options.getValueAsString(Option.SOLVER));
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
+    GeneratorSettings settings = null;
     if (options.hasValue(Option.ARCH_DIRS)) {
       final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
       final String[] archDirsArray = archDirs.split(":");
@@ -210,8 +211,7 @@ public final class MicroTESK {
           final String archPath = archFile.isAbsolute() ? archDirArray[1] : String.format("%s%s%s",
               SysUtils.getHomeDir(), File.separator, archDirArray[1]); 
 
-          final GeneratorSettings settings = SettingsParser.parse(archPath);
-          TestEngine.setGeneratorSettings(settings);
+          settings = SettingsParser.parse(archPath);
 
           isFound = true;
           break;
@@ -230,7 +230,9 @@ public final class MicroTESK {
       return;
     }
 
-    final Statistics statistics = TestEngine.generate(options, modelName, templateFile, plugins);
+    final Statistics statistics =
+        TestEngine.generate(options, settings, modelName, templateFile, plugins);
+
     if (null == statistics) {
       return;
     }

@@ -66,7 +66,7 @@ public final class AddressDataGenerator implements DataGenerator {
     }
 
     if (address == null) {
-      final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+      final GeneratorSettings generatorSettings = TestEngine.getInstance().getGeneratorSettings();
       if (generatorSettings == null) {
         return false;
       }
@@ -104,7 +104,7 @@ public final class AddressDataGenerator implements DataGenerator {
     } else {
       InvariantChecks.checkTrue(size instanceof Number, "Size is of incorrect type");
 
-      final GeneratorSettings generatorSettings = TestEngine.getGeneratorSettings();
+      final GeneratorSettings generatorSettings = TestEngine.getInstance().getGeneratorSettings();
       final MemorySettings memorySettings = generatorSettings.getMemory();
       final RegionSettings regionSettings = memorySettings.getRegion(region.toString());
 
