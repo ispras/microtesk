@@ -63,6 +63,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
   private static final class Visitor extends IrVisitorDefault {
     private final Map<Primitive, Primitive> visited = new HashMap<>();
+    private final Map<String, Map<BitVector, String>> opcGroups = new HashMap<>();
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
@@ -70,6 +71,10 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           visited.containsKey(item.getName())) {
         setStatus(Status.SKIP);
         return;
+      }
+
+      if (item.isOrRule()) {
+        opcGroups.put(item.getName(), new HashMap<BitVector, String>());
       }
     }
 
@@ -99,10 +104,42 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       final ImageInfo sourceInfo = item.getInfo().getImageInfo();
       final ImageInfo targetInfo = orRule.getInfo().getImageInfo();
 
+      final String name = item.getName();
+      final BitVector opc = sourceInfo.getOpc();
+      final String groupName = orRule.getName();
+
+      final Map<BitVector, String> group = opcGroups.get(groupName);
+      InvariantChecks.checkNotNull(group, groupName);
+
+      if (null != opc) {
+        checkOpcInGroup(groupName, group, name, opc);
+      } else if (item.isOrRule()) {
+        final Map<BitVector, String> itemGroup = opcGroups.get(name);
+        InvariantChecks.checkNotNull(itemGroup, name);
+
+        for (final Map.Entry<BitVector, String> entry : itemGroup.entrySet()) {
+          checkOpcInGroup(groupName, group, entry.getValue(), entry.getKey());
+        }
+      }
+
       if (null == targetInfo) {
         orRule.getInfo().setImageInfo(sourceInfo);
       } else {
         orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
+      }
+    }
+
+    private static void checkOpcInGroup(
+        final String groupName,
+        final Map<BitVector, String> group,
+        final String name,
+        final BitVector opc) {
+      final String existingName = group.get(opc);
+      if (null != existingName) {
+        //Logger.warning("Group %s contains two items %s and %s with the same opcode %s",
+        //    groupName, existingName, name, opc);
+      } else {
+        group.put(opc, name);
       }
     }
 
