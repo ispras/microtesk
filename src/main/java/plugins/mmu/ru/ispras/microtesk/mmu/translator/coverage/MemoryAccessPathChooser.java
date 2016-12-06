@@ -35,7 +35,7 @@ public final class MemoryAccessPathChooser {
   private final MemoryAccessConstraints constraints;
   private final boolean discardEmptyTrajectories;
 
-  private final Collection<Iterator<MemoryAccessPath>> iterators = new ArrayList<>();
+  private final Collection<Iterator<MemoryAccessPathIterator.Result>> iterators = new ArrayList<>();
   private final Collection<MemoryAccessPath> paths = new ArrayList<>(); 
 
   public MemoryAccessPathChooser(
@@ -79,12 +79,12 @@ public final class MemoryAccessPathChooser {
 
   public MemoryAccessPath get() {
     while (!iterators.isEmpty()) {
-      final Iterator<MemoryAccessPath> iterator = Randomizer.get().choose(iterators);
+      final Iterator<MemoryAccessPathIterator.Result> iterator = Randomizer.get().choose(iterators);
 
       if (iterator.hasNext()) {
-        final MemoryAccessPath path = iterator.next();
-        InvariantChecks.checkNotNull(path);
-  
+        final MemoryAccessPathIterator.Result result = iterator.next();
+        final MemoryAccessPath path = result.getPath();
+
         paths.add(path);
         return path;
       }
