@@ -324,7 +324,7 @@ public final class TestEngine {
       final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
       processTestSequence(sequence, "External Code", true, Label.NO_SEQUENCE_INDEX, true);
 
-      if (isFileLengthLimitExceeded()) {
+      if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
         finishFile();
         needCreateNewFile = true;
       }
@@ -356,7 +356,7 @@ public final class TestEngine {
           engineContext.getStatistics().incSequences();
           Logger.debugHeader("");
 
-          if (isFileLengthLimitExceeded()) {
+          if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
             finishFile();
             needCreateNewFile = true;
           }
@@ -400,11 +400,6 @@ public final class TestEngine {
       Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
       printer.printSubheaderToFile(sequenceId);
       printer.printSequence(sequence);
-    }
-
-    private boolean isFileLengthLimitExceeded() {
-      return engineContext.getStatistics().isProgramLengthLimitExceeded() ||
-             engineContext.getStatistics().isTraceLengthLimitExceeded();
     }
 
     private void startFile() throws IOException, ConfigurationException {

@@ -192,6 +192,10 @@ public final class Statistics {
     return totalTraceLength;
   }
 
+  public boolean isFileLengthLimitExceeded() {
+    return isProgramLengthLimitExceeded() || isTraceLengthLimitExceeded();
+  }
+
   public boolean isProgramLengthLimitExceeded() {
     return programLength >= programLengthLimit;
   }
