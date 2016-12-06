@@ -612,6 +612,6 @@ public final class MmuUnderTest {
   private MmuUnderTest() {}
 
   private static MmuBufferAccess defaultAccess(final MmuBuffer buf) {
-    return new MmuBufferAccess(buf, buf.getAddress(), buf, 0);
+    return new MmuBufferAccess(buf, buf.getAddress(), buf);
   }
 }
