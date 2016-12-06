@@ -186,7 +186,7 @@ op and (rd: REG, rs: REG, rt: REG)
 
 op andi (rt: REG, rs: REG, imm: SHORT)
   syntax = format("andi %s, %s, 0x%x", rt.syntax, rs.syntax, imm)
-  image = format("000000%s%s%s", rs.image, rt.image, imm)
+  image = format("001100%s%s%s", rs.image, rt.image, imm)
   action = {
     rt = rs & zero_extend(WORD, imm);
   }
@@ -311,14 +311,14 @@ op mflo (rd: REG)
 
 op mthi (rs: REG)
   syntax = format("mthi %s", rs.syntax)
-  image = format("0000000000000000%s00000010000", rs.image)
+  image = format("0000000000000000%s00000010001", rs.image)
   action = {
     HI[0] = rs;
   }
 
 op mtlo (rs: REG)
   syntax = format("mtlo %s", rs.syntax)
-  image = format("0000000000000000%s00000010010", rs.image)
+  image = format("0000000000000000%s00000010011", rs.image)
   action = {
     LO[0] = rs;
   }
@@ -417,7 +417,7 @@ op bltz (rs: REG, offset: SHORT)
 
 op bltzal (rs: REG, offset: SHORT)
   syntax = format("bltzal %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s00000%s", rs.image, offset)
+  image = format("000001%s10000%s", rs.image, offset)
   action = {
     if rs < 0 then
       GPR[31] = CIA + 4 + 4;
@@ -498,7 +498,7 @@ op j (addr: JUMP_IMM)
 
 op jr (addr: REG)
   syntax = format("jr %s", addr.syntax)
-  image = format("000000%s000000000000000000000", addr.image)
+  image = format("000000%s000000000000000001000", addr.image)
   action = {
     BRANCH = 1;
     JMPADDR = addr;
