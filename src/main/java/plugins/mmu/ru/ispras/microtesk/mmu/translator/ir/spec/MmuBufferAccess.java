@@ -28,21 +28,17 @@ public final class MmuBufferAccess {
   private final MmuAddressInstance address;
   /** Buffer entry being accessed. */
   private final MmuStruct entry;
-  /** Memory-access identifier. */
-  private final int call;
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
       final MmuAddressInstance address,
-      final MmuStruct entry,
-      final int call) {
+      final MmuStruct entry) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(address);
 
     this.buffer = buffer;
     this.address = address;
     this.entry = entry;
-    this.call = call;
   }
 
   public MmuBuffer getBuffer() {
@@ -57,10 +53,6 @@ public final class MmuBufferAccess {
     return entry;
   }
 
-  public int getCall() {
-    return call;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (o == this) {
@@ -73,16 +65,16 @@ public final class MmuBufferAccess {
 
     final MmuBufferAccess r = (MmuBufferAccess) o;
 
-    return buffer.equals(r.buffer) && call == r.call;
+    return buffer.equals(r.buffer);
   }
 
   @Override
   public int hashCode() {
-    return 31 * buffer.hashCode() + call;
+    return 31 * buffer.hashCode();
   }
 
   @Override
   public String toString() {
-    return String.format("%s(%d)", buffer, call);
+    return String.format("%s", buffer);
   }
 }

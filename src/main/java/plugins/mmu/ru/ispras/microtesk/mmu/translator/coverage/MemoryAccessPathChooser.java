@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -64,6 +65,7 @@ public final class MemoryAccessPathChooser {
         continue;
       }
 
+      Logger.debug("Target trajectory: %s", trajectory);
       iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
     }
   }
