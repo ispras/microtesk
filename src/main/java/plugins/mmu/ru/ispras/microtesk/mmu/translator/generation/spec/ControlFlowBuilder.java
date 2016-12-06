@@ -565,9 +565,13 @@ final class ControlFlowBuilder {
     return null;
   }
 
-  static String defaultBufferAccess(final String name) {
-    return String.format("new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get(), 0)",
-      name, name, name);
+  protected static String defaultBufferAccess(final String name) {
+    return String.format(
+        "new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get())",
+        name,
+        name,
+        name
+        );
   }
 
   private boolean isBufferAccess(final String variableName) {
