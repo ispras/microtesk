@@ -26,6 +26,7 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -227,29 +228,25 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final String text = token.first;
         final int markerIndex = token.second;
 
-        final boolean isTokenOpc = markerIndex == -1;
+        final Node argument =
+            markerIndex == -1 ? NodeValue.newString(text) : arguments.get(markerIndex);
 
-        final ImageInfo tokenImageInfo;
-        if (isTokenOpc) {
-          tokenImageInfo = new ImageInfo(text.length(), true);
-          fields.add(NodeValue.newString(text));
-        } else {
-          final Node argument = arguments.get(markerIndex);
-          tokenImageInfo = getImageInfo(primitive, argument);
-          fields.add(argument);
-        }
+        final ImageInfo tokenImageInfo = getImageInfo(primitive, argument);
         imageInfo = imageInfo.and(tokenImageInfo);
+        fields.add(argument);
 
         if (imageInfo.isImageSizeFixed() && tokenImageInfo.getMaxImageSize() > 0) {
-          final BitVector tokenOpc;
-          final BitVector tokenOpcMask = BitVector.newEmpty(tokenImageInfo.getMaxImageSize());
+          final int tokenBitSize = tokenImageInfo.getMaxImageSize();
 
-          if (isTokenOpc) {
-            tokenOpc = BitVector.valueOf(text, 2, tokenImageInfo.getMaxImageSize());
+          final BitVector tokenOpc;
+          final BitVector tokenOpcMask = BitVector.newEmpty(tokenBitSize);
+
+          if (ExprUtils.isValue(argument)) {
+            tokenOpc = BitVector.valueOf(argument.toString(), 2, tokenBitSize);
             tokenOpcMask.setAll();
             hasOpc = true;
           } else {
-            tokenOpc = BitVector.valueOf(0, tokenImageInfo.getMaxImageSize());
+            tokenOpc = BitVector.valueOf(0, tokenBitSize);
             tokenOpcMask.reset();
           }
 
