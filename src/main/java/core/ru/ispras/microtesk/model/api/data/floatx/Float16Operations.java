@@ -17,6 +17,7 @@ package ru.ispras.microtesk.model.api.data.floatx;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.softfloat.Float128;
 import ru.ispras.softfloat.Float16;
+import ru.ispras.softfloat.Float16Functions;
 
 final class Float16Operations implements Operations {
   private static Operations instance = null;
@@ -88,20 +89,17 @@ final class Float16Operations implements Operations {
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT32: {
-        final float float32Value =
-            ru.ispras.softfloat.Float16Operations.f16_to_f32(newFloat16(value));
+        final float float32Value = Float16Functions.f16_to_f32(newFloat16(value));
         return Float32Operations.newFloatX(float32Value);
       }
 
       case FLOAT64: {
-        final double float64Value =
-            ru.ispras.softfloat.Float16Operations.f16_to_f64(newFloat16(value));
+        final double float64Value = Float16Functions.f16_to_f64(newFloat16(value));
         return Float64Operations.newFloatX(float64Value);
       }
 
       case FLOAT128: {
-        final Float128 float128Value =
-            ru.ispras.softfloat.Float16Operations.f16_to_f128(newFloat16(value));
+        final Float128 float128Value = Float16Functions.f16_to_f128(newFloat16(value));
         return Float128Operations.newFloatX(float128Value);
       }
 
