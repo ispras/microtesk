@@ -78,11 +78,11 @@ public final class MemorySymbolicExecutor {
 
     public Result() {
       this(
-          new LinkedHashSet<>(),
-          new IntegerFormula.Builder<>(),
-          new LinkedHashSet<>(),
-          new HashMap<>(),
-          new HashMap<>());
+          new LinkedHashSet<IntegerVariable>(),
+          new IntegerFormula.Builder<IntegerField>(),
+          new LinkedHashSet<IntegerVariable>(),
+          new HashMap<String, Integer>(),
+          new HashMap<String, IntegerVariable>());
     }
 
     public Result(final Result r) {
