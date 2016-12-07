@@ -83,7 +83,7 @@ mode F (i : INDEX) = FPR[i]
 ////////////////////////////////////////////////////////////////////////////////
 // Special-Purpose Instructions
 
-op NOP()
+pseudo op NOP()
   syntax = "NOP"
   image  = "00000000000000000000000000000000"
   action = {}
@@ -256,7 +256,7 @@ op B (offset : SHORT)
 
 op BEQ (rs : R, rt : R, offset : SHORT)
   syntax = format("BEQ %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
-  image  = format("000100%s%s%s", rs.image, rt.image, offset)
+  image  = format("000010%s%s%s", rs.image, rt.image, offset)
   action = {
     if rs == rt then
       // Informs that control transfer is to be performed
