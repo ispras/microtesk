@@ -215,7 +215,14 @@ public final class MmuUnderTest {
 
       final boolean dtlbHit = path.getEvent(MmuUnderTest.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
       final boolean jtlbHit = path.getEvent(MmuUnderTest.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean v = path.contains(MmuUnderTest.get().ifValid);
+
+      boolean v = false;
+      for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+        if (entry.getTransition() == MmuUnderTest.get().ifValid) {
+          v = true;
+          break;
+        }
+      }
 
       return (dtlbHit || jtlbHit) && v;
     }

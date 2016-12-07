@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 /**
@@ -35,6 +36,14 @@ public class MmuAddressInstance extends MmuStruct {
     InvariantChecks.checkNotNull(address);
     this.addrStruct = addrStruct;
     this.address = address;
+  }
+
+  public MmuAddressInstance(final Variable addrStruct) {
+    super(addrStruct != null ? addrStruct.getName() : null);
+
+    InvariantChecks.checkNotNull(address);
+    this.addrStruct = addrStruct;
+    this.address = null;
   }
 
   public MmuAddressInstance(final String name, final IntegerVariable address) {
@@ -69,6 +78,23 @@ public class MmuAddressInstance extends MmuStruct {
 
   public final Variable getStruct() {
     return addrStruct;
+  }
+
+  // TODO:
+  public MmuAddressInstance getInstance(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    final MmuAddressInstance instance = new MmuAddressInstance(addrStruct);
+
+    for (final IntegerVariable field : fields) {
+      instance.fields.add(stack.getInstance(field));
+    }
+
+    instance.buffer = buffer;
+    instance.bitSize = bitSize;
+    instance.address = stack.getInstance(address);
+
+    return instance;
   }
 
   @Override

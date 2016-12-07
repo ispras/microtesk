@@ -34,6 +34,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -65,19 +66,22 @@ public final class MemoryEngineUtils {
     return true;
   }
 
-  public static boolean isFeasibleTransition(
-      final MmuTransition transition,
+  public static boolean isFeasibleEntry(
+      final MemoryAccessPath.Entry entry,
       final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
-    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(partialResult);
 
-    final MemorySymbolicExecutor symbolicExecutor =
-        new MemorySymbolicExecutor(transition, partialResult, false);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+    final MmuTransition transition = entry.getTransition();
 
     if (transition.getGuard() == null) {
       return true;
     }
+
+    final MemorySymbolicExecutor symbolicExecutor =
+        new MemorySymbolicExecutor(entry, partialResult, false);
+
+    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
         solve(transition, symbolicResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
@@ -87,13 +91,25 @@ public final class MemoryEngineUtils {
 
   public static boolean isFeasibleTransition(
       final MmuTransition transition,
+      final MemoryAccessStack stack,
+      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+    InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(partialResult);
+
+    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, stack), partialResult);
+  }
+
+  public static boolean isFeasibleTransition(
+      final MmuTransition transition,
       final MemoryAccessType type,
+      final MemoryAccessStack stack,
       final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(partialResult);
 
-    return isValidTransition(transition, type) && isFeasibleTransition(transition, partialResult);
+    return isValidTransition(transition, type)
+        && isFeasibleTransition(transition, stack, partialResult);
   }
 
   public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {
@@ -212,7 +228,7 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MmuTransition transition,
-      final MemorySymbolicExecutor.Result symbolicResult/* INOUT */,
+      final MemorySymbolicExecutor.Result symbolicResult /* INOUT */,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(transition);
@@ -287,14 +303,18 @@ public final class MemoryEngineUtils {
 
   private static String stringOf(final MemoryAccessPath path) {
     final StringBuilder builder = new StringBuilder();
-    for (final MmuTransition transition : path.getTransitions()) {
+    for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+      final MmuTransition transition = entry.getTransition();
+
       builder.append(transition.getSource());
       if (transition.getGuard() != null) {
         builder.append(String.format(" -> [%s]", transition.getGuard()));
       }
       builder.append(" -> ");
     }
-    builder.append(path.getLastTransition().getTarget());
+
+    final MmuTransition lastTransition = path.getLastEntry().getTransition();
+    builder.append(lastTransition.getTarget());
 
     return builder.toString();
   }

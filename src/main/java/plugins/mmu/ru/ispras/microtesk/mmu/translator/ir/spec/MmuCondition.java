@@ -23,6 +23,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
 /**
  * {@link MmuCondition} represents a set of {@code AND}- or {@code OR}-connected equalities or
@@ -294,6 +295,23 @@ public final class MmuCondition {
     return atoms;
   }
 
+  // TODO:
+  public MmuCondition getInstance(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (stack.isEmpty()) {
+      return this;
+    }
+
+    final List<MmuConditionAtom> atomInstances = new ArrayList<>();
+
+    for (final MmuConditionAtom atom : atoms) {
+      atomInstances.add(atom.getInstance(stack));
+    }
+
+    return new MmuCondition(type, atomInstances);
+  }
+  
   @Override
   public String toString() {
     return String.format("%s %s", type, atoms);

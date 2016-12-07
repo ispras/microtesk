@@ -23,6 +23,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
 /**
  * {@link MmuExpression} represents an expression, which is a sequence of {@link IntegerField}.
@@ -187,6 +188,23 @@ public final class MmuExpression {
 
     InvariantChecks.checkTrue(hi >= 0);
     return hi;
+  }
+
+  // TODO:
+  public MmuExpression getInstance(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (stack.isEmpty()) {
+      return this;
+    }
+
+    final List<IntegerField> termInstances = new ArrayList<>();
+
+    for (final IntegerField term : terms) {
+      termInstances.add(stack.getInstance(term));
+    }
+
+    return new MmuExpression(termInstances);
   }
 
   @Override

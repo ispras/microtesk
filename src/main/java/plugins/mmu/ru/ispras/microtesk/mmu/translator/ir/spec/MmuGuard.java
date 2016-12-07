@@ -16,7 +16,9 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.util.Collection;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
 /**
@@ -84,8 +86,24 @@ public final class MmuGuard {
     this(null, null, null, null, regions, segments);
   }
 
-  public MmuBufferAccess getBufferAccess() {
-    return bufferAccess;
+  public MmuBufferAccess getBufferAccess(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (bufferAccess == null || stack.isEmpty()) {
+      return bufferAccess;
+    }
+
+    return bufferAccess.getInstance(stack);
+  }
+
+  public MmuCondition getCondition(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (condition == null || stack.isEmpty()) {
+      return condition;
+    }
+
+    return condition.getInstance(stack);
   }
 
   public MemoryOperation getOperation() {
@@ -94,10 +112,6 @@ public final class MmuGuard {
 
   public BufferAccessEvent getEvent() {
     return event;
-  }
-
-  public MmuCondition getCondition() {
-    return condition;
   }
 
   public Collection<String> getRegions() {

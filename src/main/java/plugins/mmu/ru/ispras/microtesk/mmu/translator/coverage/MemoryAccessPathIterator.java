@@ -24,6 +24,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
@@ -153,7 +154,9 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private final MemoryAccessConstraints constraints;
 
   private final Stack<SearchEntry> searchStack = new Stack<>();
-  private final List<MmuTransition> currentPath = new ArrayList<>();
+  private final List<MemoryAccessPath.Entry> currentPath = new ArrayList<>();
+
+  private final MemoryAccessStack stack;
 
   private Result result;
 
@@ -162,7 +165,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, graph, type, constraints, new MemorySymbolicExecutor.Result());
+    this(memory, graph, type, constraints, new MemoryAccessStack());
   }
 
   public MemoryAccessPathIterator(
@@ -171,7 +174,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemorySymbolicExecutor.Result context) {
-    this(memory, null, graph, type, constraints, context);
+    this(memory, null, graph, type, constraints, new MemoryAccessStack(), context);
   }
 
   public MemoryAccessPathIterator(
@@ -180,7 +183,26 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, trajectory, graph, type, constraints, new MemorySymbolicExecutor.Result());
+    this(memory, trajectory, graph, type, constraints, new MemoryAccessStack());
+  }
+
+  public MemoryAccessPathIterator(
+      final MmuSubsystem memory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final MemoryAccessStack stack) {
+    this(memory, graph, type, constraints, stack, new MemorySymbolicExecutor.Result());
+  }
+
+  public MemoryAccessPathIterator(
+      final MmuSubsystem memory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final MemoryAccessStack stack,
+      final MemorySymbolicExecutor.Result context) {
+    this(memory, null, graph, type, constraints, stack, context);
   }
 
   public MemoryAccessPathIterator(
@@ -189,11 +211,23 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
+      final MemoryAccessStack stack) {
+    this(memory, trajectory, graph, type, constraints, stack, new MemorySymbolicExecutor.Result());
+  }
+
+  public MemoryAccessPathIterator(
+      final MmuSubsystem memory,
+      final Collection<Object> trajectory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final MemoryAccessStack stack,
       final MemorySymbolicExecutor.Result context) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(graph);
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(constraints);
+    InvariantChecks.checkNotNull(stack);
 
     this.memory = memory;
     // If trajectory is null, it is ignored.
@@ -207,6 +241,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final SearchEntry searchEntry = new SearchEntry(startAction, label, context);
 
     this.searchStack.push(searchEntry);
+    this.stack = stack;
     this.result = getNext();
   }
 
@@ -243,16 +278,16 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
         MemorySymbolicExecutor.Result newContext = context;
 
-        if (MemoryEngineUtils.isFeasibleTransition(transition, type, context /* INOUT */)) {
+        if (MemoryEngineUtils.isFeasibleTransition(transition, type, stack, context /* INOUT */)) {
           // Transitions to be added to the memory access path.
-          final Collection<MmuTransition> transitions = new ArrayList<>();
+          final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
           hasTraversed = false;
 
           // Prolong the memory access path.
-          transitions.add(transition);
+          entries.add(MemoryAccessPath.Entry.NORMAL(transition, stack));
 
-          final MmuBufferAccess bufferAccess = targetAction.getBufferAccess();
+          final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(stack);
 
           if (bufferAccess != null) {
             final MmuBuffer buffer = bufferAccess.getBuffer();
@@ -260,6 +295,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             // Check whether this is a recursive memory call.
             if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
+              Logger.debug("Recursive memory call via transition %s", transition);
+
               final MemoryAccessPathIterator innerIterator =
                   new MemoryAccessPathIterator(memory, graph, type, constraints, context);
 
@@ -267,8 +304,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
                 final Result innerResult = innerIterator.next();
                 final MemoryAccessPath innerPath = innerResult.getPath();
 
+                final String frameId = buffer.getName();
+                final MemoryAccessStack.Frame frame = stack.call(frameId);
+
                 // Append a random inner path.
-                transitions.addAll(innerPath.getTransitions());
+                entries.add(MemoryAccessPath.Entry.CALL(frame));
+                entries.addAll(innerPath.getEntries());
+                entries.add(MemoryAccessPath.Entry.RETURN());
+
                 // Update the context.
                 newContext = innerResult.getContext();
               } else {
@@ -279,7 +322,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
           if (!hasTraversed) {
             searchStack.push(new SearchEntry(targetAction, nextLabel, newContext));
-            currentPath.addAll(transitions);
+            currentPath.addAll(entries);
 
             break;
           }

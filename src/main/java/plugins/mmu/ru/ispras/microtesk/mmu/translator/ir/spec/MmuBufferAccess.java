@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
 /**
  * {@link MmuBufferAccess} represents an MMU buffer access.
@@ -53,6 +54,17 @@ public final class MmuBufferAccess {
     return entry;
   }
 
+  // TODO:
+  public MmuBufferAccess getInstance(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (stack.isEmpty()) {
+      return this;
+    }
+
+    return new MmuBufferAccess(buffer, address.getInstance(stack), entry.getInstance(stack));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == this) {
@@ -70,7 +82,7 @@ public final class MmuBufferAccess {
 
   @Override
   public int hashCode() {
-    return 31 * buffer.hashCode();
+    return buffer.hashCode();
   }
 
   @Override

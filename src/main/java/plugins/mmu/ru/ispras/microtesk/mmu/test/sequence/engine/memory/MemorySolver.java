@@ -878,7 +878,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath path = access.getPath();
 
     // TODO: This is not accurate if addrType = VA, prevAddrType = PA. 
-    for (final MmuAddressInstance prevAddrType : path.getAddresses()) {
+    for (final MmuAddressInstance prevAddrType : path.getAddressInstances()) {
       if (prevAddrType != addrType) {
         if (!solution.getLoader().prepareLoads(prevAddrType).isEmpty()) {
           // Possible HIT.

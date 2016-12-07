@@ -15,12 +15,14 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
 /**
  * {@link MmuAction} describes an action, i.e. a named set of assignments.
@@ -42,7 +44,7 @@ public final class MmuAction {
       final MmuBufferAccess bufferAccess,
       final MmuBinding... assignments) {
     InvariantChecks.checkNotNull(name);
-    // The buffer is allowed to be null.
+    // The buffer access is allowed to be null.
 
     this.name = name;
     this.bufferAccess = bufferAccess;
@@ -81,11 +83,32 @@ public final class MmuAction {
     return name;
   }
 
-  public MmuBufferAccess getBufferAccess() {
-    return bufferAccess;
+  public MmuBufferAccess getBufferAccess(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (bufferAccess == null || stack.isEmpty()) {
+      return bufferAccess;
+    }
+
+    return bufferAccess.getInstance(stack);
   }
 
-  public Map<IntegerField, MmuBinding> getAction() {
+  public Map<IntegerField, MmuBinding> getAction(final MemoryAccessStack stack) {
+    InvariantChecks.checkNotNull(stack);
+
+    if (stack.isEmpty()) {
+      return action;
+    }
+
+    final Map<IntegerField, MmuBinding> actionInstance = new LinkedHashMap<>();
+
+    for (final Map.Entry<IntegerField, MmuBinding> entry : action.entrySet()) {
+      final IntegerField lhs = entry.getKey();
+      final MmuBinding rhs = entry.getValue();
+
+      actionInstance.put(stack.getInstance(lhs), rhs.getInstance(stack));
+    }
+
     return action;
   }
 
@@ -119,7 +142,6 @@ public final class MmuAction {
 
   @Override
   public String toString() {
-    return marks.isEmpty() ?
-        name : String.format("%s, marks: %s", name, marks);
+    return marks.isEmpty() ? name : String.format("%s, marks: %s", name, marks);
   }
 }

@@ -26,6 +26,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -45,17 +46,17 @@ public final class MemorySymbolicExecutor {
    * Result of a symbolic execution.
    */
   public static final class Result {
-    final Collection<IntegerVariable> variables;
-    final IntegerFormula.Builder<IntegerField> formula;
+    private final Collection<IntegerVariable> variables;
+    private final IntegerFormula.Builder<IntegerField> formula;
 
     /** Contains original variables. */
-    final Collection<IntegerVariable> originals;
+    private final Collection<IntegerVariable> originals;
     /** Maps a variable name to the instance number (it is increased after each assignment). */
-    final Map<String, Integer> instances;
+    private final Map<String, Integer> instances;
     /** Maps a variable instance name to the corresponding variable. */
-    final Map<String, IntegerVariable> cache;
+    private final Map<String, IntegerVariable> cache;
 
-    Result(
+    private Result(
         final Collection<IntegerVariable> variables,
         final IntegerFormula.Builder<IntegerField> formula,
         final Collection<IntegerVariable> originals,
@@ -77,17 +78,17 @@ public final class MemorySymbolicExecutor {
 
     public Result() {
       this(
-          new LinkedHashSet<IntegerVariable>(),
-          new IntegerFormula.Builder<IntegerField>(),
-          new LinkedHashSet<IntegerVariable>(),
-          new HashMap<String, Integer>(),
-          new HashMap<String, IntegerVariable>());
+          new LinkedHashSet<>(),
+          new IntegerFormula.Builder<>(),
+          new LinkedHashSet<>(),
+          new HashMap<>(),
+          new HashMap<>());
     }
 
     public Result(final Result r) {
       this(
           new LinkedHashSet<>(r.variables),
-          new IntegerFormula.Builder<IntegerField>(r.formula),
+          new IntegerFormula.Builder<>(r.formula),
           new LinkedHashSet<>(r.originals),
           new HashMap<>(r.instances),
           new HashMap<>(r.cache));
@@ -102,7 +103,7 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  private final MmuTransition transition;
+  private final MemoryAccessPath.Entry entry;
   private final MemoryAccessPath path;
   private final MemoryAccessStructure structure;
 
@@ -110,47 +111,64 @@ public final class MemorySymbolicExecutor {
 
   private final Result result;
 
-  private MemorySymbolicExecutor(
-      final MmuTransition transition,
-      final MemoryAccessPath path,
-      final MemoryAccessStructure structure,
+  private final Map<Integer, MemoryAccessStack> stacks = new HashMap<>();
+
+  public MemorySymbolicExecutor(
+      final MemoryAccessPath.Entry entry,
       final Result result,
       final boolean includeOriginalVariables) {
-    this.transition = transition;
-    this.path = path;
-    this.structure = structure;
+    InvariantChecks.checkNotNull(entry);
+    InvariantChecks.checkNotNull(result);
 
-    this.result = result != null ? result : new Result();
-
+    this.entry = entry;
+    this.path = null;
+    this.structure = null;
+    this.result = result;
     this.includeOriginalVariables = includeOriginalVariables;
   }
 
   public MemorySymbolicExecutor(
-      final MmuTransition transition,
-      final Result result,
+      final MemoryAccessPath.Entry entry,
       final boolean includeOriginalVariables) {
-    this(transition, null, null, result, includeOriginalVariables);
+    InvariantChecks.checkNotNull(entry);
+
+    this.entry = entry;
+    this.path = null;
+    this.structure = null;
+    this.result = null;
+    this.includeOriginalVariables = includeOriginalVariables;
   }
 
   public MemorySymbolicExecutor(
-      final MemoryAccessPath path, final boolean includeOriginalVariables) {
-    this(null, path, null, null, includeOriginalVariables);
+      final MemoryAccessPath path,
+      final boolean includeOriginalVariables) {
+    InvariantChecks.checkNotNull(path);
+
+    this.entry = null;
+    this.path = path;
+    this.structure = null;
+    this.result = null;
+    this.includeOriginalVariables = includeOriginalVariables;
   }
 
   public MemorySymbolicExecutor(
-      final MemoryAccessStructure structure, final boolean includeOriginalVariables) {
-    this(null, null, structure, null, includeOriginalVariables);
+      final MemoryAccessStructure structure,
+      final boolean includeOriginalVariables) {
+    InvariantChecks.checkNotNull(structure);
+
+    this.entry = null;
+    this.path = null;
+    this.structure = structure;
+    this.result = null;
+    this.includeOriginalVariables = includeOriginalVariables;
   }
 
   public Result execute() {
-    if (transition != null) {
-      InvariantChecks.checkTrue(path == null && structure == null);
-      execute(transition);
+    if (entry != null) {
+      execute(entry);
     } else if (path != null) {
-      InvariantChecks.checkTrue(transition == null && structure == null);
       execute(path);
     } else if (structure != null) {
-      InvariantChecks.checkTrue(transition == null && path == null);
       execute(structure);
     } else {
       InvariantChecks.checkTrue(false);
@@ -182,8 +200,8 @@ public final class MemorySymbolicExecutor {
         final MemoryAccessPath path1 = structure.getAccess(i).getPath();
         final MemoryDependency dependency = structure.getDependency(i, j);
 
-        // It does not execute the paths (only the dependency).
         if (dependency != null) {
+          // It does not execute the paths (only the dependency).
           execute(path1, i, path2, j, dependency);
         }
       }
@@ -197,16 +215,16 @@ public final class MemorySymbolicExecutor {
     execute(path, -1);
   }
 
-  private void execute(final MmuTransition transition) {
-    InvariantChecks.checkNotNull(transition);
-    execute(transition, -1);
+  private void execute(final MemoryAccessPath.Entry entry) {
+    InvariantChecks.checkNotNull(entry);
+    execute(entry, -1);
   }
 
   private void execute(final MemoryAccessPath path, final int pathIndex) {
     InvariantChecks.checkNotNull(path);
 
-    for (final MmuTransition transition : path.getTransitions()) {
-      execute(transition, pathIndex);
+    for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+      execute(entry, pathIndex);
     }
   }
 
@@ -237,6 +255,9 @@ public final class MemorySymbolicExecutor {
   private void execute(final MmuCondition condition, final int pathIndex1, final int pathIndex2) {
     InvariantChecks.checkNotNull(condition);
 
+    final MemoryAccessStack stack1 = getStack(pathIndex1);
+    final MemoryAccessStack stack2 = getStack(pathIndex2);
+
     final IntegerClause.Type clauseType =
         (condition.getType() == MmuCondition.Type.AND)
         ? IntegerClause.Type.AND
@@ -253,44 +274,58 @@ public final class MemorySymbolicExecutor {
       final MmuExpression expression = atom.getLhsExpr();
 
       for (final IntegerField term : expression.getTerms()) {
-        final IntegerField field1 = getPathFieldInstance(term, pathIndex1);
-        final IntegerField field2 = getPathFieldInstance(term, pathIndex2);
+        final IntegerField term1 = stack1.getInstance(term);
+        final IntegerField term2 = stack2.getInstance(term);
+        
+        final IntegerField field1 = getPathFieldInstance(term1, pathIndex1);
+        final IntegerField field2 = getPathFieldInstance(term2, pathIndex2);
 
         clauseBuilder.addEquation(field1, field2, !atom.isNegated());
 
         result.variables.add(field1.getVariable());
-        result.originals.add(getPathVar(term.getVariable(), pathIndex1));
+        result.originals.add(getPathVar(term1.getVariable(), pathIndex1));
 
         result.variables.add(field2.getVariable());
-        result.originals.add(getPathVar(term.getVariable(), pathIndex2));
+        result.originals.add(getPathVar(term2.getVariable(), pathIndex2));
       }
     }
+
     result.formula.addClause(clauseBuilder.build());
   }
 
-  private void execute(final MmuTransition transition, final int pathIndex) {
-    InvariantChecks.checkNotNull(transition);
+  private void execute(final MemoryAccessPath.Entry entry, final int pathIndex) {
+    InvariantChecks.checkNotNull(entry);
 
-    final MmuGuard guard = transition.getGuard();
-    if (guard != null) {
-      execute(guard, pathIndex);
-    }
+    updateStack(entry, pathIndex);
 
-    final MmuAction action = transition.getTarget();
-    if (action != null) {
-      execute(action, pathIndex);
+    final MmuTransition transition = entry.getTransition();
+
+    if (transition != null) {
+      final MmuGuard guard = transition.getGuard();
+
+      if (guard != null) {
+        execute(guard, pathIndex);
+      }
+
+      final MmuAction action = transition.getTarget();
+
+      if (action != null) {
+        execute(action, pathIndex);
+      }
     }
   }
 
   private void execute(final MmuGuard guard, final int pathIndex) {
     InvariantChecks.checkNotNull(guard);
 
-    final MmuBufferAccess bufferAccess = guard.getBufferAccess();
+    final MemoryAccessStack stack = getStack(pathIndex);
+
+    final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
     if (bufferAccess != null) {
       execute(bufferAccess, pathIndex);
     }
 
-    final MmuCondition condition = guard.getCondition();
+    final MmuCondition condition = guard.getCondition(stack);
     if (condition != null) {
       execute(condition, pathIndex);
     }
@@ -299,7 +334,9 @@ public final class MemorySymbolicExecutor {
   private void execute(final MmuAction action, final int pathIndex) {
     InvariantChecks.checkNotNull(action);
 
-    final Map<IntegerField, MmuBinding> assignments = action.getAction();
+    final MemoryAccessStack stack = getStack(pathIndex);
+
+    final Map<IntegerField, MmuBinding> assignments = action.getAction(stack);
     if (assignments != null) {
       execute(assignments.values(), pathIndex);
     }
@@ -307,8 +344,10 @@ public final class MemorySymbolicExecutor {
 
   private void execute(final MmuBufferAccess bufferAccess, final int pathIndex) {
     InvariantChecks.checkNotNull(bufferAccess);
-    // TODO: bufferAccess.getMatchBindings() - new variables.
-    execute(bufferAccess.getBuffer().getMatchBindings(), pathIndex);
+
+    final MemoryAccessStack stack = getStack(pathIndex);
+
+    execute(bufferAccess.getBuffer().getMatchBindings(stack), pathIndex);
   }
 
   private void execute(final MmuCondition condition, final int pathIndex) {
@@ -327,8 +366,10 @@ public final class MemorySymbolicExecutor {
     result.formula.addClause(clauseBuilder.build());
   }
 
-  private void execute(final IntegerClause.Builder<IntegerField> clauseBuilder,
-      final MmuConditionAtom atom, final int pathIndex) {
+  private void execute(
+      final IntegerClause.Builder<IntegerField> clauseBuilder,
+      final MmuConditionAtom atom,
+      final int pathIndex) {
     final MmuExpression lhsExpr = atom.getLhsExpr();
 
     switch(atom.getType()) {
@@ -525,5 +566,28 @@ public final class MemorySymbolicExecutor {
     }
 
     return varInstance;
+  }
+
+  private MemoryAccessStack getStack(final int pathIndex) {
+    MemoryAccessStack stack = stacks.get(pathIndex);
+
+    if (stack == null) {
+      final String id = pathIndex != -1 ? String.format("%d", pathIndex) : "";
+      stacks.put(pathIndex, stack = new MemoryAccessStack(id));
+    }
+
+    return stack;
+  }
+
+  private void updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
+    InvariantChecks.checkNotNull(entry);
+
+    final MemoryAccessStack stack = getStack(pathIndex);
+
+    if (entry.isCall()) {
+      stack.call(entry.getFrame());
+    } else if (entry.isReturn()) {
+      stack.ret();
+    }
   }
 }
