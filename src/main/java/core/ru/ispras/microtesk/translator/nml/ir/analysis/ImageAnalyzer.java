@@ -34,6 +34,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
@@ -137,8 +138,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final BitVector opc) {
       final String existingName = group.get(opc);
       if (null != existingName) {
-        //Logger.warning("Group %s contains two items %s and %s with the same opcode %s",
-        //    groupName, existingName, name, opc);
+        Logger.warning("Group %s contains two items %s and %s with the same opcode %s",
+            groupName, existingName, name, opc);
       } else {
         group.put(opc, name);
       }
