@@ -46,13 +46,15 @@ public final class MmuCalculatorTestCase {
     System.out.format("Test: width=%d, count=%d\n", width, count);
     System.out.format("Expr: %s\n", expression);
 
-    BigInteger result = MmuCalculator.eval(expression, VAR, BigInteger.ZERO);
+    BigInteger result = MmuCalculator.eval(expression, VAR, BigInteger.ZERO, false);
+    Assert.assertNotNull(result);
     Assert.assertEquals(BigInteger.ZERO, result);
 
     long value = Randomizer.get().nextLong();
     System.out.format("Value: %x\n", value);
 
-    result = MmuCalculator.eval(expression, VAR, BigInteger.valueOf(value));
+    result = MmuCalculator.eval(expression, VAR, BigInteger.valueOf(value), false);
+    Assert.assertNotNull(result);
 
     long reference = 0;
 
