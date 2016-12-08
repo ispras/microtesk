@@ -33,26 +33,26 @@ final class Float16Operations implements Operations {
 
   @Override
   public FloatX add(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    final Float16 result = Float16Functions.float16_add(newFloat16(lhs), newFloat16(rhs));
+    return newFloatX(result);
   }
 
   @Override
   public FloatX sub(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    final Float16 result = Float16Functions.float16_sub(newFloat16(lhs), newFloat16(rhs));
+    return newFloatX(result);
   }
 
   @Override
   public FloatX mul(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    final Float16 result = Float16Functions.float16_mul(newFloat16(lhs), newFloat16(rhs));
+    return newFloatX(result);
   }
 
   @Override
   public FloatX div(final FloatX lhs, final FloatX rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    final Float16 result = Float16Functions.float16_div(newFloat16(lhs), newFloat16(rhs));
+    return newFloatX(result);
   }
 
   @Override
@@ -81,6 +81,12 @@ final class Float16Operations implements Operations {
 
   @Override
   public boolean isSignalingNan(final FloatX arg) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public FloatX round(final FloatX value) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException();
   }
@@ -125,14 +131,13 @@ final class Float16Operations implements Operations {
 
   @Override
   public String toString(final FloatX arg) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    final Float16 value = newFloat16(arg);
+    return value.toString();
   }
 
   @Override
   public String toHexString(final FloatX arg) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    return toString(arg); 
   }
 
   private static Float16 newFloat16(final FloatX value) {

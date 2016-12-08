@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api.data.floatx;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.softfloat.JSoftFloat;
 
 public enum Precision {
   FLOAT16 (10, 5) {
@@ -85,5 +86,13 @@ public enum Precision {
     }
 
     return null;
+  }
+
+  static int getRoundingMode() {
+    return JSoftFloat.getFloatRoundingMode();
+  }
+
+  static void setRoundingMode(final int value) {
+    JSoftFloat.setFloatRoundingMode(value);
   }
 }

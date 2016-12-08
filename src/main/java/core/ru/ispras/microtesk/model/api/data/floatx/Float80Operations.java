@@ -90,6 +90,12 @@ final class Float80Operations implements Operations {
   }
 
   @Override
+  public FloatX round(final FloatX value) {
+    final FloatX80 result = JSoftFloat.floatx80_round_to_int(newFloatX80(value));
+    return newFloatX(result);
+  }
+
+  @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT32: {

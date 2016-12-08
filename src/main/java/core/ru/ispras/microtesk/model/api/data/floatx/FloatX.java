@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -211,6 +211,10 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     return getOperations().isSignalingNan(this);
   }
 
+  public FloatX round() {
+    return getOperations().round(this);
+  }
+
   public FloatX toFloat(final Precision newPrecision) {
     InvariantChecks.checkNotNull(newPrecision);
 
@@ -255,5 +259,13 @@ public final class FloatX extends Number implements Comparable<FloatX> {
           rhs.getText())
       );
     }
+  }
+
+  public static int getRoundingMode() {
+    return Precision.getRoundingMode();
+  }
+
+  public static void setRoundingMode(final int value) {
+    Precision.setRoundingMode(value);
   }
 }

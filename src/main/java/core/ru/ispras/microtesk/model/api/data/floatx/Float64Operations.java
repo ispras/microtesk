@@ -92,6 +92,12 @@ final class Float64Operations implements Operations {
   }
 
   @Override
+  public FloatX round(final FloatX value) {
+    final double result = JSoftFloat.float64_round_to_int(value.doubleValue());
+    return newFloatX(result);
+  }
+
+  @Override
   public FloatX toFloat(final FloatX value, final Precision precision) {
     switch (precision) {
       case FLOAT16: {
