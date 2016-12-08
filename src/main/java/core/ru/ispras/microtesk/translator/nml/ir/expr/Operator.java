@@ -156,6 +156,7 @@ public enum Operator {
 
   ITE(null,         3, Kind.COMMON  /* No rules. These operator must be handled separately. */),
   SQRT(null,        1, Kind.COMMON  /* No rules. These operator must be handled separately. */),
+  ROUND(null,       1, Kind.COMMON  /* No rules. These operator must be handled separately. */),
 
   IS_NAN(null,      1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */),
   IS_SIGN_NAN(null, 1, Kind.BOOLEAN /* No rules. These operator must be handled separately. */),

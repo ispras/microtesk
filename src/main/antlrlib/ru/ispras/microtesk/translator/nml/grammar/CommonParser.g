@@ -234,6 +234,7 @@ typeCast
 
 mathFunc
     :  SQRT^        LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  ROUND^       LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_NAN^      LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;

@@ -271,6 +271,11 @@ public final class Data implements Comparable<Data> {
     return new Data(type, result.getData());
   }
 
+  public Data round() {
+    final FloatX result = floatXValue().round();
+    return new Data(type, result.getData());
+  }
+
   public boolean isNan() {
     return floatXValue().isNan();
   }

@@ -858,6 +858,11 @@ $res = $tc.res;
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().sqrt(where($token), $e.res);
 })
+    |  ^(token=ROUND e=dataExpr
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().round(where($token), $e.res);
+})
     |  ^(token=IS_NAN e=dataExpr
 {
 checkNotNull($e.start, $e.res, $e.text);

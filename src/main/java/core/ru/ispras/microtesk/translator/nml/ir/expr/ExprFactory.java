@@ -264,6 +264,23 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr round(final Where w, final Expr operand) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(operand);
+
+    if (!operand.isTypeOf(TypeId.FLOAT)) {
+      raiseError(w, "The round operation supports only the float type.");
+    }
+
+    final Type type = operand.getNodeInfo().getType();
+
+    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.ROUND, type);
+    final Node node = new NodeOperation(Operator.ROUND, operand.getNode());
+
+    node.setUserData(nodeInfo);
+    return new Expr(node);
+  }
+
   public Expr isNan(final Where w, final Expr operand) throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(operand);

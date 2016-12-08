@@ -180,6 +180,7 @@ DOUBLE_DOT    : '..'          { pp(); };
 DOUBLE_COLON  : '::'          { pp(); };
 
 SQRT          : 'sqrt'        { pp(); };
+ROUND         : 'round'       { pp(); };
 IS_NAN        : 'is_nan'      { pp(); };
 IS_SIGN_NAN   : 'is_signaling_nan'{ pp(); };
 

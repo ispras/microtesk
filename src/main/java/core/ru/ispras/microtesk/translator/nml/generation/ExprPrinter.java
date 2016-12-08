@@ -133,6 +133,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         "Location.concat(", ", ", ")");
 
     addMapping(Operator.SQRT,        "", "", ".sqrt()");
+    addMapping(Operator.ROUND,       "", "", ".round()");
     addMapping(Operator.IS_NAN,      "", "", ".isNan()");
     addMapping(Operator.IS_SIGN_NAN, "", "", ".isSignalingNan()");
 
