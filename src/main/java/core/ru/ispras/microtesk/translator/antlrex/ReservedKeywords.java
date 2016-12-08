@@ -35,4 +35,9 @@ public final class ReservedKeywords {
     // TODO: Reserved language keywords here.
     // TODO: Add names that can cause conflicts with generated constructs.
   };
+
+  public static final String[] NML = {
+    "float_rounding_mode",
+    "float_exception_flags"
+  };
 }
