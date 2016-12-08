@@ -95,4 +95,12 @@ public enum Precision {
   static void setRoundingMode(final int value) {
     JSoftFloat.setFloatRoundingMode(value);
   }
+
+  static int getExceptionFlags() {
+    return JSoftFloat.getFloatExceptionFlags();
+  }
+
+  static void setExceptionFlags(final int value) {
+    JSoftFloat.setFloatExceptionFlags(value);
+  }
 }

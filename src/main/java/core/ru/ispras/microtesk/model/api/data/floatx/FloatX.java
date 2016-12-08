@@ -268,4 +268,12 @@ public final class FloatX extends Number implements Comparable<FloatX> {
   public static void setRoundingMode(final int value) {
     Precision.setRoundingMode(value);
   }
+
+  public static int getExceptionFlags() {
+    return Precision.getExceptionFlags();
+  }
+
+  public static void setExceptionFlags(final int value) {
+    Precision.setExceptionFlags(value);
+  }
 }
