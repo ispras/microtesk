@@ -19,7 +19,6 @@ package ru.ispras.microtesk.translator.antlrex.symbols;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Where {
   private final String unit;
   private final int line;
@@ -32,7 +31,6 @@ public final class Where {
    * @param line Number of the line.
    * @param position Position in the line.
    */
-
   public Where(final String unit, final int line, final int position) {
     this.unit = unit;
     this.line = line;
@@ -44,7 +42,6 @@ public final class Where {
    * 
    * @return Source file (unit) name.
    */
-
   public String getUnit() {
     return unit;
   }
@@ -54,7 +51,6 @@ public final class Where {
    * 
    * @return Line number.
    */
-
   public int getLine() {
     return line;
   }
@@ -64,7 +60,6 @@ public final class Where {
    * 
    * @return Position in the line.
    */
-
   public int getPosition() {
     return position;
   }

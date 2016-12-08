@@ -24,7 +24,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class SymbolScope {
   private final SymbolScope outerScope;
   private final Map<String, Symbol> memberSymbols;
@@ -38,7 +37,6 @@ public final class SymbolScope {
    * @param associatedSymbol Associated symbol or {@code null} if there is
    *        no associated symbol.
    */
-
   public SymbolScope(final SymbolScope scope, final Symbol associatedSymbol) {
     this.outerScope = scope;
     this.memberSymbols = new HashMap<>();
@@ -50,7 +48,6 @@ public final class SymbolScope {
    * 
    * @param scope Outer scope or {@code null} if there is no outer scope.
    */
-
   public SymbolScope(final SymbolScope scope) {
     this(scope, null);
   }
@@ -63,7 +60,6 @@ public final class SymbolScope {
    * @throws IllegalArgumentException if {@code symbol} is {@code null};
    *         if a symbol with such a name is already defined in the current scope.
    */
-
   public void define(final Symbol symbol) {
     InvariantChecks.checkNotNull(symbol);
 
@@ -82,7 +78,6 @@ public final class SymbolScope {
    * @param name Symbol name.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolve(final String name) {
     if (memberSymbols.containsKey(name)) {
       return memberSymbols.get(name);
@@ -102,7 +97,6 @@ public final class SymbolScope {
    * @param name Symbol name.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolveMember(final String name) {
     return memberSymbols.get(name);
   }
@@ -117,7 +111,6 @@ public final class SymbolScope {
    * @param names Array of names.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolveNested(final String... names) {
     InvariantChecks.checkNotEmpty(names);
 
@@ -144,7 +137,6 @@ public final class SymbolScope {
    * 
    * @return Outer scope or {@code null} if there is no outer scope.
    */
-
   public SymbolScope getOuterScope() {
     return outerScope;
   }
@@ -155,7 +147,6 @@ public final class SymbolScope {
    * 
    * @return Associated symbol or {@code null} it there is not such symbol.
    */
-
   public Symbol getAssociatedSymbol() {
     return associatedSymbol;
   }

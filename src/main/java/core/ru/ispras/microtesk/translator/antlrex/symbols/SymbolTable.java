@@ -21,7 +21,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class SymbolTable {
   private final SymbolScope globalScope;
   private SymbolScope scope;
@@ -29,7 +28,6 @@ public final class SymbolTable {
   /**
    * Creates a symbol table with a global scope. 
    */
-
   public SymbolTable() {
     this.globalScope = new SymbolScope(null);
     this.scope = globalScope;
@@ -42,7 +40,6 @@ public final class SymbolTable {
    * @param kind Symbol kind for reserved keywords.
    * @param names Collection of keywords to be registered.
    */
-
   public void defineReserved(final Enum<?> kind, final String[] names) {
     for (final String s : names) {
       globalScope.define(Symbol.newReserved(s, kind, globalScope));
@@ -55,7 +52,6 @@ public final class SymbolTable {
    * @param name Name to be checked.
    * @return {@code true} if it is a reserved keyword of {@code false} otherwise.
    */
-
   public boolean isReserved(final String name) {
     final Symbol symbol = globalScope.resolveMember(name);
     return symbol != null && symbol.isReserved();
@@ -66,7 +62,6 @@ public final class SymbolTable {
    * 
    * @return Current scope.
    */
-
   public SymbolScope peek() {
     return scope;
   }
@@ -75,7 +70,6 @@ public final class SymbolTable {
    * Starts a new scope and sets it as the current scope. The new scope
    * will be nested into the current scope.
    */
-
   public void push() {
     this.scope = new SymbolScope(scope);
   }
@@ -89,7 +83,6 @@ public final class SymbolTable {
    * @throws IllegalArgumentException if {@code scope} is {@code null};
    *         if {@code scope} is not nested into the current scope.
    */
-
   public void push(final SymbolScope scope) {
     InvariantChecks.checkNotNull(scope);
     InvariantChecks.checkTrue(this.scope == scope.getOuterScope(), "Not a nested scope.");
@@ -103,7 +96,6 @@ public final class SymbolTable {
    * @throws IllegalStateException if the current scope is the global scope
    *         which cannot be discarded.
    */
-
   public void pop() {
     InvariantChecks.checkNotNull(scope);
 
@@ -119,7 +111,6 @@ public final class SymbolTable {
    * 
    * @param symbol Symbol to be defined.
    */
-
   public void define(final Symbol symbol) {
     peek().define(symbol);
   }
@@ -131,7 +122,6 @@ public final class SymbolTable {
    * @param name Symbol name.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolve(final String name) {
     return peek().resolve(name);
   }
@@ -143,7 +133,6 @@ public final class SymbolTable {
    * @param name Symbol name.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolveMember(final String name) {
     return peek().resolveMember(name);
   }
@@ -158,7 +147,6 @@ public final class SymbolTable {
    * @param names Array of names.
    * @return Symbol or {@code null} if it is not defined.
    */
-
   public Symbol resolveNested(final String... names) {
     return peek().resolveNested(names);
   }

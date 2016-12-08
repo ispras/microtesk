@@ -21,7 +21,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Symbol {
   private final String name;
   private final Enum<?> kind;
@@ -43,7 +42,6 @@ public final class Symbol {
    * @throws IllegalArgumentException if {@code name}, {@code kind} or
    *         {@code scope} equals {@code null}.
    */
-
   private Symbol(
       final String name,
       final Enum<?> kind,
@@ -76,7 +74,6 @@ public final class Symbol {
    * 
    * @throws IllegalArgumentException if any of the parameters equals {@code null}. 
    */
-
   public static Symbol newReserved(
       final String name,
       final Enum<?> kind,
@@ -105,7 +102,6 @@ public final class Symbol {
    * @throws IllegalArgumentException if any of the first four parameters
    *         equals {@code null}.
    */
-
   public static Symbol newSymbol(
       final String name,
       final Enum<?> kind,
@@ -128,7 +124,6 @@ public final class Symbol {
    * 
    * @return Symbol name.
    */
-
   public String getName() {
     return name;
   }
@@ -138,7 +133,6 @@ public final class Symbol {
    * 
    * @return Symbol kind.
    */
-
   public Enum<?> getKind() {
     return kind;
   }
@@ -149,7 +143,6 @@ public final class Symbol {
    * 
    * @return {@link Where} object or {@code null} for reserved keywords. 
    */
-
   public Where getWhere() {
     return where;
   }
@@ -159,7 +152,6 @@ public final class Symbol {
    * 
    * @return Scope where the symbol is defined.
    */
-
   public SymbolScope getOuterScope() {
     return scope;
   }
@@ -170,7 +162,6 @@ public final class Symbol {
    * 
    * @return Nested scope or {@code null} if the symbol has no nested scope.
    */
-
   public SymbolScope getInnerScope() {
     return innerScope;
   }
@@ -181,7 +172,6 @@ public final class Symbol {
    * 
    * @return Tag object or {@code null} if it is not assigned.
    */
-
   public Object getTag() {
     return tag;
   }
@@ -194,7 +184,6 @@ public final class Symbol {
    * @throws IllegalArgumentException if {@code tag} is {@code null} or tag
    *         object is already assigned.
    */
-
   public void setTag(final Object tag) {
     InvariantChecks.checkNotNull(tag);
     InvariantChecks.checkTrue(this.tag == null, "Tag is already assigned.");
@@ -206,7 +195,6 @@ public final class Symbol {
    *  
    * @return {@code true} if it is a registered keyword or {@code false} otherwise.
    */
-
   public boolean isReserved() {
     return null == where;
   }
