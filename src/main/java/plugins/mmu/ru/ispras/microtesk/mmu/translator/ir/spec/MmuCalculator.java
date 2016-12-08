@@ -117,7 +117,8 @@ public final class MmuCalculator {
   public static Boolean eval(final MmuCondition cond) {
     InvariantChecks.checkNotNull(cond);
 
-    boolean result = cond.getType() == MmuCondition.Type.AND;
+    final boolean initialResultValue = (cond.getType() == MmuCondition.Type.AND);
+    boolean result = initialResultValue;
 
     for (final MmuConditionAtom atom : cond.getAtoms()) {
       final Boolean value = eval(atom);
@@ -126,14 +127,10 @@ public final class MmuCalculator {
         return null;
       }
 
-      if (cond.getType() == MmuCondition.Type.AND) {
-        result &= value;
-      } else {
-        result |= value;
+      result = (cond.getType() == MmuCondition.Type.AND ? (result & value) : (result | value));
 
-        if (result) {
-          break;
-        }
+      if (result != initialResultValue) {
+        break;
       }
     }
 
