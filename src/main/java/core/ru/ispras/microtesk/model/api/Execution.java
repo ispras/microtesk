@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.data.floatx.FloatX;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
@@ -48,5 +49,21 @@ public final class Execution {
 
   public static void mark(final String name) {
     //Logger.debug("Mark \"%s\" was reached", name);
+  }
+
+  public static int getFloatRoundingMode() {
+    return FloatX.getRoundingMode();
+  }
+
+  public static void setFloatRoundingMode(final int value) {
+    FloatX.setRoundingMode(value);
+  }
+
+  public static int getFloatExceptionFlags() {
+    return FloatX.getExceptionFlags();
+  }
+
+  public static void setFloatExceptionFlags(final int value) {
+    FloatX.setExceptionFlags(value);
   }
 }
