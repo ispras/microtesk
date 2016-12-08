@@ -57,6 +57,7 @@ public final class NmlTranslator extends Translator<Ir> {
 
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+    getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.NML);
 
     // Detects parent-child connections between primitives
     addHandler(new ReferenceDetector());
