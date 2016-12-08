@@ -66,28 +66,28 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 // MMU Keywords
 //==================================================================================================
 
-MMU_LET     : 'let';
-MMU_EXTERN  : 'extern';
+MMU_LET     : 'let'     { pp(); };
+MMU_EXTERN  : 'extern'  { pp(); };
 
-MMU_STRUCT  : 'struct';
-MMU_ADDRESS : 'address';
+MMU_STRUCT  : 'struct'  { pp(); };
+MMU_ADDRESS : 'address' { pp(); };
 
-MMU_SEGMENT : 'segment';
-MMU_RANGE   : 'range';
+MMU_SEGMENT : 'segment' { pp(); };
+MMU_RANGE   : 'range'   { pp(); };
 
-MMU_BUFFER  : 'buffer';
-MMU_VIEWOF  : 'viewof';
-MMU_WAYS    : 'ways';
-MMU_SETS    : 'sets';
-MMU_ENTRY   : 'entry';
-MMU_INDEX   : 'index';
-MMU_MATCH   : 'match';
-MMU_POLICY  : 'policy';
+MMU_BUFFER  : 'buffer'  { pp(); };
+MMU_VIEWOF  : 'viewof'  { pp(); };
+MMU_WAYS    : 'ways'    { pp(); };
+MMU_SETS    : 'sets'    { pp(); };
+MMU_ENTRY   : 'entry'   { pp(); };
+MMU_INDEX   : 'index'   { pp(); };
+MMU_MATCH   : 'match'   { pp(); };
+MMU_POLICY  : 'policy'  { pp(); };
 
-MMU         : 'mmu';
-MMU_VAR     : 'var';
+MMU         : 'mmu'     { pp(); };
+MMU_VAR     : 'var'     { pp(); };
 
-MMU_OP      : 'op';
+MMU_OP      : 'op'     { pp(); };
 
 //==================================================================================================
 // The end
