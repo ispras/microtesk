@@ -450,4 +450,20 @@ public final class Data implements Comparable<Data> {
     return !(truncated.isAllReset() ||
              whole.getBit(type.getBitSize() - 1) && truncated.isAllSet());
   }
+
+  public static int getFloatRoundingMode() {
+    return FloatX.getRoundingMode();
+  }
+
+  public static void setFloatRoundingMode(final int value) {
+    FloatX.setRoundingMode(value);
+  }
+
+  public static int getFloatExceptionFlags() {
+    return FloatX.getExceptionFlags();
+  }
+
+  public static void setFloatExceptionFlags(final int value) {
+    FloatX.setExceptionFlags(value);
+  }
 }
