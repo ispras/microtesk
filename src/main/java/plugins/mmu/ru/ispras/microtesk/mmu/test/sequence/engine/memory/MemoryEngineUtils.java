@@ -38,6 +38,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -66,22 +68,60 @@ public final class MemoryEngineUtils {
     return true;
   }
 
+  public static boolean isDisabledTransition(final MmuTransition transition) {
+    InvariantChecks.checkNotNull(transition);
+
+    final MmuGuard guard = transition.getGuard();
+
+    if (guard == null) {
+      return false;
+    }
+
+    final MemoryAccessStack emptyStack = new MemoryAccessStack();
+    final MmuCondition condition = guard.getCondition(emptyStack);
+
+    if (condition == null) {
+      return false;
+    }
+
+    final Boolean value = MmuCalculator.eval(condition);
+
+    if (value == null) {
+      return false;
+    }
+
+    return value == false;
+  }
+
   public static boolean isFeasibleEntry(
       final MemoryAccessPath.Entry entry,
+      final MemoryAccessStack stack,
       final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
+    InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkNotNull(partialResult);
-
-    final MmuTransition transition = entry.getTransition();
-
-    if (transition.getGuard() == null) {
-      return true;
-    }
 
     final MemorySymbolicExecutor symbolicExecutor =
         new MemorySymbolicExecutor(entry, partialResult, false);
 
+    final MmuTransition transition = entry.getTransition();
+    InvariantChecks.checkNotNull(transition);
+
+    final MmuGuard guard = transition.getGuard();
+    final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
+    final Boolean value = condition != null ? MmuCalculator.eval(condition) : new Boolean(true);
+
+    // False can be return before symbolic execution.
+    if (value != null && value == false) {
+      return false;
+    }
+
     final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+
+    // True should be return after symbolic execution.
+    if (value != null && value == true) {
+      return true;
+    }
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
         solve(transition, symbolicResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
@@ -94,9 +134,10 @@ public final class MemoryEngineUtils {
       final MemoryAccessStack stack,
       final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
+    InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkNotNull(partialResult);
 
-    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, stack), partialResult);
+    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, stack), stack, partialResult);
   }
 
   public static boolean isFeasibleTransition(

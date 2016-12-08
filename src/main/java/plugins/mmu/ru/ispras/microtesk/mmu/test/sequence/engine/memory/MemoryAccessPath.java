@@ -541,20 +541,26 @@ public final class MemoryAccessPath {
     for (final Entry entry : entries) {
       updateStack(stack, entry);
 
-      final MmuTransition transition = entry.getTransition();
-      final MmuGuard guard = transition.getGuard();
+      if (entry.isCall()) {
+        builder.append("CALL");
+      } else if (entry.isReturn()) {
+        builder.append("RETURN");
+      } else {
+        final MmuTransition transition = entry.getTransition();
+        final MmuGuard guard = transition.getGuard();
 
-      if (guard != null && guard.getOperation() == null) {
-        builder.append(guard);
-        builder.append(separator);
-      }
+        if (guard != null && guard.getOperation() == null) {
+          builder.append(guard);
+          builder.append(separator);
+        }
 
-      final MmuAction action = transition.getSource();
-      final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+        final MmuAction action = transition.getSource();
+        final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
 
-      if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
-        builder.append(bufferAccess);
-        builder.append(separator);
+        if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
+          builder.append(bufferAccess);
+          builder.append(separator);
+        }
       }
     }
 

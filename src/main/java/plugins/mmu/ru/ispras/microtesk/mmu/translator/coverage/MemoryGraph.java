@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -146,11 +148,16 @@ public final class MemoryGraph {
     return nextLabels;
   }
 
-  private void addEdge(final MmuTransition transition, final Object label, final Set<Object> nextLabels) {
+  private void addEdge(final MmuTransition transition) {
     InvariantChecks.checkNotNull(transition);
 
+    if (MemoryEngineUtils.isDisabledTransition(transition)) {
+      Logger.debug("Ignore the disabled transition %s", transition);
+      return;
+    }
+
     final MmuAction vertex = transition.getSource();
-    final Edge edge = new Edge(transition, label, nextLabels);
+    final Edge edge = new Edge(transition);
 
     ArrayList<Edge> out = edges.get(vertex);
     if (out == null) {
@@ -158,10 +165,6 @@ public final class MemoryGraph {
     }
 
     out.add(edge);
-  }
-
-  private void addEdge(final MmuTransition transition) {
-    addEdge(transition, null, null);
   }
 
   private void addEdges(final Collection<MmuTransition> transitions) {

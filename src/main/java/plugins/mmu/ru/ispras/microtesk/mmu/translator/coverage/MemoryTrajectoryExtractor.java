@@ -95,9 +95,9 @@ public final class MemoryTrajectoryExtractor {
     final Stack<SearchEntry> searchStack = new Stack<>();
 
     final MmuAction startAction = memory.getStartAction();
-    final Collection<MemoryGraph.Edge> startTransitions = graph.getEdges(startAction);
+    final Collection<MemoryGraph.Edge> startEdges = graph.getEdges(startAction);
 
-    searchStack.push(new SearchEntry(startAction, startTransitions));
+    searchStack.push(new SearchEntry(startAction, startEdges));
 
     while (!searchStack.isEmpty()) {
       final SearchEntry searchEntry = searchStack.peek();
@@ -129,17 +129,13 @@ public final class MemoryTrajectoryExtractor {
 
       if (hasTraversed) {
         if (searchEntry.edges.isEmpty()) {
-          Logger.debug("Processing terminal action %s", searchEntry.action);
-
           actionTrajectories.put(searchEntry.action,
             Collections.<Collection<Object>>singleton(Collections.<Object>emptyList()));
         } else {
-          Logger.debug("Processing action %s", searchEntry.action);
           final Collection<Collection<Object>> trajectories = new LinkedHashSet<>();
 
           for (final MemoryGraph.Edge edge : searchEntry.edges) {
             final MmuTransition transition = edge.getTransition();
-            Logger.debug("Processing transition %s", transition);
 
             final MmuAction targetAction = transition.getTarget();
             final Collection<Collection<Object>> targetTrajectories =

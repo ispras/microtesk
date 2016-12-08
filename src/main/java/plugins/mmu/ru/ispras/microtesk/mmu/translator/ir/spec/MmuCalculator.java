@@ -15,15 +15,16 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
- * {@link MmuCalculator} implements an expression calculator.
+ * {@link MmuCalculator} implements an expr calculator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -31,24 +32,33 @@ public final class MmuCalculator {
   private MmuCalculator() {}
 
   /**
-   * Evaluates the expression. The empty expression is evaluated to zero.
+   * Evaluates the expr.
    * 
-   * @param expression the expression to be calculated.
+   * <p>The empty expr is evaluated to zero.</p>
+   * 
+   * @param expr the expr to be calculated.
    * @param values the values of the variables.
-   * @return the expression value.
+   * @param check the flag indicating whether to fail if no value is found for some variable. 
+   * @return the expr value.
    */
   public static BigInteger eval(
-      final MmuExpression expression,
-      final Map<IntegerVariable, BigInteger> values) {
-    InvariantChecks.checkNotNull(expression);
+      final MmuExpression expr,
+      final Map<IntegerVariable, BigInteger> values,
+      final boolean check) {
+    InvariantChecks.checkNotNull(expr);
     InvariantChecks.checkNotNull(values);
 
     BigInteger result = BigInteger.ZERO;
     int offset = 0;
 
-    for (final IntegerField field : expression.getTerms()) {
+    for (final IntegerField field : expr.getTerms()) {
       final IntegerVariable variable = field.getVariable();
       final BigInteger value = variable.isDefined() ? variable.getValue() : values.get(variable);
+
+      if (value == null && !check) {
+        return null;
+      }
+
       InvariantChecks.checkNotNull(value);
 
       final int fieldWidth = field.getWidth();
@@ -62,25 +72,71 @@ public final class MmuCalculator {
     return result;
   }
 
-  /**
-   * Evaluates the single-variable expression. The empty expression is evaluated to zero.
-   * 
-   * @param expression the expression to be calculated.
-   * @param variable the variable.
-   * @param value the value of the variable.
-   * @return the expression value.
-   */
   public static BigInteger eval(
-      final MmuExpression expression,
+      final MmuExpression expr,
       final IntegerVariable variable,
-      final BigInteger value) {
-    InvariantChecks.checkNotNull(expression);
+      final BigInteger value,
+      final boolean check) {
+    InvariantChecks.checkNotNull(expr);
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
-    final Map<IntegerVariable, BigInteger> values = new HashMap<>();
-    values.put(variable, value);
+    return eval(
+        expr, Collections.<IntegerVariable, BigInteger>singletonMap(variable, value), check);
+  }
 
-    return eval(expression, values);
+  public static BigInteger eval(
+      final MmuExpression expr,
+      final boolean check) {
+    InvariantChecks.checkNotNull(expr);
+
+    return eval(expr, Collections.<IntegerVariable, BigInteger>emptyMap(), check);
+  }
+
+  public static Boolean eval(final MmuConditionAtom atom) {
+    InvariantChecks.checkNotNull(atom);
+
+    switch (atom.getType()) {
+      case EQ_EXPR_CONST:
+      case IN_EXPR_RANGE:
+        final MmuExpression expr = atom.getLhsExpr();
+        final BigInteger value = eval(expr, false);
+
+        if (value == null) {
+          return null;
+        }
+
+        final IntegerRange range = atom.getRhsRange();
+        return range.contains(value) != atom.isNegated();
+
+      default:
+        return null;
+    }
+  }
+
+  public static Boolean eval(final MmuCondition cond) {
+    InvariantChecks.checkNotNull(cond);
+
+    boolean result = cond.getType() == MmuCondition.Type.AND;
+
+    for (final MmuConditionAtom atom : cond.getAtoms()) {
+      final Boolean value = eval(atom);
+
+      if (value == null) {
+        return null;
+      }
+
+      if (cond.getType() == MmuCondition.Type.AND) {
+        result &= value;
+      } else {
+        result |= value;
+
+        if (result) {
+          break;
+        }
+      }
+    }
+
+    return result;
   }
 }

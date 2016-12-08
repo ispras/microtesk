@@ -31,7 +31,7 @@ public class MmuAddressInstance extends MmuStruct {
   private IntegerVariable address;
 
   public MmuAddressInstance(final Variable addrStruct, final IntegerVariable address) {
-    super(addrStruct != null ? addrStruct.getName() : null);
+    super(addrStruct != null ? addrStruct.getName() : "<undefined>");
 
     InvariantChecks.checkNotNull(address);
     this.addrStruct = addrStruct;
@@ -39,9 +39,8 @@ public class MmuAddressInstance extends MmuStruct {
   }
 
   public MmuAddressInstance(final Variable addrStruct) {
-    super(addrStruct != null ? addrStruct.getName() : null);
+    super(addrStruct != null ? addrStruct.getName() : "<undefined>");
 
-    InvariantChecks.checkNotNull(address);
     this.addrStruct = addrStruct;
     this.address = null;
   }

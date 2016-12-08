@@ -346,12 +346,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         if (isFullPath) {
           final MemoryAccessPath path = builder.build();
 
+          Logger.debug("Checking feasibility of the memory access path %s", path);
+
           if (MemoryEngineUtils.isFeasiblePath(memory, path, constraints)) {
-            Logger.debug("Feasible memory access path: %s", path);
+            Logger.debug("Feasible memory access");
             return new Result(path, top.context);
           }
 
-          Logger.debug("Infeasible memory access path: %s", result);
+          Logger.debug("Infeasible memory access path");
         }
       }
     }

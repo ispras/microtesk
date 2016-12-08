@@ -146,7 +146,7 @@ public final class MmuAddressViewBuilder {
         final BigInteger addressValue = BigInteger.valueOf(address);
 
         for (final MmuExpression expression : expressions) {
-          final BigInteger value = MmuCalculator.eval(expression, addressVariable, addressValue);
+          final BigInteger value = MmuCalculator.eval(expression, addressVariable, addressValue, true);
           fields.add(value.longValue());
         }
 
@@ -164,7 +164,7 @@ public final class MmuAddressViewBuilder {
           values.put(variable, BigInteger.valueOf(fields.get(i)));
         }
 
-        final BigInteger addressValue = MmuCalculator.eval(addressExpression, values);
+        final BigInteger addressValue = MmuCalculator.eval(addressExpression, values, true);
         return addressValue.longValue();
       }
     });

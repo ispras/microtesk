@@ -135,7 +135,7 @@ public final class MemorySymbolicExecutor {
     this.entry = entry;
     this.path = null;
     this.structure = null;
-    this.result = null;
+    this.result = new Result();
     this.includeOriginalVariables = includeOriginalVariables;
   }
 
@@ -147,7 +147,7 @@ public final class MemorySymbolicExecutor {
     this.entry = null;
     this.path = path;
     this.structure = null;
-    this.result = null;
+    this.result = new Result();
     this.includeOriginalVariables = includeOriginalVariables;
   }
 
@@ -159,7 +159,7 @@ public final class MemorySymbolicExecutor {
     this.entry = null;
     this.path = null;
     this.structure = structure;
-    this.result = null;
+    this.result = new Result();
     this.includeOriginalVariables = includeOriginalVariables;
   }
 
@@ -276,7 +276,7 @@ public final class MemorySymbolicExecutor {
       for (final IntegerField term : expression.getTerms()) {
         final IntegerField term1 = stack1.getInstance(term);
         final IntegerField term2 = stack2.getInstance(term);
-        
+
         final IntegerField field1 = getPathFieldInstance(term1, pathIndex1);
         final IntegerField field2 = getPathFieldInstance(term2, pathIndex2);
 
