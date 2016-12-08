@@ -32,7 +32,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
  * 
  * @author Andrei Tatarnikov
  */
-
 public class TreeParserBase extends TreeParserEx {
   private SymbolTable symbols;
 
