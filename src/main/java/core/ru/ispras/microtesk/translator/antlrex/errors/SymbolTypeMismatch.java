@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,10 +18,11 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
+import ru.ispras.microtesk.utils.StringUtils;
 
 public final class SymbolTypeMismatch implements ISemanticError {
   public static final String FORMAT =
-    "The '%s' symbol uses a wrong type. It is %s while %s is expected in this expression.";
+      "The '%s' symbol uses a wrong type. It is %s while %s is expected in this expression.";
 
   private final String symbolName;
   private final Enum<?> kind;
@@ -44,12 +45,7 @@ public final class SymbolTypeMismatch implements ISemanticError {
       sb.append('{');
     }
 
-    for (Enum<?> k : kinds) {
-      if (sb.length() > 0) {
-        sb.append(", ");
-      }
-      sb.append(k.name());
-    }
+    sb.append(StringUtils.toString(kinds, ", "));
 
     if (kinds.size() > 1) {
       sb.append('}');
