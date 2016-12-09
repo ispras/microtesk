@@ -269,6 +269,12 @@ final class SsaBuilder {
   private void assign(final Node lhs, final Node value) {
     acquireBlockBuilder();
     final Node rhs = convertExpression(value);
+
+    // Hack to deal with internal variables described by string constants.
+    if (new Expr(lhs).isInternalVariable()) {
+      return;
+    }
+
     final Location loc = locationFromNodeVariable(lhs);
     if (loc != null) {
       assignToAtom(loc, rhs);
