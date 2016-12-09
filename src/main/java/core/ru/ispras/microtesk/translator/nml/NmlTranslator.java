@@ -31,6 +31,8 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
+import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.generation.Generator;
 import ru.ispras.microtesk.translator.nml.generation.decoder.DecoderGenerator;
@@ -47,6 +49,7 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.RootDetector;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class NmlTranslator extends Translator<Ir> {
@@ -57,6 +60,9 @@ public final class NmlTranslator extends Translator<Ir> {
 
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.JAVA);
     getSymbols().defineReserved(NmlSymbolKind.KEYWORD, ReservedKeywords.RUBY);
+
+    defineSymbolForInternalVariable(LetConstant.FLOAT_EXCEPTION_FLAGS);
+    defineSymbolForInternalVariable(LetConstant.FLOAT_ROUNDING_MODE);
 
     // Detects parent-child connections between primitives
     addHandler(new ReferenceDetector());
@@ -75,6 +81,12 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new MetaDataGenerator(this));
     addHandler(new DecoderGenerator(this));
     addHandler(new Generator(this));
+  }
+
+  private void defineSymbolForInternalVariable(final LetConstant constant) {
+    final String name = constant.getName();
+    getSymbols().define(Symbol.newSymbol(
+        name, NmlSymbolKind.LET_CONST, new Where("", 0, 0), getSymbols().peek(), false));
   }
 
   @Override
@@ -128,6 +140,9 @@ public final class NmlTranslator extends Translator<Ir> {
 
       final Ir ir = new Ir(modelName);
       final NmlTreeWalker walker = new NmlTreeWalker(nodes);
+
+      ir.add(LetConstant.FLOAT_EXCEPTION_FLAGS.getName(), LetConstant.FLOAT_EXCEPTION_FLAGS);
+      ir.add(LetConstant.FLOAT_ROUNDING_MODE.getName(), LetConstant.FLOAT_ROUNDING_MODE);
 
       walker.assignLog(getLog());
       walker.assignSymbols(getSymbols());
