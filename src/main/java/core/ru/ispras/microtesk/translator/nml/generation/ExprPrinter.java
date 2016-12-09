@@ -310,11 +310,10 @@ public final class ExprPrinter extends MapBasedPrinter {
     @Override
     public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.LOGIC_STRING)) {
-        final NodeInfo nodeInfo = (NodeInfo) value.getUserData();
-
         // Hack to deal with internal variables described by string constants
-        if (null != nodeInfo && nodeInfo.getKind() == NodeInfo.Kind.CONST) {
-          final int coercionCount = appendCoercions(nodeInfo);
+        final Expr expr = new Expr(value);
+        if (expr.isInternalVariable()) {
+          final int coercionCount = appendCoercions(expr.getNodeInfo());
 
           appendText(Execution.class.getSimpleName() + "." + value.getValue().toString());
           if (!asLocation) {
