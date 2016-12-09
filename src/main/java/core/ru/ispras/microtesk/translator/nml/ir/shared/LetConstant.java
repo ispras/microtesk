@@ -16,8 +16,9 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
 public final class LetConstant {
   public static final LetConstant FLOAT_ROUNDING_MODE =
@@ -38,7 +39,8 @@ public final class LetConstant {
   }
 
   private LetConstant(final String name, final DataType type) {
-    this(name, new Expr(new NodeVariable(name, type)));
+    this(name, new Expr(NodeValue.newString(name)));
+    expr.setNodeInfo(NodeInfo.newConst(null));
   }
 
   public String getName() {
