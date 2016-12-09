@@ -65,7 +65,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     // Hack to deal with internal variables described by string constants.
     if (NmlSymbolKind.LET_CONST == kind) {
       final Expr expr = getIR().getConstants().get(name).getExpr();
-      if (expr.getNode().isType(DataType.STRING)) {
+      if (expr.isInternalVariable()) {
         return new Expr(expr);
       }
     }
