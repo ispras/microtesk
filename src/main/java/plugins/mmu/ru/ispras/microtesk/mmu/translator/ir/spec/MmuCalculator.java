@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -72,35 +71,17 @@ public final class MmuCalculator {
     return result;
   }
 
-  public static BigInteger eval(
-      final MmuExpression expr,
-      final IntegerVariable variable,
-      final BigInteger value,
-      final boolean check) {
-    InvariantChecks.checkNotNull(expr);
-    InvariantChecks.checkNotNull(variable);
-    InvariantChecks.checkNotNull(value);
-
-    return eval(
-        expr, Collections.<IntegerVariable, BigInteger>singletonMap(variable, value), check);
-  }
-
-  public static BigInteger eval(
-      final MmuExpression expr,
-      final boolean check) {
-    InvariantChecks.checkNotNull(expr);
-
-    return eval(expr, Collections.<IntegerVariable, BigInteger>emptyMap(), check);
-  }
-
-  public static Boolean eval(final MmuConditionAtom atom) {
+  public static Boolean eval(
+      final MmuConditionAtom atom,
+      final Map<IntegerVariable, BigInteger> values) {
     InvariantChecks.checkNotNull(atom);
+    InvariantChecks.checkNotNull(values);
 
     switch (atom.getType()) {
       case EQ_EXPR_CONST:
       case IN_EXPR_RANGE:
         final MmuExpression expr = atom.getLhsExpr();
-        final BigInteger value = eval(expr, false);
+        final BigInteger value = eval(expr, values, false);
 
         if (value == null) {
           return null;
@@ -114,14 +95,17 @@ public final class MmuCalculator {
     }
   }
 
-  public static Boolean eval(final MmuCondition cond) {
+  public static Boolean eval(
+      final MmuCondition cond,
+      final Map<IntegerVariable, BigInteger> values) {
     InvariantChecks.checkNotNull(cond);
+    InvariantChecks.checkNotNull(values);
 
     final boolean initialResultValue = (cond.getType() == MmuCondition.Type.AND);
     boolean result = initialResultValue;
 
     for (final MmuConditionAtom atom : cond.getAtoms()) {
-      final Boolean value = eval(atom);
+      final Boolean value = eval(atom, values);
 
       if (value == null) {
         return null;

@@ -31,6 +31,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 /**
  * {@link MemoryGraph} represents a memory subsystem's control flow graph.
  * 
+ * <p>Graph is constructed from the memory specification and reduced based on settings.</p>
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryGraph {
@@ -151,6 +153,7 @@ public final class MemoryGraph {
   private void addEdge(final MmuTransition transition) {
     InvariantChecks.checkNotNull(transition);
 
+    // Reduce the overall memory graph on the base of settings.
     if (MemoryEngineUtils.isDisabledTransition(transition)) {
       Logger.debug("Ignore the disabled transition %s", transition);
       return;

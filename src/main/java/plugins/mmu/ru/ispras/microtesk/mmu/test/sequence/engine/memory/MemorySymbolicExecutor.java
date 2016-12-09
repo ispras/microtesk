@@ -15,13 +15,16 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -30,6 +33,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -55,18 +59,22 @@ public final class MemorySymbolicExecutor {
     private final Map<String, Integer> instances;
     /** Maps a variable instance name to the corresponding variable. */
     private final Map<String, IntegerVariable> cache;
+    /** Maps a variable to the derived values (constant propagation). */
+    private final Map<IntegerVariable, BigInteger> constants;
 
     private Result(
         final Collection<IntegerVariable> variables,
         final IntegerFormula.Builder<IntegerField> formula,
         final Collection<IntegerVariable> originals,
         final Map<String, Integer> instances,
-        final Map<String, IntegerVariable> cache) {
+        final Map<String, IntegerVariable> cache,
+        final Map<IntegerVariable, BigInteger> constants) {
       InvariantChecks.checkNotNull(variables);
       InvariantChecks.checkNotNull(formula);
       InvariantChecks.checkNotNull(originals);
       InvariantChecks.checkNotNull(instances);
       InvariantChecks.checkNotNull(cache);
+      InvariantChecks.checkNotNull(constants);
 
       this.variables = variables;
       this.formula = formula;
@@ -74,6 +82,7 @@ public final class MemorySymbolicExecutor {
       this.originals = originals;
       this.instances = instances;
       this.cache = cache;
+      this.constants = constants;
     }
 
     public Result() {
@@ -82,7 +91,8 @@ public final class MemorySymbolicExecutor {
           new IntegerFormula.Builder<IntegerField>(),
           new LinkedHashSet<IntegerVariable>(),
           new HashMap<String, Integer>(),
-          new HashMap<String, IntegerVariable>());
+          new HashMap<String, IntegerVariable>(),
+          new HashMap<IntegerVariable, BigInteger>());
     }
 
     public Result(final Result r) {
@@ -91,7 +101,8 @@ public final class MemorySymbolicExecutor {
           new IntegerFormula.Builder<>(r.formula),
           new LinkedHashSet<>(r.originals),
           new HashMap<>(r.instances),
-          new HashMap<>(r.cache));
+          new HashMap<>(r.cache),
+          new HashMap<>(r.constants));
     }
 
     public Collection<IntegerVariable> getVariables() {
@@ -100,6 +111,117 @@ public final class MemorySymbolicExecutor {
 
     public IntegerFormula<IntegerField> getFormula() {
       return formula.build();
+    }
+
+    public Map<IntegerVariable, BigInteger> getConstants() {
+      return constants;
+    }
+
+    public Collection<IntegerVariable> getOriginalVariables() {
+      return originals;
+    }
+
+    public Map<IntegerVariable, BigInteger> getOriginalConstants() {
+      final Map<IntegerVariable, BigInteger> result = new HashMap<>();
+
+      for (final IntegerVariable original : originals) {
+        final IntegerVariable instance = getPathVarInstance(original.getName());
+        final BigInteger constant = constants.get(instance);
+
+        if (constant != null) {
+          result.put(original, constant);
+        }
+      }
+
+      return result;
+    }
+
+    private static String getPathVarName(final String varName, final int pathIndex) {
+      InvariantChecks.checkNotNull(varName);
+      return pathIndex == -1 ? varName : String.format("%s$%d", varName, pathIndex);
+    }
+
+    private static String getPathVarInstanceName(final String pathVarName, final int n) {
+      return String.format("%s(%d)", pathVarName, n);
+    }
+
+    private int getPathVarNumber(final String pathVarName) {
+      InvariantChecks.checkNotNull(pathVarName);
+      return instances.containsKey(pathVarName) ? instances.get(pathVarName) : 0;
+    }
+
+    private IntegerVariable getPathVarInstance(final String pathVarName) {
+      InvariantChecks.checkNotNull(pathVarName);
+
+      final int n = getPathVarNumber(pathVarName);
+      final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
+
+      return cache.get(pathVarInstanceName);
+    }
+
+    private void definePathVarInstance(final String pathVarName) {
+      InvariantChecks.checkNotNull(pathVarName);
+
+      final int n = getPathVarNumber(pathVarName);
+      instances.put(pathVarName, n + 1);
+    }
+
+    private IntegerVariable getPathVar(final IntegerVariable var, final int pathIndex) {
+      InvariantChecks.checkNotNull(var);
+
+      final String pathVarName = getPathVarName(var.getName(), pathIndex);
+      return getVariable(pathVarName, var.getWidth(), var.getValue());
+    }
+
+    private IntegerVariable getPathVarInstance(final IntegerVariable var, final int pathIndex) {
+      InvariantChecks.checkNotNull(var);
+
+      final String pathVarName = getPathVarName(var.getName(), pathIndex);
+      final int n = getPathVarNumber(pathVarName);
+      final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
+
+      return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
+    }
+
+    private IntegerVariable getNextPathVarInstance(final IntegerVariable var, final int pathIndex) {
+      InvariantChecks.checkNotNull(var);
+
+      final String pathVarName = getPathVarName(var.getName(), pathIndex);
+      final int n = getPathVarNumber(pathVarName);
+      final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n + 1);
+
+      return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
+    }
+
+    private IntegerField getPathFieldInstance(final IntegerField field, final int pathIndex) {
+      InvariantChecks.checkNotNull(field);
+
+      final IntegerVariable var = getPathVarInstance(field.getVariable(), pathIndex);
+
+      final int lo = field.getLoIndex();
+      final int hi = field.getHiIndex();
+
+      return new IntegerField(var, lo, hi);
+    }
+
+    private void definePathVarInstance(final IntegerVariable var, final int pathIndex) {
+      InvariantChecks.checkNotNull(var);
+
+      final String pathVarName = getPathVarName(var.getName(), pathIndex);
+      definePathVarInstance(pathVarName);
+    }
+
+    private IntegerVariable getVariable(
+        final String varInstanceName, final int width, final BigInteger value) {
+      InvariantChecks.checkNotNull(varInstanceName);
+
+      IntegerVariable varInstance = cache.get(varInstanceName);
+      if (varInstance == null) {
+        cache.put(varInstanceName,
+            varInstance = new IntegerVariable(varInstanceName, width, value));
+      }
+
+      return varInstance;
     }
   }
 
@@ -179,10 +301,19 @@ public final class MemorySymbolicExecutor {
       result.variables.addAll(result.originals);
 
       for (final IntegerVariable original : result.originals) {
+        final IntegerVariable instance = result.getPathVarInstance(original.getName());
+
         final IntegerField lhs = new IntegerField(original);
-        final IntegerField rhs = new IntegerField(getPathVarInstance(original.getName()));
+        final IntegerField rhs = new IntegerField(instance);
 
         result.formula.addEquation(lhs, rhs, true);
+
+        // Propagate the constant if applicable.
+        final BigInteger constant = result.constants.get(instance);
+
+        if (constant != null) {
+          result.constants.put(original, constant);
+        }
       }
     }
 
@@ -277,16 +408,16 @@ public final class MemorySymbolicExecutor {
         final IntegerField term1 = stack1.getInstance(term);
         final IntegerField term2 = stack2.getInstance(term);
 
-        final IntegerField field1 = getPathFieldInstance(term1, pathIndex1);
-        final IntegerField field2 = getPathFieldInstance(term2, pathIndex2);
+        final IntegerField field1 = result.getPathFieldInstance(term1, pathIndex1);
+        final IntegerField field2 = result.getPathFieldInstance(term2, pathIndex2);
 
         clauseBuilder.addEquation(field1, field2, !atom.isNegated());
 
         result.variables.add(field1.getVariable());
-        result.originals.add(getPathVar(term1.getVariable(), pathIndex1));
+        result.originals.add(result.getPathVar(term1.getVariable(), pathIndex1));
 
         result.variables.add(field2.getVariable());
-        result.originals.add(getPathVar(term2.getVariable(), pathIndex2));
+        result.originals.add(result.getPathVar(term2.getVariable(), pathIndex2));
       }
     }
 
@@ -381,16 +512,17 @@ public final class MemorySymbolicExecutor {
           final int lo = offset;
           final int hi = offset + (term.getWidth() - 1);
 
-          final IntegerField field = getPathFieldInstance(term, pathIndex);
+          final IntegerField field = result.getPathFieldInstance(term, pathIndex);
           final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
 
           clauseBuilder.addEquation(field, value, !atom.isNegated());
           offset += term.getWidth();
 
           result.variables.add(field.getVariable());
-          result.originals.add(getPathVar(term.getVariable(), pathIndex));
+          result.originals.add(result.getPathVar(term.getVariable(), pathIndex));
         }
         break;
+
       case EQ_EXPR_EXPR:
         final MmuExpression rhsExpr = atom.getRhsExpr();
         InvariantChecks.checkTrue(lhsExpr.size() == rhsExpr.size());
@@ -400,18 +532,19 @@ public final class MemorySymbolicExecutor {
           final IntegerField rhsTerm = rhsExpr.getTerms().get(i);
           InvariantChecks.checkTrue(lhsTerm.getWidth() == rhsTerm.getWidth());
 
-          final IntegerField lhsField = getPathFieldInstance(lhsTerm, pathIndex);
-          final IntegerField rhsField = getPathFieldInstance(rhsTerm, pathIndex);
+          final IntegerField lhsField = result.getPathFieldInstance(lhsTerm, pathIndex);
+          final IntegerField rhsField = result.getPathFieldInstance(rhsTerm, pathIndex);
 
           clauseBuilder.addEquation(lhsField, rhsField, !atom.isNegated());
 
           result.variables.add(lhsField.getVariable());
           result.variables.add(rhsField.getVariable());
 
-          result.originals.add(getPathVar(lhsTerm.getVariable(), pathIndex));
-          result.originals.add(getPathVar(rhsTerm.getVariable(), pathIndex));
+          result.originals.add(result.getPathVar(lhsTerm.getVariable(), pathIndex));
+          result.originals.add(result.getPathVar(rhsTerm.getVariable(), pathIndex));
         }
         break;
+
       default:
         InvariantChecks.checkTrue(false);
         break;
@@ -428,144 +561,76 @@ public final class MemorySymbolicExecutor {
       final IntegerField lhs = binding.getLhs();
       final MmuExpression rhs = binding.getRhs();
 
-      final IntegerVariable prevLhsVar = getPathVarInstance(lhs.getVariable(), pathIndex);
+      final IntegerVariable oldLhsVar = result.getPathVarInstance(lhs.getVariable(), pathIndex);
 
-      result.variables.add(prevLhsVar);
-      result.originals.add(getPathVar(lhs.getVariable(), pathIndex));
+      result.variables.add(oldLhsVar);
+      result.originals.add(result.getPathVar(lhs.getVariable(), pathIndex));
 
       if (rhs != null) {
-        final IntegerVariable nextLhsVar = getNextPathVarInstance(lhs.getVariable(), pathIndex);
-        result.variables.add(nextLhsVar);
+        final IntegerVariable newLhsVar = result.getNextPathVarInstance(lhs.getVariable(), pathIndex);
+        result.variables.add(newLhsVar);
 
+        final List<IntegerField> rhsTerms = new ArrayList<>();
+
+        // Equation of the prefix part.
         if (lhs.getLoIndex() > 0) {
-          clauseBuilder.addEquation(
-              new IntegerField(nextLhsVar, 0, lhs.getLoIndex() - 1),
-              new IntegerField(prevLhsVar, 0, lhs.getLoIndex() - 1), true);
-        }
+          final IntegerField oldLhsPre = new IntegerField(oldLhsVar, 0, lhs.getLoIndex() - 1);
+          final IntegerField newLhsPre = new IntegerField(newLhsVar, 0, lhs.getLoIndex() - 1);
 
-        if (lhs.getHiIndex() < lhs.getWidth() - 1) {
-          clauseBuilder.addEquation(
-              new IntegerField(nextLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1),
-              new IntegerField(prevLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1), true);
+          clauseBuilder.addEquation(newLhsPre, oldLhsPre, true);
+          rhsTerms.add(oldLhsPre);
         }
 
         int offset = lhs.getLoIndex();
 
+        // Equation of the middle part.
         for (final IntegerField term : rhs.getTerms()) {
-          final IntegerField field = getPathFieldInstance(term, pathIndex);
+          final IntegerField field = result.getPathFieldInstance(term, pathIndex);
 
           final int lo = offset;
           final int hi = offset + (field.getWidth() - 1);
 
-          clauseBuilder.addEquation(new IntegerField(nextLhsVar, lo, hi), field, true);
+          clauseBuilder.addEquation(new IntegerField(newLhsVar, lo, hi), field, true);
+          rhsTerms.add(field);
+
           offset += field.getWidth();
 
           result.variables.add(field.getVariable());
-          result.originals.add(getPathVar(term.getVariable(), pathIndex));
+          result.originals.add(result.getPathVar(term.getVariable(), pathIndex));
         }
 
         if (offset <= lhs.getHiIndex()) {
           final int lo = offset;
           final int hi = lhs.getHiIndex();
   
-          clauseBuilder.addEquation(new IntegerField(nextLhsVar, lo, hi), BigInteger.ZERO, true);
+          clauseBuilder.addEquation(new IntegerField(newLhsVar, lo, hi), BigInteger.ZERO, true);
         }
 
-        definePathVarInstance(lhs.getVariable(), pathIndex);
+        // Equation of the suffix part.
+        if (lhs.getHiIndex() < lhs.getWidth() - 1) {
+          final IntegerField oldLhsPost = new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+          final IntegerField newLhsPost = new IntegerField(newLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+
+          clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
+          rhsTerms.add(oldLhsPost);
+        }
+
+        result.definePathVarInstance(lhs.getVariable(), pathIndex);
+
+        // Try to propagate constants.
+        final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);
+        final BigInteger constant = MmuCalculator.eval(rhsExpr, result.getConstants(), false);
+
+        if (constant != null) {
+          Logger.debug("Constant is propagated: %s=0x%s", newLhsVar, constant.toString(16));
+          result.constants.put(newLhsVar, constant);
+        }
       } // if right-hand side exists.
     } // for each binding.
 
     if (clauseBuilder.size() != 0) {
       result.formula.addClause(clauseBuilder.build());
     }
-  }
-
-  private static String getPathVarName(final String varName, final int pathIndex) {
-    InvariantChecks.checkNotNull(varName);
-    return pathIndex == -1 ? varName : String.format("%s$%d", varName, pathIndex);
-  }
-
-  private static String getPathVarInstanceName(final String pathVarName, final int n) {
-    return String.format("%s(%d)", pathVarName, n);
-  }
-
-  private int getPathVarNumber(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-    return result.instances.containsKey(pathVarName) ? result.instances.get(pathVarName) : 0;
-  }
-
-  private IntegerVariable getPathVarInstance(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
-
-    return result.cache.get(pathVarInstanceName);
-  }
-
-  private void definePathVarInstance(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-
-    final int n = getPathVarNumber(pathVarName);
-    result.instances.put(pathVarName, n + 1);
-  }
-
-  private IntegerVariable getPathVar(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    return getVariable(pathVarName, var.getWidth(), var.getValue());
-  }
-
-  private IntegerVariable getPathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
-
-    return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
-  }
-
-  private IntegerVariable getNextPathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n + 1);
-
-    return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
-  }
-
-  private IntegerField getPathFieldInstance(final IntegerField field, final int pathIndex) {
-    InvariantChecks.checkNotNull(field);
-
-    final IntegerVariable var = getPathVarInstance(field.getVariable(), pathIndex);
-
-    final int lo = field.getLoIndex();
-    final int hi = field.getHiIndex();
-
-    return new IntegerField(var, lo, hi);
-  }
-
-  private void definePathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    definePathVarInstance(pathVarName);
-  }
-
-  private IntegerVariable getVariable(
-      final String varInstanceName, final int width, final BigInteger value) {
-    InvariantChecks.checkNotNull(varInstanceName);
-
-    IntegerVariable varInstance = result.cache.get(varInstanceName);
-    if (varInstance == null) {
-      result.cache.put(varInstanceName,
-          varInstance = new IntegerVariable(varInstanceName, width, value));
-    }
-
-    return varInstance;
   }
 
   private MemoryAccessStack getStack(final int pathIndex) {

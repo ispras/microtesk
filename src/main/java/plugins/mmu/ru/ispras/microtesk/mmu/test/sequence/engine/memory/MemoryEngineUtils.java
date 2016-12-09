@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -84,7 +85,8 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final Boolean value = MmuCalculator.eval(condition);
+    final Boolean value =
+        MmuCalculator.eval(condition, Collections.<IntegerVariable, BigInteger>emptyMap());
 
     if (value == null) {
       return false;
@@ -108,8 +110,14 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(transition);
 
     final MmuGuard guard = transition.getGuard();
-    final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
-    final Boolean value = condition != null ? MmuCalculator.eval(condition) : new Boolean(true);
+
+    final MmuCondition condition = guard != null
+        ? guard.getCondition(stack)
+        : null;
+
+    final Boolean value = condition != null
+        ? MmuCalculator.eval(condition, partialResult.getOriginalConstants())
+        : new Boolean(true);
 
     // False can be return before symbolic execution.
     if (value != null && value == false) {

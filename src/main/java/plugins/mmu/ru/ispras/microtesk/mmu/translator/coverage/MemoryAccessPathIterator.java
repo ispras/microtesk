@@ -278,7 +278,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
         MemorySymbolicExecutor.Result newContext = context;
 
+        Logger.debug("Checking feasibility of the transition %s", transition);
         if (MemoryEngineUtils.isFeasibleTransition(transition, type, stack, context /* INOUT */)) {
+          Logger.debug("Feasible transition");
+
           // Transitions to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
@@ -326,6 +329,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             break;
           }
+        } else {
+          Logger.debug("Infeasible transition");
         }
       }
 
