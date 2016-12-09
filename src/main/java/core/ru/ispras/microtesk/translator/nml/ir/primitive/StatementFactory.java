@@ -67,10 +67,22 @@ public final class StatementFactory extends WalkerFactoryBase {
       final Where where,
       final Expr leftExpr,
       final Expr right) throws SemanticException {
+    // Hack to deal with internal variables described by string constants.
+    if (leftExpr.isInternalVariable()) {
+      return new StatementAssignment(leftExpr, right);
+    }
+
     checkAssignableLocation(where, leftExpr);
 
     final NodeInfo leftInfo = leftExpr.getNodeInfo();
     final Type leftType = leftInfo.getType();
+
+    // Hack to deal with internal variables described by string constants.
+    if (right.isInternalVariable()) {
+      final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
+      right.setNodeInfo(newNodeInfo);
+      return new StatementAssignment(leftExpr, right);
+    }
 
     if (right.isConstant()) {
       final Expr castRight = TypeCast.castConstantTo(right, leftType);
