@@ -66,7 +66,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final LetConstant source = getIR().getConstants().get(name);
-    return new Expr(source.getExpr().getNode());
+    return new Expr(source.getExpr());
   }
 
   public Expr location(final Location source) {
