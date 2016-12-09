@@ -43,6 +43,13 @@ public final class Expr {
     return Node.Kind.VALUE == node.getKind();
   }
 
+  public boolean isInternalVariable() {
+    return isConstant() &&
+           node.isType(DataTypeId.LOGIC_STRING) &&
+           getNodeInfo() != null &&
+           getNodeInfo().getKind() == NodeInfo.Kind.CONST;
+  }
+
   public boolean isTypeOf(final TypeId typeId) {
     InvariantChecks.checkNotNull(typeId);
 
