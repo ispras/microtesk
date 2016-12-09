@@ -34,6 +34,7 @@ import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.model.api.Execution;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -309,6 +310,21 @@ public final class ExprPrinter extends MapBasedPrinter {
     @Override
     public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.LOGIC_STRING)) {
+        final NodeInfo nodeInfo = (NodeInfo) value.getUserData();
+
+        // Hack to deal with internal variables described by string constants
+        if (null != nodeInfo && nodeInfo.getKind() == NodeInfo.Kind.CONST) {
+          final int coercionCount = appendCoercions(nodeInfo);
+
+          appendText(Execution.class.getSimpleName() + "." + value.getValue().toString());
+          if (!asLocation) {
+            appendText(".load()");
+          }
+
+          appendCloseBrackets(coercionCount);
+          return;
+        }
+ 
         appendText(String.format("\"%s\"", value.getValue()));
         return;
       }
