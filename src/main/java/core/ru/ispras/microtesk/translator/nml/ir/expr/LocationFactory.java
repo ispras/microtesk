@@ -62,6 +62,14 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
 
+    // Hack to deal with internal variables described by string constants.
+    if (NmlSymbolKind.LET_CONST == kind) {
+      final Expr expr = getIR().getConstants().get(name).getExpr();
+      if (expr.getNode().isType(DataType.STRING)) {
+        return new Expr(expr);
+      }
+    }
+
     if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
        raiseError(
            where,
