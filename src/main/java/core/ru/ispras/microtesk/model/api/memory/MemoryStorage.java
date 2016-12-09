@@ -425,7 +425,9 @@ public final class MemoryStorage implements MemoryDevice {
       return;
     }
 
-    final GeneratorSettings settings = TestEngine.getInstance().getGeneratorSettings();
+    final GeneratorSettings settings = null != TestEngine.getInstance() ?
+        TestEngine.getInstance().getGeneratorSettings() : null;
+
     if (null == settings) {
       return;
     }
