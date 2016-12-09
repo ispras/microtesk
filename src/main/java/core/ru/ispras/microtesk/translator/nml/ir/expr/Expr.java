@@ -34,6 +34,11 @@ public final class Expr {
     this.node = node;
   }
 
+  public Expr(final Expr other) {
+    InvariantChecks.checkNotNull(other);
+    this.node = other.node.deepCopy();
+  }
+
   public boolean isConstant() {
     return Node.Kind.VALUE == node.getKind();
   }
