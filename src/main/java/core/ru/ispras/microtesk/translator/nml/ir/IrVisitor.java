@@ -158,13 +158,22 @@ public interface IrVisitor extends TreeVisitor {
   void onAttributeEnd(PrimitiveAND andRule, Attribute attr);
 
   /**
-   * Notifies that a statement (in an attribute) has been visited.
+   * Notifies that visiting a statement (in an attribute) has been started.
    * 
    * @param andRule AND-rule that contains the statement.
    * @param attr Attribute that contains the statement. 
    * @param stmt Statement description.
    */
-  void onStatement(PrimitiveAND andRule, Attribute attr, Statement stmt);
+  void onStatementBegin(PrimitiveAND andRule, Attribute attr, Statement stmt);
+
+  /**
+   * Notifies that visiting a statement (in an attribute) has been finished.
+   * 
+   * @param andRule AND-rule that contains the statement.
+   * @param attr Attribute that contains the statement.
+   * @param stmt Statement description.
+   */
+  void onStatementEnd(PrimitiveAND andRule, Attribute attr, Statement stmt);
 
   /**
    * Notifies that visiting a shortcut has been started.

@@ -109,7 +109,10 @@ public class IrVisitorDefault implements IrVisitor {
   public void onAttributeEnd(PrimitiveAND andRule, Attribute attr) {}
 
   @Override
-  public void onStatement(PrimitiveAND andRule, Attribute attr, Statement stmt) {}
+  public void onStatementBegin(PrimitiveAND andRule, Attribute attr, Statement stmt) {}
+
+  @Override
+  public void onStatementEnd(PrimitiveAND andRule, Attribute attr, Statement stmt) {}
 
   @Override
   public void onShortcutBegin(PrimitiveAND andRule, Shortcut shortcut) {}

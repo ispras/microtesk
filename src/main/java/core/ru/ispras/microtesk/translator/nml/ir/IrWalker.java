@@ -224,50 +224,60 @@ public final class IrWalker {
     }
 
     for (final Attribute attribute : andRule.getAttributes().values()) {
-      visitor.onAttributeBegin(andRule, attribute);
-      if (isStatus(Status.ABORT)) {
-        return;
-      }
-
-      if (isStatus(Status.OK)) {
-        for (final Statement stmt : attribute.getStatements()) {
-          visitor.onStatement(andRule, attribute, stmt);
-          if (isStatus(Status.ABORT)) {
-            return;
-          }
-        }
-      }
-
-      visitor.onAttributeEnd(andRule, attribute);
+      visitAttribute(andRule, attribute);
       if (isStatus(Status.ABORT)) {
         return;
       }
     }
 
     for(final Shortcut shortcut : andRule.getShortcuts()) {
-      visitor.onShortcutBegin(andRule, shortcut);
-      if (isStatus(Status.ABORT)) {
-        return;
-      }
-
-      if (isStatus(Status.OK)) {
-        for (final Shortcut.Argument argument : shortcut.getArguments()) {
-          visitor.onArgumentBegin(argument.getSource(), argument.getUniqueName(), argument.getType());
-          if (isStatus(Status.ABORT)) {
-            return;
-          }
-
-          visitor.onArgumentEnd(argument.getSource(), argument.getUniqueName(), argument.getType());
-          if (isStatus(Status.ABORT)) {
-            return;
-          }
-        }
-      }
-
-      visitor.onShortcutEnd(andRule, shortcut);
+      visitShortcut(andRule, shortcut);
       if (isStatus(Status.ABORT)) {
         return;
       }
     }
+  }
+
+  private void visitAttribute(final PrimitiveAND andRule, final Attribute attribute) {
+    visitor.onAttributeBegin(andRule, attribute);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    if (isStatus(Status.OK)) {
+      for (final Statement stmt : attribute.getStatements()) {
+        visitor.onStatementBegin(andRule, attribute, stmt);
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+
+        visitor.onStatementEnd(andRule, attribute, stmt);
+      }
+    }
+
+    visitor.onAttributeEnd(andRule, attribute);
+  }
+
+  private void visitShortcut(final PrimitiveAND andRule, final Shortcut shortcut) {
+    visitor.onShortcutBegin(andRule, shortcut);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    if (isStatus(Status.OK)) {
+      for (final Shortcut.Argument argument : shortcut.getArguments()) {
+        visitor.onArgumentBegin(argument.getSource(), argument.getUniqueName(), argument.getType());
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+
+        visitor.onArgumentEnd(argument.getSource(), argument.getUniqueName(), argument.getType());
+        if (isStatus(Status.ABORT)) {
+          return;
+        }
+      }
+    }
+
+    visitor.onShortcutEnd(andRule, shortcut);
   }
 }

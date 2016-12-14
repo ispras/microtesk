@@ -90,7 +90,7 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onStatement(
+    public void onStatementBegin(
         final PrimitiveAND andRule,
         final Attribute attr,
         final Statement stmt) {
