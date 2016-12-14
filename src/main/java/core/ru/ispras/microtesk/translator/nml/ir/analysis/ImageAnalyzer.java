@@ -46,6 +46,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.utils.FormatMarker;
@@ -66,6 +67,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
   private static final class Visitor extends IrVisitorDefault {
     private final Map<Primitive, Primitive> visited = new HashMap<>();
     private final Map<String, Map<BitVector, String>> opcGroups = new HashMap<>();
+    private final Map<Node, Node> localConstants = new HashMap<>();
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
@@ -86,6 +88,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         setStatus(Status.OK);
       } else {
         visited.put(item, item);
+        localConstants.clear();
 
         /*
         final ImageInfo imageInfo = item.getInfo().getImageInfo();
@@ -195,7 +198,16 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     private void onStatementAttributeCall(
         final PrimitiveAND primitive, final StatementAttributeCall stmt) {
       if (stmt.getAttributeName().equals(Attribute.INIT_NAME)) {
-        // Calls to 'init' are ignored so far.
+        final Attribute attribute = primitive.getAttributes().get(Attribute.INIT_NAME);
+        for (final Statement initStmt : attribute.getStatements()) {
+          if (initStmt.getKind() == Statement.Kind.ASSIGN) {
+            final StatementAssignment assignment = (StatementAssignment) initStmt;
+            if (ExprUtils.isValue(assignment.getRight().getNode())) {
+              localConstants.put(assignment.getLeft().getNode(), assignment.getRight().getNode());
+            }
+          }
+        }
+
         return;
       }
 
@@ -232,9 +244,12 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final Node argument =
             markerIndex == -1 ? NodeValue.newString(text) : arguments.get(markerIndex);
 
-        final ImageInfo tokenImageInfo = getImageInfo(primitive, argument);
+        final Node field =
+            localConstants.containsKey(argument) ? localConstants.get(argument) : argument;
+
+        final ImageInfo tokenImageInfo = getImageInfo(primitive, field);
         imageInfo = imageInfo.and(tokenImageInfo);
-        fields.add(argument);
+        fields.add(field);
 
         if (imageInfo.isImageSizeFixed() && tokenImageInfo.getMaxImageSize() > 0) {
           final int tokenBitSize = tokenImageInfo.getMaxImageSize();
@@ -242,8 +257,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           final BitVector tokenOpc;
           final BitVector tokenOpcMask = BitVector.newEmpty(tokenBitSize);
 
-          if (ExprUtils.isValue(argument)) {
-            tokenOpc = BitVector.valueOf(argument.toString(), 2, tokenBitSize);
+          if (ExprUtils.isValue(field)) {
+            tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
             tokenOpcMask.setAll();
             hasOpc = true;
           } else {
