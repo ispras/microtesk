@@ -41,9 +41,7 @@ public DecoderResult decode(final BitVector image) {
 >>
 
 decoder_result(name, args) ::= <<
-<\n>final DecoderResult decoderResult = newResult(new <name>(<args; separator=", ">));
-<if(args)><\n><args: {arg | decoderResult.addArgument("<arg>", <arg>);}; separator="\n"><\n><endif>
-return decoderResult;
+<\n>return newResult(new <name>(<args; separator=", ">));
 >>
 
 decoder_opc_check(value, size) ::= <<

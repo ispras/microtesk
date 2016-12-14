@@ -29,13 +29,16 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.decoder.DecoderItem;
 import ru.ispras.microtesk.decoder.DecoderResult;
 import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -161,6 +164,11 @@ final class STBDecoder implements STBuilder {
         buildImmediateArgument(stConstructor, group, field);
       } else if (isArgumentImage(field)) {
         buildArgumentImage(stConstructor, group, field);
+      } else if (isInstanceImage(field)) {
+        buildInstanceImage(stConstructor, group, field);
+      } else {
+        Logger.warning(
+            "Failed to construct decoder for %s. Unrecognized field: %s", item.getName(), field);
       }
     }
 
@@ -219,8 +227,13 @@ final class STBDecoder implements STBuilder {
     }
 
     final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
-    final String name = call.getCalleeName();
+    final String attributeName = call.getAttributeName();
 
+    if (!attributeName.equals(Attribute.IMAGE_NAME)) {
+      return false;
+    }
+
+    final String name = call.getCalleeName();
     return item.getArguments().containsKey(name);
   }
 
@@ -236,5 +249,28 @@ final class STBDecoder implements STBuilder {
     stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
 
     st.add("stmts", stPrimitive);
+  }
+
+  private boolean isInstanceImage(final Node field) {
+    if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
+      return false;
+    }
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final String attributeName = call.getAttributeName();
+
+    if (!attributeName.equals(Attribute.IMAGE_NAME)) {
+      return false;
+    }
+
+    return call.getCalleeInstance() != null;
+  }
+
+  private void buildInstanceImage(final ST st, final STGroup group, final Node field) {
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final Instance instance = call.getCalleeInstance();
+
+    Logger.warning(item.getName() + " :" + field.toString());
   }
 }
