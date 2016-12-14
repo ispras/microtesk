@@ -74,6 +74,15 @@ public final class IntegerClause<V> {
     }
 
     /**
+     * Returns the clause type.
+     * 
+     * @return the type of the clause.
+     */
+    public Type getType() {
+      return type;
+    }
+
+    /**
      * Returns the number of equations in the clause.
      * 
      * @return the size of the clause.
@@ -151,6 +160,13 @@ public final class IntegerClause<V> {
       for (final IntegerClause<V> clause : clauses) {
         addClause(clause);
       }
+    }
+
+    /**
+     * Removes all the equations from the clause.
+     */
+    public void clear() {
+      equations.clear();
     }
 
     /**

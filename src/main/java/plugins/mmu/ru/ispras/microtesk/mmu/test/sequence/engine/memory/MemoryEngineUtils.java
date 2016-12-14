@@ -131,6 +131,10 @@ public final class MemoryEngineUtils {
       return true;
     }
 
+    if (symbolicResult.hasConflict()) {
+      return false;
+    }
+
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
         solve(transition, symbolicResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
@@ -284,15 +288,21 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
+    if (symbolicResult.hasConflict()) {
+      return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
+    }
+
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
+    final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
     final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formula, initializer);
+        new IntegerFieldFormulaSolver(variables, formula, constants, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT) {
       Logger.debug("Formula: %s", formula);
+      Logger.debug("Constants: %s", constants);
       Logger.debug(stringOf(transition));
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);
@@ -317,6 +327,10 @@ public final class MemoryEngineUtils {
     }
 
     final MemorySymbolicExecutor.Result symbolicResult = path.getSymbolicResult();
+
+    if (symbolicResult.hasConflict()) {
+      return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
+    }
 
     final int collectionSize = constraints.size() + 1;
 

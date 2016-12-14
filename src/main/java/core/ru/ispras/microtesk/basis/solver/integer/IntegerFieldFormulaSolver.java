@@ -68,6 +68,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   private final Collection<Collection<IntegerVariable>> variables;
   /** Formula (constraint) to be solved. */
   private final Collection<IntegerFormula<IntegerField>> formulae;
+  /** Propagated constants. */
+  private final Map<IntegerVariable, BigInteger> constants;
 
   /** Initializer used to fill the unused fields of the variables. */
   private final IntegerVariableInitializer initializer;
@@ -91,18 +93,24 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
    * 
    * @param variables the variables to be included into a solution.
    * @param formulae the constraints to be solved.
+   * @param constants the propagated constants.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
     final Collection<Collection<IntegerVariable>> variables,
     final Collection<IntegerFormula<IntegerField>> formulae,
+    final Map<IntegerVariable, BigInteger> constants,
     final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formulae);
+    InvariantChecks.checkNotNull(constants);
     InvariantChecks.checkNotNull(initializer);
 
     this.variables = Collections.unmodifiableCollection(variables);
     this.formulae = Collections.unmodifiableCollection(formulae);
+    this.constants = Collections.unmodifiableMap(constants);
+
+    // TODO: Use the propagated constants.
 
     this.initializer = initializer;
 
@@ -135,11 +143,29 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
    * 
    * @param variables the variables to be included into a solution.
    * @param formulae the constraints to be solved.
+   * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
     final Collection<Collection<IntegerVariable>> variables,
-    final Collection<IntegerFormula<IntegerField>> formulae) {
-    this(variables, formulae, IntegerVariableInitializer.ZEROS);
+    final Collection<IntegerFormula<IntegerField>> formulae,
+    final IntegerVariableInitializer initializer) {
+    this(variables, formulae, Collections.<IntegerVariable, BigInteger>emptyMap(), initializer);
+  }
+
+  /**
+   * Constructs a solver.
+   * 
+   * @param variables the variables to be included into a solution.
+   * @param formula the constraint to be solved.
+   * @param constants the propagated constants.
+   * @param initializer the initializer to be used to fill the unused fields. 
+   */
+  public IntegerFieldFormulaSolver(
+    final Collection<IntegerVariable> variables,
+    final IntegerFormula<IntegerField> formula,
+    final Map<IntegerVariable, BigInteger> constants,
+    final IntegerVariableInitializer initializer) {
+    this(Collections.singleton(variables), Collections.singleton(formula), constants, initializer);
   }
 
   /**
@@ -153,20 +179,8 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     final Collection<IntegerVariable> variables,
     final IntegerFormula<IntegerField> formula,
     final IntegerVariableInitializer initializer) {
-    this(Collections.singleton(variables), Collections.singleton(formula), initializer);
-  }
-
-  /**
-   * Constructs a solver.
-   * 
-   * @param variables the variables to be included into a solution.
-   * @param formula the constraint to be solved.
-   */
-  public IntegerFieldFormulaSolver(
-    final Collection<IntegerVariable> variables,
-    final IntegerFormula<IntegerField> formula) {
     this(Collections.singleton(variables), Collections.singleton(formula),
-        IntegerVariableInitializer.ZEROS);
+        Collections.<IntegerVariable, BigInteger>emptyMap(), initializer);
   }
 
   @Override

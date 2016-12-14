@@ -50,6 +50,8 @@ public final class MemorySymbolicExecutor {
    * Result of a symbolic execution.
    */
   public static final class Result {
+    private boolean hasConflict = false;
+
     private final Collection<IntegerVariable> variables;
     private final IntegerFormula.Builder<IntegerField> formula;
 
@@ -103,6 +105,10 @@ public final class MemorySymbolicExecutor {
           new HashMap<>(r.instances),
           new HashMap<>(r.cache),
           new HashMap<>(r.constants));
+    }
+
+    public boolean hasConflict() {
+      return hasConflict;
     }
 
     public Collection<IntegerVariable> getVariables() {
@@ -355,6 +361,10 @@ public final class MemorySymbolicExecutor {
     InvariantChecks.checkNotNull(path);
 
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+      if (result.hasConflict) {
+        return;
+      }
+
       execute(entry, pathIndex);
     }
   }
@@ -370,12 +380,20 @@ public final class MemorySymbolicExecutor {
     InvariantChecks.checkNotNull(dependency);
 
     for (final MemoryHazard hazard : dependency.getHazards()) {
+      if (result.hasConflict) {
+        return;
+      }
+
       execute(hazard, pathIndex1, pathIndex2);
     }
   }
 
   private void execute(final MemoryHazard hazard, final int pathIndex1, final int pathIndex2) {
     InvariantChecks.checkNotNull(hazard);
+
+    if (result.hasConflict) {
+      return;
+    }
 
     final MmuCondition condition = hazard.getCondition();
     if (condition != null) {
@@ -385,6 +403,10 @@ public final class MemorySymbolicExecutor {
 
   private void execute(final MmuCondition condition, final int pathIndex1, final int pathIndex2) {
     InvariantChecks.checkNotNull(condition);
+
+    if (result.hasConflict) {
+      return;
+    }
 
     final MemoryAccessStack stack1 = getStack(pathIndex1);
     final MemoryAccessStack stack2 = getStack(pathIndex2);
@@ -427,6 +449,10 @@ public final class MemorySymbolicExecutor {
   private void execute(final MemoryAccessPath.Entry entry, final int pathIndex) {
     InvariantChecks.checkNotNull(entry);
 
+    if (result.hasConflict) {
+      return;
+    }
+
     updateStack(entry, pathIndex);
 
     final MmuTransition transition = entry.getTransition();
@@ -448,6 +474,10 @@ public final class MemorySymbolicExecutor {
 
   private void execute(final MmuGuard guard, final int pathIndex) {
     InvariantChecks.checkNotNull(guard);
+
+    if (result.hasConflict) {
+      return;
+    }
 
     final MemoryAccessStack stack = getStack(pathIndex);
 
@@ -476,8 +506,11 @@ public final class MemorySymbolicExecutor {
   private void execute(final MmuBufferAccess bufferAccess, final int pathIndex) {
     InvariantChecks.checkNotNull(bufferAccess);
 
-    final MemoryAccessStack stack = getStack(pathIndex);
+    if (result.hasConflict) {
+      return;
+    }
 
+    final MemoryAccessStack stack = getStack(pathIndex);
     execute(bufferAccess.getBuffer().getMatchBindings(stack), pathIndex);
   }
 
@@ -491,20 +524,33 @@ public final class MemorySymbolicExecutor {
         new IntegerClause.Builder<>(definedType);
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
+      if (result.hasConflict) {
+        return;
+      }
+
       execute(clauseBuilder, atom, pathIndex);
     }
 
-    result.formula.addClause(clauseBuilder.build());
+    if (clauseBuilder.size() != 0) {
+      result.formula.addClause(clauseBuilder.build());
+    }
   }
 
   private void execute(
       final IntegerClause.Builder<IntegerField> clauseBuilder,
       final MmuConditionAtom atom,
       final int pathIndex) {
+
+    if (result.hasConflict) {
+      return;
+    }
+
     final MmuExpression lhsExpr = atom.getLhsExpr();
 
     switch(atom.getType()) {
       case EQ_EXPR_CONST:
+        boolean isTrue = false;
+
         final BigInteger rhsConst = atom.getRhsConst();
 
         int offset = 0;
@@ -515,7 +561,37 @@ public final class MemorySymbolicExecutor {
           final IntegerField field = result.getPathFieldInstance(term, pathIndex);
           final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
 
-          clauseBuilder.addEquation(field, value, !atom.isNegated());
+          // Check whether the field's value is known (via constant propagation).
+          final BigInteger constant = result.constants.get(field.getVariable());
+  
+          if (constant != null) {
+            final int fieldLo = field.getLoIndex();
+            final int fieldHi = field.getHiIndex();
+
+            final BigInteger fieldConst = BitUtils.getField(constant, fieldLo, fieldHi);
+
+            final boolean truthValue = (value.equals(fieldConst) != atom.isNegated());
+
+            if (!truthValue && clauseBuilder.getType() == IntegerClause.Type.AND) {
+              Logger.debug("Condition is always false: %s=%s", field, fieldConst);
+              result.hasConflict = true;
+
+              return;
+            }
+
+            if (truthValue && clauseBuilder.getType() == IntegerClause.Type.OR) {
+              Logger.debug("Condition is always true: %s=%s", field, fieldConst);
+
+              // Formally, an empty OR clause is false, but it is simply ignored.
+              clauseBuilder.clear();
+              isTrue = true;
+            }
+          }
+
+          if (!isTrue && constant == null) {
+            clauseBuilder.addEquation(field, value, !atom.isNegated());
+          }
+
           offset += term.getWidth();
 
           result.variables.add(field.getVariable());
@@ -553,6 +629,10 @@ public final class MemorySymbolicExecutor {
 
   private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
     InvariantChecks.checkNotNull(bindings);
+
+    if (result.hasConflict) {
+      return;
+    }
 
     final IntegerClause.Builder<IntegerField> clauseBuilder =
         new IntegerClause.Builder<>(IntegerClause.Type.AND);
