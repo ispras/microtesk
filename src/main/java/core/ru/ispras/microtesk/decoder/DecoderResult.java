@@ -14,19 +14,33 @@
 
 package ru.ispras.microtesk.decoder;
 
+import java.util.HashMap;
+import java.util.Map;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 
 public final class DecoderResult {
   private final IsaPrimitive primitive;
+  private final Map<String, IsaPrimitive> primitiveArguments;
   private final int bitSize;
 
-  public DecoderResult(final IsaPrimitive primitive, final int bitSize) {
+  public DecoderResult(
+      final IsaPrimitive primitive,
+      final int bitSize) {
     this.primitive = primitive;
+    this.primitiveArguments = new HashMap<>();
     this.bitSize = bitSize;
   }
 
   public IsaPrimitive getPrimitive() {
     return primitive;
+  }
+
+  public void addArgument(final String name, final IsaPrimitive value) {
+    primitiveArguments.put(name, value);
+  }
+
+  public Map<String, IsaPrimitive> getArguments() {
+    return primitiveArguments;
   }
 
   public int getBitSize() {
