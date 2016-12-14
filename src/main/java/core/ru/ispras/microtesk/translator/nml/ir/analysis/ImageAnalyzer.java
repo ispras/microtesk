@@ -261,6 +261,19 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
             tokenOpcMask.setAll();
             hasOpc = true;
+          } else if (isImage(field)) {
+            final Primitive callee = getPrimitive(primitive, field);
+            InvariantChecks.checkNotNull(callee);
+
+            final ImageInfo calleeInfo = callee.getInfo().getImageInfo();
+            if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
+              tokenOpc = calleeInfo.getOpc();
+              tokenOpcMask.setAll();
+              hasOpc = true;
+            } else {
+              tokenOpc = BitVector.valueOf(0, tokenBitSize);
+              tokenOpcMask.reset();
+            }
           } else {
             tokenOpc = BitVector.valueOf(0, tokenBitSize);
             tokenOpcMask.reset();
@@ -386,6 +399,31 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     @Override
     public void onFormat(final StatementFormat stmt) {
       throw new UnsupportedOperationException();
+    }
+
+    private static boolean isImage(final Node field) {
+      if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
+        return false;
+      }
+
+      final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+      final String attributeName = call.getAttributeName();
+
+      return attributeName.equals(Attribute.IMAGE_NAME);
+    }
+
+    private static Primitive getPrimitive(final PrimitiveAND andRule, final Node field) {
+      final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+
+      if (call.getCalleeInstance() != null) {
+        return call.getCalleeInstance().getPrimitive();
+      }
+
+      if (call.getCalleeName() != null) {
+        return andRule.getArguments().get(call.getCalleeName());
+      }
+
+      return null;
     }
   }
 }

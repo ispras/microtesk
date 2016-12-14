@@ -39,6 +39,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -48,6 +49,7 @@ final class STBDecoder implements STBuilder {
   private final String modelName;
   private final ImageInfo imageInfo;
   private final PrimitiveAND item;
+  private final Set<String> imported;
 
   public STBDecoder(final String modelName, final PrimitiveAND item) {
     InvariantChecks.checkNotNull(modelName);
@@ -58,6 +60,7 @@ final class STBDecoder implements STBuilder {
     this.modelName = modelName;
     this.imageInfo = item.getInfo().getImageInfo();
     this.item = item;
+    this.imported = new HashSet<>();
   }
 
   @Override
@@ -81,18 +84,13 @@ final class STBDecoder implements STBuilder {
     st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
-    final Set<String> imported = new HashSet<>();
-    importPrimitive(st, item, imported);
-
+    importPrimitive(st, item);
     for (final Primitive primitive : item.getArguments().values()) {
-      importPrimitive(st, primitive, imported);
+      importPrimitive(st, primitive);
     }
   }
 
-  private void importPrimitive(
-      final ST st,
-      final Primitive primitive,
-      final Set<String> imported) {
+  private void importPrimitive(final ST st, final Primitive primitive) {
     final String primitiveClass = getPrimitiveClassName(primitive);
     if (!imported.contains(primitiveClass)) {
       imported.add(primitiveClass);
@@ -157,18 +155,18 @@ final class STBDecoder implements STBuilder {
     }
 
     for (final Node field : imageInfo.getFields()) {
+      stConstructor.add("stmts", "");
       if (ExprUtils.isValue(field)) {
-        stConstructor.add("stmts", "");
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {
         buildImmediateArgument(stConstructor, group, field);
       } else if (isArgumentImage(field)) {
         buildArgumentImage(stConstructor, group, field);
       } else if (isInstanceImage(field)) {
-        buildInstanceImage(stConstructor, group, field);
+        buildInstanceImage(st, stConstructor, group, field);
       } else {
-        Logger.warning(
-            "Failed to construct decoder for %s. Unrecognized field: %s", item.getName(), field);
+        Logger.warning("Failed to construct decoder for %s. Unrecognized field: %s",
+            item.getName(), field);
       }
     }
 
@@ -266,11 +264,45 @@ final class STBDecoder implements STBuilder {
     return call.getCalleeInstance() != null;
   }
 
-  private void buildInstanceImage(final ST st, final STGroup group, final Node field) {
-
+  private void buildInstanceImage(
+      final ST st, final ST stConstructor, final STGroup group, final Node field) {
     final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
     final Instance instance = call.getCalleeInstance();
+    final PrimitiveAND primitive = instance.getPrimitive();
+    final String name = primitive.getName() + "_instance";
 
-    Logger.warning(item.getName() + " :" + field.toString());
+    importPrimitive(st, primitive);
+
+    stConstructor.add("stmts", String.format("final %s %s;", primitive.getName(), name));
+    final ST stPrimitive = group.getInstanceOf("decoder_primitive");
+
+    stPrimitive.add("name", name);
+    stPrimitive.add("type", getPrimitiveName(primitive));
+    stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
+
+    stConstructor.add("stmts", stPrimitive);
+
+    final Map<String, Primitive> arguments = primitive.getArguments();
+    final int argumentCount = arguments.size();
+    final String[] argumentNames = arguments.keySet().toArray(new String[argumentCount]);
+
+    int index = 0;
+    for (final InstanceArgument argument : instance.getArguments()) {
+      if (InstanceArgument.Kind.PRIMITIVE == argument.getKind() &&
+          item.getArguments().containsKey(argument.getName())) {
+
+        final String sourceName = argumentNames[index];
+        final String targetName = argument.getName();
+
+        stConstructor.add("stmts", String.format("%s = %s.%s;", targetName, name, sourceName));
+      } else if (InstanceArgument.Kind.EXPR == argument.getKind() &&
+                 !ExprUtils.isValue(argument.getExpr().getNode()) &&
+                 !ExprUtils.isVariable(argument.getExpr().getNode())) {
+        Logger.warning("Failed to construct decoder for %s. Unrecognized field: %s",
+            item.getName(), argument.getExpr().getNode());
+      }
+
+      index++;
+    }
   }
 }
