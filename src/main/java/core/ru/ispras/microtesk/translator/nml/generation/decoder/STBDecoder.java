@@ -29,6 +29,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.decoder.DecoderItem;
 import ru.ispras.microtesk.decoder.DecoderResult;
@@ -154,8 +155,10 @@ final class STBDecoder implements STBuilder {
           "%s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
     }
 
-    for (final Node field : imageInfo.getFields()) {
+    for (final Pair<Node, ImageInfo> fieldx : imageInfo.getFields()) {
+      final Node field = fieldx.first;
       stConstructor.add("stmts", "");
+
       if (ExprUtils.isValue(field)) {
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {

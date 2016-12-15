@@ -71,8 +71,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
-          visited.containsKey(item.getName())) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO || visited.containsKey(item)) {
         setStatus(Status.SKIP);
         return;
       }
@@ -86,17 +85,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     public void onPrimitiveEnd(final Primitive item) {
       if (getStatus() == Status.SKIP) {
         setStatus(Status.OK);
-      } else {
-        visited.put(item, item);
-        localConstants.clear();
-
-        /*
-        final ImageInfo imageInfo = item.getInfo().getImageInfo();
-        if (null != imageInfo) {
-          System.out.printf("%s: %s%n", item.getName(), imageInfo);
-        }
-        */
+        return;
       }
+
+      visited.put(item, item);
+      localConstants.clear();
     }
 
     @Override
@@ -109,18 +102,18 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       final ImageInfo sourceInfo = item.getInfo().getImageInfo();
       final ImageInfo targetInfo = orRule.getInfo().getImageInfo();
 
-      final String name = item.getName();
-      final BitVector opc = sourceInfo.getOpc();
+      final String itemName = item.getName();
+      final BitVector itemOpc = sourceInfo.getOpc();
       final String groupName = orRule.getName();
 
       final Map<BitVector, String> group = opcGroups.get(groupName);
       InvariantChecks.checkNotNull(group, groupName);
 
-      if (null != opc) {
-        checkOpcInGroup(groupName, group, name, opc);
+      if (null != itemOpc) {
+        checkOpcInGroup(groupName, group, itemName, itemOpc);
       } else if (item.isOrRule()) {
-        final Map<BitVector, String> itemGroup = opcGroups.get(name);
-        InvariantChecks.checkNotNull(itemGroup, name);
+        final Map<BitVector, String> itemGroup = opcGroups.get(itemName);
+        InvariantChecks.checkNotNull(itemGroup, itemName);
 
         for (final Map.Entry<BitVector, String> entry : itemGroup.entrySet()) {
           checkOpcInGroup(groupName, group, entry.getValue(), entry.getKey());
@@ -131,20 +124,6 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         orRule.getInfo().setImageInfo(sourceInfo);
       } else {
         orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
-      }
-    }
-
-    private static void checkOpcInGroup(
-        final String groupName,
-        final Map<BitVector, String> group,
-        final String name,
-        final BitVector opc) {
-      final String existingName = group.get(opc);
-      if (null != existingName) {
-        Logger.warning("Group %s contains two items %s and %s with the same opcode %s",
-            groupName, existingName, name, opc);
-      } else {
-        group.put(opc, name);
       }
     }
 
@@ -168,14 +147,14 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
-      setStatus(Status.OK);
+      if (getStatus() == Status.SKIP) {
+        setStatus(Status.OK);
+      }
     }
 
     @Override
     public void onStatementBegin(
-        final PrimitiveAND andRule,
-        final Attribute attr,
-        final Statement stmt) {
+        final PrimitiveAND andRule, final Attribute attr, final Statement stmt) {
       InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT ||
                                 stmt.getKind() == Statement.Kind.CALL);
       if (stmt instanceof StatementFormat) {
@@ -183,8 +162,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       } else if (stmt instanceof StatementAttributeCall) {
         onStatementAttributeCall(andRule, (StatementAttributeCall) stmt);
       } else {
-        InvariantChecks.checkTrue(
-            false, "Unsupported statement: " + stmt.getKind());
+        InvariantChecks.checkTrue(false, "Unsupported statement: " + stmt.getKind());
       }
     }
 
@@ -207,15 +185,15 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             }
           }
         }
-
         return;
-      }
+      } 
 
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
         final Primitive arg = primitive.getArguments().get(stmt.getCalleeName());
 
         final ImageInfo imageInfo = new ImageInfo(arg.getInfo().getImageInfo());
-        imageInfo.setFields(Collections.singletonList(StatementAttributeCall.createCallNode(stmt)));
+        imageInfo.setFields(Collections.singletonList(new Pair<>(
+            StatementAttributeCall.createCallNode(stmt), arg.getInfo().getImageInfo())));
 
         primitive.getInfo().setImageInfo(imageInfo);
         return;
@@ -231,10 +209,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final List<FormatMarker> markers,
         final List<Node> arguments) {
       ImageInfo imageInfo = new ImageInfo(0, true);
-      BitVector opc = null;
-      BitVector opcMask = null;
-      boolean hasOpc = false;
-      final List<Node> fields = new ArrayList<>();
+
+      final List<Pair<Node, ImageInfo>> fields = new ArrayList<>();
 
       final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
       for(final Pair<String, Integer> token : tokens) {
@@ -249,9 +225,18 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
         final ImageInfo tokenImageInfo = getImageInfo(primitive, field);
         imageInfo = imageInfo.and(tokenImageInfo);
-        fields.add(field);
 
-        if (imageInfo.isImageSizeFixed() && tokenImageInfo.getMaxImageSize() > 0) {
+        fields.add(new Pair<>(field, tokenImageInfo));
+      }
+
+      if (imageInfo.isImageSizeFixed()) {
+        BitVector opc = null;
+        BitVector opcMask = null;
+        boolean hasOpc = false;
+
+        for (int index = 0; index < fields.size(); index++) {
+          final Node field = fields.get(index).first;
+          final ImageInfo tokenImageInfo = fields.get(index).second;
           final int tokenBitSize = tokenImageInfo.getMaxImageSize();
 
           final BitVector tokenOpc;
@@ -261,11 +246,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
             tokenOpcMask.setAll();
             hasOpc = true;
-          } else if (isImage(field)) {
-            final Primitive callee = getPrimitive(primitive, field);
-            InvariantChecks.checkNotNull(callee);
-
-            final ImageInfo calleeInfo = callee.getInfo().getImageInfo();
+          } else if (isArgumentImage(primitive, field)) {
+            final ImageInfo calleeInfo = getArgumentImageInfo(primitive, field);
             if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
               tokenOpc = calleeInfo.getOpc();
               tokenOpcMask.setAll();
@@ -274,6 +256,14 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
               tokenOpc = BitVector.valueOf(0, tokenBitSize);
               tokenOpcMask.reset();
             }
+          } else if (isInstanceImage(field)) {
+            //System.out.println("!!!!!");
+
+            final Primitive callee = getPrimitive(primitive, field);
+            InvariantChecks.checkNotNull(callee);
+
+            tokenOpc = BitVector.valueOf(0, tokenBitSize);
+            tokenOpcMask.reset();
           } else {
             tokenOpc = BitVector.valueOf(0, tokenBitSize);
             tokenOpcMask.reset();
@@ -281,104 +271,16 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
           opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
           opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(tokenOpcMask, opcMask);
-        } else {
-          opc = null;
-          opcMask = null;
         }
-      }
 
-      if (hasOpc && imageInfo.isImageSizeFixed()) {
-        imageInfo.setOpc(opc);
-        imageInfo.setOpcMask(opcMask);
+        if (hasOpc) {
+          imageInfo.setOpc(opc);
+          imageInfo.setOpcMask(opcMask);
+        }
       }
 
       imageInfo.setFields(fields);
       primitive.getInfo().setImageInfo(imageInfo);
-    }
-
-    private ImageInfo getImageInfo(final PrimitiveAND primitive, final Node argument) {
-      InvariantChecks.checkTrue(argument.isType(DataTypeId.BIT_VECTOR) ||
-                                argument.isType(DataTypeId.LOGIC_STRING), primitive.getName());
-
-      if (argument.isType(DataTypeId.BIT_VECTOR)) {
-        return new ImageInfo(argument.getDataType().getSize(), true);
-      }
-
-      class ExprVisitor extends ExprTreeVisitorDefault {
-        private final Deque<ImageInfo> imageInfos = new ArrayDeque<>();
-
-        ImageInfo getImageInfo() {
-          return imageInfos.peek();
-        }
-
-        @Override
-        public void onValue(final NodeValue value) {
-          final String text = (String)((NodeValue) value).getValue();
-          imageInfos.push(new ImageInfo(text.length(), true));
-        }
-
-        @Override
-        public void onVariable(final NodeVariable variable) {
-          final StatementAttributeCall callInfo = (StatementAttributeCall) variable.getUserData();
-
-          InvariantChecks.checkNotNull(callInfo);
-          InvariantChecks.checkTrue(callInfo.getAttributeName().equals(Attribute.IMAGE_NAME));
-
-          if (null != callInfo.getCalleeName()) {
-            final Primitive arg = primitive.getArguments().get(callInfo.getCalleeName());
-            imageInfos.push(arg.getInfo().getImageInfo());
-            return;
-          }
-
-          if (null != callInfo.getCalleeInstance()) {
-            imageInfos.push(callInfo.getCalleeInstance().getPrimitive().getInfo().getImageInfo());
-            return;
-          }
-
-          throw new IllegalArgumentException("Illegal attribute call.");
-        }
-
-        @Override
-        public void onOperationBegin(final NodeOperation node) {
-          InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.ITE);
-        }
-
-        @Override
-        public void onOperationEnd(final NodeOperation node) {
-          imageInfos.push(imageInfos.pop().or(imageInfos.pop()));
-        }
-
-        @Override
-        public void onOperandBegin(
-            final NodeOperation operation,
-            final Node operand,
-            final int index) {
-          InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
-          if (0 == index) {
-            setStatus(Status.SKIP);
-          }
-        }
-
-        @Override
-        public void onOperandEnd(
-            final NodeOperation operation,
-            final Node operand,
-            final int index) {
-          InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
-          if (0 == index) {
-            setStatus(Status.OK);
-          }
-        }
-      }
-
-      final ExprVisitor visitor = new ExprVisitor();
-      final ExprTreeWalker walker = new ExprTreeWalker(visitor);
-      walker.visit(argument);
-
-      final ImageInfo imageInfo = visitor.getImageInfo();
-      InvariantChecks.checkNotNull(imageInfo);
-
-      return imageInfo;
     }
 
     @Override
@@ -401,29 +303,153 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       throw new UnsupportedOperationException();
     }
 
-    private static boolean isImage(final Node field) {
-      if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
-        return false;
-      }
-
+    private static ImageInfo getArgumentImageInfo(final PrimitiveAND primitive, final Node field) {
       final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
-      final String attributeName = call.getAttributeName();
+      InvariantChecks.checkNotNull(call);
 
-      return attributeName.equals(Attribute.IMAGE_NAME);
+      final Primitive callee = primitive.getArguments().get(call.getCalleeName());
+      InvariantChecks.checkNotNull(callee);
+
+      final ImageInfo result = callee.getInfo().getImageInfo();
+      InvariantChecks.checkNotNull(result);
+
+      return result;
+    }
+  }
+
+  private static void checkOpcInGroup(
+      final String groupName,
+      final Map<BitVector, String> group,
+      final String name,
+      final BitVector opc) {
+    final String existingName = group.get(opc);
+    if (null == existingName) {
+      group.put(opc, name);
+      return;
     }
 
-    private static Primitive getPrimitive(final PrimitiveAND andRule, final Node field) {
-      final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    Logger.warning(
+        "Group %s contains two items %s and %s with the same opcode %s",
+        groupName,
+        existingName,
+        name,
+        opc
+        );
+  }
 
-      if (call.getCalleeInstance() != null) {
-        return call.getCalleeInstance().getPrimitive();
-      }
+  private static ImageInfo getImageInfo(final PrimitiveAND primitive, final Node field) {
+    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR) ||
+                              field.isType(DataTypeId.LOGIC_STRING), primitive.getName());
 
-      if (call.getCalleeName() != null) {
-        return andRule.getArguments().get(call.getCalleeName());
-      }
-
-      return null;
+    if (field.isType(DataTypeId.BIT_VECTOR)) {
+      return new ImageInfo(field.getDataType().getSize(), true);
     }
+
+    class ExprVisitor extends ExprTreeVisitorDefault {
+      private final Deque<ImageInfo> imageInfos = new ArrayDeque<>();
+
+      ImageInfo getImageInfo() {
+        return imageInfos.peek();
+      }
+
+      @Override
+      public void onValue(final NodeValue value) {
+        final String text = (String)((NodeValue) value).getValue();
+        imageInfos.push(new ImageInfo(text.length(), true));
+      }
+
+      @Override
+      public void onVariable(final NodeVariable variable) {
+        final Primitive callee = getPrimitive(primitive, variable);
+        InvariantChecks.checkNotNull(callee);
+
+        final ImageInfo calleeInfo = callee.getInfo().getImageInfo();
+        InvariantChecks.checkNotNull(calleeInfo);
+
+        imageInfos.push(calleeInfo);
+      }
+
+      @Override
+      public void onOperationBegin(final NodeOperation node) {
+        InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.ITE);
+      }
+
+      @Override
+      public void onOperationEnd(final NodeOperation node) {
+        imageInfos.push(imageInfos.pop().or(imageInfos.pop()));
+      }
+
+      @Override
+      public void onOperandBegin(
+          final NodeOperation operation, final Node operand, final int index) {
+        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
+        if (0 == index) {
+          setStatus(Status.SKIP);
+        }
+      }
+
+      @Override
+      public void onOperandEnd(
+          final NodeOperation operation, final Node operand, final int index) {
+        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.ITE);
+        if (0 == index) {
+          setStatus(Status.OK);
+        }
+      }
+    }
+
+    final ExprVisitor visitor = new ExprVisitor();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+    walker.visit(field);
+
+    final ImageInfo imageInfo = visitor.getImageInfo();
+    InvariantChecks.checkNotNull(imageInfo);
+
+    return imageInfo;
+  }
+
+  private static boolean isArgumentImage(final PrimitiveAND primitive, final Node field) {
+    if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
+      return false;
+    }
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final String attributeName = call.getAttributeName();
+
+    if (!attributeName.equals(Attribute.IMAGE_NAME)) {
+      return false;
+    }
+
+    final String name = call.getCalleeName();
+    return primitive.getArguments().containsKey(name);
+  }
+
+  private static boolean isInstanceImage(final Node field) {
+    if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
+      return false;
+    }
+
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+    final String attributeName = call.getAttributeName();
+
+    if (!attributeName.equals(Attribute.IMAGE_NAME)) {
+      return false;
+    }
+
+    return call.getCalleeInstance() != null;
+  }
+
+  private static Primitive getPrimitive(final PrimitiveAND andRule, final Node field) {
+    final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+
+    if (call.getCalleeInstance() != null) {
+      return call.getCalleeInstance().getPrimitive();
+    }
+
+    if (call.getCalleeName() != null) {
+      return andRule.getArguments().get(call.getCalleeName());
+    }
+
+    return null;
   }
 }

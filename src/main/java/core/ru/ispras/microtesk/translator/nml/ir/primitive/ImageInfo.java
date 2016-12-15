@@ -20,13 +20,15 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 public final class ImageInfo {
   private final int maxImageSize;
   private final boolean imageSizeFixed;
+
   private BitVector opc;
   private BitVector opcMask;
-  private List<Node> fields;
+  private List<Pair<Node, ImageInfo>> fields;
 
   public ImageInfo(final ImageInfo other) {
     InvariantChecks.checkNotNull(other);
@@ -56,6 +58,22 @@ public final class ImageInfo {
     return imageSizeFixed;
   }
 
+  public ImageInfo or(final ImageInfo other) {
+    InvariantChecks.checkNotNull(other);
+    return new ImageInfo(
+        Math.max(this.maxImageSize, other.maxImageSize),
+        this.maxImageSize == other.maxImageSize && this.imageSizeFixed && other.imageSizeFixed
+        );
+  }
+
+  public ImageInfo and(final ImageInfo other) {
+    InvariantChecks.checkNotNull(other);
+    return new ImageInfo(
+        this.maxImageSize + other.maxImageSize,
+        this.imageSizeFixed && other.imageSizeFixed
+        );
+  }
+
   public BitVector getOpc() {
     return opc;
   }
@@ -72,29 +90,13 @@ public final class ImageInfo {
     this.opcMask = value;
   }
 
-  public List<Node> getFields() {
+  public List<Pair<Node, ImageInfo>> getFields() {
     return fields;
   }
 
-  public void setFields(final List<Node> fields) {
+  public void setFields(final List<Pair<Node, ImageInfo>> fields) {
     InvariantChecks.checkNotNull(fields);
     this.fields = fields;
-  }
-
-  public ImageInfo or(final ImageInfo other) {
-    InvariantChecks.checkNotNull(other);
-    return new ImageInfo(
-        Math.max(this.maxImageSize, other.maxImageSize),
-        this.maxImageSize == other.maxImageSize && this.imageSizeFixed && other.imageSizeFixed
-        );
-  }
-
-  public ImageInfo and(final ImageInfo other) {
-    InvariantChecks.checkNotNull(other);
-    return new ImageInfo(
-        this.maxImageSize + other.maxImageSize,
-        this.imageSizeFixed && other.imageSizeFixed
-        );
   }
 
   @Override
