@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
@@ -61,7 +63,16 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
 
   private void generateDecoder() {
     InvariantChecks.checkNotNull(ir);
-    generateFile(null, new STBDecoderGroup(getModelName(), ir.getRoots()));
+
+    List<Primitive> roots = Collections.emptyList();
+    for (final Primitive primitive : ir.getRoots()) {
+      if (primitive.getName().equalsIgnoreCase("instruction")) {
+        roots = Collections.singletonList(primitive);
+        break;
+      }
+    }
+
+    generateFile(null, new STBDecoderGroup(getModelName(), roots));
   }
 
   private final class Visitor extends IrVisitorDefault {
