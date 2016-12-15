@@ -229,58 +229,69 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         fields.add(new Pair<>(field, tokenImageInfo));
       }
 
-      if (imageInfo.isImageSizeFixed()) {
-        BitVector opc = null;
-        BitVector opcMask = null;
-        boolean hasOpc = false;
+      imageInfo.setFields(fields);
+      primitive.getInfo().setImageInfo(imageInfo);
 
-        for (int index = 0; index < fields.size(); index++) {
-          final Node field = fields.get(index).first;
-          final ImageInfo tokenImageInfo = fields.get(index).second;
-          final int tokenBitSize = tokenImageInfo.getMaxImageSize();
+      calculateOpc(primitive, imageInfo);
+    }
 
-          final BitVector tokenOpc;
-          final BitVector tokenOpcMask = BitVector.newEmpty(tokenBitSize);
+    private static void calculateOpc(final PrimitiveAND primitive, final ImageInfo imageInfo) {
+      InvariantChecks.checkNotNull(primitive);
+      InvariantChecks.checkNotNull(imageInfo);
 
-          if (ExprUtils.isValue(field)) {
-            tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
+      if (!imageInfo.isImageSizeFixed()) {
+        return;
+      }
+
+      final List<Pair<Node, ImageInfo>> fields = imageInfo.getFields();
+
+      BitVector opc = null;
+      BitVector opcMask = null;
+      boolean hasOpc = false;
+
+      for (int index = 0; index < fields.size(); index++) {
+        final Node field = fields.get(index).first;
+        final ImageInfo tokenImageInfo = fields.get(index).second;
+        final int tokenBitSize = tokenImageInfo.getMaxImageSize();
+
+        final BitVector tokenOpc;
+        final BitVector tokenOpcMask = BitVector.newEmpty(tokenBitSize);
+
+        if (ExprUtils.isValue(field)) {
+          tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
+          tokenOpcMask.setAll();
+          hasOpc = true;
+        } else if (isArgumentImage(primitive, field)) {
+          final ImageInfo calleeInfo = getArgumentImageInfo(primitive, field);
+          if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
+            tokenOpc = calleeInfo.getOpc();
             tokenOpcMask.setAll();
             hasOpc = true;
-          } else if (isArgumentImage(primitive, field)) {
-            final ImageInfo calleeInfo = getArgumentImageInfo(primitive, field);
-            if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
-              tokenOpc = calleeInfo.getOpc();
-              tokenOpcMask.setAll();
-              hasOpc = true;
-            } else {
-              tokenOpc = BitVector.valueOf(0, tokenBitSize);
-              tokenOpcMask.reset();
-            }
-          } else if (isInstanceImage(field)) {
-            //System.out.println("!!!!!");
-
-            final Primitive callee = getPrimitive(primitive, field);
-            InvariantChecks.checkNotNull(callee);
-
-            tokenOpc = BitVector.valueOf(0, tokenBitSize);
-            tokenOpcMask.reset();
           } else {
             tokenOpc = BitVector.valueOf(0, tokenBitSize);
             tokenOpcMask.reset();
           }
+        } else if (isInstanceImage(field)) {
+          //System.out.println("!!!!!");
 
-          opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
-          opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(tokenOpcMask, opcMask);
+          final Primitive callee = getPrimitive(primitive, field);
+          InvariantChecks.checkNotNull(callee);
+
+          tokenOpc = BitVector.valueOf(0, tokenBitSize);
+          tokenOpcMask.reset();
+        } else {
+          tokenOpc = BitVector.valueOf(0, tokenBitSize);
+          tokenOpcMask.reset();
         }
 
-        if (hasOpc) {
-          imageInfo.setOpc(opc);
-          imageInfo.setOpcMask(opcMask);
-        }
+        opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
+        opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(tokenOpcMask, opcMask);
       }
 
-      imageInfo.setFields(fields);
-      primitive.getInfo().setImageInfo(imageInfo);
+      if (hasOpc) {
+        imageInfo.setOpc(opc);
+        imageInfo.setOpcMask(opcMask);
+      }
     }
 
     @Override
