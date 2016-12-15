@@ -41,6 +41,8 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
@@ -232,10 +234,13 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       imageInfo.setFields(fields);
       primitive.getInfo().setImageInfo(imageInfo);
 
-      calculateOpc(primitive, imageInfo);
+      calculateOpc(primitive, imageInfo, localConstants);
     }
 
-    private static void calculateOpc(final PrimitiveAND primitive, final ImageInfo imageInfo) {
+    private static void calculateOpc(
+        final PrimitiveAND primitive,
+        final ImageInfo imageInfo,
+        final Map<Node, Node> mappings) {
       InvariantChecks.checkNotNull(primitive);
       InvariantChecks.checkNotNull(imageInfo);
 
@@ -250,7 +255,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       boolean hasOpc = false;
 
       for (int index = 0; index < fields.size(); index++) {
-        final Node field = fields.get(index).first;
+        Node field = fields.get(index).first;
+        field = mappings.containsKey(field) ? mappings.get(field) : field;
         final ImageInfo tokenImageInfo = fields.get(index).second;
 
         final int tokenBitSize = tokenImageInfo.getMaxImageSize();
@@ -274,10 +280,39 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             hasOpc = true;
           }
         } else if (isInstanceImage(field)) {
-          //System.out.println("!!!!!");
+          final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
+          final Instance instance = call.getCalleeInstance();
+          final PrimitiveAND callee = instance.getPrimitive();
 
-          final Primitive callee = getPrimitive(primitive, field);
-          InvariantChecks.checkNotNull(callee);
+          final String[] argumentNames =
+              callee.getArguments().keySet().toArray(new String[callee.getArguments().size()]);
+
+          final Map<Node, Node> fieldMappings = new HashMap<>();
+          final List<InstanceArgument> arguments = instance.getArguments();
+
+          for (int i = 0; i < arguments.size(); i++) {
+            final InstanceArgument argument = arguments.get(i);
+            if (argument.getKind() != InstanceArgument.Kind.EXPR) {
+              continue;
+            }
+
+            Node argumentNode = argument.getExpr().getNode();
+            argumentNode = mappings.containsKey(argumentNode) ? mappings.get(argumentNode) : argumentNode;
+
+            if (ExprUtils.isValue(argumentNode)) {
+              final String name = argumentNames[i];
+              fieldMappings.put(new NodeVariable(name, argumentNode.getDataType()), argumentNode);
+            }
+          }
+
+          final ImageInfo calleeInfo = new ImageInfo(callee.getInfo().getImageInfo());
+          calculateOpc(callee, calleeInfo, fieldMappings);
+
+          if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
+            tokenOpc.assign(calleeInfo.getOpc());
+            tokenOpcMask.setAll();
+            hasOpc = true;
+          }
         }
 
         opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
