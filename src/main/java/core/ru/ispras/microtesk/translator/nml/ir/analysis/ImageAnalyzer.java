@@ -252,36 +252,32 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       for (int index = 0; index < fields.size(); index++) {
         final Node field = fields.get(index).first;
         final ImageInfo tokenImageInfo = fields.get(index).second;
-        final int tokenBitSize = tokenImageInfo.getMaxImageSize();
 
-        final BitVector tokenOpc;
+        final int tokenBitSize = tokenImageInfo.getMaxImageSize();
+        InvariantChecks.checkTrue(tokenImageInfo.isImageSizeFixed());
+
+        final BitVector tokenOpc = BitVector.newEmpty(tokenBitSize);
+        tokenOpc.reset();
+
         final BitVector tokenOpcMask = BitVector.newEmpty(tokenBitSize);
+        tokenOpcMask.reset();
 
         if (ExprUtils.isValue(field)) {
-          tokenOpc = BitVector.valueOf(field.toString(), 2, tokenBitSize);
+          tokenOpc.assign(BitVector.valueOf(field.toString(), 2, tokenBitSize));
           tokenOpcMask.setAll();
           hasOpc = true;
         } else if (isArgumentImage(primitive, field)) {
           final ImageInfo calleeInfo = getArgumentImageInfo(primitive, field);
           if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
-            tokenOpc = calleeInfo.getOpc();
+            tokenOpc.assign(calleeInfo.getOpc());
             tokenOpcMask.setAll();
             hasOpc = true;
-          } else {
-            tokenOpc = BitVector.valueOf(0, tokenBitSize);
-            tokenOpcMask.reset();
           }
         } else if (isInstanceImage(field)) {
           //System.out.println("!!!!!");
 
           final Primitive callee = getPrimitive(primitive, field);
           InvariantChecks.checkNotNull(callee);
-
-          tokenOpc = BitVector.valueOf(0, tokenBitSize);
-          tokenOpcMask.reset();
-        } else {
-          tokenOpc = BitVector.valueOf(0, tokenBitSize);
-          tokenOpcMask.reset();
         }
 
         opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
