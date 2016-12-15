@@ -28,6 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
@@ -132,11 +133,14 @@ public final class MemoryAccessPath {
 
       for (final Entry entry : entries) {
         final MmuTransition transition = entry.getTransition();
-        final MmuAction sourceAction = transition.getSource();
-        final MmuAction targetAction = transition.getTarget();
 
-        result.add(sourceAction);
-        result.add(targetAction);
+        if (transition != null) {
+          final MmuAction sourceAction = transition.getSource();
+          final MmuAction targetAction = transition.getTarget();
+
+          result.add(sourceAction);
+          result.add(targetAction);
+        }
       }
 
       return result;
@@ -153,12 +157,15 @@ public final class MemoryAccessPath {
         updateStack(stack, entry);
 
         final MmuTransition transition = entry.getTransition();
-        final MmuAction action = transition.getSource();
-        final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
 
-        if (bufferAccess != null) {
-          final MmuAddressInstance address = bufferAccess.getAddress();
-          result.add(address);
+        if (transition != null) {
+          final MmuAction action = transition.getSource();
+          final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+
+          if (bufferAccess != null) {
+            final MmuAddressInstance address = bufferAccess.getAddress();
+            result.add(address);
+          }
         }
       }
 
@@ -176,25 +183,28 @@ public final class MemoryAccessPath {
         updateStack(stack, entry);
 
         final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
-        final MmuBufferAccess guardBufferAccess = guard != null ? guard.getBufferAccess(stack) : null;
 
-        if (guardBufferAccess != null) {
-          result.add(guardBufferAccess);
-        }
+        if (transition != null) {
+          final MmuGuard guard = transition.getGuard();
+          final MmuBufferAccess guardBufferAccess = guard != null ? guard.getBufferAccess(stack) : null;
 
-        final MmuAction source = transition.getSource();
-        final MmuBufferAccess sourceBufferAccess = source.getBufferAccess(stack);
+          if (guardBufferAccess != null) {
+            result.add(guardBufferAccess);
+          }
 
-        if (sourceBufferAccess != null) {
-          result.add(sourceBufferAccess);
-        }
+          final MmuAction source = transition.getSource();
+          final MmuBufferAccess sourceBufferAccess = source.getBufferAccess(stack);
 
-        final MmuAction target = transition.getTarget();
-        final MmuBufferAccess targetBufferAccess = target.getBufferAccess(stack);
+          if (sourceBufferAccess != null) {
+            result.add(sourceBufferAccess);
+          }
 
-        if (targetBufferAccess != null) {
-          result.add(targetBufferAccess);
+          final MmuAction target = transition.getTarget();
+          final MmuBufferAccess targetBufferAccess = target.getBufferAccess(stack);
+
+          if (targetBufferAccess != null) {
+            result.add(targetBufferAccess);
+          }
         }
       }
 
@@ -212,13 +222,16 @@ public final class MemoryAccessPath {
         updateStack(stack, entry);
 
         final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
 
-        if (guard != null) {
-          final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(stack);
+        if (transition != null) {
+          final MmuGuard guard = transition.getGuard();
 
-          if (guardBufferAccess != null) {
-            result.put(guardBufferAccess, guard.getEvent());
+          if (guard != null) {
+            final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(stack);
+
+            if (guardBufferAccess != null) {
+              result.put(guardBufferAccess, guard.getEvent());
+            }
           }
         }
       }
@@ -237,34 +250,37 @@ public final class MemoryAccessPath {
         updateStack(stack, entry);
 
         final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
-        final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
 
-        // Variables used in the guards.
-        if (condition != null) {
-          for (final MmuConditionAtom atom : condition.getAtoms()) {
-            for (final IntegerField field : atom.getLhsExpr().getTerms()) {
-              result.add(field.getVariable());
+        if (transition != null) {
+          final MmuGuard guard = transition.getGuard();
+          final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
+
+          // Variables used in the guards.
+          if (condition != null) {
+            for (final MmuConditionAtom atom : condition.getAtoms()) {
+              for (final IntegerField field : atom.getLhsExpr().getTerms()) {
+                result.add(field.getVariable());
+              }
             }
           }
-        }
 
-        // Variables used/defined in the actions.
-        final MmuAction action = transition.getSource();
-        final Map<IntegerField, MmuBinding> bindings = action.getAction(stack);
+          // Variables used/defined in the actions.
+          final MmuAction action = transition.getSource();
+          final Map<IntegerField, MmuBinding> bindings = action.getAction(stack);
 
-        if (bindings != null) {
-          for (final Map.Entry<IntegerField, MmuBinding> binding : bindings.entrySet()) {
-            final IntegerField key = binding.getKey();
-            final MmuBinding value = binding.getValue();
+          if (bindings != null) {
+            for (final Map.Entry<IntegerField, MmuBinding> binding : bindings.entrySet()) {
+              final IntegerField key = binding.getKey();
+              final MmuBinding value = binding.getValue();
 
-            // Variables defined in the actions.
-            if (value.getRhs() != null) {
-              result.add(key.getVariable());
+              // Variables defined in the actions.
+              if (value.getRhs() != null) {
+                result.add(key.getVariable());
 
-              // Variables used in the actions.
-              for (final IntegerField rhsField : value.getRhs().getTerms()) {
-                result.add(rhsField.getVariable());
+                // Variables used in the actions.
+                for (final IntegerField rhsField : value.getRhs().getTerms()) {
+                  result.add(rhsField.getVariable());
+                }
               }
             }
           }
@@ -283,13 +299,16 @@ public final class MemoryAccessPath {
 
       for (final Entry entry : entries) {
         final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
 
-        if (guard != null) {
-          final Collection<MmuSegment> guardSegments = guard.getSegments();
+        if (transition != null) {
+          final MmuGuard guard = transition.getGuard();
 
-          if (guardSegments != null) {
-            segments.retainAll(guardSegments);
+          if (guard != null) {
+            final Collection<MmuSegment> guardSegments = guard.getSegments();
+  
+            if (guardSegments != null) {
+              segments.retainAll(guardSegments);
+            }
           }
         }
       }
@@ -321,40 +340,43 @@ public final class MemoryAccessPath {
       // Strike out irrelevant regions and segments.
       for (final Entry entry : entries) {
         final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
 
-        if (guard != null) {
-          // Regions.
-          final Collection<String> guardRegionNames = guard.getRegions();
+        if (transition != null) {
+          final MmuGuard guard = transition.getGuard();
 
-          if (guardRegionNames != null) {
-            final Collection<RegionSettings> guardRegions = new ArrayList<RegionSettings>();
+          if (guard != null) {
+            // Regions.
+            final Collection<String> guardRegionNames = guard.getRegions();
 
-            for (final String regionName : guardRegionNames) {
-              guardRegions.add(memory.getRegion(regionName));
-            }
+            if (guardRegionNames != null) {
+              final Collection<RegionSettings> guardRegions = new ArrayList<RegionSettings>();
 
-            regions.keySet().retainAll(guardRegions);
-          }
-
-          // Segments.
-          final Collection<MmuSegment> guardSegments = guard.getSegments();
-
-          if (guardSegments != null) {
-            final Collection<RegionSettings> remove = new ArrayList<>();
-
-            for (final Map.Entry<RegionSettings, Collection<MmuSegment>> region : regions.entrySet()) {
-              final RegionSettings key = region.getKey();
-              final Collection<MmuSegment> value = region.getValue();
-
-              value.retainAll(guardSegments);
-
-              if (value.isEmpty()) {
-                remove.add(key);
+              for (final String regionName : guardRegionNames) {
+                guardRegions.add(memory.getRegion(regionName));
               }
+
+              regions.keySet().retainAll(guardRegions);
             }
 
-            regions.keySet().removeAll(remove);
+            // Segments.
+            final Collection<MmuSegment> guardSegments = guard.getSegments();
+
+            if (guardSegments != null) {
+              final Collection<RegionSettings> remove = new ArrayList<>();
+
+              for (final Map.Entry<RegionSettings, Collection<MmuSegment>> region : regions.entrySet()) {
+                final RegionSettings key = region.getKey();
+                final Collection<MmuSegment> value = region.getValue();
+
+                value.retainAll(guardSegments);
+
+                if (value.isEmpty()) {
+                  remove.add(key);
+                }
+              }
+
+              regions.keySet().removeAll(remove);
+            }
           }
         }
       }
@@ -399,7 +421,7 @@ public final class MemoryAccessPath {
   private final Entry firstEntry;
   private final Entry lastEntry;
 
-  private MemorySymbolicExecutor.Result symbolicResult; 
+  private MemorySymbolicResult symbolicResult; 
 
   public MemoryAccessPath(
       final Collection<Entry> entries,
@@ -523,11 +545,11 @@ public final class MemoryAccessPath {
     return symbolicResult != null;
   }
 
-  public MemorySymbolicExecutor.Result getSymbolicResult() {
+  public MemorySymbolicResult getSymbolicResult() {
     return symbolicResult;
   }
 
-  public void setSymbolicResult(final MemorySymbolicExecutor.Result symbolicResult) {
+  public void setSymbolicResult(final MemorySymbolicResult symbolicResult) {
     this.symbolicResult = symbolicResult;
   }
 

@@ -28,7 +28,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemorySymbolicExecutor;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -43,9 +44,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPathIterator.Result> {
   public static final class Result {
     private final MemoryAccessPath path;
-    private final MemorySymbolicExecutor.Result context;
+    private final MemorySymbolicResult context;
 
-    public Result(final MemoryAccessPath path, final MemorySymbolicExecutor.Result context) {
+    public Result(final MemoryAccessPath path, final MemorySymbolicResult context) {
       InvariantChecks.checkNotNull(path);
       InvariantChecks.checkNotNull(context);
 
@@ -57,7 +58,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       return path;
     }
 
-    public MemorySymbolicExecutor.Result getContext() {
+    public MemorySymbolicResult getContext() {
       return context;
     }
   }
@@ -114,12 +115,12 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final Object label;
     final ArrayList<MemoryGraph.Edge> edges;
     final Iterator<MemoryGraph.Edge> iterator;
-    final MemorySymbolicExecutor.Result context;
+    final MemorySymbolicResult context;
 
     SearchEntry(
         final MmuAction action,
         final Object label,
-        final MemorySymbolicExecutor.Result context) {
+        final MemorySymbolicResult context) {
       InvariantChecks.checkNotNull(action);
       InvariantChecks.checkNotNull(context);
 
@@ -173,7 +174,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
-      final MemorySymbolicExecutor.Result context) {
+      final MemorySymbolicResult context) {
     this(memory, null, graph, type, constraints, new MemoryAccessStack(), context);
   }
 
@@ -192,7 +193,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemoryAccessStack stack) {
-    this(memory, graph, type, constraints, stack, new MemorySymbolicExecutor.Result());
+    this(memory, graph, type, constraints, stack, new MemorySymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -201,7 +202,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemoryAccessStack stack,
-      final MemorySymbolicExecutor.Result context) {
+      final MemorySymbolicResult context) {
     this(memory, null, graph, type, constraints, stack, context);
   }
 
@@ -212,7 +213,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemoryAccessStack stack) {
-    this(memory, trajectory, graph, type, constraints, stack, new MemorySymbolicExecutor.Result());
+    this(memory, trajectory, graph, type, constraints, stack, new MemorySymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -222,7 +223,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemoryAccessStack stack,
-      final MemorySymbolicExecutor.Result context) {
+      final MemorySymbolicResult context) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(graph);
     InvariantChecks.checkNotNull(type);
@@ -273,19 +274,17 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         final Object nextLabel = label != null ?
             (labels != null && labels.hasNext() ? labels.next() : null) : searchEntry.label;
 
-        final MemorySymbolicExecutor.Result context = searchEntry.edges.size() == 1 ?
-            searchEntry.context : new MemorySymbolicExecutor.Result(searchEntry.context);
+        final MemorySymbolicResult context = searchEntry.edges.size() == 1 ?
+            searchEntry.context : new MemorySymbolicResult(searchEntry.context);
 
-        MemorySymbolicExecutor.Result newContext = context;
+        MemorySymbolicResult newContext = context;
 
-        Logger.debug("Checking feasibility of the transition %s", transition);
         if (MemoryEngineUtils.isFeasibleTransition(transition, type, stack, context /* INOUT */)) {
-          Logger.debug("Feasible transition");
+          hasTraversed = false;
+          Logger.debug("Goto %s", transition);
 
           // Transitions to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
-
-          hasTraversed = false;
 
           // Prolong the memory access path.
           entries.add(MemoryAccessPath.Entry.NORMAL(transition, stack));
@@ -298,41 +297,61 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             // Check whether this is a recursive memory call.
             if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
-              Logger.debug("Recursive memory call via transition %s", transition);
+              final String frameId = String.format("call(%s)", buffer.getName());
+              final MemoryAccessStack.Frame frame = stack.call(frameId);
+
+              Logger.debug("Recursive memory call %s", stack);
+
+              final MemoryAccessPath.Entry call = MemoryAccessPath.Entry.CALL(frame);
+              final MemoryAccessPath.Entry ret  = MemoryAccessPath.Entry.RETURN();
+
+              newContext = new MemorySymbolicResult(context);
+
+              final MemorySymbolicExecutor callExecutor = new MemorySymbolicExecutor(newContext);
+
+              // Call.
+              callExecutor.execute(call, false);
 
               final MemoryAccessPathIterator innerIterator =
-                  new MemoryAccessPathIterator(memory, graph, type, constraints, context);
+                  new MemoryAccessPathIterator(memory, graph, type, constraints, stack, context);
 
               if (innerIterator.hasNext()) {
                 final Result innerResult = innerIterator.next();
                 final MemoryAccessPath innerPath = innerResult.getPath();
 
-                final String frameId = buffer.getName();
-                final MemoryAccessStack.Frame frame = stack.call(frameId);
-
                 // Append a random inner path.
-                entries.add(MemoryAccessPath.Entry.CALL(frame));
+                entries.add(call);
                 entries.addAll(innerPath.getEntries());
-                entries.add(MemoryAccessPath.Entry.RETURN());
+                entries.add(ret);
 
                 // Update the context.
                 newContext = innerResult.getContext();
+
+                final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newContext);
+
+                // Return.
+                Logger.debug("Return from the recursive memory call");
+                returnExecutor.execute(ret, false);
               } else {
+                Logger.debug("Recursive memory call is infeasible");
                 hasTraversed = true;
               }
+
+              stack.ret();
             }
           }
 
           if (!hasTraversed) {
             searchStack.push(new SearchEntry(targetAction, nextLabel, newContext));
             currentPath.addAll(entries);
+            Logger.debug("Current path size is %d", currentPath.size());
 
             break;
           }
         } else {
-          Logger.debug("Infeasible transition");
+          Logger.debug("Skip %s", transition);
         }
-      }
+      } // for each outgoing edge.
 
       if (hasTraversed) {
         final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();
@@ -354,14 +373,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           Logger.debug("Checking feasibility of the memory access path %s", path);
 
           if (MemoryEngineUtils.isFeasiblePath(memory, path, constraints)) {
-            Logger.debug("Feasible memory access");
+            Logger.debug("Feasible memory access path");
             return new Result(path, top.context);
           }
 
           Logger.debug("Infeasible memory access path");
         }
       }
-    }
+    } // for each vertex.
 
     Logger.debug("No path found");
     return null;

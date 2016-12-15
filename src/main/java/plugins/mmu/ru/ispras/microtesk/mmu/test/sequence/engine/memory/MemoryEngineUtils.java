@@ -38,6 +38,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -98,13 +100,10 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleEntry(
       final MemoryAccessPath.Entry entry,
       final MemoryAccessStack stack,
-      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+      final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkNotNull(partialResult);
-
-    final MemorySymbolicExecutor symbolicExecutor =
-        new MemorySymbolicExecutor(entry, partialResult, false);
 
     final MmuTransition transition = entry.getTransition();
     InvariantChecks.checkNotNull(transition);
@@ -124,7 +123,9 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(partialResult);
+
+    final MemorySymbolicResult symbolicResult = symbolicExecutor.execute(entry, false);
 
     // True should be return after symbolic execution.
     if (value != null && value == true) {
@@ -144,7 +145,7 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleTransition(
       final MmuTransition transition,
       final MemoryAccessStack stack,
-      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+      final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkNotNull(partialResult);
@@ -156,7 +157,7 @@ public final class MemoryEngineUtils {
       final MmuTransition transition,
       final MemoryAccessType type,
       final MemoryAccessStack stack,
-      final MemorySymbolicExecutor.Result partialResult /* INOUT */) {
+      final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(partialResult);
@@ -281,7 +282,7 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MmuTransition transition,
-      final MemorySymbolicExecutor.Result symbolicResult /* INOUT */,
+      final MemorySymbolicResult symbolicResult /* INOUT */,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(transition);
@@ -322,11 +323,11 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(mode);
 
     if (!path.hasSymbolicResult()) {
-      final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(path, true);
-      path.setSymbolicResult(symbolicExecutor.execute());
+      final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
+      path.setSymbolicResult(symbolicExecutor.execute(path, true));
     }
 
-    final MemorySymbolicExecutor.Result symbolicResult = path.getSymbolicResult();
+    final MemorySymbolicResult symbolicResult = path.getSymbolicResult();
 
     if (symbolicResult.hasConflict()) {
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
@@ -402,9 +403,10 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor =
-        new MemorySymbolicExecutor(structure, mode == Solver.Mode.MAP);
-    final MemorySymbolicExecutor.Result symbolicResult = symbolicExecutor.execute();
+    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
+
+    final MemorySymbolicResult symbolicResult =
+        symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
