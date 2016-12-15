@@ -108,10 +108,10 @@ public final class MemorySymbolicExecutor {
       result.addEquation(lhs, rhs);
 
       // Propagate the constant if applicable.
-      final BigInteger constant = result.getConstants().get(instance);
+      final BigInteger constant = result.getConstant(instance);
 
       if (constant != null) {
-        result.getConstants().put(original, constant);
+        result.addConstant(original, constant);
       }
     }
   }

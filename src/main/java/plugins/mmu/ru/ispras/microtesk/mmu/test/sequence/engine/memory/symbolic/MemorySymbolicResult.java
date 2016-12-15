@@ -125,20 +125,40 @@ public final class MemorySymbolicResult {
     return variables;
   }
 
-  public Map<Integer, MemoryAccessStack> getStacks() {
-    return stacks;
+  public void addVariable(final IntegerVariable var) {
+    variables.add(var);
+  }
+
+  public void addVariables(final Collection<IntegerVariable> vars) {
+    variables.addAll(vars);
   }
 
   public IntegerFormula<IntegerField> getFormula() {
     return formulaBuilder.build();
   }
 
-  public Map<IntegerVariable, BigInteger> getConstants() {
-    return constants;
+  public Map<Integer, MemoryAccessStack> getStacks() {
+    return stacks;
   }
 
   public Collection<IntegerVariable> getOriginalVariables() {
     return originals;
+  }
+
+  public void addOriginalVariable(final IntegerVariable var) {
+    originals.add(var);
+  }
+
+  public void addOriginalVariables(final Collection<IntegerVariable> vars) {
+    originals.addAll(vars);
+  }
+
+  public BigInteger getConstant(final IntegerVariable var) {
+    return constants.get(var);
+  }
+
+  public Map<IntegerVariable, BigInteger> getConstants() {
+    return constants;
   }
 
   public Map<IntegerVariable, BigInteger> getOriginalConstants() {
@@ -156,20 +176,8 @@ public final class MemorySymbolicResult {
     return result;
   }
 
-  public void addVariable(final IntegerVariable var) {
-    variables.add(var);
-  }
-
-  public void addVariables(final Collection<IntegerVariable> vars) {
-    variables.addAll(vars);
-  }
-
-  public void addOriginalVariable(final IntegerVariable var) {
-    originals.add(var);
-  }
-
-  public void addOriginalVariables(final Collection<IntegerVariable> vars) {
-    originals.addAll(vars);
+  public void addConstant(final IntegerVariable var, final BigInteger constant) {
+    constants.put(var, constant);
   }
 
   public void addEquation(final IntegerField lhs, final IntegerField rhs) {
