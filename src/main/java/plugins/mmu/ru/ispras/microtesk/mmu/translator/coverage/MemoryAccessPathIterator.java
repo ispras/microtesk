@@ -335,6 +335,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
                 Logger.debug("Return from the recursive memory call");
                 returnExecutor.execute(ret, false);
               } else {
+                callId--;
+
                 Logger.debug("Recursive memory call is infeasible");
                 hasTraversed = true;
               }
