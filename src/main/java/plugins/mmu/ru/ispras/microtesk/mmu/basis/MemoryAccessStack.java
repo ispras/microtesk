@@ -28,6 +28,9 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStack {
+  /**
+   * {@link Frame} represents a memory access stack's frame.
+   */
   public final static class Frame {
     private final String id;
     private final Map<IntegerVariable, IntegerVariable> frame = new HashMap<>();
@@ -39,6 +42,11 @@ public final class MemoryAccessStack {
 
     public IntegerVariable getInstance(final IntegerVariable variable) {
       InvariantChecks.checkNotNull(variable);
+
+      // Constants are not duplicated in stack frames.
+      if (variable.isDefined()) {
+        return variable;
+      }
 
       IntegerVariable frameVariable = frame.get(variable);
 

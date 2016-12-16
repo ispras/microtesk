@@ -337,16 +337,18 @@ public final class MemorySymbolicExecutor {
             final boolean truthValue = (value.equals(fieldConst) != atom.isNegated());
 
             if (!truthValue && clauseBuilder.getType() == IntegerClause.Type.AND) {
-              Logger.debug("Condition is always false: %s=%s", field, fieldConst);
-              result.setConflict(true);
+              Logger.debug("Condition is always FALSE: %s %s %s",
+                  field, (atom.isNegated() ? "!=" : "=="), fieldConst);
 
+              result.setConflict(true);
               return;
             }
 
             if (truthValue && clauseBuilder.getType() == IntegerClause.Type.OR) {
-              Logger.debug("Condition is always true: %s=%s", field, fieldConst);
+              Logger.debug("Condition is always TRUE: %s %s %s",
+                  field, (atom.isNegated() ? "!=" : "=="), fieldConst);
 
-              // Formally, an empty OR clause is false, but it is simply ignored.
+              // Formally, the empty OR clause is false, but it is simply ignored.
               clauseBuilder.clear();
               isTrue = true;
             }
@@ -464,7 +466,7 @@ public final class MemorySymbolicExecutor {
         final BigInteger constant = MmuCalculator.eval(rhsExpr, result.getConstants(), false);
 
         if (constant != null) {
-          Logger.debug("Constant is propagated: %s=0x%s", newLhsVar, constant.toString(16));
+          Logger.debug("Constant propagation: %s == 0x%s", newLhsVar, constant.toString(16));
           result.getConstants().put(newLhsVar, constant);
         }
       } // if right-hand side exists.

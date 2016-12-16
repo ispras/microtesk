@@ -161,6 +161,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   private Result result;
 
+  private int callId = 0;
+
   public MemoryAccessPathIterator(
       final MmuSubsystem memory,
       final MemoryGraph graph,
@@ -297,7 +299,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             // Check whether this is a recursive memory call.
             if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
-              final String frameId = String.format("call(%s)", buffer.getName());
+              final String frameId = String.format("call(%s_%d)", buffer.getName(), callId++);
               final MemoryAccessStack.Frame frame = stack.call(frameId);
 
               Logger.debug("Recursive memory call %s", stack);
@@ -348,10 +350,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             break;
           }
-        } else {
-          Logger.debug("Skip %s", transition);
-        }
-      } // for each outgoing edge.
+        } // If feasible transition.
+      } // For each outgoing edge.
 
       if (hasTraversed) {
         final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();

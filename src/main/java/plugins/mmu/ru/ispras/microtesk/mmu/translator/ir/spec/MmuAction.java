@@ -109,7 +109,7 @@ public final class MmuAction {
       actionInstance.put(stack.getInstance(lhs), rhs.getInstance(stack));
     }
 
-    return action;
+    return actionInstance;
   }
 
   public void addMark(final String mark) {
