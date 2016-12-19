@@ -31,6 +31,10 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.utils.FileUtils;
 
 public final class Disassembler {
+  public static interface Output {
+    void add(final IsaPrimitive primitive);
+  }
+
   public static boolean disassemble(
       final Options options,
       final String modelName,
@@ -58,7 +62,15 @@ public final class Disassembler {
     }
 
     try {
-      return decode(model, reader, writer);
+      final TemporaryVariables tempVars = model.getTempVars();
+      return decode(model.getDecoder(), reader, new Output() {
+        @Override
+        public void add(final IsaPrimitive primitive) {
+          final String text = primitive.syntax(tempVars);
+          Logger.debug(text);
+          writer.println(text);
+        }
+      });
     } finally {
       reader.close();
       writer.close();
@@ -116,16 +128,13 @@ public final class Disassembler {
     }
   }
 
-  private static boolean decode(
-      final Model model,
+  public static boolean decode(
+      final Decoder decoder,
       final BinaryReader reader,
-      final PrintWriter writer) {
-    InvariantChecks.checkNotNull(model);
+      final Output output) {
+    InvariantChecks.checkNotNull(decoder);
     InvariantChecks.checkNotNull(reader);
-    InvariantChecks.checkNotNull(writer);
-
-    final Decoder decoder = model.getDecoder();
-    final TemporaryVariables tempVars = model.getTempVars();
+    InvariantChecks.checkNotNull(output);
 
     final int maxImageSize = decoder.getMaxImageSize();
     final boolean imageSizeFixed = decoder.isImageSizeFixed();
@@ -142,10 +151,7 @@ public final class Disassembler {
       }
 
       final IsaPrimitive primitive = result.getPrimitive();
-      final String text = primitive.syntax(tempVars);
-
-      Logger.debug(text);
-      writer.println(text);
+      output.add(primitive);
 
       if (!imageSizeFixed) {
         final int bitsRead = result.getBitSize();
