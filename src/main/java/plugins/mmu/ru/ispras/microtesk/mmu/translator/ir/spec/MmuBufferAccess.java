@@ -39,7 +39,6 @@ public final class MmuBufferAccess {
       final MmuAddressInstance argument) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(address);
-    InvariantChecks.checkNotNull(argument);
 
     this.buffer = buffer;
     this.address = address;
@@ -75,8 +74,7 @@ public final class MmuBufferAccess {
         buffer,
         address.getInstance(stack),
         entry.getInstance(stack),
-        argument.getInstance(stack)
-        );
+        argument != null ? argument.getInstance(stack) : null);
   }
 
   @Override

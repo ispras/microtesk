@@ -57,34 +57,48 @@ public final class MemoryAccessPath {
       RETURN
     }
 
-    public static Entry NORMAL(final MmuTransition transition, final MemoryAccessStack stack) {
+    public static Entry NORMAL(
+        final MmuTransition transition,
+        final MemoryAccessStack stack) {
       InvariantChecks.checkNotNull(transition);
       InvariantChecks.checkNotNull(stack);
 
-      return new Entry(Kind.NORMAL, transition, !stack.isEmpty() ? stack.getFrame() : null);
+      final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
+      return new Entry(Kind.NORMAL, transition, frame, null, null);
     }
 
-    public static Entry CALL(final MemoryAccessStack.Frame frame) {
+    public static Entry CALL(
+        final MemoryAccessStack.Frame frame,
+        final MmuAddressInstance formalArg,
+        final MmuAddressInstance actualArg) {
       InvariantChecks.checkNotNull(frame);
+      InvariantChecks.checkNotNull(formalArg);
+      InvariantChecks.checkNotNull(actualArg);
 
-      return new Entry(Kind.CALL, null, frame);
+      return new Entry(Kind.CALL, null, frame, formalArg, actualArg);
     }
 
     public static Entry RETURN() {
-      return new Entry(Kind.RETURN, null, null);
+      return new Entry(Kind.RETURN, null, null, null, null);
     }
 
     private final Kind kind;
     private final MmuTransition transition;
     private final MemoryAccessStack.Frame frame;
+    private final MmuAddressInstance formalArg;
+    private final MmuAddressInstance actualArg;
 
     private Entry(
         final Kind kind,
         final MmuTransition transition,
-        final MemoryAccessStack.Frame frame) {
+        final MemoryAccessStack.Frame frame,
+        final MmuAddressInstance formalArg,
+        final MmuAddressInstance actualArg) {
       this.kind = kind;
       this.transition = transition;
       this.frame = frame;
+      this.formalArg = formalArg;
+      this.actualArg = formalArg;
     }
 
     public boolean isCall() {
@@ -105,6 +119,14 @@ public final class MemoryAccessPath {
 
     public MemoryAccessStack.Frame getFrame() {
       return frame;
+    }
+
+    public MmuAddressInstance getFormalArg() {
+      return formalArg;
+    }
+
+    public MmuAddressInstance getActualArg() {
+      return actualArg;
     }
 
     @Override

@@ -31,6 +31,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -295,6 +296,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
           if (bufferAccess != null) {
             final MmuBuffer buffer = bufferAccess.getBuffer();
+
             InvariantChecks.checkNotNull(buffer);
 
             // Check whether this is a recursive memory call.
@@ -302,10 +304,16 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
               final String frameId = String.format("call(%s_%d)", buffer.getName(), callId++);
               final MemoryAccessStack.Frame frame = stack.call(frameId);
 
-              Logger.debug("Recursive memory call %s", stack);
+              final MmuAddressInstance formalArg = bufferAccess.getAddress();
+              final MmuAddressInstance actualArg = bufferAccess.getArgument();
 
-              final MemoryAccessPath.Entry call = MemoryAccessPath.Entry.CALL(frame);
-              final MemoryAccessPath.Entry ret  = MemoryAccessPath.Entry.RETURN();
+              Logger.debug("Recursive memory call %s(%s = %s)",
+                  buffer.getName(), formalArg, actualArg);
+
+              final MemoryAccessPath.Entry call =
+                  MemoryAccessPath.Entry.CALL(frame, formalArg, actualArg);
+              final MemoryAccessPath.Entry ret =
+                  MemoryAccessPath.Entry.RETURN();
 
               newContext = new MemorySymbolicResult(context);
 

@@ -32,6 +32,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
@@ -226,6 +227,13 @@ public final class MemorySymbolicExecutor {
     }
 
     result.updateStack(entry, pathIndex);
+
+    if (entry.isCall()) {
+      final MmuAddressInstance formalArg = entry.getFormalArg();
+      final MmuAddressInstance actualArg = entry.getActualArg();
+
+      execute(formalArg.bindings(actualArg), pathIndex);
+    }
 
     final MmuTransition transition = entry.getTransition();
 
