@@ -21,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.Logger;
 
 public class DataSection {
   private final List<LabelValue> labelValues;
@@ -50,8 +51,13 @@ public class DataSection {
   protected DataSection(final DataSection other) {
     InvariantChecks.checkNotNull(other);
 
-    this.labelValues = LabelValue.copyAll(other.labelValues);
-    this.directives = copyAllDirectives(other.directives);
+    try {
+      this.labelValues = LabelValue.copyAll(other.labelValues);
+      this.directives = copyAllDirectives(other.directives);
+    } catch (final Exception e) {
+      Logger.error("Failed to copy %s", other);
+      throw e;
+    }
 
     this.global = other.global;
     this.separateFile = other.separateFile;
