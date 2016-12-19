@@ -23,8 +23,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 public abstract class DecoderGroup extends Decoder {
   private final List<Decoder> decoders = new ArrayList<>();
 
-  protected DecoderGroup(final int maxImageSize, final boolean imageSizeFixed) {
-    super(maxImageSize, imageSizeFixed, null, null);
+  protected DecoderGroup(
+      final int maxImageSize,
+      final boolean imageSizeFixed,
+      final String opcMask) {
+    super(maxImageSize, imageSizeFixed, null, opcMask);
   }
 
   protected final void add(final Decoder decoder) {

@@ -20,6 +20,7 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.decoder.DecoderGroup;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -94,10 +95,12 @@ final class STBDecoderGroup implements STBuilder {
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("group_constructor");
+    final BitVector opcMask = imageInfo.getOpcMask();
 
     stConstructor.add("name", name);
     stConstructor.add("size", imageInfo.getMaxImageSize());
     stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
+    stConstructor.add("opc_mask", opcMask != null ? "\"" + opcMask.toBinString() + "\"" : "null");
     stConstructor.add("items", items);
 
     st.add("members", stConstructor);
