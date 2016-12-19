@@ -15,31 +15,60 @@
 package ru.ispras.microtesk.decoder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public abstract class DecoderGroup extends Decoder {
-  private final List<Decoder> decoders = new ArrayList<>();
+  private final boolean hasOpcMask;
+  private final List<Decoder> decoderList;
+  private final Map<BitVector, Decoder> decoderMap;
 
   protected DecoderGroup(
       final int maxImageSize,
       final boolean imageSizeFixed,
       final String opcMask) {
     super(maxImageSize, imageSizeFixed, null, opcMask);
+
+    this.hasOpcMask = null != opcMask;
+    this.decoderList = hasOpcMask ? null : new ArrayList<Decoder>();
+    this.decoderMap = hasOpcMask ? new HashMap<BitVector, Decoder>() : null;
   }
 
   protected final void add(final Decoder decoder) {
     InvariantChecks.checkNotNull(decoder);
     InvariantChecks.checkTrue(getMaxImageSize() >= decoder.getMaxImageSize());
     InvariantChecks.checkTrue(isImageSizeFixed() ? decoder.isImageSizeFixed() : true);
-    decoders.add(decoder);
+
+    if (hasOpcMask) {
+      InvariantChecks.checkNotNull(decoder.getOpc());
+      decoderMap.put(decoder.getOpc(), decoder);
+    } else {
+      decoderList.add(decoder);
+    }
   }
 
   @Override
   public final DecoderResult decode(final BitVector image) {
-    for (final Decoder decoder : decoders) {
+    return hasOpcMask ? decodeUsingDecoderMap(image) : decodeUsingDecoderList(image);
+  }
+
+  private DecoderResult decodeUsingDecoderMap(final BitVector image) {
+    final BitVector imageOpc = applyOpcMask(image);
+
+    final Decoder decoder = decoderMap.get(imageOpc);
+    if (null == decoder) {
+      return null;
+    }
+
+    return decoder.decode(image);
+  }
+
+  private DecoderResult decodeUsingDecoderList(final BitVector image) {
+    for (final Decoder decoder : decoderList) {
       final DecoderResult result = decoder.decode(image);
       if (null != result) {
         return result;
