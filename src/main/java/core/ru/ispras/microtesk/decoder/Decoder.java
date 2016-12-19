@@ -60,10 +60,13 @@ public abstract class Decoder {
       return true;
     }
 
-    InvariantChecks.checkTrue(opc.getBitSize() == image.getBitSize());
-    final BitVector imageOpc = BitVectorMath.and(image, opcMask);
-
+    final BitVector imageOpc = applyOpcMask(image);
     return imageOpc.equals(opc);
+  }
+
+  protected final BitVector applyOpcMask(final BitVector image) {
+    InvariantChecks.checkTrue(opcMask.getBitSize() == image.getBitSize());
+    return BitVectorMath.and(image, opcMask);
   }
 
   public abstract DecoderResult decode(BitVector image);
