@@ -151,11 +151,11 @@ final class GuardPrinter {
 
     if (equalities.isEmpty() && segments.isEmpty() && !buffers.isEmpty()) {
       InvariantChecks.checkTrue(buffers.size() == 1, "One buffer event is allowed.");
-      final Pair<String, String> bufferEvent = extractBufferEventInfo(buffers.get(0));
+      final Pair<Pair<String, String>, String> bufferEvent = extractBufferEventInfo(buffers.get(0));
 
       return String.format(
           "new MmuGuard(%s, %s)",
-          ControlFlowBuilder.defaultBufferAccess(bufferEvent.first),
+          ControlFlowBuilder.defaultBufferAccess(bufferEvent.first.first, bufferEvent.first.second),
           bufferEvent.second);
     }
 
@@ -253,13 +253,14 @@ final class GuardPrinter {
     throw new IllegalArgumentException("Illegal segment access expression: " + node);
   }
 
-  private Pair<String, String> extractBufferEventInfo(final Node node) {
+  private Pair<Pair<String, String>, String> extractBufferEventInfo(final Node node) {
     InvariantChecks.checkNotNull(node);
 
     if (node.getKind() == Node.Kind.VARIABLE) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
+      final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
-      return new Pair<>(buffer.getId(), "BufferAccessEvent.HIT");
+      return new Pair<>(new Pair<>(buffer.getId(), address), "BufferAccessEvent.HIT");
     }
 
     if (node.getKind() == Node.Kind.OPERATION) {
@@ -267,8 +268,9 @@ final class GuardPrinter {
       InvariantChecks.checkTrue(op.getOperationId() == StandardOperation.NOT);
 
       final AttributeRef attrRef = (AttributeRef) op.getOperand(0).getUserData();
+      final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
-      return new Pair<>(buffer.getId(), "BufferAccessEvent.MISS");
+      return new Pair<>(new Pair<>(buffer.getId(), address), "BufferAccessEvent.MISS");
     }
 
     throw new IllegalArgumentException("Illegal buffer event expression: " + node);

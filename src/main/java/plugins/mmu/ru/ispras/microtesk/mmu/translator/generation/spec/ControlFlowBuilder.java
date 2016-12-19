@@ -325,9 +325,12 @@ final class ControlFlowBuilder {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
+    final String address = value.getUserData() instanceof AttributeRef ?
+        getVariableName(((AttributeRef) value.getUserData()).getAddressArgValue().toString()) : null;
+
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
-    final String access = selectBufferAccess(lhs, rhs);
+    final String access = selectBufferAccess(address, lhs, rhs);
 
     buildAction(target, filterEmpty(access, targetBindings));
     buildTransition(rule.getState(), target);
@@ -550,27 +553,29 @@ final class ControlFlowBuilder {
     if (!(expr.getUserData() instanceof Variable)) {
       return false;
     }
+
     return memory.getDataArg().equals(expr.getUserData());
   }
 
-  private String selectBufferAccess(final Atom... atoms) {
+  private String selectBufferAccess(final String address, final Atom... atoms) {
     for (final Atom atom : atoms) {
       if (atom.getKind().isStruct()) {
         final String name = ((Variable) atom.getObject()).getName();
         if (isBufferAccess(name)) {
-          return defaultBufferAccess(name);
+          return defaultBufferAccess(name, address);
         }
       }
     }
     return null;
   }
 
-  protected static String defaultBufferAccess(final String name) {
+  protected static String defaultBufferAccess(final String name, final String address) {
     return String.format(
-        "new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get())",
+        "new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get(), %s)",
         name,
         name,
-        name
+        name,
+        address
         );
   }
 
