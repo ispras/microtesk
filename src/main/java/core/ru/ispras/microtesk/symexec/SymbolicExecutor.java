@@ -14,8 +14,16 @@
 
 package ru.ispras.microtesk.symexec;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.decoder.Disassembler;
+import ru.ispras.microtesk.decoder.Disassembler.Output;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.model.api.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 
 public final class SymbolicExecutor {
@@ -29,7 +37,64 @@ public final class SymbolicExecutor {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
 
+    final DisassemblerOutputFactory outputFactory = new DisassemblerOutputFactory();
+    if (!Disassembler.disassemble(modelName, fileName, outputFactory)) {
+      Logger.error("Failed to disassemble " + fileName);
+    }
+
+    final DisassemblerOutput output = outputFactory.getOutput();
+    InvariantChecks.checkNotNull(output);
+
+    final List<IsaPrimitive> instructions = output.getInstructions();
+    InvariantChecks.checkNotNull(instructions);
+
+    // TODO: Build SSA form for the instructions
+
     Logger.error("Symbolic execution is not currently supported.");
     return false;
+  }
+
+  private final static class DisassemblerOutput implements Disassembler.Output {
+    private final TemporaryVariables tempVars;
+    private final List<IsaPrimitive> instructions;
+
+    private DisassemblerOutput(final TemporaryVariables tempVars) {
+      InvariantChecks.checkNotNull(tempVars);
+
+      this.tempVars = tempVars;
+      this.instructions = new ArrayList<>();
+    }
+
+    @Override
+    public void add(final IsaPrimitive primitive) {
+      final String text = primitive.syntax(tempVars);
+      Logger.debug(text);
+      instructions.add(primitive);
+    }
+
+    @Override
+    public void close() {
+      // Nothing
+    }
+
+    public List<IsaPrimitive> getInstructions() {
+      return instructions;
+    }
+  }
+
+  private final static class DisassemblerOutputFactory implements Disassembler.OutputFactory {
+    private DisassemblerOutput output = null;
+
+    @Override
+    public Output createOutput(final Model model) {
+      InvariantChecks.checkNotNull(model);
+      final TemporaryVariables tempVars = model.getTempVars();
+      output = new DisassemblerOutput(tempVars);
+      return output;
+    }
+
+    public DisassemblerOutput getOutput() {
+      return output;
+    }
   }
 }
