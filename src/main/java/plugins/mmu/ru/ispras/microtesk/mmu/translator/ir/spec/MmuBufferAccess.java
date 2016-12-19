@@ -29,17 +29,22 @@ public final class MmuBufferAccess {
   private final MmuAddressInstance address;
   /** Buffer entry being accessed. */
   private final MmuStruct entry;
+  /** Address passed as an argument on buffer access. */
+  private final MmuAddressInstance argument;
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
       final MmuAddressInstance address,
-      final MmuStruct entry) {
+      final MmuStruct entry,
+      final MmuAddressInstance argument) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(address);
+    InvariantChecks.checkNotNull(argument);
 
     this.buffer = buffer;
     this.address = address;
     this.entry = entry;
+    this.argument = argument;
   }
 
   public MmuBuffer getBuffer() {
@@ -54,6 +59,10 @@ public final class MmuBufferAccess {
     return entry;
   }
 
+  public MmuAddressInstance getArgument() {
+    return address;
+  }
+
   // TODO:
   public MmuBufferAccess getInstance(final MemoryAccessStack stack) {
     InvariantChecks.checkNotNull(stack);
@@ -62,11 +71,16 @@ public final class MmuBufferAccess {
       return this;
     }
 
-    return new MmuBufferAccess(buffer, address.getInstance(stack), entry.getInstance(stack));
+    return new MmuBufferAccess(
+        buffer,
+        address.getInstance(stack),
+        entry.getInstance(stack),
+        argument.getInstance(stack)
+        );
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (o == this) {
       return true;
     }
