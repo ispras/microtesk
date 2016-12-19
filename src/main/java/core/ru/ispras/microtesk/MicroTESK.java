@@ -26,6 +26,7 @@ import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
+import ru.ispras.microtesk.symexec.SymbolicExecutor;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -70,6 +71,8 @@ public final class MicroTESK {
         generate(options, arguments, plugins);
       } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
         disassemble(options, arguments);
+      } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXEC)) {
+        symbolicexec(options, arguments);
       } else {
         translate(options, arguments);
       }
@@ -174,6 +177,21 @@ public final class MicroTESK {
 
     if (!Disassembler.disassemble(options, modelName, inputFile)) {
       Logger.message("Disassembling is aborted.");
+    }
+  }
+
+  private static void symbolicexec(final Options options, final String[] arguments) {
+    if (arguments.length != 2) {
+      Logger.error("Wrong number of generator arguments. Two arguments are required.");
+      Logger.message("Argument format: <model name>, <input file>");
+      return;
+    }
+
+    final String modelName = arguments[0];
+    final String inputFile = arguments[1];
+
+    if (!SymbolicExecutor.execute(options, modelName, inputFile)) {
+      Logger.message("Symbolic execution is aborted.");
     }
   }
 
