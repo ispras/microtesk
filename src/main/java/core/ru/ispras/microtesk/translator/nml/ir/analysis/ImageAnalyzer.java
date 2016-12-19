@@ -126,6 +126,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         orRule.getInfo().setImageInfo(sourceInfo);
       } else {
         orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
+
+        if (targetInfo.getOpcMask() != null && 
+            targetInfo.getOpcMask().equals(sourceInfo.getOpcMask())) {
+          orRule.getInfo().getImageInfo().setOpcMask(targetInfo.getOpcMask());
+        }
       }
     }
 
