@@ -38,6 +38,7 @@ import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -169,9 +170,9 @@ final class STBDecoder implements STBuilder {
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {
         buildImmediateArgument(stConstructor, group, field);
-      } /*else if (isImmediateArgumentField(field)) {
+      } else if (isImmediateArgumentField(field)) {
         buildImmediateArgumentField(stConstructor, group, field);
-      } */else if (isArgumentImage(field)) {
+      } else if (isArgumentImage(field)) {
         buildArgumentImage(stConstructor, group, field);
       } else if (isInstanceImage(field)) {
         buildInstanceImage(st, stConstructor, group, field);
@@ -272,8 +273,20 @@ final class STBDecoder implements STBuilder {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.IMM);
 
-    final String type = location.getType().getJavaText();
-    System.out.println(field + " - " + type);
+    if (undecoded.contains(name)) {
+      st.add("stmts", String.format("%s = new %s(%s);",
+          name, Immediate.class.getSimpleName(), location.getSource().getType().getJavaText()));
+    }
+
+    final ST stImmediate = group.getInstanceOf("decoder_immediate_field");
+
+    stImmediate.add("name", name);
+    stImmediate.add("type", location.getType().getJavaText());
+    stImmediate.add("from", ExprPrinter.toString(location.getBitfield().getFrom()));
+    stImmediate.add("to", ExprPrinter.toString(location.getBitfield().getTo()));
+
+    st.add("stmts", stImmediate);
+    undecoded.remove(name);
   }
 
   private boolean isArgumentImage(final Node field) {
