@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -34,7 +35,7 @@ public final class MmuCalculatorTestCase {
   private static final IntegerVariable VAR = new IntegerVariable("VAR", 64);
 
   private void runTest(int width, int count) {
-/*TODO    final List<IntegerField> fields = new ArrayList<>();
+    final List<IntegerField> fields = new ArrayList<>();
 
     for (int i = 0; i < count; i++) {
       final IntegerField field = new IntegerField(VAR, i, (i + width) - 1);
@@ -46,14 +47,22 @@ public final class MmuCalculatorTestCase {
     System.out.format("Test: width=%d, count=%d\n", width, count);
     System.out.format("Expr: %s\n", expression);
 
-    BigInteger result = MmuCalculator.eval(expression, VAR, BigInteger.ZERO, false);
+    BigInteger result = MmuCalculator.eval(
+        expression,
+        Collections.<IntegerVariable, BigInteger>singletonMap(VAR, BigInteger.ZERO),
+        false);
+
     Assert.assertNotNull(result);
     Assert.assertEquals(BigInteger.ZERO, result);
 
     long value = Randomizer.get().nextLong();
     System.out.format("Value: %x\n", value);
 
-    result = MmuCalculator.eval(expression, VAR, BigInteger.valueOf(value), false);
+    result = MmuCalculator.eval(
+        expression,
+        Collections.<IntegerVariable, BigInteger>singletonMap(VAR, BigInteger.valueOf(value)),
+        false);
+
     Assert.assertNotNull(result);
 
     long reference = 0;
@@ -63,7 +72,6 @@ public final class MmuCalculatorTestCase {
     }
 
     Assert.assertEquals(Long.toHexString(reference), Long.toHexString(result.longValue()));
-*/
   }
 
   @Test
