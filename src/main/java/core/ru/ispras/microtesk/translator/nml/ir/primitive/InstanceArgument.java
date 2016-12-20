@@ -81,7 +81,7 @@ public final class InstanceArgument {
 
   private Object getValueIfAssignable(final Class<?> targetClass) {
     if (!targetClass.isAssignableFrom(value.getClass())) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(value.getClass().getName());
     }
 
     return value;
