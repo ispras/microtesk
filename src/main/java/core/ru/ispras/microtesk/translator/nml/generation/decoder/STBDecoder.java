@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.generation.decoder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,8 @@ import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
@@ -51,6 +54,7 @@ final class STBDecoder implements STBuilder {
   private final ImageInfo imageInfo;
   private final PrimitiveAND item;
   private final Set<String> imported;
+  private final Set<String> undecoded;
 
   public STBDecoder(final String modelName, final PrimitiveAND item) {
     InvariantChecks.checkNotNull(modelName);
@@ -62,6 +66,7 @@ final class STBDecoder implements STBuilder {
     this.imageInfo = item.getInfo().getImageInfo();
     this.item = item;
     this.imported = new HashSet<>();
+    this.undecoded = new LinkedHashSet<>(item.getArguments().keySet());
   }
 
   @Override
@@ -163,7 +168,9 @@ final class STBDecoder implements STBuilder {
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {
         buildImmediateArgument(stConstructor, group, field);
-      } else if (isArgumentImage(field)) {
+      } /*else if (isImmediateArgumentField(field)) {
+        buildImmediateArgumentField(stConstructor, group, field);
+      } */else if (isArgumentImage(field)) {
         buildArgumentImage(stConstructor, group, field);
       } else if (isInstanceImage(field)) {
         buildInstanceImage(st, stConstructor, group, field);
@@ -171,6 +178,11 @@ final class STBDecoder implements STBuilder {
         Logger.warning("Failed to construct decoder for %s. Unrecognized field: %s",
             item.getName(), field);
       }
+    }
+
+    if (!undecoded.isEmpty()) {
+      Logger.warning("Failed to construct decoder for %s. Undecoded arguments: %s",
+          item.getName(), undecoded);
     }
 
     final ST stResult = group.getInstanceOf("decoder_result");
@@ -202,7 +214,9 @@ final class STBDecoder implements STBuilder {
     }
 
     final NodeVariable variable = (NodeVariable) field;
-    return item.getArguments().containsKey(variable.getName());
+    final Primitive primitive = item.getArguments().get(variable.getName());
+
+    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
   }
 
   private void buildImmediateArgument(final ST st, final STGroup group, final Node field) {
@@ -220,6 +234,47 @@ final class STBDecoder implements STBuilder {
     stImmediate.add("type", primitive.getReturnType().getJavaText());
 
     st.add("stmts", stImmediate);
+    undecoded.remove(name);
+  }
+
+  private boolean isImmediateArgumentField(final Node field) {
+    if (!ExprUtils.isVariable(field)) {
+      return false;
+    }
+
+    if (!(field.getUserData() instanceof NodeInfo)) {
+      return false;
+    }
+
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
+      return false;
+    }
+
+    final Location location = (Location) nodeInfo.getSource();
+    if (null == location.getBitfield()) {
+      return false;
+    }
+
+    final Primitive primitive = item.getArguments().get(location.getName());
+    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
+  }
+
+  private void buildImmediateArgumentField(final ST st, final STGroup group, final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    InvariantChecks.checkNotNull(nodeInfo);
+
+    final Location location = (Location) nodeInfo.getSource();
+    InvariantChecks.checkNotNull(location);
+
+    final String name = location.getName();
+    final Primitive primitive = item.getArguments().get(name);
+
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.IMM);
+
+    final String type = location.getType().getJavaText();
+    System.out.println(field + " - " + type);
   }
 
   private boolean isArgumentImage(final Node field) {
@@ -250,6 +305,7 @@ final class STBDecoder implements STBuilder {
     stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
 
     st.add("stmts", stPrimitive);
+    undecoded.remove(name);
   }
 
   private boolean isInstanceImage(final Node field) {
@@ -298,6 +354,7 @@ final class STBDecoder implements STBuilder {
         final String targetName = argument.getName();
 
         stConstructor.add("stmts", String.format("%s = %s.%s;", targetName, name, sourceName));
+        undecoded.remove(targetName);
       } else if (InstanceArgument.Kind.EXPR == argument.getKind() &&
                  !ExprUtils.isValue(argument.getExpr().getNode()) &&
                  !ExprUtils.isVariable(argument.getExpr().getNode())) {
