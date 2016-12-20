@@ -40,6 +40,10 @@ public final class Immediate extends IsaPrimitive {
     this.location = Location.newLocationForConst(data);
   }
 
+  public Immediate(final Type type) {
+    this(new Data(type));
+  }
+
   @Override
   public Location access(
       final ProcessingElement processingElement,
