@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.model.api;
 
+import java.util.Collections;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
@@ -30,13 +32,13 @@ public final class Immediate extends IsaPrimitive {
   private final Location location;
 
   public Immediate(final Location location) {
-    super();
+    super(Collections.<String, IsaPrimitive>emptyMap());
     InvariantChecks.checkNotNull(location);
     this.location = location;
   }
 
   public Immediate(final Data data) {
-    super();
+    super(Collections.<String, IsaPrimitive>emptyMap());
     this.location = Location.newLocationForConst(data);
   }
 

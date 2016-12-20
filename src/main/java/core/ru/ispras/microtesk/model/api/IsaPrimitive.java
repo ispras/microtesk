@@ -15,8 +15,11 @@
 package ru.ispras.microtesk.model.api;
 
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.Location;
 
@@ -29,6 +32,28 @@ import ru.ispras.microtesk.model.api.memory.Location;
 public abstract class IsaPrimitive {
   /** Tracks execution of primitives. */
   private static final Deque<IsaPrimitive> CALL_STACK = new LinkedList<>();
+
+  /** Stores arguments of the primitive. */
+  private final Map<String, IsaPrimitive> arguments;
+
+  /**
+   * Constructs a primitive and saves the table of its arguments.
+   * 
+   * @param arguments Primitive arguments.
+   * 
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   */
+  public IsaPrimitive(final Map<String, IsaPrimitive> arguments) {
+    InvariantChecks.checkNotNull(arguments);
+    this.arguments = arguments;
+  }
+
+  /**
+   * Constructs a primitive.
+   */
+  public IsaPrimitive() {
+    this(new LinkedHashMap<String, IsaPrimitive>());
+  }
 
   /**
    * Returns the name of the currently executed primitive or an empty
@@ -47,6 +72,29 @@ public abstract class IsaPrimitive {
    */
   public final String getName() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * Returns the primitive argument table.
+   * 
+   * @return Primitive arguments.
+   */
+  public final Map<String, IsaPrimitive> getArguments() {
+    return arguments;
+  }
+
+  /**
+   * Registers an argument in the argument table.
+   * 
+   * @param name Argument name. 
+   * @param value Argument.
+   * 
+   * @throws IllegalArgumentException if any of the parameters is {@code null}.
+   */
+  protected final void addArgument(final String name, final IsaPrimitive value) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
+    arguments.put(name, value);
   }
 
   /**
