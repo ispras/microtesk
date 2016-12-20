@@ -39,6 +39,7 @@ import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
@@ -175,14 +176,12 @@ final class STBDecoder implements STBuilder {
       } else if (isInstanceImage(field)) {
         buildInstanceImage(st, stConstructor, group, field);
       } else {
-        Logger.warning("Failed to construct decoder for %s. Unrecognized field: %s",
-            item.getName(), field);
+        reportError("Unrecognized field: %s", field);
       }
     }
 
     if (!undecoded.isEmpty()) {
-      Logger.warning("Failed to construct decoder for %s. Undecoded arguments: %s",
-          item.getName(), undecoded);
+      reportError("Undecoded arguments: %s", undecoded);
     }
 
     final ST stResult = group.getInstanceOf("decoder_result");
@@ -347,22 +346,67 @@ final class STBDecoder implements STBuilder {
 
     int index = 0;
     for (final InstanceArgument argument : instance.getArguments()) {
-      if (InstanceArgument.Kind.PRIMITIVE == argument.getKind() &&
-          item.getArguments().containsKey(argument.getName())) {
-
-        final String sourceName = argumentNames[index];
-        final String targetName = argument.getName();
-
-        stConstructor.add("stmts", String.format("%s = %s.%s;", targetName, name, sourceName));
-        undecoded.remove(targetName);
-      } else if (InstanceArgument.Kind.EXPR == argument.getKind() &&
-                 !ExprUtils.isValue(argument.getExpr().getNode()) &&
-                 !ExprUtils.isVariable(argument.getExpr().getNode())) {
-        Logger.warning("Failed to construct decoder for %s. Unrecognized field: %s",
-            item.getName(), argument.getExpr().getNode());
-      }
-
+      final String argumentName = argumentNames[index];
+      buildInstanceArgument(stConstructor, name, argumentName, argument);
       index++;
     }
+  }
+
+  private void buildInstanceArgument(
+      final ST stConstructor,
+      final String primitiveName,
+      final String argumentName,
+      final InstanceArgument argument) {
+    final String sourceName = String.format("%s.%s", primitiveName, argumentName);
+    switch (argument.getKind()) {
+
+      case PRIMITIVE: {
+        final String targetName = argument.getName();
+        if (item.getArguments().containsKey(targetName)) {
+          stConstructor.add("stmts", String.format("%s = %s;", targetName, sourceName));
+          undecoded.remove(targetName);
+          return;
+        }
+
+        reportError("Instance argument %s (%s) is not an %s argument.",
+            targetName, sourceName, item.getName());
+        break;
+      }
+
+      case EXPR: {
+        if (argument.getExpr().isConstant()) {
+          break;
+        }
+
+        if (argument.getExpr().getNodeInfo().getKind() == NodeInfo.Kind.OPERATOR) {
+          reportError(sourceName + " is not recognized. Expressions are not supported.");
+          break;
+        }
+
+        if (argument.getExpr().getNodeInfo().getKind() == NodeInfo.Kind.LOCATION) {
+          final Location location = (Location) argument.getExpr().getNodeInfo().getSource();
+          if (location.getSource() instanceof LocationSourceMemory) {
+            // Ignore it.
+            break;
+          }
+        }
+
+        reportError("%s (%s) is not recognized. ", argument.getExpr().toString(), sourceName);
+        break;
+      }
+
+      case INSTANCE: {
+        reportError("%s (%s) is not recognized. Nested instances are not supported.", 
+            argument.getInstance().getPrimitive().getName(), sourceName);
+        break;
+      }
+
+      default:
+        throw new IllegalArgumentException("Unsupported kind: " + argument.getKind());
+    }
+  }
+
+  private void reportError(final String format, final Object... args) {
+    Logger.warning("Failed to construct decoder for " + item.getName() + ". " + format, args);
   }
 }
