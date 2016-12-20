@@ -211,10 +211,10 @@ public final class MemorySymbolicResult {
 
     if (entry.isCall()) {
       stack.call(entry.getFrame());
-      Logger.debug("CALL: %s", stack);
+      Logger.debug("CALL: %d", stack.size());
     } else if (entry.isReturn()) {
       stack.ret();
-      Logger.debug("RETURN: %s", stack);
+      Logger.debug("RETURN: %d", stack.size());
     }
   }
 

@@ -150,7 +150,8 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkNotNull(partialResult);
 
-    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, stack), stack, partialResult);
+    final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
+    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, frame), stack, partialResult);
   }
 
   public static boolean isFeasibleTransition(
@@ -370,11 +371,13 @@ public final class MemoryEngineUtils {
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       final MmuTransition transition = entry.getTransition();
 
-      builder.append(transition.getSource());
-      if (transition.getGuard() != null) {
-        builder.append(String.format(" -> [%s]", transition.getGuard()));
+      if (transition != null) {
+        builder.append(transition.getSource());
+        if (transition.getGuard() != null) {
+          builder.append(String.format(" -> [%s]", transition.getGuard()));
+        }
+        builder.append(" -> ");
       }
-      builder.append(" -> ");
     }
 
     final MmuTransition lastTransition = path.getLastEntry().getTransition();
@@ -385,12 +388,14 @@ public final class MemoryEngineUtils {
 
   private static String stringOf(final MmuTransition transition) {
     final StringBuilder builder = new StringBuilder();
-    builder.append(transition.getSource());
-    if (transition.getGuard() != null) {
-      builder.append(String.format(" -> [%s]", transition.getGuard()));
+    if (transition != null) {
+      builder.append(transition.getSource());
+      if (transition.getGuard() != null) {
+        builder.append(String.format(" -> [%s]", transition.getGuard()));
+      }
+      builder.append(" -> ");
+      builder.append(transition.getTarget());
     }
-    builder.append(" -> ");
-    builder.append(transition.getTarget());
 
     return builder.toString();
   }

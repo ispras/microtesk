@@ -226,28 +226,39 @@ public final class MemorySymbolicExecutor {
       return;
     }
 
-    result.updateStack(entry, pathIndex);
-
     if (entry.isCall()) {
-      final MmuAddressInstance formalArg = entry.getFormalArg();
-      final MmuAddressInstance actualArg = entry.getActualArg();
-
-      execute(formalArg.bindings(actualArg), pathIndex);
-    }
-
-    final MmuTransition transition = entry.getTransition();
-
-    if (transition != null) {
-      final MmuGuard guard = transition.getGuard();
-
-      if (guard != null) {
-        execute(guard, pathIndex);
-      }
-
+      final MmuTransition transition = entry.getTransition();
       final MmuAction action = transition.getTarget();
 
-      if (action != null) {
-        execute(action, pathIndex);
+      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
+      final MmuAddressInstance actualArg = oldBufferAccess.getArgument();
+
+      result.updateStack(entry, pathIndex);
+
+      final MmuBufferAccess newBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
+      final MmuAddressInstance formalArg = newBufferAccess.getAddress();
+
+      final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
+      Logger.debug("Bindings: %s", bindings);
+
+      execute(bindings, pathIndex);
+    } else {
+      result.updateStack(entry, pathIndex);
+
+      final MmuTransition transition = entry.getTransition();
+
+      if (transition != null) {
+        final MmuGuard guard = transition.getGuard();
+
+        if (guard != null) {
+          execute(guard, pathIndex);
+        }
+
+        final MmuAction action = transition.getTarget();
+
+        if (action != null) {
+          execute(action, pathIndex);
+        }
       }
     }
   }

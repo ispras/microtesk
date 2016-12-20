@@ -59,46 +59,35 @@ public final class MemoryAccessPath {
 
     public static Entry NORMAL(
         final MmuTransition transition,
-        final MemoryAccessStack stack) {
+        final MemoryAccessStack.Frame frame) {
       InvariantChecks.checkNotNull(transition);
-      InvariantChecks.checkNotNull(stack);
-
-      final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
-      return new Entry(Kind.NORMAL, transition, frame, null, null);
+      return new Entry(Kind.NORMAL, transition, frame);
     }
 
     public static Entry CALL(
-        final MemoryAccessStack.Frame frame,
-        final MmuAddressInstance formalArg,
-        final MmuAddressInstance actualArg) {
+        final MmuTransition transition,
+        final MemoryAccessStack.Frame frame) {
       InvariantChecks.checkNotNull(frame);
-      InvariantChecks.checkNotNull(formalArg);
-      InvariantChecks.checkNotNull(actualArg);
+      InvariantChecks.checkNotNull(transition);
 
-      return new Entry(Kind.CALL, null, frame, formalArg, actualArg);
+      return new Entry(Kind.CALL, transition, frame);
     }
 
     public static Entry RETURN() {
-      return new Entry(Kind.RETURN, null, null, null, null);
+      return new Entry(Kind.RETURN, null, null);
     }
 
     private final Kind kind;
     private final MmuTransition transition;
     private final MemoryAccessStack.Frame frame;
-    private final MmuAddressInstance formalArg;
-    private final MmuAddressInstance actualArg;
 
     private Entry(
         final Kind kind,
         final MmuTransition transition,
-        final MemoryAccessStack.Frame frame,
-        final MmuAddressInstance formalArg,
-        final MmuAddressInstance actualArg) {
+        final MemoryAccessStack.Frame frame) {
       this.kind = kind;
       this.transition = transition;
       this.frame = frame;
-      this.formalArg = formalArg;
-      this.actualArg = formalArg;
     }
 
     public boolean isCall() {
@@ -119,14 +108,6 @@ public final class MemoryAccessPath {
 
     public MemoryAccessStack.Frame getFrame() {
       return frame;
-    }
-
-    public MmuAddressInstance getFormalArg() {
-      return formalArg;
-    }
-
-    public MmuAddressInstance getActualArg() {
-      return actualArg;
     }
 
     @Override

@@ -59,7 +59,7 @@ public final class MmuBufferAccess {
   }
 
   public MmuAddressInstance getArgument() {
-    return address;
+    return argument;
   }
 
   // TODO:

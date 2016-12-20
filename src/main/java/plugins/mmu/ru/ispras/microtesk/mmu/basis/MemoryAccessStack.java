@@ -90,6 +90,10 @@ public final class MemoryAccessStack {
     return stack.isEmpty();
   }
 
+  public int size() {
+    return stack.size();
+  }
+
   public Frame call(final String id) {
     InvariantChecks.checkNotNull(id);
 

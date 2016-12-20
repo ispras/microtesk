@@ -31,7 +31,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -169,16 +168,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, graph, type, constraints, new MemoryAccessStack());
-  }
-
-  public MemoryAccessPathIterator(
-      final MmuSubsystem memory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult context) {
-    this(memory, null, graph, type, constraints, new MemoryAccessStack(), context);
+    this(memory, graph, type, constraints, new MemoryAccessStack(), new MemorySymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -187,16 +177,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, trajectory, graph, type, constraints, new MemoryAccessStack());
-  }
-
-  public MemoryAccessPathIterator(
-      final MmuSubsystem memory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
-      final MemoryAccessStack stack) {
-    this(memory, graph, type, constraints, stack, new MemorySymbolicResult());
+    this(memory, trajectory, graph, type, constraints, new MemoryAccessStack(), new MemorySymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -207,16 +188,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessStack stack,
       final MemorySymbolicResult context) {
     this(memory, null, graph, type, constraints, stack, context);
-  }
-
-  public MemoryAccessPathIterator(
-      final MmuSubsystem memory,
-      final Collection<Object> trajectory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
-      final MemoryAccessStack stack) {
-    this(memory, trajectory, graph, type, constraints, stack, new MemorySymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -290,7 +261,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
           // Prolong the memory access path.
-          entries.add(MemoryAccessPath.Entry.NORMAL(transition, stack));
+          entries.add(MemoryAccessPath.Entry.NORMAL(
+              transition, !stack.isEmpty() ? stack.getFrame() : null));
 
           final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(stack);
 
@@ -302,24 +274,18 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             // Check whether this is a recursive memory call.
             if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
               final String frameId = String.format("call(%s_%d)", buffer.getName(), callId++);
+
+              Logger.debug("Recursive memory call %s", frameId);
               final MemoryAccessStack.Frame frame = stack.call(frameId);
+              Logger.debug("Memory call stack: %s", stack);
 
-              final MmuAddressInstance formalArg = bufferAccess.getAddress();
-              final MmuAddressInstance actualArg = bufferAccess.getArgument();
-
-              Logger.debug("Recursive memory call %s(%s = %s)",
-                  buffer.getName(), formalArg, actualArg);
-
-              final MemoryAccessPath.Entry call =
-                  MemoryAccessPath.Entry.CALL(frame, formalArg, actualArg);
-              final MemoryAccessPath.Entry ret =
-                  MemoryAccessPath.Entry.RETURN();
+              final MemoryAccessPath.Entry call = MemoryAccessPath.Entry.CALL(transition, frame);
+              final MemoryAccessPath.Entry ret = MemoryAccessPath.Entry.RETURN();
 
               newContext = new MemorySymbolicResult(context);
 
-              final MemorySymbolicExecutor callExecutor = new MemorySymbolicExecutor(newContext);
-
               // Call.
+              final MemorySymbolicExecutor callExecutor = new MemorySymbolicExecutor(newContext);
               callExecutor.execute(call, false);
 
               final MemoryAccessPathIterator innerIterator =
@@ -336,12 +302,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
                 // Update the context.
                 newContext = innerResult.getContext();
-
-                final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newContext);
-
-                // Return.
-                Logger.debug("Return from the recursive memory call");
-                returnExecutor.execute(ret, false);
               } else {
                 callId--;
 
@@ -349,7 +309,13 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
                 hasTraversed = true;
               }
 
+              // Return.
+              final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newContext);
+              returnExecutor.execute(ret, false);
+
+              Logger.debug("Return from the recursive memory call %s", frameId);
               stack.ret();
+              Logger.debug("Memory call stack: %s", stack);
             }
           }
 
