@@ -281,7 +281,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           final ImageInfo calleeInfo = getArgumentImageInfo(primitive, field);
           if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
             tokenOpc.assign(calleeInfo.getOpc());
-            tokenOpcMask.setAll();
+            tokenOpcMask.assign(calleeInfo.getOpcMask());
             hasOpc = true;
           }
         } else if (isInstanceImage(field)) {
@@ -315,7 +315,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
           if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
             tokenOpc.assign(calleeInfo.getOpc());
-            tokenOpcMask.setAll();
+            tokenOpcMask.assign(calleeInfo.getOpcMask());
             hasOpc = true;
           }
         }
