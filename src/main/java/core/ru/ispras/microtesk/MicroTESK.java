@@ -71,7 +71,7 @@ public final class MicroTESK {
         generate(options, arguments, plugins);
       } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
         disassemble(options, arguments);
-      } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXEC)) {
+      } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
         symbolicexec(options, arguments);
       } else {
         translate(options, arguments);
