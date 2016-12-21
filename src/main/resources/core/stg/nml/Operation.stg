@@ -149,8 +149,9 @@ op_param(p) ::= <<
 op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
 public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
-  <if(arg_checks)><arg_checks; separator="\n"><endif>
+  <if(arg_checks)><arg_checks; separator="\n"><\n><endif>
   <arg_names:op_arg_init(); separator="\n">
+  <if(arg_names)><\n><arg_names:{ n | addArgument("<n>", <n>);}; separator="\n"><endif>
 }
 >>
 

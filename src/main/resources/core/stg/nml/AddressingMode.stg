@@ -80,6 +80,7 @@ mode_constructor(name, param_names) ::= <<
 <if(param_names)><param_names:mode_param_def(); separator="\n"><\n><endif>
 public <name>(<param_names:{n | final Immediate <n>}; separator=", ">) {
   <param_names:{n | this.<n> = <n>;}; separator="\n">
+  <if(param_names)><\n><param_names:{n | addArgument("<n>", <n>);}; separator="\n"><endif>
 }
 >>
 
