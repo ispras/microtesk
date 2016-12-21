@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2016/12/21 MicroTESK 2.4.6 beta
+ - Improved disassembler
+ - Improved floating-point support
+ - Bug fixes and general improvements
+
 2016/12/09 MicroTESK 2.4.5 beta
  - Improved floating-point support
  - Bug fixes and general improvements
