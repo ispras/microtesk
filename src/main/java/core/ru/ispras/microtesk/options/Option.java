@@ -29,7 +29,7 @@ public enum Option {
   TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
   GENERATE("generate", "Generates test programs", false, null, "task"),
   DISASSEMBLE("disassemble", "Disassembles binary files", false, null, "task"),
-  SYMBOLIC_EXEC("symbolic-exec", "Performs symbolic execution", false, null, "task"),
+  SYMBOLIC_EXECUTE("symbolic-execute", "Performs symbolic execution", false, null, "task"),
   OUTDIR("output-dir", "Directory to place generated files", "./output"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
