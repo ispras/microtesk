@@ -42,8 +42,8 @@ class CpuBaseTemplate < Template
     # mode.
     #
     preparator(:target => 'REG') {
-      comment 'Initializer for REG'  
-      mov target, imm(value)  
+      comment 'Initializer for REG'
+      mov target, imm(value)
     }
 
     #
@@ -51,8 +51,8 @@ class CpuBaseTemplate < Template
     # to the specified memory address using the MEM addressing mode.
     #
     preparator(:target => 'MEM') {
-      comment 'Initializer for MEM'  
-      mov target, imm(value)  
+      comment 'Initializer for MEM'
+      mov target, imm(value)
     }
 
     preparator(:target => 'IMM') {
