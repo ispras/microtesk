@@ -86,6 +86,12 @@ public final class MemoryAccessStack {
     this("");
   }
 
+  public MemoryAccessStack(final MemoryAccessStack r) {
+    InvariantChecks.checkNotNull(r);
+    this.id = r.id;
+    this.stack.addAll(r.stack);
+  }
+
   public boolean isEmpty() {
     return stack.isEmpty();
   }
@@ -103,8 +109,9 @@ public final class MemoryAccessStack {
   
   public Frame call(final Frame frame) {
     InvariantChecks.checkNotNull(frame);
-    stack.push(frame);
+    InvariantChecks.checkFalse(stack.contains(frame));
 
+    stack.push(frame);
     return frame;
   }
 

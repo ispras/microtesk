@@ -55,13 +55,13 @@ public final class MemorySymbolicResult {
   private final Collection<IntegerVariable> originals;
 
   /**
-   * Maps a variable name to the variable instance number (SSA version).
+   * Maps a variable name to the variable version number.
    * 
-   * <p>The instance number is increased upon each assignment.</p>
+   * <p>The version number is increased upon each assignment.</p>
    */
-  private final Map<String, Integer> instances;
+  private final Map<String, Integer> versions;
 
-  /** Maps a variable instance name to the corresponding variable. */
+  /** Maps a name to the corresponding variable (original or version). */
   private final Map<String, IntegerVariable> cache;
 
   /** Maps a variable to the derived values (constant propagation). */
@@ -72,14 +72,14 @@ public final class MemorySymbolicResult {
       final IntegerFormula.Builder<IntegerField> formula,
       final Map<Integer, MemoryAccessStack> stacks,
       final Collection<IntegerVariable> originals,
-      final Map<String, Integer> instances,
+      final Map<String, Integer> versions,
       final Map<String, IntegerVariable> cache,
       final Map<IntegerVariable, BigInteger> constants) {
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(stacks);
     InvariantChecks.checkNotNull(originals);
-    InvariantChecks.checkNotNull(instances);
+    InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
@@ -87,7 +87,7 @@ public final class MemorySymbolicResult {
     this.formulaBuilder = formula;
     this.stacks = stacks;
     this.originals = originals;
-    this.instances = instances;
+    this.versions = versions;
     this.cache = cache;
     this.constants = constants;
   }
@@ -109,9 +109,14 @@ public final class MemorySymbolicResult {
         new IntegerFormula.Builder<>(r.formulaBuilder),
         new HashMap<>(r.stacks),
         new LinkedHashSet<>(r.originals),
-        new HashMap<>(r.instances),
+        new HashMap<>(r.versions),
         new HashMap<>(r.cache),
         new HashMap<>(r.constants));
+
+    // Clone the memory access stacks.
+    for (final Map.Entry<Integer, MemoryAccessStack> entry : r.stacks.entrySet()) {
+      stacks.put(entry.getKey(), new MemoryAccessStack(entry.getValue()));
+    }
   }
 
   public boolean hasConflict() {
@@ -124,6 +129,10 @@ public final class MemorySymbolicResult {
 
   public Collection<IntegerVariable> getVariables() {
     return variables;
+  }
+
+  public boolean containsVariable(final IntegerVariable var) {
+    return variables.contains(var);
   }
 
   public void addVariable(final IntegerVariable var) {
@@ -146,6 +155,10 @@ public final class MemorySymbolicResult {
     return originals;
   }
 
+  public boolean containsOriginalVariable(final IntegerVariable var) {
+    return originals.contains(var);
+  }
+
   public void addOriginalVariable(final IntegerVariable var) {
     originals.add(var);
   }
@@ -166,8 +179,8 @@ public final class MemorySymbolicResult {
     final Map<IntegerVariable, BigInteger> result = new HashMap<>();
 
     for (final IntegerVariable original : originals) {
-      final IntegerVariable instance = getPathVarInstance(original.getName());
-      final BigInteger constant = constants.get(instance);
+      final IntegerVariable version = getVersion(original.getName());
+      final BigInteger constant = constants.get(version);
 
       if (constant != null) {
         result.put(original, constant);
@@ -191,6 +204,10 @@ public final class MemorySymbolicResult {
   public void addClause(final IntegerClause<IntegerField> clause) {
     InvariantChecks.checkNotNull(clause);
     formulaBuilder.addClause(clause);
+  }
+
+  public MemoryAccessStack getStack() {
+    return getStack(-1);
   }
 
   public MemoryAccessStack getStack(final int pathIndex) {
@@ -218,91 +235,108 @@ public final class MemorySymbolicResult {
     }
   }
 
-  public static String getPathVarName(final String varName, final int pathIndex) {
-    InvariantChecks.checkNotNull(varName);
-    return pathIndex == -1 ? varName : String.format("%s$%d", varName, pathIndex);
+  public void includeOriginalVariables() {
+    // Add the constraints of the kind V = V(n), where n is the last version number of V.
+    addVariables(originals);
+
+    for (final IntegerVariable original : originals) {
+      final IntegerVariable version = getVersion(original.getName());
+
+      final IntegerField lhs = new IntegerField(original);
+      final IntegerField rhs = new IntegerField(version);
+
+      addEquation(lhs, rhs);
+
+      // Propagate the constant if applicable.
+      final BigInteger constant = getConstant(version);
+
+      if (constant != null) {
+        addConstant(original, constant);
+      }
+    }
   }
 
-  public static String getPathVarInstanceName(final String pathVarName, final int n) {
-    return String.format("%s(%d)", pathVarName, n);
+  public IntegerVariable getOriginal(final IntegerVariable variable, final int pathIndex) {
+    InvariantChecks.checkNotNull(variable);
+
+    final String originalName = getOriginalName(variable, pathIndex);
+    return getVariable(originalName, variable.getWidth(), variable.getValue());
   }
 
-  public int getPathVarNumber(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-    return instances.containsKey(pathVarName) ? instances.get(pathVarName) : 0;
+  public IntegerVariable getVersion(final IntegerVariable variable, final int pathIndex) {
+    InvariantChecks.checkNotNull(variable);
+
+    final String originalName = getOriginalName(variable, pathIndex);
+    final int versionNumber = getVersionNumber(originalName);
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    return getVariable(versionName, variable.getWidth(), variable.getValue());
   }
 
-  public IntegerVariable getPathVarInstance(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
-
-    return cache.get(pathVarInstanceName);
-  }
-
-  public void definePathVarInstance(final String pathVarName) {
-    InvariantChecks.checkNotNull(pathVarName);
-
-    final int n = getPathVarNumber(pathVarName);
-    instances.put(pathVarName, n + 1);
-  }
-
-  public IntegerVariable getPathVar(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    return getVariable(pathVarName, var.getWidth(), var.getValue());
-  }
-
-  public IntegerVariable getPathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n);
-
-    return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
-  }
-
-  public IntegerVariable getNextPathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
-
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    final int n = getPathVarNumber(pathVarName);
-    final String pathVarInstanceName = getPathVarInstanceName(pathVarName, n + 1);
-
-    return getVariable(pathVarInstanceName, var.getWidth(), var.getValue());
-  }
-
-  public IntegerField getPathFieldInstance(final IntegerField field, final int pathIndex) {
+  public IntegerField getVersion(final IntegerField field, final int pathIndex) {
     InvariantChecks.checkNotNull(field);
 
-    final IntegerVariable var = getPathVarInstance(field.getVariable(), pathIndex);
+    final IntegerVariable version = getVersion(field.getVariable(), pathIndex);
 
     final int lo = field.getLoIndex();
     final int hi = field.getHiIndex();
 
-    return new IntegerField(var, lo, hi);
+    return new IntegerField(version, lo, hi);
   }
 
-  public void definePathVarInstance(final IntegerVariable var, final int pathIndex) {
-    InvariantChecks.checkNotNull(var);
+  public IntegerVariable getNextVersion(final IntegerVariable variable, final int pathIndex) {
+    InvariantChecks.checkNotNull(variable);
 
-    final String pathVarName = getPathVarName(var.getName(), pathIndex);
-    definePathVarInstance(pathVarName);
+    final String originalName = getOriginalName(variable, pathIndex);
+    final int versionNumber = getVersionNumber(originalName);
+    final String nextVersionName = getVersionName(originalName, versionNumber + 1);
+
+    return getVariable(nextVersionName, variable.getWidth(), variable.getValue());
+  }
+
+  public void defineVersion(final IntegerVariable variable, final int pathIndex) {
+    InvariantChecks.checkNotNull(variable);
+
+    final String originalName = getOriginalName(variable, pathIndex);
+    final int versionNumber = getVersionNumber(originalName);
+
+    versions.put(originalName, versionNumber + 1);
+  }
+
+  private static String getOriginalName(final IntegerVariable variable, final int pathIndex) {
+    InvariantChecks.checkNotNull(variable);
+
+    final String name = variable.getName();
+    return pathIndex == -1 ? name : String.format("%s$%d", name, pathIndex);
+  }
+
+  private static String getVersionName(final String originalName, final int versionNumber) {
+    return String.format("%s(%d)", originalName, versionNumber);
+  }
+
+  private int getVersionNumber(final String originalName) {
+    InvariantChecks.checkNotNull(originalName);
+    return versions.containsKey(originalName) ? versions.get(originalName) : 0;
+  }
+
+  private IntegerVariable getVersion(final String originalName) {
+    InvariantChecks.checkNotNull(originalName);
+
+    final int versionNumber = getVersionNumber(originalName);
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    return cache.get(versionName);
   }
 
   private IntegerVariable getVariable(
-      final String varInstanceName, final int width, final BigInteger value) {
-    InvariantChecks.checkNotNull(varInstanceName);
+      final String variableName, final int width, final BigInteger value) {
+    InvariantChecks.checkNotNull(variableName);
 
-    IntegerVariable varInstance = cache.get(varInstanceName);
-    if (varInstance == null) {
-      cache.put(varInstanceName,
-          varInstance = new IntegerVariable(varInstanceName, width, value));
+    IntegerVariable variable = cache.get(variableName);
+    if (variable == null) {
+      cache.put(variableName, variable = new IntegerVariable(variableName, width, value));
     }
 
-    return varInstance;
+    return variable;
   }
 }

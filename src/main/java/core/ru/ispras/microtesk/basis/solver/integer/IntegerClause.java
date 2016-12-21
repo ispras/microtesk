@@ -15,12 +15,10 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -49,7 +47,7 @@ public final class IntegerClause<V> {
     /** The clause type: {@code AND} or {@code OR}. */
     private final Type type;
     /** The clause equations. */
-    private final List<IntegerEquation<V>> equations = new ArrayList<>();
+    private final Collection<IntegerEquation<V>> equations = new LinkedHashSet<>();
 
     /**
      * Constructs a clause builder.
@@ -80,6 +78,15 @@ public final class IntegerClause<V> {
      */
     public Type getType() {
       return type;
+    }
+
+    /**
+     * Checks whether there are no equations.
+     * 
+     * @return {@code true} if there are no equations; {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+      return equations.isEmpty();
     }
 
     /**

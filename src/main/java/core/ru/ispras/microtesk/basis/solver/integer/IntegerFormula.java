@@ -15,11 +15,9 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -34,7 +32,7 @@ public final class IntegerFormula<V> {
    */
   public static final class Builder<V> {
     /** AND-connected clauses of the OR type. */
-    private final List<IntegerClause<V>> clauses = new ArrayList<>();
+    private final Collection<IntegerClause<V>> clauses = new LinkedHashSet<>();
 
     /**
      * Constructs a formula builder.
@@ -183,6 +181,15 @@ public final class IntegerFormula<V> {
    */
   public IntegerFormula(final IntegerFormula<V> rhs) {
     this(rhs.clauses);
+  }
+
+  /**
+   * Checks whether there are no clauses.
+   * 
+   * @return {@code true} if there are no clauses; {@code false} otherwise.
+   */
+  public boolean isEmpty() {
+    return clauses.isEmpty();
   }
 
   /**

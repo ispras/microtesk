@@ -466,6 +466,10 @@ public final class MemoryAccessPath {
     this.lastEntry = entry;
   }
 
+  public int size() {
+    return entries.size();
+  }
+
   public Entry getFirstEntry() {
     return firstEntry;
   }

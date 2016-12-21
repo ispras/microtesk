@@ -24,7 +24,10 @@ import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
+import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -55,65 +58,42 @@ public final class MemorySymbolicExecutor {
     this.result = result;
   }
 
+  public MemorySymbolicResult getResult() {
+    return result;
+  }
+
   public MemorySymbolicExecutor() {
     this(new MemorySymbolicResult());
   }
 
-  public MemorySymbolicResult execute(final MemoryAccessPath.Entry entry, final boolean finalize) {
-    InvariantChecks.checkNotNull(entry);
-
-    execute(entry);
-
-    if (finalize) {
-      includeOriginalVariables();
-    }
-
-    return result;
+  public void execute(final IntegerConstraint<IntegerField> constraint) {
+    InvariantChecks.checkNotNull(constraint);
+    execute(constraint, -1);
   }
 
-  public MemorySymbolicResult execute(final MemoryAccessPath path, final boolean finalize) {
+  public void execute(final MemoryAccessPath.Entry entry) {
+    InvariantChecks.checkNotNull(entry);
+    execute(entry, -1);
+  }
+
+  public void execute(final MemoryAccessPath path, final boolean finalize) {
     InvariantChecks.checkNotNull(path);
 
-    execute(path);
+    execute(path, -1);
 
     if (finalize) {
-      includeOriginalVariables();
+      result.includeOriginalVariables();
     }
-
-    return result;
   }
 
-  public MemorySymbolicResult execute(final MemoryAccessStructure structure, final boolean finalize) {
+  public void execute(final MemoryAccessStructure structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
 
     execute(structure);
 
     if (finalize) {
-      includeOriginalVariables();
-    }
-
-    return result;
-  }
-
-  private void includeOriginalVariables() {
-    // Add the constraints of the kind V = V(n), where n is the last instance number of V.
-    result.addVariables(result.getOriginalVariables());
-
-    for (final IntegerVariable original : result.getOriginalVariables()) {
-      final IntegerVariable instance = result.getPathVarInstance(original.getName());
-
-      final IntegerField lhs = new IntegerField(original);
-      final IntegerField rhs = new IntegerField(instance);
-
-      result.addEquation(lhs, rhs);
-
-      // Propagate the constant if applicable.
-      final BigInteger constant = result.getConstant(instance);
-
-      if (constant != null) {
-        result.addConstant(original, constant);
-      }
+      result.includeOriginalVariables();
     }
   }
 
@@ -133,14 +113,6 @@ public final class MemorySymbolicExecutor {
 
       execute(path2, j);
     }
-  }
-
-  private void execute(final MemoryAccessPath path) {
-    execute(path, -1);
-  }
-
-  private void execute(final MemoryAccessPath.Entry entry) {
-    execute(entry, -1);
   }
 
   private void execute(final MemoryAccessPath path, final int pathIndex) {
@@ -205,20 +177,57 @@ public final class MemorySymbolicExecutor {
         final IntegerField term1 = stack1.getInstance(term);
         final IntegerField term2 = stack2.getInstance(term);
 
-        final IntegerField field1 = result.getPathFieldInstance(term1, pathIndex1);
-        final IntegerField field2 = result.getPathFieldInstance(term2, pathIndex2);
+        final IntegerField field1 = result.getVersion(term1, pathIndex1);
+        final IntegerField field2 = result.getVersion(term2, pathIndex2);
 
         clauseBuilder.addEquation(field1, field2, !atom.isNegated());
 
         result.addVariable(field1.getVariable());
-        result.addOriginalVariable(result.getPathVar(term1.getVariable(), pathIndex1));
+        result.addOriginalVariable(result.getOriginal(term1.getVariable(), pathIndex1));
 
         result.addVariable(field2.getVariable());
-        result.addOriginalVariable(result.getPathVar(term2.getVariable(), pathIndex2));
+        result.addOriginalVariable(result.getOriginal(term2.getVariable(), pathIndex2));
       }
     }
 
     result.addClause(clauseBuilder.build());
+  }
+
+  private void execute(final IntegerConstraint<IntegerField> constraint, final int pathIndex) {
+    final IntegerFormula<IntegerField> formula = constraint.getFormula();
+
+    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
+      final IntegerClause.Builder<IntegerField> clauseBuilder =
+          new IntegerClause.Builder<>(clause.getType());
+
+      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
+        final IntegerVariable variable = equation.lhs.getVariable();
+
+        // Do not add the assertion if there are no corresponding variables.
+        if (!result.containsOriginalVariable(result.getOriginal(variable, pathIndex))) {
+          if (clause.getType() == IntegerClause.Type.OR) {
+            clauseBuilder.clear();
+            break;
+          } else {
+            continue;
+          }
+        }
+
+        if (equation.val == null) {
+          clauseBuilder.addEquation(
+              result.getVersion(equation.lhs, pathIndex),
+              result.getVersion(equation.rhs, pathIndex), equation.equal);
+        } else {
+          clauseBuilder.addEquation(
+              result.getVersion(equation.lhs, pathIndex),
+              equation.val, equation.equal);
+        }
+      }
+
+      if (!clauseBuilder.isEmpty()) {
+        result.addClause(clauseBuilder.build());
+      }
+    }
   }
 
   private void execute(final MemoryAccessPath.Entry entry, final int pathIndex) {
@@ -341,7 +350,7 @@ public final class MemorySymbolicExecutor {
           final int lo = offset;
           final int hi = offset + (term.getWidth() - 1);
 
-          final IntegerField field = result.getPathFieldInstance(term, pathIndex);
+          final IntegerField field = result.getVersion(term, pathIndex);
           final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
 
           // Check whether the field's value is known (via constant propagation).
@@ -380,7 +389,7 @@ public final class MemorySymbolicExecutor {
           offset += term.getWidth();
 
           result.addVariable(field.getVariable());
-          result.addOriginalVariable(result.getPathVar(term.getVariable(), pathIndex));
+          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
         }
         break;
 
@@ -393,16 +402,16 @@ public final class MemorySymbolicExecutor {
           final IntegerField rhsTerm = rhsExpr.getTerms().get(i);
           InvariantChecks.checkTrue(lhsTerm.getWidth() == rhsTerm.getWidth());
 
-          final IntegerField lhsField = result.getPathFieldInstance(lhsTerm, pathIndex);
-          final IntegerField rhsField = result.getPathFieldInstance(rhsTerm, pathIndex);
+          final IntegerField lhsField = result.getVersion(lhsTerm, pathIndex);
+          final IntegerField rhsField = result.getVersion(rhsTerm, pathIndex);
 
           clauseBuilder.addEquation(lhsField, rhsField, !atom.isNegated());
 
           result.addVariable(lhsField.getVariable());
           result.addVariable(rhsField.getVariable());
 
-          result.addOriginalVariable(result.getPathVar(lhsTerm.getVariable(), pathIndex));
-          result.addOriginalVariable(result.getPathVar(rhsTerm.getVariable(), pathIndex));
+          result.addOriginalVariable(result.getOriginal(lhsTerm.getVariable(), pathIndex));
+          result.addOriginalVariable(result.getOriginal(rhsTerm.getVariable(), pathIndex));
         }
         break;
 
@@ -424,13 +433,13 @@ public final class MemorySymbolicExecutor {
       final IntegerField lhs = binding.getLhs();
       final MmuExpression rhs = binding.getRhs();
 
-      final IntegerVariable oldLhsVar = result.getPathVarInstance(lhs.getVariable(), pathIndex);
+      final IntegerVariable oldLhsVar = result.getVersion(lhs.getVariable(), pathIndex);
 
       result.addVariable(oldLhsVar);
-      result.addOriginalVariable(result.getPathVar(lhs.getVariable(), pathIndex));
+      result.addOriginalVariable(result.getOriginal(lhs.getVariable(), pathIndex));
 
       if (rhs != null) {
-        final IntegerVariable newLhsVar = result.getNextPathVarInstance(lhs.getVariable(), pathIndex);
+        final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
         result.addVariable(newLhsVar);
 
         final List<IntegerField> rhsTerms = new ArrayList<>();
@@ -448,7 +457,7 @@ public final class MemorySymbolicExecutor {
 
         // Equation of the middle part.
         for (final IntegerField term : rhs.getTerms()) {
-          final IntegerField field = result.getPathFieldInstance(term, pathIndex);
+          final IntegerField field = result.getVersion(term, pathIndex);
 
           final int lo = offset;
           final int hi = offset + (field.getWidth() - 1);
@@ -459,7 +468,7 @@ public final class MemorySymbolicExecutor {
           offset += field.getWidth();
 
           result.addVariable(field.getVariable());
-          result.addOriginalVariable(result.getPathVar(term.getVariable(), pathIndex));
+          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
         }
 
         if (offset <= lhs.getHiIndex()) {
@@ -478,7 +487,7 @@ public final class MemorySymbolicExecutor {
           rhsTerms.add(oldLhsPost);
         }
 
-        result.definePathVarInstance(lhs.getVariable(), pathIndex);
+        result.defineVersion(lhs.getVariable(), pathIndex);
 
         // Try to propagate constants.
         final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);

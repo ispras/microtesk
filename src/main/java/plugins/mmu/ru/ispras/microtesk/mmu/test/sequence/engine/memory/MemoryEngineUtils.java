@@ -41,6 +41,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
@@ -97,12 +98,51 @@ public final class MemoryEngineUtils {
     return value == false;
   }
 
+  private static boolean checkBufferConstraints(
+      final MemoryAccessPath.Entry entry,
+      final MemoryAccessStack stack,
+      final Collection<BufferEventConstraint> bufferConstraints) {
+
+    final MmuTransition transition = entry.getTransition();
+    if (transition == null) {
+      return true;
+    }
+
+    final MmuGuard guard = transition.getGuard();
+    if (guard == null) {
+      return true;
+    }
+
+    final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
+    if (bufferAccess == null) {
+      return true;
+    }
+
+    final BufferAccessEvent bufferAccessEvent = guard.getEvent();
+    if (bufferAccessEvent == null) {
+      return true;
+    }
+
+    for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
+      final MmuBuffer buffer = bufferConstraint.getBuffer();
+      final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
+
+      if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccessEvent)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public static boolean isFeasibleEntry(
       final MemoryAccessPath.Entry entry,
       final MemoryAccessStack stack,
+      final MemoryAccessConstraints constraints,
       final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(stack);
+    InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
     final MmuTransition transition = entry.getTransition();
@@ -110,11 +150,11 @@ public final class MemoryEngineUtils {
 
     final MmuGuard guard = transition.getGuard();
 
-    final MmuCondition condition = guard != null
+    final MmuCondition condition = (guard != null)
         ? guard.getCondition(stack)
         : null;
 
-    final Boolean value = condition != null
+    final Boolean value = (condition != null)
         ? MmuCalculator.eval(condition, partialResult.getOriginalConstants())
         : new Boolean(true);
 
@@ -123,21 +163,31 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(partialResult);
+    final Collection<BufferEventConstraint> bufferConstraints = constraints.getBufferEvents();
+    if (!checkBufferConstraints(entry, stack, bufferConstraints)) {
+      return false;
+    }
 
-    final MemorySymbolicResult symbolicResult = symbolicExecutor.execute(entry, false);
+    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(partialResult);
+    symbolicExecutor.execute(entry);
 
     // True should be return after symbolic execution.
     if (value != null && value == true) {
       return true;
     }
 
-    if (symbolicResult.hasConflict()) {
+    if (partialResult.hasConflict()) {
       return false;
     }
 
+    final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
+
+    for (final IntegerConstraint<IntegerField> integerConstraint : integerConstraints) {
+      symbolicExecutor.execute(integerConstraint);
+    }
+
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(transition, symbolicResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(transition, partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -145,26 +195,33 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleTransition(
       final MmuTransition transition,
       final MemoryAccessStack stack,
+      final MemoryAccessConstraints constraints,
       final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(stack);
+    InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
     final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
-    return isFeasibleEntry(MemoryAccessPath.Entry.NORMAL(transition, frame), stack, partialResult);
+    final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(transition, frame);
+
+    return isFeasibleEntry(entry, stack, constraints, partialResult);
   }
 
   public static boolean isFeasibleTransition(
       final MmuTransition transition,
       final MemoryAccessType type,
       final MemoryAccessStack stack,
+      final MemoryAccessConstraints constraints,
       final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(stack);
+    InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
     return isValidTransition(transition, type)
-        && isFeasibleTransition(transition, stack, partialResult);
+        && isFeasibleTransition(transition, stack, constraints, partialResult);
   }
 
   public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {
@@ -182,17 +239,17 @@ public final class MemoryEngineUtils {
     return true;
   }
 
-  public static boolean isEnabledPath(
+  private static boolean checkBufferConstraints(
       final MemoryAccessPath path,
-      final Collection<BufferEventConstraint> constraints) {
+      final Collection<BufferEventConstraint> bufferConstraints) {
     InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(constraints);
+    InvariantChecks.checkNotNull(bufferConstraints);
 
-    for (final BufferEventConstraint constraint : constraints) {
-      final MmuBuffer buffer = constraint.getBuffer();
+    for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
+      final MmuBuffer buffer = bufferConstraint.getBuffer();
       InvariantChecks.checkNotNull(buffer);
 
-      final Set<BufferAccessEvent> events = constraint.getEvents();
+      final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
       InvariantChecks.checkNotNull(events);
 
       if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
@@ -228,19 +285,13 @@ public final class MemoryEngineUtils {
     }
 
     final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
-
-    if (bufferEventConstraints != null) {
-      if (!isEnabledPath(path, bufferEventConstraints)) {
-        return false;
-      }
+    if (!checkBufferConstraints(path, bufferEventConstraints)) {
+      return false;
     }
 
     final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
-
-    if (integerConstraints != null) {
-      if (!isFeasiblePath(path, integerConstraints)) {
-        return false;
-      }
+    if (!isFeasiblePath(path, integerConstraints)) {
+      return false;
     }
 
     return true;
@@ -325,7 +376,9 @@ public final class MemoryEngineUtils {
 
     if (!path.hasSymbolicResult()) {
       final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
-      path.setSymbolicResult(symbolicExecutor.execute(path, true));
+
+      symbolicExecutor.execute(path, true);
+      path.setSymbolicResult(symbolicExecutor.getResult());
     }
 
     final MemorySymbolicResult symbolicResult = path.getSymbolicResult();
@@ -409,10 +462,9 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(mode);
 
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
+    symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
-    final MemorySymbolicResult symbolicResult =
-        symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
-
+    final MemorySymbolicResult symbolicResult = symbolicExecutor.getResult();
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
