@@ -137,7 +137,7 @@ op J (target : INDEX)
 // Transfers control to the specified address if source equals 0.
 op JZ (source: OPRNDL, target : INDEX)
   syntax = format("jz %<label>d", target)
-  image  = format("111%b", target)
+  image  = format("111%s%b", source.image, target)
   action = {
     if source == 0 then
       PC = target;
