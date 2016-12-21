@@ -67,7 +67,8 @@ public final class SymbolicExecutor {
 
     @Override
     public void add(final IsaPrimitive primitive) {
-      final String text = primitive.syntax(tempVars);
+      final String syntax = primitive.syntax(tempVars);
+      final String text = syntax.replaceAll("<label>", "");
       Logger.debug(text);
       instructions.add(primitive);
     }
