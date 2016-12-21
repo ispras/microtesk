@@ -72,7 +72,7 @@ public final class MicroTESK {
       } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
         disassemble(options, arguments);
       } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
-        symbolicexec(options, arguments);
+        symbolicExecute(options, arguments);
       } else {
         translate(options, arguments);
       }
@@ -180,7 +180,7 @@ public final class MicroTESK {
     }
   }
 
-  private static void symbolicexec(final Options options, final String[] arguments) {
+  private static void symbolicExecute(final Options options, final String[] arguments) {
     if (arguments.length != 2) {
       Logger.error("Wrong number of generator arguments. Two arguments are required.");
       Logger.message("Argument format: <model name>, <input file>");
