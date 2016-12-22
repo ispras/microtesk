@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.decoder;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -84,8 +83,12 @@ public final class Disassembler {
 
     final String fileExt = options.getValueAsString(Option.CODE_EXT);
     final String fileShortName = FileUtils.getShortFileNameNoExt(fileName);
-    final PrintWriter writer = newWriter(getOutDir(options), fileShortName, fileExt);
-    if (null == writer) {
+
+    final PrintWriter writer;
+    try {
+      writer = FileUtils.newPrintWriter(getOutDir(options), fileShortName, fileExt);
+    } catch (final IOException e) {
+      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
       return false;
     }
 
@@ -96,7 +99,7 @@ public final class Disassembler {
         final TemporaryVariables tempVars = model.getTempVars();
         return new OutputImpl(writer, tempVars);
       }
-    }; 
+    };
 
     return disassemble(modelName, fileName, outputFactory);
   }
@@ -152,28 +155,6 @@ public final class Disassembler {
       return new BinaryReader(file);
     } catch (final IOException e) {
       Logger.error("Failed to open input file. Reason: %s.", e.getMessage());
-      return null;
-    }
-  }
-
-  private static PrintWriter newWriter(
-      final String path,
-      final String name,
-      final String ext) {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(ext);
-
-    final File file = new File(path, name + "." + ext);
-    final File fileParent = file.getParentFile();
-    if (null != fileParent) {
-      fileParent.mkdirs();
-    }
-
-    try {
-      return new PrintWriter(new FileWriter(file));
-    } catch (final IOException e) {
-      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
       return null;
     }
   }
