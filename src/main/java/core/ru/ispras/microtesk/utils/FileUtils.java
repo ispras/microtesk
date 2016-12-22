@@ -17,9 +17,11 @@ package ru.ispras.microtesk.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -103,5 +105,22 @@ public final class FileUtils {
         out.write(buf, 0, length);
       }
     }
+  }
+
+  public static PrintWriter newPrintWriter(
+      final String path,
+      final String name,
+      final String ext) throws IOException {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(ext);
+
+    final File file = new File(path, name + "." + ext);
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
+    }
+
+    return new PrintWriter(new FileWriter(file));
   }
 }
