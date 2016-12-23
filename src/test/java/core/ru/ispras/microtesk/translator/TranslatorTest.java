@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import ru.ispras.microtesk.utils.FileUtils;
  *
  * @param <Ir> The type of the internal representation (IR) created by the translator.
  */
-
 public abstract class TranslatorTest<Ir> {
 
   private final class LogChecker extends LogStoreListener {
@@ -71,6 +70,6 @@ public abstract class TranslatorTest<Ir> {
 
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
-    translator.start(fileNames);
+    translator.translate(null, null, fileNames);
   }
 }

@@ -136,22 +136,8 @@ public final class MicroTESK {
   private static boolean translate(final Options options, final String[] arguments) {
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
-      if (options.hasValue(Option.INCLUDE)) {
-        translator.addPath(options.getValueAsString(Option.INCLUDE));
-      }
-
-      translator.setOutDir(options.getValueAsString(Option.OUTDIR));
-      translator.setContext(context);
-
-      for (final String fileName : arguments) {
-        final String fileDir = FileUtils.getFileDir(fileName);
-        if (null != fileDir) {
-          translator.addPath(fileDir);
-        }
-      }
-
-      if (!translator.start(arguments)) {
-        Logger.error("TRANSLATION WAS ABORTED");
+      if (!translator.translate(options, context, arguments)) {
+        Logger.message("Translation was aborted.");
         return false;
       }
     }

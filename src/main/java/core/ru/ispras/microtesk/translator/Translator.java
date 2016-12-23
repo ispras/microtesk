@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,6 +25,8 @@ import org.antlr.runtime.TokenSource;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
 import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
@@ -133,7 +135,26 @@ public abstract class Translator<Ir> {
     return source;
   }
 
-  public final boolean start(final String... fileNames) {
+  public final boolean translate(
+      final Options options,
+      final TranslatorContext context,
+      final String... fileNames) {
+    if (null != options) {
+      if (options.hasValue(Option.INCLUDE)) {
+        addPath(options.getValueAsString(Option.INCLUDE));
+      }
+      setOutDir(options.getValueAsString(Option.OUTDIR));
+    }
+
+    setContext(context);
+
+    for (final String fileName : fileNames) {
+      final String fileDir = FileUtils.getFileDir(fileName);
+      if (null != fileDir) {
+        addPath(fileDir);
+      }
+    }
+
     final List<String> filteredFileNames = new ArrayList<>();
 
     for (final String fileName : fileNames) {
