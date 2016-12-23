@@ -53,7 +53,7 @@ public final class MicroTESK {
       } catch (final Exception e) {
         Logger.error("Incorrect command line: " + e.getMessage());
         Logger.message(optionReader.getHelpText());
-        return;
+        exitWithError();
       }
 
       final Options options = optionReader.getOptions();
@@ -69,11 +69,17 @@ public final class MicroTESK {
       final List<Plugin> plugins = Config.loadPlugins();
       registerPlugins(plugins);
 
-      runTask(options, arguments, plugins);
+      if (!runTask(options, arguments, plugins)) {
+        exitWithError();
+      }
     } catch (final Throwable e) {
       Logger.exception(e);
-      System.exit(-1);
+      exitWithError();
     }
+  }
+
+  private static void exitWithError() {
+    System.exit(-1);
   }
 
   private static void registerPlugins(final List<Plugin> plugins) {
@@ -112,22 +118,22 @@ public final class MicroTESK {
     }
   }
 
-  private static void runTask(
+  private static boolean runTask(
       final Options options,
       final String[] arguments,
       final List<Plugin> plugins) throws Throwable {
     if (options.getValueAsBoolean(Option.GENERATE)) {
-      generate(options, arguments, plugins);
+      return generate(options, arguments, plugins);
     } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
-      disassemble(options, arguments);
+      return disassemble(options, arguments);
     } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
-      symbolicExecute(options, arguments);
+      return symbolicExecute(options, arguments);
     } else {
-      translate(options, arguments);
+      return translate(options, arguments);
     }
   }
 
-  private static void translate(final Options options, final String[] arguments) {
+  private static boolean translate(final Options options, final String[] arguments) {
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
       if (options.hasValue(Option.INCLUDE)) {
@@ -146,7 +152,7 @@ public final class MicroTESK {
 
       if (!translator.start(arguments)) {
         Logger.error("TRANSLATION WAS ABORTED");
-        return;
+        return false;
       }
     }
 
@@ -157,7 +163,7 @@ public final class MicroTESK {
 
       if (!extensionDirFile.exists() || !extensionDirFile.isDirectory()) {
         Logger.error("The extension folder %s does not exists or is not a folder.", extensionDir);
-        return;
+        return false;
       }
 
       final String outDir = options.getValueAsString(Option.OUTDIR) + "/src/java";
@@ -168,49 +174,52 @@ public final class MicroTESK {
         Logger.message("Copied %s to %s", extensionDir, outDir);
       } catch (final IOException e) {
         Logger.error("Failed to copy %s to %s", extensionDir, outDir);
+        return false;
       }
     }
+
+    return true;
   }
 
-  private static void disassemble(final Options options, final String[] arguments) {
-    if (arguments.length != 2) {
-      Logger.error("Wrong number of generator arguments. Two arguments are required.");
-      Logger.message("Argument format: <model name>, <input file>");
-      return;
+  private static boolean disassemble(final Options options, final String[] arguments) {
+    if (!checkTwoArguments(arguments)) {
+      return false;
     }
 
     final String modelName = arguments[0];
     final String inputFile = arguments[1];
 
-    if (!Disassembler.disassemble(options, modelName, inputFile)) {
-      Logger.message("Disassembling is aborted.");
+    final boolean result = Disassembler.disassemble(options, modelName, inputFile);
+    if (!result) {
+      Logger.message("Disassembling was aborted.");
     }
+
+    return result;
   }
 
-  private static void symbolicExecute(final Options options, final String[] arguments) {
-    if (arguments.length != 2) {
-      Logger.error("Wrong number of generator arguments. Two arguments are required.");
-      Logger.message("Argument format: <model name>, <input file>");
-      return;
+  private static boolean symbolicExecute(final Options options, final String[] arguments) {
+    if (!checkTwoArguments(arguments)) {
+      return false;
     }
 
     final String modelName = arguments[0];
     final String inputFile = arguments[1];
 
-    if (!SymbolicExecutor.execute(options, modelName, inputFile)) {
-      Logger.message("Symbolic execution is aborted.");
+    final boolean result = SymbolicExecutor.execute(options, modelName, inputFile);
+    if (!result) {
+      Logger.message("Symbolic execution was aborted.");
     }
+
+    return result;
   }
 
-  private static void generate(
+  private static boolean generate(
       final Options options,
       final String[] arguments,
       final List<Plugin> plugins) throws Throwable {
 
-    if (arguments.length != 2) {
-      Logger.error("Wrong number of generator arguments. Two arguments are required.");
-      Logger.message("Argument format: <model name>, <template file>");
-      return;
+    if (!checkTwoArguments(arguments)) {
+      return false;
     }
 
     final String modelName = arguments[0];
@@ -242,19 +251,19 @@ public final class MicroTESK {
         Logger.error("Failed to start generation. " +
                      "The --%s option does not contain path to settings for %s.",
                      Option.ARCH_DIRS.getName(), modelName);
-        return;
+        return false;
       }
     } else {
       Logger.error("Failed to start generation. The --%s option is not specified.",
                     Option.ARCH_DIRS.getName());
-      return;
+      return false;
     }
 
     final Statistics statistics =
         TestEngine.generate(options, settings, modelName, templateFile, plugins);
 
     if (null == statistics) {
-      return;
+      return false;
     }
 
     final long totalTime = statistics.getTotalTime();
@@ -289,7 +298,20 @@ public final class MicroTESK {
     if (genRate < rateLimit && statistics.getInstructions() >= 1000) { 
       // Makes sense only for sequences of significant length (>= 1000)
       Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
-      System.exit(-1);
+      return false;
     }
+
+    return true;
+  }
+
+  private static boolean checkTwoArguments(final String[] arguments) {
+    if (arguments.length == 2) {
+      return true;
+    }
+
+    Logger.error("Wrong number of command-line arguments. Two are required.");
+    Logger.message("Argument format: <model name>, <input file>");
+
+    return false;
   }
 }
