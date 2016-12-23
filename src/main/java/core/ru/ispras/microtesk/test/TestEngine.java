@@ -39,6 +39,7 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Block;
@@ -115,9 +116,8 @@ public final class TestEngine {
     return settings;
   }
 
-  public static Statistics generate(
+  public static boolean generate(
       final Options options,
-      final GeneratorSettings settings,
       final String modelName,
       final String templateFile,
       final List<Plugin> plugins) throws Throwable {
@@ -135,7 +135,13 @@ public final class TestEngine {
     } catch (final Exception e) {
       Logger.error(e.getMessage());
       reportAborted("Failed to load the %s model.", modelName);
-      return null;
+      return false;
+    }
+
+    final GeneratorSettings settings = readSettings(options, modelName);
+    if (null == settings) {
+      reportAborted("Failed to load generation settings for %s.", modelName);
+      return false;
     }
 
     setRandomSeed(options.getValueAsInteger(Option.RANDOM));
@@ -143,10 +149,49 @@ public final class TestEngine {
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
     instance = new TestEngine(model, options, settings, plugins, statistics);
-    return instance.processTemplate(templateFile);
+    if  (!instance.processTemplate(templateFile)) {
+      return false;
+    }
+
+    final long totalTime = statistics.getTotalTime();
+    final long genTime = totalTime - statistics.getTimeMetric(Statistics.Activity.INITIALIZING);
+    final long genRate = (1000 * statistics.getInstructions()) / genTime;
+
+    Logger.message("Generation Statistics");
+    Logger.message("Generation time: %s", Statistics.timeToString(genTime));
+    Logger.message("Generation rate: %d instructions/second", genRate);
+
+    Logger.message("Programs/stimuli/instructions: %d/%d/%d",
+        statistics.getPrograms(), statistics.getSequences(), statistics.getInstructions());
+
+    if (options.getValueAsBoolean(Option.TIME_STATISTICS)) {
+      Logger.message(System.lineSeparator() + "Time Statistics");
+
+      Logger.message("Total time: %s", Statistics.timeToString(totalTime));
+      Logger.message(statistics.getTimeMetricText(Statistics.Activity.INITIALIZING));
+
+      final long genPercentage = (genTime * 10000) / totalTime;
+      Logger.message("Generation time: %s (%d.%d%%)",
+          Statistics.timeToString(genTime), genPercentage / 100, genPercentage % 100);
+
+      for (final Statistics.Activity activity : Statistics.Activity.values()) {
+        if (activity != Statistics.Activity.INITIALIZING) {
+          Logger.message("  " + statistics.getTimeMetricText(activity));
+        }
+      }
+    }
+
+    final long rateLimit = options.getValueAsInteger(Option.RATE_LIMIT);
+    if (genRate < rateLimit && statistics.getInstructions() >= 1000) { 
+      // Makes sense only for sequences of significant length (>= 1000)
+      Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
+      return false;
+    }
+
+    return true;
   }
 
-  private Statistics processTemplate(final String templateFile) throws Throwable {
+  private boolean processTemplate(final String templateFile) throws Throwable {
     final String scriptsPath = String.format(
         "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
 
@@ -163,10 +208,11 @@ public final class TestEngine {
         throw e.getCause();
       } catch (final GenerationAbortedException e2) {
         handleGenerationAborted(e2);
+        return false;
       }
     }
 
-    return statistics;
+    return true;
   }
 
   private void handleGenerationAborted(final GenerationAbortedException e) {
@@ -224,6 +270,39 @@ public final class TestEngine {
     return new Template(context, processor);
   }
 
+  private static GeneratorSettings readSettings(final Options options, final String modelName) {
+    if (!options.hasValue(Option.ARCH_DIRS)) {
+      Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
+      return null;
+    }
+
+    final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+    final String[] archDirsArray = archDirs.split(":");
+
+    GeneratorSettings settings = null;
+    for (final String archDir : archDirsArray) {
+      final String[] archDirArray = archDir.split("=");
+
+      if (archDirArray != null && archDirArray.length > 1 && modelName.equals(archDirArray[0])) {
+        final File archFile = new File(archDirArray[1]);
+
+        final String archPath = archFile.isAbsolute() ?
+            archDirArray[1] :
+            String.format("%s%s%s", SysUtils.getHomeDir(), File.separator, archDirArray[1]); 
+
+        settings = SettingsParser.parse(archPath);
+        break;
+      }
+    }
+
+    if (null == settings) {
+      Logger.error("The --%s option does not contain path to settings for %s.",
+          Option.ARCH_DIRS.getName(), modelName);
+    }
+
+    return settings;
+  }
+
   public void process(final Template template) throws ConfigurationException, IOException {
     template.getProcessor().finish();
 
@@ -275,7 +354,7 @@ public final class TestEngine {
 
   private static void reportAborted(final String format, final Object... args) {
     Logger.error(format, args);
-    Logger.message("Generation Aborted");
+    Logger.message("Generation was aborted.");
   }
 
   private static void setRandomSeed(int seed) {

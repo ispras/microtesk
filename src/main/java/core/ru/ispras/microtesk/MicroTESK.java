@@ -24,10 +24,7 @@ import ru.ispras.microtesk.decoder.Disassembler;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
-import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.symexec.SymbolicExecutor;
-import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
@@ -184,12 +181,12 @@ public final class MicroTESK {
     final String modelName = arguments[0];
     final String inputFile = arguments[1];
 
-    final boolean result = Disassembler.disassemble(options, modelName, inputFile);
-    if (!result) {
+    if (!Disassembler.disassemble(options, modelName, inputFile)) {
       Logger.message("Disassembling was aborted.");
+      return false;
     }
 
-    return result;
+    return true;
   }
 
   private static boolean symbolicExecute(final Options options, final String[] arguments) {
@@ -200,19 +197,18 @@ public final class MicroTESK {
     final String modelName = arguments[0];
     final String inputFile = arguments[1];
 
-    final boolean result = SymbolicExecutor.execute(options, modelName, inputFile);
-    if (!result) {
+    if (!SymbolicExecutor.execute(options, modelName, inputFile)) {
       Logger.message("Symbolic execution was aborted.");
+      return false;
     }
 
-    return result;
+    return true;
   }
 
   private static boolean generate(
       final Options options,
       final String[] arguments,
       final List<Plugin> plugins) throws Throwable {
-
     if (!checkTwoArguments(arguments)) {
       return false;
     }
@@ -220,79 +216,7 @@ public final class MicroTESK {
     final String modelName = arguments[0];
     final String templateFile = arguments[1];
 
-    GeneratorSettings settings = null;
-    if (options.hasValue(Option.ARCH_DIRS)) {
-      final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-      final String[] archDirsArray = archDirs.split(":");
-
-      boolean isFound = false;
-      for (final String archDir : archDirsArray) {
-        final String[] archDirArray = archDir.split("=");
-
-        if (archDirArray != null && archDirArray.length > 1 && modelName.equals(archDirArray[0])) {
-          final File archFile = new File(archDirArray[1]);
-
-          final String archPath = archFile.isAbsolute() ? archDirArray[1] : String.format("%s%s%s",
-              SysUtils.getHomeDir(), File.separator, archDirArray[1]); 
-
-          settings = SettingsParser.parse(archPath);
-
-          isFound = true;
-          break;
-        }
-      }
-
-      if (!isFound) {
-        Logger.error("Failed to start generation. " +
-                     "The --%s option does not contain path to settings for %s.",
-                     Option.ARCH_DIRS.getName(), modelName);
-        return false;
-      }
-    } else {
-      Logger.error("Failed to start generation. The --%s option is not specified.",
-                    Option.ARCH_DIRS.getName());
-      return false;
-    }
-
-    final Statistics statistics =
-        TestEngine.generate(options, settings, modelName, templateFile, plugins);
-
-    if (null == statistics) {
-      return false;
-    }
-
-    final long totalTime = statistics.getTotalTime();
-    final long genTime = totalTime - statistics.getTimeMetric(Statistics.Activity.INITIALIZING);
-    final long genRate = (1000 * statistics.getInstructions()) / genTime;
-
-    Logger.message("Generation Statistics");
-    Logger.message("Generation time: %s", Statistics.timeToString(genTime));
-    Logger.message("Generation rate: %d instructions/second", genRate);
-
-    Logger.message("Programs/stimuli/instructions: %d/%d/%d",
-        statistics.getPrograms(), statistics.getSequences(), statistics.getInstructions());
-
-    if (options.getValueAsBoolean(Option.TIME_STATISTICS)) {
-      Logger.message(System.lineSeparator() + "Time Statistics");
-
-      Logger.message("Total time: %s", Statistics.timeToString(totalTime));
-      Logger.message(statistics.getTimeMetricText(Statistics.Activity.INITIALIZING));
-
-      final long genPercentage = (genTime * 10000) / totalTime;
-      Logger.message("Generation time: %s (%d.%d%%)",
-          Statistics.timeToString(genTime), genPercentage / 100, genPercentage % 100);
-
-      for (final Statistics.Activity activity : Statistics.Activity.values()) {
-        if (activity != Statistics.Activity.INITIALIZING) {
-          Logger.message("  " + statistics.getTimeMetricText(activity));
-        }
-      }
-    }
-
-    final long rateLimit = options.getValueAsInteger(Option.RATE_LIMIT);
-    if (genRate < rateLimit && statistics.getInstructions() >= 1000) { 
-      // Makes sense only for sequences of significant length (>= 1000)
-      Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
+    if (!TestEngine.generate(options, modelName, templateFile, plugins)) {
       return false;
     }
 
