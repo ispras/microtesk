@@ -42,6 +42,8 @@ import ru.ispras.testbase.stub.TestBase;
 public final class MicroTESK {
   private MicroTESK() {}
 
+  private static final List<Translator<?>> translators = new ArrayList<>();
+
   public static void main(final String[] args) {
     try {
       final OptionReader optionReader = new OptionReader(Config.loadSettings(), args);
@@ -67,22 +69,12 @@ public final class MicroTESK {
       final List<Plugin> plugins = Config.loadPlugins();
       registerPlugins(plugins);
 
-      if (options.getValueAsBoolean(Option.GENERATE)) {
-        generate(options, arguments, plugins);
-      } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
-        disassemble(options, arguments);
-      } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
-        symbolicExecute(options, arguments);
-      } else {
-        translate(options, arguments);
-      }
+      runTask(options, arguments, plugins);
     } catch (final Throwable e) {
       Logger.exception(e);
       System.exit(-1);
     }
   }
-
-  private static final List<Translator<?>> translators = new ArrayList<>();
 
   private static void registerPlugins(final List<Plugin> plugins) {
     for (final Plugin plugin : plugins) {
@@ -117,6 +109,21 @@ public final class MicroTESK {
           testBaseRegistry.registerGenerator(entry.getKey(), entry.getValue());
         }
       }
+    }
+  }
+
+  private static void runTask(
+      final Options options,
+      final String[] arguments,
+      final List<Plugin> plugins) throws Throwable {
+    if (options.getValueAsBoolean(Option.GENERATE)) {
+      generate(options, arguments, plugins);
+    } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
+      disassemble(options, arguments);
+    } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
+      symbolicExecute(options, arguments);
+    } else {
+      translate(options, arguments);
     }
   }
 
