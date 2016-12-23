@@ -208,7 +208,6 @@ public final class TestEngine {
         throw e.getCause();
       } catch (final GenerationAbortedException e2) {
         handleGenerationAborted(e2);
-        return false;
       }
     }
 
