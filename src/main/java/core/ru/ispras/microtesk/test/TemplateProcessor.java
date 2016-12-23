@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +27,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.test.sequence.GeneratorConfig;
-import ru.ispras.microtesk.test.sequence.engine.Adapter;
+import ru.ispras.microtesk.test.engine.TestEngineUtils;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
-import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
@@ -131,7 +128,7 @@ final class TemplateProcessor implements Template.Processor {
 
   private void processBlock(final Block block) throws ConfigurationException, IOException {
     final Iterator<List<Call>> abstractIt = block.getIterator();
-    final TestSequenceEngine engine = getEngine(block);
+    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
       final Iterator<AdapterResult> concreteIt =
@@ -143,7 +140,7 @@ final class TemplateProcessor implements Template.Processor {
           needCreateNewFile = false;
         }
 
-        final TestSequence sequence = getTestSequence(concreteIt.value());
+        final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
 
         final String sequenceId =
@@ -293,82 +290,6 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private static TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
-    InvariantChecks.checkNotNull(block);
-
-    final String engineName;
-    final String adapterName;
-
-    if (block.isExternal()) {
-      engineName = "trivial";
-      adapterName = engineName;
-    } else {
-      engineName = block.getAttribute("engine", "default");
-      adapterName = block.getAttribute("adapter", engineName);
-    }
-
-    final Engine<?> engine = GeneratorConfig.get().getEngine(engineName);
-    InvariantChecks.checkNotNull(engine);
-
-    final Adapter<?> adapter = GeneratorConfig.get().getAdapter(adapterName);
-    InvariantChecks.checkNotNull(adapter);
-
-    if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
-      throw new IllegalStateException("Mismatched solver/adapter pair");
-    }
-
-    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
-    testSequenceEngine.configure(block.getAttributes());
-
-    return testSequenceEngine;
-  }
-
-  private static List<Call> getSingleSequence(final Block block) {
-    InvariantChecks.checkNotNull(block);
-
-    final Iterator<List<Call>> iterator = block.getIterator();
-    iterator.init();
-
-    if (!iterator.hasValue()) {
-      return Collections.emptyList();
-    }
-
-    final List<Call> result = iterator.value();
-
-    iterator.next();
-    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
-
-    return result;
-  }
-
-  private static TestSequence getTestSequence(final AdapterResult adapterResult) {
-    InvariantChecks.checkNotNull(adapterResult);
-
-    if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-      throw new GenerationAbortedException(String.format(
-          "Adapter Error: %s", adapterResult.getErrors()));
-    }
-
-    final TestSequence result = adapterResult.getResult();
-    InvariantChecks.checkNotNull(result);
-
-    return result;
-  }
-
-  private static TestSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
-    InvariantChecks.checkNotNull(iterator);
-
-    iterator.init();
-    InvariantChecks.checkTrue(iterator.hasValue());
-
-    final TestSequence result = getTestSequence(iterator.value());
-
-    iterator.next();
-    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
-
-    return result;
-  }
-
   private static TestSequence makeTestSequenceForExceptionHandler(
       final EngineContext engineContext,
       final ExceptionHandler.Section section) throws ConfigurationException {
@@ -397,10 +318,10 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(block);
     InvariantChecks.checkTrue(block.isExternal());
 
-    final TestSequenceEngine engine = getEngine(block);
-    final List<Call> abstractSequence = getSingleSequence(block);
+    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
+    final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
 
     final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-    return getSingleTestSequence(iterator);
+    return TestEngineUtils.getSingleTestSequence(iterator);
   }
 }
