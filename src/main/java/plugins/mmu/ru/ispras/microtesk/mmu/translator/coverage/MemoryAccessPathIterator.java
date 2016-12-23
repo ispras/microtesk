@@ -237,7 +237,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private Result getNext() {
     while (!searchStack.isEmpty()) {
       final SearchEntry searchEntry = searchStack.peek();
-      boolean hasTraversed = true;
+      boolean isCompleted = true;
 
       while (searchEntry.iterator.hasNext()) {
         final MemoryGraph.Edge edge = searchEntry.iterator.next();
@@ -247,20 +247,22 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         final MmuAction targetAction = transition.getTarget();
 
         final Object label = edge.getLabel();
-        final Object nextLabel = label != null ?
-            (labels != null && labels.hasNext() ? labels.next() : null) : searchEntry.label;
+        final Object nextLabel = (label != null)
+            ? (labels != null && labels.hasNext() ? labels.next() : null)
+            : searchEntry.label;
 
-        final MemorySymbolicResult context = searchEntry.edges.size() == 1 ?
-            searchEntry.context : new MemorySymbolicResult(searchEntry.context);
+        final MemorySymbolicResult context = (searchEntry.edges.size() == 1)
+            ? searchEntry.context
+            : new MemorySymbolicResult(searchEntry.context);
 
         MemorySymbolicResult newContext = context;
 
         if (MemoryEngineUtils.isFeasibleTransition(
             transition, type, stack, constraints, context /* INOUT */)) {
-          hasTraversed = false;
-          Logger.debug("Goto %s", transition);
+          isCompleted = false;
+          Logger.debug("Go %s", transition);
 
-          // Transitions to be added to the memory access path.
+          // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
           // Prolong the memory access path.
@@ -271,7 +273,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
           if (bufferAccess != null) {
             final MmuBuffer buffer = bufferAccess.getBuffer();
-
             InvariantChecks.checkNotNull(buffer);
 
             // Check whether this is a recursive memory call.
@@ -281,6 +282,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
               Logger.debug("Recursive memory call %s", frameId);
               final MemoryAccessStack.Frame frame = stack.call(frameId);
+
               Logger.debug("Memory call frame: %s", frame);
               Logger.debug("Memory call stack: %s", stack);
 
@@ -311,7 +313,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
                 callId--;
 
                 Logger.debug("Recursive memory call is infeasible");
-                hasTraversed = true;
+                isCompleted = true;
               }
 
               // Return.
@@ -324,7 +326,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             }
           }
 
-          if (!hasTraversed) {
+          if (!isCompleted) {
             searchStack.push(new SearchEntry(targetAction, nextLabel, newContext));
             currentPath.addAll(entries);
 
@@ -333,7 +335,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         } // If feasible transition.
       } // For each outgoing edge.
 
-      if (hasTraversed) {
+      if (isCompleted) {
         final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();
         final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
@@ -350,19 +352,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         if (isFullPath) {
           final MemoryAccessPath path = builder.build();
 
-          /* TODO:
-          Logger.debug("Checking feasibility of the memory access path %s", path);
-
-          if (MemoryEngineUtils.isFeasiblePath(memory, path, constraints)) {
-            Logger.debug("Feasible memory access %s of the length %d",
-                stack.isEmpty() ? "path" : "fragment", path.size());
-
-            return new Result(path, top.context);
-          }
-
-          Logger.debug("Infeasible memory access path");
-          */
-
           Logger.debug("Memory access %s of the length %d",
               stack.isEmpty() ? "path" : "fragment", path.size());
 
@@ -371,7 +360,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       }
     } // for each vertex.
 
-    Logger.debug("No path found");
+    Logger.debug("No feasible memory access path has been found");
     return null;
   }
 
