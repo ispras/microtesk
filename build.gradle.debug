@@ -1,0 +1,336 @@
+/*
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+import java.text.SimpleDateFormat
+import java.util.regex.Matcher
+
+buildscript {
+  repositories {
+    ivy {
+      url = 'http://forge.ispras.ru/repo'
+      layout 'pattern', {
+        artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
+      }
+    }
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'gradle:gradle-os-plugin:1.0'
+  }
+}
+
+plugins {
+  id 'net.saliman.properties' version '1.4.4'
+  id 'net.researchgate.release' version '2.3.5'
+  id 'org.sonarqube' version '1.0'
+}
+
+apply plugin: 'os'
+apply plugin: 'java'
+apply plugin: 'java-library-distribution'
+apply plugin: 'antlr'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+apply plugin: 'jacoco'
+apply plugin: 'eclipse'
+
+repositories {
+  flatDir {
+    dirs 'libs'
+  }
+  ivy {
+    url = 'http://forge.ispras.ru/repo'
+    layout 'pattern', {
+      artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
+      // z3
+      artifact '[organization]/[artifact]-[revision](.[ext])'
+    }
+  }
+  jcenter()
+}
+
+uploadArchives {
+  repositories {
+    mavenLocal()
+  }
+}
+
+release {
+  failOnCommitNeeded = false
+  failOnUnversionedFiles = false
+
+  versionPatterns = [
+    // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
+    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: 
+    { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
+  ]
+}
+
+String getCurrentDateString()  {
+  new SimpleDateFormat( "yyMMdd" ).format( new Date() )
+}
+
+task unSnapshotVersion.doLast {
+  def version = project.version.toString()
+  version += '-' + getCurrentDateString()
+   project.plugins.getPlugin( net.researchgate.release.ReleasePlugin.class )
+  .updateVersionProperty( version )
+}
+
+configurations {
+  jruby
+}
+
+configurations.all {
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+  antlr 'org.antlr:antlr:3.5.2'
+  compile 'commons-cli:commons-cli:1.2'
+  compile 'org.jruby:jruby-complete:1.7.25'
+  jruby 'org.jruby:jruby-complete:1.7.25'
+  compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
+  compile 'org.apache.velocity:velocity:1.7'
+
+  compile ("fortress:fortress:${fortressVersion}") { changing = true }
+  compile ("testbase:testbase:${testbaseVersion}") { changing = true }
+  compile ("jsoftfloat:jsoftfloat:${jsoftfloatVersion}") { changing = true }
+  compile ('coverage:coverage:+') { changing = true }
+  compile ('aspectrace:aspectrace:+') { changing = true }
+}
+
+configurations {
+  noEclipse
+}
+
+eclipse {
+  classpath {
+    downloadJavadoc=false
+    downloadSources=true
+
+    minusConfigurations += [ configurations.noEclipse ]
+    sourceSets -= [ sourceSets.main, sourceSets.test ]
+
+    file {
+      withXml {
+        def node = it.asNode()
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/java/core'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/resources/core'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/test/java/core'])
+
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/java/plugins/mmu'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/main/resources/plugins/mmu'])
+        node.appendNode('classpathentry', [kind: 'src', path: 'src/test/java/plugins/mmu'])
+
+        node.appendNode('classpathentry', [kind: 'src', path: 'build/generated-src/antlr/main'])
+      }
+    }
+  }
+}
+
+task copyConfig(type: Copy) {
+  from "${project.projectDir}/src/main/resources/core/config.xml"
+  into "${project.projectDir}/build/resources/test"
+}
+
+test.dependsOn copyConfig
+
+task copyStg(type: Copy) {
+  from "${project.projectDir}/src/main/resources/core/stg"
+  into "${project.projectDir}/build/resources/test/stg"
+
+  from "${project.projectDir}/src/main/resources/plugins/mmu/stg"
+  into "${project.projectDir}/build/resources/test/stg"
+}
+
+test.dependsOn copyStg
+
+task cleanDistribution(type: Delete) {
+  delete "${project.projectDir}/build/target"
+}
+
+task copyDistribution(type: Copy) {
+  includeEmptyDirs = false
+  from tarTree("${project.projectDir}/build/distributions/microtesk-${project.version}.tar.gz")
+  into "${project.projectDir}/build/target"
+  eachFile {FileCopyDetails details ->
+    details.path = (details.path - "microtesk-${project.version}")
+  }
+}
+
+copyDistribution.dependsOn cleanDistribution
+copyDistribution.dependsOn distTar
+assemble.dependsOn copyDistribution
+
+sourceSets {
+  test {
+    resources {
+      srcDir "${project.projectDir}/build/classes/main"
+    }
+  }
+}
+
+compileJava {
+  options.encoding = "UTF-8"
+}
+
+generateGrammarSource {
+  arguments += ["-lib", "src/main/antlrlib/ru/ispras/microtesk/translator/nml/grammar"]
+}
+
+checkstyle {
+  toolVersion = 6.5
+  ignoreFailures = true
+  showViolations = false
+  configFile=file("${project.projectDir}/config/checkstyle/google_checks.xml")
+}
+
+findbugs {
+  ignoreFailures = true
+}
+
+pmd {
+  ignoreFailures = true
+  ruleSets = [ "java-android,java-basic,java-braces,java-clone,java-codesize,java-controversial,"
+             + "java-coupling,java-design,java-empty,java-finalizers,java-imports,java-j2ee,"
+             + "java-javabeans,java-junit,java-logging-jakarta-commons,java-logging-java,"
+             + "java-migrating,java-migrating_to_13,java-migrating_to_14,java-migrating_to_15,"
+             + "java-migrating_to_junit4,java-naming,java-optimizations,java-strictexception,"
+             + "java-strings,java-sunsecure,java-typeresolution,java-unnecessary,java-unusedcode"]
+  ruleSetFiles = files("config/pmd/java/comments.xml")
+}
+
+jar {
+  archiveName = projectName + '.jar'
+
+  from('LICENSE') {
+    into('META-INF')
+  }
+
+  exclude('*core*')
+  exclude('*plugins*')
+
+  from('src/main/resources/core/config.xml')
+  from('src/main/resources/core/stg') {
+    into('stg')
+  }
+  from('src/main/resources/plugins/mmu/stg') {
+    into('stg')
+  }
+
+  manifest {
+    attributes 'Title'  : projectTitle
+    attributes 'Version': project.version
+    attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
+    attributes 'Built-By': System.getProperty('user.name')
+    attributes 'Built-JDK': System.getProperty('java.version')
+    attributes 'Main-Class': mainClassName
+    attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
+  }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  archiveName = projectName + '-src.jar'
+  from(projectDir) {
+    into(projectName)
+    include('src/')
+    include('config/')
+    include('gradle/')
+  }
+
+  from(files { projectDir.listFiles() }.filter { File file -> file.isFile() ? file : null }) {
+    into(projectName)
+    exclude('gradle-local.properties')
+  }
+}
+
+task copyEtc(type: Copy) {
+  from "${project.projectDir}/src/main/etc"
+  into "${project.projectDir}/build/target/etc"
+}
+
+task jarModels(type: Jar) {
+  archiveName = 'models.jar'
+  from('build/classes/models')
+
+  manifest {
+    attributes 'Title'  : projectTitle + ' Models'
+    attributes 'Version': project.version
+    attributes 'Vendor' : 'ISP RAS (http://www.ispras.ru)'
+    attributes 'Built-By': System.getProperty('user.name')
+    attributes 'Built-JDK': System.getProperty('java.version')
+    attributes 'Class-Path': projectName + '.jar'
+  }
+}
+tasks.withType(Tar) {
+  compression = Compression.GZIP
+  extension = 'tar.gz'
+}
+
+distributions {
+  main {
+    baseName = projectName
+
+    contents {
+      rename '(.)*(?<!-src|microtesk|-javadoc|-rubydoc).jar', 'jars/$0'
+      rename '(.)*microtesk.jar', 'lib/jars/microtesk.jar'
+
+      into('lib') {
+        from jarModels
+      }
+
+      from('src/main/arch') {
+        into('arch')
+      }
+
+      from('build/generated-src/models') {
+        into('gen')
+      }
+
+      from('src/main/bin') {
+        into('bin')
+      }
+
+      from('src/main/ruby') {
+        into('lib/ruby')
+      }
+
+      from(sourcesJar) {
+        into('src')
+      }
+
+      from('src/main/etc') {
+        into('etc')
+      }
+
+      from(fileTree('xdocs').files) {
+        into('doc')
+        include('**/*microtesk*.pdf')
+      }
+
+      from('ChangeLog')
+      from('LICENSE')
+      from('NOTICE')
+      from('src/main/text/README')
+
+      from('src/main/text/README_TOOLS') {
+        into('tools')
+        rename('README_TOOLS', 'README')
+      }
+    }
+  }
+}
