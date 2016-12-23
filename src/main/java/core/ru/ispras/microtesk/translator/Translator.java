@@ -146,7 +146,9 @@ public abstract class Translator<Ir> {
       setOutDir(options.getValueAsString(Option.OUTDIR));
     }
 
-    setContext(context);
+    if (null != context) {
+      setContext(context);
+    }
 
     for (final String fileName : fileNames) {
       final String fileDir = FileUtils.getFileDir(fileName);

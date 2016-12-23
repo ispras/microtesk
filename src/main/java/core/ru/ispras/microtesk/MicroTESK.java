@@ -142,7 +142,16 @@ public final class MicroTESK {
       }
     }
 
-    // Copy user-defined Java code is copied to the output folder.
+    // Copies user-defined Java code to the output folder.
+    if(!copyExtensions(options)) {
+      Logger.error("Failed to copy extensions.");
+      return false;
+    }
+
+    return true;
+  }
+
+  private static boolean copyExtensions(final Options options) {
     if (options.hasValue(Option.EXTDIR)) {
       final String extensionDir = options.getValueAsString(Option.EXTDIR);
       final File extensionDirFile = new File(extensionDir);
