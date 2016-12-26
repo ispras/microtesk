@@ -274,14 +274,6 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         fileWriter.println();
-        Logger.debug("");
-
-        printer.printCommentToFile(fileWriter,
-            String.format("Exceptions: %s", section.getExceptions()));
-
-        final String org = String.format(".org 0x%x", section.getOrigin());
-        Logger.debug(org);
-        printer.printToFile(fileWriter, org);
         printer.printSequence(fileWriter, concreteSequence);
       }
 
@@ -304,6 +296,13 @@ final class TemplateProcessor implements Template.Processor {
         EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
 
     final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+
+    concreteSequenceBuilder.add(
+        ConcreteCall.newComment(String.format("Exceptions: %s", section.getExceptions())));
+
+    concreteSequenceBuilder.add(
+        ConcreteCall.newText(String.format(".org 0x%x", section.getOrigin())));
+
     concreteSequenceBuilder.add(concreteCalls);
 
     final TestSequence result = concreteSequenceBuilder.build();
