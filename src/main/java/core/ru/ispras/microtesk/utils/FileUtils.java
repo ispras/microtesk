@@ -17,13 +17,13 @@ package ru.ispras.microtesk.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.decoder.BinaryWriter;
 
 /**
  * The {@link FileUtils} class provides utility methods to work with files.
@@ -121,6 +121,23 @@ public final class FileUtils {
       fileParent.mkdirs();
     }
 
-    return new PrintWriter(new FileWriter(file));
+    return new PrintWriter(file);
+  }
+
+  public static BinaryWriter newBinaryWriter(
+      final String path,
+      final String name,
+      final String ext) throws IOException {
+    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(ext);
+
+    final File file = new File(path, name + "." + ext);
+    final File fileParent = file.getParentFile();
+    if (null != fileParent) {
+      fileParent.mkdirs();
+    }
+
+    return new BinaryWriter(file);
   }
 }
