@@ -14,10 +14,14 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -26,8 +30,11 @@ import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class TestEngineUtils {
@@ -121,5 +128,29 @@ public final class TestEngineUtils {
 
     final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
     return getSingleTestSequence(iterator);
+  }
+
+  public static TestSequence makeTestSequenceForExceptionHandler(
+      final EngineContext engineContext,
+      final ExceptionHandler.Section section) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(section);
+
+    final List<Call> calls = new ArrayList<>();
+    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
+    calls.add(Call.newOrigin(section.getOrigin(), false));
+    calls.addAll(section.getCalls());
+
+    final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
+    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+    concreteSequenceBuilder.add(concreteCalls);
+
+    final TestSequence result = concreteSequenceBuilder.build();
+
+    final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
+    final BigInteger address = baseVa.add(section.getOrigin());
+
+    result.setAddress(address.longValue());
+    return result;
   }
 }

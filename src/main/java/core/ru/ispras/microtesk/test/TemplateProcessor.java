@@ -17,8 +17,6 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +31,6 @@ import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
-import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -265,7 +262,7 @@ final class TemplateProcessor implements Template.Processor {
       final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
       for (final ExceptionHandler.Section section : handler.getSections()) {
         final TestSequence concreteSequence =
-            makeTestSequenceForExceptionHandler(engineContext, section);
+            TestEngineUtils.makeTestSequenceForExceptionHandler(engineContext, section);
 
         final List<ConcreteCall> handlerCalls = concreteSequence.getAll();
         for (final String exception : section.getExceptions()) {
@@ -285,29 +282,5 @@ final class TemplateProcessor implements Template.Processor {
       fileWriter.close();
       Logger.debugBar();
     }
-  }
-
-  private static TestSequence makeTestSequenceForExceptionHandler(
-      final EngineContext engineContext,
-      final ExceptionHandler.Section section) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(section);
-
-    final List<Call> calls = new ArrayList<>();
-    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
-    calls.add(Call.newOrigin(section.getOrigin(), false));
-    calls.addAll(section.getCalls());
-
-    final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
-    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
-    concreteSequenceBuilder.add(concreteCalls);
-
-    final TestSequence result = concreteSequenceBuilder.build();
-
-    final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
-    final BigInteger address = baseVa.add(section.getOrigin());
-
-    result.setAddress(address.longValue());
-    return result;
   }
 }

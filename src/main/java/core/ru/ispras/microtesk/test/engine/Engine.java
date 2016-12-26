@@ -18,39 +18,36 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 
+/**
+ *
+ * Construct
+ * Simulate
+ * Print
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Engine implements Template.Processor {
-  private final Model model;
-  private final Options options;
+  private final EngineContext engineContext;
 
   private final Code code;
   private final List<Block> delayed;
 
-  private CodeBlock prologue = null;
+  private TestSequence prologue = null;
   private Block epilogue = null;
 
-  public Engine(final Model model, final Options options) {
-    this.model = model;
-    this.options = options;
+  public Engine(final EngineContext engineContext) {
+    InvariantChecks.checkNotNull(engineContext);
+    this.engineContext = engineContext;
 
     this.code = new Code();
     this.delayed = new LinkedList<>();
-  }
-
-  @Override
-  public void defineExceptionHandler(final ExceptionHandler handler) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
-  public void finish() {
-    // TODO Auto-generated method stub
   }
 
   @Override
@@ -69,9 +66,20 @@ public final class Engine implements Template.Processor {
     }
   }
 
+  @Override
+  public void defineExceptionHandler(final ExceptionHandler handler) {
+    InvariantChecks.checkNotNull(handler);
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void finish() {
+    // TODO Auto-generated method stub
+  }
+
   private void processPrologue(final Block block) {
     InvariantChecks.checkTrue(null == prologue);
-    prologue = null;
+    prologue = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
   }
 
   private void processEpilogue(final Block block) {
