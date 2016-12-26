@@ -44,7 +44,6 @@ public final class Printer {
   private final static int LINE_WIDTH = 100;
 
   private final Options options;
-  private final ProcessingElement observer;
   private final Statistics statistics;
 
   private String separator;
@@ -57,20 +56,15 @@ public final class Printer {
   /**
    * Constructs a printer object.
    * 
-   * @param observer Model state observer to evaluate outputs.
-   * 
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
   public Printer(
       final Options options,
-      final ProcessingElement observer,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(observer);
     InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
-    this.observer = observer;
     this.statistics = statistics;
 
     this.separator = null;
@@ -158,33 +152,39 @@ public final class Printer {
    * @throws ConfigurationException if failed to evaluate one of the output objects associated with
    *         an instruction call in the sequence.
    */
-  public void printSequence(final TestSequence sequence) throws ConfigurationException {
+  public void printSequence(
+      final ProcessingElement observer,
+      final TestSequence sequence) throws ConfigurationException {
+    InvariantChecks.checkNotNull(observer);
     InvariantChecks.checkNotNull(sequence);
+
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     try {
       final List<ConcreteCall> prologue = sequence.getPrologue();
       if (!prologue.isEmpty()) {
         printNote("Preparation");
-        printCalls(prologue);
+        printCalls(observer, prologue);
 
         printText("");
         printNote("Stimulus");
       }
 
-      printCalls(sequence.getBody());
+      printCalls(observer, sequence.getBody());
     } finally {
       statistics.popActivity(); // PRINTING
     }
   }
 
   public void printSequence(
-      final PrintWriter writer, final TestSequence sequence) throws ConfigurationException {
+      final PrintWriter writer,
+      final ProcessingElement observer,
+      final TestSequence sequence) throws ConfigurationException {
     final PrintWriter tempWriter = fileWritter;
     fileWritter = writer;
 
     try {
-      printSequence(sequence);
+      printSequence(observer, sequence);
     } finally {
       fileWritter = tempWriter;
     }
@@ -197,7 +197,9 @@ public final class Printer {
    * @throws ConfigurationException if failed to evaluate one of the output objects
    *         associated with an instruction call.
    */
-  private void printCalls(final List<ConcreteCall> calls) throws ConfigurationException {
+  private void printCalls(
+      final ProcessingElement observer,
+      final List<ConcreteCall> calls) throws ConfigurationException {
     if (calls.isEmpty()) {
       printNote("Empty");
       return;
@@ -214,7 +216,7 @@ public final class Printer {
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
-      printOutputs(call.getOutputs());
+      printOutputs(observer, call.getOutputs());
       printLabels(call.getLabels());
 
       final boolean writeToFile = null != fileWritter;
@@ -249,7 +251,9 @@ public final class Printer {
     }
   }
 
-  private void printOutputs(final List<Output> outputs) throws ConfigurationException {
+  private void printOutputs(
+      final ProcessingElement observer,
+      final List<Output> outputs) throws ConfigurationException {
     InvariantChecks.checkNotNull(outputs);
 
     for (final Output output : outputs) {

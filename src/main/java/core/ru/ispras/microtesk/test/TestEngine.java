@@ -246,7 +246,7 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_PA)
         );
 
-    final Printer printer = new Printer(options, model.getPE(), statistics);
+    final Printer printer = new Printer(options, statistics);
     final DataManager dataManager = new DataManager(model, options, printer, statistics);
  
     final EngineContext context = new EngineContext(

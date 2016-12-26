@@ -183,7 +183,7 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     Logger.debugHeader("Constructed %s", sequenceId);
-    printer.printSequence(null, sequence);
+    printer.printSequence(null, engineContext.getModel().getPE(), sequence);
 
     Logger.debugHeader("Executing %s", sequenceId);
     executor.execute(
@@ -195,7 +195,7 @@ final class TemplateProcessor implements Template.Processor {
 
     Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
     printer.printSubheaderToFile(sequenceId);
-    printer.printSequence(sequence);
+    printer.printSequence(engineContext.getModel().getPE(), sequence);
   }
 
   private void startFile() throws IOException, ConfigurationException {
@@ -272,7 +272,7 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         fileWriter.println();
-        printer.printSequence(fileWriter, concreteSequence);
+        printer.printSequence(fileWriter, engineContext.getModel().getPE(), concreteSequence);
       }
 
       executor.setExceptionHandlers(handlers);
