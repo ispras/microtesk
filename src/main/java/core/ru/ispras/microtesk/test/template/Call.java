@@ -117,6 +117,27 @@ public final class Call {
         );
   }
 
+  public static Call newOrigin(final BigInteger origin, final boolean isRelative) {
+    InvariantChecks.checkNotNull(origin);
+
+    return new Call(
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        isRelative,
+        origin,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        false
+        );
+  }
+
   public static Call newAtomicSequence(final List<Call> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
