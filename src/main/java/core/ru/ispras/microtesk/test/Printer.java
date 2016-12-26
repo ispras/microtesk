@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.decoder.BinaryWriter;
@@ -66,9 +65,9 @@ public final class Printer {
       final Options options,
       final ProcessingElement observer,
       final Statistics statistics) {
-    checkNotNull(options);
-    checkNotNull(observer);
-    checkNotNull(statistics);
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(observer);
+    InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
     this.observer = observer;
@@ -110,7 +109,7 @@ public final class Printer {
   }
 
   public PrintWriter newFileWriter(final String fileName) throws IOException {
-    checkNotNull(fileName);
+    InvariantChecks.checkNotNull(fileName);
 
     final String outDir = options.hasValue(Option.OUTDIR) ?
         options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir(); 
@@ -160,7 +159,7 @@ public final class Printer {
    *         an instruction call in the sequence.
    */
   public void printSequence(final TestSequence sequence) throws ConfigurationException {
-    checkNotNull(sequence);
+    InvariantChecks.checkNotNull(sequence);
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     try {
@@ -251,7 +250,7 @@ public final class Printer {
   }
 
   private void printOutputs(final List<Output> outputs) throws ConfigurationException {
-    checkNotNull(outputs);
+    InvariantChecks.checkNotNull(outputs);
 
     for (final Output output : outputs) {
       if (output.isRuntime()) {
@@ -287,7 +286,7 @@ public final class Printer {
   }
 
   private void printLabels(final List<Label> labels) {
-    checkNotNull(labels);
+    InvariantChecks.checkNotNull(labels);
 
     for (final Label label : labels) {
       printTextNoIndent(label.getUniqueName() + ":");
