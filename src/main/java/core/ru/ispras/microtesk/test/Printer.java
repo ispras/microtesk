@@ -71,6 +71,11 @@ public final class Printer {
     this.codeFileCount = 0;
   }
 
+  private static String getOutDir(final Options options) {
+    return options.hasValue(Option.OUTDIR) ?
+        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+  }
+
   public String createNewFile() throws IOException {
     close();
 
@@ -84,8 +89,7 @@ public final class Printer {
     fileWritter = newFileWriter(fileName);
 
     if (options.getValueAsBoolean(Option.GENERATE_BINARY)) {
-      final String outDir = options.hasValue(Option.OUTDIR) ?
-          options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+      final String outDir = getOutDir(options);
 
       final String binaryFileName = String.format(
           "%s_%04d.%s",
@@ -105,8 +109,7 @@ public final class Printer {
   public PrintWriter newFileWriter(final String fileName) throws IOException {
     InvariantChecks.checkNotNull(fileName);
 
-    final String outDir = options.hasValue(Option.OUTDIR) ?
-        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir(); 
+    final String outDir = getOutDir(options);
 
     final File file = new File(outDir, fileName);
     final File fileParent = file.getParentFile();
