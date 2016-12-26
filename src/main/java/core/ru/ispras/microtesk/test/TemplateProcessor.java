@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,17 +293,13 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(section);
 
-    final List<ConcreteCall> concreteCalls =
-        EngineUtils.makeConcreteCalls(engineContext, section.getCalls());
+    final List<Call> calls = new ArrayList<>();
+    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
+    calls.add(Call.newOrigin(section.getOrigin(), false));
+    calls.addAll(section.getCalls());
 
+    final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
     final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
-
-    concreteSequenceBuilder.add(
-        ConcreteCall.newComment(String.format("Exceptions: %s", section.getExceptions())));
-
-    concreteSequenceBuilder.add(
-        ConcreteCall.newText(String.format(".org 0x%x", section.getOrigin())));
-
     concreteSequenceBuilder.add(concreteCalls);
 
     final TestSequence result = concreteSequenceBuilder.build();
