@@ -18,13 +18,13 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
@@ -33,7 +33,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 public final class TestEngineUtils {
   private TestEngineUtils() {}
 
-  public static TestSequenceEngine getEngine(final Block block) throws ConfigurationException {
+  public static TestSequenceEngine getEngine(final Block block) {
     InvariantChecks.checkNotNull(block);
 
     final String engineName;
@@ -107,5 +107,19 @@ public final class TestEngineUtils {
     InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
 
     return result;
+  }
+
+  public static TestSequence makeTestSequenceForExternalBlock(
+      final EngineContext engineContext,
+      final Block block) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(block);
+    InvariantChecks.checkTrue(block.isExternal());
+
+    final TestSequenceEngine engine = getEngine(block);
+    final List<Call> abstractSequence = getSingleSequence(block);
+
+    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+    return getSingleTestSequence(iterator);
   }
 }
