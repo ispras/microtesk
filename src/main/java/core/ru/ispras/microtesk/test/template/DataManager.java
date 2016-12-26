@@ -219,7 +219,7 @@ public final class DataManager {
     }
 
     for (final DataSection item : globalData) {
-      printDataDirectives(item.getDirectives());
+      printer.printDataDirectives(item.getDirectives());
     }
 
     if (!localData.isEmpty()) {
@@ -237,22 +237,10 @@ public final class DataManager {
         printer.printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
       }
 
-      printDataDirectives(directives);
+      printer.printDataDirectives(directives);
     }
 
     statistics.popActivity();
-  }
-
-  private void printDataDirectives(final List<DataDirective> directives) {
-    for (final DataDirective directive : directives) {
-      final String text = directive.getText();
-      if (directive.needsIndent()) {
-        printer.printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + text);
-        printer.printToFile(text);
-      } else {
-        printer.printTextNoIndent(text);
-      }
-    }
   }
 
   public BigInteger getAddress() {

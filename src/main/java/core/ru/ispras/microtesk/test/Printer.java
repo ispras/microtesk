@@ -31,6 +31,7 @@ import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataDirective;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
 
@@ -444,6 +445,18 @@ public final class Printer {
   private void printToFileNoIndent(final String text) {
     if (null != fileWritter) {
       fileWritter.println(text);
+    }
+  }
+
+  public void printDataDirectives(final List<DataDirective> directives) {
+    for (final DataDirective directive : directives) {
+      final String text = directive.getText();
+      if (directive.needsIndent()) {
+        printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + text);
+        printToFile(text);
+      } else {
+        printTextNoIndent(text);
+      }
     }
   }
 
