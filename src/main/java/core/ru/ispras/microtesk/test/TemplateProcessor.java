@@ -74,7 +74,7 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       if (section == Section.PRE) {
-        prologue = makeTestSequenceForExternalBlock(engineContext, block);
+        prologue = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
       } else if (section == Section.POST) {
         epilogueBlock = block;
       } else if (block.isExternal()) {
@@ -117,7 +117,9 @@ final class TemplateProcessor implements Template.Processor {
       needCreateNewFile = false;
     }
 
-    final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, block);
+    final TestSequence sequence =
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+
     processTestSequence(sequence, "External Code", true, Label.NO_SEQUENCE_INDEX, true);
 
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
@@ -216,7 +218,9 @@ final class TemplateProcessor implements Template.Processor {
 
   private void finishFile() throws ConfigurationException {
     try {
-      final TestSequence sequence = makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
+      final TestSequence sequence =
+          TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
+
       processTestSequence(sequence, "Epilogue", true, Label.NO_SEQUENCE_INDEX, true);
 
       if (engineContext.getDataManager().containsDecls()) {
@@ -309,19 +313,5 @@ final class TemplateProcessor implements Template.Processor {
 
     result.setAddress(address.longValue());
     return result;
-  }
-
-  private static TestSequence makeTestSequenceForExternalBlock(
-      final EngineContext engineContext,
-      final Block block) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(block);
-    InvariantChecks.checkTrue(block.isExternal());
-
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
-
-    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
-    return TestEngineUtils.getSingleTestSequence(iterator);
   }
 }
