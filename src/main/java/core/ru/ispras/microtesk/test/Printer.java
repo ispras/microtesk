@@ -311,7 +311,7 @@ public final class Printer {
    * Prints text both to the file and to the screen (if corresponding options are enabled).
    * @param text Text to be printed.
    */
-  public void printText(final String text) {
+  private void printText(final String text) {
     if (text != null) {
       printToScreen(text);
       printToFile(text);
@@ -367,7 +367,7 @@ public final class Printer {
    * 
    * @param text Text of the comment to be printed.
    */
-  public void printCommentToFile(String text) {
+  private void printCommentToFile(String text) {
     if (text != null) {
       final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
       printToFile(
@@ -375,7 +375,8 @@ public final class Printer {
     }
   }
 
-  public void printCommentToFile(PrintWriter writer, String text) {
+  /*
+  private void printCommentToFile(PrintWriter writer, String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED) && text != null) {
       final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
       printToFile(
@@ -383,12 +384,13 @@ public final class Printer {
           String.format("%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text));
     }
   }
+  */
 
   /**
    * Prints a special comment (a line of '*' characters) to the file to
    * separate different parts of the code.
    */
-  public void printSeparatorToFile() {
+  private void printSeparatorToFile() {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile(separator);
     }
@@ -429,7 +431,7 @@ public final class Printer {
     printToFile(fileWritter, text);
   }
 
-  public void printToFile(final PrintWriter writer, final String text) {
+  private void printToFile(final PrintWriter writer, final String text) {
     if (null != writer) {
       if (null != text && text.isEmpty()) {
         writer.println(text);
@@ -439,7 +441,7 @@ public final class Printer {
     }
   }
 
-  public void printToFileNoIndent(final String text) {
+  private void printToFileNoIndent(final String text) {
     if (null != fileWritter) {
       fileWritter.println(text);
     }
