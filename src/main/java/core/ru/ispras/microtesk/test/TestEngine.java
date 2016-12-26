@@ -216,13 +216,6 @@ public final class TestEngine {
 
   private void handleGenerationAborted(final GenerationAbortedException e) {
     reportAborted(e.getMessage());
-
-    if (null != Printer.getLastFileName()) {
-      new File(Printer.getLastFileName()).delete();
-      if (null != statistics) {
-        statistics.decPrograms();
-      }
-    }
   }
 
   public Template newTemplate() {
@@ -246,8 +239,7 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_PA)
         );
 
-    final Printer printer = new Printer(options, statistics);
-    final DataManager dataManager = new DataManager(model, options, printer, statistics);
+    final DataManager dataManager = new DataManager(model, options, statistics);
  
     final EngineContext context = new EngineContext(
         options,
@@ -265,7 +257,7 @@ public final class TestEngine {
       Tarmac.initialize(outDir, options.getValueAsString(Option.CODE_PRE));
     }
 
-    final TemplateProcessor processor = new TemplateProcessor(context, printer);
+    final TemplateProcessor processor = new TemplateProcessor(context);
     return new Template(context, processor);
   }
 

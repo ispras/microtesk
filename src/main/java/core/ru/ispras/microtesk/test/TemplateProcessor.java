@@ -14,9 +14,7 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,24 +41,20 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
   private final Executor executor;
-  private final Printer printer;
 
+  private Printer printer;
   private boolean needCreateNewFile = true;
-  private String fileName = null;
 
   private TestSequence prologue = null;
   private Block epilogueBlock = null;
   private ExecutorCode executorCode = null;
 
-  public TemplateProcessor(
-      final EngineContext engineContext,
-      final Printer printer) {
+  public TemplateProcessor(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(printer);
 
     this.engineContext = engineContext;
     this.executor = new Executor(engineContext);
-    this.printer = printer;
+    this.printer = null;
   }
 
   @Override
@@ -95,7 +89,7 @@ final class TemplateProcessor implements Template.Processor {
       if (!needCreateNewFile) {
         //No instructions were added to the newly created file, it must be deleted
         if (engineContext.getStatistics().getProgramLength() == 0) {
-          new File(fileName).delete();
+          printer.delete();
           engineContext.getStatistics().decPrograms();
         }
       }
@@ -183,7 +177,7 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     Logger.debugHeader("Constructed %s", sequenceId);
-    printer.printSequence(null, engineContext.getModel().getPE(), sequence);
+    //printer.printSequence(null, engineContext.getModel().getPE(), sequence);
 
     Logger.debugHeader("Executing %s", sequenceId);
     executor.execute(
@@ -193,16 +187,16 @@ final class TemplateProcessor implements Template.Processor {
         abortOnUndefinedLabel
         );
 
-    Logger.debugHeader("Printing %s to %s", sequenceId, fileName);
+    Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
     printer.printSubheaderToFile(sequenceId);
     printer.printSequence(engineContext.getModel().getPE(), sequence);
   }
 
   private void startFile() throws IOException, ConfigurationException {
-    engineContext.getStatistics().incPrograms();
-
-    fileName = printer.createNewFile();
+    printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
+
+    engineContext.getStatistics().incPrograms();
 
     // Allocates global data created during generation of previous test programs
     if (engineContext.getStatistics().getPrograms() > 1 &&
@@ -241,22 +235,17 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void defineExceptionHandler(final ExceptionHandler handler) {
-    final String exceptionFileName = String.format(
-        "%s%s.%s",
-        engineContext.getOptions().getValueAsString(Option.EXCEPT_PRE),
-        handler.getId().isEmpty() ? "" : "_" + handler.getId(),
-        engineContext.getOptions().getValueAsString(Option.CODE_EXT));
+    Printer printer = null; 
 
-    Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
-    InvariantChecks.checkNotNull(handler);
-
-    final PrintWriter fileWriter;
-    try {
-      fileWriter = printer.newFileWriter(exceptionFileName);
+    try { 
+      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
     } catch (final IOException e) {
-      throw new GenerationAbortedException(String.format(
-          "Failed to create the %s file. Reason: %s", exceptionFileName, e.getMessage()));
+      throw new GenerationAbortedException(
+          String.format("Failed to generate data file. Reason: %s", e.getMessage()));
     }
+
+    //Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
+    InvariantChecks.checkNotNull(handler);
 
     try {
       final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
@@ -271,15 +260,14 @@ final class TemplateProcessor implements Template.Processor {
           }
         }
 
-        fileWriter.println();
-        printer.printSequence(fileWriter, engineContext.getModel().getPE(), concreteSequence);
+        printer.printSequence(engineContext.getModel().getPE(), concreteSequence);
       }
 
       executor.setExceptionHandlers(handlers);
     } catch (final ConfigurationException e) { 
       Logger.error(e.getMessage());
     } finally {
-      fileWriter.close();
+      printer.close();
       Logger.debugBar();
     }
   }

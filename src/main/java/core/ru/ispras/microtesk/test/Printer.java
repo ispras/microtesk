@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -31,8 +30,10 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataDirective;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.utils.FileUtils;
 
 /**
  * The Printer class is responsible for printing generated symbolic test programs (sequences of
@@ -46,29 +47,72 @@ public final class Printer {
   private final Options options;
   private final Statistics statistics;
 
-  private String separator;
-  private int codeFileCount;
+  private final File file;
+  private final PrintWriter fileWritter;
 
-  private static String lastFileName = null;
-  private PrintWriter fileWritter = null;
-  private BinaryWriter binaryWriter = null;
+  private final File binaryFile;
+  private final BinaryWriter binaryWriter;
 
-  /**
-   * Constructs a printer object.
-   * 
-   * @throws IllegalArgumentException if any of the arguments is {@code null}.
-   */
-  public Printer(
+  private final String separator;
+
+  public static Printer newCodeFile(
       final Options options,
-      final Statistics statistics) {
+      final Statistics statistics) throws IOException {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(statistics);
 
-    this.options = options;
-    this.statistics = statistics;
+    final String outDir = getOutDir(options);
+    final String fileName = String.format(
+        "%s_%04d", options.getValueAsString(Option.CODE_PRE), statistics.getPrograms());
 
-    this.separator = null;
-    this.codeFileCount = 0;
+    final File file = FileUtils.newFile(
+        outDir, fileName, options.getValueAsString(Option.CODE_EXT));
+
+    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
+        FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
+
+    final Printer printer = new Printer(options, statistics, file, binaryFile);
+    return printer;
+  }
+
+  public static Printer newDataFile(
+      final Options options,
+      final Statistics statistics,
+      final int dataFileIndex) throws IOException {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(statistics);
+    InvariantChecks.checkGreaterOrEqZero(dataFileIndex);
+
+    final String outDir = getOutDir(options);
+    final String fileName = String.format(
+        "%s_%04d", options.getValueAsString(Option.DATA_PRE), dataFileIndex);
+
+    final File file = FileUtils.newFile(
+        outDir, fileName, options.getValueAsString(Option.DATA_EXT));
+
+    return new Printer(options, statistics, file, null);
+  }
+
+  public static Printer newExcHandlerFile(
+      final Options options,
+      final Statistics statistics,
+      final String id) throws IOException {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(statistics);
+    InvariantChecks.checkNotNull(id);
+
+    final String outDir = getOutDir(options);
+    final String fileName =
+        options.getValueAsString(Option.EXCEPT_PRE) + (id.isEmpty() ? "" : "_" + id);
+
+    final File file = FileUtils.newFile(
+        outDir, fileName, options.getValueAsString(Option.CODE_EXT));
+
+    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
+        FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
+
+    final Printer printer = new Printer(options, statistics, file, binaryFile);
+    return printer;
   }
 
   private static String getOutDir(final Options options) {
@@ -76,67 +120,66 @@ public final class Printer {
         options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
-  public String createNewFile() throws IOException {
-    close();
+  private Printer(
+      final Options options,
+      final Statistics statistics,
+      final File file,
+      final File binaryFile) throws IOException {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(statistics);
+    InvariantChecks.checkNotNull(file);
 
-    final String fileName = String.format(
-        "%s_%04d.%s",
-        options.getValueAsString(Option.CODE_PRE),
-        codeFileCount,
-        options.getValueAsString(Option.CODE_EXT)
-        );
+    this.options = options;
+    this.statistics = statistics;
 
-    fileWritter = newFileWriter(fileName);
+    this.file = file;
+    this.binaryFile = binaryFile;
 
-    if (options.getValueAsBoolean(Option.GENERATE_BINARY)) {
-      final String outDir = getOutDir(options);
-
-      final String binaryFileName = String.format(
-          "%s_%04d.%s",
-          options.getValueAsString(Option.CODE_PRE),
-          codeFileCount,
-          options.getValueAsString(Option.BIN_EXT)
-          );
-
-      binaryWriter = new BinaryWriter(new File(outDir, binaryFileName));
-    }
-
-    ++codeFileCount;
-    lastFileName = fileName;
-    return fileName;
-  }
-
-  public PrintWriter newFileWriter(final String fileName) throws IOException {
-    InvariantChecks.checkNotNull(fileName);
-
-    final String outDir = getOutDir(options);
-
-    final File file = new File(outDir, fileName);
-    final File fileParent = file.getParentFile();
-    if (null != fileParent) {
-      fileParent.mkdirs();
-    }
+    this.fileWritter = new PrintWriter(file);
+    this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
 
     final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     final String separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
     separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
 
-    final PrintWriter writer = new PrintWriter(new FileWriter(file));
-    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
-      // Prints MicroTESK information to the file (as the top file header).
-      printToFile(writer, separator);
-      printToFile(writer, String.format("%s", commentToken));
-      printToFile(writer, String.format("%s This test program was automatically generated by the MicroTESK tool", commentToken));
-      printToFile(writer, String.format("%s Generation started: %s", commentToken, new Date()));
-      printToFile(writer, String.format("%s", commentToken));
-      printToFile(writer, String.format("%s Institute for System Programming of the Russian Academy of Sciences (ISP RAS)", commentToken));
-      printToFile(writer, String.format("%s 25 Alexander Solzhenitsyn st., Moscow, 109004, Russia", commentToken));
-      printToFile(writer, String.format("%s http://forge.ispras.ru/projects/microtesk", commentToken));
-      printToFile(writer, String.format("%s", commentToken));
-      printToFile(writer, separator);
+    printFileHeader();
+  }
+
+  public String getFileName() {
+    return file.getName();
+  }
+
+  public void close() {
+    if (null != fileWritter) {
+      fileWritter.close();
     }
 
-    return writer;
+    if (null != binaryWriter) {
+      binaryWriter.close();
+    }
+  }
+
+  public void delete() {
+    file.delete();
+    if (null != binaryFile) {
+      binaryFile.delete();
+    }
+  }
+
+  private void printFileHeader() {
+    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
+      // Prints MicroTESK information to the file (as the top file header).
+      printToFile(separator);
+      printCommentToFile("");
+      printCommentToFile("This test program was automatically generated by the MicroTESK tool");
+      printCommentToFile(String.format("Generation started: %s", new Date()));
+      printCommentToFile("");
+      printCommentToFile("Institute for System Programming of the Russian Academy of Sciences (ISP RAS)");
+      printCommentToFile("25 Alexander Solzhenitsyn st., Moscow, 109004, Russia");
+      printCommentToFile("http://forge.ispras.ru/projects/microtesk");
+      printCommentToFile("");
+      printToFile(separator);
+    }
   }
 
   private static String newSeparator(final int length, final String token) {
@@ -176,20 +219,6 @@ public final class Printer {
       printCalls(observer, sequence.getBody());
     } finally {
       statistics.popActivity(); // PRINTING
-    }
-  }
-
-  public void printSequence(
-      final PrintWriter writer,
-      final ProcessingElement observer,
-      final TestSequence sequence) throws ConfigurationException {
-    final PrintWriter tempWriter = fileWritter;
-    fileWritter = writer;
-
-    try {
-      printSequence(observer, sequence);
-    } finally {
-      fileWritter = tempWriter;
     }
   }
 
@@ -241,18 +270,6 @@ public final class Printer {
     }
   }
 
-  /**
-   * Closes the generated file.
-   */
-  public void close() {
-    if (null != fileWritter) {
-      fileWritter.close();
-    }
-
-    if (null != binaryWriter) {
-      binaryWriter.close();
-    }
-  }
 
   private void printOutputs(
       final ProcessingElement observer,
@@ -344,7 +361,7 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-  public void printHeaderToFile(String text) {
+  private void printHeaderToFile(String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
@@ -408,7 +425,7 @@ public final class Printer {
    * 
    * @param text Text of the separator.
    */
-  public void printSeparatorToFile(final String text) {
+  private void printSeparatorToFile(final String text) {
     if (!options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       return;
     }
@@ -430,11 +447,11 @@ public final class Printer {
     printToFile(sb.toString());
   }
 
-  public void printToScreen(final String text) {
+  private void printToScreen(final String text) {
     Logger.debug(text);
   }
 
-  public void printToFile(final String text) {
+  private void printToFile(final String text) {
     printToFile(fileWritter, text);
   }
 
@@ -466,7 +483,48 @@ public final class Printer {
     }
   }
 
-  public static String getLastFileName() {
-    return lastFileName;
+  public void printData(
+      final String headerText,
+      final List<DataSection> globalData,
+      final List<DataSection> localData) {
+    InvariantChecks.checkNotNull(globalData);
+    InvariantChecks.checkNotNull(localData);
+
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    Logger.debugHeader("Printing Data to %s", getFileName());
+    printHeaderToFile("Data");
+
+    printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + headerText);
+    printToFile(headerText);
+
+    if (!globalData.isEmpty()) {
+      printToFile("");
+      printSeparatorToFile("Global Data");
+    }
+
+    for (final DataSection item : globalData) {
+      printDataDirectives(item.getDirectives());
+    }
+
+    if (!localData.isEmpty()) {
+      printToFile("");
+      printSeparatorToFile("Test Case Data");
+    }
+
+    int currentTestCaseIndex = -1;
+    for (final DataSection data : localData) {
+      final List<DataDirective> directives = data.getDirectives();
+      final int index = data.getSequenceIndex();
+
+      if (index != currentTestCaseIndex) {
+        currentTestCaseIndex = index;
+        printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
+      }
+
+      printDataDirectives(directives);
+    }
+
+    statistics.popActivity();
   }
 }

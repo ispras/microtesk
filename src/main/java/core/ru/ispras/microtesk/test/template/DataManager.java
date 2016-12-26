@@ -14,9 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +24,6 @@ import java.util.List;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
@@ -41,7 +38,6 @@ import ru.ispras.microtesk.test.Statistics;
 public final class DataManager {
   private final Model model;
   private final Options options;
-  private final Printer printer;
   private final Statistics statistics;
 
   private final List<DataSection> globalData;
@@ -59,16 +55,13 @@ public final class DataManager {
   public DataManager(
       final Model model,
       final Options options,
-      final Printer printer,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(printer);
     InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
     this.options = options;
-    this.printer = printer;
     this.statistics = statistics;
 
     this.globalData = new ArrayList<>();
@@ -204,43 +197,7 @@ public final class DataManager {
 
   public void printData(final Printer printer) {
     InvariantChecks.checkNotNull(printer);
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
-    Logger.debugHeader("Printing Data to %s", Printer.getLastFileName());
-    printer.printHeaderToFile("Data");
-
-    final String headerText = factory.getHeader().getText();
-    printer.printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + headerText);
-    printer.printToFile(headerText);
-
-    if (!globalData.isEmpty()) {
-      printer.printToFile("");
-      printer.printSeparatorToFile("Global Data");
-    }
-
-    for (final DataSection item : globalData) {
-      printer.printDataDirectives(item.getDirectives());
-    }
-
-    if (!localData.isEmpty()) {
-      printer.printToFile("");
-      printer.printSeparatorToFile("Test Case Data");
-    }
-
-    int currentTestCaseIndex = -1;
-    for (final DataSection data : localData) {
-      final List<DataDirective> directives = data.getDirectives();
-      final int index = data.getSequenceIndex();
-
-      if (index != currentTestCaseIndex) {
-        currentTestCaseIndex = index;
-        printer.printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
-      }
-
-      printer.printDataDirectives(directives);
-    }
-
-    statistics.popActivity();
+    printer.printData(factory.getHeader().getText(), globalData, localData);
   }
 
   public BigInteger getAddress() {
@@ -359,38 +316,24 @@ public final class DataManager {
   }
 
   private void saveToFile(final List<DataDirective> data) {
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
-    final String fileName = String.format("%s_%04d.%s",
-        options.getValueAsString(Option.DATA_PRE),
-        dataFileIndex,
-        options.getValueAsString(Option.DATA_EXT)
-        );
-
-    Logger.debug("Generating data file: %s", fileName);
-
-    PrintWriter writer = null;
+    Printer printer = null;
     try {
-      try {
-        writer = printer.newFileWriter(fileName);
-        for (final DataDirective item : data) {
-          if (item.needsIndent()) {
-            writer.println(options.getValueAsString(Option.INDENT_TOKEN) + item.getText());
-          } else {
-            writer.println(item.getText());
-          }
-        }
-      } finally {
-        writer.close();
-      }
+      statistics.pushActivity(Statistics.Activity.PRINTING);
+
+      printer = Printer.newDataFile(options, statistics, dataFileIndex);
+      printer.printDataDirectives(data);
+
       ++dataFileIndex;
     } catch (final IOException e) {
-      new File(fileName).delete();
-      throw new GenerationAbortedException(String.format(
-          "Failed to generate data file %s. Reason: %s", e.getMessage()));
-    }
+      throw new GenerationAbortedException(
+          String.format("Failed to generate data file. Reason: %s", e.getMessage()));
+    } finally {
+      if (null != printer) {
+        printer.close();
+      }
 
-    statistics.popActivity();
+      statistics.popActivity();
+    }
   }
 
   private void checkInitialized() {
