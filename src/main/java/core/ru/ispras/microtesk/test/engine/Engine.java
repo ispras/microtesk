@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,7 +38,8 @@ public final class Engine implements Template.Processor {
   private final EngineContext engineContext;
 
   private final Code code;
-  private final List<Block> delayed;
+  private final List<Block> unallocated;
+  private final List<ThreadState> threadStates;
 
   private TestSequence prologue = null;
   private Block epilogue = null;
@@ -47,7 +49,9 @@ public final class Engine implements Template.Processor {
     this.engineContext = engineContext;
 
     this.code = new Code();
-    this.delayed = new LinkedList<>();
+    this.unallocated = new LinkedList<>();
+
+    this.threadStates = new ArrayList<>();
   }
 
   @Override
@@ -88,10 +92,25 @@ public final class Engine implements Template.Processor {
   }
 
   private void processExternal(final Block block) {
-    // TODO Auto-generated method stub
+    if (unallocated.isEmpty()) {
+      final TestSequence sequence =
+          TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+      
+      
+    } else {
+      unallocated.add(block);
+    }
+
+    // If has no unallocated || has fixed origin
+      // make test sequence 
+      // allocate test sequence
+      // For each thread to enter execute the test sequence
+    // Else
+      // Add to unallocated
   }
 
   private void processBlock(final Block block) {
+    // startFile();
     // TODO Auto-generated method stub
   }
 }
