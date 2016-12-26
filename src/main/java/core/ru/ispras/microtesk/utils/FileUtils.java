@@ -107,10 +107,10 @@ public final class FileUtils {
     }
   }
 
-  public static PrintWriter newPrintWriter(
+  public static File newFile(
       final String path,
       final String name,
-      final String ext) throws IOException {
+      final String ext) {
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(ext);
@@ -121,6 +121,14 @@ public final class FileUtils {
       fileParent.mkdirs();
     }
 
+    return file;
+  }
+
+  public static PrintWriter newPrintWriter(
+      final String path,
+      final String name,
+      final String ext) throws IOException {
+    final File file = newFile(path, name, ext);
     return new PrintWriter(file);
   }
 
@@ -128,16 +136,7 @@ public final class FileUtils {
       final String path,
       final String name,
       final String ext) throws IOException {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(ext);
-
-    final File file = new File(path, name + "." + ext);
-    final File fileParent = file.getParentFile();
-    if (null != fileParent) {
-      fileParent.mkdirs();
-    }
-
+    final File file = newFile(path, name, ext);
     return new BinaryWriter(file);
   }
 }
