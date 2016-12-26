@@ -325,7 +325,7 @@ public final class Printer {
    * 
    * @param text Text to be printed.
    */
-  public void printTextNoIndent(final String text) {
+  private void printTextNoIndent(final String text) {
     if (text != null) {
       printToScreen(text);
       printToFileNoIndent(text);
