@@ -47,6 +47,7 @@ public final class Printer {
 
   private final Options options;
   private final Statistics statistics;
+  private final boolean isCodeFile;
 
   private final File file;
   private final PrintWriter fileWritter;
@@ -75,7 +76,7 @@ public final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    final Printer printer = new Printer(options, statistics, file, binaryFile);
+    final Printer printer = new Printer(options, statistics, true, file, binaryFile);
     statistics.incPrograms();
 
     return printer;
@@ -91,7 +92,7 @@ public final class Printer {
     InvariantChecks.checkNotNull(statistics);
 
     try {
-      console = new Printer(options, statistics, null, null);
+      console = new Printer(options, statistics, false, null, null);
     } catch (final IOException e) {
       throw new IllegalArgumentException(e);
     }
@@ -114,7 +115,7 @@ public final class Printer {
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.DATA_EXT));
 
-    return new Printer(options, statistics, file, null);
+    return new Printer(options, statistics, false, file, null);
   }
 
   public static Printer newExcHandlerFile(
@@ -135,7 +136,7 @@ public final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    final Printer printer = new Printer(options, statistics, file, binaryFile);
+    final Printer printer = new Printer(options, statistics, false, file, binaryFile);
     return printer;
   }
 
@@ -147,6 +148,7 @@ public final class Printer {
   private Printer(
       final Options options,
       final Statistics statistics,
+      final boolean isCodeFile,
       final File file,
       final File binaryFile) throws IOException {
     InvariantChecks.checkNotNull(options);
@@ -154,6 +156,7 @@ public final class Printer {
 
     this.options = options;
     this.statistics = statistics;
+    this.isCodeFile = isCodeFile;
 
     this.file = file;
     this.binaryFile = binaryFile;
@@ -187,6 +190,9 @@ public final class Printer {
   public void delete() {
     if (null != file) {
       file.delete();
+      if (isCodeFile) {
+        statistics.decPrograms();
+      }
     }
 
     if (null != binaryFile) {

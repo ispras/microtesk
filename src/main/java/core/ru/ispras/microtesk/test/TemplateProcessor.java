@@ -228,7 +228,6 @@ final class TemplateProcessor implements Template.Processor {
       //No instructions were added to the newly created file, it must be deleted
       if (engineContext.getStatistics().getProgramLength() == 0) {
         printer.delete();
-        engineContext.getStatistics().decPrograms();
       }
       printer = null;
     }
