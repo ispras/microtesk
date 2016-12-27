@@ -185,14 +185,18 @@ final class TemplateProcessor implements Template.Processor {
     printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
 
+    reallocateGlobalData();
+
+    executorCode = new ExecutorCode();
+    processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
+  }
+
+  private void reallocateGlobalData() {
     // Allocates global data created during generation of previous test programs
     if (engineContext.getStatistics().getPrograms() > 1 &&
         engineContext.getDataManager().containsDecls()) {
       engineContext.getDataManager().reallocateGlobalData();
     }
-
-    executorCode = new ExecutorCode();
-    processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
   }
 
   private void finishFile() throws ConfigurationException, IOException {
