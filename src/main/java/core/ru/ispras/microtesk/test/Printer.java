@@ -205,11 +205,17 @@ public final class Printer {
    */
   public void printSequence(
       final ProcessingElement observer,
-      final TestSequence sequence) throws ConfigurationException {
+      final TestSequence sequence,
+      final String sequenceId) throws ConfigurationException {
     InvariantChecks.checkNotNull(observer);
     InvariantChecks.checkNotNull(sequence);
+    InvariantChecks.checkNotNull(sequenceId);
 
     statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    if (!sequenceId.isEmpty()) {
+      printSubheaderToFile(sequenceId);
+    }
 
     try {
       final List<ConcreteCall> prologue = sequence.getPrologue();
@@ -382,7 +388,7 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-  public void printSubheaderToFile(final String text) {
+  private void printSubheaderToFile(final String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();

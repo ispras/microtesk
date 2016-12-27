@@ -188,8 +188,7 @@ final class TemplateProcessor implements Template.Processor {
         );
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
-    printer.printSubheaderToFile(sequenceId);
-    printer.printSequence(engineContext.getModel().getPE(), sequence);
+    printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
   }
 
   private void startFile() throws IOException, ConfigurationException {
@@ -244,7 +243,7 @@ final class TemplateProcessor implements Template.Processor {
           String.format("Failed to generate data file. Reason: %s", e.getMessage()));
     }
 
-    //Logger.debugHeader("Processing Exception Handler (%s)", exceptionFileName);
+    Logger.debugHeader("Processing Exception Handler (%s)", printer.getFileName());
     InvariantChecks.checkNotNull(handler);
 
     try {
@@ -260,7 +259,7 @@ final class TemplateProcessor implements Template.Processor {
           }
         }
 
-        printer.printSequence(engineContext.getModel().getPE(), concreteSequence);
+        printer.printSequence(engineContext.getModel().getPE(), concreteSequence, "");
       }
 
       executor.setExceptionHandlers(handlers);
