@@ -53,6 +53,9 @@ public final class Printer {
   private final File binaryFile;
   private final BinaryWriter binaryWriter;
 
+  private final String commentToken;
+  private final String indentToken;
+  private final String separatorToken;
   private final String separator;
 
   public static Printer newCodeFile(
@@ -138,9 +141,11 @@ public final class Printer {
     this.fileWritter = new PrintWriter(file);
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
 
-    final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
-    final String separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
-    separator = commentToken + newSeparator(LINE_WIDTH - commentToken.length(), separatorToken);
+    this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
+    this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
+    this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
+    this.separator = commentToken +
+        newSeparator(LINE_WIDTH - commentToken.length() - commentToken.length(), separatorToken);
 
     printFileHeader();
   }
@@ -288,7 +293,7 @@ public final class Printer {
       String text = output.evaluate(observer);
       switch (output.getKind()) {
         case COMMENT:
-          text = options.getValueAsString(Option.COMMENT_TOKEN) + " " + text;
+          text = commentToken + " " + text;
           break;
 
         case COMMENT_ML_START:
@@ -361,7 +366,7 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-  private void printHeaderToFile(String text) {
+  private void printHeaderToFile(final String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
@@ -377,7 +382,7 @@ public final class Printer {
    * 
    * @param text Text of the header.
    */
-  public void printSubheaderToFile(String text) {
+  public void printSubheaderToFile(final String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
@@ -391,24 +396,12 @@ public final class Printer {
    * 
    * @param text Text of the comment to be printed.
    */
-  private void printCommentToFile(String text) {
+  private void printCommentToFile(final String text) {
     if (text != null) {
-      final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
       printToFile(
           String.format("%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text));
     }
   }
-
-  /*
-  private void printCommentToFile(PrintWriter writer, String text) {
-    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED) && text != null) {
-      final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
-      printToFile(
-          writer,
-          String.format("%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text));
-    }
-  }
-  */
 
   /**
    * Prints a special comment (a line of '*' characters) to the file to
@@ -434,9 +427,6 @@ public final class Printer {
     final int postfixLength = LINE_WIDTH - prefixLength - text.length();
     final StringBuilder sb = new StringBuilder();
 
-    final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
-    final String separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
-
     sb.append(commentToken);
     sb.append(newSeparator(prefixLength - commentToken.length() - 1, separatorToken));
     sb.append(' ');
@@ -452,11 +442,12 @@ public final class Printer {
   }
 
   private void printToFile(final String text) {
-    if (null != fileWritter) {
-      if (null != text && text.isEmpty()) {
-        fileWritter.println(text);
+    if (null != fileWritter && null != text) {
+      if (text.isEmpty()) {
+        fileWritter.println();
       } else {
-        fileWritter.println(String.format("%s%s", options.getValueAsString(Option.INDENT_TOKEN), text));
+        fileWritter.print(indentToken);
+        fileWritter.println(text);
       }
     }
   }
@@ -471,7 +462,7 @@ public final class Printer {
     for (final DataDirective directive : directives) {
       final String text = directive.getText();
       if (directive.needsIndent()) {
-        printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + text);
+        printToScreen(indentToken + text);
         printToFile(text);
       } else {
         printTextNoIndent(text);
@@ -491,7 +482,7 @@ public final class Printer {
     Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
 
-    printToScreen(options.getValueAsString(Option.INDENT_TOKEN) + headerText);
+    printToScreen(indentToken + headerText);
     printToFile(headerText);
 
     if (!globalData.isEmpty()) {
