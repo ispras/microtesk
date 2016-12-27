@@ -43,6 +43,7 @@ import ru.ispras.microtesk.utils.FileUtils;
  */
 public final class Printer {
   private final static int LINE_WIDTH = 100;
+  private static Printer console = null;
 
   private final Options options;
   private final Statistics statistics;
@@ -76,6 +77,24 @@ public final class Printer {
 
     final Printer printer = new Printer(options, statistics, file, binaryFile);
     return printer;
+  }
+
+  public static Printer getConsole(
+      final Options options, final Statistics statistics) {
+    if (null != console) {
+      return console;
+    }
+
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(statistics);
+
+    try {
+      console = new Printer(options, statistics, null, null);
+    } catch (final IOException e) {
+      throw new IllegalArgumentException(e);
+    }
+
+    return console;
   }
 
   public static Printer newDataFile(
@@ -130,7 +149,6 @@ public final class Printer {
       final File binaryFile) throws IOException {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(statistics);
-    InvariantChecks.checkNotNull(file);
 
     this.options = options;
     this.statistics = statistics;
@@ -138,7 +156,7 @@ public final class Printer {
     this.file = file;
     this.binaryFile = binaryFile;
 
-    this.fileWritter = new PrintWriter(file);
+    this.fileWritter = null != file ? new PrintWriter(file) : null;
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
 
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
@@ -172,7 +190,7 @@ public final class Printer {
   }
 
   private void printFileHeader() {
-    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
+    if (null != fileWritter && options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       // Prints MicroTESK information to the file (as the top file header).
       printToFile(separator);
       printCommentToFile("");

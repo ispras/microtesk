@@ -176,8 +176,12 @@ final class TemplateProcessor implements Template.Processor {
       final boolean isExternal,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    Logger.debugHeader("Constructed %s", sequenceId);
-    //printer.printSequence(null, engineContext.getModel().getPE(), sequence);
+    if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
+      Logger.debugHeader("Constructed %s", sequenceId);
+      final Printer consolePrinter =
+          Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics());
+      consolePrinter.printSequence(engineContext.getModel().getPE(), sequence, "");
+    }
 
     Logger.debugHeader("Executing %s", sequenceId);
     executor.execute(
