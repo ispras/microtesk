@@ -76,6 +76,8 @@ public final class Printer {
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
     final Printer printer = new Printer(options, statistics, file, binaryFile);
+    statistics.incPrograms();
+
     return printer;
   }
 

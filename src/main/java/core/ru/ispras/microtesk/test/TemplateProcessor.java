@@ -185,8 +185,6 @@ final class TemplateProcessor implements Template.Processor {
     printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
 
-    engineContext.getStatistics().incPrograms();
-
     // Allocates global data created during generation of previous test programs
     if (engineContext.getStatistics().getPrograms() > 1 &&
         engineContext.getDataManager().containsDecls()) {
