@@ -16,46 +16,26 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.Label;
 
 public final class CodeBlock {
-  private final Label label;
-  private final long startAddress;
-  private final long endAddress;
   private final List<ConcreteCall> calls;
-  private final CodeBlock next;
 
-  public CodeBlock(
-      final Label label,
-      final long startAddress,
-      final long endAddress,
-      final List<ConcreteCall> calls,
-      final CodeBlock next) {
-    this.label = label;
-    this.startAddress = startAddress;
-    this.endAddress = endAddress;
+  public CodeBlock(final List<ConcreteCall> calls) {
+    InvariantChecks.checkNotEmpty(calls);
     this.calls = calls;
-    this.next = next;
-  }
-
-  public Label getLabel() {
-    return label;
   }
 
   public long getStartAddress() {
-    return startAddress;
+    return calls.get(0).getAddress();
   }
 
   public long getEndAddress() {
-    return endAddress;
+    return calls.get(calls.size()-1).getAddress();
   }
 
   public List<ConcreteCall> getCalls() {
     return calls;
-  }
-
-  public CodeBlock getNext() {
-    return next;
   }
 }
