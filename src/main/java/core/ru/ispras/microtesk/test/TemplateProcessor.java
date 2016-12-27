@@ -15,11 +15,11 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
@@ -72,7 +72,7 @@ final class TemplateProcessor implements Template.Processor {
         processBlock(block);
       }
     } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e.getMessage());
+      throw new GenerationAbortedException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -84,7 +84,7 @@ final class TemplateProcessor implements Template.Processor {
       finishFile();
       Logger.debugHeader("Ended Processing Template");
     } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e.getMessage());
+      throw new GenerationAbortedException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
@@ -233,39 +233,29 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void defineExceptionHandler(final ExceptionHandler handler) {
-    Printer printer = null; 
-
-    try { 
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
-    } catch (final IOException e) {
-      throw new GenerationAbortedException(
-          String.format("Failed to generate data file. Reason: %s", e.getMessage()));
-    }
-
-    Logger.debugHeader("Processing Exception Handler (%s)", printer.getFileName());
+    Logger.debugHeader("Processing Exception Handler");
     InvariantChecks.checkNotNull(handler);
 
+    final Pair<List<TestSequence>, Map<String, List<ConcreteCall>>> concreteHandler;
     try {
-      final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>();
-      for (final ExceptionHandler.Section section : handler.getSections()) {
-        final TestSequence concreteSequence =
-            TestEngineUtils.makeTestSequenceForExceptionHandler(engineContext, section);
+      concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
+      executor.setExceptionHandlers(concreteHandler.second);
+    } catch (final ConfigurationException e) {
+      throw new GenerationAbortedException(e);
+    }
 
-        final List<ConcreteCall> handlerCalls = concreteSequence.getAll();
-        for (final String exception : section.getExceptions()) {
-          if (null != handlers.put(exception, handlerCalls)) {
-            Logger.warning("Exception handler for %s is redefined.", exception);
-          }
-        }
-
-        printer.printSequence(engineContext.getModel().getPE(), concreteSequence, "");
+    Printer printer = null;
+    try { 
+      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
+      for (final TestSequence sequence : concreteHandler.first) {
+        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
       }
-
-      executor.setExceptionHandlers(handlers);
-    } catch (final ConfigurationException e) { 
-      Logger.error(e.getMessage());
+    } catch (final ConfigurationException | IOException e) {
+      throw new GenerationAbortedException(e);
     } finally {
-      printer.close();
+      if (null != printer) {
+        printer.close();
+      }
       Logger.debugBar();
     }
   }

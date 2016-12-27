@@ -233,6 +233,8 @@ public final class Printer {
 
     if (!sequenceId.isEmpty()) {
       printHeaderToFile(sequenceId);
+    } else {
+      printToFile("");
     }
 
     try {

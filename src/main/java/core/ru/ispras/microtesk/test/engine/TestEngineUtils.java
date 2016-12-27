@@ -17,9 +17,13 @@ package ru.ispras.microtesk.test.engine;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -152,5 +156,28 @@ public final class TestEngineUtils {
 
     result.setAddress(address.longValue());
     return result;
+  }
+
+  public static Pair<List<TestSequence>, Map<String, List<ConcreteCall>>> makeExceptionHandler(
+      final EngineContext engineContext,
+      final ExceptionHandler handler) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(handler);
+
+    final List<TestSequence> sequences = new ArrayList<>(handler.getSections().size());
+    final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>(); 
+
+    for (final ExceptionHandler.Section section : handler.getSections()) {
+      final TestSequence sequence = makeTestSequenceForExceptionHandler(engineContext, section);
+      sequences.add(sequence);
+
+      for (final String exception : section.getExceptions()) {
+        if (null != handlers.put(exception, sequence.getAll())) {
+          Logger.warning("Exception handler for %s is redefined.", exception);
+        }
+      }
+    }
+
+    return new Pair<>(sequences, handlers);
   }
 }
