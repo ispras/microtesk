@@ -145,7 +145,7 @@ public final class Printer {
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
     this.separator = commentToken +
-        newSeparator(LINE_WIDTH - commentToken.length() - commentToken.length(), separatorToken);
+        newSeparator(LINE_WIDTH - indentToken.length() - commentToken.length(), separatorToken);
 
     printFileHeader();
   }
@@ -429,8 +429,8 @@ public final class Printer {
       return;
     }
 
-    final int prefixLength = (LINE_WIDTH - text.length()) / 2;
-    final int postfixLength = LINE_WIDTH - prefixLength - text.length();
+    final int prefixLength = (LINE_WIDTH - indentToken.length() - text.length()) / 2;
+    final int postfixLength = LINE_WIDTH - indentToken.length() - prefixLength - text.length();
     final StringBuilder sb = new StringBuilder();
 
     sb.append(commentToken);
