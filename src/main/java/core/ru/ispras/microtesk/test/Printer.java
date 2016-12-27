@@ -214,7 +214,7 @@ public final class Printer {
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     if (!sequenceId.isEmpty()) {
-      printSubheaderToFile(sequenceId);
+      printHeaderToFile(sequenceId);
     }
 
     try {
@@ -367,28 +367,12 @@ public final class Printer {
   }
 
   /**
-   * Prints a special header comment that specifies the start of a code section
-   * (sections include: data definitions, initialization, finalization and main code). 
-   * 
-   * @param text Text of the header.
-   */
-  private void printHeaderToFile(final String text) {
-    if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
-      printToFile("");
-      printSeparatorToFile();
-      printCommentToFile(text);
-      printSeparatorToFile();
-      printToFile("");
-    }
-  }
-
-  /**
    * Prints a special header comment that specifies the start of a logically separate
    * part of code. 
    * 
    * @param text Text of the header.
    */
-  private void printSubheaderToFile(final String text) {
+  private void printHeaderToFile(final String text) {
     if (options.getValueAsBoolean(Option.COMMENTS_ENABLED)) {
       printToFile("");
       printSeparatorToFile();
@@ -404,8 +388,8 @@ public final class Printer {
    */
   private void printCommentToFile(final String text) {
     if (text != null) {
-      printToFile(
-          String.format("%s%s%s", commentToken, commentToken.endsWith(" ") ? "" : " ", text));
+      printToFile(String.format(
+          "%s%s%s", commentToken, text.isEmpty() || commentToken.endsWith(" ") ? "" : " ", text));
     }
   }
 
@@ -512,7 +496,7 @@ public final class Printer {
 
       if (index != currentTestCaseIndex) {
         currentTestCaseIndex = index;
-        printSubheaderToFile(String.format("Test Case %d", currentTestCaseIndex));
+        printHeaderToFile(String.format("Test Case %d", currentTestCaseIndex));
       }
 
       printDataDirectives(directives);
