@@ -171,7 +171,7 @@ public final class Printer {
   }
 
   public String getFileName() {
-    return file.getName();
+    return null != file ? file.getName() : null;
   }
 
   public void close() {
@@ -185,7 +185,10 @@ public final class Printer {
   }
 
   public void delete() {
-    file.delete();
+    if (null != file) {
+      file.delete();
+    }
+
     if (null != binaryFile) {
       binaryFile.delete();
     }
