@@ -452,15 +452,11 @@ public final class Printer {
   }
 
   private void printToFile(final String text) {
-    printToFile(fileWritter, text);
-  }
-
-  private void printToFile(final PrintWriter writer, final String text) {
-    if (null != writer) {
+    if (null != fileWritter) {
       if (null != text && text.isEmpty()) {
-        writer.println(text);
+        fileWritter.println(text);
       } else {
-        writer.println(String.format("%s%s", options.getValueAsString(Option.INDENT_TOKEN), text));
+        fileWritter.println(String.format("%s%s", options.getValueAsString(Option.INDENT_TOKEN), text));
       }
     }
   }
