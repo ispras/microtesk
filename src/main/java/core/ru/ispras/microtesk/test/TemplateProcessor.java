@@ -99,7 +99,7 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
-    processTestSequence(sequence, "External Code", true, Label.NO_SEQUENCE_INDEX, true);
+    processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
 
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
       finishFile();
@@ -123,7 +123,7 @@ final class TemplateProcessor implements Template.Processor {
         final String sequenceId =
             String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
 
-        processTestSequence(sequence, sequenceId, false, sequenceIndex, true);
+        processTestSequence(sequence, sequenceId, sequenceIndex, true);
         processSelfChecks(sequence.getChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
@@ -149,13 +149,12 @@ final class TemplateProcessor implements Template.Processor {
     Logger.debugHeader("Preparing %s", sequenceId);
 
     final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-    processTestSequence(selfCheckSequence, sequenceId, true, testCaseIndex, false);
+    processTestSequence(selfCheckSequence, sequenceId, testCaseIndex, false);
   }
 
   private void processTestSequence(
       final TestSequence sequence,
       final String sequenceId,
-      final boolean isExternal,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
@@ -188,7 +187,7 @@ final class TemplateProcessor implements Template.Processor {
     reallocateGlobalData();
 
     executorCode = new ExecutorCode();
-    processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
+    processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
   private void reallocateGlobalData() {
@@ -206,7 +205,7 @@ final class TemplateProcessor implements Template.Processor {
       final TestSequence sequence =
           TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
 
-      processTestSequence(sequence, "Epilogue", true, Label.NO_SEQUENCE_INDEX, true);
+      processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
 
       if (engineContext.getDataManager().containsDecls()) {
         engineContext.getDataManager().printData(printer);
