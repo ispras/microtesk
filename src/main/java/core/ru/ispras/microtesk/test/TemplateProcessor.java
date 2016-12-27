@@ -42,9 +42,7 @@ final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
   private final Executor executor;
 
-  private Printer printer;
-  private boolean needCreateNewFile = true;
-
+  private Printer printer = null;
   private TestSequence prologue = null;
   private Block epilogueBlock = null;
   private ExecutorCode executorCode = null;
@@ -54,7 +52,6 @@ final class TemplateProcessor implements Template.Processor {
 
     this.engineContext = engineContext;
     this.executor = new Executor(engineContext);
-    this.printer = null;
   }
 
   @Override
@@ -85,17 +82,8 @@ final class TemplateProcessor implements Template.Processor {
   public void finish() {
     try {
       finishFile();
-
-      if (!needCreateNewFile) {
-        //No instructions were added to the newly created file, it must be deleted
-        if (engineContext.getStatistics().getProgramLength() == 0) {
-          printer.delete();
-          engineContext.getStatistics().decPrograms();
-        }
-      }
-
       Logger.debugHeader("Ended Processing Template");
-    } catch (final ConfigurationException e) {
+    } catch (final ConfigurationException | IOException e) {
       throw new GenerationAbortedException(e.getMessage());
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
@@ -104,10 +92,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
-    if (needCreateNewFile) {
-      startFile();
-      needCreateNewFile = false;
-    }
+    startFile();
 
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
@@ -116,7 +101,6 @@ final class TemplateProcessor implements Template.Processor {
 
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
       finishFile();
-      needCreateNewFile = true;
     }
   }
 
@@ -129,10 +113,7 @@ final class TemplateProcessor implements Template.Processor {
           engine.process(engineContext, abstractIt.value());
 
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-        if (needCreateNewFile) {
-          startFile();
-          needCreateNewFile = false;
-        }
+        startFile();
 
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
@@ -148,7 +129,6 @@ final class TemplateProcessor implements Template.Processor {
 
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
           finishFile();
-          needCreateNewFile = true;
         }
       } // Concrete sequence iterator
     } // Abstract sequence iterator
@@ -196,6 +176,10 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void startFile() throws IOException, ConfigurationException {
+    if (null != printer) {
+      return;
+    }
+
     printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
 
@@ -211,8 +195,10 @@ final class TemplateProcessor implements Template.Processor {
     processTestSequence(prologue, "Prologue", true, Label.NO_SEQUENCE_INDEX, true);
   }
 
-  private void finishFile() throws ConfigurationException {
+  private void finishFile() throws ConfigurationException, IOException {
     try {
+      startFile();
+
       final TestSequence sequence =
           TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
 
@@ -222,7 +208,16 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getDataManager().printData(printer);
       }
     } finally {
-      printer.close();
+      if (null != printer) {
+        printer.close();
+        //No instructions were added to the newly created file, it must be deleted
+        if (engineContext.getStatistics().getProgramLength() == 0) {
+          printer.delete();
+          engineContext.getStatistics().decPrograms();
+        }
+        printer = null;
+      }
+
       Tarmac.closeFile();
 
       // Clean up all the state
