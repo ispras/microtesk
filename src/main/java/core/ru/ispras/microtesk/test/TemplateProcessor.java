@@ -71,8 +71,10 @@ final class TemplateProcessor implements Template.Processor {
       } else {
         processBlock(block);
       }
-    } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e);
+    } catch (final Exception e) {
+      closeFile();
+      throw e instanceof GenerationAbortedException ?
+          (GenerationAbortedException) e : new GenerationAbortedException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -208,16 +210,7 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getDataManager().printData(printer);
       }
     } finally {
-      if (null != printer) {
-        printer.close();
-        //No instructions were added to the newly created file, it must be deleted
-        if (engineContext.getStatistics().getProgramLength() == 0) {
-          printer.delete();
-          engineContext.getStatistics().decPrograms();
-        }
-        printer = null;
-      }
-
+      closeFile();
       Tarmac.closeFile();
 
       // Clean up all the state
@@ -228,6 +221,18 @@ final class TemplateProcessor implements Template.Processor {
 
       // Sets the starting address for instruction allocation after the prologue
       engineContext.setAddress(prologue.getEndAddress());
+    }
+  }
+
+  private void closeFile() {
+    if (null != printer) {
+      printer.close();
+      //No instructions were added to the newly created file, it must be deleted
+      if (engineContext.getStatistics().getProgramLength() == 0) {
+        printer.delete();
+        engineContext.getStatistics().decPrograms();
+      }
+      printer = null;
     }
   }
 
