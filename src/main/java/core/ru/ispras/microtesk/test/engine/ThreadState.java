@@ -18,8 +18,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class ThreadState {
   public static enum Kind {
-    /** Ready for execution */
-    NORMAL,
+    /** Ready to start execution */
+    START,
+
+    /** Executing code */
+    EXECUTING,
 
     /** Waiting for a synchronization event */
     WAIT_SYNC,
