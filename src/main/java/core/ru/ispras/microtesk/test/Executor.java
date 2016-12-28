@@ -28,7 +28,6 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
@@ -124,9 +123,6 @@ public final class Executor {
     if (sequence.isEmpty()) {
       return;
     }
-
-    allocateDataSections(context.getLabelManager(), sequence, sequenceIndex);
-    registerLabels(context.getLabelManager(), sequence, sequenceIndex);
 
     final int startIndex = executorCode.getCallCount();
     executorCode.addCalls(sequence);
@@ -368,32 +364,6 @@ public final class Executor {
     context.getStatistics().incTraceLength();
     if (Tarmac.isEnabled()) {
       Tarmac.addRecord(Record.newInstruction(call));
-    }
-  }
-
-  private void allocateDataSections(
-      final LabelManager labelManager,
-      final List<ConcreteCall> calls,
-      final int sequenceIndex) {
-    for (final ConcreteCall call : calls) {
-      if (call.getData() != null) {
-        final DataSection data = call.getData();
-        data.setSequenceIndex(sequenceIndex);
-        context.getDataManager().processData(labelManager, data);
-      }
-    }
-  }
-
-  private static void registerLabels(
-      final LabelManager labelManager,
-      final List<ConcreteCall> calls,
-      final int sequenceIndex) {
-    for (final ConcreteCall call : calls) {
-      labelManager.addAllLabels(
-          call.getLabels(),
-          call.getAddress(),
-          sequenceIndex
-          );
     }
   }
 

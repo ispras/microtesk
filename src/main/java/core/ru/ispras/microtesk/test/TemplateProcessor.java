@@ -35,6 +35,7 @@ import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
@@ -161,6 +162,11 @@ final class TemplateProcessor implements Template.Processor {
       final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
+    // Code allocation actions
+    final List<ConcreteCall> calls = sequence.getAll();
+    allocateDataSections(engineContext.getLabelManager(), calls, sequenceIndex);
+    registerLabels(engineContext.getLabelManager(), calls, sequenceIndex);
+
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
       Logger.debugHeader("Constructed %s", sequenceId);
       final Printer consolePrinter =
@@ -171,7 +177,7 @@ final class TemplateProcessor implements Template.Processor {
     Logger.debugHeader("Executing %s", sequenceId);
     executor.execute(
         executorCode,
-        sequence.getAll(),
+        calls,
         sequenceIndex,
         abortOnUndefinedLabel
         );
@@ -309,6 +315,19 @@ final class TemplateProcessor implements Template.Processor {
           call.getAddress(),
           sequenceIndex
           );
+    }
+  }
+
+  private void allocateDataSections(
+      final LabelManager labelManager,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex) {
+    for (final ConcreteCall call : calls) {
+      if (call.getData() != null) {
+        final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
+        engineContext.getDataManager().processData(labelManager, data);
+      }
     }
   }
 }
