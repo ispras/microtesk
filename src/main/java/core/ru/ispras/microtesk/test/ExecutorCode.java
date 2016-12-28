@@ -64,10 +64,6 @@ public final class ExecutorCode {
     return index;
   }
 
-  public ConcreteCall getCallAt(final long address) {
-    return getCall(getCallIndex(address));
-  }
-
   public long getCallAddress(final int index) {
     return getCall(index).getAddress();
   }
@@ -79,7 +75,7 @@ public final class ExecutorCode {
     }
   }
 
-  public void addCall(final ConcreteCall call) {
+  private void addCall(final ConcreteCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);
 
