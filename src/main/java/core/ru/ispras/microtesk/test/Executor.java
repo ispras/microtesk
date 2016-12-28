@@ -126,11 +126,10 @@ public final class Executor {
     }
 
     allocateDataSections(context.getLabelManager(), sequence, sequenceIndex);
-    final int startIndex = executorCode.getCallCount();
-
     registerLabels(context.getLabelManager(), sequence, sequenceIndex);
-    executorCode.addCalls(sequence);
 
+    final int startIndex = executorCode.getCallCount();
+    executorCode.addCalls(sequence);
     final int endIndex = executorCode.getCallCount() - 1;
 
     // TODO: patch labels in exception handler code
