@@ -27,15 +27,6 @@ public final class ExecutorCode {
   private final Map<Long, Integer> addresses;
   private final Map<String, Long> handlerAddresses;
 
-  public ExecutorCode(
-      final List<ConcreteCall> calls,
-      final Map<Long, Integer> addresses,
-      final Map<String, Long> handlerAddresses) {
-    this.calls = calls;
-    this.addresses = addresses;
-    this.handlerAddresses = handlerAddresses;
-  }
-
   public ExecutorCode() {
     this.calls = new ArrayList<>();
     this.addresses = new LinkedHashMap<>();
