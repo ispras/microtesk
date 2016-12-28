@@ -55,10 +55,6 @@ public final class ExecutorCode {
     return index;
   }
 
-  public long getCallAddress(final int index) {
-    return getCall(index).getAddress();
-  }
-
   public void addCalls(final List<ConcreteCall> calls) {
     InvariantChecks.checkNotNull(calls);
     for (final ConcreteCall call : calls) {

@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.test.LabelManager;
 
 /**
  * The LabelReference class describes a reference to a label. This means a label specified as an
@@ -38,28 +36,10 @@ import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 public final class LabelReference {
   private final LabelValue reference;
   private final LocationAccessor patcher;
-  private Target target;
-
-  public static final class Target {
-    private final Label label;
-    private final int position;
-
-    private Target(final Label label, final int position) {
-      this.label = label;
-      this.position = position;
-    }
-
-    public Label getLabel() {
-      return label;
-    }
-
-    public int getPosition() {
-      return position;
-    }
-  }
+  private LabelManager.Target target;
 
   protected LabelReference(final LabelValue lazyLabel) {
-    checkNotNull(lazyLabel);
+    InvariantChecks.checkNotNull(lazyLabel);
 
     this.reference = lazyLabel;
     this.target = null;
@@ -69,8 +49,8 @@ public final class LabelReference {
   public LabelReference(
       final LabelValue lazyLabel,
       final LocationAccessor patcher) {
-    checkNotNull(lazyLabel);
-    checkNotNull(patcher);
+    InvariantChecks.checkNotNull(lazyLabel);
+    InvariantChecks.checkNotNull(patcher);
 
     this.reference = lazyLabel;
     this.target = null;
@@ -78,7 +58,7 @@ public final class LabelReference {
   }
 
   protected LabelReference(final LabelReference other) {
-    checkNotNull(other);
+    InvariantChecks.checkNotNull(other);
 
     this.reference = other.reference.sharedCopy();
     this.target = other.target;
@@ -122,14 +102,13 @@ public final class LabelReference {
     return reference.hasAddress() ? reference.getAddress() : null;
   }
 
-  public Target getTarget() {
+  public LabelManager.Target getTarget() {
     return target;
   }
 
-  public void setTarget(final Label label, final int position) {
-    checkNotNull(label);
-    checkGreaterOrEqZero(position);
-    target = new Target(label, position);
+  public void setTarget(final LabelManager.Target target) {
+    InvariantChecks.checkNotNull(target);
+    this.target = target;
   }
 
   public void resetTarget() {

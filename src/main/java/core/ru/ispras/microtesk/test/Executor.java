@@ -258,14 +258,14 @@ public final class Executor {
 
         if (null != labelRefs && !labelRefs.isEmpty()) {
           final LabelReference reference = labelRefs.get(0);
-          final LabelReference.Target target = reference.getTarget();
+          final LabelManager.Target target = reference.getTarget();
 
           // Resets labels to jump (they are no longer needed after being used).
           labelRefs = null;
 
           if (null != target) {
-            index = target.getPosition();
-            final long nextAddress = code.getCallAddress(index);
+            final long nextAddress = target.getAddress();
+            index = code.getCallIndex(nextAddress);
             logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
             continue;
           }
@@ -397,8 +397,7 @@ public final class Executor {
 
           // For code labels
           if (code.hasAddress(address)) {
-            final int targetIndex = code.getCallIndex(address);
-            labelRef.setTarget(target.getLabel(), targetIndex);
+            labelRef.setTarget(target);
           }
 
           if (null != labelRef.getArgumentValue()) {
