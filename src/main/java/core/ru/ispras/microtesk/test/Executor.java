@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -126,13 +125,11 @@ public final class Executor {
       return;
     }
 
-    final List<ConcreteCall> sequenceCode =
-        expandDataSections(sequence, context.getLabelManager(), sequenceIndex);
-
+    allocateDataSections(context.getLabelManager(), sequence, sequenceIndex);
     final int startIndex = executorCode.getCallCount();
 
-    registerLabels(context.getLabelManager(), sequenceCode, sequenceIndex);
-    executorCode.addCalls(sequenceCode);
+    registerLabels(context.getLabelManager(), sequence, sequenceIndex);
+    executorCode.addCalls(sequence);
 
     final int endIndex = executorCode.getCallCount() - 1;
 
@@ -375,23 +372,17 @@ public final class Executor {
     }
   }
 
-  private List<ConcreteCall> expandDataSections(
-      final List<ConcreteCall> calls,
+  private void allocateDataSections(
       final LabelManager labelManager,
+      final List<ConcreteCall> calls,
       final int sequenceIndex) {
-    final List<ConcreteCall> result = new ArrayList<>();
     for (final ConcreteCall call : calls) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
         data.setSequenceIndex(sequenceIndex);
         context.getDataManager().processData(labelManager, data);
-        continue;
       }
-
-      result.add(call);
     }
-
-    return result;
   }
 
   private static void registerLabels(
