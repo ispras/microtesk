@@ -15,10 +15,10 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Block;
@@ -27,31 +27,32 @@ import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 
 /**
- *
- * Construct
- * Simulate
- * Print
- * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Engine implements Template.Processor {
-  private final EngineContext engineContext;
-
-  private final Code code;
-  private final List<Block> unallocated;
+  private final EngineContext context;
   private final List<ThreadState> threadStates;
 
+  private Printer printer = null;
   private TestSequence prologue = null;
   private Block epilogue = null;
 
-  public Engine(final EngineContext engineContext) {
-    InvariantChecks.checkNotNull(engineContext);
-    this.engineContext = engineContext;
+  public Engine(final EngineContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    this.code = new Code();
-    this.unallocated = new LinkedList<>();
+    this.context = context;
+    this.threadStates = newInitialThreadStates(context.getModel().getPENumber());
+  }
 
-    this.threadStates = new ArrayList<>();
+  private static List<ThreadState> newInitialThreadStates(final int count) {
+    InvariantChecks.checkGreaterThanZero(count); 
+
+    final List<ThreadState> result = new ArrayList<>(count);
+    for (int index = 0; index < count; index++) {
+      result.set(index, new ThreadState(ThreadState.Kind.START, 0, null));
+    }
+
+    return result;
   }
 
   @Override
@@ -83,7 +84,7 @@ public final class Engine implements Template.Processor {
 
   private void processPrologue(final Block block) {
     InvariantChecks.checkTrue(null == prologue);
-    prologue = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+    prologue = TestEngineUtils.makeTestSequenceForExternalBlock(context, block);
   }
 
   private void processEpilogue(final Block block) {
@@ -92,6 +93,19 @@ public final class Engine implements Template.Processor {
   }
 
   private void processExternal(final Block block) {
+    startFile();
+
+    /*
+    final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
+    final BigInteger origin = getOrigin(block);
+    
+    
+    if (null == origin) {
+      unallocated.add(block);
+      return;
+    }
+
+    
     if (unallocated.isEmpty()) {
       final TestSequence sequence =
           TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
@@ -99,7 +113,7 @@ public final class Engine implements Template.Processor {
       
     } else {
       unallocated.add(block);
-    }
+    }*/
 
     // If has no unallocated || has fixed origin
       // make test sequence 
@@ -110,7 +124,15 @@ public final class Engine implements Template.Processor {
   }
 
   private void processBlock(final Block block) {
+    startFile();
+
     // startFile();
     // TODO Auto-generated method stub
+  }
+
+  private void startFile() {
+    if (null != printer) {
+      return;
+    }
   }
 }
