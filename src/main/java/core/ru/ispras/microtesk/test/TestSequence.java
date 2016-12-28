@@ -14,13 +14,11 @@
 
 package ru.ispras.microtesk.test;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -52,8 +50,8 @@ public final class TestSequence {
     }
 
     private void addTo(final List<ConcreteCall> target, final ConcreteCall call) {
-      checkNotNull(target);
-      checkNotNull(call);
+      InvariantChecks.checkNotNull(target);
+      InvariantChecks.checkNotNull(call);
 
       target.add(call);
       byteSize += call.getByteSize();
@@ -64,7 +62,7 @@ public final class TestSequence {
     }
 
     private void addTo(final List<ConcreteCall> target, final List<ConcreteCall> calls) {
-      checkNotNull(calls);
+      InvariantChecks.checkNotNull(calls);
       for (final ConcreteCall call : calls) {
         addTo(target, call);
       }
@@ -87,7 +85,7 @@ public final class TestSequence {
     }
 
     public void addCheck(final SelfCheck check) {
-      checkNotNull(check);
+      InvariantChecks.checkNotNull(check);
       checks.add(check);
     }
 
@@ -103,8 +101,9 @@ public final class TestSequence {
   private final int byteSize;
   private final int instructionCount;
 
+  private long startAddress = 0;
   private long endAddress = 0;
-  private boolean isEndAddressSet = false;
+  private boolean isAddressSet = false;
 
   private TestSequence(
       final List<ConcreteCall> prologue,
@@ -112,12 +111,12 @@ public final class TestSequence {
       final List<SelfCheck> checks,
       final int byteSize,
       final int instructionCount) {
-    checkNotNull(prologue);
-    checkNotNull(body);
-    checkNotNull(checks);
+    InvariantChecks.checkNotNull(prologue);
+    InvariantChecks.checkNotNull(body);
+    InvariantChecks.checkNotNull(checks);
 
     // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
-    checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
+    InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
 
     this.prologue = Collections.unmodifiableList(prologue);
     this.body = Collections.unmodifiableList(body);
@@ -148,8 +147,13 @@ public final class TestSequence {
     return byteSize;
   }
 
+  public long getStartAddress() {
+    InvariantChecks.checkTrue(isAddressSet, "Address is not assigned");
+    return startAddress;
+  }
+
   public long getEndAddress() {
-    checkTrue(isEndAddressSet, "Address is not assigned");
+    InvariantChecks.checkTrue(isAddressSet, "Address is not assigned");
     return endAddress;
   }
 
@@ -159,8 +163,9 @@ public final class TestSequence {
     currentAddress = setAddress(prologue, currentAddress);
     currentAddress = setAddress(body, currentAddress);
 
+    this.startAddress = address;
     this.endAddress = currentAddress;
-    this.isEndAddressSet = true;
+    this.isAddressSet = true;
 
     return currentAddress;
   }
