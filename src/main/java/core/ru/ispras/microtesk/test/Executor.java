@@ -16,10 +16,7 @@ package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -58,7 +55,6 @@ public final class Executor {
   }
 
   private final EngineContext context;
-  private List<Map<String, List<ConcreteCall>>> exceptionHandlers;
   private Listener listener;
 
   /**
@@ -72,13 +68,7 @@ public final class Executor {
     InvariantChecks.checkNotNull(context);
 
     this.context = context;
-    this.exceptionHandlers = new ArrayList<>();
     this.listener = null;
-  }
-
-  public void setExceptionHandlers(final Map<String, List<ConcreteCall>> handlers) {
-    InvariantChecks.checkNotNull(handlers);
-    this.exceptionHandlers.add(handlers);
   }
 
   public void setListener(final Listener listener) {
@@ -134,12 +124,6 @@ public final class Executor {
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     if (sequence.isEmpty()) {
       return;
-    }
-
-    if (executorCode.getCallCount() == 0) {
-      for (final Map<String, List<ConcreteCall>> handler: exceptionHandlers) {
-        registerExceptionHandlers(executorCode, context.getLabelManager(), handler);
-      }
     }
 
     final List<ConcreteCall> sequenceCode =
@@ -420,32 +404,6 @@ public final class Executor {
           call.getAddress(),
           sequenceIndex
           );
-    }
-  }
-
-  private static void registerExceptionHandlers(
-      final ExecutorCode code,
-      final LabelManager labelManager,
-      final Map<String, List<ConcreteCall>> exceptionHandlers) {
-    if (exceptionHandlers != null) {
-      final Set<Object> handlerSet = new HashSet<>();
-      for (final Map.Entry<String, List<ConcreteCall>> e : exceptionHandlers.entrySet()) {
-        final String handlerName = e.getKey();
-        final List<ConcreteCall> handlerCalls = e.getValue();
- 
-        if (handlerCalls.isEmpty()) {
-          Logger.warning("Empty exception handler: %s", handlerName);
-          continue;
-        }
-
-        code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
-
-        if (!handlerSet.contains(handlerCalls)) {
-          registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
-          code.addCalls(handlerCalls);
-          handlerSet.add(handlerCalls);
-        }
-      }
     }
   }
 

@@ -15,8 +15,11 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -43,6 +46,7 @@ final class TemplateProcessor implements Template.Processor {
   private final Executor executor;
 
   private Printer printer = null;
+  private final List<Map<String, List<ConcreteCall>>> exceptionHandlers = new ArrayList<>();
   private TestSequence prologue = null;
   private Block epilogueBlock = null;
   private ExecutorCode executorCode = null;
@@ -184,9 +188,12 @@ final class TemplateProcessor implements Template.Processor {
     printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
 
+    executorCode = new ExecutorCode();
     reallocateGlobalData();
 
-    executorCode = new ExecutorCode();
+    registerExceptionHandlers(
+        executorCode, engineContext.getLabelManager(), exceptionHandlers);
+
     processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
@@ -244,10 +251,11 @@ final class TemplateProcessor implements Template.Processor {
     final Pair<List<TestSequence>, Map<String, List<ConcreteCall>>> concreteHandler;
     try {
       concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
-      executor.setExceptionHandlers(concreteHandler.second);
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException(e);
     }
+
+    exceptionHandlers.add(concreteHandler.second);
 
     Printer printer = null;
     try { 
@@ -262,6 +270,45 @@ final class TemplateProcessor implements Template.Processor {
         printer.close();
       }
       Logger.debugBar();
+    }
+  }
+
+  private static void registerExceptionHandlers(
+      final ExecutorCode code,
+      final LabelManager labelManager,
+      final List<Map<String, List<ConcreteCall>>> exceptionHandlers) {
+    for (final Map<String, List<ConcreteCall>> handler: exceptionHandlers) {
+      final Set<Object> handlerSet = new HashSet<>();
+      for (final Map.Entry<String, List<ConcreteCall>> e : handler.entrySet()) {
+        final String handlerName = e.getKey();
+        final List<ConcreteCall> handlerCalls = e.getValue();
+ 
+        if (handlerCalls.isEmpty()) {
+          Logger.warning("Empty exception handler: %s", handlerName);
+          continue;
+        }
+
+        code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
+
+        if (!handlerSet.contains(handlerCalls)) {
+          registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+          code.addCalls(handlerCalls);
+          handlerSet.add(handlerCalls);
+        }
+      }
+    }
+  }
+
+  private static void registerLabels(
+      final LabelManager labelManager,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex) {
+    for (final ConcreteCall call : calls) {
+      labelManager.addAllLabels(
+          call.getLabels(),
+          call.getAddress(),
+          sequenceIndex
+          );
     }
   }
 }
