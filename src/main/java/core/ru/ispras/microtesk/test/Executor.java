@@ -56,6 +56,7 @@ public final class Executor {
   private Listener listener;
 
   private final ConcreteCall exceptionCall;
+  private final ConcreteCall invalidCall;
   private final int branchExecutionLimit;
 
   /**
@@ -72,6 +73,7 @@ public final class Executor {
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
+    this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
   }
 
@@ -94,9 +96,6 @@ public final class Executor {
    * @param executorCode Execution context that contains all code of the current test program.
    * @param sequenceCode Sequence of executable (concrete) instruction calls.
    * @param sequenceIndex Sequence index.
-   * @param abortOnUndefinedLabel Aborts generation when a reference to an undefined label is
-   *        detected. This is the default behavior, which can changed in special cases (e.g.
-   *        self-checks that contain references to labels defined in epilogue).
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    * @throws GenerationAbortedException if during the interaction with the microprocessor model
@@ -159,14 +158,10 @@ public final class Executor {
     // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
     int nonExecutableCount = 0; 
 
-    final ConcreteCall invalidCall =
-        EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
-
-    while (code.isInBounds(index) ||
-           null != invalidCall && invalidCall.getExecutionCount() == 0) {
-
-      final ConcreteCall call =
-          code.isInBounds(index) ? code.getCall(index) : invalidCall;
+    boolean isInvalidNeverCalled = true;
+    while (code.isInBounds(index) || (null != invalidCall && isInvalidNeverCalled)) {
+      final ConcreteCall call = code.isInBounds(index) ? code.getCall(index) : invalidCall;
+      isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
 
       if (call != invalidCall) {
         final long address = call.getAddress();
@@ -274,7 +269,9 @@ public final class Executor {
             Logger.error(
                 "Exception handler for %s is not found. Execution will be terminated.", exception);
           } else {
-            Logger.error("Exception handler for %s is not found. " + MSG_HAVE_TO_CONTINUE, exception);
+            Logger.error(
+                "Exception handler for %s is not found. Have to continue to the next instruction.",
+                exception);
             if (index == endIndex) break;
             index = getNextCallIndex(code, index, null != invalidCall);
           }
@@ -407,7 +404,4 @@ public final class Executor {
       listener.onAfterExecute(context, call);
     }
   }
-
-  private static final String MSG_HAVE_TO_CONTINUE =
-      "Have to continue to the next instruction.";
 }
