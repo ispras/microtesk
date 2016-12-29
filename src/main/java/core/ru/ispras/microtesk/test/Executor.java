@@ -180,18 +180,7 @@ public final class Executor {
             call.getText(), branchExecutionLimit));
       }
 
-      if (call.getOrigin() != null) {
-        logText(String.format(
-            context.getOptions().getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
-      }
-
-      if (call.getAlignment() != null) {
-        logText(String.format(
-            context.getOptions().getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
-      }
-
-      logOutputs(call.getOutputs());
-      logLabels(call.getLabels());
+      logCall(call);
 
       if (invalidCall != call && null != call.getText()) {
         logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
@@ -222,7 +211,7 @@ public final class Executor {
 
       Tarmac.setEnabled(true);
       if (invalidCall != call) {
-        logCall(call);
+        addToEventLog(call);
       }
 
       notifyBeforeExecute(call);
@@ -343,7 +332,7 @@ public final class Executor {
     return -1;
   }
 
-  private void logCall(final ConcreteCall call) {
+  private void addToEventLog(final ConcreteCall call) {
     if (!call.isExecutable()) {
       return;
     }
@@ -352,6 +341,21 @@ public final class Executor {
     if (Tarmac.isEnabled()) {
       Tarmac.addRecord(Record.newInstruction(call));
     }
+  }
+
+  private void logCall(final ConcreteCall call) throws ConfigurationException {
+    if (call.getOrigin() != null) {
+      logText(String.format(
+          context.getOptions().getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
+    }
+
+    if (call.getAlignment() != null) {
+      logText(String.format(
+          context.getOptions().getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
+    }
+
+    logOutputs(call.getOutputs());
+    logLabels(call.getLabels());
   }
 
   /**
