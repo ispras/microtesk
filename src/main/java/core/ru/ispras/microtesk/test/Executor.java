@@ -52,6 +52,46 @@ public final class Executor {
     void onAfterExecute(EngineContext context, ConcreteCall call);
   }
 
+  private static final class LabelTracker {
+    private final int delaySlotSize;
+    private List<LabelReference> labels;
+    private int distance;
+
+    public LabelTracker(final int delaySlotSize) {
+      InvariantChecks.checkGreaterOrEqZero(delaySlotSize);
+      this.delaySlotSize = delaySlotSize;
+      reset();
+    }
+
+    public void track(final ConcreteCall call) {
+      if (!call.isExecutable()) {
+        return;
+      }
+
+      if (labels != null) {
+        if (distance > delaySlotSize) {
+          reset();
+        } else {
+          distance++;
+        }
+      }
+
+      if (!call.getLabelReferences().isEmpty()) {
+        labels = call.getLabelReferences();
+        distance = 0;
+      }
+    }
+
+    public void reset() {
+      this.labels = null;
+      this.distance = 0;
+    }
+
+    public LabelManager.Target getTarget() {
+      return null != labels ? labels.get(0).getTarget() : null;
+    }
+  }
+
   private final EngineContext context;
   private Listener listener;
 
