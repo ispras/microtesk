@@ -263,7 +263,7 @@ public final class Executor {
           // Resets labels to jump (they are no longer needed after being used).
           labelRefs = null;
 
-          if (null != target) {
+          if (null != target && code.hasAddress(target.getAddress())) {
             final long nextAddress = target.getAddress();
             index = code.getCallIndex(nextAddress);
             logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
@@ -392,13 +392,10 @@ public final class Executor {
         final String patchedText;
 
         if (null != target) { // Label is found
+          labelRef.setTarget(target);
+
           uniqueName = target.getLabel().getUniqueName();
           final long address = target.getAddress();
-
-          // For code labels
-          if (code.hasAddress(address)) {
-            labelRef.setTarget(target);
-          }
 
           if (null != labelRef.getArgumentValue()) {
             searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
