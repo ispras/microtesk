@@ -77,9 +77,14 @@ final class TemplateProcessor implements Template.Processor {
         processBlock(block);
       }
     } catch (final Exception e) {
-      closeFile();
-      throw e instanceof GenerationAbortedException ?
-          (GenerationAbortedException) e : new GenerationAbortedException(e);
+      if (null != printer) {
+        printer.close();
+        printer.delete();
+        printer = null;
+      }
+
+      throw e instanceof GenerationAbortedException ? (GenerationAbortedException) e :
+                                                      new GenerationAbortedException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -90,8 +95,15 @@ final class TemplateProcessor implements Template.Processor {
     try {
       finishFile();
       Logger.debugHeader("Ended Processing Template");
-    } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e);
+    } catch (final Exception e) {
+      if (null != printer) {
+        printer.close();
+        printer.delete();
+        printer = null;
+      }
+
+      throw e instanceof GenerationAbortedException ? (GenerationAbortedException) e :
+                                                      new GenerationAbortedException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
@@ -223,8 +235,16 @@ final class TemplateProcessor implements Template.Processor {
       if (engineContext.getDataManager().containsDecls()) {
         engineContext.getDataManager().printData(printer);
       }
+
+      if (null != printer) {
+        printer.close();
+        // If no instructions were added to the newly created file, it must be deleted
+        if (engineContext.getStatistics().getProgramLength() == 0) {
+          printer.delete();
+        }
+        printer = null;
+      }
     } finally {
-      closeFile();
       Tarmac.closeFile();
 
       // Clean up all the state
@@ -235,17 +255,6 @@ final class TemplateProcessor implements Template.Processor {
 
       // Sets the starting address for instruction allocation after the prologue
       engineContext.setAddress(prologue.getEndAddress());
-    }
-  }
-
-  private void closeFile() {
-    if (null != printer) {
-      printer.close();
-      //No instructions were added to the newly created file, it must be deleted
-      if (engineContext.getStatistics().getProgramLength() == 0) {
-        printer.delete();
-      }
-      printer = null;
     }
   }
 
