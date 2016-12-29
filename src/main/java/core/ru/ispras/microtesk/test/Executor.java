@@ -55,6 +55,8 @@ public final class Executor {
   private final EngineContext context;
   private Listener listener;
 
+  private final ConcreteCall exceptionCall;
+
   /**
    * Constructs an Executor object.
    * 
@@ -67,6 +69,8 @@ public final class Executor {
 
     this.context = context;
     this.listener = null;
+
+    this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
   }
 
   public void setListener(final Listener listener) {
@@ -158,9 +162,6 @@ public final class Executor {
 
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
-
-    final ConcreteCall exceptionCall =
-        EngineUtils.makeSpecialConcreteCall(context, "exception");
 
     while (code.isInBounds(index) ||
            null != invalidCall && invalidCall.getExecutionCount() == 0) {
