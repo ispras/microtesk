@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -176,8 +178,10 @@ final class TemplateProcessor implements Template.Processor {
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     // Code allocation actions
     final List<ConcreteCall> calls = sequence.getAll();
+
     allocateDataSections(engineContext.getLabelManager(), calls, sequenceIndex);
     registerLabels(engineContext.getLabelManager(), calls, sequenceIndex);
+    patchLabels(engineContext.getLabelManager(), calls, sequenceIndex, abortOnUndefinedLabel);
 
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
       Logger.debugHeader("Constructed %s", sequenceId);
@@ -187,12 +191,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Executing %s", sequenceId);
-    executor.execute(
-        executorCode,
-        calls,
-        sequenceIndex,
-        abortOnUndefinedLabel
-        );
+    executor.execute(executorCode, calls, sequenceIndex);
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
     printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
@@ -307,6 +306,8 @@ final class TemplateProcessor implements Template.Processor {
 
         if (!handlerSet.contains(handlerCalls)) {
           registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
+          patchLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX, true);
+
           code.addCalls(handlerCalls);
           handlerSet.add(handlerCalls);
         }
@@ -336,6 +337,65 @@ final class TemplateProcessor implements Template.Processor {
         final DataSection data = call.getData();
         data.setSequenceIndex(sequenceIndex);
         engineContext.getDataManager().processData(labelManager, data);
+      }
+    }
+  }
+
+  private static void patchLabels(
+      final LabelManager labelManager,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex,
+      final boolean abortOnUndefined) {
+    // Resolves all label references and patches the instruction call text accordingly.
+    for (final ConcreteCall call : calls) {
+      // Resolves all label references and patches the instruction call text accordingly.
+      for (final LabelReference labelRef : call.getLabelReferences()) {
+        labelRef.resetTarget();
+
+        final Label source = labelRef.getReference();
+        source.setSequenceIndex(sequenceIndex);
+
+        final LabelManager.Target target = labelManager.resolve(source);
+
+        final String uniqueName;
+        final String searchPattern;
+        final String patchedText;
+
+        if (null != target) { // Label is found
+          labelRef.setTarget(target);
+
+          uniqueName = target.getLabel().getUniqueName();
+          final long address = target.getAddress();
+
+          if (null != labelRef.getArgumentValue()) {
+            searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
+          } else {
+            labelRef.getPatcher().setValue(BigInteger.ZERO);
+            searchPattern = "<label>0";
+          }
+
+          patchedText = call.getText().replace(searchPattern, uniqueName);
+          labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+        } else { // Label is not found
+          if (abortOnUndefined) {
+            throw new GenerationAbortedException(String.format(
+                "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
+                "is not accessible in the scope of the current test sequence.",
+                source.getName(), call.getText(), call.getAddress()));
+          }
+
+          uniqueName = source.getName();
+          searchPattern = "<label>0";
+
+          patchedText = call.getText().replace(searchPattern, uniqueName);
+        }
+
+        call.setText(patchedText);
+      }
+
+      // Kill all unused "<label>" markers.
+      if (null != call.getText()) {
+        call.setText(call.getText().replace("<label>", ""));
       }
     }
   }
