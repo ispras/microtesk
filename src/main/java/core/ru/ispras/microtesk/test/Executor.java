@@ -58,6 +58,7 @@ public final class Executor {
   private final ConcreteCall exceptionCall;
   private final ConcreteCall invalidCall;
   private final int branchExecutionLimit;
+  private final boolean isLoggingEnabled;
 
   /**
    * Constructs an Executor object.
@@ -75,6 +76,7 @@ public final class Executor {
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
+    this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
   }
 
   public void setListener(final Listener listener) {
@@ -176,10 +178,6 @@ public final class Executor {
       }
 
       logCall(call);
-
-      if (invalidCall != call && null != call.getText()) {
-        logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
-      }
 
       if (!call.isExecutable()) {
         if (index == endIndex) break;
@@ -341,6 +339,10 @@ public final class Executor {
   }
 
   private void logCall(final ConcreteCall call) throws ConfigurationException {
+    if(!isLoggingEnabled) {
+      return;
+    }
+
     if (call.getOrigin() != null) {
       logText(String.format(
           context.getOptions().getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
@@ -353,6 +355,10 @@ public final class Executor {
 
     logOutputs(call.getOutputs());
     logLabels(call.getLabels());
+
+    if (invalidCall != call && null != call.getText()) {
+      logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
+    }
   }
 
   /**
