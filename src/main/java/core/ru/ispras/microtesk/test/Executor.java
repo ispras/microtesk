@@ -178,14 +178,11 @@ public final class Executor {
       final ExecutorCode code,
       final int startIndex,
       final int endIndex) throws ConfigurationException {
-    List<LabelReference> labelRefs = null;
-    int labelRefsIndex = 0;
+    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
+
     int index = startIndex;
-
-    // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
-    int nonExecutableCount = 0; 
-
     boolean isInvalidNeverCalled = true;
+
     while (code.isInBounds(index) || (null != invalidCall && isInvalidNeverCalled)) {
       final ConcreteCall call = code.isInBounds(index) ? code.getCall(index) : invalidCall;
       isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
@@ -203,28 +200,12 @@ public final class Executor {
       }
 
       logCall(call);
+      labelTracker.track(call);
 
       if (!call.isExecutable()) {
         if (index == endIndex) break;
         index++;
-        nonExecutableCount++;
         continue;
-      }
-
-      if (labelRefs != null) {
-        // nonExecutableCount is excluded from number of instructions presumably in delay slot
-        final int delta = index - labelRefsIndex - nonExecutableCount;
-        if ((delta < 0) || (delta > context.getDelaySlotSize())) {
-          labelRefs = null;
-          labelRefsIndex = 0;
-          nonExecutableCount = 0;
-        }
-      }
-
-      if (!call.getLabelReferences().isEmpty()) {
-        labelRefs = call.getLabelReferences();
-        labelRefsIndex = index;
-        nonExecutableCount = 0;
       }
 
       final String exception = executeCall(call);
@@ -241,13 +222,12 @@ public final class Executor {
           continue;
         }
 
-        if (null != labelRefs && !labelRefs.isEmpty()) {
-          final LabelReference reference = labelRefs.get(0);
+        final LabelReference reference = labelTracker.getLabel();
+        // Resets labels to jump (they are no longer needed after being used).
+        labelTracker.reset();
+
+        if (null != reference) {
           final LabelManager.Target target = reference.getTarget();
-
-          // Resets labels to jump (they are no longer needed after being used).
-          labelRefs = null;
-
           if (null != target && code.hasAddress(target.getAddress())) {
             final long nextAddress = target.getAddress();
             index = code.getCallIndex(nextAddress);
@@ -267,7 +247,7 @@ public final class Executor {
         // EXCEPTION IS DETECTED
 
         // Resets labels to jump (they are no longer needed after being used).
-        labelRefs = null;
+        labelTracker.reset();
 
         if (null != exceptionCall) { // op exception is defined and must do all dispatching job
           exceptionCall.execute(context.getModel().getPE());
