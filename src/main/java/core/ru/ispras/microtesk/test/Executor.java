@@ -59,6 +59,8 @@ public final class Executor {
   private final ConcreteCall invalidCall;
   private final int branchExecutionLimit;
   private final boolean isLoggingEnabled;
+  private final String originFormat;
+  private final String alignFormat;
 
   /**
    * Constructs an Executor object.
@@ -77,6 +79,8 @@ public final class Executor {
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
+    this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
+    this.alignFormat = context.getOptions().getValueAsString(Option.ALIGN_FORMAT);
   }
 
   public void setListener(final Listener listener) {
@@ -96,8 +100,7 @@ public final class Executor {
    * about important events to the simulator log.
    * 
    * @param executorCode Execution context that contains all code of the current test program.
-   * @param sequenceCode Sequence of executable (concrete) instruction calls.
-   * @param sequenceIndex Sequence index.
+   * @param sequence Sequence of executable (concrete) instruction calls.
    * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    * @throws GenerationAbortedException if during the interaction with the microprocessor model
@@ -114,7 +117,7 @@ public final class Executor {
     }
 
     if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-      logText("Simulation is disabled");
+      Logger.debug("Simulation is disabled");
       return;
     }
 
@@ -217,7 +220,7 @@ public final class Executor {
           if (null != target && code.hasAddress(target.getAddress())) {
             final long nextAddress = target.getAddress();
             index = code.getCallIndex(nextAddress);
-            logText(String.format("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress));
+            Logger.debug("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress);
             continue;
           }
 
@@ -243,7 +246,7 @@ public final class Executor {
             final long handlerAddress = code.getHandlerAddress(exception);
             final int handlerIndex = code.getCallIndex(handlerAddress);
 
-            logText(String.format("Jump to exception handler for %s: 0x%x", exception, handlerAddress));
+            Logger.debug("Jump to exception handler for %s: 0x%x", exception, handlerAddress);
             index = handlerIndex;
           } else if (call == invalidCall) {
             Logger.error(
@@ -297,7 +300,7 @@ public final class Executor {
     InvariantChecks.checkNotNull(code);
 
     if (code.hasAddress(address)) {
-      logText(String.format("Jump to address: 0x%x", address));
+      Logger.debug("Jump to address: 0x%x", address);
       return code.getCallIndex(address);
     }
 
@@ -335,59 +338,26 @@ public final class Executor {
       return;
     }
 
-    if (call.getOrigin() != null) {
-      logText(String.format(
-          context.getOptions().getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
+    if (null != call.getOrigin()) {
+      Logger.debug(originFormat, call.getOrigin());
     }
 
-    if (call.getAlignment() != null) {
-      logText(String.format(
-          context.getOptions().getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
+    if (null != call.getAlignment()) {
+      Logger.debug(alignFormat, call.getAlignment());
     }
 
-    logOutputs(call.getOutputs());
-    logLabels(call.getLabels());
-
-    if (invalidCall != call && null != call.getText()) {
-      logText(String.format("0x%016x %s", call.getAddress(), call.getText()));
-    }
-  }
-
-  /**
-   * Evaluates and prints the collection of {@link Output} objects.
-   * 
-   * @param o List of {@link Output} objects.
-   * 
-   * @throws IllegalArgumentException if the parameter is {@code null}.
-   * @throws ConfigurationException if failed to evaluate the information in an Output
-   *         object due to an incorrect request to the model state observer.
-   */
-  private void logOutputs(
-      final List<Output> outputs) throws ConfigurationException {
-    InvariantChecks.checkNotNull(outputs);
-
-    for (final Output output : outputs) {
+    for (final Output output : call.getOutputs()) {
       if (output.isRuntime()) {
-        logText(output.evaluate(getStateObserver()));
+        Logger.debug(output.evaluate(getStateObserver()));
       }
     }
-  }
 
-  private void logLabels(final List<Label> labels) {
-    InvariantChecks.checkNotNull(labels);
-    for (final Label label : labels) {
-      logText(label.getUniqueName() + ":");
+    for (final Label label : call.getLabels()) {
+      Logger.debug(label.getUniqueName() + ":");
     }
-  }
 
-  /**
-   * Prints the text to the simulator log if logging is enabled.
-   * 
-   * @param text Text to be printed.
-   */
-  private static void logText(final String text) {
-    if (text != null) {
-      Logger.debug(text);
+    if (invalidCall != call && null != call.getText()) {
+      Logger.debug("0x%016x %s", call.getAddress(), call.getText());
     }
   }
 }
