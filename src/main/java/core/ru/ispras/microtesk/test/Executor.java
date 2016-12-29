@@ -202,16 +202,7 @@ public final class Executor {
         nonExecutableCount = 0;
       }
 
-      Tarmac.setEnabled(true);
-      if (invalidCall != call) {
-        addToEventLog(call);
-      }
-
-      notifyBeforeExecute(call);
-      final String exception = call.execute(context.getModel().getPE());
-      notifyAfterExecute(call);
-      Tarmac.setEnabled(false);
-
+      final String exception = executeCall(call);
       if (null == exception) {
         // NORMAL EXECUTION
 
@@ -327,15 +318,20 @@ public final class Executor {
     return -1;
   }
 
-  private void addToEventLog(final ConcreteCall call) {
-    if (!call.isExecutable()) {
-      return;
-    }
+  private String executeCall(final ConcreteCall call) {
+    Tarmac.setEnabled(true);
 
-    context.getStatistics().incTraceLength();
-    if (Tarmac.isEnabled()) {
+    if (invalidCall != call) {
+      context.getStatistics().incTraceLength();
       Tarmac.addRecord(Record.newInstruction(call));
     }
+
+    notifyBeforeExecute(call);
+    final String exception = call.execute(context.getModel().getPE());
+    notifyAfterExecute(call);
+
+    Tarmac.setEnabled(false);
+    return exception;
   }
 
   private void logCall(final ConcreteCall call) throws ConfigurationException {
