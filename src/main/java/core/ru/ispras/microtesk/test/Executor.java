@@ -310,18 +310,23 @@ public final class Executor {
   }
 
   private String executeCall(final ConcreteCall call) {
-    Tarmac.setEnabled(true);
+    if (null != listener) {
+      listener.onBeforeExecute(context, call);
+    }
 
     if (invalidCall != call) {
       context.getStatistics().incTraceLength();
       Tarmac.addRecord(Record.newInstruction(call));
     }
 
-    notifyBeforeExecute(call);
+    Tarmac.setEnabled(true);
     final String exception = call.execute(context.getModel().getPE());
-    notifyAfterExecute(call);
-
     Tarmac.setEnabled(false);
+
+    if (null != listener) {
+      listener.onAfterExecute(context, call);
+    }
+
     return exception;
   }
 
@@ -383,18 +388,6 @@ public final class Executor {
   private static void logText(final String text) {
     if (text != null) {
       Logger.debug(text);
-    }
-  }
-
-  private void notifyAfterExecute(final ConcreteCall call) {
-    if (null != listener) {
-      listener.onBeforeExecute(context, call);
-    }
-  }
-
-  private void notifyBeforeExecute(final ConcreteCall call) {
-    if (null != listener) {
-      listener.onAfterExecute(context, call);
     }
   }
 }
