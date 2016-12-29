@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,30 +14,35 @@
 
 package ru.ispras.microtesk.test;
 
-public class GenerationAbortedException extends RuntimeException {
-  private static final long serialVersionUID = -7676366332465641144L;
+import java.io.StringWriter;
 
-  public GenerationAbortedException() {}
+public final class GenerationAbortedException extends RuntimeException {
+  private static final long serialVersionUID = -7676366332465641144L;
 
   public GenerationAbortedException(final String message) {
     super(message);
   }
 
   public GenerationAbortedException(final Throwable cause) {
-    super(cause);
+    super(makeMessage(null, cause));
   }
 
-  public GenerationAbortedException(
-      final String message,
-      final Throwable cause) {
-    super(message, cause);
+  public GenerationAbortedException(final String message, final Throwable cause) {
+    super(makeMessage(message, cause));
   }
 
-  public GenerationAbortedException(
-      final String message,
-      final Throwable cause,
-      final boolean enableSuppression,
-      final boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
+  private static String makeMessage(final String message, final Throwable cause) {
+    final StringWriter writer = new StringWriter();
+
+    if (null != message) {
+      writer.append(message);
+    }
+
+    if (null != cause.getMessage()) {
+      writer.append(cause.getMessage());
+    }
+
+    cause.printStackTrace(new java.io.PrintWriter(writer));
+    return writer.toString();
   }
 }

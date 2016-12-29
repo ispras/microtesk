@@ -99,22 +99,20 @@ public final class Executor {
    * Executes the specified sequence of instruction calls (concrete calls) and prints information
    * about important events to the simulator log.
    * 
-   * @param executorCode Execution context that contains all code of the current test program.
-   * @param sequence Sequence of executable (concrete) instruction calls.
-   * 
    * @throws IllegalArgumentException if the parameter is {@code null}.
    * @throws GenerationAbortedException if during the interaction with the microprocessor model
    *         an error caused by an invalid format of the request has occurred (typically, it
    *         happens when evaluating an {@link Output} object causes an invalid request to the
    *         model state observer).
    */
-  public void execute(final ExecutorCode executorCode, final List<ConcreteCall> sequence) {
+  public void execute(
+      final ExecutorCode executorCode,
+      final int startIndex,
+      final int endIndex) {
     InvariantChecks.checkNotNull(executorCode);
-    InvariantChecks.checkNotNull(sequence);
-
-    if (sequence.isEmpty()) {
-      return;
-    }
+    InvariantChecks.checkTrue(startIndex <= endIndex);
+    InvariantChecks.checkTrue(executorCode.isInBounds(startIndex));
+    InvariantChecks.checkTrue(executorCode.isInBounds(endIndex));
 
     if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
@@ -123,10 +121,6 @@ public final class Executor {
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
 
-    final int startIndex = executorCode.getCallCount();
-    executorCode.addCalls(sequence);
-    final int endIndex = executorCode.getCallCount() - 1;
-
     try {
       for (int index = 0; index < context.getModel().getPENumber(); index++) {
         Logger.debugHeader("Instance %d", index);
@@ -134,10 +128,7 @@ public final class Executor {
         executeCalls(executorCode, startIndex, endIndex);
       }
     } catch (final ConfigurationException e) {
-      final java.io.StringWriter writer = new java.io.StringWriter();
-      e.printStackTrace(new java.io.PrintWriter(writer));
-      throw new GenerationAbortedException(
-          String.format("Simulation failed: %s%n%s", e.getMessage(), writer));
+      throw new GenerationAbortedException("Simulation failed", e);
     } finally {
       context.getStatistics().popActivity();
     }

@@ -183,6 +183,10 @@ final class TemplateProcessor implements Template.Processor {
     registerLabels(engineContext.getLabelManager(), calls, sequenceIndex);
     patchLabels(engineContext.getLabelManager(), calls, sequenceIndex, abortOnUndefinedLabel);
 
+    final int startIndex = executorCode.getCallCount();
+    executorCode.addCalls(calls);
+    final int endIndex = executorCode.getCallCount() - 1;
+
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
       Logger.debugHeader("Constructed %s", sequenceId);
       final Printer consolePrinter =
@@ -191,7 +195,9 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Executing %s", sequenceId);
-    executor.execute(executorCode, calls);
+    if (startIndex <= endIndex) { // Otherwise it's empty
+      executor.execute(executorCode, startIndex, endIndex);
+    }
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
     printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
