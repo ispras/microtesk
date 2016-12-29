@@ -87,8 +87,8 @@ public final class Executor {
       this.distance = 0;
     }
 
-    public LabelManager.Target getTarget() {
-      return null != labels ? labels.get(0).getTarget() : null;
+    public LabelReference getLabel() {
+      return null != labels ? labels.get(0) : null;
     }
   }
 
