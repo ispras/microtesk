@@ -105,33 +105,13 @@ public final class Executor {
    *         happens when evaluating an {@link Output} object causes an invalid request to the
    *         model state observer).
    */
-  public void execute(
-      final ExecutorCode executorCode,
-      final List<ConcreteCall> sequenceCode,
-      final int sequenceIndex) {
-    try {
-      InvariantChecks.checkNotNull(executorCode);
-      InvariantChecks.checkNotNull(sequenceCode);
-      executeSequence(executorCode, sequenceCode, sequenceIndex);
-    } catch (final ConfigurationException e) {
-      final java.io.StringWriter writer = new java.io.StringWriter();
-      e.printStackTrace(new java.io.PrintWriter(writer));
-      throw new GenerationAbortedException(String.format(
-          "Simulation failed: %s%n%s", e.getMessage(), writer));
-    }
-  }
+  public void execute(final ExecutorCode executorCode, final List<ConcreteCall> sequence) {
+    InvariantChecks.checkNotNull(executorCode);
+    InvariantChecks.checkNotNull(sequence);
 
-  private void executeSequence(
-      final ExecutorCode executorCode,
-      final List<ConcreteCall> sequence,
-      final int sequenceIndex) throws ConfigurationException {
     if (sequence.isEmpty()) {
       return;
     }
-
-    final int startIndex = executorCode.getCallCount();
-    executorCode.addCalls(sequence);
-    final int endIndex = executorCode.getCallCount() - 1;
 
     if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       logText("Simulation is disabled");
@@ -140,13 +120,24 @@ public final class Executor {
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
 
-    for (int index = 0; index < context.getModel().getPENumber(); index++) {
-      Logger.debugHeader("Instance %d", index);
-      context.getModel().setActivePE(index);
-      executeCalls(executorCode, startIndex, endIndex);
-    }
+    final int startIndex = executorCode.getCallCount();
+    executorCode.addCalls(sequence);
+    final int endIndex = executorCode.getCallCount() - 1;
 
-    context.getStatistics().popActivity();
+    try {
+      for (int index = 0; index < context.getModel().getPENumber(); index++) {
+        Logger.debugHeader("Instance %d", index);
+        context.getModel().setActivePE(index);
+        executeCalls(executorCode, startIndex, endIndex);
+      }
+    } catch (final ConfigurationException e) {
+      final java.io.StringWriter writer = new java.io.StringWriter();
+      e.printStackTrace(new java.io.PrintWriter(writer));
+      throw new GenerationAbortedException(
+          String.format("Simulation failed: %s%n%s", e.getMessage(), writer));
+    } finally {
+      context.getStatistics().popActivity();
+    }
   }
 
   private void executeCalls(

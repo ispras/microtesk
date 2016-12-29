@@ -191,7 +191,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Executing %s", sequenceId);
-    executor.execute(executorCode, calls, sequenceIndex);
+    executor.execute(executorCode, calls);
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
     printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
