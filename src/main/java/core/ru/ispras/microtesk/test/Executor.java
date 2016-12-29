@@ -56,6 +56,7 @@ public final class Executor {
   private Listener listener;
 
   private final ConcreteCall exceptionCall;
+  private final int branchExecutionLimit;
 
   /**
    * Constructs an Executor object.
@@ -71,6 +72,7 @@ public final class Executor {
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
+    this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
   }
 
   public void setListener(final Listener listener) {
@@ -156,9 +158,6 @@ public final class Executor {
 
     // Number of non-executable instructions between labelRefsIndex and index (in delay slot)
     int nonExecutableCount = 0; 
-
-    final int branchExecutionLimit =
-        context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
 
     final ConcreteCall invalidCall =
         EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
