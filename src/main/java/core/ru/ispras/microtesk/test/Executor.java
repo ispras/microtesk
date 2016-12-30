@@ -133,8 +133,16 @@ public final class Executor {
     return context.getModel().getPE();
   }
 
-  private LocationAccessor getPC() throws ConfigurationException {
+  private LocationAccessor getPCLocation() throws ConfigurationException {
     return getStateObserver().accessLocation("PC");
+  }
+
+  private long getPC() throws ConfigurationException {
+    return getPCLocation().getValue().longValue();
+  }
+
+  private void setPC(final long address) throws ConfigurationException {
+    getPCLocation().setValue(BigInteger.valueOf(address));
   }
 
   /**
@@ -190,8 +198,7 @@ public final class Executor {
       isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
 
       if (call != invalidCall) {
-        final long address = call.getAddress();
-        getPC().setValue(BigInteger.valueOf(address));
+        setPC(call.getAddress());
       }
 
       logCall(call);
@@ -207,7 +214,7 @@ public final class Executor {
       if (null == exception) {
         // NORMAL EXECUTION
 
-        final long address = getPC().getValue().longValue();
+        final long address = getPC();
         final boolean isJump = address != call.getAddress() + call.getByteSize();
 
         if (!isJump) {
@@ -246,7 +253,7 @@ public final class Executor {
 
         if (null != exceptionCall) { // op exception is defined and must do all dispatching job
           exceptionCall.execute(context.getModel().getPE());
-          index = getCallIndex(code, getPC().getValue().longValue());
+          index = getCallIndex(code, getPC());
         } else {
           if (code.hasHandler(exception)) {
             final long handlerAddress = code.getHandlerAddress(exception);
