@@ -192,13 +192,7 @@ public final class Executor {
         getPC().setValue(BigInteger.valueOf(address));
       }
 
-      if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
-        throw new GenerationAbortedException(String.format(
-            "Instruction %s reached its limit on execution count (%d). " +
-            "Probably, the program entered an endless loop. Generation was aborted.",
-            call.getText(), branchExecutionLimit));
-      }
-
+      checkExecutionCount(call);
       logCall(call);
       labelTracker.track(call);
 
@@ -271,6 +265,16 @@ public final class Executor {
           }
         }
       }
+    }
+  }
+
+  private void checkExecutionCount(final ConcreteCall call) {
+    if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
+      throw new GenerationAbortedException(String.format(
+          "Instruction %s reached its limit on execution count (%d). " +
+          "Probably, the program entered an endless loop. Generation was aborted.",
+          call.getText(), branchExecutionLimit
+          ));
     }
   }
 
