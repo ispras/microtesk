@@ -192,7 +192,6 @@ public final class Executor {
         getPC().setValue(BigInteger.valueOf(address));
       }
 
-      checkExecutionCount(call);
       logCall(call);
       labelTracker.track(call);
 
@@ -268,16 +267,6 @@ public final class Executor {
     }
   }
 
-  private void checkExecutionCount(final ConcreteCall call) {
-    if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
-      throw new GenerationAbortedException(String.format(
-          "Instruction %s reached its limit on execution count (%d). " +
-          "Probably, the program entered an endless loop. Generation was aborted.",
-          call.getText(), branchExecutionLimit
-          ));
-    }
-  }
-
   private static int getNextCallIndex(
       final ExecutorCode code,
       final int currentIndex,
@@ -328,6 +317,8 @@ public final class Executor {
   }
 
   private String executeCall(final ConcreteCall call) {
+    checkExecutionCount(call);
+
     if (null != listener) {
       listener.onBeforeExecute(context, call);
     }
@@ -348,6 +339,16 @@ public final class Executor {
     }
 
     return exception;
+  }
+
+  private void checkExecutionCount(final ConcreteCall call) {
+    if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
+      throw new GenerationAbortedException(String.format(
+          "Instruction %s reached its limit on execution count (%d). " +
+          "Probably, the program entered an endless loop. Generation was aborted.",
+          call.getText(), branchExecutionLimit
+          ));
+    }
   }
 
   private void logCall(final ConcreteCall call) throws ConfigurationException {
