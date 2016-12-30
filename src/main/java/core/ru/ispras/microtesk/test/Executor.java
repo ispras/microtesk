@@ -317,8 +317,6 @@ public final class Executor {
   }
 
   private String executeCall(final ConcreteCall call) {
-    checkExecutionCount(call);
-
     if (null != listener) {
       listener.onBeforeExecute(context, call);
     }
@@ -336,6 +334,10 @@ public final class Executor {
 
     if (null != listener) {
       listener.onAfterExecute(context, call);
+    }
+
+    if (invalidCall != call) {
+      checkExecutionCount(call);
     }
 
     return exception;
