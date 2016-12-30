@@ -97,6 +97,7 @@ public final class Executor {
 
   private final ConcreteCall exceptionCall;
   private final ConcreteCall invalidCall;
+  private final boolean isInvalidCallHandled;
   private final int branchExecutionLimit;
   private final boolean isLoggingEnabled;
   private final String originFormat;
@@ -117,6 +118,7 @@ public final class Executor {
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
+    this.isInvalidCallHandled = null != invalidCall;
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
     this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
@@ -183,7 +185,7 @@ public final class Executor {
     int index = startIndex;
     boolean isInvalidNeverCalled = true;
 
-    while (code.isInBounds(index) || (null != invalidCall && isInvalidNeverCalled)) {
+    while (code.isInBounds(index) || (isInvalidCallHandled && isInvalidNeverCalled)) {
       final ConcreteCall call = code.isInBounds(index) ? code.getCall(index) : invalidCall;
       isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
 
@@ -211,7 +213,7 @@ public final class Executor {
         if (!isJump) {
           // If there are no transfers, continue to the next instruction if there is such.
           if (index == endIndex) break;
-          index = getNextCallIndex(code, index, null != invalidCall); 
+          index = getNextCallIndex(code, index); 
           continue;
         }
 
@@ -235,7 +237,7 @@ public final class Executor {
         }
 
         // If no label references are found within the delay slot we try to use PC to jump
-        index = getCallIndex(code, address, null != invalidCall);
+        index = getCallIndex(code, address);
       } else {
         // EXCEPTION IS DETECTED
 
@@ -244,7 +246,7 @@ public final class Executor {
 
         if (null != exceptionCall) { // op exception is defined and must do all dispatching job
           exceptionCall.execute(context.getModel().getPE());
-          index = getCallIndex(code, getPC().getValue().longValue(), null != invalidCall);
+          index = getCallIndex(code, getPC().getValue().longValue());
         } else {
           if (code.hasHandler(exception)) {
             final long handlerAddress = code.getHandlerAddress(exception);
@@ -260,17 +262,14 @@ public final class Executor {
                 "Exception handler for %s is not found. Have to continue to the next instruction.",
                 exception);
             if (index == endIndex) break;
-            index = getNextCallIndex(code, index, null != invalidCall);
+            index = getNextCallIndex(code, index);
           }
         }
       }
     }
   }
 
-  private static int getNextCallIndex(
-      final ExecutorCode code,
-      final int currentIndex,
-      final boolean isInvalidCallHandled) {
+  private int getNextCallIndex(final ExecutorCode code, final int currentIndex) {
     InvariantChecks.checkNotNull(code);
     InvariantChecks.checkGreaterOrEqZero(currentIndex);
 
@@ -297,10 +296,7 @@ public final class Executor {
     return -1;
   }
 
-  private static int getCallIndex(
-      final ExecutorCode code,
-      final long address,
-      final boolean isInvalidCallHandled) {
+  private int getCallIndex(final ExecutorCode code, final long address) {
     InvariantChecks.checkNotNull(code);
 
     if (code.hasAddress(address)) {
