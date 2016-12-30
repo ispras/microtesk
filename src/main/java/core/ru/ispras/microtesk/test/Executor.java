@@ -235,7 +235,7 @@ public final class Executor {
         }
 
         // If no label references are found within the delay slot we try to use PC to jump
-        index = getCallIndex(code, getPC().getValue().longValue(), null != invalidCall);
+        index = getCallIndex(code, address, null != invalidCall);
       } else {
         // EXCEPTION IS DETECTED
 
