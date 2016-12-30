@@ -6,6 +6,9 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2016/12/30 MicroTESK 2.4.7 beta
+ - Refactoring of generation and simulation logic
+
 2016/12/21 MicroTESK 2.4.6 beta
  - Improved disassembler
  - Improved floating-point support
