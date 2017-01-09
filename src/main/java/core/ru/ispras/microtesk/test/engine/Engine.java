@@ -19,6 +19,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.Printer;
+import ru.ispras.microtesk.test.TestEngineUtils;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Block;

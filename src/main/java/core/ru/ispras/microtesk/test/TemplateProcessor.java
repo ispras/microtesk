@@ -28,7 +28,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.test.engine.TestEngineUtils;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
