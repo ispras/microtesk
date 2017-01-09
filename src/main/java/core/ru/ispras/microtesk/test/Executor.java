@@ -229,22 +229,12 @@ public final class Executor {
         labelTracker.reset();
 
         if (null != reference) {
-          final LabelManager.Target target = reference.getTarget();
-          if (null != target && code.hasAddress(target.getAddress())) {
-            final long nextAddress = target.getAddress();
-            index = code.getCallIndex(nextAddress);
-            Logger.debug("Jump to label %s: 0x%x", target.getLabel().getUniqueName(), nextAddress);
-            continue;
-          }
-
-          throw new GenerationAbortedException(String.format(
-              "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
-              "is not accessible in the scope of the current test sequence.",
-              reference.getReference().getName(), call.getText(), call.getAddress()));
+          final long labelAddress = getLabelAddress(code, call, reference);
+          index = getCallIndex(code, labelAddress, reference.getTarget().getLabel());
+        } else {
+          // If no label references are found within the delay slot we try to use PC to jump
+          index = getCallIndex(code, address);
         }
-
-        // If no label references are found within the delay slot we try to use PC to jump
-        index = getCallIndex(code, address);
       } else {
         // EXCEPTION IS DETECTED
 
@@ -296,19 +286,47 @@ public final class Executor {
   }
 
   private int getCallIndex(final ExecutorCode code, final long address) {
+    return getCallIndex(code, address, null);
+  }
+
+  private int getCallIndex(final ExecutorCode code, final long address, final Label label) {
     InvariantChecks.checkNotNull(code);
 
+    final StringBuilder sb = new StringBuilder(String.format("0x%016x", address));
+    if (null != label) {
+      sb.append(String.format(" (%s)", label.getUniqueName()));
+    }
+
     if (code.hasAddress(address)) {
-      Logger.debug("Jump to address: 0x%x", address);
+      Logger.debug("Jump to %s", sb);
       return code.getCallIndex(address);
     }
 
     if (!isInvalidCallHandled) {
-      throw new GenerationAbortedException(String.format(
-          "Simulation error. There is no executable code at 0x%x", address));
+      throw new GenerationAbortedException(
+          String.format("Simulation error. No executable code for %s", sb));
     }
 
     return -1;
+  }
+
+  private long getLabelAddress(
+      final ExecutorCode code,
+      final ConcreteCall call,
+      final LabelReference reference) {
+    InvariantChecks.checkNotNull(code);
+    InvariantChecks.checkNotNull(call);
+    InvariantChecks.checkNotNull(reference);
+
+    final LabelManager.Target target = reference.getTarget();
+    if (null != target && code.hasAddress(target.getAddress())) {
+      return target.getAddress();
+    }
+
+    throw new GenerationAbortedException(String.format(
+          "Label '%s' passed to '%s' (0x%016x) is not defined or%n" +
+          "is not accessible in the scope of the current test sequence.",
+          reference.getReference().getName(), call.getText(), call.getAddress()));
   }
 
   private Long getExceptionHandlerAddress(
