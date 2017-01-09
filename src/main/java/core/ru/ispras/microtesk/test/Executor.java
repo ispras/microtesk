@@ -254,23 +254,21 @@ public final class Executor {
         if (null != exceptionCall) { // op exception is defined and must do all dispatching job
           exceptionCall.execute(context.getModel().getPE());
           index = getCallIndex(code, getPC());
-        } else {
-          if (code.hasHandler(exception)) {
-            final long handlerAddress = code.getHandlerAddress(exception);
-            final int handlerIndex = code.getCallIndex(handlerAddress);
+        } else if (code.hasHandler(exception)) {
+          final long handlerAddress = code.getHandlerAddress(exception);
+          final int handlerIndex = code.getCallIndex(handlerAddress);
 
-            Logger.debug("Jump to exception handler for %s: 0x%x", exception, handlerAddress);
-            index = handlerIndex;
-          } else if (call == invalidCall) {
-            Logger.error(
-                "Exception handler for %s is not found. Execution will be terminated.", exception);
-          } else {
-            Logger.error(
-                "Exception handler for %s is not found. Have to continue to the next instruction.",
-                exception);
-            if (index == endIndex) break;
-            index = getNextCallIndex(code, index);
-          }
+          Logger.debug("Jump to exception handler for %s: 0x%x", exception, handlerAddress);
+          index = handlerIndex;
+        } else if (call == invalidCall) {
+          Logger.error(
+              "Exception handler for %s is not found. Execution will be terminated.", exception);
+        } else {
+          Logger.error(
+              "Exception handler for %s is not found. Have to continue to the next instruction.",
+              exception);
+          if (index == endIndex) break;
+          index = getNextCallIndex(code, index);
         }
       }
     }
