@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
-public final class ExecutorCode {
+public final class ExecutorCode implements Executor.ICode {
   private final List<ConcreteCall> calls;
   private final Map<Long, Integer> addresses;
   private final Map<String, Long> handlerAddresses;

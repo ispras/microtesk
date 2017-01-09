@@ -52,6 +52,12 @@ public final class Executor {
     void onAfterExecute(EngineContext context, ConcreteCall call);
   }
 
+  public interface ICode {
+    boolean hasAddress(long address);
+    boolean hasHandler(String id);
+    long getHandlerAddress(String id);
+  }
+
   private static final class LabelTracker {
     private final int delaySlotSize;
     private List<LabelReference> labels;
@@ -306,7 +312,7 @@ public final class Executor {
   }
 
   private long getLabelAddress(
-      final ExecutorCode code,
+      final ICode code,
       final ConcreteCall call,
       final LabelReference reference) {
     InvariantChecks.checkNotNull(code);
@@ -325,7 +331,7 @@ public final class Executor {
   }
 
   private Long getExceptionHandlerAddress(
-      final ExecutorCode code,
+      final ICode code,
       final String exception) throws ConfigurationException {
     InvariantChecks.checkNotNull(code);
     InvariantChecks.checkNotNull(exception);
