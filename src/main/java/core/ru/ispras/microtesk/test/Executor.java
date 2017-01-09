@@ -204,6 +204,7 @@ public final class Executor {
       logCall(call);
       labelTracker.track(call);
 
+      // NON-EXECUTABLE
       if (!call.isExecutable()) {
         if (index == endIndex) break;
         index++;
@@ -211,38 +212,12 @@ public final class Executor {
       }
 
       final String exception = executeCall(call);
-      if (null == exception) {
-        // NORMAL EXECUTION
 
-        final long address = getPC();
-        final boolean isJump = address != call.getAddress() + call.getByteSize();
-
-        if (!isJump) {
-          // If there are no transfers, continue to the next instruction if there is such.
-          if (index == endIndex) break;
-          index = getNextCallIndex(code, index); 
-          continue;
-        }
-
-        final LabelReference reference = labelTracker.getLabel();
-        // Resets labels to jump (they are no longer needed after being used).
-        labelTracker.reset();
-
-        if (null != reference) {
-          final long labelAddress = getLabelAddress(code, call, reference);
-          index = getCallIndex(code, labelAddress, reference.getTarget().getLabel());
-        } else {
-          // If no label references are found within the delay slot we try to use PC to jump
-          index = getCallIndex(code, address);
-        }
-      } else {
-        // EXCEPTION IS DETECTED
-
-        // Resets labels to jump (they are no longer needed after being used).
-        labelTracker.reset();
-
+      // EXCEPTION
+      if (null != exception) {
         final Long handlerAddress = getExceptionHandlerAddress(code, exception);
         if (null != handlerAddress) {
+          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
           index = getCallIndex(code, handlerAddress);
         } else {
           Logger.error("Exception handler for %s is not found.", exception);
@@ -254,6 +229,29 @@ public final class Executor {
             index = getNextCallIndex(code, index);
           }
         }
+        continue;
+      }
+
+      final long address = getPC();
+      final boolean isJump = address != call.getAddress() + call.getByteSize();
+
+      // NORMAL
+      if (!isJump) {
+        if (index == endIndex) break;
+        index = getNextCallIndex(code, index); 
+        continue;
+      }
+
+      // JUMP
+      final LabelReference reference = labelTracker.getLabel();
+      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
+
+      if (null != reference) {
+        final long labelAddress = getLabelAddress(code, call, reference);
+        index = getCallIndex(code, labelAddress, reference.getTarget().getLabel());
+      } else {
+        // If no label references are found within the delay slot we try to use PC to jump
+        index = getCallIndex(code, address);
       }
     }
   }
