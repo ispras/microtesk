@@ -90,7 +90,7 @@ public final class Code {
     return addresses.containsKey(address);
   }
 
-  public Iterator<ConcreteCall> getCallIterator(final long address) {
+  public Iterator<ConcreteCall> getIterator(final long address) {
     final Pair<Block, Integer> entry = addresses.get(address);
     InvariantChecks.checkNotNull(entry);
 
