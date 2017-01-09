@@ -251,24 +251,18 @@ public final class Executor {
         // Resets labels to jump (they are no longer needed after being used).
         labelTracker.reset();
 
-        if (null != exceptionCall) { // op exception is defined and must do all dispatching job
-          exceptionCall.execute(context.getModel().getPE());
-          index = getCallIndex(code, getPC());
-        } else if (code.hasHandler(exception)) {
-          final long handlerAddress = code.getHandlerAddress(exception);
-          final int handlerIndex = code.getCallIndex(handlerAddress);
-
-          Logger.debug("Jump to exception handler for %s: 0x%x", exception, handlerAddress);
-          index = handlerIndex;
-        } else if (call == invalidCall) {
-          Logger.error(
-              "Exception handler for %s is not found. Execution will be terminated.", exception);
+        final Long handlerAddress = getExceptionHandlerAddress(code, exception);
+        if (null != handlerAddress) {
+          index = getCallIndex(code, handlerAddress);
         } else {
-          Logger.error(
-              "Exception handler for %s is not found. Have to continue to the next instruction.",
-              exception);
-          if (index == endIndex) break;
-          index = getNextCallIndex(code, index);
+          Logger.error("Exception handler for %s is not found.", exception);
+          if (call == invalidCall) {
+            Logger.message("Execution will be terminated.");
+          } else {
+            Logger.message("Execution will be continued from the next instruction.");
+            if (index == endIndex) break;
+            index = getNextCallIndex(code, index);
+          }
         }
       }
     }
@@ -315,6 +309,25 @@ public final class Executor {
     }
 
     return -1;
+  }
+
+  private Long getExceptionHandlerAddress(
+      final ExecutorCode code,
+      final String exception) throws ConfigurationException {
+    InvariantChecks.checkNotNull(code);
+    InvariantChecks.checkNotNull(exception);
+
+    if (null != exceptionCall) {
+      // op exception is defined and must do all dispatching job
+      exceptionCall.execute(context.getModel().getPE());
+      return getPC();
+    }
+
+    if (code.hasHandler(exception)) {
+      return code.getHandlerAddress(exception);
+    }
+
+    return null;
   }
 
   private String executeCall(final ConcreteCall call) {
