@@ -222,6 +222,7 @@ public final class Executor {
         final Long handlerAddress = getExceptionHandlerAddress(code, exception);
         if (null != handlerAddress) {
           labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
+          logJump(handlerAddress, null);
           index = getCallIndex(code, handlerAddress);
         } else {
           Logger.error("Exception handler for %s is not found.", exception);
@@ -252,9 +253,11 @@ public final class Executor {
 
       if (null != reference) {
         final long labelAddress = getLabelAddress(code, call, reference);
-        index = getCallIndex(code, labelAddress, reference.getTarget().getLabel());
+        logJump(labelAddress, reference.getTarget().getLabel());
+        index = getCallIndex(code, labelAddress);
       } else {
         // If no label references are found within the delay slot we try to use PC to jump
+        logJump(address, null);
         index = getCallIndex(code, address);
       }
     }
@@ -288,25 +291,15 @@ public final class Executor {
   }
 
   private int getCallIndex(final ExecutorCode code, final long address) {
-    return getCallIndex(code, address, null);
-  }
-
-  private int getCallIndex(final ExecutorCode code, final long address, final Label label) {
     InvariantChecks.checkNotNull(code);
 
-    final StringBuilder sb = new StringBuilder(String.format("0x%016x", address));
-    if (null != label) {
-      sb.append(String.format(" (%s)", label.getUniqueName()));
-    }
-
     if (code.hasAddress(address)) {
-      Logger.debug("Jump to %s", sb);
       return code.getCallIndex(address);
     }
 
     if (!isInvalidCallHandled) {
       throw new GenerationAbortedException(
-          String.format("Simulation error. No executable code for %s", sb));
+          String.format("Simulation error. No executable code at 0x%016x", address));
     }
 
     return -1;
@@ -413,5 +406,22 @@ public final class Executor {
     if (invalidCall != call && null != call.getText()) {
       Logger.debug("0x%016x %s", call.getAddress(), call.getText());
     }
+  }
+
+  private void logJump(final long address, final Label label) {
+    if(!isLoggingEnabled) {
+      return;
+    }
+
+    final String addressText = String.format("0x%016x", address);
+    final StringBuilder sb = new StringBuilder("Jump to ");
+
+    if (null != label) {
+      sb.append(label.getUniqueName());
+      sb.append(" at ");
+    }
+
+    sb.append(addressText);
+    Logger.debug(sb.toString());
   }
 }
