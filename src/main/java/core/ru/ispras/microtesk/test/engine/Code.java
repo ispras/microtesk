@@ -73,7 +73,7 @@ public final class Code {
     final StringBuilder sb = new StringBuilder();
 
     sb.append("Failed to place code at addresses");
-    sb.append(String.format(" [0x%s..0x%s]. ", overlapping.first, overlapping.second));
+    sb.append(String.format(" [0x%016x..0x%016x]. ", overlapping.first, overlapping.second));
     sb.append("They are already used.");
 
     return new GenerationAbortedException(sb.toString());
