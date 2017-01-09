@@ -195,7 +195,13 @@ final class TemplateProcessor implements Template.Processor {
 
     Logger.debugHeader("Executing %s", sequenceId);
     if (startIndex <= endIndex) { // Otherwise it's empty
-      executor.execute(executorCode, startIndex, endIndex);
+      executor.execute(
+          executorCode,
+          sequence.getStartAddress(),
+          sequence.getEndAddress(),
+          startIndex,
+          endIndex
+          );
     }
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());

@@ -157,6 +157,8 @@ public final class Executor {
    */
   public void execute(
       final ExecutorCode executorCode,
+      final long startAddress,
+      final long endAddress,
       final int startIndex,
       final int endIndex) {
     InvariantChecks.checkNotNull(executorCode);
@@ -175,7 +177,7 @@ public final class Executor {
       for (int index = 0; index < context.getModel().getPENumber(); index++) {
         Logger.debugHeader("Instance %d", index);
         context.getModel().setActivePE(index);
-        executeCalls(executorCode, startIndex, endIndex);
+        executeCalls(executorCode, startAddress, endAddress, startIndex, endIndex);
       }
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException("Simulation failed", e);
@@ -186,6 +188,8 @@ public final class Executor {
 
   private void executeCalls(
       final ExecutorCode code,
+      final long startAddress,
+      final long endAddress,
       final int startIndex,
       final int endIndex) throws ConfigurationException {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
