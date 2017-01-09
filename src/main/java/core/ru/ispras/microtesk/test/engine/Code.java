@@ -21,11 +21,12 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.test.Executor;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
-public final class Code {
+public final class Code implements Executor.ICode {
   private final Map<String, Long> handlerAddresses;
   private final Map<Long, Pair<Block, Integer>> addresses;
   private final List<Block> blocks;
