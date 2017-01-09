@@ -32,8 +32,6 @@ public class CombinationTestCase extends VliwTest {
 
   protected boolean isExpectedError(final String message) {
     return super.isExpectedError(message) || message.contains(
-        "Error: Exception handler for IntegerOverflow is not found. " +
-        "Have to continue to the next instruction"
-         );
+        "Error: Exception handler for IntegerOverflow is not found.");
   }
 }
