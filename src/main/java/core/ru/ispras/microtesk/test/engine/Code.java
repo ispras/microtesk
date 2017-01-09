@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,14 +89,14 @@ public final class Code {
     return addresses.containsKey(address);
   }
 
-  public Iterator<ConcreteCall> getIterator(final long address) {
+  public Iterator getIterator(final long address) {
     final Pair<Block, Integer> entry = addresses.get(address);
     InvariantChecks.checkNotNull(entry);
 
     final Block block = entry.first;
     final int index = entry.second;
 
-    return new CallIterator(block.calls, index);
+    return new Iterator(block.calls, index);
   }
 
   public void addHanderAddress(final String id, final long address) {
@@ -146,31 +145,27 @@ public final class Code {
     }
   }
 
-  private static final class CallIterator implements Iterator<ConcreteCall> {
+  public static final class Iterator {
     private final List<ConcreteCall> calls;
     private int index;
+    private ConcreteCall current;
 
-    public CallIterator(final List<ConcreteCall> calls, final int startIndex) {
+    private Iterator(final List<ConcreteCall> calls, final int startIndex) {
       InvariantChecks.checkNotEmpty(calls);
       InvariantChecks.checkBounds(startIndex, calls.size());
 
       this.calls = calls;
       this.index = startIndex;
+      this.current = calls.get(index);
     }
 
-    @Override
-    public boolean hasNext() {
-      return index < calls.size();
+    public ConcreteCall current() {
+      return current;
     }
 
-    @Override
-    public ConcreteCall next() {
-      return calls.get(index++);
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException();
+    public void next() {
+      index++;
+      current = index < calls.size() ? calls.get(index) : null;
     }
   }
 }
