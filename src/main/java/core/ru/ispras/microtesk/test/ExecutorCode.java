@@ -119,7 +119,7 @@ public final class ExecutorCode implements Executor.ICode {
     return address;
   }
 
-  public void addHanderAddress(final String id, final long address) {
+  public void addHandlerAddress(final String id, final long address) {
     InvariantChecks.checkNotNull(id);
     handlerAddresses.put(id, address);
   }
