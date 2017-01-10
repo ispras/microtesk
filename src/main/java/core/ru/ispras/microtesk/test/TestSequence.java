@@ -33,9 +33,9 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public final class TestSequence {
 
   public static final class Builder {
-    private final List<ConcreteCall> prologue;
-    private final List<ConcreteCall> body;
-    private final List<SelfCheck> checks;
+    private final ArrayList<ConcreteCall> prologue;
+    private final ArrayList<ConcreteCall> body;
+    private final ArrayList<SelfCheck> checks;
 
     private int byteSize;
     private int instructionCount;
@@ -94,6 +94,7 @@ public final class TestSequence {
     }
   }
 
+  private final List<ConcreteCall> all;
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
   private final List<SelfCheck> checks;
@@ -106,9 +107,9 @@ public final class TestSequence {
   private boolean isAddressSet = false;
 
   private TestSequence(
-      final List<ConcreteCall> prologue,
-      final List<ConcreteCall> body,
-      final List<SelfCheck> checks,
+      final ArrayList<ConcreteCall> prologue,
+      final ArrayList<ConcreteCall> body,
+      final ArrayList<SelfCheck> checks,
       final int byteSize,
       final int instructionCount) {
     InvariantChecks.checkNotNull(prologue);
@@ -118,12 +119,43 @@ public final class TestSequence {
     // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
     InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
 
-    this.prologue = Collections.unmodifiableList(prologue);
-    this.body = Collections.unmodifiableList(body);
+    final ArrayList<ConcreteCall> allCalls = merge(prologue, body);
+    this.all = Collections.unmodifiableList(allCalls);
+
+    this.prologue = prologue.isEmpty() ?
+        Collections.<ConcreteCall>emptyList() :
+        Collections.unmodifiableList(allCalls.subList(0, prologue.size()));
+
+    this.body = body.isEmpty() ?
+        Collections.<ConcreteCall>emptyList() :
+        prologue.isEmpty() ?
+            all : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
+
     this.checks = Collections.unmodifiableList(checks);
 
     this.byteSize = byteSize;
     this.instructionCount = instructionCount;
+  }
+
+  private static <T> ArrayList<T> merge(final ArrayList<T> first, final ArrayList<T> second) {
+    if (first.isEmpty()) {
+      return second;
+    }
+
+    if (second.isEmpty()) {
+      return first;
+    }
+
+    final ArrayList<T> result = new ArrayList<>(first.size() + second.size());
+
+    result.addAll(first);
+    result.addAll(second);
+
+    return result;
+  }
+
+  public List<ConcreteCall> getAll() {
+    return all;
   }
 
   public List<ConcreteCall> getPrologue() {
@@ -132,15 +164,6 @@ public final class TestSequence {
 
   public List<ConcreteCall> getBody() {
     return body;
-  }
-
-  public List<ConcreteCall> getAll() {
-    final List<ConcreteCall> result = new ArrayList<>(prologue.size() + body.size());
-
-    result.addAll(prologue);
-    result.addAll(body);
-
-    return Collections.unmodifiableList(result);
   }
 
   public int getByteSize() {
@@ -160,16 +183,11 @@ public final class TestSequence {
   public long setAddress(final long address) {
     InvariantChecks.checkFalse(isAddressSet, "Address is already assigned");
 
-    long currentAddress = address;
-
-    currentAddress = setAddress(prologue, currentAddress);
-    currentAddress = setAddress(body, currentAddress);
-
-    this.startAddress = address;
-    this.endAddress = currentAddress;
+    this.endAddress = setAddress(all, address);
+    this.startAddress = all.isEmpty() ? address : all.get(0).getAddress();
     this.isAddressSet = true;
 
-    return currentAddress;
+    return endAddress;
   }
 
   private static long setAddress(final List<ConcreteCall> calls, final long address) {
@@ -191,6 +209,6 @@ public final class TestSequence {
   }
 
   public boolean isEmpty() {
-    return prologue.isEmpty() && body.isEmpty() && checks.isEmpty();
+    return all.isEmpty();
   }
 }
