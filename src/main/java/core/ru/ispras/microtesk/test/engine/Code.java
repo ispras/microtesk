@@ -40,19 +40,15 @@ public final class Code implements Executor.ICode {
   public void addTestSequence(final TestSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
 
-    if (sequence.isEmpty()) {
-      return;
+    if (!sequence.isEmpty()) {
+      final Block block = new Block(sequence);
+      registerBlock(block);
     }
-
-    final Block block = new Block(
-        sequence.getAll(), sequence.getStartAddress(), sequence.getEndAddress());
-
-    final Block registeredBlock = registerBlock(block);
-    registerAddresses(registeredBlock);
   }
 
-  private Block registerBlock(final Block newBlock) {
-    Block blockToMerge = null;
+  private void registerBlock(final Block newBlock) {
+    Block blockToLink = null;
+
     for(final Block block : blocks) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
@@ -60,17 +56,16 @@ public final class Code implements Executor.ICode {
       }
 
       if (block.endAddress == newBlock.startAddress) {
-        blockToMerge = block;
+        blockToLink = block;
       }
     }
 
-    if (null != blockToMerge) {
-      blockToMerge.merge(newBlock);
-      return blockToMerge;
+    if (null != blockToLink) {
+      blockToLink.setNext(newBlock);
     }
 
     blocks.add(newBlock);
-    return newBlock;
+    registerAddresses(newBlock);
   }
 
   private GenerationAbortedException newOverlappingException(final Pair<Long, Long> overlapping) {
@@ -105,7 +100,7 @@ public final class Code implements Executor.ICode {
     final Block block = entry.first;
     final int index = entry.second;
 
-    return new Iterator(block.calls, index);
+    return new Iterator(block, index);
   }
 
   public void addHandlerAddress(final String id, final long address) {
@@ -125,18 +120,18 @@ public final class Code implements Executor.ICode {
 
   private static final class Block {
     private final long startAddress;
-    private long endAddress;
-    private List<ConcreteCall> calls;
+    private final long endAddress;
+    private final List<ConcreteCall> calls;
+    private Block next;
 
-    public Block(
-        final List<ConcreteCall> calls,
-        final long startAddress,
-        final long endAddress) {
-      InvariantChecks.checkNotEmpty(calls);
+    public Block(final TestSequence sequence) {
+      InvariantChecks.checkNotNull(sequence);
+      InvariantChecks.checkFalse(sequence.isEmpty());
 
-      this.startAddress = startAddress;
-      this.endAddress = endAddress;
-      this.calls = calls;
+      this.startAddress = sequence.getStartAddress();
+      this.endAddress = sequence.getEndAddress();
+      this.calls = sequence.getAll();
+      this.next = null;
     }
 
     public Pair<Long, Long> getOverlapping(final Block other) {
@@ -145,29 +140,30 @@ public final class Code implements Executor.ICode {
       return start < end ? new Pair<>(start, end) : null;
     }
 
-    public void merge(final Block other) {
-      InvariantChecks.checkNotNull(other);
-      InvariantChecks.checkTrue(this.endAddress == other.startAddress);
+    public void setNext(final Block block) {
+      InvariantChecks.checkTrue(this.next == null);
+      InvariantChecks.checkTrue(this.endAddress == block.startAddress);
 
-      this.calls = new ArrayList<>(this.calls);
-      this.calls.addAll(other.calls);
-
-      this.endAddress = other.endAddress;
+      this.next = block;
     }
   }
 
   public static final class Iterator {
-    private final List<ConcreteCall> calls;
+    private Block block;
     private int index;
     private ConcreteCall current;
 
-    private Iterator(final List<ConcreteCall> calls, final int startIndex) {
-      InvariantChecks.checkNotEmpty(calls);
-      InvariantChecks.checkBounds(startIndex, calls.size());
+    private Iterator(final Block block, final int startIndex) {
+      init(block, startIndex);
+    }
 
-      this.calls = calls;
-      this.index = startIndex;
-      this.current = calls.get(index);
+    private void init(final Block block, final int index) {
+      InvariantChecks.checkNotEmpty(block.calls);
+      InvariantChecks.checkBounds(index, block.calls.size());
+
+      this.block = block;
+      this.index = index;
+      this.current = block.calls.get(index);
     }
 
     public ConcreteCall current() {
@@ -175,8 +171,19 @@ public final class Code implements Executor.ICode {
     }
 
     public void next() {
-      index++;
-      current = index < calls.size() ? calls.get(index) : null;
+      InvariantChecks.checkNotNull(current);
+
+      if (++index < block.calls.size()) {
+        current = block.calls.get(index);
+        return;
+      }
+
+      if (null != block.next) {
+        init(block.next, 0);
+        return;
+      }
+
+      current = null;
     }
   }
 }
