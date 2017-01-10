@@ -158,6 +158,8 @@ public final class TestSequence {
   }
 
   public long setAddress(final long address) {
+    InvariantChecks.checkFalse(isAddressSet, "Address is already assigned");
+
     long currentAddress = address;
 
     currentAddress = setAddress(prologue, currentAddress);
