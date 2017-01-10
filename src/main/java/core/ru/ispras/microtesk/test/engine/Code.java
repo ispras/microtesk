@@ -122,7 +122,7 @@ public final class Code implements Executor.ICode {
   private static final class Block {
     private final long startAddress;
     private long endAddress;
-    private final List<ConcreteCall> calls;
+    private List<ConcreteCall> calls;
 
     public Block(
         final List<ConcreteCall> calls,
@@ -145,7 +145,9 @@ public final class Code implements Executor.ICode {
       InvariantChecks.checkNotNull(other);
       InvariantChecks.checkTrue(this.endAddress == other.startAddress);
 
+      this.calls = new ArrayList<>(this.calls);
       this.calls.addAll(other.calls);
+
       this.endAddress = other.endAddress;
     }
   }
