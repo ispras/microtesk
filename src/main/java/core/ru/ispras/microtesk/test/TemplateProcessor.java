@@ -183,7 +183,7 @@ final class TemplateProcessor implements Template.Processor {
     patchLabels(engineContext.getLabelManager(), calls, sequenceIndex, abortOnUndefinedLabel);
 
     final int startIndex = executorCode.getCallCount();
-    executorCode.addCalls(calls);
+    executorCode.addTestSequence(sequence);
     final int endIndex = executorCode.getCallCount() - 1;
 
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
@@ -306,21 +306,22 @@ final class TemplateProcessor implements Template.Processor {
       final Set<Object> handlerSet = new HashSet<>();
       for (final Map.Entry<String, TestSequence> e : handler.entrySet()) {
         final String handlerName = e.getKey();
-        final List<ConcreteCall> handlerCalls = e.getValue().getAll();
- 
-        if (handlerCalls.isEmpty()) {
+        final TestSequence handlerSequence = e.getValue();
+
+        if (handlerSequence.isEmpty()) {
           Logger.warning("Empty exception handler: %s", handlerName);
           continue;
         }
 
-        code.addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
+        code.addHandlerAddress(handlerName, handlerSequence.getStartAddress());
 
-        if (!handlerSet.contains(handlerCalls)) {
+        if (!handlerSet.contains(handlerSequence)) {
+          final List<ConcreteCall> handlerCalls = e.getValue().getAll();
           registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
           patchLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX, true);
 
-          code.addCalls(handlerCalls);
-          handlerSet.add(handlerCalls);
+          code.addTestSequence(handlerSequence);
+          handlerSet.add(handlerSequence);
         }
       }
     }

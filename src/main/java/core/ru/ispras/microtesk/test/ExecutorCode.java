@@ -55,9 +55,14 @@ public final class ExecutorCode implements Executor.ICode {
     return index;
   }
 
-  public void addCalls(final List<ConcreteCall> calls) {
-    InvariantChecks.checkNotNull(calls);
-    for (final ConcreteCall call : calls) {
+  public void addTestSequence(final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    if (sequence.isEmpty()) {
+      return;
+    }
+
+    for (final ConcreteCall call : sequence.getAll()) {
       addCall(call);
     }
   }
