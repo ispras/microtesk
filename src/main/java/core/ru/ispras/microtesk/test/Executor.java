@@ -56,6 +56,8 @@ public final class Executor {
     boolean hasAddress(long address);
     boolean hasHandler(String id);
     long getHandlerAddress(String id);
+    void addHandlerAddress(String id, long address);
+    void addTestSequence(TestSequence sequence);
   }
 
   private static final class LabelTracker {
@@ -430,4 +432,78 @@ public final class Executor {
     sb.append(addressText);
     Logger.debug(sb.toString());
   }
+/*
+  private void executeCalls(
+      final Code code,
+      final long startAddress,
+      final long endAddress) throws ConfigurationException {
+    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
+
+    Code.Iterator iterator = code.getIterator(startAddress);
+    boolean isInvalidNeverCalled = true;
+
+    iterator.getAddress() == endAddress
+    iterator.current() == null && isInvalidCallHandled && isInvalidNeverCalled
+    
+    while (iterator.current() != null && iterator.current().getAddress() != endAddress) {
+      final ConcreteCall call = iterator.current();
+      isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
+
+      if (call != invalidCall) {
+        setPC(call.getAddress());
+      }
+
+      logCall(call);
+      labelTracker.track(call);
+
+      // NON-EXECUTABLE
+      if (!call.isExecutable()) {
+        iterator.next();
+        continue;
+      }
+
+      final String exception = executeCall(call);
+
+      // EXCEPTION
+      if (null != exception) {
+        final Long handlerAddress = getExceptionHandlerAddress(code, exception);
+
+        if (null != handlerAddress) {
+          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
+          logJump(handlerAddress, null);
+          iterator = code.getIterator(handlerAddress);
+        } else {
+          Logger.error("Exception handler for %s is not found.", exception);
+          Logger.message("Execution will be continued from the next instruction.");
+          iterator.next();
+        }
+
+        continue;
+      }
+
+      final long address = getPC();
+      final boolean isJump = address != call.getAddress() + call.getByteSize();
+
+      // NORMAL
+      if (!isJump) {
+        iterator.next();
+        continue;
+      }
+
+      // JUMP
+      final LabelReference reference = labelTracker.getLabel();
+      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
+
+      if (null != reference) {
+        final long labelAddress = getLabelAddress(code, call, reference);
+        logJump(labelAddress, reference.getTarget().getLabel());
+        iterator = code.getIterator(labelAddress);
+      } else {
+        // If no label references are found within the delay slot we try to use PC to jump
+        logJump(address, null);
+        iterator = code.getIterator(address);
+      }
+    }
+  }
+  */
 }

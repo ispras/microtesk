@@ -299,7 +299,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private static void registerExceptionHandlers(
-      final ExecutorCode code,
+      final Executor.ICode code,
       final LabelManager labelManager,
       final List<Map<String, TestSequence>> exceptionHandlers) {
     for (final Map<String, TestSequence> handler: exceptionHandlers) {

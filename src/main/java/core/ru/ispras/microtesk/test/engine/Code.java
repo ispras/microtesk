@@ -104,7 +104,7 @@ public final class Code implements Executor.ICode {
     return new Iterator(block.calls, index);
   }
 
-  public void addHanderAddress(final String id, final long address) {
+  public void addHandlerAddress(final String id, final long address) {
     InvariantChecks.checkNotNull(id);
     handlerAddresses.put(id, address);
   }
