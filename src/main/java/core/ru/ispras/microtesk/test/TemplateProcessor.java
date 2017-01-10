@@ -48,7 +48,7 @@ final class TemplateProcessor implements Template.Processor {
   private final Executor executor;
 
   private Printer printer = null;
-  private final List<Map<String, List<ConcreteCall>>> exceptionHandlers = new ArrayList<>();
+  private final List<Map<String, TestSequence>> exceptionHandlers = new ArrayList<>();
   private TestSequence prologue = null;
   private Block epilogueBlock = null;
   private ExecutorCode executorCode = null;
@@ -273,7 +273,7 @@ final class TemplateProcessor implements Template.Processor {
     Logger.debugHeader("Processing Exception Handler");
     InvariantChecks.checkNotNull(handler);
 
-    final Pair<List<TestSequence>, Map<String, List<ConcreteCall>>> concreteHandler;
+    final Pair<List<TestSequence>, Map<String, TestSequence>> concreteHandler;
     try {
       concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
     } catch (final ConfigurationException e) {
@@ -301,19 +301,19 @@ final class TemplateProcessor implements Template.Processor {
   private static void registerExceptionHandlers(
       final ExecutorCode code,
       final LabelManager labelManager,
-      final List<Map<String, List<ConcreteCall>>> exceptionHandlers) {
-    for (final Map<String, List<ConcreteCall>> handler: exceptionHandlers) {
+      final List<Map<String, TestSequence>> exceptionHandlers) {
+    for (final Map<String, TestSequence> handler: exceptionHandlers) {
       final Set<Object> handlerSet = new HashSet<>();
-      for (final Map.Entry<String, List<ConcreteCall>> e : handler.entrySet()) {
+      for (final Map.Entry<String, TestSequence> e : handler.entrySet()) {
         final String handlerName = e.getKey();
-        final List<ConcreteCall> handlerCalls = e.getValue();
+        final List<ConcreteCall> handlerCalls = e.getValue().getAll();
  
         if (handlerCalls.isEmpty()) {
           Logger.warning("Empty exception handler: %s", handlerName);
           continue;
         }
 
-        code.addHanderAddress(handlerName, handlerCalls.get(0).getAddress());
+        code.addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
 
         if (!handlerSet.contains(handlerCalls)) {
           registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
