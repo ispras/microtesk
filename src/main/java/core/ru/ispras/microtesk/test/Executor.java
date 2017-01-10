@@ -25,6 +25,7 @@ import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.model.api.tarmac.Record;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.test.engine.Code;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -432,24 +433,82 @@ public final class Executor {
     sb.append(addressText);
     Logger.debug(sb.toString());
   }
-/*
+
+  public void execute(
+      final Code executorCode,
+      final long startAddress,
+      final long endAddress) {
+    InvariantChecks.checkNotNull(executorCode);
+
+    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
+      Logger.debug("Simulation is disabled");
+      return;
+    }
+
+    context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
+
+    try {
+      for (int index = 0; index < context.getModel().getPENumber(); index++) {
+        Logger.debugHeader("Instance %d", index);
+        context.getModel().setActivePE(index);
+        executeCalls(executorCode, startAddress, endAddress);
+      }
+    } catch (final ConfigurationException e) {
+      throw new GenerationAbortedException("Simulation failed", e);
+    } finally {
+      context.getStatistics().popActivity();
+    }
+  }
+
+  private final class Fetcher {
+    private final Code code;
+    private long address;
+    private Code.Iterator iterator;
+
+    private Fetcher(final Code code, final long address) {
+      InvariantChecks.checkNotNull(code);
+      this.code = code;
+
+      this.address = address;
+      this.iterator = code.getIterator(address);
+    }
+
+    public long getAddress() {
+      return address;
+    }
+
+    public ConcreteCall getCall() {
+      return null != iterator ? iterator.current() : invalidCall;
+    }
+
+    public void next() {
+      InvariantChecks.checkNotNull(iterator);
+
+      final ConcreteCall current = iterator.current();
+      InvariantChecks.checkNotNull(current); 
+
+      iterator.next();
+      final ConcreteCall next = iterator.current();
+
+      address = null != next ? next.getAddress() : address + current.getByteSize();
+    }
+
+    public void jump(final long jumpAddress) {
+      address = jumpAddress;
+      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress) : null;
+    }
+  }
+
   private void executeCalls(
       final Code code,
       final long startAddress,
       final long endAddress) throws ConfigurationException {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
+    final Fetcher fetcher = new Fetcher(code, startAddress);
 
-    Code.Iterator iterator = code.getIterator(startAddress);
-    boolean isInvalidNeverCalled = true;
-
-    iterator.getAddress() == endAddress
-    iterator.current() == null && isInvalidCallHandled && isInvalidNeverCalled
-    
-    while (iterator.current() != null && iterator.current().getAddress() != endAddress) {
-      final ConcreteCall call = iterator.current();
-      isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
-
-      if (call != invalidCall) {
+    while (fetcher.getCall() != null && fetcher.getAddress() != endAddress) {
+      final ConcreteCall call = fetcher.getCall();
+      if (call != invalidCall) { 
         setPC(call.getAddress());
       }
 
@@ -458,7 +517,7 @@ public final class Executor {
 
       // NON-EXECUTABLE
       if (!call.isExecutable()) {
-        iterator.next();
+        fetcher.next();
         continue;
       }
 
@@ -471,11 +530,11 @@ public final class Executor {
         if (null != handlerAddress) {
           labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
           logJump(handlerAddress, null);
-          iterator = code.getIterator(handlerAddress);
+          fetcher.jump(handlerAddress);
         } else {
           Logger.error("Exception handler for %s is not found.", exception);
           Logger.message("Execution will be continued from the next instruction.");
-          iterator.next();
+          fetcher.next();
         }
 
         continue;
@@ -486,7 +545,7 @@ public final class Executor {
 
       // NORMAL
       if (!isJump) {
-        iterator.next();
+        fetcher.next();
         continue;
       }
 
@@ -497,13 +556,12 @@ public final class Executor {
       if (null != reference) {
         final long labelAddress = getLabelAddress(code, call, reference);
         logJump(labelAddress, reference.getTarget().getLabel());
-        iterator = code.getIterator(labelAddress);
+        fetcher.jump(labelAddress);
       } else {
         // If no label references are found within the delay slot we try to use PC to jump
         logJump(address, null);
-        iterator = code.getIterator(address);
+        fetcher.jump(address);
       }
     }
   }
-  */
 }
