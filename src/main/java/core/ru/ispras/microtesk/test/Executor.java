@@ -478,7 +478,7 @@ public final class Executor {
     }
 
     public boolean isAddressReached(final long targetAddress) {
-      return targetAddress == address;
+      return targetAddress == address && (null == getCall() || getCall().isExecutable());
     }
 
     public void next() {
