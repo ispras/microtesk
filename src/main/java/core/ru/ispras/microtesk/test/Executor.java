@@ -470,7 +470,7 @@ public final class Executor {
       this.code = code;
 
       this.address = address;
-      this.iterator = code.getIterator(address);
+      this.iterator = code.getIterator(address, true);
     }
 
     public ConcreteCall getCall() {
@@ -495,7 +495,7 @@ public final class Executor {
 
     public void jump(final long jumpAddress) {
       address = jumpAddress;
-      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress) : null;
+      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress, false) : null;
     }
   }
 

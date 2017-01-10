@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -29,12 +29,12 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public final class Code implements Executor.ICode {
   private final Map<String, Long> handlerAddresses;
   private final Map<Long, Pair<Block, Integer>> addresses;
-  private final List<Block> blocks;
+  private final Map<Long, Block> blocks;
 
   public Code() {
     this.handlerAddresses = new HashMap<>();
     this.addresses = new HashMap<>();
-    this.blocks = new ArrayList<>();
+    this.blocks = new TreeMap<>();
   }
 
   public void addTestSequence(final TestSequence sequence) {
@@ -49,7 +49,7 @@ public final class Code implements Executor.ICode {
   private void registerBlock(final Block newBlock) {
     Block blockToLink = null;
 
-    for(final Block block : blocks) {
+    for(final Block block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
         throw newOverlappingException(overlapping);
@@ -64,7 +64,7 @@ public final class Code implements Executor.ICode {
       blockToLink.setNext(newBlock);
     }
 
-    blocks.add(newBlock);
+    blocks.put(newBlock.startAddress, newBlock);
     registerAddresses(newBlock);
   }
 
@@ -93,14 +93,18 @@ public final class Code implements Executor.ICode {
     return addresses.containsKey(address);
   }
 
-  public Iterator getIterator(final long address) {
+  public Iterator getIterator(final long address, final boolean lookForBlockStart) {
+    if (lookForBlockStart) {
+      final Block block = blocks.get(address);
+      if (null != block) {
+        return new Iterator(block, 0);
+      }
+    }
+
     final Pair<Block, Integer> entry = addresses.get(address);
     InvariantChecks.checkNotNull(entry);
 
-    final Block block = entry.first;
-    final int index = entry.second;
-
-    return new Iterator(block, index);
+    return new Iterator(entry.first, entry.second);
   }
 
   public void addHandlerAddress(final String id, final long address) {
