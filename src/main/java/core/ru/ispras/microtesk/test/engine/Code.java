@@ -40,6 +40,10 @@ public final class Code implements Executor.ICode {
   public void addTestSequence(final TestSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
 
+    if (sequence.isEmpty()) {
+      return;
+    }
+
     final Block block = new Block(
         sequence.getAll(), sequence.getStartAddress(), sequence.getEndAddress());
 
