@@ -86,7 +86,11 @@ public final class Code implements Executor.ICode {
   private void registerAddresses(final Block block) {
     for (int index = 0; index < block.calls.size(); index++) {
       final ConcreteCall call = block.calls.get(index);
-      addresses.put(call.getAddress(), new Pair<>(block, index));
+      final long address = call.getAddress();
+
+      if (!addresses.containsKey(address)) {
+        addresses.put(call.getAddress(), new Pair<>(block, index));
+      }
     }
   }
 
