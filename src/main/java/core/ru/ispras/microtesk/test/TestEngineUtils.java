@@ -158,21 +158,21 @@ public final class TestEngineUtils {
     return result;
   }
 
-  public static Pair<List<TestSequence>, Map<String, List<ConcreteCall>>> makeExceptionHandler(
+  public static Pair<List<TestSequence>, Map<String, TestSequence>> makeExceptionHandler(
       final EngineContext engineContext,
       final ExceptionHandler handler) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(handler);
 
     final List<TestSequence> sequences = new ArrayList<>(handler.getSections().size());
-    final Map<String, List<ConcreteCall>> handlers = new LinkedHashMap<>(); 
+    final Map<String, TestSequence> handlers = new LinkedHashMap<>(); 
 
     for (final ExceptionHandler.Section section : handler.getSections()) {
       final TestSequence sequence = makeTestSequenceForExceptionHandler(engineContext, section);
       sequences.add(sequence);
 
       for (final String exception : section.getExceptions()) {
-        if (null != handlers.put(exception, sequence.getAll())) {
+        if (null != handlers.put(exception, sequence)) {
           Logger.warning("Exception handler for %s is redefined.", exception);
         }
       }
