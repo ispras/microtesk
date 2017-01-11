@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -28,8 +28,8 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 
 public final class Code implements Executor.ICode {
   private final Map<String, Long> handlerAddresses;
-  private final Map<Long, Pair<Block, Integer>> addresses;
-  private final Map<Long, Block> blocks;
+  private final Map<Long, Pair<CodeBlock, Integer>> addresses;
+  private final Map<Long, CodeBlock> blocks;
 
   public Code() {
     this.handlerAddresses = new HashMap<>();
@@ -41,21 +41,21 @@ public final class Code implements Executor.ICode {
     InvariantChecks.checkNotNull(sequence);
 
     if (!sequence.isEmpty()) {
-      final Block block = new Block(sequence);
+      final CodeBlock block = new CodeBlock(sequence);
       registerBlock(block);
     }
   }
 
-  private void registerBlock(final Block newBlock) {
-    Block blockToLink = null;
+  private void registerBlock(final CodeBlock newBlock) {
+    CodeBlock blockToLink = null;
 
-    for(final Block block : blocks.values()) {
+    for(final CodeBlock block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
         throw newOverlappingException(overlapping);
       }
 
-      if (block.endAddress == newBlock.startAddress) {
+      if (block.getEndAddress() == newBlock.getStartAddress()) {
         blockToLink = block;
       }
     }
@@ -64,7 +64,7 @@ public final class Code implements Executor.ICode {
       blockToLink.setNext(newBlock);
     }
 
-    blocks.put(newBlock.startAddress, newBlock);
+    blocks.put(newBlock.getStartAddress(), newBlock);
     registerAddresses(newBlock);
   }
 
@@ -78,9 +78,10 @@ public final class Code implements Executor.ICode {
     return new GenerationAbortedException(sb.toString());
   }
 
-  private void registerAddresses(final Block block) {
-    for (int index = 0; index < block.calls.size(); index++) {
-      final ConcreteCall call = block.calls.get(index);
+  private void registerAddresses(final CodeBlock block) {
+    final List<ConcreteCall> calls = block.getCalls();
+    for (int index = 0; index < calls.size(); index++) {
+      final ConcreteCall call = calls.get(index);
       final long address = call.getAddress();
 
       if (!addresses.containsKey(address)) {
@@ -95,13 +96,13 @@ public final class Code implements Executor.ICode {
 
   public Iterator getIterator(final long address, final boolean lookForBlockStart) {
     if (lookForBlockStart) {
-      final Block block = blocks.get(address);
+      final CodeBlock block = blocks.get(address);
       if (null != block) {
         return new Iterator(block, 0);
       }
     }
 
-    final Pair<Block, Integer> entry = addresses.get(address);
+    final Pair<CodeBlock, Integer> entry = addresses.get(address);
     InvariantChecks.checkNotNull(entry);
 
     return new Iterator(entry.first, entry.second);
@@ -122,52 +123,22 @@ public final class Code implements Executor.ICode {
     return address;
   }
 
-  private static final class Block {
-    private final long startAddress;
-    private final long endAddress;
-    private final List<ConcreteCall> calls;
-    private Block next;
-
-    public Block(final TestSequence sequence) {
-      InvariantChecks.checkNotNull(sequence);
-      InvariantChecks.checkFalse(sequence.isEmpty());
-
-      this.startAddress = sequence.getStartAddress();
-      this.endAddress = sequence.getEndAddress();
-      this.calls = sequence.getAll();
-      this.next = null;
-    }
-
-    public Pair<Long, Long> getOverlapping(final Block other) {
-      final long start = Math.max(this.startAddress, other.startAddress);
-      final long end = Math.min(this.endAddress, other.endAddress);
-      return start < end ? new Pair<>(start, end) : null;
-    }
-
-    public void setNext(final Block block) {
-      InvariantChecks.checkTrue(this.next == null);
-      InvariantChecks.checkTrue(this.endAddress == block.startAddress);
-
-      this.next = block;
-    }
-  }
-
   public static final class Iterator {
-    private Block block;
+    private CodeBlock block;
     private int index;
     private ConcreteCall current;
 
-    private Iterator(final Block block, final int startIndex) {
+    private Iterator(final CodeBlock block, final int startIndex) {
       init(block, startIndex);
     }
 
-    private void init(final Block block, final int index) {
-      InvariantChecks.checkNotEmpty(block.calls);
-      InvariantChecks.checkBounds(index, block.calls.size());
+    private void init(final CodeBlock block, final int index) {
+      InvariantChecks.checkNotNull(block);
+      InvariantChecks.checkBounds(index, block.getCalls().size());
 
       this.block = block;
       this.index = index;
-      this.current = block.calls.get(index);
+      this.current = block.getCalls().get(index);
     }
 
     public ConcreteCall current() {
@@ -177,13 +148,13 @@ public final class Code implements Executor.ICode {
     public void next() {
       InvariantChecks.checkNotNull(current);
 
-      if (++index < block.calls.size()) {
-        current = block.calls.get(index);
+      if (++index < block.getCalls().size()) {
+        current = block.getCalls().get(index);
         return;
       }
 
-      if (null != block.next) {
-        init(block.next, 0);
+      if (null != block.getNext()) {
+        init(block.getNext(), 0);
         return;
       }
 
