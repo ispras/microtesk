@@ -177,14 +177,9 @@ final class TemplateProcessor implements Template.Processor {
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     // Code allocation actions
     final List<ConcreteCall> calls = sequence.getAll();
-
     allocateDataSections(engineContext.getLabelManager(), calls, sequenceIndex);
     registerLabels(engineContext.getLabelManager(), calls, sequenceIndex);
     patchLabels(engineContext.getLabelManager(), calls, sequenceIndex, abortOnUndefinedLabel);
-
-    final int startIndex = executorCode.getCallCount();
-    executorCode.addTestSequence(sequence);
-    final int endIndex = executorCode.getCallCount() - 1;
 
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
       Logger.debugHeader("Constructed %s", sequenceId);
@@ -194,6 +189,11 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Executing %s", sequenceId);
+
+    final int startIndex = executorCode.getCallCount();
+    executorCode.addTestSequence(sequence);
+    final int endIndex = executorCode.getCallCount() - 1;
+
     if (startIndex <= endIndex) { // Otherwise it's empty
       executor.execute(
           executorCode,
