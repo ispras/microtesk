@@ -43,14 +43,8 @@ public final class CodeAllocator {
     this.code = new Code();
   }
 
-  public void allocate(final TestSequence sequence, final int sequenceIndex) {
-    InvariantChecks.checkNotNull(sequence);
-
-    if (sequence.isEmpty()) {
-      return;
-    }
-
-    final List<ConcreteCall> calls = sequence.getAll();
+  public void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
+    InvariantChecks.checkNotEmpty(calls);
 
     allocateDataSections(calls, sequenceIndex);
     allocateCodeBlocks(calls);
