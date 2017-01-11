@@ -53,6 +53,14 @@ public final class CodeBlock {
     return calls;
   }
 
+  public long getStartAddress() {
+    return startAddress;
+  }
+
+  public long getEndAddress() {
+    return endAddress;
+  }
+
   public CodeBlock getNext() {
     return next;
   }
