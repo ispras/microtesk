@@ -37,16 +37,10 @@ public final class TestSequence {
     private final ArrayList<ConcreteCall> body;
     private final ArrayList<SelfCheck> checks;
 
-    private int byteSize;
-    private int instructionCount;
-
     public Builder() {
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
       this.checks = new ArrayList<>();
-
-      this.byteSize = 0;
-      this.instructionCount = 0;
     }
 
     private void addTo(final List<ConcreteCall> target, final ConcreteCall call) {
@@ -54,11 +48,6 @@ public final class TestSequence {
       InvariantChecks.checkNotNull(call);
 
       target.add(call);
-      byteSize += call.getByteSize();
-
-      if (call.isExecutable()) {
-        instructionCount++;
-      }
     }
 
     private void addTo(final List<ConcreteCall> target, final List<ConcreteCall> calls) {
@@ -90,7 +79,7 @@ public final class TestSequence {
     }
 
     public TestSequence build() {
-      return new TestSequence(prologue, body, checks, byteSize, instructionCount);
+      return new TestSequence(prologue, body, checks);
     }
   }
 
@@ -99,9 +88,6 @@ public final class TestSequence {
   private final List<ConcreteCall> body;
   private final List<SelfCheck> checks;
 
-  private final int byteSize;
-  private final int instructionCount;
-
   private long startAddress = 0;
   private long endAddress = 0;
   private boolean isAddressSet = false;
@@ -109,9 +95,7 @@ public final class TestSequence {
   private TestSequence(
       final ArrayList<ConcreteCall> prologue,
       final ArrayList<ConcreteCall> body,
-      final ArrayList<SelfCheck> checks,
-      final int byteSize,
-      final int instructionCount) {
+      final ArrayList<SelfCheck> checks) {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
     InvariantChecks.checkNotNull(checks);
@@ -132,9 +116,6 @@ public final class TestSequence {
             all : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
 
     this.checks = Collections.unmodifiableList(checks);
-
-    this.byteSize = byteSize;
-    this.instructionCount = instructionCount;
   }
 
   private static <T> ArrayList<T> merge(final ArrayList<T> first, final ArrayList<T> second) {
@@ -166,10 +147,6 @@ public final class TestSequence {
     return body;
   }
 
-  public int getByteSize() {
-    return byteSize;
-  }
-
   public long getStartAddress() {
     InvariantChecks.checkTrue(isAddressSet, "Address is not assigned");
     return startAddress;
@@ -198,10 +175,6 @@ public final class TestSequence {
     }
 
     return currentAddress;
-  }
-
-  public int getInstructionCount() {
-    return instructionCount;
   }
 
   public List<SelfCheck> getChecks() {
