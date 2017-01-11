@@ -74,7 +74,19 @@ public final class Code implements Executor.ICode {
 
     sb.append("Failed to place code at addresses");
     sb.append(String.format(" [0x%016x..0x%016x]. ", overlapping.first, overlapping.second));
-    sb.append("They are already used.");
+    sb.append("They are already used by:");
+
+    final Iterator iterator = getIterator(overlapping.first, false);
+    for (int index = 0; index < 5 && iterator.current() != null; index++, iterator.next()) {
+      final ConcreteCall call = iterator.current();
+      sb.append(System.lineSeparator());
+      sb.append(String.format("0x%016x %s", call.getAddress(), call.getText()));
+    }
+
+    if (null != iterator.current()) {
+      sb.append(System.lineSeparator());
+      sb.append("...");
+    }
 
     return new GenerationAbortedException(sb.toString());
   }
