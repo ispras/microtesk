@@ -71,8 +71,42 @@ public final class CodeAllocator {
   }
 
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
-    // TODO Auto-generated method stub
-    
+    int startIndex = 0;
+    int currentIndex = startIndex;
+
+    long startAddress = engineContext.getAddress();
+    long currentAddress = startAddress;
+
+    for (final ConcreteCall call : calls) {
+      call.setAddress(currentAddress);
+      final long callAddress = call.getAddress();
+
+      if (callAddress != currentAddress) {
+        final CodeBlock block = new CodeBlock(
+            calls.subList(startIndex, currentIndex),
+            startAddress,
+            currentAddress
+            );
+
+        code.registerBlock(block);
+
+        startIndex = currentIndex;
+        startAddress = callAddress;
+        currentAddress = startAddress;
+      }
+
+      currentAddress += call.getByteSize();
+      currentIndex++;
+    }
+
+    final CodeBlock block = new CodeBlock(
+        startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
+        startAddress,
+        currentAddress
+        );
+
+    code.registerBlock(block);
+    engineContext.setAddress(currentAddress);
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
