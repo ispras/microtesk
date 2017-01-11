@@ -94,8 +94,8 @@ public final class Code implements Executor.ICode {
     return addresses.containsKey(address);
   }
 
-  public Iterator getIterator(final long address, final boolean lookForBlockStart) {
-    if (lookForBlockStart) {
+  public Iterator getIterator(final long address, final boolean fromBlockStart) {
+    if (fromBlockStart) {
       final CodeBlock block = blocks.get(address);
       if (null != block) {
         return new Iterator(block, 0);
