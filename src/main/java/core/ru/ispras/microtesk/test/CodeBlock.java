@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.engine;
+package ru.ispras.microtesk.test;
 
 import java.util.List;
 
