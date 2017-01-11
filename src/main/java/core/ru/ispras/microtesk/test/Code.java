@@ -46,9 +46,10 @@ public final class Code implements Executor.ICode {
     }
   }
 
-  private void registerBlock(final CodeBlock newBlock) {
-    CodeBlock blockToLink = null;
+  public void registerBlock(final CodeBlock newBlock) {
+    InvariantChecks.checkNotNull(newBlock);
 
+    CodeBlock blockToLink = null;
     for(final CodeBlock block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
