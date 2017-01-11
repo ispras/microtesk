@@ -15,9 +15,13 @@
 package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
@@ -43,7 +47,37 @@ public final class CodeAllocator {
     this.code = new Code();
   }
 
-  public void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
+  public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
+    InvariantChecks.checkFalse(sequence.isEmpty());
+    allocate(sequence.getAll(), sequenceIndex);
+  }
+
+  public void allocateHandler(final List<Map<String, TestSequence>> handlers) {
+    InvariantChecks.checkNotNull(handlers);
+
+    for (final Map<String, TestSequence> handler: handlers) {
+      final Set<Object> handlerSet = new HashSet<>();
+      for (final Map.Entry<String, TestSequence> e : handler.entrySet()) {
+        final String handlerName = e.getKey();
+        final TestSequence handlerSequence = e.getValue();
+
+        if (handlerSequence.isEmpty()) {
+          Logger.warning("Empty exception handler: %s", handlerName);
+          continue;
+        }
+
+        code.addHandlerAddress(handlerName, handlerSequence.getStartAddress());
+
+        if (!handlerSet.contains(handlerSequence)) {
+          final List<ConcreteCall> handlerCalls = e.getValue().getAll();
+          allocate(handlerCalls, Label.NO_SEQUENCE_INDEX);
+          handlerSet.add(handlerSequence);
+        }
+      }
+    }
+  }
+
+  private void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
     InvariantChecks.checkNotEmpty(calls);
 
     allocateDataSections(calls, sequenceIndex);
