@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -107,7 +107,6 @@ public final class Executor {
 
   private final ConcreteCall exceptionCall;
   private final ConcreteCall invalidCall;
-  private final boolean isInvalidCallHandled;
   private final int branchExecutionLimit;
   private final boolean isLoggingEnabled;
   private final String originFormat;
@@ -128,7 +127,6 @@ public final class Executor {
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
-    this.isInvalidCallHandled = null != invalidCall;
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
     this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
@@ -153,166 +151,6 @@ public final class Executor {
 
   private void setPC(final long address) throws ConfigurationException {
     getPCLocation().setValue(BigInteger.valueOf(address));
-  }
-
-  /**
-   * Executes the specified sequence of instruction calls (concrete calls) and prints information
-   * about important events to the simulator log.
-   * 
-   * @throws IllegalArgumentException if the parameter is {@code null}.
-   * @throws GenerationAbortedException if during the interaction with the microprocessor model
-   *         an error caused by an invalid format of the request has occurred (typically, it
-   *         happens when evaluating an {@link Output} object causes an invalid request to the
-   *         model state observer).
-   */
-  public void execute(
-      final ExecutorCode executorCode,
-      final long startAddress,
-      final long endAddress,
-      final int startIndex,
-      final int endIndex) {
-    InvariantChecks.checkNotNull(executorCode);
-    InvariantChecks.checkTrue(startIndex <= endIndex);
-    InvariantChecks.checkTrue(executorCode.isInBounds(startIndex));
-    InvariantChecks.checkTrue(executorCode.isInBounds(endIndex));
-
-    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-      Logger.debug("Simulation is disabled");
-      return;
-    }
-
-    context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-
-    try {
-      for (int index = 0; index < context.getModel().getPENumber(); index++) {
-        Logger.debugHeader("Instance %d", index);
-        context.getModel().setActivePE(index);
-        executeCalls(executorCode, startAddress, endAddress, startIndex, endIndex);
-      }
-    } catch (final ConfigurationException e) {
-      throw new GenerationAbortedException("Simulation failed", e);
-    } finally {
-      context.getStatistics().popActivity();
-    }
-  }
-
-  private void executeCalls(
-      final ExecutorCode code,
-      final long startAddress,
-      final long endAddress,
-      final int startIndex,
-      final int endIndex) throws ConfigurationException {
-    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
-
-    int index = startIndex;
-    boolean isInvalidNeverCalled = true;
-
-    while (code.isInBounds(index) || (isInvalidCallHandled && isInvalidNeverCalled)) {
-      final ConcreteCall call = code.isInBounds(index) ? code.getCall(index) : invalidCall;
-      isInvalidNeverCalled = isInvalidNeverCalled && (call != invalidCall);
-
-      if (call != invalidCall) {
-        setPC(call.getAddress());
-      }
-
-      logCall(call);
-      labelTracker.track(call);
-
-      // NON-EXECUTABLE
-      if (!call.isExecutable()) {
-        if (index == endIndex) break;
-        index++;
-        continue;
-      }
-
-      final String exception = executeCall(call);
-
-      // EXCEPTION
-      if (null != exception) {
-        final Long handlerAddress = getExceptionHandlerAddress(code, exception);
-        if (null != handlerAddress) {
-          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
-          logJump(handlerAddress, null);
-          index = getCallIndex(code, handlerAddress);
-        } else {
-          Logger.error("Exception handler for %s is not found.", exception);
-          if (call == invalidCall) {
-            Logger.message("Execution will be terminated.");
-          } else {
-            Logger.message("Execution will be continued from the next instruction.");
-            if (index == endIndex) break;
-            index = getNextCallIndex(code, index);
-          }
-        }
-        continue;
-      }
-
-      final long address = getPC();
-      final boolean isJump = address != call.getAddress() + call.getByteSize();
-
-      // NORMAL
-      if (!isJump) {
-        if (index == endIndex) break;
-        index = getNextCallIndex(code, index); 
-        continue;
-      }
-
-      // JUMP
-      final LabelReference reference = labelTracker.getLabel();
-      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
-
-      if (null != reference) {
-        final long labelAddress = getLabelAddress(code, call, reference);
-        logJump(labelAddress, reference.getTarget().getLabel());
-        index = getCallIndex(code, labelAddress);
-      } else {
-        // If no label references are found within the delay slot we try to use PC to jump
-        logJump(address, null);
-        index = getCallIndex(code, address);
-      }
-    }
-  }
-
-  private int getNextCallIndex(final ExecutorCode code, final int currentIndex) {
-    InvariantChecks.checkNotNull(code);
-    InvariantChecks.checkGreaterOrEqZero(currentIndex);
-
-    final ConcreteCall currentCall = code.getCall(currentIndex);
-    final long nextAddress = currentCall.getAddress() + currentCall.getByteSize();
-
-    final int nextIndex = currentIndex + 1;
-    final ConcreteCall nextCall = code.getCall(nextIndex);
-
-    if (nextCall.getAddress() == nextAddress) {
-      return nextIndex;
-    }
-
-    // If the next call is aligned, it is not a problem.
-    if (null != nextCall.getAlignment() && null == nextCall.getOrigin()) {
-      return nextIndex;
-    }
-
-    if (!isInvalidCallHandled) {
-      throw new GenerationAbortedException(String.format(
-          "Simulation error. There is no executable code at 0x%x", nextAddress));
-    }
-
-    return -1;
-  }
-
-  private int getCallIndex(final ExecutorCode code, final long address) {
-    InvariantChecks.checkNotNull(code);
-
-    if (code.hasAddress(address)) {
-      return code.getCallIndex(address);
-    }
-
-    if (!isInvalidCallHandled) {
-      throw new GenerationAbortedException(
-          String.format("Simulation error. No executable code at 0x%016x", address));
-    }
-
-    return -1;
   }
 
   private long getLabelAddress(
@@ -435,6 +273,16 @@ public final class Executor {
     Logger.debug(sb.toString());
   }
 
+  /**
+   * Executes the specified sequence of instruction calls (concrete calls) and prints information
+   * about important events to the simulator log.
+   * 
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   * @throws GenerationAbortedException if during the interaction with the microprocessor model
+   *         an error caused by an invalid format of the request has occurred (typically, it
+   *         happens when evaluating an {@link Output} object causes an invalid request to the
+   *         model state observer).
+   */
   public void execute(
       final Code executorCode,
       final long startAddress,
