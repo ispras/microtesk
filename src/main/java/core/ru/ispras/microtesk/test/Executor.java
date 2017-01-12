@@ -476,6 +476,10 @@ public final class Executor {
       return null != iterator ? iterator.current() : invalidCall;
     }
 
+    public long getAddress() {
+      return address;
+    }
+
     public boolean isAddressReached(final long targetAddress) {
       return targetAddress == address && (null == getCall() || getCall().isExecutable());
     }
@@ -507,9 +511,7 @@ public final class Executor {
 
     while (fetcher.getCall() != null && !fetcher.isAddressReached(endAddress)) {
       final ConcreteCall call = fetcher.getCall();
-      if (call != invalidCall) { 
-        setPC(call.getAddress());
-      }
+      setPC(fetcher.getAddress());
 
       logCall(call);
       labelTracker.track(call);
