@@ -131,7 +131,12 @@ public final class CodeAllocator {
           startIndex = currentIndex;
         }
 
-        startAddress = callAddress;
+        // TODO: This is a hack: it causes aligned code blocks to be linked together.
+        // This is done for the following reason. In MIPS, aligned calls are executed
+        // as a single sequence because empty space between them filled with zeros is
+        // treated as NOPs. This assumption may be incorrect for other ISAs.
+        // This situation must be handled in a more correct way. Probably, using decoder.
+        startAddress = call.getAlignment() != null ? currentAddress : callAddress;
         currentAddress = startAddress;
       }
 
