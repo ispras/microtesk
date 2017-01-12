@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use buffer file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,7 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemoryGraph} represents a memory subsystem's control flow graph.
+ * {@link MemoryGraph} represents a memory subsystem's control flow graph (CFG).
  * 
  * <p>Graph is constructed from the memory specification and reduced based on settings.</p>
  * 

@@ -38,6 +38,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  */
 public final class MemoryTrajectoryExtractor {
 
+  /**
+   * {@link Result} represents a result of {@link MemoryTrajectoryExtractor}.
+   */
   public static final class Result {
     private final Collection<Collection<Object>> trajectories;
     private final MemoryGraph graph;

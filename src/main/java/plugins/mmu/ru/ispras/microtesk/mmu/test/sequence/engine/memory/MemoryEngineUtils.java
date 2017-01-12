@@ -350,7 +350,7 @@ public final class MemoryEngineUtils {
     final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
     final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formula, constants, initializer);
+        new IntegerFieldFormulaSolver(variables, formula, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT) {
