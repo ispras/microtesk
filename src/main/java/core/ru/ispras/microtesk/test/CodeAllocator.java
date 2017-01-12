@@ -123,15 +123,14 @@ public final class CodeAllocator {
       final long callAddress = call.getAddress();
 
       if (callAddress != currentAddress) {
-        final CodeBlock block = new CodeBlock(
-            calls.subList(startIndex, currentIndex),
-            startAddress,
-            currentAddress
-            );
+        if (startIndex != currentIndex) {
+          final CodeBlock block = new CodeBlock(
+              calls.subList(startIndex, currentIndex), startAddress, currentAddress);
 
-        getCode().registerBlock(block);
+          getCode().registerBlock(block);
+          startIndex = currentIndex;
+        }
 
-        startIndex = currentIndex;
         startAddress = callAddress;
         currentAddress = startAddress;
       }
