@@ -525,7 +525,6 @@ public final class Executor {
       // EXCEPTION
       if (null != exception) {
         final Long handlerAddress = getExceptionHandlerAddress(code, exception);
-
         if (null != handlerAddress) {
           labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
           logJump(handlerAddress, null);
