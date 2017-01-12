@@ -472,7 +472,15 @@ public final class Executor {
       this.iterator = code.getIterator(address, true);
     }
 
-    public ConcreteCall getCall() {
+    public boolean canFetch() {
+      return getCall() != null;
+    }
+
+    public ConcreteCall fetch() {
+      return getCall();
+    }
+
+    private ConcreteCall getCall() {
       return null != iterator ? iterator.current() : invalidCall;
     }
 
@@ -509,8 +517,8 @@ public final class Executor {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
     final Fetcher fetcher = new Fetcher(code, startAddress);
 
-    while (fetcher.getCall() != null && !fetcher.isAddressReached(endAddress)) {
-      final ConcreteCall call = fetcher.getCall();
+    while (fetcher.canFetch() && !fetcher.isAddressReached(endAddress)) {
+      final ConcreteCall call = fetcher.fetch();
       setPC(fetcher.getAddress());
 
       logCall(call);
