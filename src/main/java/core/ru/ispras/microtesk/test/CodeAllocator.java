@@ -36,15 +36,22 @@ public final class CodeAllocator {
     InvariantChecks.checkNotNull(engineContext);
 
     this.engineContext = engineContext;
-    this.code = new Code();
+    this.code = null;
+  }
+
+  public void init() {
+    InvariantChecks.checkTrue(null == code);
+    code = new Code();
+  }
+
+  public void reset() {
+    InvariantChecks.checkNotNull(code);
+    code = null;
   }
 
   public Code getCode() {
+    InvariantChecks.checkNotNull(code);
     return code;
-  }
-
-  public void resetCode() {
-    this.code = new Code();
   }
 
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
@@ -52,8 +59,11 @@ public final class CodeAllocator {
     allocate(sequence.getAll(), sequenceIndex);
   }
 
-  public void allocateHandler(final List<Map<String, TestSequence>> handlers) {
+  public void allocateHandlers(final List<Map<String, TestSequence>> handlers) {
     InvariantChecks.checkNotNull(handlers);
+
+    // Saving current address. Exception handler allocation should not modify it.
+    final long address = engineContext.getAddress();
 
     for (final Map<String, TestSequence> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
@@ -66,15 +76,18 @@ public final class CodeAllocator {
           continue;
         }
 
-        code.addHandlerAddress(handlerName, handlerSequence.getStartAddress());
+        final List<ConcreteCall> handlerCalls = e.getValue().getAll();
+        getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
 
         if (!handlerSet.contains(handlerSequence)) {
-          final List<ConcreteCall> handlerCalls = e.getValue().getAll();
           allocate(handlerCalls, Label.NO_SEQUENCE_INDEX);
           handlerSet.add(handlerSequence);
         }
       }
     }
+
+    // Restoring initial address. Exception handler allocation should not modify it.
+    engineContext.setAddress(address);
   }
 
   private void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
@@ -116,7 +129,7 @@ public final class CodeAllocator {
             currentAddress
             );
 
-        code.registerBlock(block);
+        getCode().registerBlock(block);
 
         startIndex = currentIndex;
         startAddress = callAddress;
@@ -133,7 +146,7 @@ public final class CodeAllocator {
         currentAddress
         );
 
-    code.registerBlock(block);
+    getCode().registerBlock(block);
     engineContext.setAddress(currentAddress);
   }
 
