@@ -106,9 +106,11 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
       final TestSequence sequence = sequenceBuilder.build();
 
+      /*
       final long baseAddress = engineContext.getAddress();
       final long newAddress = sequence.setAddress(baseAddress);
       engineContext.setAddress(newAddress);
+      */
 
       return sequence;
     } finally {

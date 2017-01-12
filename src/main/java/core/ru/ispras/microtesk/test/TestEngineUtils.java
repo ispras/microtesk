@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -25,7 +24,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -151,10 +149,12 @@ public final class TestEngineUtils {
 
     final TestSequence result = concreteSequenceBuilder.build();
 
+    /*
     final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
     final BigInteger address = baseVa.add(section.getOrigin());
-
     result.setAddress(address.longValue());
+    */
+
     return result;
   }
 

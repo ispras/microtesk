@@ -15,12 +15,9 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -34,29 +31,27 @@ import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
-import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
-import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
+  private final CodeAllocator allocator;
   private final Executor executor;
 
   private Printer printer = null;
   private final List<Map<String, TestSequence>> exceptionHandlers = new ArrayList<>();
   private TestSequence prologue = null;
   private Block epilogueBlock = null;
-  private ExecutorCode executorCode = null;
 
   public TemplateProcessor(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
 
     this.engineContext = engineContext;
+    this.allocator = new CodeAllocator(engineContext);
     this.executor = new Executor(engineContext);
   }
 
@@ -175,12 +170,6 @@ final class TemplateProcessor implements Template.Processor {
       final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    // Code allocation actions
-    final List<ConcreteCall> calls = sequence.getAll();
-    allocateDataSections(engineContext.getLabelManager(), calls, sequenceIndex);
-    registerLabels(engineContext.getLabelManager(), calls, sequenceIndex);
-    patchLabels(engineContext.getLabelManager(), calls, sequenceIndex, abortOnUndefinedLabel);
-
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
       Logger.debugHeader("Constructed %s", sequenceId);
       final Printer consolePrinter =
@@ -189,19 +178,13 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Executing %s", sequenceId);
+    if (!sequence.isEmpty()) {
+      allocator.allocateSequence(sequence, sequenceIndex);
 
-    final int startIndex = executorCode.getCallCount();
-    executorCode.addTestSequence(sequence);
-    final int endIndex = executorCode.getCallCount() - 1;
+      final long startAddress = sequence.getAll().get(0).getAddress();
+      final long endAddress = engineContext.getAddress();
 
-    if (startIndex <= endIndex) { // Otherwise it's empty
-      executor.execute(
-          executorCode,
-          sequence.getStartAddress(),
-          sequence.getEndAddress(),
-          startIndex,
-          endIndex
-          );
+      executor.execute(allocator.getCode(), startAddress, endAddress);
     }
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
@@ -216,12 +199,10 @@ final class TemplateProcessor implements Template.Processor {
     printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
     Tarmac.createFile();
 
-    executorCode = new ExecutorCode();
+    allocator.init();
     reallocateGlobalData();
 
-    registerExceptionHandlers(
-        executorCode, engineContext.getLabelManager(), exceptionHandlers);
-
+    allocator.allocateHandlers(exceptionHandlers);
     processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
@@ -261,10 +242,10 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getDataManager().resetLocalData();
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
-      executorCode = null;
+      allocator.reset();
 
-      // Sets the starting address for instruction allocation after the prologue
-      engineContext.setAddress(prologue.getEndAddress());
+      engineContext.setAddress(
+          engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue());
     }
   }
 
@@ -295,120 +276,6 @@ final class TemplateProcessor implements Template.Processor {
         printer.close();
       }
       Logger.debugBar();
-    }
-  }
-
-  private static void registerExceptionHandlers(
-      final Executor.ICode code,
-      final LabelManager labelManager,
-      final List<Map<String, TestSequence>> exceptionHandlers) {
-    for (final Map<String, TestSequence> handler: exceptionHandlers) {
-      final Set<Object> handlerSet = new HashSet<>();
-      for (final Map.Entry<String, TestSequence> e : handler.entrySet()) {
-        final String handlerName = e.getKey();
-        final TestSequence handlerSequence = e.getValue();
-
-        if (handlerSequence.isEmpty()) {
-          Logger.warning("Empty exception handler: %s", handlerName);
-          continue;
-        }
-
-        code.addHandlerAddress(handlerName, handlerSequence.getStartAddress());
-
-        if (!handlerSet.contains(handlerSequence)) {
-          final List<ConcreteCall> handlerCalls = e.getValue().getAll();
-          registerLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX);
-          patchLabels(labelManager, handlerCalls, Label.NO_SEQUENCE_INDEX, true);
-
-          code.addTestSequence(handlerSequence);
-          handlerSet.add(handlerSequence);
-        }
-      }
-    }
-  }
-
-  private static void registerLabels(
-      final LabelManager labelManager,
-      final List<ConcreteCall> calls,
-      final int sequenceIndex) {
-    for (final ConcreteCall call : calls) {
-      labelManager.addAllLabels(
-          call.getLabels(),
-          call.getAddress(),
-          sequenceIndex
-          );
-    }
-  }
-
-  private void allocateDataSections(
-      final LabelManager labelManager,
-      final List<ConcreteCall> calls,
-      final int sequenceIndex) {
-    for (final ConcreteCall call : calls) {
-      if (call.getData() != null) {
-        final DataSection data = call.getData();
-        data.setSequenceIndex(sequenceIndex);
-        engineContext.getDataManager().processData(labelManager, data);
-      }
-    }
-  }
-
-  private static void patchLabels(
-      final LabelManager labelManager,
-      final List<ConcreteCall> calls,
-      final int sequenceIndex,
-      final boolean abortOnUndefined) {
-    // Resolves all label references and patches the instruction call text accordingly.
-    for (final ConcreteCall call : calls) {
-      // Resolves all label references and patches the instruction call text accordingly.
-      for (final LabelReference labelRef : call.getLabelReferences()) {
-        labelRef.resetTarget();
-
-        final Label source = labelRef.getReference();
-        source.setSequenceIndex(sequenceIndex);
-
-        final LabelManager.Target target = labelManager.resolve(source);
-
-        final String uniqueName;
-        final String searchPattern;
-        final String patchedText;
-
-        if (null != target) { // Label is found
-          labelRef.setTarget(target);
-
-          uniqueName = target.getLabel().getUniqueName();
-          final long address = target.getAddress();
-
-          if (null != labelRef.getArgumentValue()) {
-            searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
-          } else {
-            labelRef.getPatcher().setValue(BigInteger.ZERO);
-            searchPattern = "<label>0";
-          }
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
-          labelRef.getPatcher().setValue(BigInteger.valueOf(address));
-        } else { // Label is not found
-          if (abortOnUndefined) {
-            throw new GenerationAbortedException(String.format(
-                "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
-                "is not accessible in the scope of the current test sequence.",
-                source.getName(), call.getText(), call.getAddress()));
-          }
-
-          uniqueName = source.getName();
-          searchPattern = "<label>0";
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
-        }
-
-        call.setText(patchedText);
-      }
-
-      // Kill all unused "<label>" markers.
-      if (null != call.getText()) {
-        call.setText(call.getText().replace("<label>", ""));
-      }
     }
   }
 }

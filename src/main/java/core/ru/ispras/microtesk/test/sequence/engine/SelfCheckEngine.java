@@ -50,9 +50,11 @@ public final class SelfCheckEngine {
 
       final TestSequence sequence = sequenceBuilder.build();
 
+      /*
       final long baseAddress = engineContext.getAddress();
       final long newAddress = sequence.setAddress(baseAddress);
       engineContext.setAddress(newAddress);
+      */
 
       return sequence;
     } catch (final ConfigurationException e) {
