@@ -489,7 +489,7 @@ public final class Executor {
     }
 
     public boolean isAddressReached(final long targetAddress) {
-      return targetAddress == address && (null == getCall() || getCall().isExecutable());
+      return targetAddress == address && (!canFetch() || fetch().isExecutable());
     }
 
     public void next() {
