@@ -500,7 +500,12 @@ public final class Executor {
     }
 
     public boolean isAddressReached(final long targetAddress) {
-      return targetAddress == address && (!canFetch() || fetch().isExecutable());
+      if (targetAddress != address) {
+        return false;
+      }
+
+      final ConcreteCall call = getCall();
+      return null == call || call.isExecutable();
     }
 
     public void next() {
