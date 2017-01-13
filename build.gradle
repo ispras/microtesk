@@ -147,6 +147,7 @@ dependencies {
   jruby 'org.jruby:jruby-complete:1.7.25'
   compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
   compile 'org.apache.velocity:velocity:1.7'
+  compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
