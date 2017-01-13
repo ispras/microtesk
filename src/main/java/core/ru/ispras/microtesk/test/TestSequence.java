@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,9 +33,9 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public final class TestSequence {
 
   public static final class Builder {
-    private final ArrayList<ConcreteCall> prologue;
-    private final ArrayList<ConcreteCall> body;
-    private final ArrayList<SelfCheck> checks;
+    private final List<ConcreteCall> prologue;
+    private final List<ConcreteCall> body;
+    private final List<SelfCheck> checks;
 
     public Builder() {
       this.prologue = new ArrayList<>();
@@ -88,14 +88,10 @@ public final class TestSequence {
   private final List<ConcreteCall> body;
   private final List<SelfCheck> checks;
 
-  private long startAddress = 0;
-  private long endAddress = 0;
-  private boolean isAddressSet = false;
-
   private TestSequence(
-      final ArrayList<ConcreteCall> prologue,
-      final ArrayList<ConcreteCall> body,
-      final ArrayList<SelfCheck> checks) {
+      final List<ConcreteCall> prologue,
+      final List<ConcreteCall> body,
+      final List<SelfCheck> checks) {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
     InvariantChecks.checkNotNull(checks);
@@ -103,7 +99,7 @@ public final class TestSequence {
     // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
     InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
 
-    final ArrayList<ConcreteCall> allCalls = merge(prologue, body);
+    final List<ConcreteCall> allCalls = merge(prologue, body);
     this.all = Collections.unmodifiableList(allCalls);
 
     this.prologue = prologue.isEmpty() ?
@@ -118,7 +114,7 @@ public final class TestSequence {
     this.checks = Collections.unmodifiableList(checks);
   }
 
-  private static <T> ArrayList<T> merge(final ArrayList<T> first, final ArrayList<T> second) {
+  private static <T> List<T> merge(final List<T> first, final List<T> second) {
     if (first.isEmpty()) {
       return second;
     }
@@ -127,7 +123,7 @@ public final class TestSequence {
       return first;
     }
 
-    final ArrayList<T> result = new ArrayList<>(first.size() + second.size());
+    final List<T> result = new ArrayList<>(first.size() + second.size());
 
     result.addAll(first);
     result.addAll(second);
@@ -145,36 +141,6 @@ public final class TestSequence {
 
   public List<ConcreteCall> getBody() {
     return body;
-  }
-
-  public long getStartAddress() {
-    InvariantChecks.checkTrue(isAddressSet, "Address is not assigned");
-    return startAddress;
-  }
-
-  public long getEndAddress() {
-    InvariantChecks.checkTrue(isAddressSet, "Address is not assigned");
-    return endAddress;
-  }
-
-  public long setAddress(final long address) {
-    InvariantChecks.checkFalse(isAddressSet, "Address is already assigned");
-
-    this.endAddress = setAddress(all, address);
-    this.startAddress = all.isEmpty() ? address : all.get(0).getAddress();
-    this.isAddressSet = true;
-
-    return endAddress;
-  }
-
-  private static long setAddress(final List<ConcreteCall> calls, final long address) {
-    long currentAddress = address;
-
-    for (final ConcreteCall call : calls) {
-      currentAddress = call.setAddress(currentAddress);
-    }
-
-    return currentAddress;
   }
 
   public List<SelfCheck> getChecks() {

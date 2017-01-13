@@ -18,10 +18,9 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
-public final class CodeBlock {
+final class CodeBlock {
   private final List<ConcreteCall> calls;
   private final long startAddress;
   private final long endAddress;
@@ -36,16 +35,6 @@ public final class CodeBlock {
     this.startAddress = startAddress;
     this.endAddress = endAddress;
     this.calls = calls;
-    this.next = null;
-  }
-
-  public CodeBlock(final TestSequence sequence) {
-    InvariantChecks.checkNotNull(sequence);
-    InvariantChecks.checkFalse(sequence.isEmpty());
-
-    this.startAddress = sequence.getStartAddress();
-    this.endAddress = sequence.getEndAddress();
-    this.calls = sequence.getAll();
     this.next = null;
   }
 

@@ -42,7 +42,7 @@ import ru.ispras.microtesk.test.template.Output;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Executor {
+final class Executor {
   /**
    * The {@link Listener} interface is to be implemented by classes that monitor
    * execution of instruction calls.
@@ -52,14 +52,6 @@ public final class Executor {
   public interface Listener {
     void onBeforeExecute(EngineContext context, ConcreteCall call);
     void onAfterExecute(EngineContext context, ConcreteCall call);
-  }
-
-  public interface ICode {
-    boolean hasAddress(long address);
-    boolean hasHandler(String id);
-    long getHandlerAddress(String id);
-    void addHandlerAddress(String id, long address);
-    void addTestSequence(TestSequence sequence);
   }
 
   private static final class LabelTracker {
@@ -154,7 +146,7 @@ public final class Executor {
   }
 
   private long getLabelAddress(
-      final ICode code,
+      final Code code,
       final ConcreteCall call,
       final LabelReference reference) {
     InvariantChecks.checkNotNull(code);
@@ -173,7 +165,7 @@ public final class Executor {
   }
 
   private Long getExceptionHandlerAddress(
-      final ICode code,
+      final Code code,
       final String exception) throws ConfigurationException {
     InvariantChecks.checkNotNull(code);
     InvariantChecks.checkNotNull(exception);

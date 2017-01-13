@@ -28,7 +28,7 @@ import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
-public final class CodeAllocator {
+final class CodeAllocator {
   private final EngineContext engineContext;
   private Code code;
 

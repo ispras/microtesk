@@ -21,12 +21,9 @@ import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.test.Executor;
-import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
-public final class Code implements Executor.ICode {
+final class Code {
   private final Map<String, Long> handlerAddresses;
   private final Map<Long, Pair<CodeBlock, Integer>> addresses;
   private final Map<Long, CodeBlock> blocks;
@@ -35,15 +32,6 @@ public final class Code implements Executor.ICode {
     this.handlerAddresses = new HashMap<>();
     this.addresses = new HashMap<>();
     this.blocks = new TreeMap<>();
-  }
-
-  public void addTestSequence(final TestSequence sequence) {
-    InvariantChecks.checkNotNull(sequence);
-
-    if (!sequence.isEmpty()) {
-      final CodeBlock block = new CodeBlock(sequence);
-      registerBlock(block);
-    }
   }
 
   public void registerBlock(final CodeBlock newBlock) {
