@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,14 +71,6 @@ public final class TrivialEngine implements Engine<TestSequence> {
     final TestSequence.Builder sequenceBuilder = new TestSequence.Builder();
     sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, abstractSequence));
 
-    final TestSequence sequence = sequenceBuilder.build();
-
-    /*
-    final long baseAddress = engineContext.getAddress();
-    final long newAddress = sequence.setAddress(baseAddress);
-    engineContext.setAddress(newAddress);
-    */
-
-    return sequence;
+    return sequenceBuilder.build();
   }
 }

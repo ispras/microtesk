@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -47,16 +47,7 @@ public final class SelfCheckEngine {
       for (final SelfCheck check : checks) {
         processCheck(engineContext, sequenceBuilder, check);
       }
-
-      final TestSequence sequence = sequenceBuilder.build();
-
-      /*
-      final long baseAddress = engineContext.getAddress();
-      final long newAddress = sequence.setAddress(baseAddress);
-      engineContext.setAddress(newAddress);
-      */
-
-      return sequence;
+      return sequenceBuilder.build();
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException(e);
     }

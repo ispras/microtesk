@@ -147,15 +147,7 @@ public final class TestEngineUtils {
     final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
     concreteSequenceBuilder.add(concreteCalls);
 
-    final TestSequence result = concreteSequenceBuilder.build();
-
-    /*
-    final BigInteger baseVa = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA);
-    final BigInteger address = baseVa.add(section.getOrigin());
-    result.setAddress(address.longValue());
-    */
-
-    return result;
+    return concreteSequenceBuilder.build();
   }
 
   public static Pair<List<TestSequence>, Map<String, TestSequence>> makeExceptionHandler(

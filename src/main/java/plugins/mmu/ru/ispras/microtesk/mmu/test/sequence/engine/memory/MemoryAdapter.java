@@ -88,13 +88,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     builder.add(prepareSequence(engineContext, abstractSequence));
 
     final TestSequence sequence = builder.build();
-
-    /*
-    final long baseAddress = engineContext.getAddress();
-    final long newAddress = sequence.setAddress(baseAddress);
-    engineContext.setAddress(newAddress);
-    */
-
     return new AdapterResult(sequence);
   }
 
