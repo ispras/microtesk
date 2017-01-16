@@ -646,7 +646,15 @@ public final class DataDirectiveFactory {
 
     @Override
     public String toString() {
-      return getText();
+      final StringBuilder sb = new StringBuilder(getText());
+
+      if (!labels.isEmpty()) {
+        sb.append("(labels=");
+        sb.append(labels.toString());
+        sb.append(")");
+      }
+
+      return sb.toString();
     }
   }
 
