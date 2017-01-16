@@ -248,7 +248,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public String toString() {
-      return getText();
+      return String.format("%s (%s)", getText(), label);
     }
   }
 
