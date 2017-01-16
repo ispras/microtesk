@@ -120,6 +120,7 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
 
   @Override
   public String toString() {
-    return String.format("LabelValue [label=%s, address=%s]", getName(), getAddress());
+    return String.format("LabelValue %d[label=%s, address=%s]",
+        System.identityHashCode(this), getName(), getAddress());
   }
 }
