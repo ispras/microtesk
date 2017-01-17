@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,20 +38,19 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
+  private final TestProgram testProgram;
   private final CodeAllocator allocator;
   private final Executor executor;
-
-  private Printer printer = null;
-  private final List<Map<String, TestSequence>> exceptionHandlers = new ArrayList<>();
-  private TestSequence prologue = null;
-  private Block epilogueBlock = null;
+  private Printer printer;
 
   public TemplateProcessor(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
 
     this.engineContext = engineContext;
+    this.testProgram = new TestProgram();
     this.allocator = new CodeAllocator(engineContext);
     this.executor = new Executor(engineContext);
+    this.printer = null;
   }
 
   @Override
@@ -64,9 +62,10 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       if (section == Section.PRE) {
-        prologue = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+        testProgram.setPrologue(
+            TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block));
       } else if (section == Section.POST) {
-        epilogueBlock = block;
+        testProgram.setEpilogue(block);
       } else if (block.isExternal()) {
         processExternalBlock(block);
       } else {
@@ -202,8 +201,8 @@ final class TemplateProcessor implements Template.Processor {
     allocator.init();
     reallocateGlobalData();
 
-    allocator.allocateHandlers(exceptionHandlers);
-    processTestSequence(prologue, "Prologue", Label.NO_SEQUENCE_INDEX, true);
+    allocator.allocateHandlers(testProgram.getExceptionHandlers());
+    processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
   private void reallocateGlobalData() {
@@ -218,8 +217,8 @@ final class TemplateProcessor implements Template.Processor {
     try {
       startFile();
 
-      final TestSequence sequence =
-          TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, epilogueBlock);
+      final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
+          engineContext, testProgram.getEpilogue());
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
 
@@ -261,7 +260,7 @@ final class TemplateProcessor implements Template.Processor {
       throw new GenerationAbortedException(e);
     }
 
-    exceptionHandlers.add(concreteHandler.second);
+    testProgram.addExceptionHandlers(concreteHandler.second);
 
     Printer printer = null;
     try { 
