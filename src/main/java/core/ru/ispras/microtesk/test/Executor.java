@@ -96,6 +96,7 @@ final class Executor {
 
   private final class Fetcher {
     private final Code code;
+    private final long startAddress;
     private final Set<Long> invalidAddresses;
     private long address;
     private Code.Iterator iterator;
@@ -103,6 +104,7 @@ final class Executor {
     private Fetcher(final Code code, final long address) {
       InvariantChecks.checkNotNull(code);
       this.code = code;
+      this.startAddress = address;
       this.invalidAddresses = new HashSet<>();
 
       this.address = address;
@@ -132,8 +134,8 @@ final class Executor {
       return address;
     }
 
-    public boolean isAddressReached(final long targetAddress) {
-      if (targetAddress != address) {
+    public boolean isBreakReached() {
+      if (address == startAddress || !code.isBreakAddress(address)) {
         return false;
       }
 
@@ -217,7 +219,12 @@ final class Executor {
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
     try {
-      executeCalls(executorCode, startAddress, endAddress);
+      long address = startAddress;
+      long previousAddress = startAddress;
+      do {
+        previousAddress = address;
+        address = execute(executorCode, address);
+      } while (address != endAddress && address != previousAddress);
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException("Simulation failed", e);
     } finally {
@@ -225,14 +232,11 @@ final class Executor {
     }
   }
 
-  private void executeCalls(
-      final Code code,
-      final long startAddress,
-      final long endAddress) throws ConfigurationException {
+  private long execute(final Code code, final long startAddress) throws ConfigurationException {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
     final Fetcher fetcher = new Fetcher(code, startAddress);
 
-    while (fetcher.canFetch() && !fetcher.isAddressReached(endAddress)) {
+    while (fetcher.canFetch() && !fetcher.isBreakReached()) {
       final ConcreteCall call = fetcher.fetch();
       setPC(fetcher.getAddress());
 
@@ -287,7 +291,7 @@ final class Executor {
       }
     }
 
-    if (!fetcher.isAddressReached(endAddress)) {
+    if (!fetcher.isBreakReached()) {
       // TODO: Better handling of this situation is needed. Generation cannot
       // continue if this happens, but customers asked not to abort generation
       // so that they could use the generated test (needed to cover such situations).
@@ -296,6 +300,8 @@ final class Executor {
       Logger.warning(
           "Simulation error. No executable code at 0x%016x", fetcher.getAddress());
     }
+
+    return fetcher.getAddress();
   }
 
   private ProcessingElement getStateObserver() {
