@@ -126,6 +126,11 @@ public final class TestEngine {
     Logger.debug("Model name: " + modelName);
     Logger.debug("Template file: " + templateFile);
 
+    if (!new File(templateFile).exists()) {
+      reportAborted("The %s file does not exists.", templateFile);
+      return false;
+    }
+
     final Statistics statistics = new Statistics();
     statistics.pushActivity(Statistics.Activity.INITIALIZING);
 
