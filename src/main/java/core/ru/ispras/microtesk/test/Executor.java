@@ -281,7 +281,7 @@ final class Executor {
       labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
 
       if (null != reference) {
-        final long labelAddress = getLabelAddress(code, call, reference);
+        final long labelAddress = getLabelAddress(code, reference);
         logJump(labelAddress, reference.getTarget().getLabel());
         fetcher.jump(labelAddress);
       } else {
@@ -322,10 +322,8 @@ final class Executor {
 
   private long getLabelAddress(
       final Code code,
-      final ConcreteCall call,
       final LabelReference reference) {
     InvariantChecks.checkNotNull(code);
-    InvariantChecks.checkNotNull(call);
     InvariantChecks.checkNotNull(reference);
 
     final LabelManager.Target target = reference.getTarget();
@@ -334,9 +332,8 @@ final class Executor {
     }
 
     throw new GenerationAbortedException(String.format(
-          "Label '%s' passed to '%s' (0x%016x) is not defined or%n" +
-          "is not accessible in the scope of the current test sequence.",
-          reference.getReference().getName(), call.getText(), call.getAddress()));
+        "Label '%s' is undefined or unavailable in the current execution scope.",
+        reference.getReference().getName()));
   }
 
   private Long getExceptionHandlerAddress(
