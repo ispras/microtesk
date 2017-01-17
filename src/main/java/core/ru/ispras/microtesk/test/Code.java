@@ -15,8 +15,10 @@
 package ru.ispras.microtesk.test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -24,14 +26,16 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 final class Code {
-  private final Map<String, Long> handlerAddresses;
-  private final Map<Long, Pair<CodeBlock, Integer>> addresses;
   private final Map<Long, CodeBlock> blocks;
+  private final Map<Long, Pair<CodeBlock, Integer>> addresses;
+  private final Map<String, Long> handlerAddresses;
+  private final Set<Long> breakAddresses;
 
   public Code() {
-    this.handlerAddresses = new HashMap<>();
-    this.addresses = new HashMap<>();
     this.blocks = new TreeMap<>();
+    this.addresses = new HashMap<>();
+    this.handlerAddresses = new HashMap<>();
+    this.breakAddresses = new HashSet<>();
   }
 
   public void registerBlock(final CodeBlock newBlock) {
@@ -122,6 +126,14 @@ final class Code {
     final Long address = handlerAddresses.get(id);
     InvariantChecks.checkNotNull(address);
     return address;
+  }
+
+  public boolean isBreakAddress(final long address) {
+    return breakAddresses.contains(address);
+  }
+
+  public void addBreakAddress(final long address) {
+    breakAddresses.add(address);
   }
 
   public static final class Iterator {
