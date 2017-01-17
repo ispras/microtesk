@@ -183,7 +183,11 @@ final class TemplateProcessor implements Template.Processor {
       final long startAddress = sequence.getAll().get(0).getAddress();
       final long endAddress = engineContext.getAddress();
 
-      executor.execute(allocator.getCode(), startAddress, endAddress);
+      for (int index = 0; index < engineContext.getModel().getPENumber(); index++) {
+        Logger.debugHeader("Instance %d", index);
+        engineContext.getModel().setActivePE(index);
+        executor.execute(allocator.getCode(), startAddress, endAddress);
+      }
     }
 
     Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());

@@ -216,13 +216,8 @@ final class Executor {
     }
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-
     try {
-      for (int index = 0; index < context.getModel().getPENumber(); index++) {
-        Logger.debugHeader("Instance %d", index);
-        context.getModel().setActivePE(index);
-        executeCalls(executorCode, startAddress, endAddress);
-      }
+      executeCalls(executorCode, startAddress, endAddress);
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException("Simulation failed", e);
     } finally {
