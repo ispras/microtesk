@@ -94,6 +94,71 @@ final class Executor {
     }
   }
 
+  private final class Fetcher {
+    private final Code code;
+    private final Set<Long> invalidAddresses;
+    private long address;
+    private Code.Iterator iterator;
+
+    private Fetcher(final Code code, final long address) {
+      InvariantChecks.checkNotNull(code);
+      this.code = code;
+      this.invalidAddresses = new HashSet<>();
+
+      this.address = address;
+      this.iterator = code.getIterator(address, true);
+    }
+
+    public boolean canFetch() {
+      return null != getCall() || (null != invalidCall && !invalidAddresses.contains(address));
+    }
+
+    public ConcreteCall fetch() {
+      final ConcreteCall call = getCall();
+
+      if (null == call) {
+        invalidAddresses.add(address);
+        return invalidCall;
+      }
+
+      return call;
+    }
+
+    private ConcreteCall getCall() {
+      return null == iterator ? null : iterator.current();
+    }
+
+    public long getAddress() {
+      return address;
+    }
+
+    public boolean isAddressReached(final long targetAddress) {
+      if (targetAddress != address) {
+        return false;
+      }
+
+      final ConcreteCall call = getCall();
+      return null == call || call.isExecutable();
+    }
+
+    public void next() {
+      InvariantChecks.checkNotNull(iterator);
+
+      final ConcreteCall current = iterator.current();
+      InvariantChecks.checkNotNull(current); 
+
+      iterator.next();
+      final ConcreteCall next = iterator.current();
+
+      address = null != next ? next.getAddress() : address + current.getByteSize();
+    }
+
+    public void jump(final long jumpAddress) {
+      address = jumpAddress;
+      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress, false) : null;
+    }
+  }
+
   private final EngineContext context;
   private Listener listener;
 
@@ -127,6 +192,115 @@ final class Executor {
 
   public void setListener(final Listener listener) {
     this.listener = listener;
+  }
+
+  /**
+   * Executes the specified sequence of instruction calls (concrete calls) and prints information
+   * about important events to the simulator log.
+   * 
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   * @throws GenerationAbortedException if during the interaction with the microprocessor model
+   *         an error caused by an invalid format of the request has occurred (typically, it
+   *         happens when evaluating an {@link Output} object causes an invalid request to the
+   *         model state observer).
+   */
+  public void execute(
+      final Code executorCode,
+      final long startAddress,
+      final long endAddress) {
+    InvariantChecks.checkNotNull(executorCode);
+
+    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
+      Logger.debug("Simulation is disabled");
+      return;
+    }
+
+    context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
+
+    try {
+      for (int index = 0; index < context.getModel().getPENumber(); index++) {
+        Logger.debugHeader("Instance %d", index);
+        context.getModel().setActivePE(index);
+        executeCalls(executorCode, startAddress, endAddress);
+      }
+    } catch (final ConfigurationException e) {
+      throw new GenerationAbortedException("Simulation failed", e);
+    } finally {
+      context.getStatistics().popActivity();
+    }
+  }
+
+  private void executeCalls(
+      final Code code,
+      final long startAddress,
+      final long endAddress) throws ConfigurationException {
+    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
+    final Fetcher fetcher = new Fetcher(code, startAddress);
+
+    while (fetcher.canFetch() && !fetcher.isAddressReached(endAddress)) {
+      final ConcreteCall call = fetcher.fetch();
+      setPC(fetcher.getAddress());
+
+      logCall(call);
+      labelTracker.track(call);
+
+      // NON-EXECUTABLE
+      if (!call.isExecutable()) {
+        fetcher.next();
+        continue;
+      }
+
+      final String exception = executeCall(call);
+
+      // EXCEPTION
+      if (null != exception) {
+        final Long handlerAddress = getExceptionHandlerAddress(code, exception);
+        if (null != handlerAddress) {
+          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
+          logJump(handlerAddress, null);
+          fetcher.jump(handlerAddress);
+        } else {
+          Logger.error("Exception handler for %s is not found.", exception);
+          Logger.message("Execution will be continued from the next instruction.");
+          fetcher.next();
+        }
+
+        continue;
+      }
+
+      final long address = getPC();
+      final boolean isJump = address != call.getAddress() + call.getByteSize();
+
+      // NORMAL
+      if (!isJump) {
+        fetcher.next();
+        continue;
+      }
+
+      // JUMP
+      final LabelReference reference = labelTracker.getLabel();
+      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
+
+      if (null != reference) {
+        final long labelAddress = getLabelAddress(code, call, reference);
+        logJump(labelAddress, reference.getTarget().getLabel());
+        fetcher.jump(labelAddress);
+      } else {
+        // If no label references are found within the delay slot we try to use PC to jump
+        logJump(address, null);
+        fetcher.jump(address);
+      }
+    }
+
+    if (!fetcher.isAddressReached(endAddress)) {
+      // TODO: Better handling of this situation is needed. Generation cannot
+      // continue if this happens, but customers asked not to abort generation
+      // so that they could use the generated test (needed to cover such situations).
+      // Need a better solution to suit both requirements.
+
+      Logger.warning(
+          "Simulation error. No executable code at 0x%016x", fetcher.getAddress());
+    }
   }
 
   private ProcessingElement getStateObserver() {
@@ -263,179 +437,5 @@ final class Executor {
 
     sb.append(addressText);
     Logger.debug(sb.toString());
-  }
-
-  /**
-   * Executes the specified sequence of instruction calls (concrete calls) and prints information
-   * about important events to the simulator log.
-   * 
-   * @throws IllegalArgumentException if the parameter is {@code null}.
-   * @throws GenerationAbortedException if during the interaction with the microprocessor model
-   *         an error caused by an invalid format of the request has occurred (typically, it
-   *         happens when evaluating an {@link Output} object causes an invalid request to the
-   *         model state observer).
-   */
-  public void execute(
-      final Code executorCode,
-      final long startAddress,
-      final long endAddress) {
-    InvariantChecks.checkNotNull(executorCode);
-
-    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-      Logger.debug("Simulation is disabled");
-      return;
-    }
-
-    context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
-
-    try {
-      for (int index = 0; index < context.getModel().getPENumber(); index++) {
-        Logger.debugHeader("Instance %d", index);
-        context.getModel().setActivePE(index);
-        executeCalls(executorCode, startAddress, endAddress);
-      }
-    } catch (final ConfigurationException e) {
-      throw new GenerationAbortedException("Simulation failed", e);
-    } finally {
-      context.getStatistics().popActivity();
-    }
-  }
-
-  private final class Fetcher {
-    private final Code code;
-    private final Set<Long> invalidAddresses;
-    private long address;
-    private Code.Iterator iterator;
-
-    private Fetcher(final Code code, final long address) {
-      InvariantChecks.checkNotNull(code);
-      this.code = code;
-      this.invalidAddresses = new HashSet<>();
-
-      this.address = address;
-      this.iterator = code.getIterator(address, true);
-    }
-
-    public boolean canFetch() {
-      return null != getCall() || (null != invalidCall && !invalidAddresses.contains(address));
-    }
-
-    public ConcreteCall fetch() {
-      final ConcreteCall call = getCall();
-
-      if (null == call) {
-        invalidAddresses.add(address);
-        return invalidCall;
-      }
-
-      return call;
-    }
-
-    private ConcreteCall getCall() {
-      return null == iterator ? null : iterator.current();
-    }
-
-    public long getAddress() {
-      return address;
-    }
-
-    public boolean isAddressReached(final long targetAddress) {
-      if (targetAddress != address) {
-        return false;
-      }
-
-      final ConcreteCall call = getCall();
-      return null == call || call.isExecutable();
-    }
-
-    public void next() {
-      InvariantChecks.checkNotNull(iterator);
-
-      final ConcreteCall current = iterator.current();
-      InvariantChecks.checkNotNull(current); 
-
-      iterator.next();
-      final ConcreteCall next = iterator.current();
-
-      address = null != next ? next.getAddress() : address + current.getByteSize();
-    }
-
-    public void jump(final long jumpAddress) {
-      address = jumpAddress;
-      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress, false) : null;
-    }
-  }
-
-  private void executeCalls(
-      final Code code,
-      final long startAddress,
-      final long endAddress) throws ConfigurationException {
-    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
-    final Fetcher fetcher = new Fetcher(code, startAddress);
-
-    while (fetcher.canFetch() && !fetcher.isAddressReached(endAddress)) {
-      final ConcreteCall call = fetcher.fetch();
-      setPC(fetcher.getAddress());
-
-      logCall(call);
-      labelTracker.track(call);
-
-      // NON-EXECUTABLE
-      if (!call.isExecutable()) {
-        fetcher.next();
-        continue;
-      }
-
-      final String exception = executeCall(call);
-
-      // EXCEPTION
-      if (null != exception) {
-        final Long handlerAddress = getExceptionHandlerAddress(code, exception);
-        if (null != handlerAddress) {
-          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
-          logJump(handlerAddress, null);
-          fetcher.jump(handlerAddress);
-        } else {
-          Logger.error("Exception handler for %s is not found.", exception);
-          Logger.message("Execution will be continued from the next instruction.");
-          fetcher.next();
-        }
-
-        continue;
-      }
-
-      final long address = getPC();
-      final boolean isJump = address != call.getAddress() + call.getByteSize();
-
-      // NORMAL
-      if (!isJump) {
-        fetcher.next();
-        continue;
-      }
-
-      // JUMP
-      final LabelReference reference = labelTracker.getLabel();
-      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
-
-      if (null != reference) {
-        final long labelAddress = getLabelAddress(code, call, reference);
-        logJump(labelAddress, reference.getTarget().getLabel());
-        fetcher.jump(labelAddress);
-      } else {
-        // If no label references are found within the delay slot we try to use PC to jump
-        logJump(address, null);
-        fetcher.jump(address);
-      }
-    }
-
-    if (!fetcher.isAddressReached(endAddress)) {
-      // TODO: Better handling of this situation is needed. Generation cannot
-      // continue if this happens, but customers asked not to abort generation
-      // so that they could use the generated test (needed to cover such situations).
-      // Need a better solution to suit both requirements.
-
-      Logger.warning(
-          "Simulation error. No executable code at 0x%016x", fetcher.getAddress());
-    }
   }
 }
