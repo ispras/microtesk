@@ -57,6 +57,7 @@ final class CodeAllocator {
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
     InvariantChecks.checkFalse(sequence.isEmpty());
     allocate(sequence.getAll(), sequenceIndex);
+    code.addBreakAddress(engineContext.getAddress());
   }
 
   public void allocateHandlers(final List<Map<String, TestSequence>> handlers) {
