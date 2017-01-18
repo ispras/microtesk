@@ -44,6 +44,60 @@ import ru.ispras.microtesk.test.template.Output;
  */
 final class Executor {
   /**
+   * The {@link Status} class describes the execution status. It specifies the point
+   * where execution was stopped and the reason why it was stopped.
+   * 
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+   */
+  public static final class Status {
+    public static enum Kind {
+      BREAK_POINT,
+      UNDEFINED_LABEL,
+      ILLEGAL_ADDRESS
+    }
+
+    private final Kind kind;
+    private final Long address;
+    private final LabelReference labelReference;
+
+    protected static Status newBreakPoint(final long address) {
+      return new Status(Kind.BREAK_POINT, address, null);
+    }
+
+    protected static Status newIllegalAddress(final long address) {
+      return new Status(Kind.ILLEGAL_ADDRESS, address, null);
+    }
+
+    protected static Status newUndefinedLabel(final LabelReference labelReference) {
+      InvariantChecks.checkNotNull(labelReference);
+      return new Status(Kind.UNDEFINED_LABEL, null, labelReference);
+    }
+
+    private Status(
+        final Kind kind,
+        final Long address,
+        final LabelReference labelReference) {
+      this.kind = kind;
+      this.address = address;
+      this.labelReference = labelReference;
+    }
+
+    public Kind getKind() {
+      return kind;
+    }
+
+    public final long getAddress() {
+      InvariantChecks.checkNotNull(address);
+      return address;
+    }
+
+    public LabelReference getLabelReference() {
+      InvariantChecks.checkNotNull(labelReference);
+      return labelReference;
+    }
+  }
+
+  /**
    * The {@link Listener} interface is to be implemented by classes that monitor
    * execution of instruction calls.
    * 
@@ -223,7 +277,17 @@ final class Executor {
       long previousAddress = startAddress;
       do {
         previousAddress = address;
-        address = execute(executorCode, address);
+        final Status status = execute(executorCode, address);
+
+        if (status.getKind() == Status.Kind.ILLEGAL_ADDRESS) {
+          // TODO: Better handling of this situation is needed. Generation cannot
+          // continue if this happens, but customers asked not to abort generation
+          // so that they could use the generated test (needed to cover such situations).
+          // Need a better solution to suit both requirements.
+          Logger.warning("Simulation error. No executable code at 0x%016x", address);
+        }
+
+        address = status.getAddress();
       } while (address != endAddress && address != previousAddress);
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException("Simulation failed", e);
@@ -232,7 +296,7 @@ final class Executor {
     }
   }
 
-  private long execute(final Code code, final long startAddress) throws ConfigurationException {
+  private Status execute(final Code code, final long startAddress) throws ConfigurationException {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
     final Fetcher fetcher = new Fetcher(code, startAddress);
 
@@ -291,17 +355,9 @@ final class Executor {
       }
     }
 
-    if (!fetcher.isBreakReached()) {
-      // TODO: Better handling of this situation is needed. Generation cannot
-      // continue if this happens, but customers asked not to abort generation
-      // so that they could use the generated test (needed to cover such situations).
-      // Need a better solution to suit both requirements.
-
-      Logger.warning(
-          "Simulation error. No executable code at 0x%016x", fetcher.getAddress());
-    }
-
-    return fetcher.getAddress();
+    return fetcher.isBreakReached() ?
+        Status.newBreakPoint(fetcher.getAddress()) : 
+        Status.newIllegalAddress(fetcher.getAddress());
   }
 
   private ProcessingElement getStateObserver() {
