@@ -169,8 +169,12 @@ end
 
 def set_arguments_from_array(builder, args)
   args.each do |value|
-    value = value.to_s if value.is_a? Symbol
-    builder.addArgument value
+    if value.is_a? Array
+      set_arguments_from_array builder, value
+    else
+      value = value.to_s if value.is_a? Symbol
+      builder.addArgument value
+    end
   end
 end
 
