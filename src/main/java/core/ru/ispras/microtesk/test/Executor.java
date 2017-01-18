@@ -288,7 +288,7 @@ final class Executor {
           // continue if this happens, but customers asked not to abort generation
           // so that they could use the generated test (needed to cover such situations).
           // Need a better solution to suit both requirements.
-          Logger.warning("Simulation error. No executable code at 0x%016x", address);
+          Logger.warning("Simulation error. No executable code at 0x%016x.", status.getAddress());
           break;
         }
 
