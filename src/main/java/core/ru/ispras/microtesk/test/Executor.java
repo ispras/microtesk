@@ -189,11 +189,15 @@ final class Executor {
     }
 
     public boolean isBreakReached() {
-      if (address == startAddress || !code.isBreakAddress(address)) {
+      if (!code.isBreakAddress(address)) {
         return false;
       }
 
       final ConcreteCall call = getCall();
+      if (address == startAddress && null != call) {
+        return false;
+      }
+
       return null == call || call.isExecutable();
     }
 
@@ -356,7 +360,7 @@ final class Executor {
     }
 
     return fetcher.isBreakReached() ?
-        Status.newBreakPoint(fetcher.getAddress()) : 
+        Status.newBreakPoint(fetcher.getAddress()) :
         Status.newIllegalAddress(fetcher.getAddress());
   }
 
