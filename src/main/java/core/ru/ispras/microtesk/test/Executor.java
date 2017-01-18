@@ -283,13 +283,19 @@ final class Executor {
         previousAddress = address;
         final Status status = execute(executorCode, address);
 
-        if (status.getKind() == Status.Kind.ILLEGAL_ADDRESS) {
+        if (Status.Kind.ILLEGAL_ADDRESS == status.getKind()) {
           // TODO: Better handling of this situation is needed. Generation cannot
           // continue if this happens, but customers asked not to abort generation
           // so that they could use the generated test (needed to cover such situations).
           // Need a better solution to suit both requirements.
           Logger.warning("Simulation error. No executable code at 0x%016x", address);
           break;
+        }
+
+        if (Status.Kind.UNDEFINED_LABEL == status.getKind()) {
+          throw new GenerationAbortedException(String.format(
+              "Label '%s' is undefined or unavailable in the current execution scope.",
+              status.getLabelReference().getReference().getName()));
         }
 
         address = status.getAddress();
@@ -350,7 +356,11 @@ final class Executor {
       labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
 
       if (null != reference) {
-        final long labelAddress = getLabelAddress(code, reference);
+        if (null == reference.getTarget()) {
+          return Status.newUndefinedLabel(reference);
+        }
+
+        final long labelAddress = reference.getTarget().getAddress();
         logJump(labelAddress, reference.getTarget().getLabel());
         fetcher.jump(labelAddress);
       } else {
@@ -379,22 +389,6 @@ final class Executor {
 
   private void setPC(final long address) throws ConfigurationException {
     getPCLocation().setValue(BigInteger.valueOf(address));
-  }
-
-  private long getLabelAddress(
-      final Code code,
-      final LabelReference reference) {
-    InvariantChecks.checkNotNull(code);
-    InvariantChecks.checkNotNull(reference);
-
-    final LabelManager.Target target = reference.getTarget();
-    if (null != target && code.hasAddress(target.getAddress())) {
-      return target.getAddress();
-    }
-
-    throw new GenerationAbortedException(String.format(
-        "Label '%s' is undefined or unavailable in the current execution scope.",
-        reference.getReference().getName()));
   }
 
   private Long getExceptionHandlerAddress(
