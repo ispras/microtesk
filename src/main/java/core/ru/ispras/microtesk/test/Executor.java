@@ -53,7 +53,6 @@ final class Executor {
     public static enum Kind {
       BREAK_POINT,
       UNDEFINED_LABEL,
-      ILLEGAL_ADDRESS
     }
 
     private final Kind kind;
@@ -62,10 +61,6 @@ final class Executor {
 
     protected static Status newBreakPoint(final long address) {
       return new Status(Kind.BREAK_POINT, address, null);
-    }
-
-    protected static Status newIllegalAddress(final long address) {
-      return new Status(Kind.ILLEGAL_ADDRESS, address, null);
     }
 
     protected static Status newUndefinedLabel(final LabelReference labelReference) {
@@ -283,15 +278,6 @@ final class Executor {
         previousAddress = address;
         final Status status = execute(executorCode, address);
 
-        if (Status.Kind.ILLEGAL_ADDRESS == status.getKind()) {
-          // TODO: Better handling of this situation is needed. Generation cannot
-          // continue if this happens, but customers asked not to abort generation
-          // so that they could use the generated test (needed to cover such situations).
-          // Need a better solution to suit both requirements.
-          Logger.warning("Simulation error. No executable code at 0x%016x.", status.getAddress());
-          break;
-        }
-
         if (Status.Kind.UNDEFINED_LABEL == status.getKind()) {
           throw new GenerationAbortedException(String.format(
               "Label '%s' is undefined or unavailable in the current execution scope.",
@@ -370,9 +356,12 @@ final class Executor {
       }
     }
 
-    return fetcher.isBreakReached() ?
-        Status.newBreakPoint(fetcher.getAddress()) :
-        Status.newIllegalAddress(fetcher.getAddress());
+    if (!fetcher.isBreakReached()) {
+      throw new GenerationAbortedException(String.format(
+          "Simulation error. No executable code at 0x%016x.", fetcher.getAddress()));
+    }
+
+    return Status.newBreakPoint(fetcher.getAddress());
   }
 
   private ProcessingElement getStateObserver() {
