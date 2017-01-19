@@ -15,9 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -146,33 +144,25 @@ final class Executor {
   private final class Fetcher {
     private final Code code;
     private final long startAddress;
-    private final Set<Long> invalidAddresses;
     private long address;
     private Code.Iterator iterator;
 
     private Fetcher(final Code code, final long address) {
       InvariantChecks.checkNotNull(code);
+
       this.code = code;
       this.startAddress = address;
-      this.invalidAddresses = new HashSet<>();
-
       this.address = address;
       this.iterator = code.getIterator(address, true);
     }
 
     public boolean canFetch() {
-      return null != getCall() || (null != invalidCall && !invalidAddresses.contains(address));
+      return null != fetch();
     }
 
     public ConcreteCall fetch() {
       final ConcreteCall call = getCall();
-
-      if (null == call) {
-        invalidAddresses.add(address);
-        return invalidCall;
-      }
-
-      return call;
+      return null != call ? call : invalidCall;
     }
 
     private ConcreteCall getCall() {
