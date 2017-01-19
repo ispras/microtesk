@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -183,10 +183,22 @@ final class TemplateProcessor implements Template.Processor {
       final long startAddress = sequence.getAll().get(0).getAddress();
       final long endAddress = engineContext.getAddress();
 
-      for (int index = 0; index < engineContext.getModel().getPENumber(); index++) {
-        Logger.debugHeader("Instance %d", index);
-        engineContext.getModel().setActivePE(index);
-        executor.execute(allocator.getCode(), startAddress, endAddress);
+      if (!engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
+        for (int index = 0; index < engineContext.getModel().getPENumber(); index++) {
+          Logger.debugHeader("Instance %d", index);
+          engineContext.getModel().setActivePE(index);
+
+          final Executor.Status status =
+              executor.execute(allocator.getCode(), startAddress, endAddress);
+
+          if (status.isLabelReference()) {
+            throw new GenerationAbortedException(String.format(
+                "Label '%s' is undefined or unavailable in the current execution scope.",
+                status.getLabelReference().getReference().getName()));
+          }
+        }
+      } else {
+        Logger.debug("Simulation is disabled");
       }
     }
 

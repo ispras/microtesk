@@ -48,45 +48,37 @@ final class Executor {
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static final class Status {
-    public static enum Kind {
-      BREAK_POINT,
-      UNDEFINED_LABEL,
+    private final Object data;
+
+    private static Status newAddress(final long address) {
+      return new Status(address);
     }
 
-    private final Kind kind;
-    private final Long address;
-    private final LabelReference labelReference;
-
-    protected static Status newBreakPoint(final long address) {
-      return new Status(Kind.BREAK_POINT, address, null);
+    private static Status newLabelReference(final LabelReference labelReference) {
+      return new Status(labelReference);
     }
 
-    protected static Status newUndefinedLabel(final LabelReference labelReference) {
-      InvariantChecks.checkNotNull(labelReference);
-      return new Status(Kind.UNDEFINED_LABEL, null, labelReference);
+    private Status(final Object data) {
+      InvariantChecks.checkTrue(data instanceof Long || data instanceof LabelReference);
+      this.data = data;
     }
 
-    private Status(
-        final Kind kind,
-        final Long address,
-        final LabelReference labelReference) {
-      this.kind = kind;
-      this.address = address;
-      this.labelReference = labelReference;
+    public boolean isAddress() {
+      return data instanceof Long;
     }
 
-    public Kind getKind() {
-      return kind;
+    public boolean isLabelReference() {
+      return data instanceof LabelReference;
     }
 
     public final long getAddress() {
-      InvariantChecks.checkNotNull(address);
-      return address;
+      InvariantChecks.checkTrue(data instanceof Long);
+      return (Long) data;
     }
 
     public LabelReference getLabelReference() {
-      InvariantChecks.checkNotNull(labelReference);
-      return labelReference;
+      InvariantChecks.checkTrue(data instanceof LabelReference);
+      return (LabelReference) data;
     }
   }
 
@@ -250,33 +242,28 @@ final class Executor {
    *         happens when evaluating an {@link Output} object causes an invalid request to the
    *         model state observer).
    */
-  public void execute(
-      final Code executorCode,
-      final long startAddress,
-      final long endAddress) {
+  public Status execute(final Code executorCode, final long startAddress, final long endAddress) {
     InvariantChecks.checkNotNull(executorCode);
-
-    if (context.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-      Logger.debug("Simulation is disabled");
-      return;
-    }
+    InvariantChecks.checkFalse(context.getOptions().getValueAsBoolean(Option.NO_SIMULATION));
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
     try {
       long address = startAddress;
       long previousAddress = startAddress;
+      Status status = Status.newAddress(startAddress);
+
       do {
         previousAddress = address;
-        final Status status = execute(executorCode, address);
 
-        if (Status.Kind.UNDEFINED_LABEL == status.getKind()) {
-          throw new GenerationAbortedException(String.format(
-              "Label '%s' is undefined or unavailable in the current execution scope.",
-              status.getLabelReference().getReference().getName()));
+        status = execute(executorCode, address);
+        if (!status.isAddress()) {
+          return status;
         }
 
         address = status.getAddress();
       } while (address != endAddress && address != previousAddress);
+
+      return status;
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException("Simulation failed", e);
     } finally {
@@ -334,7 +321,7 @@ final class Executor {
 
       if (null != reference) {
         if (null == reference.getTarget()) {
-          return Status.newUndefinedLabel(reference);
+          return Status.newLabelReference(reference);
         }
 
         final long labelAddress = reference.getTarget().getAddress();
@@ -352,7 +339,7 @@ final class Executor {
           "Simulation error. No executable code at 0x%016x.", fetcher.getAddress()));
     }
 
-    return Status.newBreakPoint(fetcher.getAddress());
+    return Status.newAddress(fetcher.getAddress());
   }
 
   private ProcessingElement getStateObserver() {
