@@ -183,6 +183,7 @@ final class Executor {
         return false;
       }
 
+      // This is done to fetch all non-executable calls.
       return null == call || call.isExecutable();
     }
 
