@@ -138,6 +138,7 @@ final class Executor {
     private final long startAddress;
     private long address;
     private Code.Iterator iterator;
+    private boolean isNextAfterNull;
 
     private Fetcher(final Code code, final long address) {
       InvariantChecks.checkNotNull(code);
@@ -146,10 +147,11 @@ final class Executor {
       this.startAddress = address;
       this.address = address;
       this.iterator = code.getIterator(address, true);
+      this.isNextAfterNull = false;
     }
 
     public boolean canFetch() {
-      return null != fetch();
+      return null != fetch() && !isNextAfterNull;
     }
 
     public ConcreteCall fetch() {
@@ -180,10 +182,16 @@ final class Executor {
     }
 
     public void next() {
-      InvariantChecks.checkNotNull(iterator);
+      if (null == iterator) {
+        isNextAfterNull = true;
+        return;
+      }
 
       final ConcreteCall current = iterator.current();
-      InvariantChecks.checkNotNull(current); 
+      if (null == current) {
+        isNextAfterNull = true;
+        return;
+      }
 
       iterator.next();
       final ConcreteCall next = iterator.current();
@@ -194,6 +202,7 @@ final class Executor {
     public void jump(final long jumpAddress) {
       address = jumpAddress;
       iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress, false) : null;
+      isNextAfterNull = false;
     }
   }
 
