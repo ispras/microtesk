@@ -26,7 +26,6 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
   private MemoryDevice handler;
-  private boolean usingTempStorage;
 
   private final boolean isLogical;
   private final BigInteger addressableUnitsInData;
@@ -39,8 +38,7 @@ final class PhysicalMemory extends Memory {
 
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     this.handler = null;
-    this.usingTempStorage = false;
-
+  
     // A memory array that corresponds to a real physical memory must satisfy the following
     // precondition: (1) element size is a multiple of 8 bits (byte), (2) element count is
     // greater than one. This is required for MMU handlers and for simple translation logic
@@ -65,7 +63,6 @@ final class PhysicalMemory extends Memory {
 
     this.storage = new MemoryStorage(other.storage);
     this.handler = other.handler;
-    this.usingTempStorage = false;
     this.addressableUnitsInData = other.addressableUnitsInData;
     this.isLogical = other.isLogical;
   }
@@ -122,12 +119,6 @@ final class PhysicalMemory extends Memory {
     storage.reset();
   }
 
-  @Override
-  public void setUseTempCopy(boolean value) {
-    storage.useTemporaryContext(value);
-    usingTempStorage = value;
-  }
-
   private Location newLocationForRegion(final BitVector index) {
     InvariantChecks.checkNotNull(index);
 
@@ -179,7 +170,7 @@ final class PhysicalMemory extends Memory {
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
-      if (!callHandler || handler == null || usingTempStorage) {
+      if (!callHandler || handler == null) {
         targetDevice = storage;
         targetAddress = virtualIndexToPhysicalIndex(index);
       } else {
@@ -212,7 +203,7 @@ final class PhysicalMemory extends Memory {
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
-      if (!callHandler || handler == null || usingTempStorage) {
+      if (!callHandler || handler == null) {
         targetDevice = storage;
         targetAddress = virtualIndexToPhysicalIndex(index);
       } else {

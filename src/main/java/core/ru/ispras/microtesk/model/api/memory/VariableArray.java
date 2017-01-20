@@ -100,10 +100,4 @@ final class VariableArray extends Memory {
       value.reset();
     }
   }
-
-  @Override
-  public void setUseTempCopy(boolean value) {
-    // Do nothing. Temporary copies are not required for variables
-    // since they are reset each time an instruction is executed.
-  }
 }

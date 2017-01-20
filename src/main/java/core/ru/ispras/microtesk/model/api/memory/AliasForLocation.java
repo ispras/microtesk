@@ -64,9 +64,4 @@ final class AliasForLocation extends Memory {
   public void reset() {
     // Does not work for aliases (and should not be called)
   }
-
-  @Override
-  public void setUseTempCopy(boolean value) {
-    // Do nothing.
-  }
 }

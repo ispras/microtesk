@@ -143,8 +143,6 @@ public abstract class Memory {
         "setHandler is not supported for " + toString());
   }
 
-  public abstract void setUseTempCopy(boolean value);
-
   public final Kind getKind() {
     return kind;
   }

@@ -29,8 +29,6 @@ final class RegisterFile extends Memory {
   private final List<Location> locations;
   private final List<RegisterAtom> atoms;
 
-  private List<Location> tempLocations;
-
   protected RegisterFile(
       final String name,
       final Type type,
@@ -45,8 +43,6 @@ final class RegisterFile extends Memory {
 
     this.locations = registers.first;
     this.atoms = registers.second;
-
-    this.tempLocations = null;
   }
 
   private static Pair<List<Location>, List<RegisterAtom>>
@@ -87,11 +83,7 @@ final class RegisterFile extends Memory {
 
   @Override
   public Location access(final int index) {
-    if (null != tempLocations) {
-      return tempLocations.get(index);
-    } else {
-      return locations.get(index);
-    }
+    return locations.get(index);
   }
 
   @Override
@@ -118,20 +110,6 @@ final class RegisterFile extends Memory {
   public void reset() {
     for (final RegisterAtom atom : atoms) {
       atom.reset();
-    }
-  }
-
-  @Override
-  public void setUseTempCopy(final boolean value) {
-    final boolean isUsed = null != tempLocations;
-    if (value == isUsed) {
-      return;
-    }
-
-    if (value) {
-      tempLocations = newRegisters(getType(), getLength().intValue()).first;
-    } else {
-      tempLocations = null;
     }
   }
 
