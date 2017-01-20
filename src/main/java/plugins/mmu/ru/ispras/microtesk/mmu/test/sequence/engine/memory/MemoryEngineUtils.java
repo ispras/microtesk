@@ -28,7 +28,7 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolver;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolverSat4j;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
@@ -349,10 +349,11 @@ public final class MemoryEngineUtils {
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
     final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
-    final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formula, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver =
+        getSolver(variables, formula, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+
     if (result.getStatus() != SolverResult.Status.SAT) {
       Logger.debug("Formula: %s", formula);
       Logger.debug("Constants: %s", constants);
@@ -361,6 +362,7 @@ public final class MemoryEngineUtils {
         Logger.debug("Error: %s", msg);
       }
     }
+
     return result;
   }
 
@@ -406,8 +408,8 @@ public final class MemoryEngineUtils {
 
     Logger.debug("Formulae: %s", formulae);
 
-    final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formulae, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver =
+        getSolver(variables, formulae, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT) {
@@ -468,9 +470,26 @@ public final class MemoryEngineUtils {
     final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
-    final IntegerFieldFormulaSolver solver =
-        new IntegerFieldFormulaSolver(variables, formula, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver =
+        getSolver(variables, formula, initializer);
 
     return solver.solve(mode);
+  }
+
+  private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
+      final Collection<IntegerVariable> variables,
+      final IntegerFormula<IntegerField> formula,
+      final IntegerVariableInitializer initializer) {
+    return getSolver(
+        Collections.<Collection<IntegerVariable>>singleton(variables),
+        Collections.<IntegerFormula<IntegerField>>singleton(formula),
+        initializer);
+  }
+
+  private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
+      final Collection<Collection<IntegerVariable>> variables,
+      final Collection<IntegerFormula<IntegerField>> formulae,
+      final IntegerVariableInitializer initializer) {
+    return new IntegerFieldFormulaSolverSat4j(variables, formulae, initializer);
   }
 }
