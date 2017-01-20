@@ -65,7 +65,7 @@ final class TemplateProcessor implements Template.Processor {
       throw new GenerationAbortedException(e);
     }
 
-    testProgram.addExceptionHandlers(concreteHandler.second);
+    testProgram.addExceptionHandlers(concreteHandler);
 
     Printer printer = null;
     try { 

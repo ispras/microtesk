@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.Block;
 
 /**
@@ -31,7 +32,7 @@ final class TestProgram {
   private Block epilogue;
 
   private final List<TestProgramEntry> entries;
-  private final List<Map<String, TestSequence>> exceptionHandlers;
+  private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
   public TestProgram() {
     this.prologue = null;
@@ -58,11 +59,12 @@ final class TestProgram {
     this.epilogue = epilogue;
   }
 
-  public List<Map<String, TestSequence>> getExceptionHandlers() {
+  public List<Pair<List<TestSequence>, Map<String, TestSequence>>> getExceptionHandlers() {
     return exceptionHandlers;
   }
 
-  public void addExceptionHandlers(final Map<String, TestSequence> handlers) {
+  public void addExceptionHandlers(
+      final Pair<List<TestSequence>, Map<String, TestSequence>> handlers) {
     InvariantChecks.checkNotNull(handlers);
     exceptionHandlers.add(handlers);
   }

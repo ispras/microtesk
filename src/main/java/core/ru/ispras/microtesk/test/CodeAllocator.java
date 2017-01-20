@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -60,15 +61,16 @@ final class CodeAllocator {
     code.addBreakAddress(engineContext.getAddress());
   }
 
-  public void allocateHandlers(final List<Map<String, TestSequence>> handlers) {
+  public void allocateHandlers(
+      final List<Pair<List<TestSequence>, Map<String, TestSequence>>> handlers) {
     InvariantChecks.checkNotNull(handlers);
 
     // Saving current address. Exception handler allocation should not modify it.
     final long address = engineContext.getAddress();
 
-    for (final Map<String, TestSequence> handler: handlers) {
+    for (final Pair<List<TestSequence>, Map<String, TestSequence>> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
-      for (final Map.Entry<String, TestSequence> e : handler.entrySet()) {
+      for (final Map.Entry<String, TestSequence> e : handler.second.entrySet()) {
         final String handlerName = e.getKey();
         final TestSequence handlerSequence = e.getValue();
 
