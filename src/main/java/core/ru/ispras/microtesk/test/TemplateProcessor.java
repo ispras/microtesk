@@ -54,6 +54,36 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
+  public void defineExceptionHandler(final ExceptionHandler handler) {
+    Logger.debugHeader("Processing Exception Handler");
+    InvariantChecks.checkNotNull(handler);
+
+    final Pair<List<TestSequence>, Map<String, TestSequence>> concreteHandler;
+    try {
+      concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
+    } catch (final ConfigurationException e) {
+      throw new GenerationAbortedException(e);
+    }
+
+    testProgram.addExceptionHandlers(concreteHandler.second);
+
+    Printer printer = null;
+    try { 
+      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
+      for (final TestSequence sequence : concreteHandler.first) {
+        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
+      }
+    } catch (final ConfigurationException | IOException e) {
+      throw new GenerationAbortedException(e);
+    } finally {
+      if (null != printer) {
+        printer.close();
+      }
+      Logger.debugBar();
+    }
+  }
+
+  @Override
   public void process(final Section section, final Block block) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(block);
@@ -169,12 +199,7 @@ final class TemplateProcessor implements Template.Processor {
       final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
-      Logger.debugHeader("Constructed %s", sequenceId);
-      final Printer consolePrinter =
-          Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics());
-      consolePrinter.printSequence(engineContext.getModel().getPE(), sequence, "");
-    }
+    printSequenceToConsole(sequence, sequenceId);
 
     Logger.debugHeader("Executing %s", sequenceId);
     if (!sequence.isEmpty()) {
@@ -264,33 +289,20 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  @Override
-  public void defineExceptionHandler(final ExceptionHandler handler) {
-    Logger.debugHeader("Processing Exception Handler");
-    InvariantChecks.checkNotNull(handler);
+  private void printSequenceToConsole(
+      final TestSequence sequence,
+      final String sequenceId) throws ConfigurationException {
+    InvariantChecks.checkNotNull(sequence);
+    InvariantChecks.checkNotNull(sequenceId);
 
-    final Pair<List<TestSequence>, Map<String, TestSequence>> concreteHandler;
-    try {
-      concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
-    } catch (final ConfigurationException e) {
-      throw new GenerationAbortedException(e);
-    }
+    if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
+      Logger.debugHeader("Constructed %s", sequenceId);
 
-    testProgram.addExceptionHandlers(concreteHandler.second);
+      final Printer consolePrinter =
+          Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics());
 
-    Printer printer = null;
-    try { 
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
-      for (final TestSequence sequence : concreteHandler.first) {
-        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
-      }
-    } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e);
-    } finally {
-      if (null != printer) {
-        printer.close();
-      }
-      Logger.debugBar();
+      consolePrinter.printSequence(
+          engineContext.getModel().getPE(), sequence, "");
     }
   }
 }

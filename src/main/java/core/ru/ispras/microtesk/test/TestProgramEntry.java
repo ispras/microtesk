@@ -23,17 +23,12 @@ public static final class Entry {
   private final boolean isExternal;
   private boolean isKnownLocation;
   private boolean isAllocated;
-  private boolean isPrinted;
 
   private long startAddress;
   private long endAddress;
 
   private final Block block;
-  private final List<TestSequence> sequences;
   private final List<Label> labels;
-
-  public Entry() {
-    
-  }
+  private final List<TestSequence> sequences;
 }
 */
