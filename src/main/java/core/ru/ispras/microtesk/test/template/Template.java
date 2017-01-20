@@ -53,6 +53,7 @@ public final class Template {
   public interface Processor {
     void defineExceptionHandler(ExceptionHandler handler);
     void process(Section section, Block block);
+    void process(DataSection data);
     void finish();
   }
 
@@ -934,7 +935,7 @@ public final class Template {
 
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
-      dataManager.processData(context.getLabelManager(), data);
+      processor.process(data);
       context.setAddress(dataManager.getAddress().longValue());
     } else {
       endBuildingCall();

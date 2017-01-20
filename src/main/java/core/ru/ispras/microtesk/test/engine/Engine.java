@@ -23,6 +23,7 @@ import ru.ispras.microtesk.test.TestEngineUtils;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
@@ -70,6 +71,11 @@ public final class Engine implements Template.Processor {
     } else {
       processBlock(block);
     }
+  }
+
+  @Override
+  public void process(final DataSection data) {
+    // TODO Auto-generated method stub
   }
 
   @Override

@@ -30,6 +30,7 @@ import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
@@ -113,6 +114,12 @@ final class TemplateProcessor implements Template.Processor {
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
+  }
+
+  @Override
+  public void process(final DataSection data) {
+    InvariantChecks.checkNotNull(data);
+    engineContext.getDataManager().processData(engineContext.getLabelManager(), data);
   }
 
   @Override
