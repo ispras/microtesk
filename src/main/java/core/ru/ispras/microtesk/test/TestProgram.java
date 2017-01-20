@@ -29,11 +29,14 @@ import ru.ispras.microtesk.test.template.Block;
 final class TestProgram {
   private TestSequence prologue;
   private Block epilogue;
+
+  private final List<TestProgramEntry> entries;
   private final List<Map<String, TestSequence>> exceptionHandlers;
 
   public TestProgram() {
     this.prologue = null;
     this.epilogue = null;
+    this.entries = new ArrayList<>();
     this.exceptionHandlers = new ArrayList<>();
   }
 
@@ -62,5 +65,22 @@ final class TestProgram {
   public void addExceptionHandlers(final Map<String, TestSequence> handlers) {
     InvariantChecks.checkNotNull(handlers);
     exceptionHandlers.add(handlers);
+  }
+
+  public void addEntry(final TestProgramEntry entry) {
+    InvariantChecks.checkNotNull(entry);
+    entries.add(entry);
+  }
+
+  public int getEntryCount() {
+    return entries.size();
+  }
+
+  public TestProgramEntry getEntry(final int index) {
+    return entries.get(index);
+  }
+
+  public void clearEntries() {
+    entries.clear();
   }
 }
