@@ -46,9 +46,7 @@ public final class MemoryStorage implements MemoryDevice {
 
   // Default value to be returned when reading an unallocated address.
   private final BitVector defaultRegion;
-
   private final Map<BitVector, Area> addressMap;
-  private Map<BitVector, Area> tempAddressMap = null;
 
   private final static class Index {
     private static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
@@ -213,7 +211,6 @@ public final class MemoryStorage implements MemoryDevice {
     this.defaultRegion = other.defaultRegion;
 
     this.addressMap = new HashMap<>(other.addressMap);
-    this.tempAddressMap = null;
   }
 
   @Override
@@ -234,27 +231,6 @@ public final class MemoryStorage implements MemoryDevice {
   @Override
   public void store(final BitVector address, final BitVector data) {
     write(address, data);
-  }
-
-  @Override
-  public void useTemporaryContext(boolean value) {
-    setUseTempCopy(value);
-  }
-
-  public void setUseTempCopy(final boolean value) {
-    if (isReadOnly()) {
-      return; // Makes not sense for read-only stores
-    }
-
-    if (value) {
-      tempAddressMap = new HashMap<>();
-    } else {
-      tempAddressMap = null;
-    }
-  }
-
-  private Map<BitVector, Area> getAddressMap() {
-    return null != tempAddressMap ? tempAddressMap : addressMap;
   }
 
   public static int calculateAddressSize(final BigInteger regionCount) {
@@ -322,7 +298,7 @@ public final class MemoryStorage implements MemoryDevice {
     InvariantChecks.checkNotNull(address);
     final Index index = new Index(address, addressBitSize);
 
-    final Area area = getAddressMap().get(index.area);
+    final Area area = addressMap.get(index.area);
     if (null == area) {
       return false;
     }
@@ -352,7 +328,7 @@ public final class MemoryStorage implements MemoryDevice {
     checkAddress(address, false);
 
     final Index index = new Index(address, addressBitSize);
-    final Area area = getAddressMap().get(index.area);
+    final Area area = addressMap.get(index.area);
     if (null == area) {
       return defaultRegion;
     }
@@ -389,12 +365,12 @@ public final class MemoryStorage implements MemoryDevice {
 
     final Index index = new Index(address, addressBitSize);
 
-    Area area = getAddressMap().get(index.area);
+    Area area = addressMap.get(index.area);
     Block block = null;
 
     if (null == area || !isOwned(area)) {
       area = null == area ? new Area() : new Area(area);
-      getAddressMap().put(index.area, area);
+      addressMap.put(index.area, area);
     } else {
       block = area.get(index.block);
     }
@@ -408,7 +384,7 @@ public final class MemoryStorage implements MemoryDevice {
   }
 
   public void reset() {
-    for (final Area area : getAddressMap().values()) {
+    for (final Area area : addressMap.values()) {
       area.reset();
     }
   }

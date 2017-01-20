@@ -64,9 +64,4 @@ public final class MemoryDeviceWrapper implements MemoryDevice {
     final Location location = memory.access(address.bigIntegerValue(false));
     return location.isInitialized();
   }
-
-  @Override
-  public void useTemporaryContext(final boolean value) {
-    // Nothing
-  }
 }

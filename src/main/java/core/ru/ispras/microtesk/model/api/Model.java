@@ -146,10 +146,6 @@ public final class Model {
     } else {
       activeProcElemTemp = null;
     }
-
-    if (null != memoryHandler) {
-      memoryHandler.second.useTemporaryContext(value);
-    }
   }
 
   public void resetState() {
@@ -264,11 +260,6 @@ public final class Model {
     @Override
     public boolean isInitialized(final BitVector address) {
       return getMemory().isInitialized(address);
-    }
-
-    @Override
-    public void useTemporaryContext(final boolean value) {
-      getMemory().useTemporaryContext(value);
     }
   }
 }

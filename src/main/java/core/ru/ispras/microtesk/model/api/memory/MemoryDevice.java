@@ -62,13 +62,4 @@ public interface MemoryDevice {
    * @return {@code true} is the address location is initialized or {@code false} otherwise.
    */
   boolean isInitialized(final BitVector address);
-
-  /**
-   * Switches the device from main context to temporary context or vice versa. Using a temporary
-   * context means using temporary copies of data structures holding the memory state.
-   * 
-   * @param value {@code true} to switch from main context to temporary context
-   *        or {@code false} to switch from temporary context to main context.
-   */
-  void useTemporaryContext(final boolean value);
 }

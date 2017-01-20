@@ -30,11 +30,6 @@ public abstract class Mmu <A extends Address & Data>
   }
 
   @Override
-  public void useTemporaryContext(final boolean value) {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
   public boolean isHit(final A address) {
     return true;
   }
