@@ -487,14 +487,14 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
         final Collection<IntegerVariable> fields = varToFields.get(variable);
 
-        BigInteger value = initializer.getValue(variable);
+        BigInteger value = initializer.getValue(variable.getWidth());
 
         if (fields != null) {
           for (final IntegerVariable field : fields) {
             final IntegerRange fieldRange = fieldToRange.get(field);
 
             final BigInteger fieldValue = newSolution.get(field);
-            InvariantChecks.checkNotNull(fieldValue);
+            InvariantChecks.checkNotNull(fieldValue, String.format("Value of %s not found", field));
 
             final int lo = fieldRange.getMin().intValue();
             final int hi = fieldRange.getMax().intValue();

@@ -28,26 +28,26 @@ import ru.ispras.fortress.util.InvariantChecks;
 public enum IntegerVariableInitializer {
   ZEROS() {
     @Override
-    public BigInteger getValue(final IntegerVariable variable) {
-      InvariantChecks.checkNotNull(variable);
+    public BigInteger getValue(final int width) {
+      InvariantChecks.checkGreaterThanZero(width);
       return BigInteger.ZERO;
     }
   },
   UNITS() {
     @Override
-    public BigInteger getValue(final IntegerVariable variable) {
-      InvariantChecks.checkNotNull(variable);
-      return BitUtils.getBigIntegerMask(variable.getWidth());
+    public BigInteger getValue(final int width) {
+      InvariantChecks.checkGreaterThanZero(width);
+      return BitUtils.getBigIntegerMask(width);
     }
   },
   RANDOM() {
     @Override
-    public BigInteger getValue(final IntegerVariable variable) {
-      InvariantChecks.checkNotNull(variable);
-      return Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
+    public BigInteger getValue(final int width) {
+      InvariantChecks.checkGreaterThanZero(width);
+      return Randomizer.get().nextBigIntegerField(width, false);
     }
   };
 
-  public abstract BigInteger getValue(final IntegerVariable variable);
+  public abstract BigInteger getValue(final int width);
 }
 

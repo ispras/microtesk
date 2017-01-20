@@ -138,6 +138,14 @@ public final class IntegerDomain {
     ranges.addAll(rhs.ranges);
   }
 
+  /**
+   * Represents the domain in the form of ordered disjoint ranges.
+   * 
+   * @return ordered disjoint ranges.
+   */
+  public List<IntegerRange> getRanges() {
+    return ranges;
+  }
 
   /**
    * Returns the size of the domain.
