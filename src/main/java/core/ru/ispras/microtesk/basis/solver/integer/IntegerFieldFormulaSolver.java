@@ -64,9 +64,7 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
     return disjointRanges;
   }
 
-  /** Variables used in the formula. */
-  private final Collection<Collection<IntegerVariable>> variables;
-  /** Formula (constraint) to be solved. */
+  /** Formulae (constraints) to be solved. */
   private final Collection<IntegerFormula<IntegerField>> formulae;
 
   /** Initializer used to fill the unused fields of the variables. */
@@ -89,21 +87,16 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   /**
    * Constructs a solver.
    * 
-   * @param variables the variables to be included into a solution.
    * @param formulae the constraints to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
-    final Collection<Collection<IntegerVariable>> variables,
     final Collection<IntegerFormula<IntegerField>> formulae,
     final IntegerVariableInitializer initializer) {
-    InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    this.variables = Collections.unmodifiableCollection(variables);
     this.formulae = Collections.unmodifiableCollection(formulae);
-
     this.initializer = initializer;
 
     // Initialize auxiliary data structures.
@@ -133,24 +126,32 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   /**
    * Constructs a solver.
    * 
-   * @param variables the variables to be included into a solution.
    * @param formula the constraint to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
-    final Collection<IntegerVariable> variables,
     final IntegerFormula<IntegerField> formula,
     final IntegerVariableInitializer initializer) {
-    this(Collections.singleton(variables), Collections.singleton(formula), initializer);
+    this(Collections.singleton(formula), initializer);
+  }
+
+  /**
+   * Constructs a solver.
+   * 
+   * @param problem the problem to be solved.
+   * @param initializer the initializer to be used to fill the unused fields. 
+   */
+  public IntegerFieldFormulaSolver(
+    final IntegerFieldFormulaProblem problem,
+    final IntegerVariableInitializer initializer) {
+    this(problem.getFormula(), initializer);
   }
 
   @Override
   public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
     final Collection<IntegerFormula<IntegerVariable>> newFormulae = getFormulae(formulae);
 
-    final IntegerFormulaSolver solver = new IntegerFormulaSolver(
-        Collections.singleton((Collection<IntegerVariable>)fieldToRange.keySet()), newFormulae);
-
+    final IntegerFormulaSolver solver = new IntegerFormulaSolver(newFormulae);
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT) {
@@ -479,8 +480,10 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
 
     final Map<IntegerVariable, BigInteger> oldSolution = new LinkedHashMap<>();
 
-    for (final Collection<IntegerVariable> collection : variables) {
-      for (final IntegerVariable variable : collection) {
+    for (final IntegerFormula<IntegerField> formula : formulae) {
+      for (final IntegerField formulaVariable : formula.getVariables()) {
+        final IntegerVariable variable = formulaVariable.getVariable();
+
         if (oldSolution.containsKey(variable)) {
           continue;
         }

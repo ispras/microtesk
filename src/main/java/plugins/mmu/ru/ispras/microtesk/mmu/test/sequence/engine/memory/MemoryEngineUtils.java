@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -321,17 +320,6 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  private static Collection<IntegerVariable> getFormulaVariables(
-      final IntegerFormula<IntegerField> formula) {
-    final Collection<IntegerVariable> variables = new LinkedHashSet<>();
-
-    for (final IntegerField field : formula.getVariables()) {
-      variables.add(field.getVariable());
-    }
-
-    return variables;
-  }
-
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MmuTransition transition,
       final MemorySymbolicResult symbolicResult /* INOUT */,
@@ -345,12 +333,10 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
     }
 
-    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
     final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver =
-        getSolver(variables, formula, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(formula, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
@@ -391,25 +377,17 @@ public final class MemoryEngineUtils {
 
     final int collectionSize = constraints.size() + 1;
 
-    final Collection<Collection<IntegerVariable>> variables = new ArrayList<>(collectionSize);
-    variables.add(symbolicResult.getVariables());
-
     final Collection<IntegerFormula<IntegerField>> formulae = new ArrayList<>(collectionSize);
     formulae.add(symbolicResult.getFormula());
 
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
-      final IntegerFormula<IntegerField> formula = constraint.getFormula();
-      final Collection<IntegerVariable> collection = getFormulaVariables(formula);
-
-      variables.add(collection);
-      formulae.add(formula);
+      formulae.add(constraint.getFormula());
     }
 
     Logger.debug("Formulae: %s", formulae);
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver =
-        getSolver(variables, formulae, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(formulae, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT) {
@@ -467,29 +445,24 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final MemorySymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final Collection<IntegerVariable> variables = symbolicResult.getVariables();
     final IntegerFormula<IntegerField> formula = symbolicResult.getFormula();
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver =
-        getSolver(variables, formula, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(formula, initializer);
 
     return solver.solve(mode);
   }
 
   private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
-      final Collection<IntegerVariable> variables,
       final IntegerFormula<IntegerField> formula,
       final IntegerVariableInitializer initializer) {
     return getSolver(
-        Collections.<Collection<IntegerVariable>>singleton(variables),
         Collections.<IntegerFormula<IntegerField>>singleton(formula),
         initializer);
   }
 
   private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
-      final Collection<Collection<IntegerVariable>> variables,
       final Collection<IntegerFormula<IntegerField>> formulae,
       final IntegerVariableInitializer initializer) {
-    return new IntegerFieldFormulaSolverSat4j(variables, formulae, initializer);
+    return new IntegerFieldFormulaSolverSat4j(formulae, initializer);
   }
 }

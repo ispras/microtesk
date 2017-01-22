@@ -39,39 +39,28 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, BigInteger>> {
-  /** Variables used in the formula. */
-  private final Collection<Collection<IntegerVariable>> variables;
-  /** Formula (constraint) to be solved. */
+  /** Formulae (constraints) to be solved. */
   private final Collection<IntegerFormula<IntegerVariable>> formulae;
 
   /**
    * Constructs a solver.
    * 
-   * @param variables the collection of variables.
    * @param formulae the constraints to be solved.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public IntegerFormulaSolver(
-      final Collection<Collection<IntegerVariable>> variables,
-      final Collection<IntegerFormula<IntegerVariable>> formulae) {
-    InvariantChecks.checkNotNull(variables);
+  public IntegerFormulaSolver(final Collection<IntegerFormula<IntegerVariable>> formulae) {
     InvariantChecks.checkNotNull(formulae);
-
-    this.variables = Collections.unmodifiableCollection(variables);
     this.formulae = Collections.unmodifiableCollection(formulae);
   }
 
   /**
    * Constructs a solver.
    * 
-   * @param variables the collection of variables.
    * @param formula the constraint to be solved.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public IntegerFormulaSolver(
-      final Collection<IntegerVariable> variables,
-      final IntegerFormula<IntegerVariable> formula) {
-    this(Collections.singleton(variables), Collections.singleton(formula));
+  public IntegerFormulaSolver(final IntegerFormula<IntegerVariable> formula) {
+    this(Collections.singleton(formula));
   }
 
   @Override
@@ -100,7 +89,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
 
     final IntegerClause<IntegerVariable> kernel = kernelBuilder.build();
 
-    final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(variables, kernel);
+    final IntegerClauseSolver kernelSolver = new IntegerClauseSolver(kernel);
     final SolverResult<Map<IntegerVariable, BigInteger>> kernelResult = kernelSolver.solve(mode);
 
     if (clauses.isEmpty() || kernelResult.getStatus() == SolverResult.Status.UNSAT) {
@@ -186,10 +175,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
       if (variantBuilder.size() < kernel.size() / 3 /* Heuristic */) {
         final IntegerClause<IntegerVariable> localClause = variantBuilder.build();
 
-        final Collection<Collection<IntegerVariable>> localVariables =
-            Collections.singleton(localClause.getVariables());
-
-        final IntegerClauseSolver checker = new IntegerClauseSolver(localVariables, localClause);
+        final IntegerClauseSolver checker = new IntegerClauseSolver(localClause);
         final SolverResult<Map<IntegerVariable, BigInteger>> result = checker.solve(Mode.SAT);
 
         if (result.getStatus() != SolverResult.Status.SAT) {
@@ -201,7 +187,7 @@ public final class IntegerFormulaSolver implements Solver<Map<IntegerVariable, B
 
       final IntegerClause<IntegerVariable> globalVariant = variantBuilder.build();
 
-      final IntegerClauseSolver globalSolver = new IntegerClauseSolver(variables, globalVariant);
+      final IntegerClauseSolver globalSolver = new IntegerClauseSolver(globalVariant);
       final SolverResult<Map<IntegerVariable, BigInteger>> globalResult = globalSolver.solve(mode);
 
       if (globalResult.getStatus() == SolverResult.Status.SAT) {

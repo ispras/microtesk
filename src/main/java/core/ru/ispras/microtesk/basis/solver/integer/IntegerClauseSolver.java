@@ -35,7 +35,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, BigInteger>> {
   /** Variables to be put into a solution (unmodifiable). */
-  private final Collection<Collection<IntegerVariable>> variables;
+  private final Collection<IntegerVariable> variables;
   /** Equation clause to be solved (unmodifiable). */
   private final IntegerClause<IntegerVariable> clause;
 
@@ -50,18 +50,14 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
   /**
    * Constructs an equation clause solver.
    * 
-   * @param variables the variables to be put into a solution.
    * @param clause the equation clause to be solved.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public IntegerClauseSolver(
-      final Collection<Collection<IntegerVariable>> variables,
-      final IntegerClause<IntegerVariable> clause) {
-    InvariantChecks.checkNotNull(variables);
+  public IntegerClauseSolver(final IntegerClause<IntegerVariable> clause) {
     InvariantChecks.checkNotNull(clause);
 
-    this.variables = Collections.unmodifiableCollection(variables);
     this.clause = clause;
+    this.variables = Collections.unmodifiableCollection(clause.getVariables());
   }
 
   /**
@@ -102,7 +98,7 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
       final IntegerClause<IntegerVariable> variant = new IntegerClause<IntegerVariable>(equation);
 
-      final IntegerClauseSolver solver = new IntegerClauseSolver(variables, variant);
+      final IntegerClauseSolver solver = new IntegerClauseSolver(variant);
       final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
       if (result.getStatus() == SolverResult.Status.SAT) {
@@ -120,10 +116,8 @@ public final class IntegerClauseSolver implements Solver<Map<IntegerVariable, Bi
     equalTo.clear();
     notEqualTo.clear();
 
-    for (final Collection<IntegerVariable> collection : variables) {
-      for (final IntegerVariable variable : collection) {
-        addVariable(variable);
-      }
+    for (final IntegerVariable variable : variables) {
+      addVariable(variable);
     }
 
     for (final IntegerEquation<IntegerVariable> equation : clause.getEquations()) {
