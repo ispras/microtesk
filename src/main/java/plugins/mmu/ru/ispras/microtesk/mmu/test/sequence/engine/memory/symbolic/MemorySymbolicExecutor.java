@@ -182,10 +182,7 @@ public final class MemorySymbolicExecutor {
 
         clauseBuilder.addEquation(field1, field2, !atom.isNegated());
 
-        result.addVariable(field1.getVariable());
         result.addOriginalVariable(result.getOriginal(term1.getVariable(), pathIndex1));
-
-        result.addVariable(field2.getVariable());
         result.addOriginalVariable(result.getOriginal(term2.getVariable(), pathIndex2));
       }
     }
@@ -388,7 +385,6 @@ public final class MemorySymbolicExecutor {
 
           offset += term.getWidth();
 
-          result.addVariable(field.getVariable());
           result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
         }
         break;
@@ -406,9 +402,6 @@ public final class MemorySymbolicExecutor {
           final IntegerField rhsField = result.getVersion(rhsTerm, pathIndex);
 
           clauseBuilder.addEquation(lhsField, rhsField, !atom.isNegated());
-
-          result.addVariable(lhsField.getVariable());
-          result.addVariable(rhsField.getVariable());
 
           result.addOriginalVariable(result.getOriginal(lhsTerm.getVariable(), pathIndex));
           result.addOriginalVariable(result.getOriginal(rhsTerm.getVariable(), pathIndex));
@@ -435,12 +428,10 @@ public final class MemorySymbolicExecutor {
 
       final IntegerVariable oldLhsVar = result.getVersion(lhs.getVariable(), pathIndex);
 
-      result.addVariable(oldLhsVar);
       result.addOriginalVariable(result.getOriginal(lhs.getVariable(), pathIndex));
 
       if (rhs != null) {
         final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
-        result.addVariable(newLhsVar);
 
         final List<IntegerField> rhsTerms = new ArrayList<>();
 
@@ -467,7 +458,6 @@ public final class MemorySymbolicExecutor {
 
           offset += field.getWidth();
 
-          result.addVariable(field.getVariable());
           result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
         }
 
@@ -480,8 +470,10 @@ public final class MemorySymbolicExecutor {
 
         // Equation of the suffix part.
         if (lhs.getHiIndex() < lhs.getWidth() - 1) {
-          final IntegerField oldLhsPost = new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
-          final IntegerField newLhsPost = new IntegerField(newLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+          final IntegerField oldLhsPost =
+              new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+          final IntegerField newLhsPost =
+              new IntegerField(newLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
 
           clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
           rhsTerms.add(oldLhsPost);

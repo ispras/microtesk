@@ -42,9 +42,6 @@ public final class MemorySymbolicResult {
    */
   private boolean hasConflict = false;
 
-  /** Stores all variables included into the formula. */
-  private final Collection<IntegerVariable> variables;
-
   /** Allows updating the formula, i.e. performing symbolic execution. */
   private final IntegerFormula.Builder<IntegerField> formulaBuilder;
 
@@ -68,14 +65,12 @@ public final class MemorySymbolicResult {
   private final Map<IntegerVariable, BigInteger> constants;
 
   private MemorySymbolicResult(
-      final Collection<IntegerVariable> variables,
       final IntegerFormula.Builder<IntegerField> formula,
       final Map<Integer, MemoryAccessStack> stacks,
       final Collection<IntegerVariable> originals,
       final Map<String, Integer> versions,
       final Map<String, IntegerVariable> cache,
       final Map<IntegerVariable, BigInteger> constants) {
-    InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(stacks);
     InvariantChecks.checkNotNull(originals);
@@ -83,7 +78,6 @@ public final class MemorySymbolicResult {
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
-    this.variables = variables;
     this.formulaBuilder = formula;
     this.stacks = stacks;
     this.originals = originals;
@@ -94,7 +88,6 @@ public final class MemorySymbolicResult {
 
   public MemorySymbolicResult() {
     this(
-        new LinkedHashSet<IntegerVariable>(),
         new IntegerFormula.Builder<IntegerField>(),
         new HashMap<Integer, MemoryAccessStack>(),
         new LinkedHashSet<IntegerVariable>(),
@@ -105,7 +98,6 @@ public final class MemorySymbolicResult {
 
   public MemorySymbolicResult(final MemorySymbolicResult r) {
     this(
-        new LinkedHashSet<>(r.variables),
         new IntegerFormula.Builder<>(r.formulaBuilder),
         new HashMap<>(r.stacks),
         new LinkedHashSet<>(r.originals),
@@ -125,22 +117,6 @@ public final class MemorySymbolicResult {
 
   public void setConflict(final boolean hasConflict) {
     this.hasConflict = hasConflict;
-  }
-
-  public Collection<IntegerVariable> getVariables() {
-    return variables;
-  }
-
-  public boolean containsVariable(final IntegerVariable var) {
-    return variables.contains(var);
-  }
-
-  public void addVariable(final IntegerVariable var) {
-    variables.add(var);
-  }
-
-  public void addVariables(final Collection<IntegerVariable> vars) {
-    variables.addAll(vars);
   }
 
   public IntegerFormula<IntegerField> getFormula() {
@@ -237,8 +213,6 @@ public final class MemorySymbolicResult {
 
   public void includeOriginalVariables() {
     // Add the constraints of the kind V = V(n), where n is the last version number of V.
-    addVariables(originals);
-
     for (final IntegerVariable original : originals) {
       final IntegerVariable version = getVersion(original.getName());
 

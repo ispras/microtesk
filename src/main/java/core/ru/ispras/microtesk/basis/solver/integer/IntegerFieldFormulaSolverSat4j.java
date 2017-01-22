@@ -25,7 +25,6 @@ import org.sat4j.specs.TimeoutException;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
