@@ -202,7 +202,7 @@ public final class IntegerFieldFormulaSolverTestCase {
 
     for (int i = 0; i < N; i++) {
       final IntegerFieldFormulaSolver solver =
-          new IntegerFieldFormulaSolver(variables, formula, IntegerVariableInitializer.RANDOM);
+          new IntegerFieldFormulaSolver(formula, IntegerVariableInitializer.RANDOM);
 
       final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
       Assert.assertTrue(result.getErrors().toString(),

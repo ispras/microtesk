@@ -50,35 +50,17 @@ public final class IntegerFormulaSolverTestCase {
     VARS.add(z);
   }
 
-  private static IntegerFormulaSolver getSolver(
-      final List<IntegerVariable> vars, final IntegerFormula<IntegerVariable> formula) {
-    final IntegerFormulaSolver solver = new IntegerFormulaSolver(vars, formula);
-    return solver;
-  }
-
   private static IntegerFormulaSolver getSolver(final IntegerFormula<IntegerVariable> formula) {
-    return getSolver(VARS, formula);
-  }
-
-  private static Map<IntegerVariable, BigInteger> check(
-      final String id, final IntegerFormula<IntegerVariable> formula, final boolean expected) {
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        getSolver(formula).solve(Solver.Mode.MAP);
-
-    System.out.println(id);
-    System.out.println(result.getResult());
-
-    Assert.assertTrue((result.getStatus() == SolverResult.Status.SAT) == expected);
-    return result.getResult();
+    final IntegerFormulaSolver solver = new IntegerFormulaSolver(formula);
+    return solver;
   }
 
   private static Map<IntegerVariable, BigInteger> check(
       final String id,
-      final List<IntegerVariable> vars,
       final IntegerFormula<IntegerVariable> formula,
       final boolean expected) {
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        getSolver(vars, formula).solve(Solver.Mode.MAP);
+        getSolver(formula).solve(Solver.Mode.MAP);
 
     System.out.println(id);
     System.out.println(result.getResult());
@@ -323,7 +305,6 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestN() {
-    final List<IntegerVariable> vars = new ArrayList<>();
     final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
 
     final int numberOfDisjunctions = 10;
@@ -335,7 +316,6 @@ public final class IntegerFormulaSolverTestCase {
     for (int i = 0; i < numberOfDisjunctions; i++) {
       for (int j = 0; j < numberOfEqualitiesInDisjuntion; j++) {
         arrayVariable[i][j] = new IntegerVariable("a_" + i + "_"+ j, 4);
-        vars.add(arrayVariable[i][j]);
       }
     }
 
@@ -350,7 +330,7 @@ public final class IntegerFormulaSolverTestCase {
       formulaBuilder.addClause(clauseBuilder.build());
     }
 
-    check("N: OutOfMemoryError", vars, formulaBuilder.build(), true);
+    check("N: OutOfMemoryError", formulaBuilder.build(), true);
   }
 
   /**
