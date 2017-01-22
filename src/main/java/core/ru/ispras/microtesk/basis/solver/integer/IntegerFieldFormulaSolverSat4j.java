@@ -47,12 +47,12 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolverSat4j(
-    final IntegerFieldFormulaProblemSat4j problem,
+    final IntegerFieldFormulaProblem problem,
     final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(problem);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = problem;
+    this.problem = (IntegerFieldFormulaProblemSat4j) problem;
     this.initializer = initializer;
   }
 
@@ -98,7 +98,7 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
   public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
     InvariantChecks.checkNotNull(mode);
 
-    if (problem.isContradiction) {
+    if (problem.isContradiction()) {
       return new SolverResult<>("Contradiction");
     }
 

@@ -115,7 +115,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final Object label;
     final ArrayList<MemoryGraph.Edge> edges;
     final Iterator<MemoryGraph.Edge> iterator;
-    final MemorySymbolicResult context;
+
+    MemorySymbolicResult context;
 
     SearchEntry(
         final MmuAction action,
@@ -251,11 +252,15 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             ? (labels != null && labels.hasNext() ? labels.next() : null)
             : searchEntry.label;
 
-        final MemorySymbolicResult context = (searchEntry.edges.size() == 1)
-            ? searchEntry.context
-            : new MemorySymbolicResult(searchEntry.context);
-
+        // Go on with the current context.
+        MemorySymbolicResult context = searchEntry.context;
         MemorySymbolicResult newContext = context;
+
+        // Save the current context in the current entry.
+        // There should be enough information to reconstruct the saved context.
+        if (searchEntry.edges.size() != 1) {
+          searchEntry.context = new MemorySymbolicResult(searchEntry.context);
+        }
 
         if (MemoryEngineUtils.isFeasibleTransition(
             transition, type, stack, constraints, context /* INOUT */)) {

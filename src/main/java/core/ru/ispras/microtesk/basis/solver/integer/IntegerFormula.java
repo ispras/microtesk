@@ -65,6 +65,13 @@ public final class IntegerFormula<V> {
       return clauses;
     }
 
+    /**
+     * Removes all clauses.
+     */
+    public void clear() {
+      clauses.clear();
+    }
+
     @Override
     public void addClause(final IntegerClause<V> clause) {
       InvariantChecks.checkNotNull(clause);

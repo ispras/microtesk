@@ -20,6 +20,8 @@ import java.util.Map;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link IntegerFormulaProblem} represents an integer problem.
  * 
@@ -28,11 +30,13 @@ import org.sat4j.specs.ISolver;
 public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaProblem {
   /** Stores a SAT solver instance, which also represents a constraint to be solved. */
   private final ISolver solver;
+
   /** Contains variables' identifiers (indices). */
   private final Map<IntegerVariable, Integer> indices;
+  private int index = 1;
 
-  int index = 1;
-  boolean isContradiction = false;
+  private boolean isInitialized = true;
+  private boolean isContradiction = false;
 
   public IntegerFieldFormulaProblemSat4j() {
     this.solver = Sat4jUtils.getSolver();
@@ -42,15 +46,13 @@ public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaPr
   public IntegerFieldFormulaProblemSat4j(final IntegerFieldFormulaProblemSat4j r) {
     super(r);
 
-    // SAT4j solver cannot be cloned.
+    // Unfortunately, a SAT4j solver cannot be cloned.
     this.solver = Sat4jUtils.getSolver();
+    this.isInitialized = false;
 
-    for (final IntegerClause<IntegerField> clause : builder.getClauses()) {
-      addClause(clause);
-    }
+    this.indices = new LinkedHashMap<>();
+    this.index = 1;
 
-    this.indices = new LinkedHashMap<>(r.indices);
-    this.index = r.index;
     this.isContradiction = r.isContradiction;
   }
 
@@ -62,18 +64,31 @@ public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaPr
     return solver;
   }
 
-  public boolean isContradition() {
+  public boolean isContradiction() {
     return isContradiction;
   }
 
   @Override
-  public void addClause(final IntegerClause<IntegerField> clause) {
+  public void addClause(final IntegerClause<IntegerField> newClause) {
+    InvariantChecks.checkNotNull(newClause);
+
     if (isContradiction) {
       return;
     }
 
-    builder.addClause(clause);
+    if (!isInitialized) {
+      for (final IntegerClause<IntegerField> oldClause : builder.getClauses()) {
+        addClauseToSolver(oldClause);
+      }
 
+      isInitialized = true;
+    }
+
+    builder.addClause(newClause);
+    addClauseToSolver(newClause);
+  }
+
+  private void addClauseToSolver(final IntegerClause<IntegerField> clause) {
     // Perform bit blasting.
     try {
       // Handle constants.

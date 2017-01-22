@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,7 +24,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblem;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblemSat4j;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -43,7 +44,7 @@ public final class MemorySymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final IntegerFormula.Builder<IntegerField> formulaBuilder;
+  private final IntegerFieldFormulaProblemSat4j problem; // TODO: Type is solver-dependent
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessStack> stacks;
@@ -65,20 +66,20 @@ public final class MemorySymbolicResult {
   private final Map<IntegerVariable, BigInteger> constants;
 
   private MemorySymbolicResult(
-      final IntegerFormula.Builder<IntegerField> formula,
+      final IntegerFieldFormulaProblemSat4j problem,
       final Map<Integer, MemoryAccessStack> stacks,
       final Collection<IntegerVariable> originals,
       final Map<String, Integer> versions,
       final Map<String, IntegerVariable> cache,
       final Map<IntegerVariable, BigInteger> constants) {
-    InvariantChecks.checkNotNull(formula);
+    InvariantChecks.checkNotNull(problem);
     InvariantChecks.checkNotNull(stacks);
     InvariantChecks.checkNotNull(originals);
     InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
-    this.formulaBuilder = formula;
+    this.problem = problem;
     this.stacks = stacks;
     this.originals = originals;
     this.versions = versions;
@@ -88,7 +89,7 @@ public final class MemorySymbolicResult {
 
   public MemorySymbolicResult() {
     this(
-        new IntegerFormula.Builder<IntegerField>(),
+        new IntegerFieldFormulaProblemSat4j(),
         new HashMap<Integer, MemoryAccessStack>(),
         new LinkedHashSet<IntegerVariable>(),
         new HashMap<String, Integer>(),
@@ -98,7 +99,7 @@ public final class MemorySymbolicResult {
 
   public MemorySymbolicResult(final MemorySymbolicResult r) {
     this(
-        new IntegerFormula.Builder<>(r.formulaBuilder),
+        new IntegerFieldFormulaProblemSat4j(r.problem),
         new HashMap<>(r.stacks),
         new LinkedHashSet<>(r.originals),
         new HashMap<>(r.versions),
@@ -119,8 +120,8 @@ public final class MemorySymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public IntegerFormula<IntegerField> getFormula() {
-    return formulaBuilder.build();
+  public IntegerFieldFormulaProblem getProblem() {
+    return problem;
   }
 
   public Map<Integer, MemoryAccessStack> getStacks() {
@@ -171,15 +172,11 @@ public final class MemorySymbolicResult {
   }
 
   public void addEquation(final IntegerField lhs, final IntegerField rhs) {
-    InvariantChecks.checkNotNull(lhs);
-    InvariantChecks.checkNotNull(rhs);
-
-    formulaBuilder.addEquation(lhs, rhs, true);
+    problem.addEquation(lhs, rhs, true);
   }
 
   public void addClause(final IntegerClause<IntegerField> clause) {
-    InvariantChecks.checkNotNull(clause);
-    formulaBuilder.addClause(clause);
+    problem.addClause(clause);
   }
 
   public MemoryAccessStack getStack() {
