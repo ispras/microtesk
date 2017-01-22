@@ -28,18 +28,25 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaProblem {
+  /** For some reason, incremental encoding works slow. */
+  private static boolean INCREMENTAL_ENCODING = false;
+
   /** Stores a SAT solver instance, which also represents a constraint to be solved. */
-  private final ISolver solver;
+  private ISolver solver;
 
   /** Contains variables' identifiers (indices). */
   private final Map<IntegerVariable, Integer> indices;
   private int index = 1;
 
-  private boolean isInitialized = true;
   private boolean isContradiction = false;
 
   public IntegerFieldFormulaProblemSat4j() {
-    this.solver = Sat4jUtils.getSolver();
+    if (INCREMENTAL_ENCODING) {
+      this.solver = Sat4jUtils.getSolver();
+    } else {
+      this.solver = null;
+    }
+
     this.indices = new LinkedHashMap<>();
   }
 
@@ -47,9 +54,7 @@ public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaPr
     super(r);
 
     // Unfortunately, a SAT4j solver cannot be cloned.
-    this.solver = Sat4jUtils.getSolver();
-    this.isInitialized = false;
-
+    this.solver = null;
     this.indices = new LinkedHashMap<>();
     this.index = 1;
 
@@ -61,6 +66,14 @@ public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaPr
   }
 
   public ISolver getSolver() {
+    if (solver == null) {
+      solver = Sat4jUtils.getSolver();
+
+      for (final IntegerClause<IntegerField> oldClause : builder.getClauses()) {
+        addClauseToSolver(oldClause);
+      }
+    }
+
     return solver;
   }
 
@@ -76,16 +89,14 @@ public final class IntegerFieldFormulaProblemSat4j extends IntegerFieldFormulaPr
       return;
     }
 
-    if (!isInitialized) {
-      for (final IntegerClause<IntegerField> oldClause : builder.getClauses()) {
-        addClauseToSolver(oldClause);
+    if (INCREMENTAL_ENCODING) {
+      if (solver == null) {
+        solver = getSolver();
       }
-
-      isInitialized = true;
+      addClauseToSolver(newClause);
     }
 
     builder.addClause(newClause);
-    addClauseToSolver(newClause);
   }
 
   private void addClauseToSolver(final IntegerClause<IntegerField> clause) {
