@@ -209,6 +209,7 @@ public final class Model {
     final MetaOperation metaData = getMetaData().getOperation(instantiate);
 
     if (null == metaData) { // instantiate is undefined
+      Logger.debug("The \"instantiate\" operation is undefined.");
       return;
     }
 
