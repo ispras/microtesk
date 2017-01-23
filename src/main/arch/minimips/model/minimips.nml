@@ -692,7 +692,7 @@ action = {
 ////////////////////////////////////////////////////////////////////////////////
 // Internal Operation to Initialize Processing Element Instances
 
-internal op instantiate(pid: WORD)
+op instantiate(pid: WORD)
 action = {
   PID = pid;
 }
