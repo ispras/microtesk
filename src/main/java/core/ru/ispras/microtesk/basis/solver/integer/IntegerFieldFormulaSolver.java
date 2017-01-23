@@ -138,13 +138,13 @@ public final class IntegerFieldFormulaSolver implements Solver<Map<IntegerVariab
   /**
    * Constructs a solver.
    * 
-   * @param problem the problem to be solved.
+   * @param builder the builder of the constraint to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolver(
-    final IntegerFieldFormulaProblem problem,
+    final IntegerFormulaBuilder<IntegerField> builder,
     final IntegerVariableInitializer initializer) {
-    this(problem.getFormula(), initializer);
+    this(((IntegerFieldFormulaProblem) builder).getFormula(), initializer);
   }
 
   @Override

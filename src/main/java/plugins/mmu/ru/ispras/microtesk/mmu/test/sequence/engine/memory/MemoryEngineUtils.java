@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -27,10 +26,9 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblem;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblemSat4j;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolverSat4j;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
@@ -335,15 +333,13 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
     }
 
-    final IntegerFieldFormulaProblem problem = symbolicResult.getProblem();
+    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
     final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(problem, initializer);
-
+    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT) {
-      Logger.debug("Formula: %s", problem.getFormula());
       Logger.debug("Constants: %s", constants);
       Logger.debug(stringOf(transition));
       for (final String msg : result.getErrors()) {
@@ -365,7 +361,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(mode);
 
     if (!path.hasSymbolicResult()) {
-      final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
+      final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
 
       symbolicExecutor.execute(path, true);
       path.setSymbolicResult(symbolicExecutor.getResult());
@@ -377,22 +373,14 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
     }
 
-    final int collectionSize = constraints.size() + 1;
-
-    final Collection<IntegerFormula<IntegerField>> formulae = new ArrayList<>(collectionSize);
-
-    final IntegerFieldFormulaProblem problem = symbolicResult.getProblem();
-
-    formulae.add(problem.getFormula());
+    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder().clone();
 
     // Supplement the formula with the constraints.
     for (final IntegerConstraint<IntegerField> constraint : constraints) {
-      formulae.add(constraint.getFormula());
+      builder.addFormula(constraint.getFormula());
     }
 
-    Logger.debug("Formulae: %s", formulae);
-
-    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(formulae, initializer);
+    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT) {
@@ -401,6 +389,7 @@ public final class MemoryEngineUtils {
         Logger.debug("Error: %s", msg);
       }
     }
+
     return result;
   }
 
@@ -446,37 +435,34 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor();
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final MemorySymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final IntegerFieldFormulaProblem problem = symbolicResult.getProblem();
-
-    final Solver<Map<IntegerVariable, BigInteger>> solver = getSolver(problem, initializer);
+    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
+    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
 
     return solver.solve(mode);
   }
 
-  private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
-      final Collection<IntegerFormula<IntegerField>> formulae,
-      final IntegerVariableInitializer initializer) {
-    InvariantChecks.checkNotNull(formulae);
-    InvariantChecks.checkNotNull(initializer);
-
-    IntegerFieldFormulaProblem problem = new IntegerFieldFormulaProblemSat4j();
-    for (final IntegerFormula<IntegerField> formula : formulae) {
-      problem.addFormula(formula);
-    }
-
-    return getSolver(problem, initializer);
+  public static IntegerFormulaBuilder<IntegerField> newFormulaBuilder() {
+    return new IntegerFieldFormulaProblemSat4j();
   }
 
-  private static Solver<Map<IntegerVariable, BigInteger>> getSolver(
-      final IntegerFieldFormulaProblem problem,
+  public static MemorySymbolicResult newSymbolicResult() {
+    return new MemorySymbolicResult(newFormulaBuilder());
+  }
+
+  public static MemorySymbolicExecutor newSymbolicExecutor() {
+    return new MemorySymbolicExecutor(newSymbolicResult());
+  }
+
+  public static Solver<Map<IntegerVariable, BigInteger>> newSolver(
+      final IntegerFormulaBuilder<IntegerField> builder,
       final IntegerVariableInitializer initializer) {
-    InvariantChecks.checkNotNull(problem);
+    InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(initializer);
 
-    return new IntegerFieldFormulaSolverSat4j(problem, initializer);
+    return new IntegerFieldFormulaSolverSat4j(builder, initializer);
   }
 }

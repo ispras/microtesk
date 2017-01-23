@@ -17,12 +17,15 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -47,12 +50,13 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolverSat4j(
-    final IntegerFieldFormulaProblem problem,
+    final IntegerFormulaBuilder<IntegerField> builder,
     final IntegerVariableInitializer initializer) {
-    InvariantChecks.checkNotNull(problem);
+    InvariantChecks.checkNotNull(builder);
+    InvariantChecks.checkTrue(builder instanceof IntegerFieldFormulaProblemSat4j);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = (IntegerFieldFormulaProblemSat4j) problem;
+    this.problem = (IntegerFieldFormulaProblemSat4j) builder;
     this.initializer = initializer;
   }
 
@@ -98,12 +102,21 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
   public SolverResult<Map<IntegerVariable, BigInteger>> solve(final Mode mode) {
     InvariantChecks.checkNotNull(mode);
 
-    if (problem.isContradiction()) {
-      return new SolverResult<>("Contradiction");
+    final ISolver solver = Sat4jUtils.getSolver();
+
+    // Construct the problem.
+    try {
+      for (final IVec<IVecInt> clauses : problem.getFormula().getClauses()) {
+        solver.addAllClauses(clauses);
+      }
+    } catch (final ContradictionException e) {
+      return new SolverResult<>(
+          SolverResult.Status.UNSAT,
+          Collections.<IntegerVariable, BigInteger>emptyMap(),
+          Collections.<String>singletonList(String.format("Contradiction: %s", e.getMessage())));
     }
 
-    final ISolver solver = problem.getSolver();
-
+    // Solve the problem.
     try {
       if (!solver.isSatisfiable()) {
         return new SolverResult<>("UNSAT");
@@ -119,39 +132,39 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
       return new SolverResult<>(Collections.<IntegerVariable, BigInteger>emptyMap());
     }
 
-    // Track unused fields of the variables.
-    final Map<IntegerVariable, IntegerDomain> fields = new LinkedHashMap<>();
-
-    if (mode == Mode.MAP) {
-      for (final IntegerField field : problem.getFormula().getVariables()) {
-        final IntegerVariable variable = field.getVariable();
-
-        IntegerDomain unusedFields = fields.get(variable);
-        if (unusedFields == null) {
-          fields.put(variable, unusedFields =
-              new IntegerDomain(BigInteger.ZERO, BigInteger.valueOf(variable.getWidth() - 1)));
-        }
-
-        unusedFields.exclude(
-            new IntegerRange(field.getLoIndex(), field.getHiIndex()));
-      }
-    }
-
     // Assign the variables with values.
     final Map<IntegerVariable, BigInteger> solution =
         Sat4jUtils.decodeSolution(solver, problem.getIndices());
 
+    // Track unused fields of the variables.
+    final Map<IntegerVariable, BitVector> masks = problem.getMasks();
+
     // Initialize unused fields of the variables.
     for (final Map.Entry<IntegerVariable, BigInteger> entry : solution.entrySet()) {
       final IntegerVariable variable = entry.getKey();
+      final BitVector mask = masks.get(variable);
+
       BigInteger value = entry.getValue();
 
-      final IntegerDomain unusedFields = fields.get(variable);
-      for (final IntegerRange unusedField : unusedFields.getRanges()) {
-        final int lo = unusedField.getMin().intValue();
-        final int hi = unusedField.getMax().intValue();
+      int lowUnusedFieldIndex = -1;
 
-        value = BitUtils.setField(value, lo, hi, initializer.getValue((hi - lo) + 1));
+      for (int i = 0; i < mask.getBitSize(); i++) {
+        if (!mask.getBit(i)) {
+          if (lowUnusedFieldIndex == -1) {
+            lowUnusedFieldIndex = i;
+          }
+        } else {
+          if (lowUnusedFieldIndex != -1) {
+            value = BitUtils.setField(value, lowUnusedFieldIndex, i - 1,
+                initializer.getValue(i - lowUnusedFieldIndex));
+            lowUnusedFieldIndex = -1;
+          }
+        }
+      }
+
+      if (lowUnusedFieldIndex != -1) {
+        value = BitUtils.setField(value, lowUnusedFieldIndex, mask.getBitSize() - 1,
+            initializer.getValue(mask.getBitSize() - lowUnusedFieldIndex));
       }
 
       solution.put(variable, value);

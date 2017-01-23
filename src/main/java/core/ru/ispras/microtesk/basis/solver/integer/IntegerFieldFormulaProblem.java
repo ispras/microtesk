@@ -21,9 +21,8 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class IntegerFieldFormulaProblem extends IntegerFormulaBuilder<IntegerField> {
-
-  protected final IntegerFormula.Builder<IntegerField> builder;
+public final class IntegerFieldFormulaProblem extends IntegerFormulaBuilder<IntegerField> {
+  private final IntegerFormula.Builder<IntegerField> builder;
 
   public IntegerFieldFormulaProblem() {
     this.builder = new IntegerFormula.Builder<>();
@@ -34,12 +33,17 @@ public class IntegerFieldFormulaProblem extends IntegerFormulaBuilder<IntegerFie
     this.builder = new IntegerFormula.Builder<>(r.builder);
   }
 
-  public final IntegerFormula<IntegerField> getFormula() {
+  public IntegerFormula<IntegerField> getFormula() {
     return builder.build();
   }
 
   @Override
   public void addClause(final IntegerClause<IntegerField> clause) {
     builder.addClause(clause);
+  }
+
+  @Override
+  public IntegerFieldFormulaProblem clone() {
+    return new IntegerFieldFormulaProblem(this);
   }
 }

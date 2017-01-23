@@ -62,10 +62,6 @@ public final class MemorySymbolicExecutor {
     return result;
   }
 
-  public MemorySymbolicExecutor() {
-    this(new MemorySymbolicResult());
-  }
-
   public void execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
     execute(constraint, -1);

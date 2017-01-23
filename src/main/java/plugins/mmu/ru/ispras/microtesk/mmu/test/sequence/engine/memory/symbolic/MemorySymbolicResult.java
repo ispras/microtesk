@@ -24,8 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblem;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblemSat4j;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -44,7 +43,7 @@ public final class MemorySymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final IntegerFieldFormulaProblemSat4j problem; // TODO: Type is solver-dependent
+  private final IntegerFormulaBuilder<IntegerField> builder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessStack> stacks;
@@ -66,20 +65,20 @@ public final class MemorySymbolicResult {
   private final Map<IntegerVariable, BigInteger> constants;
 
   private MemorySymbolicResult(
-      final IntegerFieldFormulaProblemSat4j problem,
+      final IntegerFormulaBuilder<IntegerField> builder,
       final Map<Integer, MemoryAccessStack> stacks,
       final Collection<IntegerVariable> originals,
       final Map<String, Integer> versions,
       final Map<String, IntegerVariable> cache,
       final Map<IntegerVariable, BigInteger> constants) {
-    InvariantChecks.checkNotNull(problem);
+    InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(stacks);
     InvariantChecks.checkNotNull(originals);
     InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
-    this.problem = problem;
+    this.builder = builder;
     this.stacks = stacks;
     this.originals = originals;
     this.versions = versions;
@@ -87,9 +86,9 @@ public final class MemorySymbolicResult {
     this.constants = constants;
   }
 
-  public MemorySymbolicResult() {
+  public MemorySymbolicResult(final IntegerFormulaBuilder<IntegerField> builder) {
     this(
-        new IntegerFieldFormulaProblemSat4j(),
+        builder,
         new HashMap<Integer, MemoryAccessStack>(),
         new LinkedHashSet<IntegerVariable>(),
         new HashMap<String, Integer>(),
@@ -99,7 +98,7 @@ public final class MemorySymbolicResult {
 
   public MemorySymbolicResult(final MemorySymbolicResult r) {
     this(
-        new IntegerFieldFormulaProblemSat4j(r.problem),
+        r.builder.clone(),
         new HashMap<>(r.stacks),
         new LinkedHashSet<>(r.originals),
         new HashMap<>(r.versions),
@@ -120,8 +119,8 @@ public final class MemorySymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public IntegerFieldFormulaProblem getProblem() {
-    return problem;
+  public IntegerFormulaBuilder<IntegerField> getBuilder() {
+    return builder;
   }
 
   public Map<Integer, MemoryAccessStack> getStacks() {
@@ -172,11 +171,11 @@ public final class MemorySymbolicResult {
   }
 
   public void addEquation(final IntegerField lhs, final IntegerField rhs) {
-    problem.addEquation(lhs, rhs, true);
+    builder.addEquation(lhs, rhs, true);
   }
 
   public void addClause(final IntegerClause<IntegerField> clause) {
-    problem.addClause(clause);
+    builder.addClause(clause);
   }
 
   public MemoryAccessStack getStack() {

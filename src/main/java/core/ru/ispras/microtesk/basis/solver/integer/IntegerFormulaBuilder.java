@@ -103,4 +103,7 @@ public abstract class IntegerFormulaBuilder<V> {
    * @throws IllegalArgumentException if {@code clause} is null.
    */
   public abstract void addClause(final IntegerClause<V> clause);
+
+  @Override
+  public abstract IntegerFormulaBuilder<V> clone();
 }

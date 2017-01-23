@@ -85,6 +85,11 @@ public final class IntegerFormula<V> {
       }
     }
 
+    @Override
+    public Builder<V> clone() {
+      return new Builder<V>(this);
+    }
+
     /**
      * Builds a formula.
      * 

@@ -169,7 +169,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, graph, type, constraints, new MemoryAccessStack(), new MemorySymbolicResult());
+    this(memory, graph, type, constraints,
+        new MemoryAccessStack(), MemoryEngineUtils.newSymbolicResult());
   }
 
   public MemoryAccessPathIterator(
@@ -178,7 +179,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, trajectory, graph, type, constraints, new MemoryAccessStack(), new MemorySymbolicResult());
+    this(memory, trajectory, graph, type, constraints,
+        new MemoryAccessStack(), MemoryEngineUtils.newSymbolicResult());
   }
 
   public MemoryAccessPathIterator(
