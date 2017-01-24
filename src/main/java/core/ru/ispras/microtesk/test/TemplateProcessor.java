@@ -70,7 +70,7 @@ final class TemplateProcessor implements Template.Processor {
 
     Printer printer = null;
     try { 
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
+      printer = Printer.newExcHandlerFile(engineContext.getOptions(), handler.getId());
       for (final TestSequence sequence : concreteHandler.first) {
         engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
         printer.printSequence(engineContext.getModel().getPE(), sequence, "");
@@ -259,7 +259,8 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    printer = Printer.newCodeFile(engineContext.getOptions(), engineContext.getStatistics());
+    printer = Printer.newCodeFile(
+        engineContext.getOptions(), engineContext.getStatistics().getPrograms());
     Tarmac.createFile();
 
     allocator.init();
@@ -272,6 +273,7 @@ final class TemplateProcessor implements Template.Processor {
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
+    engineContext.getStatistics().incPrograms();
     engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
     processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
@@ -286,6 +288,8 @@ final class TemplateProcessor implements Template.Processor {
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
 
+      engineContext.getStatistics().pushActivity(Statistics.Activity.PRINTING);
+
       for (int index = 0; index < testProgram.getEntryCount(); ++index) {
         final TestProgramEntry entry = testProgram.getEntry(index);
         final String sequenceId = entry.getSequenceId();
@@ -297,6 +301,8 @@ final class TemplateProcessor implements Template.Processor {
       if (engineContext.getDataManager().containsDecls()) {
         engineContext.getDataManager().printData(printer);
       }
+
+      engineContext.getStatistics().popActivity();
 
       if (null != printer) {
         printer.close();

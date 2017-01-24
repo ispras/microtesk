@@ -320,7 +320,7 @@ public final class DataManager {
     try {
       statistics.pushActivity(Statistics.Activity.PRINTING);
 
-      printer = Printer.newDataFile(options, statistics, dataFileIndex);
+      printer = Printer.newDataFile(options, dataFileIndex);
       printer.printDataDirectives(data);
 
       ++dataFileIndex;

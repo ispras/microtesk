@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -36,8 +36,8 @@ import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.utils.FileUtils;
 
 /**
- * The Printer class is responsible for printing generated symbolic test programs (sequences of
- * concrete calls to a file and to the screen).
+ * The {@link Printer} class is responsible for printing generated symbolic test programs
+ * (sequences of concrete calls to a file and to the screen).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -46,8 +46,6 @@ public final class Printer {
   private static Printer console = null;
 
   private final Options options;
-  private final Statistics statistics;
-  private final boolean isCodeFile;
 
   private final File file;
   private final PrintWriter fileWritter;
@@ -62,13 +60,13 @@ public final class Printer {
 
   public static Printer newCodeFile(
       final Options options,
-      final Statistics statistics) throws IOException {
+      final int codeFileIndex) throws IOException {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(statistics);
+    InvariantChecks.checkGreaterOrEqZero(codeFileIndex);
 
     final String outDir = getOutDir(options);
     final String fileName = String.format(
-        "%s_%04d", options.getValueAsString(Option.CODE_PRE), statistics.getPrograms());
+        "%s_%04d", options.getValueAsString(Option.CODE_PRE), codeFileIndex);
 
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.CODE_EXT));
@@ -76,10 +74,7 @@ public final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    final Printer printer = new Printer(options, statistics, true, file, binaryFile);
-    statistics.incPrograms();
-
-    return printer;
+    return new Printer(options, file, binaryFile);
   }
 
   public static Printer getConsole(
@@ -92,7 +87,7 @@ public final class Printer {
     InvariantChecks.checkNotNull(statistics);
 
     try {
-      console = new Printer(options, statistics, false, null, null);
+      console = new Printer(options, null, null);
     } catch (final IOException e) {
       throw new IllegalArgumentException(e);
     }
@@ -102,10 +97,8 @@ public final class Printer {
 
   public static Printer newDataFile(
       final Options options,
-      final Statistics statistics,
       final int dataFileIndex) throws IOException {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(statistics);
     InvariantChecks.checkGreaterOrEqZero(dataFileIndex);
 
     final String outDir = getOutDir(options);
@@ -115,15 +108,13 @@ public final class Printer {
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.DATA_EXT));
 
-    return new Printer(options, statistics, false, file, null);
+    return new Printer(options, file, null);
   }
 
   public static Printer newExcHandlerFile(
       final Options options,
-      final Statistics statistics,
       final String id) throws IOException {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(statistics);
     InvariantChecks.checkNotNull(id);
 
     final String outDir = getOutDir(options);
@@ -136,8 +127,7 @@ public final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    final Printer printer = new Printer(options, statistics, false, file, binaryFile);
-    return printer;
+    return new Printer(options, file, binaryFile);
   }
 
   private static String getOutDir(final Options options) {
@@ -147,17 +137,11 @@ public final class Printer {
 
   private Printer(
       final Options options,
-      final Statistics statistics,
-      final boolean isCodeFile,
       final File file,
       final File binaryFile) throws IOException {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
-    this.statistics = statistics;
-    this.isCodeFile = isCodeFile;
-
     this.file = file;
     this.binaryFile = binaryFile;
 
@@ -190,9 +174,6 @@ public final class Printer {
   public void delete() {
     if (null != file) {
       file.delete();
-      if (isCodeFile) {
-        statistics.decPrograms();
-      }
     }
 
     if (null != binaryFile) {
@@ -240,28 +221,22 @@ public final class Printer {
     InvariantChecks.checkNotNull(sequence);
     InvariantChecks.checkNotNull(sequenceId);
 
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
     if (!sequenceId.isEmpty()) {
       printHeaderToFile(sequenceId);
     } else {
       printToFile("");
     }
 
-    try {
-      final List<ConcreteCall> prologue = sequence.getPrologue();
-      if (!prologue.isEmpty()) {
-        printNote("Preparation");
-        printCalls(observer, prologue);
+    final List<ConcreteCall> prologue = sequence.getPrologue();
+    if (!prologue.isEmpty()) {
+      printNote("Preparation");
+      printCalls(observer, prologue);
 
-        printText("");
-        printNote("Stimulus");
-      }
-
-      printCalls(observer, sequence.getBody());
-    } finally {
-      statistics.popActivity(); // PRINTING
+      printText("");
+      printNote("Stimulus");
     }
+
+    printCalls(observer, sequence.getBody());
   }
 
   /**
@@ -498,8 +473,6 @@ public final class Printer {
     InvariantChecks.checkNotNull(globalData);
     InvariantChecks.checkNotNull(localData);
 
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
     Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
 
@@ -532,7 +505,5 @@ public final class Printer {
 
       printDataDirectives(directives);
     }
-
-    statistics.popActivity();
   }
 }
