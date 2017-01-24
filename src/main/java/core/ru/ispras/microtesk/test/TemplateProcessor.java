@@ -102,14 +102,7 @@ final class TemplateProcessor implements Template.Processor {
         processBlock(block);
       }
     } catch (final Exception e) {
-      if (null != printer) {
-        printer.close();
-        printer.delete();
-        printer = null;
-      }
-
-      throw e instanceof GenerationAbortedException ? (GenerationAbortedException) e :
-                                                      new GenerationAbortedException(e);
+      cleanUpAndRethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -127,18 +120,23 @@ final class TemplateProcessor implements Template.Processor {
       finishFile();
       Logger.debugHeader("Ended Processing Template");
     } catch (final Exception e) {
-      if (null != printer) {
-        printer.close();
-        printer.delete();
-        printer = null;
-      }
-
-      throw e instanceof GenerationAbortedException ? (GenerationAbortedException) e :
-                                                      new GenerationAbortedException(e);
+      cleanUpAndRethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
     }
+  }
+
+  private void cleanUpAndRethrowException(final Exception e) {
+    if (null != printer) {
+      printer.close();
+      printer.delete();
+      printer = null;
+    }
+
+    throw e instanceof GenerationAbortedException ?
+        (GenerationAbortedException) e :
+        new GenerationAbortedException(e);
   }
 
   private void processPrologue(final Block block) {
