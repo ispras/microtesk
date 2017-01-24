@@ -36,11 +36,13 @@ public final class TestSequence {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
     private final List<SelfCheck> checks;
+    private int instructionCount;
 
     public Builder() {
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
       this.checks = new ArrayList<>();
+      this.instructionCount = 0;
     }
 
     private void addTo(final List<ConcreteCall> target, final ConcreteCall call) {
@@ -48,6 +50,9 @@ public final class TestSequence {
       InvariantChecks.checkNotNull(call);
 
       target.add(call);
+      if (call.isInstruction()) {
+        instructionCount++;
+      }
     }
 
     private void addTo(final List<ConcreteCall> target, final List<ConcreteCall> calls) {
@@ -79,7 +84,7 @@ public final class TestSequence {
     }
 
     public TestSequence build() {
-      return new TestSequence(prologue, body, checks);
+      return new TestSequence(prologue, body, checks, instructionCount);
     }
   }
 
@@ -87,14 +92,17 @@ public final class TestSequence {
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
   private final List<SelfCheck> checks;
+  private final int instructionCount;
 
   private TestSequence(
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
-      final List<SelfCheck> checks) {
+      final List<SelfCheck> checks,
+      final int instructionCount) {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
     InvariantChecks.checkNotNull(checks);
+    InvariantChecks.checkGreaterThanZero(instructionCount);
 
     // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
     InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
@@ -112,6 +120,7 @@ public final class TestSequence {
             all : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
 
     this.checks = Collections.unmodifiableList(checks);
+    this.instructionCount = instructionCount;
   }
 
   private static <T> List<T> merge(final List<T> first, final List<T> second) {
@@ -149,5 +158,9 @@ public final class TestSequence {
 
   public boolean isEmpty() {
     return all.isEmpty();
+  }
+
+  public int getInstructionCount() {
+    return instructionCount;
   }
 }
