@@ -15,11 +15,7 @@
 package ru.ispras.microtesk.test;
 
 final class TestProgramEntry {
-
-}
-
-/*
-public static final class Entry {
+  /*
   private final boolean isExternal;
   private boolean isKnownLocation;
   private boolean isAllocated;
@@ -30,5 +26,5 @@ public static final class Entry {
   private final Block block;
   private final List<Label> labels;
   private final List<TestSequence> sequences;
+  */
 }
-*/
