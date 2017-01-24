@@ -143,8 +143,12 @@ public final class Statistics {
   }
 
   public void incInstructions() {
-    instructions++;
-    programLength++;
+    incInstructions(1);
+  }
+
+  public void incInstructions(final int count) {
+    instructions += count;
+    programLength += count;
   }
 
   public void incTraceLength() {
