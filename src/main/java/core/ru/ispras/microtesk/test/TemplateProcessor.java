@@ -117,7 +117,7 @@ final class TemplateProcessor implements Template.Processor {
   @Override
   public void finish() {
     try {
-      finishFile();
+      finishProgram();
       Logger.debugHeader("Ended Processing Template");
     } catch (final Exception e) {
       cleanUpAndRethrowException(e);
@@ -156,7 +156,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
-    startFile();
+    startProgram();
 
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
@@ -164,7 +164,7 @@ final class TemplateProcessor implements Template.Processor {
     processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
 
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
-      finishFile();
+      finishProgram();
     }
   }
 
@@ -177,7 +177,7 @@ final class TemplateProcessor implements Template.Processor {
           engine.process(engineContext, abstractIt.value());
 
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-        startFile();
+        startProgram();
 
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
@@ -192,7 +192,7 @@ final class TemplateProcessor implements Template.Processor {
         Logger.debugHeader("");
 
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
-          finishFile();
+          finishProgram();
         }
       } // Concrete sequence iterator
     } // Abstract sequence iterator
@@ -251,7 +251,7 @@ final class TemplateProcessor implements Template.Processor {
     printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
   }
 
-  private void startFile() throws IOException, ConfigurationException {
+  private void startProgram() throws IOException, ConfigurationException {
     if (null != printer) {
       return;
     }
@@ -260,23 +260,20 @@ final class TemplateProcessor implements Template.Processor {
     Tarmac.createFile();
 
     allocator.init();
-    reallocateGlobalData();
 
-    allocator.allocateHandlers(testProgram.getExceptionHandlers());
-    processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
-  }
-
-  private void reallocateGlobalData() {
     // Allocates global data created during generation of previous test programs
     if (engineContext.getStatistics().getPrograms() > 1 &&
         engineContext.getDataManager().containsDecls()) {
       engineContext.getDataManager().reallocateGlobalData();
     }
+
+    allocator.allocateHandlers(testProgram.getExceptionHandlers());
+    processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
-  private void finishFile() throws ConfigurationException, IOException {
+  private void finishProgram() throws ConfigurationException, IOException {
     try {
-      startFile();
+      startProgram();
 
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
