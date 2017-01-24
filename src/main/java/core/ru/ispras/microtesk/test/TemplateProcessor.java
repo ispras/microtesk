@@ -72,6 +72,7 @@ final class TemplateProcessor implements Template.Processor {
     try { 
       printer = Printer.newExcHandlerFile(engineContext.getOptions(), engineContext.getStatistics(), handler.getId());
       for (final TestSequence sequence : concreteHandler.first) {
+        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
         printer.printSequence(engineContext.getModel().getPE(), sequence, "");
       }
     } catch (final ConfigurationException | IOException e) {
@@ -163,6 +164,7 @@ final class TemplateProcessor implements Template.Processor {
 
     processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
 
+    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
       finishProgram();
     }
@@ -191,6 +193,7 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getStatistics().incSequences();
         Logger.debugHeader("");
 
+        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
           finishProgram();
         }
@@ -210,8 +213,10 @@ final class TemplateProcessor implements Template.Processor {
     final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
     Logger.debugHeader("Preparing %s", sequenceId);
 
-    final TestSequence selfCheckSequence = SelfCheckEngine.solve(engineContext, selfChecks);
-    processTestSequence(selfCheckSequence, sequenceId, testCaseIndex, false);
+    final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
+    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
+
+    processTestSequence(sequence, sequenceId, testCaseIndex, false);
   }
 
   private void processTestSequence(
@@ -247,9 +252,6 @@ final class TemplateProcessor implements Template.Processor {
         Logger.debug("Simulation is disabled");
       }
     }
-
-    Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
-    printer.printSequence(engineContext.getModel().getPE(), sequence, sequenceId);
   }
 
   private void startProgram() throws IOException, ConfigurationException {
@@ -269,6 +271,8 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
+
+    engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
     processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
@@ -278,8 +282,17 @@ final class TemplateProcessor implements Template.Processor {
 
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
+      engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
+
+      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
+        final TestProgramEntry entry = testProgram.getEntry(index);
+        final String sequenceId = entry.getSequenceId();
+        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
+        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
+      }
+      testProgram.clearEntries();
 
       if (engineContext.getDataManager().containsDecls()) {
         engineContext.getDataManager().printData(printer);

@@ -299,7 +299,7 @@ public final class Printer {
       if (null != text) {
         printText(text);
         if (writeToFile) {
-          statistics.incInstructions();
+          //statistics.incInstructions();
         }
       }
 
