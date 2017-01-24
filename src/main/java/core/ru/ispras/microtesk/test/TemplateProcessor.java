@@ -134,9 +134,15 @@ final class TemplateProcessor implements Template.Processor {
       printer = null;
     }
 
-    throw e instanceof GenerationAbortedException ?
-        (GenerationAbortedException) e :
-        new GenerationAbortedException(e);
+    if (e instanceof GenerationAbortedException) {
+      throw (GenerationAbortedException) e;
+    }
+
+    if (e instanceof RuntimeException) {
+      throw (RuntimeException) e;
+    }
+
+    throw new GenerationAbortedException(e);
   }
 
   private void processPrologue(final Block block) {
