@@ -220,6 +220,7 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     printSequenceToConsole(sequence, sequenceId);
+    testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
 
     Logger.debugHeader("Executing %s", sequenceId);
     if (!sequence.isEmpty()) {

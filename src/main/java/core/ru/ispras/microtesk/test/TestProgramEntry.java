@@ -14,17 +14,27 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 final class TestProgramEntry {
-  /*
-  private final boolean isExternal;
-  private boolean isKnownLocation;
-  private boolean isAllocated;
+  private final String sequenceId;
+  private final TestSequence sequence;
 
-  private long startAddress;
-  private long endAddress;
+  public TestProgramEntry(
+      final String sequenceId,
+      final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequenceId);
+    InvariantChecks.checkNotNull(sequence);
 
-  private final Block block;
-  private final List<Label> labels;
-  private final List<TestSequence> sequences;
-  */
+    this.sequenceId = sequenceId;
+    this.sequence = sequence;
+  }
+
+  public String getSequenceId() {
+    return sequenceId;
+  }
+
+  public TestSequence getSequence() {
+    return sequence;
+  }
 }
