@@ -473,6 +473,10 @@ public final class Printer {
     InvariantChecks.checkNotNull(globalData);
     InvariantChecks.checkNotNull(localData);
 
+    if (globalData.isEmpty() && localData.isEmpty()) {
+      return;
+    }
+
     Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
 

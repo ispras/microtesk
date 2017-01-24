@@ -42,7 +42,7 @@ final class TemplateProcessor implements Template.Processor {
   private final TestProgram testProgram;
   private final CodeAllocator allocator;
   private final Executor executor;
-  private Printer printer;
+  private boolean isProgramStarted;
 
   public TemplateProcessor(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
@@ -51,7 +51,7 @@ final class TemplateProcessor implements Template.Processor {
     this.testProgram = new TestProgram();
     this.allocator = new CodeAllocator(engineContext);
     this.executor = new Executor(engineContext);
-    this.printer = null;
+    this.isProgramStarted = false;
   }
 
   @Override
@@ -103,7 +103,7 @@ final class TemplateProcessor implements Template.Processor {
         processBlock(block);
       }
     } catch (final Exception e) {
-      cleanUpAndRethrowException(e);
+      rethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -121,20 +121,14 @@ final class TemplateProcessor implements Template.Processor {
       finishProgram();
       Logger.debugHeader("Ended Processing Template");
     } catch (final Exception e) {
-      cleanUpAndRethrowException(e);
+      rethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
     }
   }
 
-  private void cleanUpAndRethrowException(final Exception e) {
-    if (null != printer) {
-      printer.close();
-      printer.delete();
-      printer = null;
-    }
-
+  private void rethrowException(final Exception e) {
     if (e instanceof GenerationAbortedException) {
       throw (GenerationAbortedException) e;
     }
@@ -255,26 +249,23 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void startProgram() throws IOException, ConfigurationException {
-    if (null != printer) {
+    if (isProgramStarted) {
       return;
     }
 
-    printer = Printer.newCodeFile(
-        engineContext.getOptions(), engineContext.getStatistics().getPrograms());
-    Tarmac.createFile();
+    isProgramStarted = true;
 
+    Tarmac.createFile();
     allocator.init();
 
-    // Allocates global data created during generation of previous test programs
-    if (engineContext.getStatistics().getPrograms() > 1 &&
-        engineContext.getDataManager().containsDecls()) {
+    if (engineContext.getStatistics().getPrograms() > 0) {
+      // Allocates global data created during generation of previous test programs
       engineContext.getDataManager().reallocateGlobalData();
+      // Adds the prologue instruction count to overall statistics.
+      engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
     }
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
-
-    engineContext.getStatistics().incPrograms();
-    engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
     processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
   }
 
@@ -288,31 +279,9 @@ final class TemplateProcessor implements Template.Processor {
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
 
-      engineContext.getStatistics().pushActivity(Statistics.Activity.PRINTING);
-
-      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
-        final TestProgramEntry entry = testProgram.getEntry(index);
-        final String sequenceId = entry.getSequenceId();
-        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
-        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
-      }
+      printTestProgram();
       testProgram.clearEntries();
-
-      if (engineContext.getDataManager().containsDecls()) {
-        engineContext.getDataManager().printData(printer);
-      }
-
-      engineContext.getStatistics().popActivity();
-
-      if (null != printer) {
-        printer.close();
-        // If no instructions were added to the newly created file, it must be deleted
-        if (engineContext.getStatistics().getProgramLength() == 0) {
-          printer.delete();
-        }
-        printer = null;
-      }
-    } finally {
+   } finally {
       Tarmac.closeFile();
 
       // Clean up all the state
@@ -320,7 +289,38 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
       allocator.reset();
+
+      isProgramStarted = false;
     }
+  }
+
+  private void printTestProgram() throws ConfigurationException, IOException {
+    final Statistics statistics = engineContext.getStatistics(); 
+    if (statistics.getProgramLength() == 0) {
+      return;
+    }
+
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    final int programIndex = statistics.getPrograms();
+    final Printer printer = Printer.newCodeFile(engineContext.getOptions(), programIndex);
+
+    try {
+      statistics.incPrograms();
+
+      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
+        final TestProgramEntry entry = testProgram.getEntry(index);
+        final String sequenceId = entry.getSequenceId();
+        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
+        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
+      }
+
+      engineContext.getDataManager().printData(printer);
+    } finally {
+      printer.close();
+    }
+
+    engineContext.getStatistics().popActivity();
   }
 
   private void printSequenceToConsole(

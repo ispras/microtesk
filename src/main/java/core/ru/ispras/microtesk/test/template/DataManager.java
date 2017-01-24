@@ -191,10 +191,6 @@ public final class DataManager {
     return factory != null;
   }
 
-  public boolean containsDecls() {
-    return !globalData.isEmpty() || !localData.isEmpty();
-  }
-
   public void printData(final Printer printer) {
     InvariantChecks.checkNotNull(printer);
     printer.printData(factory.getHeader().getText(), globalData, localData);
