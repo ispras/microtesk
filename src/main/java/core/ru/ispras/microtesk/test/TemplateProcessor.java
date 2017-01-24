@@ -93,10 +93,9 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       if (section == Section.PRE) {
-        testProgram.setPrologue(
-            TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block));
+        processPrologue(block);
       } else if (section == Section.POST) {
-        testProgram.setEpilogue(block);
+        processEpilogue(block);
       } else if (block.isExternal()) {
         processExternalBlock(block);
       } else {
@@ -140,6 +139,16 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
     }
+  }
+
+  private void processPrologue(final Block block) {
+    final TestSequence sequence =
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+    testProgram.setPrologue(sequence);
+  }
+
+  private void processEpilogue(final Block block) {
+    testProgram.setEpilogue(block);
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
