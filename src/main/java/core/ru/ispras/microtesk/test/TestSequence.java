@@ -102,7 +102,7 @@ public final class TestSequence {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
     InvariantChecks.checkNotNull(checks);
-    InvariantChecks.checkGreaterThanZero(instructionCount);
+    InvariantChecks.checkGreaterOrEqZero(instructionCount);
 
     // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
     InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
