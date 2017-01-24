@@ -936,7 +936,6 @@ public final class Template {
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
       processor.process(data);
-      context.setAddress(dataManager.getAddress().longValue());
     } else {
       endBuildingCall();
       addCall(Call.newData(data));

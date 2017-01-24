@@ -23,6 +23,7 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
@@ -32,22 +33,26 @@ import ru.ispras.microtesk.test.template.LabelReference;
 final class CodeAllocator {
   private final EngineContext engineContext;
   private Code code;
+  private long address;
 
   public CodeAllocator(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
 
     this.engineContext = engineContext;
     this.code = null;
+    this.address = 0;
   }
 
   public void init() {
     InvariantChecks.checkTrue(null == code);
     code = new Code();
+    address = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
   }
 
   public void reset() {
     InvariantChecks.checkNotNull(code);
     code = null;
+    address = 0;
   }
 
   public Code getCode() {
@@ -55,10 +60,15 @@ final class CodeAllocator {
     return code;
   }
 
+  public long getAddress() {
+    InvariantChecks.checkNotNull(code);
+    return address;
+  }
+
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
     InvariantChecks.checkFalse(sequence.isEmpty());
     allocate(sequence.getAll(), sequenceIndex);
-    code.addBreakAddress(engineContext.getAddress());
+    code.addBreakAddress(address);
   }
 
   public void allocateHandlers(
@@ -66,7 +76,7 @@ final class CodeAllocator {
     InvariantChecks.checkNotNull(handlers);
 
     // Saving current address. Exception handler allocation should not modify it.
-    final long address = engineContext.getAddress();
+    final long currentAddress = address;
 
     for (final Pair<List<TestSequence>, Map<String, TestSequence>> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
@@ -90,7 +100,7 @@ final class CodeAllocator {
     }
 
     // Restoring initial address. Exception handler allocation should not modify it.
-    engineContext.setAddress(address);
+    address = currentAddress;
   }
 
   private void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
@@ -118,7 +128,7 @@ final class CodeAllocator {
     int startIndex = 0;
     int currentIndex = startIndex;
 
-    long startAddress = engineContext.getAddress();
+    long startAddress = address;
     long currentAddress = startAddress;
 
     for (final ConcreteCall call : calls) {
@@ -154,7 +164,7 @@ final class CodeAllocator {
         );
 
     getCode().registerBlock(block);
-    engineContext.setAddress(currentAddress);
+    address = currentAddress;
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {

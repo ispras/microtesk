@@ -21,7 +21,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -50,9 +49,6 @@ public final class EngineContext {
   private final TestBase testBase;
   private final Statistics statistics;
   private final int delaySlotSize;
-
-  // Address to be used for allocations
-  private long address; 
 
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
@@ -83,8 +79,6 @@ public final class EngineContext {
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
-
-    this.address = options.getValueAsBigInteger(Option.BASE_VA).longValue();
   }
 
   public Options getOptions() {
@@ -129,14 +123,6 @@ public final class EngineContext {
 
   public int getDelaySlotSize() {
     return delaySlotSize;
-  }
-
-  public long getAddress() {
-    return address;
-  }
-
-  public void setAddress(final long value) {
-    this.address = value;
   }
 
   public Object getCustomContext(final String id) {

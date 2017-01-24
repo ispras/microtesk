@@ -226,7 +226,7 @@ final class TemplateProcessor implements Template.Processor {
       allocator.allocateSequence(sequence, sequenceIndex);
 
       final long startAddress = sequence.getAll().get(0).getAddress();
-      final long endAddress = engineContext.getAddress();
+      final long endAddress = allocator.getAddress();
 
       if (!engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
         for (int index = 0; index < engineContext.getModel().getPENumber(); index++) {
@@ -300,9 +300,6 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
       allocator.reset();
-
-      engineContext.setAddress(
-          engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue());
     }
   }
 
