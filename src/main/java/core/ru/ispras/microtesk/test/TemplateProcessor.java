@@ -261,9 +261,10 @@ final class TemplateProcessor implements Template.Processor {
     if (engineContext.getStatistics().getPrograms() > 0) {
       // Allocates global data created during generation of previous test programs
       engineContext.getDataManager().reallocateGlobalData();
-      // Adds the prologue instruction count to overall statistics.
-      engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
     }
+
+    // Adds the prologue instruction count to overall statistics.
+    engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
     processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
