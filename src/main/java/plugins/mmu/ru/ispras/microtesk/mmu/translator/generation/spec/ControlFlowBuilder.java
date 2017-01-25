@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -25,9 +25,11 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -367,15 +369,17 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(stmt);
 
-    String current = source;
     String join = null;
     List<Stmt> elseBlock = stmt.getElseBlock();
+
+    final List<Node> elseConditions = new ArrayList<>();
+    Node jointElseCondition = null;
 
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
 
-      if (condition.getKind() == Node.Kind.VALUE) {
+      if (ExprUtils.isValue(condition)) {
         final boolean isCondition = ((NodeValue) condition).getBoolean();
         if (isCondition) {
           // If condition is true, the current block is visited unconditionally (treated as else)
@@ -388,43 +392,65 @@ final class ControlFlowBuilder {
         }
       }
 
-      final GuardPrinter guardPrinter = new GuardPrinter(ir, context, condition);
+      final String branchStart = buildBranch(source, condition);
+      final String branchStop = buildStmts(branchStart, stop, stmts);
 
-      final String ifTrueStart = newBranch();
-      buildAction(ifTrueStart);
-
-      buildTransition(current, ifTrueStart, guardPrinter.getGuard());
-
-      final String ifTrueStop = buildStmts(ifTrueStart, stop, stmts);
-      if (null != ifTrueStop) {
+      if (null != branchStop) {
         if (null == join) {
           join = newJoin();
           buildAction(join);
         }
 
-        buildTransition(ifTrueStop, join);
+        buildTransition(branchStop, join);
       }
 
-      final String ifFalseStart = newBranch();
-      buildAction(ifFalseStart);
-
-      buildTransition(current, ifFalseStart, guardPrinter.getNegatedGuard());
-      current = ifFalseStart;
+      final Node elseCondition = new NodeOperation(StandardOperation.NOT, condition);
+      if (ExprUtils.isVariable(condition) ||
+          ExprUtils.isOperation(condition, StandardOperation.EQ) ||
+          ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
+        jointElseCondition = null == jointElseCondition ?
+            elseCondition :
+            new NodeOperation(StandardOperation.AND, jointElseCondition, elseCondition);
+      } else {
+        elseConditions.add(elseCondition);
+      }
     }
 
-    current = buildStmts(current, stop, elseBlock);
-    if (null != current) {
+    if (null != jointElseCondition) {
+      elseConditions.add(jointElseCondition);
+    }
+
+    String elseBranchStart = source;
+    for (final Node elseCondition : elseConditions) {
+      elseBranchStart = buildBranch(elseBranchStart, elseCondition);
+    }
+
+    final String elseBranchStop = buildStmts(elseBranchStart, stop, elseBlock);
+    if (null != elseBranchStop) {
       // If all other condition branches ended with null (exception)
       // and action 'join' for merging branches was not created,
       // we do not need it since there is only one branch (else).
       if (null == join) {
-        join = current;
+        join = elseBranchStop;
       } else {
-        buildTransition(current, join);
+        buildTransition(elseBranchStop, join);
       }
     }
 
     return join;
+  }
+
+  private String buildBranch(final String source, final Node condition) {
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(condition);
+
+    final GuardPrinter guardPrinter = new GuardPrinter(ir, context, condition);
+    final String branchStart = newBranch();
+
+    buildAction(branchStart);
+    buildTransition(source, branchStart, guardPrinter.getGuard());
+
+    return branchStart;
   }
 
   private void buildStmtException(final String source, final StmtException stmt) {
