@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -35,6 +35,7 @@ import org.antlr.runtime.tree.TreeNodeStream;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -83,6 +84,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.utils.FormatMarker;
 
+/**
+ * The {@link MmuTreeWalkerBase} class provides factory methods to create MMU IR.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public abstract class MmuTreeWalkerBase extends TreeParserBase {
   private Ir ir;
   private TranslatorContext context;
@@ -127,6 +133,35 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
   }
 
+  /**
+   * The {@link ReduceNegationRule} rule reduces expressions
+   * {@code (NOT(EQ A B))} to {@code (NEQ A B)} and {@code (NOT(NEQ A B))} to {@code (EQ A B)}.
+   */
+  private static final class ReduceNegationRule implements TransformerRule {
+    private final List<StandardOperation> operations =
+        Arrays.asList(StandardOperation.EQ, StandardOperation.NOTEQ);
+
+    @Override
+    public boolean isApplicable(final Node node) {
+      if (!ExprUtils.isOperation(node, StandardOperation.NOT)) {
+        return false;
+      }
+
+      final Node expr = ((NodeOperation) node).getOperand(0);
+      return ExprUtils.isOperation(expr, operations) &&
+             ((NodeOperation) expr).getOperandCount() == 2;
+    }
+
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation expr = (NodeOperation)((NodeOperation) node).getOperand(0);
+      final boolean isEq = ExprUtils.isOperation(expr, StandardOperation.EQ);
+
+      return new NodeOperation(
+          isEq ? StandardOperation.NOTEQ : StandardOperation.EQ, expr.getOperands());
+    }
+  }
+
   private Node standardize(final Node cond) {
     final Node stdCond = Transformer.standardize(cond);
 
@@ -144,6 +179,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     this.equalityExpander = new NodeTransformer();
     this.equalityExpander.addRule(StandardOperation.EQ, new ExpandEqualityRule());
+    this.equalityExpander.addRule(StandardOperation.NOT, new ReduceNegationRule());
   }
 
   public final void assignIR(final Ir ir) {
