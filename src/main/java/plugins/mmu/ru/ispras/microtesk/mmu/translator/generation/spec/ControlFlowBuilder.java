@@ -370,10 +370,12 @@ final class ControlFlowBuilder {
     String current = source;
     String join = null;
 
+    final List<Node> conditions = new ArrayList<>();
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
 
+      conditions.add(condition);
       if (condition.getKind() == Node.Kind.VALUE) {
         final boolean isCondition = ((NodeValue) condition).getBoolean();
 
