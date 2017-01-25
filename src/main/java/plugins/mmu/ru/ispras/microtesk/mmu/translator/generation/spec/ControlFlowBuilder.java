@@ -369,41 +369,26 @@ final class ControlFlowBuilder {
 
     String current = source;
     String join = null;
+    List<Stmt> elseBlock = stmt.getElseBlock();
 
-    final List<Node> conditions = new ArrayList<>();
     for (final Pair<Node, List<Stmt>> block : stmt.getIfBlocks()) {
       final Node condition = block.first;
       final List<Stmt> stmts = block.second;
 
-      conditions.add(condition);
       if (condition.getKind() == Node.Kind.VALUE) {
         final boolean isCondition = ((NodeValue) condition).getBoolean();
-
         if (isCondition) {
-          // If condition is true, the current block is visited unconditionally
+          // If condition is true, the current block is visited unconditionally (treated as else)
           // and all other subsequent blocks are ignored (as never reached).
-          current = buildStmts(current, stop, stmts);
-
-          if (null != current) {
-            // If all other condition branches ended with null (exception)
-            // and action 'join' for merging branches was not created,
-            // we do not need it since there is only one branch (else).
-            if (null == join) {
-              join = current;
-            } else {
-              buildTransition(current, join);
-            }
-          }
-
-          return join;
+          elseBlock = stmts;
+          break;
         } else {
           // If condition is false, the current block is ignored (as never reached).
           continue;
         }
       }
 
-      final GuardPrinter guardPrinter = 
-          new GuardPrinter(ir, context, condition);
+      final GuardPrinter guardPrinter = new GuardPrinter(ir, context, condition);
 
       final String ifTrueStart = newBranch();
       buildAction(ifTrueStart);
@@ -427,7 +412,7 @@ final class ControlFlowBuilder {
       current = ifFalseStart;
     }
 
-    current = buildStmts(current, stop, stmt.getElseBlock());
+    current = buildStmts(current, stop, elseBlock);
     if (null != current) {
       // If all other condition branches ended with null (exception)
       // and action 'join' for merging branches was not created,
