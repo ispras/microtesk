@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -163,9 +163,7 @@ public final class Condition {
     if (op == StandardOperation.AND || op == StandardOperation.OR) {
       final Condition left = extract(expr.getOperand(0));
       final Condition right = extract(expr.getOperand(1));
-
-      return op == StandardOperation.AND ?
-          left.and(right) : left.or(right);
+      return op == StandardOperation.AND ? left.and(right) : left.or(right);
     }
 
     throw new IllegalStateException(String.format(
