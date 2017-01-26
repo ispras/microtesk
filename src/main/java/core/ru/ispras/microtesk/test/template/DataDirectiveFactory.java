@@ -36,7 +36,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 
 public final class DataDirectiveFactory {
   private final Options options;
-  private final DataDirective header;
   private final Map<String, TypeInfo> types;
   private final String spaceText;
   private final BitVector spaceData;
@@ -56,7 +55,6 @@ public final class DataDirectiveFactory {
     InvariantChecks.checkNotNull(types);
 
     this.options = options;
-    this.header = new Text(options.getValueAsString(Option.DATA_SECTION_KEYWORD));
     this.types = types;
     this.spaceText = spaceText;
     this.spaceData = spaceData;
@@ -649,10 +647,6 @@ public final class DataDirectiveFactory {
 
       return sb.toString();
     }
-  }
-
-  public DataDirective getHeader() {
-    return header;
   }
 
   public DataDirective newText(final String text) {

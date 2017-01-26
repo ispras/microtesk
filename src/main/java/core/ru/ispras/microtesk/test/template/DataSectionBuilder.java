@@ -47,8 +47,6 @@ public final class DataSectionBuilder {
 
     this.labelValues = new ArrayList<>();
     this.directives = new ArrayList<>();
-
-    this.directives.add(directiveFactory.getHeader());
   }
 
   public boolean isGlobal() {

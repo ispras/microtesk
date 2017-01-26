@@ -54,12 +54,14 @@ public final class Printer {
   private final BinaryWriter binaryWriter;
 
   private final String codeKeyword;
+  private final String dataKeyword;
   private final String commentToken;
   private final String indentToken;
   private final String separatorToken;
   private final String separator;
 
-  private boolean needPrintCode = true;
+  private boolean needPrintCodeKeyword = true;
+  private boolean needPrintDataKeyword = true;
 
   public static Printer newCodeFile(
       final Options options,
@@ -152,6 +154,7 @@ public final class Printer {
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
 
     this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
+    this.dataKeyword  = options.getValueAsString(Option.DATA_SECTION_KEYWORD);
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
@@ -231,9 +234,14 @@ public final class Printer {
       printToFile("");
     }
 
-    if (needPrintCode) {
+    if (needPrintCodeKeyword) {
       printText(codeKeyword);
-      needPrintCode = false;
+      needPrintCodeKeyword = false;
+      needPrintDataKeyword = true;
+
+      if (sequence.isEmpty()) {
+        return;
+      }
     }
 
     final List<ConcreteCall> prologue = sequence.getPrologue();
@@ -484,6 +492,13 @@ public final class Printer {
 
     Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
+
+    if (needPrintDataKeyword) {
+      printToScreen(indentToken + dataKeyword);
+      printToFile(dataKeyword);
+      needPrintCodeKeyword = true;
+      needPrintDataKeyword = false;
+    }
 
     if (!globalData.isEmpty()) {
       printToFile("");
