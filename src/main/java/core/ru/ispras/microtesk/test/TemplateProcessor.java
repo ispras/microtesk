@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,18 +45,23 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
+  private final int instanceNumber;
   private final TestProgram testProgram;
   private final CodeAllocator allocator;
   private final Executor executor;
+  private final List<Executor.Status> executorStatuses;
   private boolean isProgramStarted;
 
   public TemplateProcessor(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkGreaterThanZero(engineContext.getModel().getPENumber());
 
     this.engineContext = engineContext;
+    this.instanceNumber = engineContext.getModel().getPENumber();
     this.testProgram = new TestProgram();
     this.allocator = new CodeAllocator(engineContext);
     this.executor = new Executor(engineContext);
+    this.executorStatuses = new ArrayList<>(instanceNumber);
     this.isProgramStarted = false;
   }
 
@@ -218,12 +224,13 @@ final class TemplateProcessor implements Template.Processor {
       final long endAddress = allocator.getAddress();
 
       if (!engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-        for (int index = 0; index < engineContext.getModel().getPENumber(); index++) {
+        for (int index = 0; index < instanceNumber; index++) {
           Logger.debugHeader("Instance %d", index);
           engineContext.getModel().setActivePE(index);
 
-          final Executor.Status status =
-              executor.execute(allocator.getCode(), startAddress, endAddress);
+          final Code code = allocator.getCode();
+          final Executor.Status status = executor.execute(code, startAddress, endAddress);
+          executorStatuses.set(index, status);
 
           if (status.isLabelReference()) {
             throw new GenerationAbortedException(String.format(
@@ -250,6 +257,16 @@ final class TemplateProcessor implements Template.Processor {
     if (engineContext.getStatistics().getPrograms() > 0) {
       // Allocates global data created during generation of previous test programs
       engineContext.getDataManager().reallocateGlobalData();
+    }
+
+    // Resets execution statuses
+    final boolean emptyExecutorStatuses = executorStatuses.isEmpty(); 
+    for (int index = 0; index < instanceNumber; index++) {
+      if (emptyExecutorStatuses) {
+        executorStatuses.add(null);
+      } else {
+        executorStatuses.set(index, null);
+      }
     }
 
     // Adds the prologue instruction count to overall statistics.
