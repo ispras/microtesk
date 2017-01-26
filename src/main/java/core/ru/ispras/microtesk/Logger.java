@@ -45,6 +45,10 @@ public final class Logger {
     isDebug = value;
   }
 
+  public static boolean isDebug() {
+    return isDebug;
+  }
+
   public static void setListener(final Listener value) {
     listener = value;
   }
