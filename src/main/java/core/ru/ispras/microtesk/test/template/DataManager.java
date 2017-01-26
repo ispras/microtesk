@@ -193,6 +193,11 @@ public final class DataManager {
 
   public void printData(final Printer printer) {
     InvariantChecks.checkNotNull(printer);
+
+    if (globalData.isEmpty() && localData.isEmpty()) {
+      return;
+    }
+
     printer.printData(factory.getHeader().getText(), globalData, localData);
   }
 
