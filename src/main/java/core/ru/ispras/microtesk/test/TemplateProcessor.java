@@ -62,26 +62,10 @@ final class TemplateProcessor implements Template.Processor {
     final Pair<List<TestSequence>, Map<String, TestSequence>> concreteHandler;
     try {
       concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
-    } catch (final ConfigurationException e) {
-      throw new GenerationAbortedException(e);
-    }
-
-    testProgram.addExceptionHandlers(concreteHandler);
-
-    Printer printer = null;
-    try { 
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), handler.getId());
-      for (final TestSequence sequence : concreteHandler.first) {
-        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
-        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
-      }
-    } catch (final ConfigurationException | IOException e) {
-      throw new GenerationAbortedException(e);
-    } finally {
-      if (null != printer) {
-        printer.close();
-      }
-      Logger.debugBar();
+      testProgram.addExceptionHandlers(concreteHandler);
+      printExceptionHandler(handler.getId(), concreteHandler.first);
+    } catch (final Exception e) {
+      rethrowException(e);
     }
   }
 
@@ -292,6 +276,27 @@ final class TemplateProcessor implements Template.Processor {
       allocator.reset();
 
       isProgramStarted = false;
+    }
+  }
+
+  private void printExceptionHandler(
+      final String id,
+      final List<TestSequence> sequences) throws IOException, ConfigurationException {
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(sequences);
+
+    Printer printer = null;
+    try { 
+      printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
+      for (final TestSequence sequence : sequences) {
+        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
+        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
+      }
+    } finally {
+      if (null != printer) {
+        printer.close();
+      }
+      Logger.debugBar();
     }
   }
 
