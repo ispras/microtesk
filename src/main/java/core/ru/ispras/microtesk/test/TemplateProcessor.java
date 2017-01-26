@@ -285,9 +285,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
-
       printTestProgram();
-      testProgram.clearEntries();
    } finally {
       Tarmac.closeFile();
 
@@ -296,6 +294,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
       allocator.reset();
+      testProgram.reset();
 
       isProgramStarted = false;
     }

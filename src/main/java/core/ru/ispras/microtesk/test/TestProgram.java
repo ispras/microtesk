@@ -82,7 +82,7 @@ final class TestProgram {
     return entries.get(index);
   }
 
-  public void clearEntries() {
+  public void reset() {
     entries.clear();
   }
 }
