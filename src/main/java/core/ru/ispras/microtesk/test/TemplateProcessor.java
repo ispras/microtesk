@@ -55,7 +55,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
-  public void defineExceptionHandler(final ExceptionHandler handler) {
+  public void process(final ExceptionHandler handler) {
     Logger.debugHeader("Processing Exception Handler");
     InvariantChecks.checkNotNull(handler);
 
@@ -285,11 +285,14 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(sequences);
 
+    final Statistics statistics = engineContext.getStatistics();
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
     Printer printer = null;
     try { 
       printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
       for (final TestSequence sequence : sequences) {
-        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
+        statistics.incInstructions(sequence.getInstructionCount());
         printer.printSequence(engineContext.getModel().getPE(), sequence, "");
       }
     } finally {
@@ -297,11 +300,12 @@ final class TemplateProcessor implements Template.Processor {
         printer.close();
       }
       Logger.debugBar();
+      engineContext.getStatistics().popActivity();
     }
   }
 
   private void printTestProgram() throws ConfigurationException, IOException {
-    final Statistics statistics = engineContext.getStatistics(); 
+    final Statistics statistics = engineContext.getStatistics();
     if (statistics.getProgramLength() == 0) {
       return;
     }
@@ -324,9 +328,8 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getDataManager().printData(printer);
     } finally {
       printer.close();
+      engineContext.getStatistics().popActivity();
     }
-
-    engineContext.getStatistics().popActivity();
   }
 
   private void printSequenceToConsole(

@@ -51,7 +51,7 @@ public final class Template {
   }
 
   public interface Processor {
-    void defineExceptionHandler(ExceptionHandler handler);
+    void process(ExceptionHandler handler);
     void process(Section section, Block block);
     void process(DataSection data);
     void finish();
@@ -911,7 +911,7 @@ public final class Template {
     final ExceptionHandler handler = exceptionHandlerBuilder.build();
     exceptionHandlerBuilder = null;
 
-    processor.defineExceptionHandler(handler);
+    processor.process(handler);
     definedExceptionHandlers.add(handler.getId());
   }
 
