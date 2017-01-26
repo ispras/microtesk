@@ -198,7 +198,7 @@ public final class DataManager {
       return;
     }
 
-    printer.printData(factory.getHeader().getText(), globalData, localData);
+    printer.printData(globalData, localData);
   }
 
   public BigInteger getAddress() {

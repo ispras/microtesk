@@ -467,7 +467,6 @@ public final class Printer {
   }
 
   public void printData(
-      final String headerText,
       final List<DataSection> globalData,
       final List<DataSection> localData) {
     InvariantChecks.checkNotNull(globalData);
@@ -479,9 +478,6 @@ public final class Printer {
 
     Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
-
-    printToScreen(indentToken + headerText);
-    printToFile(headerText);
 
     if (!globalData.isEmpty()) {
       printToFile("");
