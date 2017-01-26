@@ -142,6 +142,24 @@ public final class MmuAction {
 
   @Override
   public String toString() {
-    return marks.isEmpty() ? name : String.format("%s, marks: %s", name, marks);
+    final StringBuilder builder = new StringBuilder();
+
+    builder.append(name);
+
+    if (!marks.isEmpty()) {
+      builder.append(", ");
+      builder.append(String.format("marks: %s", marks));
+    }
+
+    if (bufferAccess != null) {
+      builder.append(", ");
+      builder.append(String.format("buffer: %s", bufferAccess.getBuffer()));
+    }
+
+    if (!action.isEmpty()) {
+      builder.append(", ");
+      builder.append(String.format("action: %s", action.values()));
+    }
+    return builder.toString();
   }
 }

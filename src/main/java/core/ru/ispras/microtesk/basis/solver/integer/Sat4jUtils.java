@@ -464,7 +464,7 @@ public final class Sat4jUtils {
         final int xi = x + i;
 
         if (problem.model(xi)) {
-          value.setBit(i);
+          value = value.setBit(i);
         }
       }
 

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -87,8 +88,13 @@ public final class AddressAllocator {
     InvariantChecks.checkNotNull(buffer);
     // Parameters {@code region} and {@code exclude} can be null.
 
-    return allocate(
-        buffer.getAddress(), buffer.getTagExpression(), partialAddress, region, peek, exclude);
+    final MmuAddressInstance address = buffer.getAddress();
+    final MmuExpression tagExpression = buffer.getTagExpression();
+
+    final long result = allocate(address, tagExpression, partialAddress, region, peek, exclude);
+    Logger.debug("Allocate tag: %s(%s)[%s] = 0x%x", buffer, address, tagExpression, result);
+
+    return result;
   }
 
   public long allocateIndex(
@@ -100,8 +106,13 @@ public final class AddressAllocator {
     InvariantChecks.checkNotNull(buffer);
     // Parameters {@code region} and {@code exclude} can be null.
 
-    return allocate(
-        buffer.getAddress(), buffer.getIndexExpression(), partialAddress, region, peek, exclude);
+    final MmuAddressInstance address = buffer.getAddress();
+    final MmuExpression indexExpression = buffer.getIndexExpression();
+
+    final long result = allocate(address, indexExpression, partialAddress, region, peek, exclude);
+    Logger.debug("Allocate index: %s(%s)[%s] = 0x%x", buffer, address, indexExpression, result);
+
+    return result;
   }
 
   public long allocateAddress(
@@ -112,7 +123,10 @@ public final class AddressAllocator {
     InvariantChecks.checkNotNull(address);
     // Parameters {@code region} can be null.
 
-    return allocators.get(address).allocate(partialAddress, region, peek, null);
+    final long result = allocators.get(address).allocate(partialAddress, region, peek, null);
+    Logger.debug("Allocate address: %s = 0x%x", address, result);
+
+    return result;
   }
 
   private long allocate(
@@ -126,7 +140,11 @@ public final class AddressAllocator {
     InvariantChecks.checkNotNull(expression);
     // Parameters {@code region} and {@code exclude} can be null.
 
-    return allocators.get(address).allocate(expression, partialAddress, region, peek, exclude);
+    final long result =  allocators.get(address).allocate(
+        expression, partialAddress, region, peek, exclude);
+    Logger.debug("Allocate address: %s[%s] = 0x%x", address, expression, result);
+
+    return result;
   }
 
   public long getSignificatBitsMask(final MmuAddressInstance address) {

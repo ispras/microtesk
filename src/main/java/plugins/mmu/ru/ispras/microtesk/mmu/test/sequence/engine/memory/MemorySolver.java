@@ -965,7 +965,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           addressAllocator.allocateAddress(addrType, partialAddress, region, peek);
 
       if (hitChecker == null || !hitChecker.test(address)) {
-        Logger.debug("Allocated address: %x", address);
+        Logger.debug("Allocated address: %s = 0x%x", addrType, address);
         return address;
       }
     }
@@ -1151,24 +1151,30 @@ public final class MemorySolver implements Solver<MemorySolution> {
       constraints.add(new IntegerDomainConstraint<IntegerField>(field, value));
     }
 
+    Logger.debug("Constraints for refinement: %s", constraints);
+
     // It is important to fill unused fields with zeros.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         path, constraints, IntegerVariableInitializer.ZEROS);
 
+    // Cannot correct the address values.
     if (values == null) {
+      Logger.debug("Cannot refine the address values");
       return false;
     }
 
     // Correct the address values.
-    final BigInteger vaCorrection = values.get(vaVar);
-    final BigInteger paCorrection = values.get(paVar);
+    final BigInteger vaValue = values.get(vaVar);
+    final BigInteger paValue = values.get(paVar);
 
-    Logger.debug("Refine address (before): VA=%x, PA=%x", va, pa);
+    final long vaCorrection = (vaValue != null ? vaValue.longValue() : 0);
+    final long paCorrection = (paValue != null ? paValue.longValue() : 0);
+    Logger.debug("Corrections for VA=0x%x, PA=0x%x", vaCorrection, paCorrection);
 
-    va |= vaCorrection != null ? vaCorrection.longValue() : 0;
-    pa |= paCorrection != null ? paCorrection.longValue() : 0;
-
-    Logger.debug("Refine address (after): VA=%x, PA=%x", va, pa);
+    Logger.debug("Refine address (before): VA=0x%x, PA=0x%x", va, pa);
+    va |= vaCorrection;
+    pa |= paCorrection;
+    Logger.debug("Refine address (after): VA=0x%x, PA=0x%x", va, pa);
 
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);

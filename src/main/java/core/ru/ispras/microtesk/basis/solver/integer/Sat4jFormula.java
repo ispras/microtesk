@@ -111,6 +111,25 @@ public final class Sat4jFormula {
 
   @Override
   public String toString() {
-    return clauses.toString();
+    final StringBuilder builder = new StringBuilder();
+
+    boolean delimiter = false;
+    for (final IVec<IVecInt> vector : clauses) {
+      for (int i = 0; i < vector.size(); i++) {
+        final IVecInt clause = vector.get(i);
+
+        if (delimiter) {
+          builder.append(" & ");
+        }
+
+        delimiter = true;
+
+        builder.append("(");
+        builder.append(clause);
+        builder.append(")");
+      }
+    }
+
+    return builder.toString();
   }
 }

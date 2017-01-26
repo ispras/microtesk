@@ -25,6 +25,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -207,6 +208,9 @@ public final class AddressAllocationEngine {
       if (((fieldMask << lower) | mask) == mask) {
         address = BitUtils.setField(address, lower, upper, fieldValue);
       }
+
+      Logger.debug("Allocate range %s: value=0x%x, mask = 0x%x, address=0x%x",
+          range, fieldValue, mask, address);
     }
 
     return address;
