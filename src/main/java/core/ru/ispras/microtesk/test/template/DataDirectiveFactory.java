@@ -47,18 +47,16 @@ public final class DataDirectiveFactory {
 
   private DataDirectiveFactory(
       final Options options,
-      final String headerText,
       final Map<String, TypeInfo> types,
       final String spaceText,
       final BitVector spaceData,
       final String ztermStrText,
       final String nztermStrText) {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(headerText);
     InvariantChecks.checkNotNull(types);
 
     this.options = options;
-    this.header = new Text(headerText);
+    this.header = new Text(options.getValueAsString(Option.DATA_SECTION_KEYWORD));
     this.types = types;
     this.spaceText = spaceText;
     this.spaceData = spaceData;
@@ -71,7 +69,6 @@ public final class DataDirectiveFactory {
   public static final class Builder {
     private final Options options;
     private final int addressableUnitBitSize;
-    private final String headerText;
 
     private final Map<String, TypeInfo> types;
     private String spaceText;
@@ -81,16 +78,13 @@ public final class DataDirectiveFactory {
 
     protected Builder(
         final Options options,
-        final int addressableUnitBitSize,
-        final String headerText) {
+        final int addressableUnitBitSize) {
       InvariantChecks.checkNotNull(options);
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
-      InvariantChecks.checkNotNull(headerText);
 
       this.options = options;
       this.addressableUnitBitSize = addressableUnitBitSize;
 
-      this.headerText = headerText;
       this.types = new HashMap<>();
       this.spaceText = null;
       this.spaceData = null;
@@ -148,7 +142,6 @@ public final class DataDirectiveFactory {
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
           options,
-          headerText,
           types,
           spaceText,
           spaceData,

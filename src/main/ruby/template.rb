@@ -745,7 +745,6 @@ class Template
       raise MTRubyError, "Data configuration is already defined"
     end
 
-    text   = get_attribute attrs, :text
     target = get_attribute attrs, :target
 
     # Default value is 8 bits if other value is not explicitly specified
@@ -753,7 +752,7 @@ class Template
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(self, @template.getDataManager)
-    @data_manager.beginConfig text, target, addressableSize, baseVirtAddr
+    @data_manager.beginConfig target, addressableSize, baseVirtAddr
 
     @data_manager.instance_eval &contents
     @data_manager.endConfig
@@ -982,8 +981,8 @@ class DataManager
     @ref_count = 0
   end
 
-  def beginConfig(text, target, addressableSize, baseVirtAddr)
-    @configurer = @manager.beginConfig text, target, addressableSize, baseVirtAddr
+  def beginConfig(target, addressableSize, baseVirtAddr)
+    @configurer = @manager.beginConfig target, addressableSize, baseVirtAddr
   end
 
   def endConfig

@@ -82,11 +82,9 @@ public final class DataManager {
   }
 
   public DataDirectiveFactory.Builder beginConfig(
-      final String text,
       final String target,
       final int addressableUnitBitSize,
       final BigInteger baseVirtualAddress) throws ConfigurationException {
-    InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
@@ -103,7 +101,7 @@ public final class DataManager {
     allocator = model.getPE().newMemoryAllocator(
         target, addressableUnitBitSize, basePhysicalAddressForAllocation);
 
-    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize, text);
+    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
     return factoryBuilder;
   }
 
