@@ -39,7 +39,7 @@ import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * The {@link TemplateProcessor} class is reponsible for template processing.
+ * The {@link TemplateProcessor} class is responsible for template processing.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -346,7 +346,9 @@ final class TemplateProcessor implements Template.Processor {
         printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
       }
 
-      engineContext.getDataManager().printData(printer);
+      final List<DataSection> globalData = engineContext.getDataManager().getGlobalData();
+      final List<DataSection> localData = engineContext.getDataManager().getLocalData();
+      printer.printData(globalData, localData);
     } finally {
       printer.close();
       engineContext.getStatistics().popActivity();

@@ -77,6 +77,14 @@ public final class DataManager {
     this.dataBuilder = null;
   }
 
+  public List<DataSection> getGlobalData() {
+    return globalData;
+  }
+
+  public List<DataSection> getLocalData() {
+    return localData;
+  }
+
   public void setLabelManager(final LabelManager labelManager) {
     this.labelManager = labelManager;
   }
@@ -187,16 +195,6 @@ public final class DataManager {
 
   public boolean isInitialized() {
     return factory != null;
-  }
-
-  public void printData(final Printer printer) {
-    InvariantChecks.checkNotNull(printer);
-
-    if (globalData.isEmpty() && localData.isEmpty()) {
-      return;
-    }
-
-    printer.printData(globalData, localData);
   }
 
   public BigInteger getAddress() {
