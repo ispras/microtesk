@@ -79,6 +79,8 @@ public enum Option {
   SEPARATOR_TOKEN("separator-token", "Text used to create separators", "=", GENERATE),
   ORIGIN_FORMAT("origin-format" , "Origin directive format", ".org 0x%x", GENERATE),
   ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE),
+  CODE_SECTION_KEYWORD("code-section-keyword" , "Code section directive", ".text", GENERATE),
+  DATA_SECTION_KEYWORD("data-section-keyword", "Data section directive", ".data", GENERATE),
 
   BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
   BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE),
