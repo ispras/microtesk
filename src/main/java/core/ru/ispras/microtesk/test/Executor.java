@@ -80,6 +80,11 @@ final class Executor {
       InvariantChecks.checkTrue(data instanceof LabelReference);
       return (LabelReference) data;
     }
+
+    @Override
+    public String toString() {
+      return isAddress() ? String.format("Address: 0x%016x", getAddress()) : data.toString();
+    }
   }
 
   /**
