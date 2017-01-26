@@ -79,7 +79,7 @@ public final class Engine implements Template.Processor {
   }
 
   @Override
-  public void defineExceptionHandler(final ExceptionHandler handler) {
+  public void process(final ExceptionHandler handler) {
     InvariantChecks.checkNotNull(handler);
     // TODO Auto-generated method stub
   }

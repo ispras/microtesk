@@ -37,6 +37,11 @@ import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
+/**
+ * The {@link TemplateProcessor} class is reponsible for template processing.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class TemplateProcessor implements Template.Processor {
   private final EngineContext engineContext;
   private final TestProgram testProgram;
