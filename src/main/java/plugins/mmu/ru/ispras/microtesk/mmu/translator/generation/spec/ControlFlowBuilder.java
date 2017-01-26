@@ -405,8 +405,7 @@ final class ControlFlowBuilder {
       }
 
       final Node elseCondition = new NodeOperation(StandardOperation.NOT, condition);
-      if (ExprUtils.isVariable(condition) ||
-          ExprUtils.isOperation(condition, StandardOperation.EQ) ||
+      if (ExprUtils.isOperation(condition, StandardOperation.EQ) ||
           ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
         jointElseCondition = null == jointElseCondition ?
             elseCondition :
