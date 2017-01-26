@@ -273,9 +273,6 @@ public final class Printer {
 
       if (null != text) {
         printText(text);
-        if (writeToFile) {
-          //statistics.incInstructions();
-        }
       }
 
       if (writeToFile && null != binaryWriter) {
