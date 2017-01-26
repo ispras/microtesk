@@ -334,8 +334,7 @@ public final class Printer {
       if (output.isComment() && !printComment) {
         printToScreen(text);
       } else {
-        printToScreen(text);
-        printToFile(text);
+        printText(text);
       }
     }
   }
@@ -381,7 +380,7 @@ public final class Printer {
    */
   private void printTextNoIndent(final String text) {
     if (text != null) {
-      printToScreen(text);
+      Logger.debug(text);
       printToFileNoIndent(text);
     }
   }
@@ -448,7 +447,9 @@ public final class Printer {
   }
 
   private void printToScreen(final String text) {
-    Logger.debug(text);
+    if (Logger.isDebug()) {
+      Logger.debug(indentToken + text);
+    }
   }
 
   private void printToFile(final String text) {
@@ -472,8 +473,7 @@ public final class Printer {
     for (final DataDirective directive : directives) {
       final String text = directive.getText();
       if (directive.needsIndent()) {
-        printToScreen(indentToken + text);
-        printToFile(text);
+        printText(text);
       } else {
         printTextNoIndent(text);
       }
@@ -494,8 +494,7 @@ public final class Printer {
     printHeaderToFile("Data");
 
     if (needPrintDataKeyword) {
-      printToScreen(indentToken + dataKeyword);
-      printToFile(dataKeyword);
+      printText(dataKeyword);
       needPrintCodeKeyword = true;
       needPrintDataKeyword = false;
     }
