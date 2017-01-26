@@ -53,10 +53,13 @@ public final class Printer {
   private final File binaryFile;
   private final BinaryWriter binaryWriter;
 
+  private final String codeKeyword;
   private final String commentToken;
   private final String indentToken;
   private final String separatorToken;
   private final String separator;
+
+  private boolean needPrintCode = true;
 
   public static Printer newCodeFile(
       final Options options,
@@ -148,6 +151,7 @@ public final class Printer {
     this.fileWritter = null != file ? new PrintWriter(file) : null;
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
 
+    this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
@@ -225,6 +229,11 @@ public final class Printer {
       printHeaderToFile(sequenceId);
     } else {
       printToFile("");
+    }
+
+    if (needPrintCode) {
+      printText(codeKeyword);
+      needPrintCode = false;
     }
 
     final List<ConcreteCall> prologue = sequence.getPrologue();

@@ -36,7 +36,6 @@ import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -160,11 +159,6 @@ public final class Template {
     Logger.debugHeader("Started Processing Initialization Section");
     beginNewSection();
     isMainSection = false;
-
-    // Prologue must start with .text directive
-    final String text = context.getOptions().getValueAsString(Option.CODE_SECTION_KEYWORD);
-    addOutput(new Output(Output.Kind.TEXT, text));
-    endBuildingCall();
   }
 
   public void endPreSection() {
