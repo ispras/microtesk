@@ -43,6 +43,7 @@ public abstract class ProcessingElement {
   private final Map<String, MemoryDevice> deviceMap = new HashMap<>();
 
   private MemoryDevice memory = null;
+  private Memory memoryAllocatorStorage = null;
 
   protected final void addStorage(final Memory storage) {
     InvariantChecks.checkNotNull(storage);
@@ -108,13 +109,17 @@ public abstract class ProcessingElement {
     }
   }
 
-  public final MemoryAllocator newMemoryAllocator(
+  protected final void initMemoryAllocator(
       final String storageId,
       final int addressableUnitBitSize,
       final BigInteger baseAddress) throws ConfigurationException {
-    final Memory storage = getStorage(storageId);
-    storage.initAllocator(addressableUnitBitSize, baseAddress);
-    return storage.getAllocator();
+    memoryAllocatorStorage = getStorage(storageId);
+    memoryAllocatorStorage.initAllocator(addressableUnitBitSize, baseAddress);
+  }
+
+  protected MemoryAllocator getMemoryAllocator() {
+    InvariantChecks.checkNotNull(memoryAllocatorStorage, "Allocator is not initialized.");
+    return memoryAllocatorStorage.getAllocator();
   }
 
   protected final void setMemoryHandler(

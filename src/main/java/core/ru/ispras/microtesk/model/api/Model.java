@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.decoder.Decoder;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 import ru.ispras.microtesk.model.api.metadata.MetaArgument;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
@@ -165,6 +166,19 @@ public final class Model {
 
     memoryHandler = new Pair<>(id, handler);
     return memoryCallback;
+  }
+
+  public void initMemoryAllocator(
+      final String storageId,
+      final int addressableUnitBitSize,
+      final BigInteger basePhysicalAddress) throws ConfigurationException {
+    for (final ProcessingElement  procElem : procElems) {
+      procElem.initMemoryAllocator(storageId, addressableUnitBitSize, basePhysicalAddress);
+    }
+  }
+
+  public MemoryAllocator getMemoryAllocator() {
+    return getPE().getMemoryAllocator();
   }
 
   public IsaPrimitiveBuilder newMode(

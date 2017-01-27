@@ -48,9 +48,7 @@ public final class DataManager {
   private final List<DataSection> localData;
   private LabelManager labelManager;
 
-  private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
-
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
@@ -69,10 +67,13 @@ public final class DataManager {
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
 
-    this.allocator = null;
     this.factory = null;
     this.factoryBuilder = null;
     this.dataBuilder = null;
+  }
+
+  private MemoryAllocator getAllocator() {
+    return model.getMemoryAllocator();
   }
 
   public List<DataSection> getGlobalData() {
@@ -102,7 +103,7 @@ public final class DataManager {
     final BigInteger basePA =
         AddressTranslator.get().virtualToPhysical(baseVA);
 
-    allocator = model.getPE().newMemoryAllocator(target, addressableUnitBitSize, basePA);
+    model.initMemoryAllocator(target, addressableUnitBitSize, basePA);
     factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
 
     return factoryBuilder;
@@ -141,7 +142,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(globalLabels);
     InvariantChecks.checkNotNull(data);
 
-    data.allocate(allocator);
+    data.allocate(getAllocator());
     data.registerLabels(globalLabels);
 
     if (data.isSeparateFile()) {
@@ -161,9 +162,9 @@ public final class DataManager {
   }
 
   public void reallocateGlobalData() {
-    allocator.resetCurrentAddress();
+    getAllocator().resetCurrentAddress();
     for (final DataSection data : globalData) {
-      data.allocate(allocator);
+      data.allocate(getAllocator());
       data.registerLabels(labelManager);
     }
   }
@@ -174,7 +175,7 @@ public final class DataManager {
 
   public BigInteger getAddress() {
     checkInitialized();
-    final BigInteger physicalAddress = allocator.getCurrentAddress();
+    final BigInteger physicalAddress = getAllocator().getCurrentAddress();
     final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
     return virtualAddress;
   }
@@ -200,12 +201,12 @@ public final class DataManager {
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
-    final BigInteger oldAddress = allocator.getCurrentAddress();
+    final BigInteger oldAddress = getAllocator().getCurrentAddress();
     try {
-      allocator.setCurrentAddress(address);
+      getAllocator().setCurrentAddress(address);
 
       final BitVector bvAddress =
-          BitVector.valueOf(address, allocator.getAddressBitSize());
+          BitVector.valueOf(address, getAllocator().getAddressBitSize());
 
       dataBuilder.addLabel(labelName);
       dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
@@ -217,7 +218,7 @@ public final class DataManager {
 
       processData(labelManager, dataBuilder.build());
     } finally {
-      allocator.setCurrentAddress(oldAddress);
+      getAllocator().setCurrentAddress(oldAddress);
     }
   }
 
@@ -247,9 +248,9 @@ public final class DataManager {
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(unitSize);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
-    final BigInteger oldAddress = allocator.getCurrentAddress();
+    final BigInteger oldAddress = getAllocator().getCurrentAddress();
     try {
-      allocator.setCurrentAddress(startAddress);
+      getAllocator().setCurrentAddress(startAddress);
       dataBuilder.addComment(String.format(" Address: 0x%x", startAddress));
 
       BigInteger nextAddress = BigInteger.ZERO.not();
@@ -257,7 +258,7 @@ public final class DataManager {
         InvariantChecks.checkTrue(address.compareTo(startAddress) >= 0);
 
         if (address.compareTo(nextAddress) != 0) {
-          allocator.setCurrentAddress(address);
+          getAllocator().setCurrentAddress(address);
 
           final BigInteger printedAddress =
               printAbsoluteOrg ? address : address.subtract(startAddress);
@@ -272,12 +273,12 @@ public final class DataManager {
           dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
         }
 
-        nextAddress = allocator.getCurrentAddress();
+        nextAddress = getAllocator().getCurrentAddress();
       }
 
       processData(labelManager, dataBuilder.build());
     } finally {
-      allocator.setCurrentAddress(oldAddress);
+      getAllocator().setCurrentAddress(oldAddress);
     }
   }
 
