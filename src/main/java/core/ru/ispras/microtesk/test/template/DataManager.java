@@ -51,7 +51,6 @@ public final class DataManager {
 
   private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
-  private int dataFileIndex;
 
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
@@ -72,10 +71,7 @@ public final class DataManager {
     this.localData = new ArrayList<>();
 
     this.allocator = null;
-
     this.factory = null;
-    this.dataFileIndex = 0;
-
     this.factoryBuilder = null;
     this.dataBuilder = null;
   }
@@ -314,10 +310,10 @@ public final class DataManager {
     try {
       statistics.pushActivity(Statistics.Activity.PRINTING);
 
-      printer = Printer.newDataFile(options, dataFileIndex);
+      printer = Printer.newDataFile(options, statistics.getDataFiles());
       printer.printDataDirectives(data);
 
-      ++dataFileIndex;
+      statistics.incDataFiles();
     } catch (final IOException e) {
       throw new GenerationAbortedException(
           String.format("Failed to generate data file. Reason: %s", e.getMessage()));
