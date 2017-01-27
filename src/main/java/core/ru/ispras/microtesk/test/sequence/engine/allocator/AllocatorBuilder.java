@@ -12,15 +12,18 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.template;
+package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
-import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 
+/**
+ * Builds an allocator.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class AllocatorBuilder {
   private final String strategy;
   private Map<String, String> attributes;

@@ -40,6 +40,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
+import ru.ispras.microtesk.test.sequence.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
 
 /**
