@@ -28,7 +28,6 @@ import org.sat4j.specs.TimeoutException;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
@@ -116,7 +115,7 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
           SolverResult.Status.UNSAT,
           Collections.<IntegerVariable, BigInteger>emptyMap(),
           Collections.<String>singletonList(
-              String.format("Contradiction: %s %s", e.getMessage(), formula)));
+              String.format("Contradiction: %s", e.getMessage())));
     }
 
     // Solve the problem.
@@ -129,7 +128,7 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
           SolverResult.Status.UNSAT,
           Collections.<IntegerVariable, BigInteger>emptyMap(),
           Collections.<String>singletonList(
-              String.format("Timeout: %s %s", e.getMessage(), formula)));
+              String.format("Timeout: %s", e.getMessage())));
     }
 
     if (mode == Solver.Mode.SAT) {
@@ -139,8 +138,6 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
     // Assign the variables with values.
     final Map<IntegerVariable, BigInteger> solution =
         Sat4jUtils.decodeSolution(solver, problem.getIndices());
-
-    Logger.debug("Intermediate solution: %s", solution);
 
     // Track unused fields of the variables.
     final Map<IntegerVariable, BitVector> masks = problem.getMasks();

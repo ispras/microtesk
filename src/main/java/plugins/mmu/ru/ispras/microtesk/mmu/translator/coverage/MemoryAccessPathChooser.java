@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -30,7 +31,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 public final class MemoryAccessPathChooser {
   private final MmuSubsystem memory;
-  private final Collection<Collection<Object>> trajectories;
+  private final Collection<List<Object>> trajectories;
   private final MemoryGraph graph;
   private final MemoryAccessType type;
   private final MemoryAccessConstraints constraints;
@@ -41,7 +42,7 @@ public final class MemoryAccessPathChooser {
 
   public MemoryAccessPathChooser(
       final MmuSubsystem memory,
-      final Collection<Collection<Object>> trajectories,
+      final Collection<List<Object>> trajectories,
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
@@ -60,7 +61,7 @@ public final class MemoryAccessPathChooser {
     this.constraints = constraints;
     this.discardEmptyTrajectories = discardEmptyTrajectories;
 
-    for (final Collection<Object> trajectory : trajectories) {
+    for (final List<Object> trajectory : trajectories) {
       if (discardEmptyTrajectories && trajectory.isEmpty()) {
         continue;
       }
@@ -72,11 +73,11 @@ public final class MemoryAccessPathChooser {
 
   public MemoryAccessPathChooser(
       final MmuSubsystem memory,
-      final Collection<Object> trajectory,
+      final List<Object> trajectory,
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
-    this(memory, Collections.<Collection<Object>>singleton(trajectory), graph, type, constraints, false);
+    this(memory, Collections.<List<Object>>singleton(trajectory), graph, type, constraints, false);
   }
 
   public MemoryAccessPath get() {

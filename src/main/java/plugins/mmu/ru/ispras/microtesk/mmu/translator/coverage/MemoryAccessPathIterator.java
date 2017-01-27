@@ -111,43 +111,106 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private final class SearchEntry {
+    static final int LOOKUP_DEPTH = 2;
+
     final MmuAction action;
-    final Object label;
-    final ArrayList<MemoryGraph.Edge> edges;
+    final List<Object> trajectorySuffix;
+    final List<MemoryGraph.Edge> edges;
     final Iterator<MemoryGraph.Edge> iterator;
 
     MemorySymbolicResult context;
 
     SearchEntry(
         final MmuAction action,
-        final Object label,
+        final List<Object> trajectorySuffix,
         final MemorySymbolicResult context) {
       InvariantChecks.checkNotNull(action);
       InvariantChecks.checkNotNull(context);
+      // Parameter trajectorySuffix can be null.
 
       final ArrayList<MemoryGraph.Edge> edges = new ArrayList<MemoryGraph.Edge>();
       final ArrayList<MemoryGraph.Edge> allEdges = graph.getEdges(action);
 
       if (allEdges != null) {
-        for (final MemoryGraph.Edge edge : allEdges) {
-          if (labels == null /* Ignore a trajectory */ || edge.conformsTo(label)) {
-            edges.add(edge);
+        // Ignore trajectories.
+        if (trajectorySuffix == null) {
+          edges.addAll(allEdges);
+        } else {
+          for (final MemoryGraph.Edge edge : allEdges) {
+            if (lookup(edge, trajectorySuffix, LOOKUP_DEPTH) != 0) {
+              edges.add(edge);
+            }
           }
         }
       }
 
       this.action = action;
-      this.label = label;
+      this.trajectorySuffix = trajectorySuffix;
       this.edges = edges;
       this.iterator = new EdgeIterator(edges);
       this.context = context;
+    }
+
+    /**
+     * Evaluates whether the given edge can start the given trajectory suffix.
+     * 
+     * @param edge the edge.
+     * @param trajectory the trajectory suffix.
+     * @param depth the depth of the analysis.
+     * @return zero if the given trajectory is infeasible via the given edge;
+     *         positive otherwise.
+     */
+    private int lookup(
+        final MemoryGraph.Edge edge,
+        final List<Object> trajectory,
+        final int depth) {
+      final Object label = !trajectory.isEmpty() ? trajectory.get(0) : null;
+
+      if (!edge.conformsTo(label)) {
+        // The trajectory cannot be reached via the given edge.
+        return 0;
+      }
+
+      final MmuTransition transition = edge.getTransition();
+      final MmuAction targetAction = transition.getTarget();
+      final ArrayList<MemoryGraph.Edge> targetEdges = graph.getEdges(targetAction);
+
+      // This is an edge to the terminal node.
+      if (targetEdges == null || targetEdges.isEmpty()) {
+        return (trajectory.isEmpty() || trajectory.size() == 1 && edge.getLabel() != null)
+            // The trajectory is reachable.
+            ? Integer.MAX_VALUE
+            // The trajectory is unreachable.
+            : 0;
+      }
+
+      if (depth <= 1) {
+        // The trajectory is assumed to be reachable.
+        return 1;
+      }
+
+      final List<Object> trajectorySuffix = (edge.getLabel() != null)
+          ? trajectory.subList(1, trajectory.size())
+          : trajectory;
+
+      int integralEstimate = 0;
+
+      for (final MemoryGraph.Edge targetEdge : targetEdges) {
+        final int estimate = lookup(targetEdge, trajectorySuffix, depth - 1);
+
+        if (estimate == Integer.MAX_VALUE) {
+          return Integer.MAX_VALUE;
+        }
+
+        integralEstimate += estimate;
+      }
+
+      return integralEstimate;
     }
   }
 
   /** Memory subsystem representation. */
   private final MmuSubsystem memory;
-  /** Target trajectory. */
-  private final Iterator<Object> labels;
   /** Labeled memory graph. */
   private final MemoryGraph graph;
   /** Memory access type. */
@@ -175,7 +238,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   public MemoryAccessPathIterator(
       final MmuSubsystem memory,
-      final Collection<Object> trajectory,
+      final List<Object> trajectory,
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints) {
@@ -195,7 +258,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   public MemoryAccessPathIterator(
       final MmuSubsystem memory,
-      final Collection<Object> trajectory,
+      final List<Object> trajectory,
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
@@ -207,17 +270,15 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(stack);
     InvariantChecks.checkTrue(stack.size() == context.getStack().size());
+    // Parameter trajectory can be null.
 
     this.memory = memory;
-    // If trajectory is null, it is ignored.
-    this.labels = trajectory != null ? trajectory.iterator() : null;
     this.graph = graph;
     this.type = type;
     this.constraints = constraints;
 
-    final Object label = labels != null && labels.hasNext() ? labels.next() : null;
     final MmuAction startAction = memory.getStartAction();
-    final SearchEntry searchEntry = new SearchEntry(startAction, label, context);
+    final SearchEntry searchEntry = new SearchEntry(startAction, trajectory, context);
 
     this.searchStack.push(searchEntry);
     this.stack = stack;
@@ -244,15 +305,16 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       while (searchEntry.iterator.hasNext()) {
         final MemoryGraph.Edge edge = searchEntry.iterator.next();
+        final List<Object> trajectory = searchEntry.trajectorySuffix;
 
         final MmuTransition transition = edge.getTransition();
         final MmuAction sourceAction = transition.getSource();
         final MmuAction targetAction = transition.getTarget();
 
         final Object label = edge.getLabel();
-        final Object nextLabel = (label != null)
-            ? (labels != null && labels.hasNext() ? labels.next() : null)
-            : searchEntry.label;
+        final List<Object> trajectorySuffix = (label != null)
+            ? (trajectory != null ? trajectory.subList(1, trajectory.size()) : null)
+            : trajectory;
 
         // Go on with the current context.
         MemorySymbolicResult context = searchEntry.context;
@@ -334,7 +396,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           }
 
           if (!isCompleted) {
-            searchStack.push(new SearchEntry(targetAction, nextLabel, newContext));
+            searchStack.push(new SearchEntry(targetAction, trajectorySuffix, newContext));
             currentPath.addAll(entries);
 
             break;

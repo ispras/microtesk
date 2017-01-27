@@ -168,13 +168,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     final Predicate<MemoryAccessStructure> structureFilter = structureFilterBuilder.build();
     this.structureChecker = new MemoryAccessStructureChecker(structureFilter);
 
-    hasValue = true;
+    hasValue = initAccesses();
 
-    initAccesses();
-    initDependencies();
+    if (hasValue) {
+      initDependencies();
 
-    if (hasValue() && !checkStructure()) {
-      next();
+      if (!checkStructure()) {
+        next();
+      }
     }
   }
 
@@ -283,17 +284,20 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   // Initialize/Iterate Memory Accesses
   //------------------------------------------------------------------------------------------------
 
-  private void initAccesses() {
+  private boolean initAccesses() {
     accessPathIterator.init();
 
     if (accessPathIterator.hasValue()) {
       if (assignAccesses()) {
         recalculatePossibleDependencies();
         assignDependencies();
+        return true;
       } else {
-        nextAccesses();
+        return nextAccesses();
       }
     }
+
+    return false;
   }
 
   private boolean nextAccesses() {

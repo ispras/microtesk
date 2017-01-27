@@ -334,13 +334,11 @@ public final class MemoryEngineUtils {
     }
 
     final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
-    final Map<IntegerVariable, BigInteger> constants = symbolicResult.getConstants();
 
     final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
-    if (result.getStatus() != SolverResult.Status.SAT) {
-      Logger.debug("Constants: %s", constants);
+    if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
       Logger.debug(stringOf(transition));
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);
@@ -383,7 +381,7 @@ public final class MemoryEngineUtils {
     final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
-    if (result.getStatus() != SolverResult.Status.SAT) {
+    if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
       Logger.debug(stringOf(path));
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);

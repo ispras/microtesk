@@ -121,7 +121,7 @@ public final class CoverageExtractor {
 
     final List<MemoryAccessPathChooser> choosers = new ArrayList<>();
 
-    for (final Collection<Object> trajectory : result.getTrajectories()) {
+    for (final List<Object> trajectory : result.getTrajectories()) {
       if (discardEmptyTrajectories && trajectory.isEmpty()) {
         continue;
       }

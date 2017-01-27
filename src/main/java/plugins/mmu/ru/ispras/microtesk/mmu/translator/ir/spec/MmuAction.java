@@ -156,10 +156,13 @@ public final class MmuAction {
       builder.append(String.format("buffer: %s", bufferAccess.getBuffer()));
     }
 
+    /*
     if (!action.isEmpty()) {
       builder.append(", ");
       builder.append(String.format("action: %s", action.values()));
     }
+    */
+
     return builder.toString();
   }
 }
