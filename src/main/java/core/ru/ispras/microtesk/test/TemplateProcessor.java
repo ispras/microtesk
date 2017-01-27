@@ -351,7 +351,7 @@ final class TemplateProcessor implements Template.Processor {
       printer.printData(globalData, localData);
     } finally {
       printer.close();
-      engineContext.getStatistics().popActivity();
+      statistics.popActivity();
     }
   }
 
