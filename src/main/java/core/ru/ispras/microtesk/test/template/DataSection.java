@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.test.LabelManager;
 
 public class DataSection {
   private final List<LabelValue> labelValues;
@@ -103,22 +103,6 @@ public class DataSection {
     return result;
   }
 
-  public List<Pair<Label, BigInteger>> getLabelsWithAddresses() {
-    final List<Pair<Label, BigInteger>> result = new ArrayList<>(labelValues.size());
-
-    for (final LabelValue labelValue : labelValues) {
-      final Label label = labelValue.getLabel();
-      InvariantChecks.checkNotNull(label);
-
-      final BigInteger address = labelValue.getAddress();
-      InvariantChecks.checkNotNull(address);
-
-      result.add(new Pair<>(label, address));
-    }
-
-    return result;
-  }
-
   public List<DataDirective> getDirectives() {
     return directives;
   }
@@ -135,6 +119,22 @@ public class DataSection {
     InvariantChecks.checkNotNull(allocator);
     for (final DataDirective directive : directives) {
       directive.apply(allocator);
+    }
+  }
+
+  public void registerLabels(final LabelManager labelManager) {
+    InvariantChecks.checkNotNull(labelManager);
+
+    final int sequenceIndex = getSequenceIndex();
+    for (final LabelValue labelValue : labelValues) {
+      final Label label = labelValue.getLabel();
+      InvariantChecks.checkNotNull(label);
+
+      final BigInteger address = labelValue.getAddress();
+      InvariantChecks.checkNotNull(address);
+
+      label.setSequenceIndex(sequenceIndex);
+      labelManager.addLabel(label, address.longValue());
     }
   }
 

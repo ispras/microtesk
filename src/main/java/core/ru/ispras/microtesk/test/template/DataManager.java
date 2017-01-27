@@ -23,7 +23,6 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
@@ -146,7 +145,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(data);
 
     data.allocate(allocator);
-    registerLabels(data, globalLabels);
+    data.registerLabels(globalLabels);
 
     if (data.isSeparateFile()) {
       saveToFile(data);
@@ -160,18 +159,6 @@ public final class DataManager {
     }
   }
 
-  private static void registerLabels(final DataSection data, final LabelManager labelManager) {
-    InvariantChecks.checkNotNull(labelManager);
-
-    final int sequenceIndex = data.getSequenceIndex();
-    for (final Pair<Label, BigInteger> labelInfo : data.getLabelsWithAddresses()) {
-      final Label label = labelInfo.first;
-      final long address = labelInfo.second.longValue();
-      label.setSequenceIndex(sequenceIndex);
-      labelManager.addLabel(label, address);
-    }
-  }
-
   public void resetLocalData() {
     localData.clear();
   }
@@ -180,7 +167,7 @@ public final class DataManager {
     allocator.resetCurrentAddress();
     for (final DataSection data : globalData) {
       data.allocate(allocator);
-      registerLabels(data, labelManager);
+      data.registerLabels(labelManager);
     }
   }
 
