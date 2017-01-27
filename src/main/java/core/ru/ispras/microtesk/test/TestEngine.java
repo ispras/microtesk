@@ -212,15 +212,11 @@ public final class TestEngine {
       try {
         throw e.getCause();
       } catch (final GenerationAbortedException e2) {
-        handleGenerationAborted(e2);
+        reportAborted(e2.getMessage());
       }
     }
 
     return true;
-  }
-
-  private void handleGenerationAborted(final GenerationAbortedException e) {
-    reportAborted(e.getMessage());
   }
 
   public Template newTemplate() {
