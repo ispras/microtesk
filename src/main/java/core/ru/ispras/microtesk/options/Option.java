@@ -89,8 +89,6 @@ public enum Option {
 
   BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
   BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE),
-  BASE_VA_DATA("base-virtual-address-data", "Base VA for data memory allocation",
-      BASE_VA.getDefaultValue(), GENERATE),
 
   INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE);
 

@@ -96,18 +96,15 @@ public final class DataManager {
 
     checkReinitialized();
 
-    if (null != baseVirtualAddress) {
-      options.setValue(Option.BASE_VA_DATA, baseVirtualAddress);
-    }
+    final BigInteger baseVA = null != baseVirtualAddress ?
+        baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);
 
-    final BigInteger basePhysicalAddressForAllocation =
-        AddressTranslator.get().virtualToPhysical(
-            options.getValueAsBigInteger(Option.BASE_VA_DATA));
+    final BigInteger basePA =
+        AddressTranslator.get().virtualToPhysical(baseVA);
 
-    allocator = model.getPE().newMemoryAllocator(
-        target, addressableUnitBitSize, basePhysicalAddressForAllocation);
-
+    allocator = model.getPE().newMemoryAllocator(target, addressableUnitBitSize, basePA);
     factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
+
     return factoryBuilder;
   }
 
