@@ -38,12 +38,29 @@ public abstract class ProcessingElement {
     ProcessingElement create();
   }
 
-  private final Map<String, Memory> storageMap = new HashMap<>();
-  private final Map<String, Label> labelMap = new HashMap<>();
-  private final Map<String, MemoryDevice> deviceMap = new HashMap<>();
+  private final Map<String, Memory> storageMap;
+  private final Map<String, Label> labelMap;
+  private final Map<String, MemoryDevice> deviceMap;
 
-  private MemoryDevice memory = null;
-  private Memory memoryAllocatorStorage = null;
+  private MemoryDevice memory;
+  private Memory memoryAllocatorStorage;
+  private String memoryAllocatorStorageId;
+
+  protected ProcessingElement() {
+    this.storageMap = new HashMap<>();
+    this.labelMap = new HashMap<>();
+    this.deviceMap = new HashMap<>();
+
+    this.memory = null;
+    this.memoryAllocatorStorage = null;
+    this.memoryAllocatorStorageId = null;
+  }
+
+  protected ProcessingElement(final ProcessingElement other) {
+    this();
+    InvariantChecks.checkNotNull(other);
+    this.memoryAllocatorStorageId = other.memoryAllocatorStorageId;
+  }
 
   protected final void addStorage(final Memory storage) {
     InvariantChecks.checkNotNull(storage);
@@ -114,10 +131,15 @@ public abstract class ProcessingElement {
       final int addressableUnitBitSize,
       final BigInteger baseAddress) throws ConfigurationException {
     memoryAllocatorStorage = getStorage(storageId);
+    memoryAllocatorStorageId = storageId;
     memoryAllocatorStorage.initAllocator(addressableUnitBitSize, baseAddress);
   }
 
   protected MemoryAllocator getMemoryAllocator() {
+    if (null == memoryAllocatorStorage && null != memoryAllocatorStorageId) {
+      memoryAllocatorStorage = storageMap.get(memoryAllocatorStorageId);
+    }
+
     InvariantChecks.checkNotNull(memoryAllocatorStorage, "Allocator is not initialized.");
     return memoryAllocatorStorage.getAllocator();
   }

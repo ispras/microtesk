@@ -41,10 +41,12 @@ new Label("<name>", <memory>, <index>)
 processing_element(class, names, defs, copies, labels) ::= <<
 <names:{n | public final Memory <n>;}; separator="\n"><\n>
 private <class>() {
+  super();
   <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
   registerAll();
 }<\n>
 private <class>(final <class> other, final boolean shared) {
+  super(other);
   <names, copies:{n, c | this.<n> = <c>;}; separator="\n"><\n>
   registerAll();
 }<\n>
