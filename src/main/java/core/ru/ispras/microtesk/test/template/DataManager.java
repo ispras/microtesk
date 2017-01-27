@@ -102,9 +102,7 @@ public final class DataManager {
         baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);
 
     final BigInteger basePhysicalAddressForAllocation =
-        null != baseVirtualAddress ?
-        AddressTranslator.get().virtualToPhysical(baseVirtualAddress) :
-        options.getValueAsBigInteger(Option.BASE_PA);
+        AddressTranslator.get().virtualToPhysical(baseVirtualAddress);
 
     allocator = model.getPE().newMemoryAllocator(
         target, addressableUnitBitSize, basePhysicalAddressForAllocation);
