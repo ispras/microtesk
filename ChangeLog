@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/01/27 MicroTESK 2.4.10 beta
+ - The SAT4J solver has been adapted to be used in the memory engine
+ - The .text directive is automatically inserted into code
+ - Bug fixes and general improvements
+
 2017/01/20 MicroTESK 2.4.9 beta
  - Refactoring of simulation logic
 
