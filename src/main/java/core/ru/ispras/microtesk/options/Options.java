@@ -21,6 +21,11 @@ import java.util.Map.Entry;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Options} stores options.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Options {
   private final Map<Option, Object> options;
 

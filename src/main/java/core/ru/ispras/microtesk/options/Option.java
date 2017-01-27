@@ -20,6 +20,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Option} enumeration describes options.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public enum Option {
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Common Options

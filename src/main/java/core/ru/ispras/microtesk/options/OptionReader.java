@@ -23,6 +23,12 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link OptionReader} class reads options from command line or
+ * from table of cached values.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class OptionReader {
   private final Map<String, String> configuration;
   private final String[] commandLineArgs;
