@@ -145,7 +145,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(globalLabels);
     InvariantChecks.checkNotNull(data);
 
-    allocateData(data, allocator);
+    data.allocate(allocator);
     registerLabels(data, globalLabels);
 
     if (data.isSeparateFile()) {
@@ -157,14 +157,6 @@ public final class DataManager {
       globalData.add(data);
     } else {
       localData.add(data);
-    }
-  }
-
-  private static void allocateData(final DataSection data, final MemoryAllocator allocator) {
-    InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkNotNull(allocator);
-    for (final DataDirective directive : data.getDirectives()) {
-      directive.apply(allocator);
     }
   }
 
@@ -187,7 +179,7 @@ public final class DataManager {
   public void reallocateGlobalData() {
     allocator.resetCurrentAddress();
     for (final DataSection data : globalData) {
-      allocateData(data, allocator);
+      data.allocate(allocator);
       registerLabels(data, labelManager);
     }
   }

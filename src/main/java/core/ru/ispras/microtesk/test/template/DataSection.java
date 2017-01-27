@@ -22,6 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 
 public class DataSection {
   private final List<LabelValue> labelValues;
@@ -128,6 +129,13 @@ public class DataSection {
 
   public boolean isSeparateFile() {
     return separateFile;
+  }
+
+  public void allocate(final MemoryAllocator allocator) {
+    InvariantChecks.checkNotNull(allocator);
+    for (final DataDirective directive : directives) {
+      directive.apply(allocator);
+    }
   }
 
   @Override
