@@ -132,10 +132,15 @@ public abstract class Memory {
     this.addressBitSize = other.addressBitSize;
   }
 
-  public MemoryAllocator newAllocator(
+  public void initAllocator(
       final int addressableUnitBitSize, final BigInteger baseAddress) {
     throw new UnsupportedOperationException(
-        "newAllocator is not supported for " + toString());
+        "initAllocator is not supported for " + toString());
+  }
+  
+  public MemoryAllocator getAllocator() {
+    throw new UnsupportedOperationException(
+        "getAllocator is not supported for " + toString());
   }
 
   public MemoryDevice setHandler(final MemoryDevice handler) {

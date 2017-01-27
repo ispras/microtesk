@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
   private MemoryDevice handler;
+  private MemoryAllocator allocator;
 
   private final boolean isLogical;
   private final BigInteger addressableUnitsInData;
@@ -38,6 +39,7 @@ final class PhysicalMemory extends Memory {
 
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     this.handler = null;
+    this.allocator = null;
   
     // A memory array that corresponds to a real physical memory must satisfy the following
     // precondition: (1) element size is a multiple of 8 bits (byte), (2) element count is
@@ -63,18 +65,33 @@ final class PhysicalMemory extends Memory {
 
     this.storage = new MemoryStorage(other.storage);
     this.handler = other.handler;
+
+    if (null != other.allocator) {
+      initAllocator(other.allocator.getAddressableUnitBitSize(), other.allocator.getBaseAddress());
+      this.allocator.setCurrentAddress(other.allocator.getCurrentAddress());
+    }
+
     this.addressableUnitsInData = other.addressableUnitsInData;
     this.isLogical = other.isLogical;
   }
 
   @Override
-  public final MemoryAllocator newAllocator(
-      final int addressableUnitBitSize,
-      final BigInteger baseAddress) {
+  public void initAllocator(final int addressableUnitBitSize, final BigInteger baseAddress) {
     InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
     InvariantChecks.checkNotNull(baseAddress);
 
-    return new MemoryAllocator(storage, addressableUnitBitSize, baseAddress);
+    if (null == allocator) {
+      allocator = new MemoryAllocator(storage, addressableUnitBitSize, baseAddress);
+    } else {
+      InvariantChecks.checkTrue(allocator.getAddressableUnitBitSize() == addressableUnitBitSize);
+      InvariantChecks.checkTrue(allocator.getBaseAddress() == baseAddress);
+    }
+  }
+
+  @Override
+  public MemoryAllocator getAllocator() {
+    InvariantChecks.checkNotNull(allocator, "Allocator is not initialized.");
+    return allocator;
   }
 
   @Override

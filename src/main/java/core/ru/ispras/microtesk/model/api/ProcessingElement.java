@@ -113,7 +113,8 @@ public abstract class ProcessingElement {
       final int addressableUnitBitSize,
       final BigInteger baseAddress) throws ConfigurationException {
     final Memory storage = getStorage(storageId);
-    return storage.newAllocator(addressableUnitBitSize, baseAddress);
+    storage.initAllocator(addressableUnitBitSize, baseAddress);
+    return storage.getAllocator();
   }
 
   protected final void setMemoryHandler(
