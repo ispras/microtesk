@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -35,6 +35,11 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.Statistics;
 
+/**
+ * The {@link DataManager} class create internal representation of data sections.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class DataManager {
   private final Model model;
   private final Options options;
@@ -44,7 +49,6 @@ public final class DataManager {
   private final List<DataSection> localData;
   private LabelManager labelManager;
 
-  private BigInteger baseVirtualAddress;
   private MemoryAllocator allocator;
   private DataDirectiveFactory factory;
   private int dataFileIndex;
@@ -67,7 +71,6 @@ public final class DataManager {
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
 
-    this.baseVirtualAddress = null;
     this.allocator = null;
 
     this.factory = null;
@@ -98,11 +101,13 @@ public final class DataManager {
 
     checkReinitialized();
 
-    this.baseVirtualAddress = baseVirtualAddress != null ?
-        baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);
+    if (null != baseVirtualAddress) {
+      options.setValue(Option.BASE_VA_DATA, baseVirtualAddress);
+    }
 
     final BigInteger basePhysicalAddressForAllocation =
-        AddressTranslator.get().virtualToPhysical(baseVirtualAddress);
+        AddressTranslator.get().virtualToPhysical(
+            options.getValueAsBigInteger(Option.BASE_VA_DATA));
 
     allocator = model.getPE().newMemoryAllocator(
         target, addressableUnitBitSize, basePhysicalAddressForAllocation);
@@ -200,12 +205,6 @@ public final class DataManager {
     final BigInteger physicalAddress = allocator.getCurrentAddress();
     final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
     return virtualAddress;
-  }
-
-  public BigInteger getBaseAddress() {
-    checkInitialized();
-    InvariantChecks.checkNotNull(baseVirtualAddress);
-    return baseVirtualAddress;
   }
 
   public void generateData(
