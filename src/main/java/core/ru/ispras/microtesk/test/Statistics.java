@@ -55,6 +55,7 @@ public final class Statistics {
 
   private int programs;
   private long programLength;
+  private int dataFiles;
 
   private int sequences;
   private long instructions;
@@ -81,6 +82,7 @@ public final class Statistics {
  
     this.programs = 0;
     this.programLength = 0;
+    this.dataFiles = 0;
 
     this.sequences = 0;
     this.instructions = 0;
@@ -132,9 +134,8 @@ public final class Statistics {
     sequenceTraceLength = 0;
   }
 
-  public void decPrograms() {
-    programs--;
-    programLength = 0;
+  public void incDataFiles() {
+    dataFiles++;
   }
 
   public void incSequences() {
@@ -174,6 +175,10 @@ public final class Statistics {
 
   public int getPrograms() {
     return programs;
+  }
+
+  public int getDataFiles() {
+    return dataFiles;
   }
 
   public int getSequences() {
