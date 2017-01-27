@@ -149,7 +149,7 @@ public final class DataManager {
     registerLabels(data, globalLabels);
 
     if (data.isSeparateFile()) {
-      saveToFile(data.getDirectives());
+      saveToFile(data);
       return;
     }
 
@@ -305,13 +305,15 @@ public final class DataManager {
     }
   }
 
-  private void saveToFile(final List<DataDirective> data) {
+  private void saveToFile(final DataSection data) {
+    InvariantChecks.checkNotNull(data);
+
     Printer printer = null;
     try {
       statistics.pushActivity(Statistics.Activity.PRINTING);
 
       printer = Printer.newDataFile(options, statistics.getDataFiles());
-      printer.printDataDirectives(data);
+      printer.printDataDirectives(data.getDirectives());
 
       statistics.incDataFiles();
     } catch (final IOException e) {
