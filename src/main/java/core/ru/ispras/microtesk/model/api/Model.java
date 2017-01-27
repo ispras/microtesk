@@ -153,6 +153,7 @@ public final class Model {
       procElem.resetState();
     }
     activeProcElemTemp = null;
+    initializePEs();
   }
 
   public final MemoryDevice setMemoryHandler(final String id, final MemoryDevice handler) {
