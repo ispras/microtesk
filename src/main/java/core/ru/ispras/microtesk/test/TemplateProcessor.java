@@ -300,9 +300,8 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void printExceptionHandler(
-      final String id,
-      final List<TestSequence> sequences) throws IOException, ConfigurationException {
+  private void printExceptionHandler(final String id, final List<TestSequence> sequences)
+      throws IOException, ConfigurationException {
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(sequences);
 
@@ -321,7 +320,28 @@ final class TemplateProcessor implements Template.Processor {
         printer.close();
       }
       Logger.debugBar();
-      engineContext.getStatistics().popActivity();
+      statistics.popActivity();
+    }
+  }
+
+  private void printDataSection(final DataSection data)
+      throws IOException, ConfigurationException {
+    InvariantChecks.checkNotNull(data);
+
+    final Statistics statistics = engineContext.getStatistics();
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    Printer printer = null;
+    try {
+      printer = Printer.newDataFile(engineContext.getOptions(), statistics.getDataFiles());
+      printer.printDataDirectives(data.getDirectives());
+      statistics.incDataFiles();
+    } finally {
+      if (null != printer) {
+        printer.close();
+      }
+      Logger.debugBar();
+      statistics.popActivity();
     }
   }
 
