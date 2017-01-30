@@ -115,10 +115,9 @@ final class Executor {
       }
 
       if (labels != null) {
+        distance++;
         if (distance > delaySlotSize) {
           reset();
-        } else {
-          distance++;
         }
       }
 
