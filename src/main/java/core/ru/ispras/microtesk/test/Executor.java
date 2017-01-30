@@ -320,12 +320,6 @@ final class Executor {
       }
 
       final long address = getPC();
-
-      if (address == call.getAddress()) {
-        throw new GenerationAbortedException(
-            String.format("PC was not updated. It still points to 0x%016x", address));
-      }
-
       final boolean isJump = address != call.getAddress() + call.getByteSize();
 
       // NORMAL
