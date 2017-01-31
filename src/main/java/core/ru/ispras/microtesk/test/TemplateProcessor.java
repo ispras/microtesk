@@ -74,7 +74,7 @@ final class TemplateProcessor implements Template.Processor {
     try {
       concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
       testProgram.addExceptionHandlers(concreteHandler);
-      printExceptionHandler(handler.getId(), concreteHandler.first);
+      PrinterUtils.printExceptionHandler(engineContext, handler.getId(), concreteHandler.first);
     } catch (final Exception e) {
       rethrowException(e);
     }
@@ -213,7 +213,7 @@ final class TemplateProcessor implements Template.Processor {
       final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    printSequenceToConsole(sequence, sequenceId);
+    PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
     testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
 
     Logger.debugHeader("Executing %s", sequenceId);
@@ -300,51 +300,6 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void printExceptionHandler(final String id, final List<TestSequence> sequences)
-      throws IOException, ConfigurationException {
-    InvariantChecks.checkNotNull(id);
-    InvariantChecks.checkNotNull(sequences);
-
-    final Statistics statistics = engineContext.getStatistics();
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
-    Printer printer = null;
-    try { 
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
-      for (final TestSequence sequence : sequences) {
-        statistics.incInstructions(sequence.getInstructionCount());
-        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
-      }
-    } finally {
-      if (null != printer) {
-        printer.close();
-      }
-      Logger.debugBar();
-      statistics.popActivity();
-    }
-  }
-
-  private void printDataSection(final DataSection data)
-      throws IOException, ConfigurationException {
-    InvariantChecks.checkNotNull(data);
-
-    final Statistics statistics = engineContext.getStatistics();
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
-    Printer printer = null;
-    try {
-      printer = Printer.newDataFile(engineContext.getOptions(), statistics.getDataFiles());
-      printer.printDataDirectives(data.getDirectives());
-      statistics.incDataFiles();
-    } finally {
-      if (null != printer) {
-        printer.close();
-      }
-      Logger.debugBar();
-      statistics.popActivity();
-    }
-  }
-
   private void printTestProgram() throws ConfigurationException, IOException {
     final Statistics statistics = engineContext.getStatistics();
     if (statistics.getProgramLength() == 0) {
@@ -372,23 +327,6 @@ final class TemplateProcessor implements Template.Processor {
     } finally {
       printer.close();
       statistics.popActivity();
-    }
-  }
-
-  private void printSequenceToConsole(
-      final TestSequence sequence,
-      final String sequenceId) throws ConfigurationException {
-    InvariantChecks.checkNotNull(sequence);
-    InvariantChecks.checkNotNull(sequenceId);
-
-    if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
-      Logger.debugHeader("Constructed %s", sequenceId);
-
-      final Printer consolePrinter =
-          Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics());
-
-      consolePrinter.printSequence(
-          engineContext.getModel().getPE(), sequence, "");
     }
   }
 }
