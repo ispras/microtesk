@@ -35,6 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -218,7 +219,10 @@ public final class MmuUnderTest {
 
       boolean v = false;
       for (final MemoryAccessPath.Entry entry : path.getEntries()) {
-        if (entry.getTransition() == MmuUnderTest.get().ifValid) {
+        final MmuProgram program = entry.getProgram();
+        final MmuTransition transition = program.getTransition();
+
+        if (transition == MmuUnderTest.get().ifValid) {
           v = true;
           break;
         }
