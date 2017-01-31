@@ -17,8 +17,6 @@ package ru.ispras.microtesk.test.template;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -173,13 +171,6 @@ public final class DataManager {
     return factory != null;
   }
 
-  public BigInteger getAddress() {
-    checkInitialized();
-    final BigInteger physicalAddress = getAllocator().getCurrentAddress();
-    final BigInteger virtualAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
-    return virtualAddress;
-  }
-
   public void generateData(
       final BigInteger address,
       final String labelName,
@@ -214,66 +205,6 @@ public final class DataManager {
       for (int index = 0; index < length; index += 4) {
         final int count = Math.min(length - index, 4);
         dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
-      }
-
-      processData(labelManager, dataBuilder.build());
-    } finally {
-      getAllocator().setCurrentAddress(oldAddress);
-    }
-  }
-
-  public void generateAllData(
-      final BigInteger startAddress,
-      final Collection<BigInteger> addresses,
-      final BigInteger addressMask,
-      final boolean printAbsoluteOrg,
-      final String method,
-      final boolean isSeparateFile) {
-    InvariantChecks.checkNotNull(startAddress);
-    InvariantChecks.checkNotNull(addresses);
-    InvariantChecks.checkNotNull(method);
-
-    checkInitialized();
-
-    final DataSectionBuilder dataBuilder = new DataSectionBuilder(
-        new BlockId(), factory, true, isSeparateFile);
-
-    final List<BigInteger> sortedAddresses = new ArrayList<>(addresses);
-    Collections.sort(sortedAddresses);
-
-    final int blockSize = addressMask.not().intValue() + 1;
-    final int unitSize = blockSize > 8 ? 8 : blockSize;
-    final int unitsInRow = blockSize / unitSize;
-
-    final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(unitSize);
-    final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
-
-    final BigInteger oldAddress = getAllocator().getCurrentAddress();
-    try {
-      getAllocator().setCurrentAddress(startAddress);
-      dataBuilder.addComment(String.format(" Address: 0x%x", startAddress));
-
-      BigInteger nextAddress = BigInteger.ZERO.not();
-      for (final BigInteger address : sortedAddresses) {
-        InvariantChecks.checkTrue(address.compareTo(startAddress) >= 0);
-
-        if (address.compareTo(nextAddress) != 0) {
-          getAllocator().setCurrentAddress(address);
-
-          final BigInteger printedAddress =
-              printAbsoluteOrg ? address : address.subtract(startAddress);
-
-          dataBuilder.addText("");
-          dataBuilder.addText(String.format(
-              options.getValueAsString(Option.ORIGIN_FORMAT), printedAddress));
-        }
-
-        for (int i = 0; i < unitsInRow; i += 4) {
-          final int count = Math.min(unitsInRow - i, 4);
-          dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
-        }
-
-        nextAddress = getAllocator().getCurrentAddress();
       }
 
       processData(labelManager, dataBuilder.build());
