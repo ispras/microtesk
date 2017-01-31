@@ -349,7 +349,7 @@ public final class TestEngine {
     Logger.message("Generation was aborted.");
   }
 
-  private static void setRandomSeed(int seed) {
+  private static void setRandomSeed(final int seed) {
     Randomizer.get().setSeed(seed);
   }
 
