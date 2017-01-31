@@ -99,4 +99,35 @@ final class PrinterUtils {
       statistics.popActivity();
     }
   }
+
+  public static void printTestProgram(
+      final EngineContext engineContext,
+      final TestProgram testProgram) throws ConfigurationException, IOException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(testProgram);
+
+    final Statistics statistics = engineContext.getStatistics();
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    final int programIndex = statistics.getPrograms();
+    final Printer printer = Printer.newCodeFile(engineContext.getOptions(), programIndex);
+
+    try {
+      statistics.incPrograms();
+
+      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
+        final TestProgramEntry entry = testProgram.getEntry(index);
+        final String sequenceId = entry.getSequenceId();
+        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
+        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
+      }
+
+      final List<DataSection> globalData = engineContext.getDataManager().getGlobalData();
+      final List<DataSection> localData = engineContext.getDataManager().getLocalData();
+      printer.printData(globalData, localData);
+    } finally {
+      printer.close();
+      statistics.popActivity();
+    }
+  }
 }

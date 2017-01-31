@@ -285,7 +285,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
       processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
-      printTestProgram();
+      PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
       Tarmac.closeFile();
 
@@ -297,36 +297,6 @@ final class TemplateProcessor implements Template.Processor {
       testProgram.reset();
 
       isProgramStarted = false;
-    }
-  }
-
-  private void printTestProgram() throws ConfigurationException, IOException {
-    final Statistics statistics = engineContext.getStatistics();
-    if (statistics.getProgramLength() == 0) {
-      return;
-    }
-
-    statistics.pushActivity(Statistics.Activity.PRINTING);
-
-    final int programIndex = statistics.getPrograms();
-    final Printer printer = Printer.newCodeFile(engineContext.getOptions(), programIndex);
-
-    try {
-      statistics.incPrograms();
-
-      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
-        final TestProgramEntry entry = testProgram.getEntry(index);
-        final String sequenceId = entry.getSequenceId();
-        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
-        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
-      }
-
-      final List<DataSection> globalData = engineContext.getDataManager().getGlobalData();
-      final List<DataSection> localData = engineContext.getDataManager().getLocalData();
-      printer.printData(globalData, localData);
-    } finally {
-      printer.close();
-      statistics.popActivity();
     }
   }
 }
