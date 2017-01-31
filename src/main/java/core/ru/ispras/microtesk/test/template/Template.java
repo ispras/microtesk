@@ -42,6 +42,7 @@ import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The {@link Template} class builds the internal representation of a test template
@@ -128,16 +129,8 @@ public final class Template {
     this.unusedBlocks = new LinkedHashSet<>();
   }
 
-  private void processBlock(final Section section, final Block block) {
-    processor.process(section, block);
-  }
-
   public DataManager getDataManager() {
     return dataManager;
-  }
-
-  public Processor getProcessor() {
-    return processor;
   }
 
   public Set<Block> getUnusedBlocks() {
@@ -164,7 +157,7 @@ public final class Template {
 
   public void endPreSection() {
     final Block rootBlock = endCurrentSection().build();
-    processBlock(Section.PRE, rootBlock);
+    processor.process(Section.PRE, rootBlock);
     Logger.debugHeader("Ended Processing Initialization Section");
   }
 
@@ -176,7 +169,7 @@ public final class Template {
 
   public void endPostSection() {
     final Block rootBlock = endCurrentSection().build();
-    processBlock(Section.POST, rootBlock);
+    processor.process(Section.POST, rootBlock);
     Logger.debugHeader("Ended Processing Finalization Section");
   }
 
@@ -190,11 +183,22 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = endCurrentSection();
     if (!rootBlockBuilder.isEmpty()) {
       final Block rootBlock = rootBlockBuilder.build();
-      processBlock(Section.MAIN, rootBlock);
+      processor.process(Section.MAIN, rootBlock);
     }
 
     Logger.debugHeader("Ended Processing Main Section");
     isMainSection = false;
+
+    processor.finish();
+
+    final Set<Block> unusedBlocks = getUnusedBlocks();
+    if (!unusedBlocks.isEmpty()) {
+      Logger.warning("Unused blocks have been detected at: %s",
+          StringUtils.toString(unusedBlocks, ", ", new StringUtils.Converter<Block>() {
+              @Override
+              public String toString(final Block o) {return o.getWhere().toString();}
+          }));
+    }
   }
 
   private void beginNewSection() {
@@ -267,7 +271,7 @@ public final class Template {
 
     if (!rootBuilder.isEmpty()) {
       final Block rootBlock = rootBuilder.build();
-      processBlock(Section.MAIN, rootBlock);
+      processor.process(Section.MAIN, rootBlock);
     }
 
     final BlockBuilder newRootBuilder = new BlockBuilder(true);
@@ -330,7 +334,7 @@ public final class Template {
       checkAllowedToRun();
       processExternalCode();
 
-      processBlock(Section.MAIN, block);
+      processor.process(Section.MAIN, block);
 
       markBlockAsUsed();
       return this;
@@ -341,7 +345,7 @@ public final class Template {
       processExternalCode();
 
       for (int index = 0; index < times; index++) {
-        processBlock(Section.MAIN, block);
+        processor.process(Section.MAIN, block);
       }
 
       markBlockAsUsed();

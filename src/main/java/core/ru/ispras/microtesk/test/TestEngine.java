@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,9 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
@@ -30,7 +28,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.Reader;
@@ -42,12 +39,15 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
-import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
-import ru.ispras.microtesk.utils.StringUtils;
 
+/**
+ * The {@link TestEngine} class is responsible for generation of test programs.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class TestEngine {
   private static TestEngine instance = null;
 
@@ -293,19 +293,6 @@ public final class TestEngine {
     }
 
     return settings;
-  }
-
-  public void process(final Template template) throws ConfigurationException, IOException {
-    template.getProcessor().finish();
-
-    final Set<Block> unusedBlocks = template.getUnusedBlocks();
-    if (!unusedBlocks.isEmpty()) {
-      Logger.warning("Unused blocks have been detected at: %s",
-          StringUtils.toString(unusedBlocks, ", ", new StringUtils.Converter<Block>() {
-              @Override
-              public String toString(final Block o) {return o.getWhere().toString();}
-          }));
-    }
   }
 
   private static void initSolverPaths(final String home) {

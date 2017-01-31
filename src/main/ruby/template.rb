@@ -924,8 +924,6 @@ class Template
     @template.beginMainSection
     run
     @template.endMainSection
-
-    engine.process @template
   end
 
   def set_option_value(name, value)
