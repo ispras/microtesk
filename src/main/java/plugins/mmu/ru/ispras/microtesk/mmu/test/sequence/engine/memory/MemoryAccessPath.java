@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -58,36 +59,43 @@ public final class MemoryAccessPath {
     }
 
     public static Entry NORMAL(
-        final MmuTransition transition,
+        final MmuProgram program,
         final MemoryAccessStack.Frame frame) {
-      InvariantChecks.checkNotNull(transition);
-      return new Entry(Kind.NORMAL, transition, frame);
+      InvariantChecks.checkNotNull(program);
+      return new Entry(Kind.NORMAL, program, frame);
     }
 
     public static Entry CALL(
-        final MmuTransition transition,
+        final MmuProgram program,
         final MemoryAccessStack.Frame frame) {
       InvariantChecks.checkNotNull(frame);
-      InvariantChecks.checkNotNull(transition);
+      InvariantChecks.checkNotNull(program);
 
-      return new Entry(Kind.CALL, transition, frame);
+      return new Entry(Kind.CALL, program, frame);
     }
 
     public static Entry RETURN() {
-      return new Entry(Kind.RETURN, null, null);
+      return new Entry(Kind.RETURN, MmuProgram.EMPTY, null);
     }
 
     private final Kind kind;
-    private final MmuTransition transition;
+    private final MmuProgram program;
     private final MemoryAccessStack.Frame frame;
 
     private Entry(
         final Kind kind,
-        final MmuTransition transition,
+        final MmuProgram program,
         final MemoryAccessStack.Frame frame) {
+      InvariantChecks.checkNotNull(kind);
+      InvariantChecks.checkNotNull(program);
+
       this.kind = kind;
-      this.transition = transition;
+      this.program = program;
       this.frame = frame;
+    }
+
+    public boolean isNormal() {
+      return kind == Kind.NORMAL;
     }
 
     public boolean isCall() {
@@ -98,8 +106,8 @@ public final class MemoryAccessPath {
       return kind == Kind.RETURN;
     }
 
-    public MmuTransition getTransition() {
-      return transition;
+    public MmuProgram getProgram() {
+      return program;
     }
 
     public boolean hasFrame() {
@@ -112,7 +120,7 @@ public final class MemoryAccessPath {
 
     @Override
     public String toString() {
-      return transition.toString();
+      return program.toString();
     }
   }
 
@@ -135,9 +143,9 @@ public final class MemoryAccessPath {
       final Collection<MmuAction> result = new LinkedHashSet<>();
 
       for (final Entry entry : entries) {
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuAction sourceAction = transition.getSource();
           final MmuAction targetAction = transition.getTarget();
 
@@ -159,9 +167,9 @@ public final class MemoryAccessPath {
       for (final Entry entry : entries) {
         updateStack(stack, entry);
 
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuAction action = transition.getSource();
           final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
 
@@ -185,9 +193,9 @@ public final class MemoryAccessPath {
       for (final Entry entry : entries) {
         updateStack(stack, entry);
 
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
           final MmuBufferAccess guardBufferAccess = guard != null ? guard.getBufferAccess(stack) : null;
 
@@ -224,9 +232,9 @@ public final class MemoryAccessPath {
       for (final Entry entry : entries) {
         updateStack(stack, entry);
 
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
 
           if (guard != null) {
@@ -252,9 +260,9 @@ public final class MemoryAccessPath {
       for (final Entry entry : entries) {
         updateStack(stack, entry);
 
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
           final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
 
@@ -301,9 +309,9 @@ public final class MemoryAccessPath {
       final Collection<MmuSegment> segments = new LinkedHashSet<>(memory.getSegments());
 
       for (final Entry entry : entries) {
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
 
           if (guard != null) {
@@ -342,9 +350,9 @@ public final class MemoryAccessPath {
 
       // Strike out irrelevant regions and segments.
       for (final Entry entry : entries) {
-        final MmuTransition transition = entry.getTransition();
+        final MmuProgram program = entry.getProgram();
 
-        if (transition != null) {
+        for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
 
           if (guard != null) {
@@ -416,6 +424,7 @@ public final class MemoryAccessPath {
   private final Collection<MmuAction> actions;
   private final Collection<MmuAddressInstance> addressInstances;
   private final Collection<MmuBufferAccess> bufferAccesses;
+  private final Collection<MmuBuffer> buffers;
   private final Collection<MmuSegment> segments;
   private final Collection<IntegerVariable> variables;
   private final Map<MmuBufferAccess, BufferAccessEvent> events;
@@ -453,6 +462,14 @@ public final class MemoryAccessPath {
     this.variables = Collections.unmodifiableCollection(variables);
     this.events = Collections.unmodifiableMap(events);
     this.regions = Collections.unmodifiableMap(regions);
+
+    final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
+
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+      buffers.add(bufferAccess.getBuffer());
+    }
+
+    this.buffers = Collections.unmodifiableCollection(buffers);
 
     final Iterator<Entry> iterator = entries.iterator();
 
@@ -494,14 +511,7 @@ public final class MemoryAccessPath {
     return bufferAccesses;
   }
 
-  // TODO:
   public Collection<MmuBuffer> getBuffers() {
-    final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
-
-    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
-      buffers.add(bufferAccess.getBuffer());
-    }
-
     return buffers;
   }
 
@@ -532,10 +542,9 @@ public final class MemoryAccessPath {
     return bufferAccesses.contains(bufferAccess);
   }
 
-  // TODO:
   public boolean contains(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
-    return getBuffers().contains(buffer);
+    return buffers.contains(buffer);
   }
 
   public boolean contains(final IntegerVariable variable) {
@@ -575,26 +584,32 @@ public final class MemoryAccessPath {
       } else if (entry.isReturn()) {
         builder.append("RETURN");
       } else {
-        final MmuTransition transition = entry.getTransition();
-        final MmuGuard guard = transition.getGuard();
+        final MmuProgram program = entry.getProgram();
 
-        if (guard != null && guard.getOperation() == null) {
-          builder.append(guard);
-          builder.append(separator);
-        }
+        if (program.isAtomic()) {
+          final MmuTransition transition = program.getTransition();
+          final MmuGuard guard = transition.getGuard();
 
-        final MmuAction action = transition.getSource();
-        final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+          if (guard != null && guard.getOperation() == null) {
+            builder.append(guard);
+            builder.append(separator);
+          }
 
-        if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
-          builder.append(bufferAccess);
-          builder.append(separator);
+          final MmuAction action = program.getSource();
+          final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+
+          if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
+            builder.append(bufferAccess);
+            builder.append(separator);
+          }
+        } else {
+          builder.append("...");
         }
       }
     }
 
-    final MmuTransition lastTransition = lastEntry.getTransition();
-    final MmuAction action = lastTransition.getTarget();
+    final MmuProgram lastProgram = lastEntry.getProgram();
+    final MmuAction action = lastProgram.getTarget();
     builder.append(action.getName());
 
     return builder.toString();

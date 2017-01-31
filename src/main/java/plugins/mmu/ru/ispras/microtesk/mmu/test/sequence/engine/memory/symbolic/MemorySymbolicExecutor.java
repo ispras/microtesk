@@ -43,6 +43,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
@@ -228,8 +229,12 @@ public final class MemorySymbolicExecutor {
       return;
     }
 
+    final MmuProgram program = entry.getProgram();
+
     if (entry.isCall()) {
-      final MmuTransition transition = entry.getTransition();
+      InvariantChecks.checkTrue(program.isAtomic());
+
+      final MmuTransition transition = program.getTransition();
       final MmuAction action = transition.getTarget();
 
       final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
@@ -247,9 +252,11 @@ public final class MemorySymbolicExecutor {
     } else {
       result.updateStack(entry, pathIndex);
 
-      final MmuTransition transition = entry.getTransition();
+      if (entry.isNormal()) {
+        // TODO:
+        InvariantChecks.checkTrue(program.isAtomic());
 
-      if (transition != null) {
+        final MmuTransition transition = program.getTransition();
         final MmuGuard guard = transition.getGuard();
 
         if (guard != null) {

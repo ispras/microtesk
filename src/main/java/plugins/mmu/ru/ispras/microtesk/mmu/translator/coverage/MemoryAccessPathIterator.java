@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.translator.coverage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import ru.ispras.fortress.randomizer.Randomizer;
@@ -33,6 +35,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbol
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -111,7 +114,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private final class SearchEntry {
-    static final int LOOKUP_DEPTH = 2;
+    static final int LOOKUP_DEPTH = 4;
 
     final MmuAction action;
     final List<Object> trajectorySuffix;
@@ -137,7 +140,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           edges.addAll(allEdges);
         } else {
           for (final MemoryGraph.Edge edge : allEdges) {
-            if (lookup(edge, trajectorySuffix, LOOKUP_DEPTH) != 0) {
+            if (lookup(edge, trajectorySuffix, LOOKUP_DEPTH)) {
               edges.add(edge);
             }
           }
@@ -157,10 +160,9 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
      * @param edge the edge.
      * @param trajectory the trajectory suffix.
      * @param depth the depth of the analysis.
-     * @return zero if the given trajectory is infeasible via the given edge;
-     *         positive otherwise.
+     * @return true iff the given trajectory is reachable via the given edge;
      */
-    private int lookup(
+    private boolean lookup(
         final MemoryGraph.Edge edge,
         final List<Object> trajectory,
         final int depth) {
@@ -168,7 +170,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       if (!edge.conformsTo(label)) {
         // The trajectory cannot be reached via the given edge.
-        return 0;
+        return false;
       }
 
       final MmuTransition transition = edge.getTransition();
@@ -177,35 +179,26 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       // This is an edge to the terminal node.
       if (targetEdges == null || targetEdges.isEmpty()) {
-        return (trajectory.isEmpty() || trajectory.size() == 1 && edge.getLabel() != null)
-            // The trajectory is reachable.
-            ? Integer.MAX_VALUE
-            // The trajectory is unreachable.
-            : 0;
+        return (trajectory.isEmpty() || trajectory.size() == 1 && edge.getLabel() != null);
       }
 
       if (depth <= 1) {
-        // The trajectory is assumed to be reachable.
-        return 1;
+        // It is unknown whether the trajectory is reachable.
+        return true;
       }
 
       final List<Object> trajectorySuffix = (edge.getLabel() != null)
           ? trajectory.subList(1, trajectory.size())
           : trajectory;
 
-      int integralEstimate = 0;
-
       for (final MemoryGraph.Edge targetEdge : targetEdges) {
-        final int estimate = lookup(targetEdge, trajectorySuffix, depth - 1);
-
-        if (estimate == Integer.MAX_VALUE) {
-          return Integer.MAX_VALUE;
+        if (lookup(targetEdge, trajectorySuffix, depth - 1)) {
+          return true;
         }
-
-        integralEstimate += estimate;
       }
 
-      return integralEstimate;
+      // The trajectory cannot be reached via the given edge.
+      return false;
     }
   }
 
@@ -298,20 +291,116 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     return result;
   }
 
+  private MmuProgram getNextProgram(final MmuAction source) {
+    Set<MmuAction> ends = null;
+    final Collection<MemoryGraph.Edge> edges = graph.getEdges(source);
+
+    // Check whether the transitions can be unified.
+    for (final MemoryGraph.Edge edge : edges) {
+
+      // TODO: This algorithm should be generalized
+      final Set<MmuAction> trace = new LinkedHashSet<>();
+      final int depth = 10;
+
+      MemoryGraph.Edge currentEdge = edge;
+      for (int i = 0; i < depth; i++) {
+        // Only insignificant transitions can be unified.
+        if (edge.getLabel() != null) {
+          break;
+        }
+
+        final MmuAction currentAction = currentEdge.getTransition().getTarget();
+        trace.add(currentAction);
+
+        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(currentAction);
+        if (currentEdges.size() != 1) {
+          break;
+        }
+
+        currentEdge = currentEdges.iterator().next();
+      }
+
+      if (ends == null) {
+        ends = trace;
+      } else {
+        ends.retainAll(trace);
+      }
+
+      if (ends.isEmpty()) {
+        return null;
+      }
+    }
+
+    final MmuAction finalAction = ends.iterator().next();
+    final MmuProgram.Builder builder = new MmuProgram.Builder();
+
+    builder.beginSwitch();
+
+    for (final MemoryGraph.Edge edge : edges) {
+      final MmuProgram.Builder caseBuilder = new MmuProgram.Builder();
+
+      MemoryGraph.Edge currentEdge = edge;
+
+      do {
+        final MmuTransition transition = currentEdge.getTransition();
+        caseBuilder.add(transition);
+
+        final MmuAction target = transition.getTarget();
+        if (target == finalAction) {
+          break;
+        }
+
+        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(target);
+        currentEdge = currentEdges.iterator().next();
+      } while(true);
+
+      builder.addCase(caseBuilder.build());
+    }
+
+    builder.endSwitch();
+
+    return builder.build();
+  }
+
+  private MmuProgram getNextProgram(final SearchEntry searchEntry) {
+    final MemoryGraph.Edge currentEdge = searchEntry.iterator.next();
+    final List<MemoryGraph.Edge> edges = searchEntry.edges;
+
+    // If the current edge is the first edge in the list.
+    if (edges.size() > 1 && currentEdge == edges.get(0)) {
+      // Check whether the transitions can be unified.
+      final MmuProgram program = getNextProgram(searchEntry.action);
+
+      if (program != null) {
+        // TODO: Iterator must be stopped some how.
+        while (searchEntry.iterator.hasNext()) {
+          searchEntry.iterator.next(); 
+        }
+
+        return program;
+      }
+    }
+
+    final MmuProgram program = MmuProgram.ATOMIC(currentEdge.getTransition());
+    program.setLabel(currentEdge.getLabel());
+
+    return program;
+  }
+
   private Result getNext() {
     while (!searchStack.isEmpty()) {
       final SearchEntry searchEntry = searchStack.peek();
       boolean isCompleted = true;
 
       while (searchEntry.iterator.hasNext()) {
-        final MemoryGraph.Edge edge = searchEntry.iterator.next();
         final List<Object> trajectory = searchEntry.trajectorySuffix;
 
-        final MmuTransition transition = edge.getTransition();
-        final MmuAction sourceAction = transition.getSource();
-        final MmuAction targetAction = transition.getTarget();
+        final MmuProgram program = getNextProgram(searchEntry);
 
-        final Object label = edge.getLabel();
+        final MmuAction sourceAction = program.getSource();
+        final MmuAction targetAction = program.getTarget();
+
+        final Object label = program.getLabel();
         final List<Object> trajectorySuffix = (label != null)
             ? (trajectory != null ? trajectory.subList(1, trajectory.size()) : null)
             : trajectory;
@@ -326,17 +415,17 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           searchEntry.context = new MemorySymbolicResult(searchEntry.context);
         }
 
-        if (MemoryEngineUtils.isFeasibleTransition(
-            transition, type, stack, constraints, context /* INOUT */)) {
+        if (MemoryEngineUtils.isFeasibleProgram(
+            program, type, stack, constraints, context /* INOUT */)) {
           isCompleted = false;
-          Logger.debug("Go %s", transition);
+          Logger.debug("Go %s", program);
 
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
           // Prolong the memory access path.
           entries.add(MemoryAccessPath.Entry.NORMAL(
-              transition, !stack.isEmpty() ? stack.getFrame() : null));
+              program, !stack.isEmpty() ? stack.getFrame() : null));
 
           final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(stack);
 
@@ -355,7 +444,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
               Logger.debug("Memory call frame: %s", frame);
               Logger.debug("Memory call stack: %s", stack);
 
-              final MemoryAccessPath.Entry call = MemoryAccessPath.Entry.CALL(transition, frame);
+              final MemoryAccessPath.Entry call = MemoryAccessPath.Entry.CALL(program, frame);
               final MemoryAccessPath.Entry ret = MemoryAccessPath.Entry.RETURN();
 
               // Call.

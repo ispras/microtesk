@@ -44,6 +44,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -102,32 +103,31 @@ public final class MemoryEngineUtils {
       final MemoryAccessStack stack,
       final Collection<BufferEventConstraint> bufferConstraints) {
 
-    final MmuTransition transition = entry.getTransition();
-    if (transition == null) {
-      return true;
-    }
+    final MmuProgram program = entry.getProgram();
 
-    final MmuGuard guard = transition.getGuard();
-    if (guard == null) {
-      return true;
-    }
+    for (final MmuTransition transition : program.getTransitions()) {
+      final MmuGuard guard = transition.getGuard();
+      if (guard == null) {
+        return true;
+      }
 
-    final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
-    if (bufferAccess == null) {
-      return true;
-    }
+      final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
+      if (bufferAccess == null) {
+        return true;
+      }
 
-    final BufferAccessEvent bufferAccessEvent = guard.getEvent();
-    if (bufferAccessEvent == null) {
-      return true;
-    }
+      final BufferAccessEvent bufferAccessEvent = guard.getEvent();
+      if (bufferAccessEvent == null) {
+        return true;
+      }
 
-    for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
-      final MmuBuffer buffer = bufferConstraint.getBuffer();
-      final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
+      for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
+        final MmuBuffer buffer = bufferConstraint.getBuffer();
+        final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
 
-      if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccessEvent)) {
-        return false;
+        if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccessEvent)) {
+          return false;
+        }
       }
     }
 
@@ -144,22 +144,26 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
-    final MmuTransition transition = entry.getTransition();
-    InvariantChecks.checkNotNull(transition);
+    final MmuProgram program = entry.getProgram();
 
-    final MmuGuard guard = transition.getGuard();
+    Boolean value = null;
 
-    final MmuCondition condition = (guard != null)
-        ? guard.getCondition(stack)
-        : null;
+    if (program.isAtomic()) {
+      final MmuTransition transition = program.getTransition();
+      final MmuGuard guard = transition.getGuard();
 
-    final Boolean value = (condition != null)
-        ? MmuCalculator.eval(condition, partialResult.getOriginalConstants())
-        : new Boolean(true);
+      final MmuCondition condition = (guard != null)
+          ? guard.getCondition(stack)
+          : null;
 
-    // False can be return before symbolic execution.
-    if (value != null && value == false) {
-      return false;
+      value = (condition != null)
+          ? MmuCalculator.eval(condition, partialResult.getOriginalConstants())
+          : Boolean.TRUE;
+
+      // False can be return before symbolic execution.
+      if (Boolean.FALSE.equals(value)) {
+        return false;
+      }
     }
 
     final Collection<BufferEventConstraint> bufferConstraints = constraints.getBufferEvents();
@@ -171,7 +175,7 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(entry);
 
     // True should be return after symbolic execution.
-    if (value != null && value == true) {
+    if (Boolean.TRUE.equals(value)) {
       return true;
     }
 
@@ -180,13 +184,12 @@ public final class MemoryEngineUtils {
     }
 
     final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
-
     for (final IntegerConstraint<IntegerField> integerConstraint : integerConstraints) {
       symbolicExecutor.execute(integerConstraint);
     }
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(transition, partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -202,7 +205,8 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(partialResult);
 
     final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
-    final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(transition, frame);
+    final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(
+        MmuProgram.ATOMIC(transition), frame);
 
     return isFeasibleEntry(entry, stack, constraints, partialResult);
   }
@@ -221,6 +225,28 @@ public final class MemoryEngineUtils {
 
     return isValidTransition(transition, type)
         && isFeasibleTransition(transition, stack, constraints, partialResult);
+  }
+
+  public static boolean isFeasibleProgram(
+      final MmuProgram program,
+      final MemoryAccessType type,
+      final MemoryAccessStack stack,
+      final MemoryAccessConstraints constraints,
+      final MemorySymbolicResult partialResult /* INOUT */) {
+    InvariantChecks.checkNotNull(program);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(stack);
+    InvariantChecks.checkNotNull(constraints);
+    InvariantChecks.checkNotNull(partialResult);
+
+    if (program.isAtomic() && !isValidTransition(program.getTransition(), type)) {
+        return false;
+    }
+
+    final MemoryAccessStack.Frame frame = !stack.isEmpty() ? stack.getFrame() : null;
+    final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(program, frame);
+
+    return isFeasibleEntry(entry, stack, constraints, partialResult);
   }
 
   public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {
@@ -321,11 +347,9 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MmuTransition transition,
       final MemorySymbolicResult symbolicResult /* INOUT */,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
-    InvariantChecks.checkNotNull(transition);
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
@@ -339,9 +363,8 @@ public final class MemoryEngineUtils {
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
-      Logger.debug(stringOf(transition));
-      for (final String msg : result.getErrors()) {
-        Logger.debug("Error: %s", msg);
+      for (final String error : result.getErrors()) {
+        Logger.debug("Error: %s", error);
       }
     }
 
@@ -394,33 +417,26 @@ public final class MemoryEngineUtils {
   private static String stringOf(final MemoryAccessPath path) {
     final StringBuilder builder = new StringBuilder();
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
-      final MmuTransition transition = entry.getTransition();
+      final MmuProgram program = entry.getProgram();
 
-      if (transition != null) {
-        builder.append(transition.getSource());
+      if (!entry.isReturn()) {
+        builder.append(program.getSource());
+      }
+
+      if (program.isAtomic()) {
+        final MmuTransition transition = program.getTransition();
+
         if (transition.getGuard() != null) {
           builder.append(String.format(" -> [%s]", transition.getGuard()));
         }
         builder.append(" -> ");
+      } else {
+        builder.append("...");
       }
     }
 
-    final MmuTransition lastTransition = path.getLastEntry().getTransition();
-    builder.append(lastTransition.getTarget());
-
-    return builder.toString();
-  }
-
-  private static String stringOf(final MmuTransition transition) {
-    final StringBuilder builder = new StringBuilder();
-    if (transition != null) {
-      builder.append(transition.getSource());
-      if (transition.getGuard() != null) {
-        builder.append(String.format(" -> [%s]", transition.getGuard()));
-      }
-      builder.append(" -> ");
-      builder.append(transition.getTarget());
-    }
+    final MmuProgram lastProgram = path.getLastEntry().getProgram();
+    builder.append(lastProgram.getTarget());
 
     return builder.toString();
   }
