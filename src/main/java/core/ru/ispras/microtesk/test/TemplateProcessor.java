@@ -233,7 +233,7 @@ final class TemplateProcessor implements Template.Processor {
 
     Logger.debugHeader("Executing %s", sequenceId);
     if (!sequence.isEmpty()) {
-      allocateDataSections(sequence, sequenceIndex);
+      allocateData(sequence, sequenceIndex);
       allocator.allocateSequence(sequence, sequenceIndex);
 
       final long startAddress = sequence.getAll().get(0).getAddress();
@@ -257,26 +257,6 @@ final class TemplateProcessor implements Template.Processor {
       } else {
         Logger.debug("Simulation is disabled");
       }
-    }
-  }
-
-  private void allocateDataSections(final TestSequence sequence, final int sequenceIndex) {
-    for (final ConcreteCall call : sequence.getAll()) {
-      if (call.getData() != null) {
-        final DataSection data = call.getData();
-        data.setSequenceIndex(sequenceIndex);
-        process(data);
-      }
-    }
-  }
-
-  private void reallocateGlobalData() {
-    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
-    memoryAllocator.resetCurrentAddress();
-
-    for (final DataSection data : testProgram.getGlobalData()) {
-      data.allocate(memoryAllocator);
-      data.registerLabels(engineContext.getLabelManager());
     }
   }
 
@@ -332,6 +312,26 @@ final class TemplateProcessor implements Template.Processor {
       testProgram.reset();
 
       isProgramStarted = false;
+    }
+  }
+
+  private void allocateData(final TestSequence sequence, final int sequenceIndex) {
+    for (final ConcreteCall call : sequence.getAll()) {
+      if (call.getData() != null) {
+        final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
+        process(data);
+      }
+    }
+  }
+
+  private void reallocateGlobalData() {
+    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+    memoryAllocator.resetCurrentAddress();
+
+    for (final DataSection data : testProgram.getGlobalData()) {
+      data.allocate(memoryAllocator);
+      data.registerLabels(engineContext.getLabelManager());
     }
   }
 }
