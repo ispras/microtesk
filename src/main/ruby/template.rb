@@ -702,8 +702,7 @@ class Template
   def generate_data(address, label, type, length, method, *flags)
     # puts "Generating data file"
     separate_file = if flags.empty? then true else flags[0] end
-    @template.getDataManager.generateData(
-      address, label, type, length, method, separate_file)
+    @template.generateData address, label, type, length, method, separate_file
   end
 
   # -------------------------------------------------------------------------- #

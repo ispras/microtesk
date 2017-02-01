@@ -953,6 +953,16 @@ public final class Template {
     }
   }
 
+  public void generateData(
+      final BigInteger address,
+      final String labelName,
+      final String typeId,
+      final int length,
+      final String method,
+      final boolean isSeparateFile) {
+    dataManager.generateData(address, labelName, typeId, length, method, isSeparateFile);
+  }
+
   public void setOrigin(final BigInteger origin) {
     Logger.debug("Set Origin to 0x%x", origin);
     callBuilder.setOrigin(origin, false);

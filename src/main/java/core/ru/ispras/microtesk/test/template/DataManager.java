@@ -171,7 +171,7 @@ public final class DataManager {
     return factory != null;
   }
 
-  public void generateData(
+  public DataSection generateData(
       final BigInteger address,
       final String labelName,
       final String typeId,
@@ -207,7 +207,9 @@ public final class DataManager {
         dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
       }
 
-      processData(labelManager, dataBuilder.build());
+      final DataSection data = dataBuilder.build();
+      processData(labelManager, data);
+      return data;
     } finally {
       getAllocator().setCurrentAddress(oldAddress);
     }
