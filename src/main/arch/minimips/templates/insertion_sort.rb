@@ -47,9 +47,6 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    text  '.text'
-    trace '.text'
-
     trace_data :data, :end
 
     la s0, :data

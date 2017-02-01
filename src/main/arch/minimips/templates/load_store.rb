@@ -48,8 +48,6 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    text '.text'
-
     trace_memory
     trace_labels
 

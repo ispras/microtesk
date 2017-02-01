@@ -54,9 +54,6 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    text  '.text'
-    trace '.text'
-
     sequence {
       trace_data :data, :end
 
