@@ -14,23 +14,14 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
-import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
-import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.LabelManager;
-import ru.ispras.microtesk.test.Printer;
-import ru.ispras.microtesk.test.Statistics;
 
 /**
  * The {@link DataManager} class create internal representation of data sections.
@@ -40,11 +31,6 @@ import ru.ispras.microtesk.test.Statistics;
 public final class DataManager {
   private final Model model;
   private final Options options;
-  private final Statistics statistics;
-
-  private final List<DataSection> globalData;
-  private final List<DataSection> localData;
-  private LabelManager labelManager;
 
   private DataDirectiveFactory factory;
   private DataDirectiveFactory.Builder factoryBuilder;
@@ -52,38 +38,16 @@ public final class DataManager {
 
   public DataManager(
       final Model model,
-      final Options options,
-      final Statistics statistics) {
+      final Options options) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
     this.options = options;
-    this.statistics = statistics;
-
-    this.globalData = new ArrayList<>();
-    this.localData = new ArrayList<>();
 
     this.factory = null;
     this.factoryBuilder = null;
     this.dataBuilder = null;
-  }
-
-  private MemoryAllocator getAllocator() {
-    return model.getMemoryAllocator();
-  }
-
-  public List<DataSection> getGlobalData() {
-    return globalData;
-  }
-
-  public List<DataSection> getLocalData() {
-    return localData;
-  }
-
-  public void setLabelManager(final LabelManager labelManager) {
-    this.labelManager = labelManager;
   }
 
   public DataDirectiveFactory.Builder beginConfig(
@@ -136,37 +100,6 @@ public final class DataManager {
     return data;
   }
 
-  public void processData(final LabelManager globalLabels, final DataSection data) {
-    InvariantChecks.checkNotNull(globalLabels);
-    InvariantChecks.checkNotNull(data);
-
-    data.allocate(getAllocator());
-    data.registerLabels(globalLabels);
-
-    if (data.isSeparateFile()) {
-      saveToFile(data);
-      return;
-    }
-
-    if (data.isGlobal()) {
-      globalData.add(data);
-    } else {
-      localData.add(data);
-    }
-  }
-
-  public void resetLocalData() {
-    localData.clear();
-  }
-
-  public void reallocateGlobalData() {
-    getAllocator().resetCurrentAddress();
-    for (final DataSection data : globalData) {
-      data.allocate(getAllocator());
-      data.registerLabels(labelManager);
-    }
-  }
-
   public boolean isInitialized() {
     return factory != null;
   }
@@ -194,11 +127,8 @@ public final class DataManager {
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
-    final BitVector bvAddress =
-        BitVector.valueOf(address, getAllocator().getAddressBitSize());
-
     dataBuilder.addLabel(labelName);
-    dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
+    dataBuilder.addComment(String.format(" Address: 0x%016x", address));
 
     for (int index = 0; index < length; index += 4) {
       final int count = Math.min(length - index, 4);
@@ -206,29 +136,6 @@ public final class DataManager {
     }
 
     return dataBuilder.build();
-  }
-
-  private void saveToFile(final DataSection data) {
-    InvariantChecks.checkNotNull(data);
-
-    Printer printer = null;
-    try {
-      statistics.pushActivity(Statistics.Activity.PRINTING);
-
-      printer = Printer.newDataFile(options, statistics.getDataFiles());
-      printer.printDataDirectives(data.getDirectives());
-
-      statistics.incDataFiles();
-    } catch (final IOException e) {
-      throw new GenerationAbortedException(
-          String.format("Failed to generate data file. Reason: %s", e.getMessage()));
-    } finally {
-      if (null != printer) {
-        printer.close();
-      }
-
-      statistics.popActivity();
-    }
   }
 
   private void checkInitialized() {

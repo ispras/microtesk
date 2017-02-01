@@ -41,7 +41,7 @@ import ru.ispras.microtesk.utils.FileUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Printer {
+final class Printer {
   private final static int LINE_WIDTH = 100;
   private static Printer console = null;
 

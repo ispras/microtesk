@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
@@ -31,6 +32,7 @@ import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
@@ -107,7 +109,20 @@ final class TemplateProcessor implements Template.Processor {
   @Override
   public void process(final DataSection data) {
     InvariantChecks.checkNotNull(data);
-    engineContext.getDataManager().processData(engineContext.getLabelManager(), data);
+
+    data.allocate(engineContext.getModel().getMemoryAllocator());
+    data.registerLabels(engineContext.getLabelManager());
+
+    if (data.isSeparateFile()) {
+      try {
+        PrinterUtils.printDataSection(engineContext, data);
+      } catch (final Exception e) {
+        rethrowException(e);
+      }
+      return; // FIXME: must be saved to
+    }
+
+    testProgram.addData(data);
   }
 
   @Override
@@ -218,6 +233,7 @@ final class TemplateProcessor implements Template.Processor {
 
     Logger.debugHeader("Executing %s", sequenceId);
     if (!sequence.isEmpty()) {
+      allocateDataSections(sequence, sequenceIndex);
       allocator.allocateSequence(sequence, sequenceIndex);
 
       final long startAddress = sequence.getAll().get(0).getAddress();
@@ -244,6 +260,26 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
+  private void allocateDataSections(final TestSequence sequence, final int sequenceIndex) {
+    for (final ConcreteCall call : sequence.getAll()) {
+      if (call.getData() != null) {
+        final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
+        process(data);
+      }
+    }
+  }
+
+  public void reallocateGlobalData() {
+    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+    memoryAllocator.resetCurrentAddress();
+
+    for (final DataSection data : testProgram.getGlobalData()) {
+      data.allocate(memoryAllocator);
+      data.registerLabels(engineContext.getLabelManager());
+    }
+  }
+
   private void startProgram() throws IOException, ConfigurationException {
     if (isProgramStarted) {
       return;
@@ -256,7 +292,7 @@ final class TemplateProcessor implements Template.Processor {
 
     if (engineContext.getStatistics().getPrograms() > 0) {
       // Allocates global data created during generation of previous test programs
-      engineContext.getDataManager().reallocateGlobalData();
+      reallocateGlobalData();
     }
 
     // Resets execution statuses
@@ -290,7 +326,6 @@ final class TemplateProcessor implements Template.Processor {
       Tarmac.closeFile();
 
       // Clean up all the state
-      engineContext.getDataManager().resetLocalData();
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
       allocator.reset();

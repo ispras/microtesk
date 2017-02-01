@@ -39,7 +39,6 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
-import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
@@ -240,17 +239,12 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_PA)
         );
 
-    final DataManager dataManager = new DataManager(model, options, statistics);
- 
     final EngineContext context = new EngineContext(
         options,
         model,
-        dataManager,
         settings,
         statistics
         );
-
-    dataManager.setLabelManager(context.getLabelManager());
 
     if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
       final String outDir = options.hasValue(Option.OUTDIR) ?

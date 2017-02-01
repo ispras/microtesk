@@ -122,8 +122,8 @@ final class PrinterUtils {
         printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
       }
 
-      final List<DataSection> globalData = engineContext.getDataManager().getGlobalData();
-      final List<DataSection> localData = engineContext.getDataManager().getLocalData();
+      final List<DataSection> globalData = testProgram.getGlobalData();
+      final List<DataSection> localData = testProgram.getLocalData();
       printer.printData(globalData, localData);
     } finally {
       printer.close();

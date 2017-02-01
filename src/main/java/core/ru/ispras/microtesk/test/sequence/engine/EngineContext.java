@@ -27,7 +27,6 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
-import ru.ispras.microtesk.test.template.DataManager;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -41,7 +40,6 @@ public final class EngineContext {
   private final Options options;
   private final Model model;
   private final LabelManager labelManager;
-  private final DataManager dataManager;
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
   private final StreamStore streams;
@@ -56,19 +54,16 @@ public final class EngineContext {
   public EngineContext(
       final Options options,
       final Model model,
-      final DataManager dataManager,
       final GeneratorSettings settings,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
-    InvariantChecks.checkNotNull(dataManager);
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
     InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
     this.model = model;
     this.labelManager = new LabelManager();
-    this.dataManager = dataManager;
     this.preparators = new PreparatorStore();
     this.bufferPreparators = new BufferPreparatorStore();
     this.streams = new StreamStore();
@@ -91,10 +86,6 @@ public final class EngineContext {
 
   public LabelManager getLabelManager() {
     return labelManager;
-  }
-
-  public DataManager getDataManager() {
-    return dataManager;
   }
 
   public PreparatorStore getPreparators() {

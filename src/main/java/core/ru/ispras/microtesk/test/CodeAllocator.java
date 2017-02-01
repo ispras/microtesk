@@ -26,7 +26,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
@@ -106,22 +105,9 @@ final class CodeAllocator {
   private void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
     InvariantChecks.checkNotEmpty(calls);
 
-    allocateDataSections(calls, sequenceIndex);
     allocateCodeBlocks(calls);
-
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
-  }
-
-  private void allocateDataSections(final List<ConcreteCall> calls, final int sequenceIndex) {
-    final LabelManager labelManager = engineContext.getLabelManager();
-    for (final ConcreteCall call : calls) {
-      if (call.getData() != null) {
-        final DataSection data = call.getData();
-        data.setSequenceIndex(sequenceIndex);
-        engineContext.getDataManager().processData(labelManager, data);
-      }
-    }
   }
 
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
