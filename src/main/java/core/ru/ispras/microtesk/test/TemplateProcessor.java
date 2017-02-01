@@ -230,32 +230,32 @@ final class TemplateProcessor implements Template.Processor {
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
     PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
     testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
-
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
 
     Logger.debugHeader("Executing %s", sequenceId);
+    if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
+      Logger.debug("Simulation is disabled");
+      return;
+    }
+
     if (!sequence.isEmpty()) {
       final long startAddress = sequence.getAll().get(0).getAddress();
       final long endAddress = allocator.getAddress();
 
-      if (!engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-        for (int index = 0; index < instanceNumber; index++) {
-          Logger.debugHeader("Instance %d", index);
-          engineContext.getModel().setActivePE(index);
+      for (int index = 0; index < instanceNumber; index++) {
+        Logger.debugHeader("Instance %d", index);
+        engineContext.getModel().setActivePE(index);
 
-          final Code code = allocator.getCode();
-          final Executor.Status status = executor.execute(code, startAddress, endAddress);
-          executorStatuses.set(index, status);
+        final Code code = allocator.getCode();
+        final Executor.Status status = executor.execute(code, startAddress, endAddress);
+        executorStatuses.set(index, status);
 
-          if (status.isLabelReference()) {
-            throw new GenerationAbortedException(String.format(
-                "Label '%s' is undefined or unavailable in the current execution scope.",
-                status.getLabelReference().getReference().getName()));
-          }
+        if (status.isLabelReference()) {
+          throw new GenerationAbortedException(String.format(
+              "Label '%s' is undefined or unavailable in the current execution scope.",
+              status.getLabelReference().getReference().getName()));
         }
-      } else {
-        Logger.debug("Simulation is disabled");
       }
     }
   }
