@@ -291,47 +291,50 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     return result;
   }
 
+  private static final int PROGRAM_EXTRACTION_DEPTH = 10;
+
   private MmuProgram getNextProgram(final MmuAction source) {
-    Set<MmuAction> ends = null;
-    final Collection<MemoryGraph.Edge> edges = graph.getEdges(source);
+    // Actions that can be used as sinks.
+    Set<MmuAction> targetActions = null;
 
     // Check whether the transitions can be unified.
-    for (final MemoryGraph.Edge edge : edges) {
+    final Collection<MemoryGraph.Edge> edges = graph.getEdges(source);
 
-      // TODO: This algorithm should be generalized
-      final Set<MmuAction> trace = new LinkedHashSet<>();
-      final int depth = 10;
+    for (final MemoryGraph.Edge edge : edges) {
+      final Set<MmuAction> traceActions = new LinkedHashSet<>();
 
       MemoryGraph.Edge currentEdge = edge;
-      for (int i = 0; i < depth; i++) {
-        // Only insignificant transitions can be unified.
+      for (int i = 0; i < PROGRAM_EXTRACTION_DEPTH; i++) {
+        // Only insignificant transitions can be unified into programs.
         if (edge.getLabel() != null) {
           break;
         }
 
-        final MmuAction currentAction = currentEdge.getTransition().getTarget();
-        trace.add(currentAction);
+        final MmuTransition transition = currentEdge.getTransition();
+        final MmuAction action = transition.getTarget();
 
-        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(currentAction);
-        if (currentEdges.size() != 1) {
+        traceActions.add(action);
+
+        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(action);
+        if (currentEdges == null || currentEdges.size() != 1) {
           break;
         }
 
         currentEdge = currentEdges.iterator().next();
       }
 
-      if (ends == null) {
-        ends = trace;
+      if (targetActions == null) {
+        targetActions = traceActions;
       } else {
-        ends.retainAll(trace);
+        targetActions.retainAll(traceActions);
       }
 
-      if (ends.isEmpty()) {
+      if (targetActions.isEmpty()) {
         return null;
       }
     }
 
-    final MmuAction finalAction = ends.iterator().next();
+    final MmuAction finalAction = targetActions.iterator().next();
     final MmuProgram.Builder builder = new MmuProgram.Builder();
 
     builder.beginSwitch();
@@ -341,18 +344,20 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       MemoryGraph.Edge currentEdge = edge;
 
-      do {
+      while (true) {
         final MmuTransition transition = currentEdge.getTransition();
+        final MmuAction action = transition.getTarget();
+
         caseBuilder.add(transition);
 
-        final MmuAction target = transition.getTarget();
-        if (target == finalAction) {
+        if (action == finalAction) {
           break;
         }
 
-        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(target);
+        final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(action);
+
         currentEdge = currentEdges.iterator().next();
-      } while(true);
+      }
 
       builder.addCase(caseBuilder.build());
     }
@@ -372,6 +377,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MmuProgram program = getNextProgram(searchEntry.action);
 
       if (program != null) {
+        Logger.debug("Program extracted: %s", program);
+
         // TODO: Iterator must be stopped some how.
         while (searchEntry.iterator.hasNext()) {
           searchEntry.iterator.next(); 

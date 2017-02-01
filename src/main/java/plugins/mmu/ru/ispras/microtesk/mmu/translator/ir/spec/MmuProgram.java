@@ -105,6 +105,8 @@ public final class MmuProgram {
 
           realStatement.add(realProgram);
         }
+
+        realStatements.add(realStatement);
       }
 
       return new MmuProgram(realStatements);

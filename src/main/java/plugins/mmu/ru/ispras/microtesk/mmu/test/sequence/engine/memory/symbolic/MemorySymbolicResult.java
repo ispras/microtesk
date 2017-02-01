@@ -24,6 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
@@ -111,6 +112,23 @@ public final class MemorySymbolicResult {
     }
   }
 
+  public MemorySymbolicResult(
+      final IntegerFormulaBuilder<IntegerField> builder,
+      final MemorySymbolicResult r) {
+    this(
+        builder,
+        new HashMap<>(r.stacks),
+        new LinkedHashSet<>(r.originals),
+        new HashMap<>(r.versions),
+        new HashMap<>(r.cache),
+        new HashMap<>(r.constants));
+
+    // Clone the memory access stacks.
+    for (final Map.Entry<Integer, MemoryAccessStack> entry : r.stacks.entrySet()) {
+      stacks.put(entry.getKey(), new MemoryAccessStack(entry.getValue()));
+    }
+  }
+
   public boolean hasConflict() {
     return hasConflict;
   }
@@ -174,8 +192,16 @@ public final class MemorySymbolicResult {
     builder.addEquation(lhs, rhs, true);
   }
 
+  public void addEquation(final IntegerField lhs, final BigInteger rhs) {
+    builder.addEquation(lhs, rhs, true);
+  }
+
   public void addClause(final IntegerClause<IntegerField> clause) {
     builder.addClause(clause);
+  }
+
+  public void addFormula(final IntegerFormula<IntegerField> formula) {
+    builder.addFormula(formula);
   }
 
   public MemoryAccessStack getStack() {
@@ -273,6 +299,28 @@ public final class MemorySymbolicResult {
     versions.put(originalName, versionNumber + 1);
   }
 
+  //------------------------------------------------------------------------------------------------
+
+  public IntegerVariable getVersion(final IntegerVariable originalVariable) {
+    InvariantChecks.checkNotNull(originalVariable);
+
+    final String originalName = originalVariable.getName();
+    final int versionNumber = getVersionNumber(originalName);
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    return getVariable(versionName, originalVariable.getWidth(), originalVariable.getValue());
+  }
+
+  public int getVersionNumber(final IntegerVariable originalVariable) {
+    InvariantChecks.checkNotNull(originalVariable);
+    return getVersionNumber(originalVariable.getName());
+  }
+
+  public void setVersionNumber(final IntegerVariable originalVariable, final int versionNumber) {
+    final String originalName = originalVariable.getName();
+    versions.put(originalName, versionNumber);
+  }
+
   private static String getOriginalName(final IntegerVariable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
@@ -285,13 +333,10 @@ public final class MemorySymbolicResult {
   }
 
   private int getVersionNumber(final String originalName) {
-    InvariantChecks.checkNotNull(originalName);
     return versions.containsKey(originalName) ? versions.get(originalName) : 0;
   }
 
   private IntegerVariable getVersion(final String originalName) {
-    InvariantChecks.checkNotNull(originalName);
-
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 

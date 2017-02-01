@@ -17,8 +17,10 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -28,6 +30,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -65,18 +68,18 @@ public final class MemorySymbolicExecutor {
 
   public void execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
-    execute(constraint, -1);
+    executeFormula(result, null, constraint.getFormula(), -1);
   }
 
   public void execute(final MemoryAccessPath.Entry entry) {
     InvariantChecks.checkNotNull(entry);
-    execute(entry, -1);
+    executeEntry(result, null, entry, -1);
   }
 
   public void execute(final MemoryAccessPath path, final boolean finalize) {
     InvariantChecks.checkNotNull(path);
 
-    execute(path, -1);
+    executePath(result, null, path, -1);
 
     if (finalize) {
       result.includeOriginalVariables();
@@ -87,14 +90,18 @@ public final class MemorySymbolicExecutor {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
 
-    execute(structure);
+    executeStructure(result, null, structure);
 
     if (finalize) {
       result.includeOriginalVariables();
     }
   }
 
-  private void execute(final MemoryAccessStructure structure) {
+  private void executeStructure(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MemoryAccessStructure structure) {
+
     for (int j = 0; j < structure.size(); j++) {
       final MemoryAccessPath path2 = structure.getAccess(j).getPath();
 
@@ -104,51 +111,71 @@ public final class MemorySymbolicExecutor {
 
         if (dependency != null) {
           // It does not execute the paths (only the dependency).
-          execute(path1, i, path2, j, dependency);
+          executeDependency(result, defines, path1, i, path2, j, dependency);
         }
       }
 
-      execute(path2, j);
+      executePath(result, defines, path2, j);
     }
   }
 
-  private void execute(final MemoryAccessPath path, final int pathIndex) {
+  private void executePath(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MemoryAccessPath path,
+      final int pathIndex) {
+
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       if (result.hasConflict()) {
         return;
       }
 
-      execute(entry, pathIndex);
+      executeEntry(result, defines, entry, pathIndex);
     }
   }
 
-  private void execute(
+  private void executeDependency(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
       final MemoryAccessPath path1,
       final int pathIndex1,
       final MemoryAccessPath path2,
       final int pathIndex2,
       final MemoryDependency dependency) {
+
     for (final MemoryHazard hazard : dependency.getHazards()) {
       if (result.hasConflict()) {
         return;
       }
 
-      execute(hazard, pathIndex1, pathIndex2);
+      executeHazard(result, defines, hazard, pathIndex1, pathIndex2);
     }
   }
 
-  private void execute(final MemoryHazard hazard, final int pathIndex1, final int pathIndex2) {
+  private void executeHazard(
+      final MemorySymbolicResult result, 
+      final Set<IntegerVariable> defines,
+      final MemoryHazard hazard,
+      final int pathIndex1,
+      final int pathIndex2) {
+
     if (result.hasConflict()) {
       return;
     }
 
     final MmuCondition condition = hazard.getCondition();
     if (condition != null) {
-      execute(condition, pathIndex1, pathIndex2);
+      executeCondition(result, defines, condition, pathIndex1, pathIndex2);
     }
   }
 
-  private void execute(final MmuCondition condition, final int pathIndex1, final int pathIndex2) {
+  private void executeCondition(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuCondition condition,
+      final int pathIndex1,
+      final int pathIndex2) {
+
     if (result.hasConflict()) {
       return;
     }
@@ -187,8 +214,11 @@ public final class MemorySymbolicExecutor {
     result.addClause(clauseBuilder.build());
   }
 
-  private void execute(final IntegerConstraint<IntegerField> constraint, final int pathIndex) {
-    final IntegerFormula<IntegerField> formula = constraint.getFormula();
+  private void executeFormula(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final IntegerFormula<IntegerField> formula,
+      final int pathIndex) {
 
     for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
       final IntegerClause.Builder<IntegerField> clauseBuilder =
@@ -224,7 +254,12 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  private void execute(final MemoryAccessPath.Entry entry, final int pathIndex) {
+  private void executeEntry(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MemoryAccessPath.Entry entry,
+      final int pathIndex) {
+
     if (result.hasConflict()) {
       return;
     }
@@ -248,31 +283,176 @@ public final class MemorySymbolicExecutor {
       final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
       Logger.debug("Bindings: %s", bindings);
 
-      execute(bindings, pathIndex);
+      executeBindings(result, defines, bindings, pathIndex);
     } else {
       result.updateStack(entry, pathIndex);
 
       if (entry.isNormal()) {
-        // TODO:
-        InvariantChecks.checkTrue(program.isAtomic());
-
-        final MmuTransition transition = program.getTransition();
-        final MmuGuard guard = transition.getGuard();
-
-        if (guard != null) {
-          execute(guard, pathIndex);
-        }
-
-        final MmuAction action = transition.getTarget();
-
-        if (action != null) {
-          execute(action, pathIndex);
-        }
+        executeProgram(result, defines, program, pathIndex);
       }
     }
   }
 
-  private void execute(final MmuGuard guard, final int pathIndex) {
+  private void executeProgram(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuProgram program,
+      final int pathIndex) {
+
+    if (result.hasConflict()) {
+      return;
+    }
+
+    if (program.isAtomic()) {
+      executeTransition(result, defines, program.getTransition(), pathIndex);
+    } else {
+      for (final Collection<MmuProgram> statement : program.getStatements()) {
+        executeStatement(result, defines, statement, pathIndex);
+      }
+    }
+  }
+
+  private void executeStatement(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final Collection<MmuProgram> statement,
+      final int pathIndex) {
+
+    if (result.hasConflict()) {
+      return;
+    }
+
+    if (statement.isEmpty()) {
+      result.setConflict(true);
+      return;
+    }
+
+    if (statement.size() == 1) {
+      executeProgram(result, defines, statement.iterator().next(), pathIndex);
+      return;
+    }
+
+    final List<MemorySymbolicResult> switchResults = new ArrayList<>(statement.size());
+    final List<Set<IntegerVariable>> switchDefines = new ArrayList<>(statement.size());
+
+    for (final MmuProgram program : statement) {
+      final IntegerFormulaBuilder<IntegerField> caseBuilder = new IntegerFormula.Builder<>();
+      final MemorySymbolicResult caseResult = new MemorySymbolicResult(caseBuilder, result);
+      final Set<IntegerVariable> caseDefines = new LinkedHashSet<>();
+
+      executeProgram(caseResult, caseDefines, program, pathIndex);
+
+      if (!caseResult.hasConflict()) {
+        switchResults.add(caseResult);
+        switchDefines.add(caseDefines);
+      }
+    }
+
+    if (switchResults.isEmpty()) {
+      result.setConflict(true);
+      return;
+    }
+
+    final Set<IntegerVariable> allDefines = new LinkedHashSet<>();
+
+    for (final Set<IntegerVariable> caseDefines : switchDefines) {
+      allDefines.addAll(caseDefines);
+    }
+
+    if (defines != null) {
+      defines.addAll(allDefines);
+    }
+
+    // Construct PHI functions.
+    for (final IntegerVariable originalVariable : allDefines) {
+      final List<Integer> indices = new ArrayList<>(switchDefines.size());
+
+      int maxVersionNumber = 0;
+
+      for (int i = 0; i < switchDefines.size(); i++) {
+        final Set<IntegerVariable> caseDefines = switchDefines.get(i);
+
+        if (caseDefines.contains(originalVariable)) {
+          final MemorySymbolicResult caseResult = switchResults.get(i);
+          final int versionNumber = caseResult.getVersionNumber(originalVariable);
+
+          if (versionNumber > maxVersionNumber) {
+            maxVersionNumber = versionNumber;
+          }
+
+          indices.add(i);
+        }
+      }
+
+      for (final int i : indices) {
+        final MemorySymbolicResult caseResult = switchResults.get(i);
+        final int versionNumber = caseResult.getVersionNumber(originalVariable);
+
+        if (versionNumber < maxVersionNumber) {
+          final IntegerVariable oldVersion = caseResult.getVersion(originalVariable);
+          caseResult.setVersionNumber(originalVariable, maxVersionNumber);
+          final IntegerVariable newVersion = caseResult.getVersion(originalVariable);
+
+          caseResult.addEquation(new IntegerField(newVersion), new IntegerField(oldVersion));
+        }
+      }
+
+      result.setVersionNumber(originalVariable, maxVersionNumber);
+    }
+
+    // Join the control flows.
+    final int width = getWidth(statement.size());
+    final IntegerField phi = getPhiField(width);
+
+    final IntegerClause.Builder<IntegerField> switchBuilder =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    for (int i = 0; i < switchResults.size(); i++) {
+      final MemorySymbolicResult caseResult = switchResults.get(i);
+
+      switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
+      caseResult.addEquation(phi, BigInteger.valueOf(i));
+    }
+
+    result.addClause(switchBuilder.build());
+
+    for (final MemorySymbolicResult caseResult : switchResults) {
+      final IntegerFormula.Builder<IntegerField> caseBuilder =
+          (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
+
+      result.addFormula(caseBuilder.build());
+    }
+  }
+
+  private void executeTransition(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuTransition transition,
+      final int pathIndex) {
+
+    if (result.hasConflict()) {
+      return;
+    }
+
+    final MmuGuard guard = transition.getGuard();
+
+    if (guard != null) {
+      executeGuard(result, defines, guard, pathIndex);
+    }
+
+    final MmuAction action = transition.getTarget();
+
+    if (action != null) {
+      executeAction(result, defines, action, pathIndex);
+    }
+  }
+
+  private void executeGuard(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuGuard guard,
+      final int pathIndex) {
+
     if (result.hasConflict()) {
       return;
     }
@@ -281,34 +461,57 @@ public final class MemorySymbolicExecutor {
 
     final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
     if (bufferAccess != null) {
-      execute(bufferAccess, pathIndex);
+      executeBufferAccess(result, defines, bufferAccess, pathIndex);
     }
 
     final MmuCondition condition = guard.getCondition(stack);
     if (condition != null) {
-      execute(condition, pathIndex);
+      executeCondition(result, defines, condition, pathIndex);
     }
   }
 
-  private void execute(final MmuAction action, final int pathIndex) {
-    final MemoryAccessStack stack = result.getStack(pathIndex);
+  private void executeAction(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuAction action,
+      final int pathIndex) {
 
-    final Map<IntegerField, MmuBinding> assignments = action.getAction(stack);
-    if (assignments != null) {
-      execute(assignments.values(), pathIndex);
-    }
-  }
-
-  private void execute(final MmuBufferAccess bufferAccess, final int pathIndex) {
     if (result.hasConflict()) {
       return;
     }
 
     final MemoryAccessStack stack = result.getStack(pathIndex);
-    execute(bufferAccess.getBuffer().getMatchBindings(stack), pathIndex);
+
+    final Map<IntegerField, MmuBinding> assignments = action.getAction(stack);
+    if (assignments != null) {
+      executeBindings(result, defines, assignments.values(), pathIndex);
+    }
   }
 
-  private void execute(final MmuCondition condition, final int pathIndex) {
+  private void executeBufferAccess(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuBufferAccess bufferAccess,
+      final int pathIndex) {
+
+    if (result.hasConflict()) {
+      return;
+    }
+
+    final MemoryAccessStack stack = result.getStack(pathIndex);
+    executeBindings(result, defines, bufferAccess.getBuffer().getMatchBindings(stack), pathIndex);
+  }
+
+  private void executeCondition(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MmuCondition condition,
+      final int pathIndex) {
+
+    if (result.hasConflict()) {
+      return;
+    }
+
     final IntegerClause.Type definedType = condition.getType() == MmuCondition.Type.AND ?
         IntegerClause.Type.AND : IntegerClause.Type.OR;
 
@@ -320,7 +523,7 @@ public final class MemorySymbolicExecutor {
         return;
       }
 
-      execute(clauseBuilder, atom, pathIndex);
+      executeConditionAtom(result, defines, clauseBuilder, atom, pathIndex);
     }
 
     if (clauseBuilder.size() != 0) {
@@ -328,7 +531,9 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  private void execute(
+  private void executeConditionAtom(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
       final IntegerClause.Builder<IntegerField> clauseBuilder,
       final MmuConditionAtom atom,
       final int pathIndex) {
@@ -417,7 +622,12 @@ public final class MemorySymbolicExecutor {
     }
   }
 
-  private void execute(final Collection<MmuBinding> bindings, final int pathIndex) {
+  private void executeBindings(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final Collection<MmuBinding> bindings,
+      final int pathIndex) {
+
     if (result.hasConflict()) {
       return;
     }
@@ -430,8 +640,13 @@ public final class MemorySymbolicExecutor {
       final MmuExpression rhs = binding.getRhs();
 
       final IntegerVariable oldLhsVar = result.getVersion(lhs.getVariable(), pathIndex);
+      final IntegerVariable lhsOriginal = result.getOriginal(lhs.getVariable(), pathIndex);
 
-      result.addOriginalVariable(result.getOriginal(lhs.getVariable(), pathIndex));
+      result.addOriginalVariable(lhsOriginal);
+
+      if (defines != null) {
+        defines.add(lhsOriginal);
+      }
 
       if (rhs != null) {
         final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
@@ -498,5 +713,27 @@ public final class MemorySymbolicExecutor {
     if (clauseBuilder.size() != 0) {
       result.addClause(clauseBuilder.build());
     }
+  }
+
+  private static int uniqueId = 0;
+
+  private static int getWidth(final int size) {
+    int width = 0;
+    int value = size;
+
+    while ((value >>= 1) != 0) {
+      width++;
+    }
+
+    if (((size - 1) & size) != 0) {
+      width++;
+    }
+
+    return width;
+  }
+
+  private static IntegerField getPhiField(final int width) {
+    final IntegerVariable phi = new IntegerVariable(String.format("phi_%d", uniqueId++), width);
+    return new IntegerField(phi);
   }
 }
