@@ -231,11 +231,11 @@ final class TemplateProcessor implements Template.Processor {
     PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
     testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
 
+    allocateData(sequence, sequenceIndex);
+    allocator.allocateSequence(sequence, sequenceIndex);
+
     Logger.debugHeader("Executing %s", sequenceId);
     if (!sequence.isEmpty()) {
-      allocateData(sequence, sequenceIndex);
-      allocator.allocateSequence(sequence, sequenceIndex);
-
       final long startAddress = sequence.getAll().get(0).getAddress();
       final long endAddress = allocator.getAddress();
 
