@@ -132,7 +132,10 @@ final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    return new Printer(options, file, binaryFile);
+    final Printer result = new Printer(options, file, binaryFile);
+    result.needPrintCodeKeyword = false;
+
+    return result;
   }
 
   private static String getOutDir(final Options options) {
