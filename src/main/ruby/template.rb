@@ -909,7 +909,7 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance()
 
-    TemplateBuilder.define_runtime_methods engine.getMetaModel
+    TemplateBuilder.define_runtime_methods engine.getModel.getMetaData
     @template = engine.newTemplate
 
     @template.beginPreSection

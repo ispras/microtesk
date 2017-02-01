@@ -29,7 +29,6 @@ import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
-import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.Reader;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
@@ -97,14 +96,6 @@ public final class TestEngine {
 
   public Model getModel() {
     return model;
-  }
-
-  public String getModelName() {
-    return model.getName();
-  }
-
-  public MetaModel getMetaModel() {
-    return model.getMetaData();
   }
 
   public Statistics getStatistics() {

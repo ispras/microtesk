@@ -56,7 +56,7 @@ public final class MmuPlugin implements Plugin {
       throw new IllegalStateException("TestEngine is not initialized.");
     }
 
-    final String modelName = testEngine.getModelName();
+    final String modelName = testEngine.getModel().getName();
 
     final String specClassName = String.format(
         "%s.%s.mmu.spec.Specification", PackageInfo.MODEL_PACKAGE, modelName);
@@ -93,7 +93,7 @@ public final class MmuPlugin implements Plugin {
       throw new IllegalStateException("TestEngine is not initialized.");
     }
 
-    final String modelName = testEngine.getModelName();
+    final String modelName = testEngine.getModel().getName();
 
     final String modelClassName = String.format(
         "%s.%s.mmu.sim.Model", PackageInfo.MODEL_PACKAGE, modelName);
