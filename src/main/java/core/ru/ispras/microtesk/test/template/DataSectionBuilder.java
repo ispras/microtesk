@@ -25,6 +25,7 @@ public final class DataSectionBuilder {
   private final BlockId blockId;
   private final DataDirectiveFactory directiveFactory;
 
+  private BigInteger physicalAddress;
   private final boolean global;
   private final boolean separateFile;
 
@@ -42,11 +43,17 @@ public final class DataSectionBuilder {
     this.blockId = blockId;
     this.directiveFactory = directiveFactory;
 
+    this.physicalAddress = null;
     this.global = isGlobal;
     this.separateFile = isSeparateFile;
 
     this.labelValues = new ArrayList<>();
     this.directives = new ArrayList<>();
+  }
+
+  public void setPhysicalAddress(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    this.physicalAddress = value;
   }
 
   public boolean isGlobal() {
@@ -123,7 +130,8 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
-    return new DataSection(labelValues, directives, global, separateFile);
+    return new DataSection(
+        labelValues, directives, physicalAddress, global, separateFile);
   }
 
   public final class DataValueBuilder {

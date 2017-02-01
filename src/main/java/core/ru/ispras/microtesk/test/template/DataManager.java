@@ -186,33 +186,26 @@ public final class DataManager {
 
     checkInitialized();
 
-    final DataSectionBuilder dataBuilder = new DataSectionBuilder(
-        new BlockId(), factory, true, isSeparateFile);
+    final DataSectionBuilder dataBuilder =
+        new DataSectionBuilder(new BlockId(), factory, true, isSeparateFile);
+
+    dataBuilder.setPhysicalAddress(address);
 
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
-    final BigInteger oldAddress = getAllocator().getCurrentAddress();
-    try {
-      getAllocator().setCurrentAddress(address);
+    final BitVector bvAddress =
+        BitVector.valueOf(address, getAllocator().getAddressBitSize());
 
-      final BitVector bvAddress =
-          BitVector.valueOf(address, getAllocator().getAddressBitSize());
+    dataBuilder.addLabel(labelName);
+    dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
 
-      dataBuilder.addLabel(labelName);
-      dataBuilder.addComment(String.format(" Address: 0x%s", bvAddress.toHexString()));
-
-      for (int index = 0; index < length; index += 4) {
-        final int count = Math.min(length - index, 4);
-        dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
-      }
-
-      final DataSection data = dataBuilder.build();
-      processData(labelManager, data);
-      return data;
-    } finally {
-      getAllocator().setCurrentAddress(oldAddress);
+    for (int index = 0; index < length; index += 4) {
+      final int count = Math.min(length - index, 4);
+      dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
     }
+
+    return dataBuilder.build();
   }
 
   private void saveToFile(final DataSection data) {

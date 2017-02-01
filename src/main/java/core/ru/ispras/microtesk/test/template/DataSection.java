@@ -28,6 +28,7 @@ public class DataSection {
   private final List<LabelValue> labelValues;
   private final List<DataDirective> directives;
 
+  private final BigInteger physicalAddress;
   private final boolean global;
   private final boolean separateFile;
 
@@ -36,6 +37,7 @@ public class DataSection {
   protected DataSection(
       final List<LabelValue> labelValues,
       final List<DataDirective> directives,
+      final BigInteger physicalAddress,
       final boolean global,
       final boolean separateFile) {
     InvariantChecks.checkNotNull(directives);
@@ -43,6 +45,7 @@ public class DataSection {
     this.labelValues = Collections.unmodifiableList(labelValues);
     this.directives = Collections.unmodifiableList(directives);
 
+    this.physicalAddress = physicalAddress;
     this.global = global;
     this.separateFile = separateFile;
 
@@ -60,6 +63,7 @@ public class DataSection {
       throw e;
     }
 
+    this.physicalAddress = other.physicalAddress;
     this.global = other.global;
     this.separateFile = other.separateFile;
 
@@ -117,8 +121,20 @@ public class DataSection {
 
   public void allocate(final MemoryAllocator allocator) {
     InvariantChecks.checkNotNull(allocator);
-    for (final DataDirective directive : directives) {
-      directive.apply(allocator);
+
+    final BigInteger oldAddress = allocator.getCurrentAddress();
+    if (null != physicalAddress) {
+      allocator.setCurrentAddress(physicalAddress);
+    }
+
+    try {
+      for (final DataDirective directive : directives) {
+        directive.apply(allocator);
+      }
+    } finally {
+      if (null != physicalAddress) {
+        allocator.setCurrentAddress(oldAddress);
+      }
     }
   }
 

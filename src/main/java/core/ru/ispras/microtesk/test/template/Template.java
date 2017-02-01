@@ -960,7 +960,9 @@ public final class Template {
       final int length,
       final String method,
       final boolean isSeparateFile) {
-    dataManager.generateData(address, labelName, typeId, length, method, isSeparateFile);
+    final DataSection data =
+        dataManager.generateData(address, labelName, typeId, length, method, isSeparateFile);
+    processor.process(data);
   }
 
   public void setOrigin(final BigInteger origin) {
