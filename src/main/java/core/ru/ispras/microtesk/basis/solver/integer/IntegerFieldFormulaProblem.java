@@ -17,7 +17,7 @@ package ru.ispras.microtesk.basis.solver.integer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link IntegerFormulaProblem} represents an integer problem.
+ * {@link IntegerFieldFormulaProblem} represents an integer problem.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

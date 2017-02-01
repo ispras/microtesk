@@ -20,7 +20,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * {@link IntegerFormulaProblem} represents an integer problem.
+ * {@link IntegerFieldFormulaProblemSat4j} represents an integer problem.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

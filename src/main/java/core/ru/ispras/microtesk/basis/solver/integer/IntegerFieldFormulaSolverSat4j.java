@@ -46,7 +46,7 @@ public final class IntegerFieldFormulaSolverSat4j implements Solver<Map<IntegerV
   /**
    * Constructs a solver.
    * 
-   * @param problem the problem to be solved.
+   * @param builder the builder of the problem to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public IntegerFieldFormulaSolverSat4j(
