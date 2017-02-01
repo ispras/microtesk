@@ -39,7 +39,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-public final class TestEngineUtils {
+final class TestEngineUtils {
   private TestEngineUtils() {}
 
   public static TestSequenceEngine getEngine(final Block block) {
