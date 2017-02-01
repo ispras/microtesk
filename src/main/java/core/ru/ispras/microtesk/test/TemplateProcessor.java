@@ -270,7 +270,7 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  public void reallocateGlobalData() {
+  private void reallocateGlobalData() {
     final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
     memoryAllocator.resetCurrentAddress();
 
