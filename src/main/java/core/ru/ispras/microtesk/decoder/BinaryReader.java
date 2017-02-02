@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -54,9 +56,13 @@ public final class BinaryReader {
     }
 
     final byte[] bytes = Arrays.copyOfRange(buffer, position, position + byteSize);
-    final BitVector data = BitVector.valueOf(bytes, byteSize * 8);
 
+    // Hack to support Big Endian
+    ArrayUtils.reverse(bytes);
+
+    final BitVector data = BitVector.valueOf(bytes, byteSize * 8);
     position += byteSize;
+
     return data;
   }
 

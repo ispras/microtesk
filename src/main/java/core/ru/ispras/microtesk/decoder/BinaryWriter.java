@@ -52,13 +52,15 @@ public final class BinaryWriter {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(open);
 
+    final int dataSize = data.getByteSize();
     try {
-      if (position + data.getByteSize() > buffer.length) {
+      if (position + dataSize > buffer.length) {
         flush();
       }
 
-      for (int index = 0; index < data.getByteSize(); ++index) {
-        buffer[position++] = data.getByte(index);
+      // Hack to support Big Endian
+      for (int index = 0; index < dataSize; ++index) {
+        buffer[position++] = data.getByte(dataSize - 1 - index);
       }
     } catch (final IOException e) {
       throw new IllegalStateException(e);
