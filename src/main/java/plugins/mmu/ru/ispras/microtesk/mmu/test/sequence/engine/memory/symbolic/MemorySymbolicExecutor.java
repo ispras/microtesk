@@ -400,28 +400,42 @@ public final class MemorySymbolicExecutor {
       result.setVersionNumber(originalVariable, maxVersionNumber);
     }
 
-    // Join the control flows.
-    final int width = getWidth(statement.size());
-    final IntegerField phi = getPhiField(width);
-
-    final IntegerClause.Builder<IntegerField> switchBuilder =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
-
-    // Switch: (PHI == 0) | ... | (PHI == N-1)
-    for (int i = 0; i < switchResults.size(); i++) {
-      switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
-    }
-
-    result.addClause(switchBuilder.build());
-
-    for (int i = 0; i < switchResults.size(); i++) {
-      final MemorySymbolicResult caseResult = switchResults.get(i);
+    if (switchResults.size() == 1) {
+      // There is only one control flow.
+      final MemorySymbolicResult caseResult = switchResults.get(0);
       final IntegerFormula.Builder<IntegerField> caseBuilder =
           (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
       final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
 
-      // Case: (PHI == i) -> CASE(i).
-      result.addFormula(getIfThenFormula(phi, i, caseFormula));
+      result.addFormula(caseFormula);
+    } else {
+      // Join the control flows.
+      final int width = getWidth(statement.size());
+      final IntegerField phi = getPhiField(width);
+
+      final IntegerClause.Builder<IntegerField> switchBuilder =
+          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+      // Switch: (PHI == 0) | ... | (PHI == N-1)
+      for (int i = 0; i < switchResults.size(); i++) {
+        switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
+      }
+  
+      Logger.debug("Switch: %s", switchBuilder.build());
+      result.addClause(switchBuilder.build());
+
+      for (int i = 0; i < switchResults.size(); i++) {
+        final MemorySymbolicResult caseResult = switchResults.get(i);
+        final IntegerFormula.Builder<IntegerField> caseBuilder =
+            (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
+        final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
+
+        // Case: (PHI == i) -> CASE(i).
+        final IntegerFormula<IntegerField> ifThenFormula = getIfThenFormula(phi, i, caseFormula);
+        Logger.debug("Case %d: %s", i, ifThenFormula);
+
+        result.addFormula(ifThenFormula);
+      }
     }
   }
 

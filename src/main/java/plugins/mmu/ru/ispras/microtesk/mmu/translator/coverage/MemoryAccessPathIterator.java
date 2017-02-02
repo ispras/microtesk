@@ -119,8 +119,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final MmuAction action;
     final List<Object> trajectorySuffix;
     final List<MemoryGraph.Edge> edges;
-    final Iterator<MemoryGraph.Edge> iterator;
 
+    Iterator<MemoryGraph.Edge> iterator;
     MemorySymbolicResult context;
 
     SearchEntry(
@@ -152,6 +152,18 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       this.edges = edges;
       this.iterator = new EdgeIterator(edges);
       this.context = context;
+    }
+
+    boolean hasNext() {
+      return iterator != null && iterator.hasNext();
+    }
+
+    MemoryGraph.Edge next() {
+      return iterator.next();
+    }
+
+    void stop() {
+      iterator = null;
     }
 
     /**
@@ -199,6 +211,11 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       // The trajectory cannot be reached via the given edge.
       return false;
+    }
+
+    @Override
+    public String toString() {
+      return action.toString();
     }
   }
 
@@ -368,7 +385,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private MmuProgram getNextProgram(final SearchEntry searchEntry) {
-    final MemoryGraph.Edge currentEdge = searchEntry.iterator.next();
+    final MemoryGraph.Edge currentEdge = searchEntry.next();
     final List<MemoryGraph.Edge> edges = searchEntry.edges;
 
     // If the current edge is the first edge in the list.
@@ -378,11 +395,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       if (program != null) {
         Logger.debug("Program extracted: %s", program);
-
-        // TODO: Iterator must be stopped some how.
-        while (searchEntry.iterator.hasNext()) {
-          searchEntry.iterator.next(); 
-        }
+        searchEntry.stop();
 
         return program;
       }
@@ -399,7 +412,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final SearchEntry searchEntry = searchStack.peek();
       boolean isCompleted = true;
 
-      while (searchEntry.iterator.hasNext()) {
+      while (searchEntry.hasNext()) {
         final List<Object> trajectory = searchEntry.trajectorySuffix;
 
         final MmuProgram program = getNextProgram(searchEntry);
@@ -418,14 +431,16 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
         // Save the current context in the current entry.
         // There should be enough information to reconstruct the saved context.
-        if (searchEntry.edges.size() != 1) {
+        if (program.isAtomic() && searchEntry.edges.size() != 1) {
           searchEntry.context = new MemorySymbolicResult(searchEntry.context);
         }
 
         if (MemoryEngineUtils.isFeasibleProgram(
             program, type, stack, constraints, context /* INOUT */)) {
           isCompleted = false;
-          Logger.debug("Go %s", program);
+
+          Logger.debug("DFS stack %s", searchStack);
+          Logger.debug("Current action %s", targetAction);
 
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
@@ -523,7 +538,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           return new Result(path, top.context);
         }
       }
-    } // for each vertex.
+    } // While stack is not empty.
 
     Logger.debug("No feasible memory access path has been found");
     return null;
