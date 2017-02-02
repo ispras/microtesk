@@ -225,14 +225,12 @@ final class Printer {
    */
   public void printSequence(
       final ProcessingElement observer,
-      final TestSequence sequence,
-      final String sequenceId) throws ConfigurationException {
+      final TestSequence sequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(observer);
     InvariantChecks.checkNotNull(sequence);
-    InvariantChecks.checkNotNull(sequenceId);
 
-    if (!sequenceId.isEmpty()) {
-      printHeaderToFile(sequenceId);
+    if (!sequence.getTitle().isEmpty()) {
+      printHeaderToFile(sequence.getTitle());
     } else {
       printToFile("");
     }

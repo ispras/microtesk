@@ -32,7 +32,7 @@ final class TestProgram {
   private TestSequence prologue;
   private Block epilogue;
 
-  private final List<TestProgramEntry> entries;
+  private final List<TestSequence> entries;
   private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
   private final List<DataSection> globalData;
@@ -75,7 +75,7 @@ final class TestProgram {
     exceptionHandlers.add(handlers);
   }
 
-  public void addEntry(final TestProgramEntry entry) {
+  public void addEntry(final TestSequence entry) {
     InvariantChecks.checkNotNull(entry);
     entries.add(entry);
   }
@@ -84,7 +84,7 @@ final class TestProgram {
     return entries.size();
   }
 
-  public TestProgramEntry getEntry(final int index) {
+  public TestSequence getEntry(final int index) {
     return entries.get(index);
   }
 

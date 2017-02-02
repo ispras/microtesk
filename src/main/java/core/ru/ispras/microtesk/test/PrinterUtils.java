@@ -33,20 +33,17 @@ import ru.ispras.microtesk.test.template.DataSection;
 final class PrinterUtils {
   public static void printSequenceToConsole(
       final EngineContext engineContext,
-      final TestSequence sequence,
-      final String sequenceId) throws ConfigurationException {
+      final TestSequence sequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(sequence);
-    InvariantChecks.checkNotNull(sequenceId);
 
     if (engineContext.getOptions().getValueAsBoolean(Option.VERBOSE)) {
-      Logger.debugHeader("Constructed %s", sequenceId);
+      Logger.debugHeader("Constructed %s", sequence.getTitle());
 
       final Printer consolePrinter =
           Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics());
 
-      consolePrinter.printSequence(
-          engineContext.getModel().getPE(), sequence, "");
+      consolePrinter.printSequence(engineContext.getModel().getPE(), sequence);
     }
   }
 
@@ -89,7 +86,7 @@ final class PrinterUtils {
       printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
       for (final TestSequence sequence : sequences) {
         statistics.incInstructions(sequence.getInstructionCount());
-        printer.printSequence(engineContext.getModel().getPE(), sequence, "");
+        printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
     } finally {
       if (null != printer) {
@@ -116,10 +113,9 @@ final class PrinterUtils {
       statistics.incPrograms();
 
       for (int index = 0; index < testProgram.getEntryCount(); ++index) {
-        final TestProgramEntry entry = testProgram.getEntry(index);
-        final String sequenceId = entry.getSequenceId();
-        Logger.debugHeader("Printing %s to %s", sequenceId, printer.getFileName());
-        printer.printSequence(engineContext.getModel().getPE(), entry.getSequence(), sequenceId);
+        final TestSequence sequence = testProgram.getEntry(index);
+        Logger.debugHeader("Printing %s to %s", sequence.getTitle(), printer.getFileName());
+        printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 
       final List<DataSection> globalData = testProgram.getGlobalData();

@@ -149,6 +149,8 @@ final class TemplateProcessor implements Template.Processor {
   private void processPrologue(final Block block) {
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+
+    sequence.setTitle("Prologue");
     testProgram.setPrologue(sequence);
   }
 
@@ -162,7 +164,8 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
-    processTestSequence(sequence, "External Code", Label.NO_SEQUENCE_INDEX, true);
+    sequence.setTitle("External Code");
+    processTestSequence(sequence, Label.NO_SEQUENCE_INDEX, true);
 
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
@@ -187,7 +190,8 @@ final class TemplateProcessor implements Template.Processor {
         final String sequenceId =
             String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
 
-        processTestSequence(sequence, sequenceId, sequenceIndex, true);
+        sequence.setTitle(sequenceId);
+        processTestSequence(sequence, sequenceIndex, true);
         processSelfChecks(sequence.getChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
@@ -214,26 +218,26 @@ final class TemplateProcessor implements Template.Processor {
     Logger.debugHeader("Preparing %s", sequenceId);
 
     final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
+    sequence.setTitle(sequenceId);
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
-    processTestSequence(sequence, sequenceId, testCaseIndex, false);
+    processTestSequence(sequence, testCaseIndex, false);
   }
 
   private void processTestSequence(
       final TestSequence sequence,
-      final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
+    testProgram.addEntry(sequence);
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
-    PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
+    PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
     if (sequence.isEmpty()) {
       return;
     }
 
-    Logger.debugHeader("Executing %s", sequenceId);
+    Logger.debugHeader("Executing %s", sequence.getTitle());
     if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
       return;
@@ -287,7 +291,7 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
-    processTestSequence(testProgram.getPrologue(), "Prologue", Label.NO_SEQUENCE_INDEX, true);
+    processTestSequence(testProgram.getPrologue(), Label.NO_SEQUENCE_INDEX, true);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
@@ -296,9 +300,11 @@ final class TemplateProcessor implements Template.Processor {
 
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
+
+      sequence.setTitle("Epilogue");
       engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
-      processTestSequence(sequence, "Epilogue", Label.NO_SEQUENCE_INDEX, true);
+      processTestSequence(sequence, Label.NO_SEQUENCE_INDEX, true);
       PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
       Tarmac.closeFile();

@@ -93,6 +93,7 @@ public final class TestSequence {
   private final List<ConcreteCall> body;
   private final List<SelfCheck> checks;
   private final int instructionCount;
+  private String title;
 
   private TestSequence(
       final List<ConcreteCall> prologue,
@@ -121,6 +122,8 @@ public final class TestSequence {
 
     this.checks = Collections.unmodifiableList(checks);
     this.instructionCount = instructionCount;
+
+    this.title = "";
   }
 
   private static <T> List<T> merge(final List<T> first, final List<T> second) {
@@ -162,5 +165,14 @@ public final class TestSequence {
 
   public int getInstructionCount() {
     return instructionCount;
+  }
+
+  protected String getTitle() {
+    return title;
+  }
+
+  protected void setTitle(final String value) {
+    InvariantChecks.checkNotNull(value);
+    this.title = value;
   }
 }
