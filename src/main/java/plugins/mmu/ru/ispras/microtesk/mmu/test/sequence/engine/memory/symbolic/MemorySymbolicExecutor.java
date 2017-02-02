@@ -407,20 +407,21 @@ public final class MemorySymbolicExecutor {
     final IntegerClause.Builder<IntegerField> switchBuilder =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
+    // Switch: (PHI == 0) | ... | (PHI == N-1)
     for (int i = 0; i < switchResults.size(); i++) {
-      final MemorySymbolicResult caseResult = switchResults.get(i);
-
       switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
-      caseResult.addEquation(phi, BigInteger.valueOf(i));
     }
 
     result.addClause(switchBuilder.build());
 
-    for (final MemorySymbolicResult caseResult : switchResults) {
+    for (int i = 0; i < switchResults.size(); i++) {
+      final MemorySymbolicResult caseResult = switchResults.get(i);
       final IntegerFormula.Builder<IntegerField> caseBuilder =
           (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
+      final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
 
-      result.addFormula(caseBuilder.build());
+      // Case: (PHI == i) -> CASE(i).
+      result.addFormula(getIfThenFormula(phi, i, caseFormula));
     }
   }
 
@@ -733,7 +734,60 @@ public final class MemorySymbolicExecutor {
   }
 
   private static IntegerField getPhiField(final int width) {
-    final IntegerVariable phi = new IntegerVariable(String.format("phi_%d", uniqueId++), width);
-    return new IntegerField(phi);
+    final IntegerVariable var = new IntegerVariable(String.format("phi_%d", uniqueId++), width);
+    return new IntegerField(var);
+  }
+
+  private static IntegerField getIfThenField(final IntegerVariable phi, final int i) {
+    final IntegerVariable var = new IntegerVariable(String.format("%s_%d", phi.getName(), i), 1);
+    return new IntegerField(var);
+  }
+
+  private static IntegerFormula<IntegerField> getIfThenFormula(
+      final IntegerField phi, final int i, final IntegerFormula<IntegerField> formula) {
+    final IntegerFormula.Builder<IntegerField> ifThenBuilder = new IntegerFormula.Builder<>();
+
+    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    // Introduce a Boolean variable: C == (PHI == i).
+    final IntegerField condition = getIfThenField(phi.getVariable(), i);
+
+    clauseBuilder1.addEquation(condition, BigInteger.valueOf(1), true);
+    clauseBuilder1.addEquation(phi, BigInteger.valueOf(i), false);
+
+    clauseBuilder2.addEquation(condition, BigInteger.valueOf(1), false);
+    clauseBuilder2.addEquation(phi, BigInteger.valueOf(i), true);
+
+    ifThenBuilder.addClause(clauseBuilder1.build());
+    ifThenBuilder.addClause(clauseBuilder2.build());
+
+    // Transform the formula according to the rule:
+    // C -> (x[1] & ... & x[n]) == (~C | x[1]) & ... & (~C | x[n]).
+    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
+      if (clause.getType() == IntegerClause.Type.OR) {
+        final IntegerClause.Builder<IntegerField> clauseBuilder =
+            new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+        clauseBuilder.addEquation(condition, BigInteger.valueOf(1), false);
+        clauseBuilder.addClause(clause);
+
+        ifThenBuilder.addClause(clauseBuilder.build());
+      } else {
+        for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
+          final IntegerClause.Builder<IntegerField> clauseBuilder =
+              new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+          clauseBuilder.addEquation(condition, BigInteger.valueOf(1), false);
+          clauseBuilder.addEquation(equation);
+
+          ifThenBuilder.addClause(clauseBuilder.build());
+        }
+      }
+    }
+
+    return ifThenBuilder.build();
   }
 }
