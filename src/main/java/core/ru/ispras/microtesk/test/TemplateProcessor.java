@@ -224,10 +224,10 @@ final class TemplateProcessor implements Template.Processor {
       final String sequenceId,
       final int sequenceIndex,
       final boolean abortOnUndefinedLabel) throws ConfigurationException {
-    PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
     testProgram.addEntry(new TestProgramEntry(sequenceId, sequence));
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
+    PrinterUtils.printSequenceToConsole(engineContext, sequence, sequenceId);
 
     if (sequence.isEmpty()) {
       return;
