@@ -139,15 +139,11 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void rethrowException(final Exception e) {
-    if (e instanceof GenerationAbortedException) {
-      throw (GenerationAbortedException) e;
-    }
-
     if (e instanceof RuntimeException) {
       throw (RuntimeException) e;
+    } else {
+      throw new GenerationAbortedException(e);
     }
-
-    throw new GenerationAbortedException(e);
   }
 
   private void processPrologue(final Block block) {
