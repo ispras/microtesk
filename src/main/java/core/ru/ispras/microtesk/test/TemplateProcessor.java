@@ -256,23 +256,12 @@ final class TemplateProcessor implements Template.Processor {
       reallocateGlobalData();
     }
 
-    // Resets execution statuses
-    final boolean emptyExecutorStatuses = executorStatuses.isEmpty(); 
-    for (int index = 0; index < instanceNumber; index++) {
-      if (emptyExecutorStatuses) {
-        executorStatuses.add(null);
-      } else {
-        executorStatuses.set(index, null);
-      }
-    }
-
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
     final TestSequence prologue = testProgram.getPrologue();
     allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
-    executeTestSequence(prologue);
 
-    // Adds the prologue instruction count to overall statistics.
+    executeTestSequence(prologue);
     engineContext.getStatistics().incInstructions(prologue.getInstructionCount());
   }
 
@@ -298,6 +287,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getLabelManager().reset();
       allocator.reset();
       testProgram.reset();
+      executorStatuses.clear();
 
       isProgramStarted = false;
     }
@@ -333,10 +323,20 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     final long startAddress = sequence.getAll().get(0).getAddress();
+    final boolean isNoStatuses = executorStatuses.isEmpty();
+
     for (int index = 0; index < instanceNumber; index++) {
       Logger.debugHeader("Instance %d", index);
-      engineContext.getModel().setActivePE(index);
 
+      // Sets initial statuses (address of first sequence in a program).
+      if (isNoStatuses) {
+        executorStatuses.add(Executor.Status.newAddress(startAddress));
+      }
+
+      final Executor.Status previousStatus = executorStatuses.get(index);
+      Logger.debug("Execution status: %s%n", previousStatus);
+
+      engineContext.getModel().setActivePE(index);
       final Executor.Status status = executor.execute(allocator.getCode(), startAddress);
       executorStatuses.set(index, status);
 
@@ -347,7 +347,6 @@ final class TemplateProcessor implements Template.Processor {
       }
     }
   }
-
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {
     for (final ConcreteCall call : sequence.getAll()) {

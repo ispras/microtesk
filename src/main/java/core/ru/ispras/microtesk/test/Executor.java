@@ -50,11 +50,11 @@ final class Executor {
   public static final class Status {
     private final Object data;
 
-    private static Status newAddress(final long address) {
+    public static Status newAddress(final long address) {
       return new Status(address);
     }
 
-    private static Status newLabelReference(final LabelReference labelReference) {
+    public static Status newLabelReference(final LabelReference labelReference) {
       return new Status(labelReference);
     }
 
