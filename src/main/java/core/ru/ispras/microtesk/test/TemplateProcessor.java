@@ -274,8 +274,7 @@ final class TemplateProcessor implements Template.Processor {
       Logger.debugHeader("Instance %d", index);
       engineContext.getModel().setActivePE(index);
 
-      final Code code = allocator.getCode();
-      final Executor.Status status = executor.execute(code, startAddress);
+      final Executor.Status status = executor.execute(allocator.getCode(), startAddress);
       executorStatuses.set(index, status);
 
       if (status.isLabelReference()) {
