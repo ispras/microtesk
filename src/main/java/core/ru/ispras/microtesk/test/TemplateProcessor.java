@@ -202,11 +202,8 @@ final class TemplateProcessor implements Template.Processor {
 
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
+        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-        final String sequenceId =
-            String.format("Test Case %d (%s)", sequenceIndex, block.getWhere());
-
-        sequence.setTitle(sequenceId);
         processTestSequence(sequence, sequenceIndex, true);
         processSelfChecks(sequence.getChecks(), sequenceIndex);
 
