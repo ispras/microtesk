@@ -506,8 +506,12 @@ final class Printer {
       printSeparatorToFile("Global Data");
     }
 
-    for (final DataSection item : globalData) {
-      printDataDirectives(item.getDirectives());
+    for (final DataSection data : globalData) {
+      if (data.isSeparateFile()) {
+        continue;
+      }
+
+      printDataDirectives(data.getDirectives());
     }
 
     if (!localData.isEmpty()) {
@@ -517,6 +521,10 @@ final class Printer {
 
     int currentTestCaseIndex = -1;
     for (final DataSection data : localData) {
+      if (data.isSeparateFile()) {
+        continue;
+      }
+
       final List<DataDirective> directives = data.getDirectives();
       final int index = data.getSequenceIndex();
 

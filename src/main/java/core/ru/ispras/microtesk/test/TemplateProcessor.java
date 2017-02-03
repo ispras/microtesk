@@ -119,7 +119,10 @@ final class TemplateProcessor implements Template.Processor {
       } catch (final Exception e) {
         rethrowException(e);
       }
-      return; // FIXME: must be saved to
+
+      if (!data.isGlobal()) {
+        return;
+      }
     }
 
     testProgram.addData(data);
