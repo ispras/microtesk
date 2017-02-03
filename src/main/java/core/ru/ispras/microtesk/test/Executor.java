@@ -245,16 +245,6 @@ final class Executor {
     this.listener = listener;
   }
 
-  /**
-   * Executes the specified sequence of instruction calls (concrete calls) and prints information
-   * about important events to the simulator log.
-   * 
-   * @throws IllegalArgumentException if the parameter is {@code null}.
-   * @throws GenerationAbortedException if during the interaction with the microprocessor model
-   *         an error caused by an invalid format of the request has occurred (typically, it
-   *         happens when evaluating an {@link Output} object causes an invalid request to the
-   *         model state observer).
-   */
   public Status execute(final Code executorCode, final long startAddress, final long endAddress) {
     InvariantChecks.checkNotNull(executorCode);
     InvariantChecks.checkFalse(context.getOptions().getValueAsBoolean(Option.NO_SIMULATION));
