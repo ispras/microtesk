@@ -27,16 +27,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class BinaryReader {
   private final InputStream inputStream;
+  private final boolean bigEndian;
   private boolean open;
 
   private final byte[] buffer = new byte[1024];
   private int lastBytesRead = 0;
   private int position = 0;
 
-  public BinaryReader(final File file) throws IOException {
+  public BinaryReader(final File file, final boolean bigEndian) throws IOException {
     InvariantChecks.checkNotNull(file);
 
     this.inputStream = new FileInputStream(file);
+    this.bigEndian = bigEndian;
     this.open = true;
   }
 
@@ -57,8 +59,9 @@ public final class BinaryReader {
 
     final byte[] bytes = Arrays.copyOfRange(buffer, position, position + byteSize);
 
-    // Hack to support Big Endian
-    ArrayUtils.reverse(bytes);
+    if (bigEndian) {
+      ArrayUtils.reverse(bytes);
+    }
 
     final BitVector data = BitVector.valueOf(bytes, byteSize * 8);
     position += byteSize;

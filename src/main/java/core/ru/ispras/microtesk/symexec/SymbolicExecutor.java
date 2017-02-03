@@ -38,7 +38,7 @@ public final class SymbolicExecutor {
     InvariantChecks.checkNotNull(fileName);
 
     final DisassemblerOutputFactory outputFactory = new DisassemblerOutputFactory();
-    if (!Disassembler.disassemble(modelName, fileName, outputFactory)) {
+    if (!Disassembler.disassemble(options, modelName, fileName, outputFactory)) {
       Logger.error("Failed to disassemble " + fileName);
     }
 

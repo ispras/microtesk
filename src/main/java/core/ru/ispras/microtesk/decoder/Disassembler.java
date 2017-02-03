@@ -40,9 +40,11 @@ public final class Disassembler {
   }
 
   public static boolean disassemble(
+      final Options options,
       final String modelName,
       final String fileName,
       final OutputFactory outputFactory) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
     InvariantChecks.checkNotNull(outputFactory);
@@ -52,7 +54,8 @@ public final class Disassembler {
       return false;
     }
 
-    final BinaryReader reader = newReader(fileName);
+    final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
+    final BinaryReader reader = newReader(fileName, bigEndian);
     if (null == reader) {
       return false;
     }
@@ -101,7 +104,7 @@ public final class Disassembler {
       }
     };
 
-    return disassemble(modelName, fileName, outputFactory);
+    return disassemble(options, modelName, fileName, outputFactory);
   }
 
   private static final class OutputImpl implements Output {
@@ -144,7 +147,7 @@ public final class Disassembler {
         options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
-  private static BinaryReader newReader(final String fileName) {
+  private static BinaryReader newReader(final String fileName, final boolean bigEndian) {
     final File file = new File(fileName);
     if (!file.exists()) {
       Logger.error("The %s file does not exists.", fileName);
@@ -152,7 +155,7 @@ public final class Disassembler {
     }
 
     try {
-      return new BinaryReader(file);
+      return new BinaryReader(file, bigEndian);
     } catch (final IOException e) {
       Logger.error("Failed to open input file. Reason: %s.", e.getMessage());
       return null;

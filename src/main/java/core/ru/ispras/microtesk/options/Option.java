@@ -71,6 +71,7 @@ public enum Option {
       "Limited functionality. Required for debugging.", false, GENERATE),
 
   BIN_EXT("binary-file-extension", "Binary file extension", "bin", GENERATE),
+  BIN_USE_BIG_ENDIAN("binary-file-use-big-endian", "Use big endian for binary files", false),
   CODE_EXT("code-file-extension", "Output file extension", "asm", GENERATE),
   CODE_PRE("code-file-prefix", "Output file prefix", "test", GENERATE),
   DATA_EXT("data-file-extension", "Data file extension", "dat", GENERATE),

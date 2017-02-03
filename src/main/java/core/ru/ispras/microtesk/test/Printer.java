@@ -154,7 +154,8 @@ final class Printer {
     this.binaryFile = binaryFile;
 
     this.fileWritter = null != file ? new PrintWriter(file) : null;
-    this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile) : null;
+    final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
+    this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
     this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
     this.dataKeyword  = options.getValueAsString(Option.DATA_SECTION_KEYWORD);

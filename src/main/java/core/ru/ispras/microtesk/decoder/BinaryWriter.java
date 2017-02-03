@@ -25,16 +25,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class BinaryWriter {
   private final File file;
   private final OutputStream outputStream;
+  private final boolean bigEndian;
   private boolean open;
 
   private final byte[] buffer = new byte[1024];
   private int position = 0;
 
-  public BinaryWriter(final File file) throws IOException {
+  public BinaryWriter(final File file, final boolean bigEndian) throws IOException {
     InvariantChecks.checkNotNull(file);
 
     this.file = file;
     this.outputStream = new FileOutputStream(file);
+    this.bigEndian = bigEndian;
     this.open = true;
   }
 
@@ -60,7 +62,8 @@ public final class BinaryWriter {
 
       // Hack to support Big Endian
       for (int index = 0; index < dataSize; ++index) {
-        buffer[position++] = data.getByte(dataSize - 1 - index);
+        final int sourcePosition = bigEndian ? dataSize - 1 - index : index;
+        buffer[position++] = data.getByte(sourcePosition);
       }
     } catch (final IOException e) {
       throw new IllegalStateException(e);

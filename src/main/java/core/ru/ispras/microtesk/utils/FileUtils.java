@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.decoder.BinaryWriter;
 
 /**
  * The {@link FileUtils} class provides utility methods to work with files.
@@ -130,13 +129,5 @@ public final class FileUtils {
       final String ext) throws IOException {
     final File file = newFile(path, name, ext);
     return new PrintWriter(file);
-  }
-
-  public static BinaryWriter newBinaryWriter(
-      final String path,
-      final String name,
-      final String ext) throws IOException {
-    final File file = newFile(path, name, ext);
-    return new BinaryWriter(file);
   }
 }
