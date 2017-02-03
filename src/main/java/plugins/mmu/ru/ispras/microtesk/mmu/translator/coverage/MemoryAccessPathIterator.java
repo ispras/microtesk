@@ -96,6 +96,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       }
     }
 
+    public boolean isFirst() {
+      return index == 0;
+    }
+
+    public void stop() {
+      index = order.length;
+    }
+
     @Override
     public boolean hasNext() {
       return index < order.length;
@@ -120,7 +128,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final List<Object> trajectorySuffix;
     final List<MemoryGraph.Edge> edges;
 
-    Iterator<MemoryGraph.Edge> iterator;
+    EdgeIterator iterator;
     MemorySymbolicResult context;
 
     SearchEntry(
@@ -152,18 +160,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       this.edges = edges;
       this.iterator = new EdgeIterator(edges);
       this.context = context;
-    }
-
-    boolean hasNext() {
-      return iterator != null && iterator.hasNext();
-    }
-
-    MemoryGraph.Edge next() {
-      return iterator.next();
-    }
-
-    void stop() {
-      iterator = null;
     }
 
     /**
@@ -234,6 +230,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private final MemoryAccessStack stack;
 
   private Result result;
+  private boolean hasResult;
 
   private int callId = 0;
 
@@ -292,20 +289,30 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
     this.searchStack.push(searchEntry);
     this.stack = stack;
-    this.result = getNext();
+
+    // Do not assign the result here: it can decrease performance.
+    this.result = null;
+    this.hasResult = false;
   }
 
   @Override
   public boolean hasNext() {
+    if (!hasResult) {
+      result = getNext();
+      hasResult = true;
+    }
+
     return result != null;
   }
 
   @Override
   public Result next() {
-    final Result result = this.result;
-    this.result = getNext();
+    final Result oldResult = result;
 
-    return result;
+    result = getNext();
+    hasResult = true;
+
+    return oldResult;
   }
 
   private static final int PROGRAM_EXTRACTION_DEPTH = 10;
@@ -385,17 +392,18 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private MmuProgram getNextProgram(final SearchEntry searchEntry) {
-    final MemoryGraph.Edge currentEdge = searchEntry.next();
+    final boolean isFirstEdge = searchEntry.iterator.isFirst();
+
+    final MemoryGraph.Edge currentEdge = searchEntry.iterator.next();
     final List<MemoryGraph.Edge> edges = searchEntry.edges;
 
     // If the current edge is the first edge in the list.
-    if (edges.size() > 1 && currentEdge == edges.get(0)) {
-      // Check whether the transitions can be unified.
+    if (edges.size() > 1 && isFirstEdge) {
       final MmuProgram program = getNextProgram(searchEntry.action);
 
       if (program != null) {
         Logger.debug("Program extracted: %s", program);
-        searchEntry.stop();
+        searchEntry.iterator.stop();
 
         return program;
       }
@@ -404,6 +412,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final MmuProgram program = MmuProgram.ATOMIC(currentEdge.getTransition());
     program.setLabel(currentEdge.getLabel());
 
+    Logger.debug("Single transition: %s", program);
     return program;
   }
 
@@ -412,7 +421,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final SearchEntry searchEntry = searchStack.peek();
       boolean isCompleted = true;
 
-      while (searchEntry.hasNext()) {
+      while (searchEntry.iterator.hasNext()) {
         final List<Object> trajectory = searchEntry.trajectorySuffix;
 
         final MmuProgram program = getNextProgram(searchEntry);
@@ -439,8 +448,9 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             program, type, stack, constraints, context /* INOUT */)) {
           isCompleted = false;
 
-          Logger.debug("DFS stack %s", searchStack);
-          Logger.debug("Current action %s", targetAction);
+          Logger.debug("Call stack: %s", stack);
+          Logger.debug("DFS search: %s", searchStack.size());
+          Logger.debug("Transition: %s -> %s", sourceAction, targetAction);
 
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
@@ -512,7 +522,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             break;
           }
-        } // If feasible transition.
+        } else {
+          // If feasible transition.
+          Logger.debug("Infeasible: %s -> %s", sourceAction, targetAction);
+        }
       } // For each outgoing edge.
 
       if (isCompleted) {
