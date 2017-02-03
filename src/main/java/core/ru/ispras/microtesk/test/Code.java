@@ -99,6 +99,10 @@ final class Code {
     return addresses.containsKey(address);
   }
 
+  public boolean hasBlockStartAt(final long address) {
+    return blocks.containsKey(address);
+  }
+
   public Iterator getIterator(final long address, final boolean fromBlockStart) {
     if (fromBlockStart) {
       final CodeBlock block = blocks.get(address);
