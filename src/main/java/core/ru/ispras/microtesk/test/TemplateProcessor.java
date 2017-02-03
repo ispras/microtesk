@@ -237,53 +237,6 @@ final class TemplateProcessor implements Template.Processor {
     processTestSequence(sequence, testCaseIndex);
   }
 
-  private void processTestSequence(
-      final TestSequence sequence,
-      final int sequenceIndex) throws ConfigurationException {
-    testProgram.addEntry(sequence);
-    allocateData(sequence, sequenceIndex);
-    allocator.allocateSequence(sequence, sequenceIndex);
-    PrinterUtils.printSequenceToConsole(engineContext, sequence);
-
-    if (sequence.isEmpty()) {
-      return;
-    }
-
-    executeTestSequence(sequence);
-  }
-
-  private void executeTestSequence(final TestSequence sequence) {
-    // Execution:
-    //   At least one thread points start address
-    //   At least one thread points a label in this block
-    // Special case:
-    //   If a thread points of end of previous block and it does not match
-    //   with the beginning of this block, it is an error.
-    // Question:
-    //   How to know the previous block?
-
-    Logger.debugHeader("Executing %s", sequence.getTitle());
-    if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
-      Logger.debug("Simulation is disabled");
-      return;
-    }
-
-    final long startAddress = sequence.getAll().get(0).getAddress();
-    for (int index = 0; index < instanceNumber; index++) {
-      Logger.debugHeader("Instance %d", index);
-      engineContext.getModel().setActivePE(index);
-
-      final Executor.Status status = executor.execute(allocator.getCode(), startAddress);
-      executorStatuses.set(index, status);
-
-      if (status.isLabelReference()) {
-        throw new GenerationAbortedException(String.format(
-            "Label '%s' is undefined or unavailable in the current execution scope.",
-            status.getLabelReference().getReference().getName()));
-      }
-    }
-  }
-
   private void startProgram() throws IOException, ConfigurationException {
     if (isProgramStarted) {
       return;
@@ -340,6 +293,54 @@ final class TemplateProcessor implements Template.Processor {
       isProgramStarted = false;
     }
   }
+
+  private void processTestSequence(
+      final TestSequence sequence,
+      final int sequenceIndex) throws ConfigurationException {
+    testProgram.addEntry(sequence);
+    allocateData(sequence, sequenceIndex);
+    allocator.allocateSequence(sequence, sequenceIndex);
+    PrinterUtils.printSequenceToConsole(engineContext, sequence);
+
+    if (sequence.isEmpty()) {
+      return;
+    }
+
+    executeTestSequence(sequence);
+  }
+
+  private void executeTestSequence(final TestSequence sequence) {
+    // Execution:
+    //   At least one thread points start address
+    //   At least one thread points a label in this block
+    // Special case:
+    //   If a thread points of end of previous block and it does not match
+    //   with the beginning of this block, it is an error.
+    // Question:
+    //   How to know the previous block?
+
+    Logger.debugHeader("Executing %s", sequence.getTitle());
+    if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
+      Logger.debug("Simulation is disabled");
+      return;
+    }
+
+    final long startAddress = sequence.getAll().get(0).getAddress();
+    for (int index = 0; index < instanceNumber; index++) {
+      Logger.debugHeader("Instance %d", index);
+      engineContext.getModel().setActivePE(index);
+
+      final Executor.Status status = executor.execute(allocator.getCode(), startAddress);
+      executorStatuses.set(index, status);
+
+      if (status.isLabelReference()) {
+        throw new GenerationAbortedException(String.format(
+            "Label '%s' is undefined or unavailable in the current execution scope.",
+            status.getLabelReference().getReference().getName()));
+      }
+    }
+  }
+
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {
     for (final ConcreteCall call : sequence.getAll()) {
