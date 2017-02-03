@@ -64,6 +64,10 @@ final class CodeAllocator {
     return address;
   }
 
+  public void setAddress(final long address) {
+    this.address = address;
+  }
+
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
     if (!sequence.isEmpty()) {
       allocate(sequence.getAll(), sequenceIndex);
