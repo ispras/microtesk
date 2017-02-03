@@ -33,7 +33,7 @@ import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
 
 /**
- * The role of the {@link Executor} class is to execute (simulate) sequences of instruction calls
+ * The role of the {@link Executor} class is to execute (simulate) instruction calls
  * (concrete calls). It executes instruction by instruction, perform control transfers by labels
  * (if needed) and prints information about important events to the simulator log (currently,
  * the console).
@@ -245,7 +245,20 @@ final class Executor {
     this.listener = listener;
   }
 
-  public Status execute(final Code code, final long startAddress, final long endAddress) {
+  /**
+   * Executes code starting from the specified address until (1) a break point is reached
+   * and no executable code follows after this point or (2) an attempt to jump to an undefined
+   * label is made.
+   * 
+   * @param code Code to be executed.
+   * @param startAddress Start address.
+   * @return Execution status (address or label).
+   * 
+   * @throws GenerationAbortedException (1) if an endless loop is detected; (2) if execution jumped
+   *         to an address that holds no executable instructions and no handling is provided for
+   *         this situation; (3) if an error related to interaction with the model occurs.
+   */
+  public Status execute(final Code code, final long startAddress) {
     InvariantChecks.checkNotNull(code);
     InvariantChecks.checkFalse(context.getOptions().getValueAsBoolean(Option.NO_SIMULATION));
 
@@ -258,13 +271,13 @@ final class Executor {
       do {
         previousAddress = address;
 
-        status = execute(code, address);
+        status = executeToBreak(code, address);
         if (!status.isAddress()) {
           return status;
         }
 
         address = status.getAddress();
-      } while (address != endAddress && address != previousAddress);
+      } while (code.hasBlockStartAt(address) && address != previousAddress);
 
       return status;
     } catch (final ConfigurationException e) {
@@ -274,7 +287,22 @@ final class Executor {
     }
   }
 
-  private Status execute(final Code code, final long startAddress) throws ConfigurationException {
+  /**
+   * Executes code starting from the specified address until: (1) a break point is reached or
+   * (2) an attempt to jump to an undefined label is made.
+   * 
+   * @param code Code to be executed.
+   * @param startAddress Start address.
+   * @return Execution status (address or label).
+   * 
+   * @throws ConfigurationException if an error related to interaction with the model occurs.
+   * @throws GenerationAbortedException (1) if an endless loop is detected; (2) if execution
+   *         jumped to an address that holds no executable instructions and no handling is provided
+   *         for this situation.
+   */
+  private Status executeToBreak(
+      final Code code,
+      final long startAddress) throws ConfigurationException {
     final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
     final Fetcher fetcher = new Fetcher(code, startAddress);
 

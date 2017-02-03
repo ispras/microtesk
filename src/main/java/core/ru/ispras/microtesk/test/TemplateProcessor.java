@@ -162,6 +162,13 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
+    // Allocation:
+    //   Follows after another allocated sequence
+    //   Has fixed origin
+    // Execution:
+    //   At least one thread points start address
+    //   At least one thread points a label in this block
+
     startProgram();
 
     final TestSequence sequence =
@@ -177,6 +184,12 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processBlock(final Block block) throws ConfigurationException, IOException {
+    // Allocation:
+    //   Follows after another allocated sequence
+    //   At least one thread points start address
+    // Execution:
+    //   At least one thread points start address
+
     final Iterator<List<Call>> abstractIt = block.getIterator();
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
@@ -240,6 +253,19 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
+    executeTestSequence(sequence);
+  }
+
+  private void executeTestSequence(final TestSequence sequence) {
+    // Execution:
+    //   At least one thread points start address
+    //   At least one thread points a label in this block
+    // Special case:
+    //   If a thread points of end of previous block and it does not match
+    //   with the beginning of this block, it is an error.
+    // Question:
+    //   How to know the previous block?
+
     Logger.debugHeader("Executing %s", sequence.getTitle());
     if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
@@ -247,14 +273,12 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     final long startAddress = sequence.getAll().get(0).getAddress();
-    final long endAddress = allocator.getAddress();
-
     for (int index = 0; index < instanceNumber; index++) {
       Logger.debugHeader("Instance %d", index);
       engineContext.getModel().setActivePE(index);
 
       final Code code = allocator.getCode();
-      final Executor.Status status = executor.execute(code, startAddress, endAddress);
+      final Executor.Status status = executor.execute(code, startAddress);
       executorStatuses.set(index, status);
 
       if (status.isLabelReference()) {
