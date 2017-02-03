@@ -175,7 +175,7 @@ final class TemplateProcessor implements Template.Processor {
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
     sequence.setTitle("External Code");
-    processTestSequence(sequence, Label.NO_SEQUENCE_INDEX, true);
+    processTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
 
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
@@ -204,7 +204,7 @@ final class TemplateProcessor implements Template.Processor {
         final int sequenceIndex = engineContext.getStatistics().getSequences();
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-        processTestSequence(sequence, sequenceIndex, true);
+        processTestSequence(sequence, sequenceIndex);
         processSelfChecks(sequence.getChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
@@ -234,13 +234,12 @@ final class TemplateProcessor implements Template.Processor {
     sequence.setTitle(sequenceId);
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
-    processTestSequence(sequence, testCaseIndex, false);
+    processTestSequence(sequence, testCaseIndex);
   }
 
   private void processTestSequence(
       final TestSequence sequence,
-      final int sequenceIndex,
-      final boolean abortOnUndefinedLabel) throws ConfigurationException {
+      final int sequenceIndex) throws ConfigurationException {
     testProgram.addEntry(sequence);
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
@@ -314,7 +313,7 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.getStatistics().incInstructions(testProgram.getPrologue().getInstructionCount());
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
-    processTestSequence(testProgram.getPrologue(), Label.NO_SEQUENCE_INDEX, true);
+    processTestSequence(testProgram.getPrologue(), Label.NO_SEQUENCE_INDEX);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
@@ -327,7 +326,7 @@ final class TemplateProcessor implements Template.Processor {
       sequence.setTitle("Epilogue");
       engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
-      processTestSequence(sequence, Label.NO_SEQUENCE_INDEX, true);
+      processTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
       PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
       Tarmac.closeFile();
