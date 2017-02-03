@@ -245,8 +245,8 @@ final class Executor {
     this.listener = listener;
   }
 
-  public Status execute(final Code executorCode, final long startAddress, final long endAddress) {
-    InvariantChecks.checkNotNull(executorCode);
+  public Status execute(final Code code, final long startAddress, final long endAddress) {
+    InvariantChecks.checkNotNull(code);
     InvariantChecks.checkFalse(context.getOptions().getValueAsBoolean(Option.NO_SIMULATION));
 
     context.getStatistics().pushActivity(Statistics.Activity.SIMULATING);
@@ -258,7 +258,7 @@ final class Executor {
       do {
         previousAddress = address;
 
-        status = execute(executorCode, address);
+        status = execute(code, address);
         if (!status.isAddress()) {
           return status;
         }
