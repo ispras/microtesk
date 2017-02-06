@@ -175,4 +175,15 @@ public final class TestSequence {
     InvariantChecks.checkNotNull(value);
     this.title = value;
   }
+
+  protected long getStartAddress() {
+    InvariantChecks.checkFalse(isEmpty());
+    return all.get(0).getAddress();
+  }
+
+  protected long getEndAddress() {
+    InvariantChecks.checkFalse(isEmpty());
+    final ConcreteCall last = all.get(all.size() - 1);
+    return last.getAddress() + last.getByteSize();
+  }
 }

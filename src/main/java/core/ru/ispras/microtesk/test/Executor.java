@@ -150,7 +150,7 @@ final class Executor {
       this.code = code;
       this.startAddress = address;
       this.address = address;
-      this.iterator = code.getIterator(address, true);
+      this.iterator = code.hasAddress(address) ? code.getIterator(address, true) : null;
       this.isNextAfterNull = false;
     }
 
@@ -365,7 +365,8 @@ final class Executor {
       }
     }
 
-    if (!fetcher.isBreakReached()) {
+    if (!fetcher.isBreakReached() ||
+         fetcher.getAddress() == startAddress && !code.hasAddress(startAddress)) {
       throw new GenerationAbortedException(String.format(
           "Simulation error. No executable code at 0x%016x.", fetcher.getAddress()));
     }

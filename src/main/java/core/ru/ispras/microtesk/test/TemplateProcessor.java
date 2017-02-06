@@ -322,22 +322,37 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    final long startAddress = sequence.getAll().get(0).getAddress();
     final boolean isNoStatuses = executorStatuses.isEmpty();
+    final long currentStartAddress = sequence.getStartAddress();
+
+    final TestSequence previousSequence =
+        testProgram.getEntries().getPrevious(sequence);
+
+    final long previousEndAddress = null != previousSequence && !previousSequence.isEmpty() ?
+        previousSequence.getEndAddress() : currentStartAddress;
 
     for (int index = 0; index < instanceNumber; index++) {
       Logger.debugHeader("Instance %d", index);
 
       // Sets initial statuses (address of first sequence in a program).
       if (isNoStatuses) {
-        executorStatuses.add(Executor.Status.newAddress(startAddress));
+        executorStatuses.add(Executor.Status.newAddress(currentStartAddress));
       }
 
       final Executor.Status previousStatus = executorStatuses.get(index);
       Logger.debug("Execution status: %s%n", previousStatus);
 
+      if (!isReadyForExecution(previousStatus, previousEndAddress)) {
+        Logger.debug("Execution cannot be run at the current stage.");
+        continue;
+      }
+
+      final long address = previousStatus.isAddress() ?
+          previousStatus.getAddress() :
+          previousStatus.getLabelReference().getTarget().getAddress();
+
       engineContext.getModel().setActivePE(index);
-      final Executor.Status status = executor.execute(allocator.getCode(), startAddress);
+      final Executor.Status status = executor.execute(allocator.getCode(), address);
       executorStatuses.set(index, status);
 
       if (status.isLabelReference()) {
@@ -346,6 +361,21 @@ final class TemplateProcessor implements Template.Processor {
             status.getLabelReference().getReference().getName()));
       }
     }
+  }
+
+  private boolean isReadyForExecution(final Executor.Status status, final long lastEndAddress) {
+    if (status.isLabelReference()) {
+      return status.getLabelReference().getTarget() != null;
+    }
+
+    InvariantChecks.checkTrue(status.isAddress());
+    final long address = status.getAddress();
+
+    if (address == lastEndAddress) {
+      return true;
+    }
+
+    return allocator.getCode().hasAddress(address);
   }
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {
