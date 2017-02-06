@@ -60,7 +60,7 @@ public final class MmuCalculatorTestCase {
     Assert.assertNotNull(result);
     Assert.assertEquals(BigInteger.ZERO, result);
 
-    long value = Randomizer.get().nextLong();
+    final long value = Randomizer.get().nextLong();
     System.out.format("Value: %x\n", value);
 
     result = MmuCalculator.eval(
