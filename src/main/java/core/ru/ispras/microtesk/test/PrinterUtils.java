@@ -112,8 +112,7 @@ final class PrinterUtils {
     try {
       statistics.incPrograms();
 
-      for (int index = 0; index < testProgram.getEntryCount(); ++index) {
-        final TestSequence sequence = testProgram.getEntry(index);
+      for (final TestSequence sequence : testProgram.getEntries()) {
         Logger.debugHeader("Printing %s to %s", sequence.getTitle(), printer.getFileName());
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }

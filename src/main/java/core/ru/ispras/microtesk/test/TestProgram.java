@@ -32,7 +32,7 @@ final class TestProgram {
   private TestSequence prologue;
   private Block epilogue;
 
-  private final List<TestSequence> entries;
+  private final AdjacencyList<TestSequence> entries;
   private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
   private final List<DataSection> globalData;
@@ -41,7 +41,7 @@ final class TestProgram {
   public TestProgram() {
     this.prologue = null;
     this.epilogue = null;
-    this.entries = new ArrayList<>();
+    this.entries = new AdjacencyList<>();
     this.exceptionHandlers = new ArrayList<>();
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
@@ -80,12 +80,8 @@ final class TestProgram {
     entries.add(entry);
   }
 
-  public int getEntryCount() {
-    return entries.size();
-  }
-
-  public TestSequence getEntry(final int index) {
-    return entries.get(index);
+  public Iterable<TestSequence> getEntries() {
+    return entries;
   }
 
   public void addData(final DataSection data) {
