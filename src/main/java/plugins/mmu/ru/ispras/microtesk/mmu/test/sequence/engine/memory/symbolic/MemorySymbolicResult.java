@@ -169,21 +169,6 @@ public final class MemorySymbolicResult {
     return constants;
   }
 
-  public Map<IntegerVariable, BigInteger> getOriginalConstants() {
-    final Map<IntegerVariable, BigInteger> result = new HashMap<>();
-
-    for (final IntegerVariable original : originals) {
-      final IntegerVariable version = getVersion(original.getName());
-      final BigInteger constant = constants.get(version);
-
-      if (constant != null) {
-        result.put(original, constant);
-      }
-    }
-
-    return result;
-  }
-
   public void addConstant(final IntegerVariable var, final BigInteger constant) {
     constants.put(var, constant);
   }

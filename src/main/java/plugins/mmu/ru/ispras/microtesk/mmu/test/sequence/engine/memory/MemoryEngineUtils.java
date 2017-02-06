@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +46,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -89,7 +89,13 @@ public final class MemoryEngineUtils {
     }
 
     final Boolean value =
-        MmuCalculator.eval(condition, Collections.<IntegerVariable, BigInteger>emptyMap());
+        MmuCalculator.eval(condition,
+            new Function<IntegerVariable, BigInteger>() {
+              @Override
+              public BigInteger apply(final IntegerVariable variable) {
+                return null;
+              }
+            });
 
     if (value == null) {
       return false;
@@ -144,43 +150,16 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
-    final MmuProgram program = entry.getProgram();
-
-    Boolean value = null;
-
-    if (program.isAtomic()) {
-      final MmuTransition transition = program.getTransition();
-      final MmuGuard guard = transition.getGuard();
-
-      final MmuCondition condition = (guard != null)
-          ? guard.getCondition(stack)
-          : null;
-
-      value = (condition != null)
-          ? MmuCalculator.eval(condition, partialResult.getOriginalConstants())
-          : Boolean.TRUE;
-
-      // False can be return before symbolic execution.
-      if (Boolean.FALSE.equals(value)) {
-        return false;
-      }
-    }
-
     final Collection<BufferEventConstraint> bufferConstraints = constraints.getBufferEvents();
     if (!checkBufferConstraints(entry, stack, bufferConstraints)) {
       return false;
     }
 
     final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(partialResult);
-    symbolicExecutor.execute(entry);
+    final Boolean status = symbolicExecutor.execute(entry);
 
-    // True should be return after symbolic execution.
-    if (Boolean.TRUE.equals(value)) {
-      return true;
-    }
-
-    if (partialResult.hasConflict()) {
-      return false;
+    if (status != null) {
+      return status.booleanValue();
     }
 
     final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();

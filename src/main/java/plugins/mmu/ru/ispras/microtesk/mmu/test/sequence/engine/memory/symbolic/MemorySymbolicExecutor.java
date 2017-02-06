@@ -48,6 +48,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * {@link MemorySymbolicExecutor} implements a simple symbolic executor of memory access structures.
@@ -66,38 +67,42 @@ public final class MemorySymbolicExecutor {
     return result;
   }
 
-  public void execute(final IntegerConstraint<IntegerField> constraint) {
+  public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
-    executeFormula(result, null, constraint.getFormula(), -1);
+    return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
-  public void execute(final MemoryAccessPath.Entry entry) {
+  public Boolean execute(final MemoryAccessPath.Entry entry) {
     InvariantChecks.checkNotNull(entry);
-    executeEntry(result, null, entry, -1);
+    return executeEntry(result, null, entry, -1);
   }
 
-  public void execute(final MemoryAccessPath path, final boolean finalize) {
+  public Boolean execute(final MemoryAccessPath path, final boolean finalize) {
     InvariantChecks.checkNotNull(path);
 
-    executePath(result, null, path, -1);
+    final Boolean status = executePath(result, null, path, -1);
 
     if (finalize) {
       result.includeOriginalVariables();
     }
+
+    return status;
   }
 
-  public void execute(final MemoryAccessStructure structure, final boolean finalize) {
+  public Boolean execute(final MemoryAccessStructure structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
 
-    executeStructure(result, null, structure);
+    final Boolean status = executeStructure(result, null, structure);
 
     if (finalize) {
       result.includeOriginalVariables();
     }
+
+    return status;
   }
 
-  private void executeStructure(
+  private Boolean executeStructure(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MemoryAccessStructure structure) {
@@ -117,9 +122,11 @@ public final class MemorySymbolicExecutor {
 
       executePath(result, defines, path2, j);
     }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executePath(
+  private Boolean executePath(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MemoryAccessPath path,
@@ -127,14 +134,16 @@ public final class MemorySymbolicExecutor {
 
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       if (result.hasConflict()) {
-        return;
+        return Boolean.FALSE;
       }
 
       executeEntry(result, defines, entry, pathIndex);
     }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeDependency(
+  private Boolean executeDependency(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MemoryAccessPath path1,
@@ -145,14 +154,16 @@ public final class MemorySymbolicExecutor {
 
     for (final MemoryHazard hazard : dependency.getHazards()) {
       if (result.hasConflict()) {
-        return;
+        return Boolean.FALSE;
       }
 
       executeHazard(result, defines, hazard, pathIndex1, pathIndex2);
     }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeHazard(
+  private Boolean executeHazard(
       final MemorySymbolicResult result, 
       final Set<IntegerVariable> defines,
       final MemoryHazard hazard,
@@ -160,16 +171,18 @@ public final class MemorySymbolicExecutor {
       final int pathIndex2) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MmuCondition condition = hazard.getCondition();
     if (condition != null) {
       executeCondition(result, defines, condition, pathIndex1, pathIndex2);
     }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeCondition(
+  private Boolean executeCondition(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuCondition condition,
@@ -177,7 +190,7 @@ public final class MemorySymbolicExecutor {
       final int pathIndex2) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MemoryAccessStack stack1 = result.getStack(pathIndex1);
@@ -212,9 +225,11 @@ public final class MemorySymbolicExecutor {
     }
 
     result.addClause(clauseBuilder.build());
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeFormula(
+  private Boolean executeFormula(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final IntegerFormula<IntegerField> formula,
@@ -252,16 +267,18 @@ public final class MemorySymbolicExecutor {
         result.addClause(clauseBuilder.build());
       }
     }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeEntry(
+  private Boolean executeEntry(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MemoryAccessPath.Entry entry,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MmuProgram program = entry.getProgram();
@@ -283,53 +300,60 @@ public final class MemorySymbolicExecutor {
       final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
       Logger.debug("Bindings: %s", bindings);
 
-      executeBindings(result, defines, bindings, pathIndex);
-    } else {
-      result.updateStack(entry, pathIndex);
-
-      if (entry.isNormal()) {
-        executeProgram(result, defines, program, pathIndex);
-      }
+      return executeBindings(result, defines, bindings, pathIndex);
     }
+
+    result.updateStack(entry, pathIndex);
+
+    if (entry.isNormal()) {
+      return executeProgram(result, defines, program, pathIndex);
+    }
+
+    return Boolean.TRUE;
   }
 
-  private void executeProgram(
+  private Boolean executeProgram(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuProgram program,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     if (program.isAtomic()) {
-      executeTransition(result, defines, program.getTransition(), pathIndex);
-    } else {
-      for (final Collection<MmuProgram> statement : program.getStatements()) {
-        executeStatement(result, defines, statement, pathIndex);
-      }
+      return executeTransition(result, defines, program.getTransition(), pathIndex);
     }
+
+    for (final Collection<MmuProgram> statement : program.getStatements()) {
+      if (result.hasConflict()) {
+        return Boolean.FALSE;
+      }
+
+      executeStatement(result, defines, statement, pathIndex);
+    }
+
+    return result.hasConflict() ? Boolean.FALSE : null;
   }
 
-  private void executeStatement(
+  private Boolean executeStatement(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final Collection<MmuProgram> statement,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     if (statement.isEmpty()) {
       result.setConflict(true);
-      return;
+      return Boolean.FALSE;
     }
 
     if (statement.size() == 1) {
-      executeProgram(result, defines, statement.iterator().next(), pathIndex);
-      return;
+      return executeProgram(result, defines, statement.iterator().next(), pathIndex);
     }
 
     final List<MemorySymbolicResult> switchResults = new ArrayList<>(statement.size());
@@ -350,7 +374,7 @@ public final class MemorySymbolicExecutor {
 
     if (switchResults.isEmpty()) {
       result.setConflict(true);
-      return;
+      return Boolean.FALSE;
     }
 
     final Set<IntegerVariable> allDefines = new LinkedHashSet<>();
@@ -408,6 +432,8 @@ public final class MemorySymbolicExecutor {
       final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
 
       result.addFormula(caseFormula);
+      // TODO: Constant propagation can be optimized.
+      result.getConstants().putAll(caseResult.getConstants());
     } else {
       // Join the control flows.
       final int width = getWidth(statement.size());
@@ -437,39 +463,45 @@ public final class MemorySymbolicExecutor {
         result.addFormula(ifThenFormula);
       }
     }
+
+    return null;
   }
 
-  private void executeTransition(
+  private Boolean executeTransition(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuTransition transition,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
-    final MmuGuard guard = transition.getGuard();
+    final Boolean status;
 
+    final MmuGuard guard = transition.getGuard();
     if (guard != null) {
-      executeGuard(result, defines, guard, pathIndex);
+      status = executeGuard(result, defines, guard, pathIndex);
+    } else {
+      status = Boolean.TRUE;
     }
 
     final MmuAction action = transition.getTarget();
-
     if (action != null) {
       executeAction(result, defines, action, pathIndex);
     }
+
+    return status;
   }
 
-  private void executeGuard(
+  private Boolean executeGuard(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuGuard guard,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MemoryAccessStack stack = result.getStack(pathIndex);
@@ -479,20 +511,26 @@ public final class MemorySymbolicExecutor {
       executeBufferAccess(result, defines, bufferAccess, pathIndex);
     }
 
+    final Boolean status;
+
     final MmuCondition condition = guard.getCondition(stack);
     if (condition != null) {
-      executeCondition(result, defines, condition, pathIndex);
+      status = executeCondition(result, defines, condition, pathIndex);
+    } else {
+      status = Boolean.TRUE;
     }
+
+    return status;
   }
 
-  private void executeAction(
+  private Boolean executeAction(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuAction action,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MemoryAccessStack stack = result.getStack(pathIndex);
@@ -501,30 +539,51 @@ public final class MemorySymbolicExecutor {
     if (assignments != null) {
       executeBindings(result, defines, assignments.values(), pathIndex);
     }
+
+    return Boolean.TRUE;
   }
 
-  private void executeBufferAccess(
+  private Boolean executeBufferAccess(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuBufferAccess bufferAccess,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MemoryAccessStack stack = result.getStack(pathIndex);
-    executeBindings(result, defines, bufferAccess.getBuffer().getMatchBindings(stack), pathIndex);
+    final Collection<MmuBinding> bindings = bufferAccess.getBuffer().getMatchBindings(stack);
+
+    return executeBindings(result, defines, bindings, pathIndex);
   }
 
-  private void executeCondition(
+  private Boolean executeCondition(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuCondition condition,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
+    }
+
+    // Try to calculate the condition based on the derived constants.
+    final Boolean value = MmuCalculator.eval(condition,
+        new Function<IntegerVariable, BigInteger>() {
+          @Override
+          public BigInteger apply(final IntegerVariable original) {
+            final IntegerVariable version = result.getVersion(original);
+            return result.getConstant(version);
+          }
+        });
+
+    if (value != null) {
+      // If the result is false, there is a conflict.
+      // If the result is true, the condition is redundant.
+      result.setConflict(!value.booleanValue());
+      return value;
     }
 
     final IntegerClause.Type definedType = condition.getType() == MmuCondition.Type.AND ?
@@ -535,7 +594,7 @@ public final class MemorySymbolicExecutor {
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       if (result.hasConflict()) {
-        return;
+        return Boolean.FALSE;
       }
 
       executeConditionAtom(result, defines, clauseBuilder, atom, pathIndex);
@@ -544,9 +603,11 @@ public final class MemorySymbolicExecutor {
     if (clauseBuilder.size() != 0) {
       result.addClause(clauseBuilder.build());
     }
+
+    return null;
   }
 
-  private void executeConditionAtom(
+  private Boolean executeConditionAtom(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final IntegerClause.Builder<IntegerField> clauseBuilder,
@@ -554,7 +615,7 @@ public final class MemorySymbolicExecutor {
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final MmuExpression lhsExpr = atom.getLhsExpr();
@@ -589,7 +650,7 @@ public final class MemorySymbolicExecutor {
                   field, (atom.isNegated() ? "!=" : "=="), fieldConst);
 
               result.setConflict(true);
-              return;
+              return Boolean.FALSE;
             }
 
             if (truthValue && clauseBuilder.getType() == IntegerClause.Type.OR) {
@@ -635,16 +696,18 @@ public final class MemorySymbolicExecutor {
         InvariantChecks.checkTrue(false);
         break;
     }
+
+    return null;
   }
 
-  private void executeBindings(
+  private Boolean executeBindings(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
       final Collection<MmuBinding> bindings,
       final int pathIndex) {
 
     if (result.hasConflict()) {
-      return;
+      return Boolean.FALSE;
     }
 
     final IntegerClause.Builder<IntegerField> clauseBuilder =
@@ -715,12 +778,19 @@ public final class MemorySymbolicExecutor {
         result.defineVersion(lhs.getVariable(), pathIndex);
 
         // Try to propagate constants.
+        final Map<IntegerVariable, BigInteger> constants = result.getConstants();
         final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);
-        final BigInteger constant = MmuCalculator.eval(rhsExpr, result.getConstants(), false);
+        final BigInteger constant = MmuCalculator.eval(rhsExpr,
+            new Function<IntegerVariable, BigInteger>() {
+              @Override
+              public BigInteger apply(final IntegerVariable variable) {
+                return constants.get(variable);
+              }
+            }, false);
 
         if (constant != null) {
           Logger.debug("Constant propagation: %s == 0x%s", newLhsVar, constant.toString(16));
-          result.getConstants().put(newLhsVar, constant);
+          result.addConstant(newLhsVar, constant);
         }
       } // if right-hand side exists.
     } // for each binding.
@@ -728,6 +798,8 @@ public final class MemorySymbolicExecutor {
     if (clauseBuilder.size() != 0) {
       result.addClause(clauseBuilder.build());
     }
+
+    return Boolean.TRUE;
   }
 
   private static int uniqueId = 0;

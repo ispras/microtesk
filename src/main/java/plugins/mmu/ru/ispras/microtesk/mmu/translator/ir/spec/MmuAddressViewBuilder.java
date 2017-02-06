@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +148,12 @@ public final class MmuAddressViewBuilder {
         for (final MmuExpression expression : expressions) {
           final BigInteger value = MmuCalculator.eval(
               expression,
-              Collections.<IntegerVariable, BigInteger>singletonMap(addressVariable, addressValue),
+              new Function<IntegerVariable, BigInteger>() {
+                @Override
+                public BigInteger apply(final IntegerVariable variable) {
+                  return addressValue;
+                }
+              },
               true);
 
           fields.add(value.longValue());
@@ -169,7 +173,14 @@ public final class MmuAddressViewBuilder {
           values.put(variable, BigInteger.valueOf(fields.get(i)));
         }
 
-        final BigInteger addressValue = MmuCalculator.eval(addressExpression, values, true);
+        final BigInteger addressValue = MmuCalculator.eval(addressExpression,
+            new Function<IntegerVariable, BigInteger>() {
+              @Override
+              public BigInteger apply(final IntegerVariable variable) {
+                return values.get(variable);
+              }
+            }, true);
+
         return addressValue.longValue();
       }
     });

@@ -15,15 +15,15 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * {@link MmuCalculator} implements an expr calculator.
+ * {@link MmuCalculator} implements an expression calculator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -31,28 +31,28 @@ public final class MmuCalculator {
   private MmuCalculator() {}
 
   /**
-   * Evaluates the expr.
+   * Evaluates the expression.
    * 
-   * <p>The empty expr is evaluated to zero.</p>
+   * <p>The empty expression is evaluated to zero.</p>
    * 
-   * @param expr the expr to be calculated.
-   * @param values the values of the variables.
+   * @param expr the expression to be calculated.
+   * @param getValue the function that returns a variable's value.
    * @param check the flag indicating whether to fail if no value is found for some variable. 
-   * @return the expr value.
+   * @return the expression's value.
    */
   public static BigInteger eval(
       final MmuExpression expr,
-      final Map<IntegerVariable, BigInteger> values,
+      final Function<IntegerVariable, BigInteger> getValue,
       final boolean check) {
     InvariantChecks.checkNotNull(expr);
-    InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkNotNull(getValue);
 
     BigInteger result = BigInteger.ZERO;
     int offset = 0;
 
     for (final IntegerField field : expr.getTerms()) {
       final IntegerVariable variable = field.getVariable();
-      final BigInteger value = variable.isDefined() ? variable.getValue() : values.get(variable);
+      final BigInteger value = variable.isDefined() ? variable.getValue() : getValue.apply(variable);
 
       if (value == null && !check) {
         return null;
@@ -73,15 +73,15 @@ public final class MmuCalculator {
 
   public static Boolean eval(
       final MmuConditionAtom atom,
-      final Map<IntegerVariable, BigInteger> values) {
+      final Function<IntegerVariable, BigInteger> getValue) {
     InvariantChecks.checkNotNull(atom);
-    InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkNotNull(getValue);
 
     switch (atom.getType()) {
       case EQ_EXPR_CONST:
       case IN_EXPR_RANGE:
         final MmuExpression expr = atom.getLhsExpr();
-        final BigInteger value = eval(expr, values, false);
+        final BigInteger value = eval(expr, getValue, false);
 
         if (value == null) {
           return null;
@@ -97,15 +97,15 @@ public final class MmuCalculator {
 
   public static Boolean eval(
       final MmuCondition cond,
-      final Map<IntegerVariable, BigInteger> values) {
+      final Function<IntegerVariable, BigInteger> getValue) {
     InvariantChecks.checkNotNull(cond);
-    InvariantChecks.checkNotNull(values);
+    InvariantChecks.checkNotNull(getValue);
 
     final boolean initialResultValue = (cond.getType() == MmuCondition.Type.AND);
     boolean result = initialResultValue;
 
     for (final MmuConditionAtom atom : cond.getAtoms()) {
-      final Boolean value = eval(atom, values);
+      final Boolean value = eval(atom, getValue);
 
       if (value == null) {
         return null;

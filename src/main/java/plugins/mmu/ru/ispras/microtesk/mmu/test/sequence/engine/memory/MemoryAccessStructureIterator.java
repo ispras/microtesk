@@ -191,8 +191,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   @Override
   public void next() {
-    // TODO:
-    stop();
     while (nextStructure()) {
       if (checkStructure()) {
         break;
