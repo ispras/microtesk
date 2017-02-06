@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -25,6 +24,7 @@ import org.junit.Test;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * Test for {@link MmuCalculator}.
@@ -49,7 +49,12 @@ public final class MmuCalculatorTestCase {
 
     BigInteger result = MmuCalculator.eval(
         expression,
-        Collections.<IntegerVariable, BigInteger>singletonMap(VAR, BigInteger.ZERO),
+        new Function<IntegerVariable, BigInteger>() {
+          @Override
+          public BigInteger apply(final IntegerVariable variable) {
+            return BigInteger.ZERO;
+          }
+        },
         false);
 
     Assert.assertNotNull(result);
@@ -60,7 +65,12 @@ public final class MmuCalculatorTestCase {
 
     result = MmuCalculator.eval(
         expression,
-        Collections.<IntegerVariable, BigInteger>singletonMap(VAR, BigInteger.valueOf(value)),
+        new Function<IntegerVariable, BigInteger>() {
+          @Override
+          public BigInteger apply(final IntegerVariable variable) {
+            return BigInteger.valueOf(value);
+          }
+        },
         false);
 
     Assert.assertNotNull(result);
