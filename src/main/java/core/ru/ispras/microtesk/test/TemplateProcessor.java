@@ -298,7 +298,7 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex) throws ConfigurationException {
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
-    testProgram.addEntry(sequence);
+    testProgram.getEntries().add(sequence);
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
   }
 

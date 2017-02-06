@@ -75,12 +75,7 @@ final class TestProgram {
     exceptionHandlers.add(handlers);
   }
 
-  public void addEntry(final TestSequence entry) {
-    InvariantChecks.checkNotNull(entry);
-    entries.add(entry);
-  }
-
-  public Iterable<TestSequence> getEntries() {
+  public AdjacencyList<TestSequence> getEntries() {
     return entries;
   }
 
