@@ -141,6 +141,7 @@ final class Executor {
     private final Code code;
     private final long startAddress;
     private long address;
+    private boolean isIterateFromUnallocatedAddress;
     private Code.Iterator iterator;
     private boolean isNextAfterNull;
 
@@ -150,7 +151,8 @@ final class Executor {
       this.code = code;
       this.startAddress = address;
       this.address = address;
-      this.iterator = code.hasAddress(address) ? code.getIterator(address, true) : null;
+      this.isIterateFromUnallocatedAddress = !code.hasAddress(address);
+      this.iterator = isIterateFromUnallocatedAddress ? null : code.getIterator(address, true);
       this.isNextAfterNull = false;
     }
 
@@ -172,7 +174,7 @@ final class Executor {
     }
 
     public boolean isBreakReached() {
-      if (!code.isBreakAddress(address)) {
+      if (!code.isBreakAddress(address) || isIterateFromUnallocatedAddress) {
         return false;
       }
 
@@ -205,7 +207,8 @@ final class Executor {
 
     public void jump(final long jumpAddress) {
       address = jumpAddress;
-      iterator = code.hasAddress(jumpAddress) ? code.getIterator(jumpAddress, false) : null;
+      isIterateFromUnallocatedAddress = !code.hasAddress(jumpAddress);
+      iterator = isIterateFromUnallocatedAddress ? null : code.getIterator(jumpAddress, false);
       isNextAfterNull = false;
     }
   }
@@ -365,8 +368,7 @@ final class Executor {
       }
     }
 
-    if (!fetcher.isBreakReached() ||
-         fetcher.getAddress() == startAddress && !code.hasAddress(startAddress)) {
+    if (!fetcher.isBreakReached()) {
       throw new GenerationAbortedException(String.format(
           "Simulation error. No executable code at 0x%016x.", fetcher.getAddress()));
     }
