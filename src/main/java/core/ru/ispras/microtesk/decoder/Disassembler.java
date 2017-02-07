@@ -180,7 +180,7 @@ public final class Disassembler {
     while ((data = reader.read(byteSize)) != null) {
       final DecoderResult result = decoder.decode(data);
       if (null == result) {
-        Logger.error("Unrecognized instructions encoding: %d'b%s", data.getBitSize(), data);
+        Logger.error("Unrecognized instruction encoding: %d'b%s", data.getBitSize(), data);
         return false;
       }
 
