@@ -728,10 +728,9 @@ public final class MemorySymbolicExecutor {
 
       if (rhs != null) {
         final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
-
         final List<IntegerField> rhsTerms = new ArrayList<>();
 
-        // Equation of the prefix part.
+        // Equation for the prefix part.
         if (lhs.getLoIndex() > 0) {
           final IntegerField oldLhsPre = new IntegerField(oldLhsVar, 0, lhs.getLoIndex() - 1);
           final IntegerField newLhsPre = new IntegerField(newLhsVar, 0, lhs.getLoIndex() - 1);
@@ -742,34 +741,41 @@ public final class MemorySymbolicExecutor {
 
         int offset = lhs.getLoIndex();
 
-        // Equation of the middle part.
+        // Equations for the middle part.
         for (final IntegerField term : rhs.getTerms()) {
           final IntegerField field = result.getVersion(term, pathIndex);
 
-          final int lo = offset;
-          final int hi = offset + (field.getWidth() - 1);
+          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
 
-          clauseBuilder.addEquation(new IntegerField(newLhsVar, lo, hi), field, true);
-          rhsTerms.add(field);
+          final int upper = offset + (field.getWidth() - 1);
+          final int trunc = upper > lhs.getHiIndex() ? lhs.getHiIndex() : upper;
+
+          final IntegerField lhsField = new IntegerField(newLhsVar, offset, trunc);
+          final IntegerField rhsField = trunc == upper ? field : new IntegerField(
+              field.getVariable(), field.getLoIndex(), field.getHiIndex() - (upper - trunc));
+
+          clauseBuilder.addEquation(lhsField, rhsField, true);
+          rhsTerms.add(rhsField);
 
           offset += field.getWidth();
 
-          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
+          // Truncate the upper bits of the expression.
+          if (offset > lhs.getHiIndex()) {
+            break;
+          }
         }
 
         if (offset <= lhs.getHiIndex()) {
-          final int lo = offset;
-          final int hi = lhs.getHiIndex();
-  
-          clauseBuilder.addEquation(new IntegerField(newLhsVar, lo, hi), BigInteger.ZERO, true);
+          final IntegerField lhsZeroField = new IntegerField(newLhsVar, offset, lhs.getHiIndex());
+          clauseBuilder.addEquation(lhsZeroField, BigInteger.ZERO, true);
         }
 
-        // Equation of the suffix part.
-        if (lhs.getHiIndex() < lhs.getWidth() - 1) {
+        // Equation for the suffix part.
+        if (lhs.getHiIndex() < oldLhsVar.getWidth() - 1) {
           final IntegerField oldLhsPost =
-              new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+              new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, oldLhsVar.getWidth() - 1);
           final IntegerField newLhsPost =
-              new IntegerField(newLhsVar, lhs.getHiIndex() + 1, lhs.getWidth() - 1);
+              new IntegerField(newLhsVar, lhs.getHiIndex() + 1, newLhsVar.getWidth() - 1);
 
           clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
           rhsTerms.add(oldLhsPost);
