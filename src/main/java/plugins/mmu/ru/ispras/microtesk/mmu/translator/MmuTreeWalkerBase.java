@@ -1090,6 +1090,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final Node castArg = IntegerCast.cast(arg, param.getDataType());
         castArgs.add(castArg);
       } else {
+        checkTypes(where(node), param.getDataType(), arg.getDataType());
         castArgs.add(arg);
       }
     }
@@ -1314,14 +1315,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (rightExpr.isType(DataTypeId.BIT_VECTOR)) {
         final DataType ldt = leftExpr.getDataType();
         final DataType rdt = rightExpr.getDataType();
-
-        final int cmp = ldt.getSize() - rdt.getSize();
-        if (0 != cmp) {
-          raiseError(where(where),
-              String.format("Size of rhs expression is %s than size of lhs. Types: %s and %s.",
-              cmp < 0 ? "larger" : "smaller", rdt, ldt)
-              );
-        }
+        checkTypes(where(where), ldt, rdt);
       }
     } catch (final IllegalStateException e) {
       Logger.warning(String.format(
@@ -1342,6 +1336,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     propagator.assign(left, right);
 
     return new StmtAssign(left, right);
+  }
+
+  private void checkTypes(
+      final Where where,
+      final DataType destType,
+      final DataType srcType) throws SemanticException {
+    if (!srcType.equals(destType)) {
+      Logger.warning("%s: Type mismatch: %s cannot be assigned to %s.", where, srcType, destType);
+    }
   }
 
   protected final Stmt newException(final CommonTree message) {
