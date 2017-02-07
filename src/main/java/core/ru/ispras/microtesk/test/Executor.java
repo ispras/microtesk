@@ -140,8 +140,8 @@ final class Executor {
   private final class Fetcher {
     private final Code code;
     private final long startAddress;
+    private final boolean isStartFromUnallocatedAddress;
     private long address;
-    private boolean isIterateFromUnallocatedAddress;
     private Code.Iterator iterator;
     private boolean isNextAfterNull;
 
@@ -150,9 +150,9 @@ final class Executor {
 
       this.code = code;
       this.startAddress = address;
+      this.isStartFromUnallocatedAddress = !code.hasAddress(address);
       this.address = address;
-      this.isIterateFromUnallocatedAddress = !code.hasAddress(address);
-      this.iterator = isIterateFromUnallocatedAddress ? null : code.getIterator(address, true);
+      this.iterator = isStartFromUnallocatedAddress ? null : code.getIterator(address, true);
       this.isNextAfterNull = false;
     }
 
@@ -174,7 +174,7 @@ final class Executor {
     }
 
     public boolean isBreakReached() {
-      if (!code.isBreakAddress(address) || isIterateFromUnallocatedAddress) {
+      if (!code.isBreakAddress(address) || isStartFromUnallocatedAddress) {
         return false;
       }
 
@@ -207,8 +207,7 @@ final class Executor {
 
     public void jump(final long jumpAddress) {
       address = jumpAddress;
-      isIterateFromUnallocatedAddress = !code.hasAddress(jumpAddress);
-      iterator = isIterateFromUnallocatedAddress ? null : code.getIterator(jumpAddress, false);
+      iterator = !code.hasAddress(jumpAddress) ? null : code.getIterator(jumpAddress, false);
       isNextAfterNull = false;
     }
   }
