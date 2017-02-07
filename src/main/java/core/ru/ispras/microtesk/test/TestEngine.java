@@ -30,7 +30,6 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.Reader;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -237,18 +236,8 @@ public final class TestEngine {
         statistics
         );
 
-    if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
-      final String outDir = getOutDir(options); 
-      Tarmac.initialize(outDir, options.getValueAsString(Option.CODE_PRE));
-    }
-
     final TemplateProcessor processor = new TemplateProcessor(context);
     return new Template(context, processor);
-  }
-
-  private static String getOutDir(final Options options) {
-    return options.hasValue(Option.OUTDIR) ?
-        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
   private static GeneratorSettings readSettings(final Options options, final String modelName) {

@@ -138,7 +138,8 @@ final class Printer {
     return result;
   }
 
-  private static String getOutDir(final Options options) {
+  public static String getOutDir(final Options options) {
+    InvariantChecks.checkNotNull(options);
     return options.hasValue(Option.OUTDIR) ?
         options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }

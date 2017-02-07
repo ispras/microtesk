@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
@@ -65,6 +66,12 @@ final class TemplateProcessor implements Template.Processor {
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.isProgramStarted = false;
+
+    final Options options = engineContext.getOptions();
+    if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
+      final String outDir = Printer.getOutDir(options);
+      Tarmac.initialize(outDir, options.getValueAsString(Option.CODE_PRE));
+    }
   }
 
   @Override
