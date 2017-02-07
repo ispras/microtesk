@@ -1316,12 +1316,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final DataType rdt = rightExpr.getDataType();
 
         final int cmp = ldt.getSize() - rdt.getSize();
-        if (cmp < 0) {
-          warning(where(where),
-              String.format("rhs expression is larger than lhs. Types: %s and %s.", rdt, ldt));
-        } else if (cmp > 0) {
-          warning(where(where),
-              String.format("rhs expression is smaller than lhs. Types: %s and %s.", rdt, ldt));
+        if (0 != cmp) {
+          raiseError(where(where),
+              String.format("Size of rhs expression is %s than size of lhs. Types: %s and %s.",
+              cmp < 0 ? "larger" : "smaller", rdt, ldt)
+              );
         }
       }
     }
