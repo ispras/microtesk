@@ -238,13 +238,17 @@ public final class TestEngine {
         );
 
     if (options.getValueAsBoolean(Option.TARMAC_LOG)) {
-      final String outDir = options.hasValue(Option.OUTDIR) ?
-          options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir(); 
+      final String outDir = getOutDir(options); 
       Tarmac.initialize(outDir, options.getValueAsString(Option.CODE_PRE));
     }
 
     final TemplateProcessor processor = new TemplateProcessor(context);
     return new Template(context, processor);
+  }
+
+  private static String getOutDir(final Options options) {
+    return options.hasValue(Option.OUTDIR) ?
+        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
   private static GeneratorSettings readSettings(final Options options, final String modelName) {
