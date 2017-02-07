@@ -1095,9 +1095,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
     }
 
-    final NodeOperation call = new NodeOperation(MmuSymbolKind.FUNCTION, castArgs);
-    call.setUserData(callee);
+    final NodeOperation call;
+    if (null != callee.getOutput()) {
+      final DataType dataType = callee.getOutput().getDataType();
+      call = new NodeOperation(MmuSymbolKind.FUNCTION, dataType, castArgs);
+    } else {
+      call = new NodeOperation(MmuSymbolKind.FUNCTION, castArgs);
+    }
 
+    call.setUserData(callee);
     return call;
   }
 
