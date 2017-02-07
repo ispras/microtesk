@@ -302,31 +302,36 @@ final class TemplateProcessor implements Template.Processor {
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
   }
 
-  private void executeTestSequence(final TestSequence sequence) {
-    // Execution:
-    //   At least one thread points start address
-    //   At least one thread points a label in this block
-    // Special case:
-    //   If a thread points of end of previous block and it does not match
-    //   with the beginning of this block, it is an error.
-    // Question:
-    //   How to know the previous block?
-
-    Logger.debugHeader("Executing %s", sequence.getTitle());
+  /**
+   * Executes all threads that can resume execution after the current sequence was allocated.
+   * 
+   * <p>A thread can resume execution if the address where execution was stopped is now allocated.
+   * Special case: If a thread points for the end of previous code block and it does not match
+   * the beginning of the current code block, the thread will be run causing an illegal address
+   * error.
+   * <p>Threads are executed until they reach the end of allocated code or a jump to an undefined
+   * label.
+   * 
+   * @param currentSequence The most recently allocated sequence which is expected to be executed
+   *                        by some of the threads.
+   */
+  private void executeTestSequence(final TestSequence currentSequence) {
+    Logger.debugHeader("Executing %s", currentSequence.getTitle());
     if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
       return;
     }
 
-    if (sequence.isEmpty()) {
+    // Nothing to execute (no new code was allocated).
+    if (currentSequence.isEmpty()) {
       return;
     }
 
     final boolean isNoStatuses = executorStatuses.isEmpty();
-    final long currentStartAddress = sequence.getStartAddress();
+    final long currentStartAddress = currentSequence.getStartAddress();
 
     final TestSequence previousSequence =
-        testProgram.getEntries().getPrevious(sequence);
+        testProgram.getEntries().getPrevious(currentSequence);
 
     final long previousEndAddress = null != previousSequence && !previousSequence.isEmpty() ?
         previousSequence.getEndAddress() : currentStartAddress;
@@ -363,7 +368,23 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private boolean isReadyForExecution(final Executor.Status status, final long lastEndAddress) {
+  /**
+   * Checks whether a thread can resume execution.
+   * 
+   * <p>Conditions:
+   * <ol>
+   * <li>Thread stopped on an attempt to jump to an undefined label which is now allocated.</li>
+   * <li>Thread stopped at an address which is now allocated.</li>
+   * <li>Thread stopped at the end of the code block preceding the most recently allocated
+   *     code block. In this case, it must resume even if the address has no executable code.</li>
+   * </ol>
+   * 
+   * @param status Thread status to be checked.
+   * @param precedingAddress Address of the end of the code block preceding the most recently
+   *        allocated code block. 
+   * @return {@code true} if the thread can resume execution or {@code false} otherwise.
+   */
+  private boolean isReadyForExecution(final Executor.Status status, final long precedingAddress) {
     if (status.isLabelReference()) {
       return status.getLabelReference().getTarget() != null;
     }
@@ -371,7 +392,7 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkTrue(status.isAddress());
     final long address = status.getAddress();
 
-    if (address == lastEndAddress) {
+    if (address == precedingAddress) {
       return true;
     }
 
