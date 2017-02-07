@@ -32,9 +32,9 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.MmuUnderTest;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -73,9 +73,14 @@ public final class MemoryAccessStructureIteratorTestCase {
       accessTypes.add(new MemoryAccessType(MemoryOperation.LOAD, DataType.BYTE));
     }
 
-    final MemoryAccessStructureIterator mmuIterator = new MemoryAccessStructureIterator(
-        MemoryGraphAbstraction.TRIVIAL, accessTypes, null,
-        new MemoryAccessConstraints.Builder().build());
+    final MemoryAccessStructureIterator mmuIterator =
+        new MemoryAccessStructureIterator(
+            MemoryGraphAbstraction.TRIVIAL,
+            accessTypes,
+            null,
+            new MemoryAccessConstraints.Builder().build(),
+            MemoryAccessStructureIterator.Mode.EXHAUSTIVE,
+            -1);
 
     final Map<MemoryHazard.Type, Integer> hazardsType = new HashMap<>();
     for (final MemoryHazard.Type type : MemoryHazard.Type.values()) {

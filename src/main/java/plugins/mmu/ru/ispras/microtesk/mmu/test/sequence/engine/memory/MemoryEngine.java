@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
@@ -68,6 +69,15 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public static final MemoryGraphAbstraction PARAM_ABSTRACTION_DEFAULT =
       MemoryGraphAbstraction.BUFFER_ACCESS;
 
+  public static final String PARAM_ITERATOR = "iterator";
+  public static final String PARAM_ITERATOR_RANDOM = "random";
+  public static final String PARAM_ITERATOR_EXHAUSTIVE = "exhaustive";
+  public static final MemoryAccessStructureIterator.Mode PARAM_ITERATOR_DEFAULT =
+      MemoryAccessStructureIterator.Mode.RANDOM;
+
+  public static final String PARAM_COUNT = "count";
+  public static final int PARAM_COUNT_DEFAULT = 1;
+
   public static final String PARAM_PAGE_MASK = "page_mask";
   public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
 
@@ -85,7 +95,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(primitive, "Primitive is null");
 
     final Situation situation = primitive.getSituation();
-
     return situation != null;
   }
 
@@ -126,15 +135,39 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return PARAM_ABSTRACTION_DEFAULT;
   }
 
+  private static MemoryAccessStructureIterator.Mode getIterator(final Object value) {
+    final String id = value != null ? value.toString() : null;
+
+    if (PARAM_ITERATOR_RANDOM.equals(id)) {
+      return MemoryAccessStructureIterator.Mode.RANDOM;
+    }
+    if (PARAM_ITERATOR_EXHAUSTIVE.equals(id)) {
+      return MemoryAccessStructureIterator.Mode.EXHAUSTIVE;
+    }
+
+    return PARAM_ITERATOR_DEFAULT;
+  }
+
+  private static int getCount(final Object value) {
+    if (value == null) {
+      return PARAM_COUNT_DEFAULT;
+    }
+
+    final Number number = (value instanceof Number)
+        ? (Number) value : Integer.parseInt(value.toString(), 10);
+
+    return number.intValue();
+  }
+  
   private static long getPageMask(final Object value) {
     if (value == null) {
       return PARAM_PAGE_MASK_DEFAULT;
     }
 
-    final Number id =
-        value instanceof Number ? (Number) value : Long.parseLong(value.toString(), 16);
+    final Number number = (value instanceof Number)
+        ? (Number) value : Long.parseLong(value.toString(), 16);
 
-    return id.longValue();
+    return number.longValue();
   }
 
   private static DataType getAlign(final Object value) {
@@ -149,6 +182,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   }
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION_DEFAULT;
+  private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR_DEFAULT;
+  private int count = PARAM_COUNT_DEFAULT;
   private long pageMask = PARAM_PAGE_MASK_DEFAULT;
   private DataType align = PARAM_ALIGN_DEFAULT;
 
@@ -165,8 +200,17 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(attributes);
 
     abstraction = getAbstraction(attributes.get(PARAM_ABSTRACTION));
+    iterator = getIterator(attributes.get(PARAM_ITERATOR));
+    count = getCount(attributes.get(PARAM_COUNT));
     pageMask = getPageMask(attributes.get(PARAM_PAGE_MASK));
     align = getAlign(attributes.get(PARAM_ALIGN));
+
+    Logger.debug("Memory engine configuration: %s=%s, %s=%s, %s=%d, %s=0x%x, %s=%s",
+        PARAM_ABSTRACTION, abstraction,
+        PARAM_ITERATOR, iterator,
+        PARAM_COUNT, count,
+        PARAM_PAGE_MASK, pageMask,
+        PARAM_ALIGN, align);
   }
 
   @Override
@@ -197,7 +241,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     for (final MmuAddressInstance addrType : memory.getSortedListOfAddresses()) {
       if (addrType.equals(memory.getVirtualAddress())) {
-        addressToRegions.put(addrType, memory.getSegments()); // TODO: memory.getSegments(addrType)
+        addressToRegions.put(addrType, memory.getSegments());
       } else if (addrType.equals(memory.getPhysicalAddress())) {
         addressToRegions.put(addrType, regions);
       } else {
@@ -257,7 +301,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         MmuSettingsUtils.getConstraints(MmuPlugin.getSpecification(), settings) : null;
 
     return new MemoryAccessStructureIterator(
-        abstraction, accessTypes, accessConstraints, globalConstraints);
+        abstraction, accessTypes, accessConstraints, globalConstraints, iterator, count);
   }
 
   private Iterator<MemorySolution> getSolutionIterator(

@@ -12,9 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
