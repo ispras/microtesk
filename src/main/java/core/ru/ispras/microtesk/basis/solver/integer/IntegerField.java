@@ -77,6 +77,8 @@ public final class IntegerField {
    */
   public IntegerField(final IntegerVariable var, final int lo, final int hi) {
     InvariantChecks.checkNotNull(var);
+    InvariantChecks.checkBounds(lo, var.getWidth());
+    InvariantChecks.checkBounds(hi, var.getWidth());
     InvariantChecks.checkGreaterOrEq(hi, lo);
 
     this.var = var;
