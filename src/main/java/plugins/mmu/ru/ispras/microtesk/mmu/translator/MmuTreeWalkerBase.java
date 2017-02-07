@@ -1323,9 +1323,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
               );
         }
       }
-    }
-    catch (final IllegalStateException e) {
-      warning(where(where), "unable to determine size of assignment operands.");
+    } catch (final IllegalStateException e) {
+      Logger.warning(String.format(
+          "%s: Unable to determine size of assignment operands.", where(where)));
     }
 
     final Node right;
@@ -1342,10 +1342,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     propagator.assign(left, right);
 
     return new StmtAssign(left, right);
-  }
-
-  private static final void warning(final Where w, final String msg) {
-    Logger.warning(String.format("%s: %s", w, msg));
   }
 
   protected final Stmt newException(final CommonTree message) {
