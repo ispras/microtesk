@@ -82,10 +82,24 @@ final class AdjacencyList<T> implements Iterable<T>{
     return new ValueIterator<>(head);
   }
 
+  public boolean isEmpty() {
+    return entries.isEmpty();
+  }
+
   public void clear() {
     entries.clear();
     head = null;
     tail = null;
+  }
+
+  public T getFirst() {
+    InvariantChecks.checkNotNull(head);
+    return head.value;
+  }
+
+  public T getLast() {
+    InvariantChecks.checkNotNull(tail);
+    return tail.value;
   }
 
   public T getPrevious(final T obj) {
