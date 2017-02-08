@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -39,6 +39,12 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
+/**
+ * The {@link TestEngineUtils} class provides utility methods to be
+ * used by the template processor to construct parts of test programs.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class TestEngineUtils {
   private TestEngineUtils() {}
 
@@ -171,5 +177,31 @@ final class TestEngineUtils {
     }
 
     return new Pair<>(sequences, handlers);
+  }
+
+  /**
+   * Checks whether the specified abstract sequence has a fixed origin.
+   * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
+   * that specifies an absolute origin and comes before any executable calls.
+   * 
+   * @param sequence Abstract sequence to be checked.
+   * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
+  public static boolean isOriginFixed(final List<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    for (final Call call : sequence) {
+      if (null != call.getOrigin()) {
+        return !call.isRelativeOrigin();
+      }
+
+      if (call.isExecutable()) {
+        break;
+      }
+    }
+
+    return false;
   }
 }
