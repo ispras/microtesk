@@ -56,7 +56,7 @@ public final class MemoryAccessStructureIteratorTestCase {
   private static int countPaVaL1Equal = 0;
   private static int countPaVaEqual = 0;
 
-  @Test
+  //@Test
   public void runTest() {
     final MmuSubsystem mmu = MmuUnderTest.get().mmu;
     MmuPlugin.setSpecification(mmu);
