@@ -38,8 +38,9 @@ class ExternalLabels2Template < MiniMipsBaseTemplate
     nop
 
     sequence {
-      add t0, t1, t2
-      sub t3, t4, t5
+      add reg(_), reg(_), reg(_)
+      sub reg(_), reg(_), reg(_)
+      nop
     }.run
 
     j :end
