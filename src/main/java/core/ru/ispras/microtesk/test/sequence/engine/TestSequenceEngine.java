@@ -54,7 +54,8 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    Logger.debugHeader("Processing Abstract Sequence");
+    final int instanceIndex = context.getModel().getActivePE();
+    Logger.debugHeader("Processing Abstract Sequence (Instance %d)", instanceIndex);
     context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
     context.getModel().setUseTempState(true);
 
