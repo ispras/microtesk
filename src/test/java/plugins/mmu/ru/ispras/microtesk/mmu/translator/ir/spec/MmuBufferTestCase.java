@@ -258,7 +258,7 @@ public class MmuBufferTestCase {
     Assert.assertEquals(Long.toHexString(addressA), Long.toHexString(addressD));
   }
 
-  @Test
+  //@Test
   public void runTest() {
     final int testCount = 1000;
     for (int i = 0; i < testCount; i++) {
