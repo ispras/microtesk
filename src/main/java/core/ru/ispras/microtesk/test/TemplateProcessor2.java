@@ -41,11 +41,11 @@ import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * The {@link TemplateProcessor} class is responsible for template processing.
+ * The {@link TemplateProcessor2} class is responsible for template processing.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class TemplateProcessor implements Template.Processor {
+final class TemplateProcessor2 implements Template.Processor {
   private final EngineContext engineContext;
   private final int instanceNumber;
   private final TestProgram testProgram;
@@ -54,7 +54,7 @@ final class TemplateProcessor implements Template.Processor {
   private final List<Executor.Status> executorStatuses;
   private boolean isProgramStarted;
 
-  public TemplateProcessor(final EngineContext engineContext) {
+  public TemplateProcessor2(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkGreaterThanZero(engineContext.getModel().getPENumber());
 
