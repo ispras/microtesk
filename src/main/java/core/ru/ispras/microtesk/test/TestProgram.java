@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ final class TestProgram {
   private Block epilogue;
 
   private final AdjacencyList<TestSequence> entries;
+  private final Map<TestSequence, Block> postponedEntries;
   private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
   private final List<DataSection> globalData;
@@ -42,6 +44,7 @@ final class TestProgram {
     this.prologue = null;
     this.epilogue = null;
     this.entries = new AdjacencyList<>();
+    this.postponedEntries = new LinkedHashMap<>();
     this.exceptionHandlers = new ArrayList<>();
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
@@ -75,8 +78,40 @@ final class TestProgram {
     exceptionHandlers.add(handlers);
   }
 
-  public AdjacencyList<TestSequence> getEntries() {
+  public Iterable<TestSequence> getEntries() {
     return entries;
+  }
+
+  public void addEntry(final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequence);
+    entries.add(sequence);
+  }
+
+  public void addPostponedEntry(final Block block) {
+    InvariantChecks.checkNotNull(block);
+    final TestSequence sequence = new TestSequence.Builder().build();
+
+    postponedEntries.put(sequence, block);
+    addEntry(sequence);
+  }
+
+  public TestSequence getLastAllocatedEntry() {
+    return findAllocatedEntry(entries.getLast());
+  }
+
+  public TestSequence getPrevAllocatedEntry(final TestSequence sequence) {
+    return findAllocatedEntry(entries.getPrevious(sequence));
+  }
+
+  private TestSequence findAllocatedEntry(final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    TestSequence entry = sequence;
+    while (null != entry && entry.isEmpty()) {
+      entry = entries.getPrevious(entry);
+    }
+
+    return entry;
   }
 
   public void addData(final DataSection data) {
@@ -98,6 +133,7 @@ final class TestProgram {
 
   public void reset() {
     entries.clear();
+    postponedEntries.clear();
     localData.clear();
   }
 }

@@ -303,7 +303,7 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex) throws ConfigurationException {
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
-    testProgram.getEntries().add(sequence);
+    testProgram.addEntry(sequence);
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
   }
 
@@ -334,9 +334,7 @@ final class TemplateProcessor implements Template.Processor {
 
     final boolean isNoStatuses = executorStatuses.isEmpty();
     final long currentStartAddress = currentSequence.getStartAddress();
-
-    final TestSequence previousSequence =
-        testProgram.getEntries().getPrevious(currentSequence);
+    final TestSequence previousSequence = testProgram.getPrevAllocatedEntry(currentSequence);
 
     for (int index = 0; index < instanceNumber; index++) {
       Logger.debugHeader("Instance %d", index);
@@ -383,13 +381,7 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    TestSequence allocatedSequence = sequence;
-    while (null != allocatedSequence && allocatedSequence.isEmpty()) {
-      allocatedSequence = testProgram.getEntries().getPrevious(allocatedSequence);
-    }
-
-    return allocatedSequence != null &&
-           allocatedSequence.getEndAddress() == status.getAddress();
+    return sequence != null &&  sequence.getEndAddress() == status.getAddress();
   }
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {
