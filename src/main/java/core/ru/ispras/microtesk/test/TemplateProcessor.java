@@ -338,9 +338,6 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence previousSequence =
         testProgram.getEntries().getPrevious(currentSequence);
 
-    final long previousEndAddress = null != previousSequence && !previousSequence.isEmpty() ?
-        previousSequence.getEndAddress() : currentStartAddress;
-
     for (int index = 0; index < instanceNumber; index++) {
       Logger.debugHeader("Instance %d", index);
 
@@ -352,7 +349,7 @@ final class TemplateProcessor implements Template.Processor {
       final Executor.Status oldStatus = executorStatuses.get(index);
       Logger.debug("Execution status: %s%n", oldStatus);
 
-      if (!isReadyForExecution(oldStatus, previousEndAddress)) {
+      if (!isAllocatedTarget(oldStatus) && !isEndOfTestSequence(oldStatus, previousSequence)) {
         Logger.debug("Execution cannot be run at the current stage.");
         continue;
       }
@@ -373,35 +370,26 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  /**
-   * Checks whether a thread can resume execution.
-   * 
-   * <p>Conditions:
-   * <ol>
-   * <li>Thread stopped on an attempt to jump to an undefined label which is now allocated.</li>
-   * <li>Thread stopped at an address which is now allocated.</li>
-   * <li>Thread stopped at the end of the code block preceding the most recently allocated
-   *     code block. In this case, it must resume even if the address has no executable code.</li>
-   * </ol>
-   * 
-   * @param status Thread status to be checked.
-   * @param precedingAddress Address of the end of the code block preceding the most recently
-   *        allocated code block. 
-   * @return {@code true} if the thread can resume execution or {@code false} otherwise.
-   */
-  private boolean isReadyForExecution(final Executor.Status status, final long precedingAddress) {
+  private boolean isAllocatedTarget(final Executor.Status status) {
     if (status.isLabelReference()) {
       return status.getLabelReference().getTarget() != null;
     }
 
-    InvariantChecks.checkTrue(status.isAddress());
-    final long address = status.getAddress();
+    return allocator.getCode().hasAddress(status.getAddress());
+  }
 
-    if (address == precedingAddress) {
-      return true;
+  private boolean isEndOfTestSequence(final Executor.Status status, final TestSequence sequence) {
+    if (!status.isAddress()) {
+      return false;
     }
 
-    return allocator.getCode().hasAddress(address);
+    TestSequence allocatedSequence = sequence;
+    while (null != allocatedSequence && allocatedSequence.isEmpty()) {
+      allocatedSequence = testProgram.getEntries().getPrevious(allocatedSequence);
+    }
+
+    return allocatedSequence != null &&
+           allocatedSequence.getEndAddress() == status.getAddress();
   }
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {
