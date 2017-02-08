@@ -84,7 +84,7 @@ public final class MmuCalculatorTestCase {
     Assert.assertEquals(Long.toHexString(reference), Long.toHexString(result.longValue()));
   }
 
-  //@Test
+  @Test
   public void runTest() {
     runTest(1234, 0);
 

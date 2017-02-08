@@ -20,7 +20,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.translator.TranslatorTest;
 
 public class GeneralTestCase extends TranslatorTest<Ir> {
-  //@Test
+  @Test
   public void test() {
     final MmuTranslator translator = new MmuTranslator();
     translate(translator, "./src/test/mmu/general.mmu");

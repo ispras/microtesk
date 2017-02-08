@@ -38,7 +38,7 @@ public class MmuConditionTestCase {
     Assert.assertNotNull(condition);
   }
 
-  //@Test
+  @Test
   public void runTest() {
     runTest(new BigInteger("0000000000000000", 16), new BigInteger("000000007FFFffff", 16));
     runTest(new BigInteger("0000000080000000", 16), new BigInteger("000000ffFFFFffff", 16));
