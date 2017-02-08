@@ -966,6 +966,11 @@ public final class Template {
   }
 
   public void setOrigin(final BigInteger origin) {
+    // .org directives in external code split it into parts (only for main section)
+    if (isMainSection && blockBuilders.peek().isExternal()) {
+      processExternalCode();
+    }
+
     Logger.debug("Set Origin to 0x%x", origin);
     callBuilder.setOrigin(origin, false);
   }
