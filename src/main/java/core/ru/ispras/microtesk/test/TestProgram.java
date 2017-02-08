@@ -99,6 +99,10 @@ final class TestProgram {
     return postponedEntries.containsKey(sequence);
   }
 
+  public Block extractPostponedBlock(final TestSequence sequence) {
+    return postponedEntries.remove(sequence);
+  }
+
   public TestSequence getLastEntry() {
     return entries.getLast();
   }
@@ -109,6 +113,10 @@ final class TestProgram {
 
   public TestSequence getPrevAllocatedEntry(final TestSequence sequence) {
     return findAllocatedEntry(entries.getPrevious(sequence));
+  }
+
+  public void replaceEntryWith(final TestSequence previous, final TestSequence current) {
+    entries.replaceWith(previous, current);
   }
 
   private TestSequence findAllocatedEntry(final TestSequence sequence) {
