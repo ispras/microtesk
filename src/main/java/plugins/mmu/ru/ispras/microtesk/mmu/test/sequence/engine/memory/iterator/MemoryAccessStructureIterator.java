@@ -53,10 +53,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
-import ru.ispras.testbase.knowledge.iterator.ArrayIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
-import ru.ispras.testbase.knowledge.iterator.ProductIterator;
-import ru.ispras.testbase.knowledge.iterator.RandomValueIterator;
 
 /**
  * {@link MemoryAccessStructureIterator} implements an iterator of memory access structures, i.e.
@@ -109,7 +106,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final List<List<List<MemoryDependency>>> possibleDependencies = new ArrayList<>();
 
   /** Iterator of memory access classes. */
-  private final Iterator<List<MemoryAccessPathChooser>> accessPathIterator;
+  private final Iterator<List<MemoryAccessPath>> accessSkeletonIterator;
 
   /** Checks the consistency of execution path pairs. */
   private Predicate<MemoryAccessStructure> accessPairChecker;
@@ -135,54 +132,42 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final int countLimit) {
     InvariantChecks.checkNotNull(abstraction);
     InvariantChecks.checkNotNull(accessTypes);
+    InvariantChecks.checkTrue(
+        accessConstraints == null || accessTypes.size() == accessConstraints.size());
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotEmpty(accessTypes);
     InvariantChecks.checkTrue(countLimit == -1 || countLimit >= 0);
     InvariantChecks.checkNotNull(mode);
 
-    if (accessConstraints != null) {
-      InvariantChecks.checkTrue(accessTypes.size() == accessConstraints.size());
-    }
+    final int size = accessTypes.size();
 
     this.accessTypes = accessTypes;
     this.mode = mode;
     this.countLimit = countLimit;
 
-    this.dependencyIndices = new int[accessTypes.size()][accessTypes.size()];
-    this.dependencies = new MemoryDependency[accessTypes.size()][accessTypes.size()];
+    this.dependencyIndices = new int[size][size];
+    this.dependencies = new MemoryDependency[size][size];
 
-    // Classify the memory access paths and initialize the path iterator.
-    final ProductIterator<MemoryAccessPathChooser> accessPathIterator = new ProductIterator<>();
+    final List<Collection<MemoryAccessPathChooser>> accessPathChoosers = new ArrayList<>(size);
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
       final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
           constraints, accessConstraints != null ? accessConstraints.get(index) : null);
 
-      final List<MemoryAccessPathChooser> accessPathChoosers =
-          CoverageExtractor.get().getPathChoosers(
-              MmuPlugin.getSpecification(), abstraction, accessType, currentConstraints, false);
+      final List<MemoryAccessPathChooser> choosers = CoverageExtractor.get().getPathChoosers(
+          MmuPlugin.getSpecification(), abstraction, accessType, currentConstraints, false);
 
-      InvariantChecks.checkTrue(accessPathChoosers != null && !accessPathChoosers.isEmpty());
-      Logger.debug("Classifying memory access paths: %s %d classes",
-          accessType, accessPathChoosers.size());
+      InvariantChecks.checkTrue(choosers != null && !choosers.isEmpty());
+      Logger.debug("Classifying memory access paths: %s %d classes", accessType, choosers.size());
 
-      final MemoryAccessPathChooser[] choosers =
-          accessPathChoosers.toArray(new MemoryAccessPathChooser[]{});
-
-      final Iterator<MemoryAccessPathChooser> accessPathChooserIterator = (mode == Mode.RANDOM)
-          ? new RandomValueIterator<MemoryAccessPathChooser>(choosers)
-          : new ArrayIterator<MemoryAccessPathChooser>(choosers);
-
-      accessPathIterator.registerIterator(accessPathChooserIterator);
+      accessPathChoosers.add(choosers);
       index++;
     }
 
-    this.accessPathIterator = accessPathIterator;
-  }
-
-  public List<MemoryAccessType> getAccessTypes() {
-    return accessTypes;
+    this.accessSkeletonIterator = mode == Mode.RANDOM
+        ? new MemoryAccessIteratorRandom(accessPathChoosers)
+        : new MemoryAccessIteratorExhaustive(accessPathChoosers);
   }
 
   @Override
@@ -328,9 +313,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   //------------------------------------------------------------------------------------------------
 
   private boolean initAccesses() {
-    accessPathIterator.init();
+    accessSkeletonIterator.init();
 
-    if (accessPathIterator.hasValue()) {
+    if (accessSkeletonIterator.hasValue()) {
       if (assignAccesses()) {
         recalculatePossibleDependencies();
         assignDependencies();
@@ -344,10 +329,10 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean nextAccesses() {
-    accessPathIterator.next();
+    accessSkeletonIterator.next();
 
     do {
-      if (accessPathIterator.hasValue()) {
+      if (accessSkeletonIterator.hasValue()) {
         if (assignAccesses()) {
           if (recalculatePossibleDependencies()) {
             assignDependencies();
@@ -355,13 +340,13 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
           }
         }
 
-        accessPathIterator.next();
+        accessSkeletonIterator.next();
       } else {
         if (countLimit == -1) {
           break;
         }
 
-        accessPathIterator.init();
+        accessSkeletonIterator.init();
       }
     } while (true);
 
@@ -369,18 +354,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean assignAccesses() {
-    final List<MemoryAccessPathChooser> accessPathChoosers = accessPathIterator.value();
+    final List<MemoryAccessPath> accessPaths = accessSkeletonIterator.value();
 
     accesses.clear();
     for (int i = 0; i < accessTypes.size(); i++) {
       final MemoryAccessType accessType = accessTypes.get(i);
-      final MemoryAccessPathChooser accessPathChooser = accessPathChoosers.get(i);
-      final MemoryAccessPath accessPath = accessPathChooser.get();
-
-      if (accessPath == null) {
-        Logger.debug("No path chosen");
-        return false;
-      }
+      final MemoryAccessPath accessPath = accessPaths.get(i);
 
       final MemoryAccess access = MemoryAccess.create(accessType, accessPath);
       accesses.add(access);

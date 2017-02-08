@@ -36,7 +36,7 @@ public final class MemoryAccessIteratorExhaustive implements Iterator<List<Memor
 
   private List<MemoryAccessPath> paths = null;
 
-  private MemoryAccessIteratorExhaustive(
+  public MemoryAccessIteratorExhaustive(
       final List<Collection<MemoryAccessPathChooser>> pathChoosers) {
     InvariantChecks.checkNotNull(pathChoosers);
 

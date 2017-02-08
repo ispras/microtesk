@@ -35,7 +35,7 @@ public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAcc
 
   private List<MemoryAccessPath> paths = null;
 
-  private MemoryAccessIteratorRandom(
+  public MemoryAccessIteratorRandom(
       final List<Collection<MemoryAccessPathChooser>> pathChoosers) {
     InvariantChecks.checkNotNull(pathChoosers);
     this.pathChoosers = pathChoosers;
