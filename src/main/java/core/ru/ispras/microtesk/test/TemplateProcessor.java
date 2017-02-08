@@ -349,26 +349,26 @@ final class TemplateProcessor implements Template.Processor {
         executorStatuses.add(Executor.Status.newAddress(currentStartAddress));
       }
 
-      final Executor.Status previousStatus = executorStatuses.get(index);
-      Logger.debug("Execution status: %s%n", previousStatus);
+      final Executor.Status oldStatus = executorStatuses.get(index);
+      Logger.debug("Execution status: %s%n", oldStatus);
 
-      if (!isReadyForExecution(previousStatus, previousEndAddress)) {
+      if (!isReadyForExecution(oldStatus, previousEndAddress)) {
         Logger.debug("Execution cannot be run at the current stage.");
         continue;
       }
 
-      final long address = previousStatus.isAddress() ?
-          previousStatus.getAddress() :
-          previousStatus.getLabelReference().getTarget().getAddress();
+      final long address = oldStatus.isAddress() ?
+          oldStatus.getAddress() :
+          oldStatus.getLabelReference().getTarget().getAddress();
 
       engineContext.getModel().setActivePE(index);
-      final Executor.Status status = executor.execute(allocator.getCode(), address);
-      executorStatuses.set(index, status);
+      final Executor.Status newStatus = executor.execute(allocator.getCode(), address);
+      executorStatuses.set(index, newStatus);
 
-      if (status.isLabelReference()) {
+      if (newStatus.isLabelReference()) {
         throw new GenerationAbortedException(String.format(
             "Label '%s' is undefined or unavailable in the current execution scope.",
-            status.getLabelReference().getReference().getName()));
+            newStatus.getLabelReference().getReference().getName()));
       }
     }
   }
