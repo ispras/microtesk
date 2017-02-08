@@ -135,13 +135,13 @@ final class AdjacencyList<T> implements Iterable<T>{
     tail = entry;
   }
 
-  public void addAfter(final T obj, final T currentObj) {
-    InvariantChecks.checkNotNull(obj);
-    final Entry<T> previousEntry = entries.get(obj);
+  public void addAfter(final T previous, final T current) {
+    InvariantChecks.checkNotNull(previous);
+    final Entry<T> previousEntry = entries.get(previous);
     InvariantChecks.checkNotNull(previousEntry);
 
-    final Entry<T> entry = new Entry<>(obj, previousEntry, previousEntry.next);
-    entries.put(obj, entry);
+    final Entry<T> entry = new Entry<>(current, previousEntry, previousEntry.next);
+    entries.put(current, entry);
 
     if (null != previousEntry.next) {
       previousEntry.next.previous = entry;
@@ -150,13 +150,13 @@ final class AdjacencyList<T> implements Iterable<T>{
     previousEntry.next = entry;
   }
 
-  public void replaceWith(final T obj, final T currentObj) {
-    InvariantChecks.checkNotNull(obj);
-    final Entry<T> previousEntry = entries.remove(obj);
+  public void replaceWith(final T previous, final T current) {
+    InvariantChecks.checkNotNull(previous);
+    final Entry<T> previousEntry = entries.remove(previous);
     InvariantChecks.checkNotNull(previousEntry);
 
-    final Entry<T> entry = new Entry<>(obj, previousEntry.previous, previousEntry.next);
-    entries.put(obj, entry);
+    final Entry<T> entry = new Entry<>(current, previousEntry.previous, previousEntry.next);
+    entries.put(current, entry);
 
     if (null != previousEntry.previous) {
       previousEntry.previous.next = entry;
