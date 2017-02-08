@@ -16,9 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -28,13 +26,13 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link MemoryAccessIterator} implements exhaustive iterator of c memory access skeletons.
+ * {@link MemoryAccessIteratorExhaustive} implements an exhaustive iterator of memory access
+ * skeletons, i.e. sequences of memory access paths.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessIteratorExhaustive implements Iterator<List<MemoryAccessPath>> {
   private final ProductIterator<MemoryAccessPathChooser> iterator = new ProductIterator<>();
-  private final Set<MemoryAccessPathChooser> infeasible = new HashSet<>();
 
   private List<MemoryAccessPath> paths = null;
 
@@ -70,10 +68,9 @@ public final class MemoryAccessIteratorExhaustive implements Iterator<List<Memor
       final List<MemoryAccessPathChooser> choosers = iterator.value();
 
       for (final MemoryAccessPathChooser chooser : choosers) {
-        final MemoryAccessPath path = !infeasible.contains(chooser) ? chooser.get() : null;
+        final MemoryAccessPath path = chooser.get();
 
         if (path == null) {
-          infeasible.add(chooser);
           iterator.next();
           break;
         }

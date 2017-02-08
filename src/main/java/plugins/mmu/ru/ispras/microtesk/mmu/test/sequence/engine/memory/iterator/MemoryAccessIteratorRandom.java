@@ -25,7 +25,8 @@ import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessIterator} implements a random iterator of memory access skeletons.
+ * {@link MemoryAccessIteratorRandom} implements a random iterator of memory access skeletons, i.e.
+ * sequences of memory access paths.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
