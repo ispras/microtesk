@@ -37,6 +37,7 @@ import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
+import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -199,6 +200,31 @@ final class TestEngineUtils {
 
       if (call.isExecutable()) {
         break;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks whether the specified label is defined in the abstract sequence.
+   * <p>Note: Labels are considered equal if they have the same name.
+   * 
+   * @param sequence Abstract sequence to be checked.
+   * @param label Label to be searched for.
+   * @return {@code true} if the sequence defines the specified label or {@code false} otherwise.
+   * 
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   */
+  public static boolean isLabelDefined(final List<Call> sequence, final Label label) {
+    InvariantChecks.checkNotNull(sequence);
+    InvariantChecks.checkNotNull(label);
+
+    for (final Call call : sequence) {
+      for (final Label currentLabel : call.getLabels()) {
+        if (label.getName().equals(currentLabel.getName())) {
+          return true;
+        }
       }
     }
 
