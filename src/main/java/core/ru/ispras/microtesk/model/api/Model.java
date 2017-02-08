@@ -47,6 +47,7 @@ public final class Model {
   private final Map<String, IsaPrimitiveInfoAnd> ops;
 
   private List<ProcessingElement> procElems;
+  private int activeProcElemIndex;
   private ProcessingElement activeProcElem;
   private ProcessingElement activeProcElemTemp;
 
@@ -77,6 +78,7 @@ public final class Model {
     this.ops = ops;
 
     this.procElems = Collections.emptyList();
+    this.activeProcElemIndex = -1;
     this.activeProcElem = null;
     this.activeProcElemTemp = null;
 
@@ -132,8 +134,13 @@ public final class Model {
 
   public void setActivePE(final int index) {
     InvariantChecks.checkBounds(0, getPENumber());
+    activeProcElemIndex = index;
     activeProcElem = procElems.get(index);
     activeProcElemTemp = null;
+  }
+
+  public int getActivePE() {
+    return activeProcElemIndex;
   }
 
   public void setUseTempState(final boolean value) {
