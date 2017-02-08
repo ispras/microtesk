@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +44,7 @@ final class TestProgram {
     this.prologue = null;
     this.epilogue = null;
     this.entries = new AdjacencyList<>();
-    this.postponedEntries = new LinkedHashMap<>();
+    this.postponedEntries = new IdentityHashMap<>();
     this.exceptionHandlers = new ArrayList<>();
     this.globalData = new ArrayList<>();
     this.localData = new ArrayList<>();
@@ -95,8 +95,16 @@ final class TestProgram {
     addEntry(sequence);
   }
 
+  public boolean isPostponedEntry(final TestSequence sequence) {
+    return postponedEntries.containsKey(sequence);
+  }
+
+  public TestSequence getLastEntry() {
+    return entries.getLast();
+  }
+
   public TestSequence getLastAllocatedEntry() {
-    return findAllocatedEntry(entries.getLast());
+    return !entries.isEmpty() ? findAllocatedEntry(entries.getLast()) : null;
   }
 
   public TestSequence getPrevAllocatedEntry(final TestSequence sequence) {
@@ -104,8 +112,6 @@ final class TestProgram {
   }
 
   private TestSequence findAllocatedEntry(final TestSequence sequence) {
-    InvariantChecks.checkNotNull(sequence);
-
     TestSequence entry = sequence;
     while (null != entry && entry.isEmpty()) {
       entry = entries.getPrevious(entry);
