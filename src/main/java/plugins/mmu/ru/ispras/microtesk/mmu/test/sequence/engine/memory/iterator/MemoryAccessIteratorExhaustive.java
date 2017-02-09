@@ -18,29 +18,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
-import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
  * {@link MemoryAccessIteratorExhaustive} implements an exhaustive iterator of memory access
- * skeletons, i.e. sequences of memory access paths.
+ * skeletons, i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorExhaustive implements Iterator<List<MemoryAccessPath>> {
+public final class MemoryAccessIteratorExhaustive extends MemoryAccessIterator {
   private final ProductIterator<MemoryAccessPathChooser> iterator = new ProductIterator<>();
 
   private List<MemoryAccessPath> paths = null;
 
   public MemoryAccessIteratorExhaustive(
-      final List<Collection<MemoryAccessPathChooser>> pathChoosers) {
-    InvariantChecks.checkNotNull(pathChoosers);
+      final List<MemoryAccessType> accessTypes,
+      final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
+    super(accessTypes, accessPathChoosers);
 
-    for (final Collection<MemoryAccessPathChooser> choosers : pathChoosers) {
+    for (final Collection<MemoryAccessPathChooser> choosers : accessPathChoosers) {
       iterator.registerIterator(new CollectionIterator<>(choosers));
     }
   }
@@ -57,7 +57,7 @@ public final class MemoryAccessIteratorExhaustive implements Iterator<List<Memor
   }
 
   @Override
-  public List<MemoryAccessPath> value() {
+  public List<MemoryAccessPath> getAccessPaths() {
     return paths;
   }
 
@@ -90,10 +90,5 @@ public final class MemoryAccessIteratorExhaustive implements Iterator<List<Memor
   @Override
   public void stop() {
     paths = null;
-  }
-
-  @Override
-  public MemoryAccessIteratorExhaustive clone() {
-    throw new UnsupportedOperationException();
   }
 }

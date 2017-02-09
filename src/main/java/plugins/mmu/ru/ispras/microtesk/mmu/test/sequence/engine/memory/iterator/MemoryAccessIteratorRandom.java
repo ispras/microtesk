@@ -19,26 +19,23 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
-import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessIteratorRandom} implements a random iterator of memory access skeletons, i.e.
- * sequences of memory access paths.
+ * {@link MemoryAccessIteratorRandom} implements a random iterator of memory access skeletons,
+ * i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAccessPath>> {
-  private final List<Collection<MemoryAccessPathChooser>> pathChoosers;
-
+public final class MemoryAccessIteratorRandom extends MemoryAccessIterator {
   private List<MemoryAccessPath> paths = null;
 
   public MemoryAccessIteratorRandom(
-      final List<Collection<MemoryAccessPathChooser>> pathChoosers) {
-    InvariantChecks.checkNotNull(pathChoosers);
-    this.pathChoosers = pathChoosers;
+      final List<MemoryAccessType> accessTypes,
+      final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
+    super(accessTypes, accessPathChoosers);
   }
 
   @Override
@@ -52,15 +49,15 @@ public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAcc
   }
 
   @Override
-  public List<MemoryAccessPath> value() {
+  public List<MemoryAccessPath> getAccessPaths() {
     return paths;
   }
 
   @Override
   public void next() {
-    final List<MemoryAccessPath> result = new ArrayList<>(pathChoosers.size());
+    final List<MemoryAccessPath> result = new ArrayList<>(accessPathChoosers.size());
 
-    for (final Collection<MemoryAccessPathChooser> choosers : pathChoosers) {
+    for (final Collection<MemoryAccessPathChooser> choosers : accessPathChoosers) {
       while (!choosers.isEmpty()) {
         final MemoryAccessPathChooser chooser = Randomizer.get().choose(choosers);
         final MemoryAccessPath path = chooser.get();
@@ -85,10 +82,5 @@ public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAcc
   @Override
   public void stop() {
     paths = null;
-  }
-
-  @Override
-  public MemoryAccessIteratorRandom clone() {
-    throw new UnsupportedOperationException();
   }
 }
