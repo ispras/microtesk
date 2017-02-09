@@ -187,6 +187,7 @@ final class TemplateProcessor implements Template.Processor {
           "External code defined at %s must have fixed origin.", block.getWhere()));
     }
 
+    engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
 
@@ -214,9 +215,10 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    final Iterator<List<Call>> abstractIt = block.getIterator();
+    engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
+    final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
       final Iterator<AdapterResult> concreteIt =
           engine.process(engineContext, abstractIt.value());
@@ -311,6 +313,7 @@ final class TemplateProcessor implements Template.Processor {
           "External code defined at %s must have fixed origin.", block.getWhere()));
     }
 
+    engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
 
@@ -341,9 +344,10 @@ final class TemplateProcessor implements Template.Processor {
     final Executor.Status status = executorStatuses.get(instanceIndex);
     allocator.setAddress(status.getAddress());
 
-    final Iterator<List<Call>> abstractIt = block.getIterator();
+    engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
+    final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
       final Iterator<AdapterResult> concreteIt =
           engine.process(engineContext, abstractIt.value());
