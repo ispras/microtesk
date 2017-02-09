@@ -415,6 +415,7 @@ final class Executor {
       listener.onBeforeExecute(context, call);
     }
 
+    Tarmac.setEnabled(true);
     if (invalidCall != call) {
       context.getStatistics().incTraceLength();
       if (Tarmac.isEnabled()) {
@@ -422,7 +423,6 @@ final class Executor {
       }
     }
 
-    Tarmac.setEnabled(true);
     final String exception = call.execute(context.getModel().getPE());
     Tarmac.setEnabled(false);
 
