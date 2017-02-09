@@ -86,12 +86,12 @@ class ExampleTemplate < CpuBaseTemplate
     # Specifying instruction calls
 
     # Addressing mode arguments as a hash map
-    mov reg(:i => 0), imm(:i => 0xFF)
+    mov reg(:i => 0), imm(:i => 0x0F)
     mov reg(:i => 1), reg(:i => 0)
     newline
 
     # Shorter syntax. Addressing mode arguments as a variable-length array
-    mov reg(2), imm(0xFF)
+    mov reg(2), imm(0x0F)
     mov reg(3), reg(2)
     newline
 
@@ -154,12 +154,12 @@ class ExampleTemplate < CpuBaseTemplate
     # Instruction sequences are described as blocks that use two kind of
     # sequence generators: (1) compositors and (2) combinators.
     # Supported compositors: CATENATION, ROTATION, OVERLAP, NESTING, RANDOM
-    # Supported combinators: PRODUCT, DIAGONAL, RANDOM    
+    # Supported combinators: PRODUCT, DIAGONAL, RANDOM
 
     # Randomized sequences of 2 instuctions
     block(:compositor => 'random', :combinator => 'product') {
       iterate {
-        # add reg(5), imm(_) do situation('imm_random', :min => 0, :max => 15) end
+        add reg(5), imm(_) do situation('imm_random', :min => 0, :max => 15) end
         sub reg(6), reg(5)
         mov reg(7), reg(6)
       }
