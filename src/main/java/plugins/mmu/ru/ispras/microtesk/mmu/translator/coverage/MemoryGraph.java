@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -117,9 +118,11 @@ public final class MemoryGraph {
 
   private final Map<MmuAction, ArrayList<Edge>> edges = new LinkedHashMap<>();
 
-  public MemoryGraph(final MmuSubsystem memory) {
+  public MemoryGraph(final MmuSubsystem memory, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(memory);
-    addEdges(memory.getTransitions());
+    // Parameter accessType can be null.
+
+    addEdges(memory.getTransitions(), accessType);
   }
 
   public ArrayList<Edge> getEdges(final MmuAction vertex) {
@@ -150,11 +153,13 @@ public final class MemoryGraph {
     return nextLabels;
   }
 
-  private void addEdge(final MmuTransition transition) {
+  private void addEdge(final MmuTransition transition, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(transition);
+    // Parameter accessType can be null.
 
     // Reduce the overall memory graph on the base of settings.
-    if (MemoryEngineUtils.isDisabledTransition(transition)) {
+    if (!MemoryEngineUtils.isValidTransition(transition, accessType)
+        || MemoryEngineUtils.isDisabledTransition(transition)) {
       Logger.debug("Ignore the disabled transition %s", transition);
       return;
     }
@@ -170,11 +175,13 @@ public final class MemoryGraph {
     out.add(edge);
   }
 
-  private void addEdges(final Collection<MmuTransition> transitions) {
+  private void addEdges(
+      final Collection<MmuTransition> transitions, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(transitions);
+    // Parameter accessType can be null.
 
     for (final MmuTransition transition : transitions) {
-      addEdge(transition);
+      addEdge(transition, accessType);
     }
   }
 

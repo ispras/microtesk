@@ -97,7 +97,7 @@ public final class CoverageExtractor {
     InvariantChecks.checkNotNull(constraints);
   
     final MemoryTrajectoryExtractor extractor = new MemoryTrajectoryExtractor(memory);
-    final MemoryTrajectoryExtractor.Result result = extractor.apply(abstraction);
+    final MemoryTrajectoryExtractor.Result result = extractor.apply(type, abstraction);
   
     final MemoryAccessPathChooser chooser = new MemoryAccessPathChooser(
         memory, result.getTrajectories(), result.getGraph(), type, constraints, discardEmptyTrajectories);
@@ -117,7 +117,7 @@ public final class CoverageExtractor {
     InvariantChecks.checkNotNull(constraints);
 
     final MemoryTrajectoryExtractor extractor = new MemoryTrajectoryExtractor(memory);
-    final MemoryTrajectoryExtractor.Result result = extractor.apply(abstraction);
+    final MemoryTrajectoryExtractor.Result result = extractor.apply(type, abstraction);
 
     final List<MemoryAccessPathChooser> choosers = new ArrayList<>();
 

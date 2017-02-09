@@ -27,6 +27,7 @@ import java.util.Stack;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -86,11 +87,12 @@ public final class MemoryTrajectoryExtractor {
     this.memory = memory;
   }
 
-  public Result apply(final MemoryGraphAbstraction abstraction) {
+  public Result apply(final MemoryAccessType accessType, final MemoryGraphAbstraction abstraction) {
+    // Parameters accessType can be null.
     InvariantChecks.checkNotNull(abstraction);
 
     // Memory graph to be labeled.
-    final MemoryGraph graph = new MemoryGraph(memory);
+    final MemoryGraph graph = new MemoryGraph(memory, accessType);
 
     // Each action is mapped to the pair of the set of trajectories.
     final Map<MmuAction, Collection<List<Object>>> actionTrajectories = new HashMap<>();
