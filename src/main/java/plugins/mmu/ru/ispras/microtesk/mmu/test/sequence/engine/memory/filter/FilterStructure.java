@@ -32,27 +32,22 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class FilterStructure implements Predicate<MemoryAccessStructure> {
-  private final Collection<Predicate<MemoryAccess>> accessFilters;
   private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters;
   private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters;
 
   /**
-   * Constructs a template-level filter from execution- and dependency-level filters.
+   * Constructs a template-level filter from dependency-level filters.
    * 
-   * @param accessFilters the collection of execution-level filters.
    * @param dependencyFilters the collection of dependency-level filters.
    * @param unitedDependencyFilters the collection of united-dependency-level filters.
    * @throws IllegalArgumentException if some parameters are null.
    */
   public FilterStructure(
-      final Collection<Predicate<MemoryAccess>> accessFilters,
       final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters,
       final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters) {
-    InvariantChecks.checkNotNull(accessFilters);
     InvariantChecks.checkNotNull(dependencyFilters);
     InvariantChecks.checkNotNull(unitedDependencyFilters);
 
-    this.accessFilters = accessFilters;
     this.dependencyFilters = dependencyFilters;
     this.unitedDependencyFilters = unitedDependencyFilters;
   }
@@ -61,14 +56,6 @@ public final class FilterStructure implements Predicate<MemoryAccessStructure> {
   public boolean test(final MemoryAccessStructure template) {
     for (int i = 0; i < template.size(); i++) {
       final MemoryAccess execution1 = template.getAccess(i);
-
-      // Apply the execution-level filters.
-      for (final Predicate<MemoryAccess> filter : accessFilters) {
-        if (!filter.test(execution1)) {
-          // Filter off.
-          return false;
-        }
-      }
 
       for (int j = i + 1; j < template.size(); j++) {
         final MemoryAccess execution2 = template.getAccess(j);

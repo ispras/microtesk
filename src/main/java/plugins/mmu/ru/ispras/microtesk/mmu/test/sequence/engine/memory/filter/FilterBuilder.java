@@ -35,9 +35,6 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  */
 public final class FilterBuilder {
 
-  private final Collection<Predicate<MemoryAccess>>
-    accessFilters = new ArrayList<>();
-
   private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>>
     hazardFilters = new ArrayList<>();
 
@@ -60,10 +57,6 @@ public final class FilterBuilder {
     addFilterBuilder(r);
   }
 
-  public Collection<Predicate<MemoryAccess>> getAccessFilters() {
-    return accessFilters;
-  }
-
   public Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> getHazardFilters() {
     return hazardFilters;
   }
@@ -82,16 +75,6 @@ public final class FilterBuilder {
 
   public Collection<Predicate<MemoryAccessStructure>> getStructureFilters() {
     return structureFilters;
-  }
-
-  public void addAccessFilter(final Predicate<MemoryAccess> filter) {
-    InvariantChecks.checkNotNull(filter);
-    accessFilters.add(filter);
-  }
-
-  public void addAccessFilters(final Collection<Predicate<MemoryAccess>> filters) {
-    InvariantChecks.checkNotNull(filters);
-    accessFilters.addAll(filters);
   }
 
   public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
@@ -152,7 +135,6 @@ public final class FilterBuilder {
   public void addFilterBuilder(final FilterBuilder builder) {
     InvariantChecks.checkNotNull(builder);
 
-    accessFilters.addAll(builder.accessFilters);
     hazardFilters.addAll(builder.hazardFilters);
     dependencyFilters.addAll(builder.dependencyFilters);
     unitedHazardFilters.addAll(builder.unitedHazardFilters);
@@ -172,7 +154,7 @@ public final class FilterBuilder {
     final Collection<Predicate<MemoryAccessStructure>>
       newTemplateFilters = new ArrayList<>(structureFilters);
     newTemplateFilters.add(new FilterStructure(
-        accessFilters, newDependencyFilters, newUnitedDependencyFilters));
+        newDependencyFilters, newUnitedDependencyFilters));
 
     return new FilterComposite(newTemplateFilters);
   }

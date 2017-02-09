@@ -361,16 +361,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessType accessType = accessTypes.get(i);
       final MemoryAccessPath accessPath = accessPaths.get(i);
 
-      final MemoryAccess access = MemoryAccess.create(accessType, accessPath);
-      accesses.add(access);
-    }
-
-    for (final MemoryAccess access : accesses) {
-      for (final Predicate<MemoryAccess> filter : filterBuilder.getAccessFilters()) {
-        if (!filter.test(access)) {
-          return false;
-        }
-      }
+      accesses.add(MemoryAccess.create(accessType, accessPath));
     }
 
     return true;
@@ -503,12 +494,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   //------------------------------------------------------------------------------------------------
   // Filter Registration
   //------------------------------------------------------------------------------------------------
-
-  public void addAccessFilter(
-      final Predicate<MemoryAccess> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addAccessFilter(filter);
-  }
 
   public void addHazardFilter(
       final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
