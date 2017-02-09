@@ -87,7 +87,7 @@ op ADD()
   action = { 
     DEST = SRC1 + SRC2;
     // Function 'trace' prints text messages to the simulator log
-    trace("%d + %d = %d", SRC1, SRC2, DEST);   
+    trace("%d + %d = %d", SRC1, SRC2, DEST);
   }
 
 op SUB()
@@ -105,7 +105,7 @@ op ALU = ADD | SUB | MOV
 
 // A common specification of all ALU instructions that describes their common
 // format, performs all common actions and delegates unique responsibilities 
-// to specific operations (or subinstructions).  
+// to specific operations (or subinstructions).
 
 op alu_instr(command: ALU, op1: OPRNDL, op2: OPRNDR)
   syntax = format("%s %s %s", command.syntax, op1.syntax, op2.syntax)
@@ -144,7 +144,7 @@ op JZ (source: OPRNDL, target : INDEX)
     endif;
   }
 
-op branch_instr = J | JZ 
+op branch_instr = J | JZ
 
 ////////////////////////////////////////////////////////////////////////////////
 // Entry Point
@@ -153,4 +153,4 @@ op branch_instr = J | JZ
 // describing a microprocessor ISA.
 
 op instruction = alu_instr
-               | branch_instr 
+               | branch_instr
