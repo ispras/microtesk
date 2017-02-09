@@ -42,8 +42,17 @@ class CpuBaseTemplate < Template
     # mode.
     #
     preparator(:target => 'REG') {
-      comment 'Initializer for REG'
-      mov target, imm(value)
+      comment 'Initializer for REG: %d', value
+
+      mov target, imm(value(2, 7))
+      add target, target
+      add target, target
+      add target, imm(value(0, 1))
+    }
+
+    preparator(:target => 'REG', :mask => "'b00XX_XXXX") {
+      comment 'Initializer for REG: %d', value
+      mov target, imm(value(0, 5))
     }
 
     #
@@ -51,16 +60,22 @@ class CpuBaseTemplate < Template
     # to the specified memory address using the MEM addressing mode.
     #
     preparator(:target => 'MEM') {
-      comment 'Initializer for MEM'
-      mov target, imm(value)
+      comment 'Initializer for MEM: %d', value
+
+      mov target, imm(value(2, 7))
+      add target, target
+      add target, target
+      add target, imm(value(0, 1))
     }
 
     preparator(:target => 'IMM') {
     }
 
+    org 0x1F
+
     trace 'Initialization:'
     comment 'Initialization Section Starts'
-    mov mem(:i => 12), imm(0xFF)
+    mov mem(:i => 12), imm(0x0F)
     comment 'Initialization Section Ends'
   end
 
