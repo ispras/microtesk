@@ -419,7 +419,7 @@ final class Executor {
     if (invalidCall != call) {
       context.getStatistics().incTraceLength();
       if (Tarmac.isEnabled()) {
-        Tarmac.addRecord(Record.newInstruction(call));
+        Tarmac.addRecord(Record.newInstruction(call, context.getModel().getActivePE()));
       }
     }
 

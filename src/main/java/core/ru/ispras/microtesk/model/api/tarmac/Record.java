@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
+/**
+ * The {@link Record} class describes Tarmac log records.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+  */
 public abstract class Record {
   private static long instructionId = -1;
 
@@ -47,8 +52,8 @@ public abstract class Record {
     return String.format("%d clk", time);
   }
 
-  public static Record newInstruction(final ConcreteCall call) {
-    return new Instruction(call);
+  public static Record newInstruction(final ConcreteCall call, final int cpu) {
+    return new Instruction(call, cpu);
   }
 
   public static Record newMemoryAccess(
@@ -66,13 +71,15 @@ public abstract class Record {
 
   private static final class Instruction extends Record {
     private BitVector instrId;
+    private final int cpu;
     private long addr;
     private String disasm;
 
-    private Instruction(final ConcreteCall call) {
+    private Instruction(final ConcreteCall call, final int cpu) {
       super(RecordKind.INSTRUCT, ++instructionId);
       InvariantChecks.checkNotNull(call);
 
+      this.cpu = cpu;
       this.addr = call.getAddress();
       this.disasm = call.getText();
 
@@ -94,8 +101,9 @@ public abstract class Record {
     @Override
     public String toString() {
       return String.format(
-          "%s IT (%d) %016x %s A svc_ns : %s",
+          "%s %d IT (%d) %016x %s A svc_ns : %s",
           super.toString(),
+          cpu,
           getTime(),
           addr,
           instrId.toHexString().toLowerCase(),

@@ -21,6 +21,11 @@ import java.io.PrintWriter;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Tarmac} class is responsible for printing Tarmac logs.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Tarmac {
   private static final String FILE_PREFIX = "tarmac";
   private static final String FILE_EXTENSION = "log";
