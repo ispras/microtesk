@@ -235,33 +235,24 @@ public final class AddressObject {
       final long addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");
-      builder.append(String.format("%s=%x", addrType.getVariable().getName(), addrValue));
+      builder.append(String.format("%s=0x%x", addrType.getVariable().getName(), addrValue));
       comma = true;
 
       for (final MmuBuffer buffer : memory.getBuffers()) {
         if (buffer.getAddress() == addrType) {
           if (buffer.isReplaceable()) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.tag=%x", buffer, buffer.getTag(addrValue)));
+            builder.append(String.format("%s.tag=0x%x", buffer, buffer.getTag(addrValue)));
             comma = true;
           }
 
           if (buffer.getSets() > 1) {
             builder.append(comma ? separator : "");
-            builder.append(String.format("%s.index=%x", buffer, buffer.getIndex(addrValue)));
+            builder.append(String.format("%s.index=0x%x", buffer, buffer.getIndex(addrValue)));
             comma = true;
           }
         }
       }
-    }
-
-    for (final Map.Entry<IntegerVariable, Long> attrEntry : attributes.entrySet()) {
-      final IntegerVariable attrKey = attrEntry.getKey();
-      final Long attrValue = attrEntry.getValue();
-
-      builder.append(comma ? separator : "");
-      builder.append(String.format("%s=%x", attrKey.getName(), attrValue));
-      comma = true;
     }
 
     return builder.toString();
