@@ -296,10 +296,12 @@ class Template
       bias = range_item.bias
 
       if value.is_a?(Range)
+        min = [value.first, value.last].min
+        max = [value.first, value.last].max
         if bias.nil? then
-          builder.addInterval value.min, value.max
+          builder.addInterval min, max
         else
-          builder.addInterval value.min, value.max, bias
+          builder.addInterval min, max, bias
         end
       elsif value.is_a?(Array)
         if bias.nil? then
