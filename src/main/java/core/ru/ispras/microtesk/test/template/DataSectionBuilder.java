@@ -117,7 +117,7 @@ public final class DataSectionBuilder {
     return new DataValueBuilder(type);
   }
 
-  public DataValueBuilder addDataValues(final int typeBitSize) {
+  public DataValueBuilder addDataValuesForSize(final int typeBitSize) {
     final DataDirectiveFactory.TypeInfo type = directiveFactory.findTypeInfo(typeBitSize);
     return new DataValueBuilder(type);
   }
