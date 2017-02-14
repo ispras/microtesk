@@ -111,6 +111,10 @@ public final class MemoryAccessConstraints {
     return new MemoryAccessConstraints(integerConstraints, bufferEventConstraints);
   }
 
+  public boolean isEmpty() {
+    return integerConstraints.isEmpty() && bufferEventConstraints.isEmpty();
+  }
+
   public List<IntegerConstraint<IntegerField>> getIntegers() {
     return integerConstraints;
   }
