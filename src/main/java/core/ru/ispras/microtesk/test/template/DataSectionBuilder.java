@@ -21,6 +21,11 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
+/**
+ * The {@link DataSectionBuilder} class builds data sections.
+ *  
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class DataSectionBuilder {
   private final BlockId blockId;
   private final DataDirectiveFactory directiveFactory;
