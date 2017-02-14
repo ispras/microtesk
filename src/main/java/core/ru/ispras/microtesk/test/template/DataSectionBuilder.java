@@ -32,7 +32,7 @@ public final class DataSectionBuilder {
   private final List<LabelValue> labelValues;
   private final List<DataDirective> directives;
 
-  protected DataSectionBuilder(
+  public DataSectionBuilder(
       final BlockId blockId,
       final DataDirectiveFactory directiveFactory,
       final boolean isGlobal,
