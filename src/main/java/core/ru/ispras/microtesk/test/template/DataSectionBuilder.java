@@ -113,7 +113,13 @@ public final class DataSectionBuilder {
   }
 
   public DataValueBuilder addDataValues(final String typeName) {
-    return new DataValueBuilder(typeName);
+    final DataDirectiveFactory.TypeInfo type = directiveFactory.findTypeInfo(typeName);
+    return new DataValueBuilder(type);
+  }
+
+  public DataValueBuilder addDataValues(final int typeBitSize) {
+    final DataDirectiveFactory.TypeInfo type = directiveFactory.findTypeInfo(typeBitSize);
+    return new DataValueBuilder(type);
   }
 
   protected void addGeneratedData(
@@ -135,13 +141,13 @@ public final class DataSectionBuilder {
   }
 
   public final class DataValueBuilder {
-    private final String typeName;
+    private final DataDirectiveFactory.TypeInfo type;
     private final List<Value> values;
 
-    private DataValueBuilder(final String typeName) {
-      InvariantChecks.checkNotNull(typeName);
+    private DataValueBuilder(DataDirectiveFactory.TypeInfo type) {
+      InvariantChecks.checkNotNull(type);
 
-      this.typeName = typeName;
+      this.type = type;
       this.values = new ArrayList<>();
     }
 
@@ -156,7 +162,7 @@ public final class DataSectionBuilder {
     }
 
     public void build() {
-      addDirective(directiveFactory.newDataValues(typeName, values));
+      addDirective(directiveFactory.newDataValues(type, values));
     }
   }
 }
