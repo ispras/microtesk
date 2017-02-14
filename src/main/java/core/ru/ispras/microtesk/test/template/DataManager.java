@@ -22,6 +22,7 @@ import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 
 /**
  * The {@link DataManager} class create internal representation of data sections.
@@ -29,22 +30,16 @@ import ru.ispras.microtesk.options.Options;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class DataManager {
-  private final Model model;
-  private final Options options;
+  private final EngineContext engineContext;
 
   private DataDirectiveFactory factory;
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
-  public DataManager(
-      final Model model,
-      final Options options) {
-    InvariantChecks.checkNotNull(model);
-    InvariantChecks.checkNotNull(options);
+  protected DataManager(final EngineContext engineContext) {
+    InvariantChecks.checkNotNull(engineContext);
 
-    this.model = model;
-    this.options = options;
-
+    this.engineContext = engineContext;
     this.factory = null;
     this.factoryBuilder = null;
     this.dataBuilder = null;
@@ -58,6 +53,9 @@ public final class DataManager {
     InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
     checkReinitialized();
+
+    final Model model = engineContext.getModel();
+    final Options options = engineContext.getOptions();
 
     final BigInteger baseVA = null != baseVirtualAddress ?
         baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);

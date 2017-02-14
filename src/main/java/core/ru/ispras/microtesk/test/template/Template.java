@@ -104,7 +104,7 @@ public final class Template {
     this.context = context;
 
     this.metaModel = context.getModel().getMetaData();
-    this.dataManager = new DataManager(context.getModel(), context.getOptions());
+    this.dataManager = new DataManager(context);
     this.preparators = context.getPreparators();
     this.bufferPreparators = context.getBufferPreparators();
     this.streams = context.getStreams();
