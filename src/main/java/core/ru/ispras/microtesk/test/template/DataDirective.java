@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,11 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 
+/**
+ * The {@link DataDirective} is to be supported by all data directives.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public interface DataDirective {
   String getText();
   boolean needsIndent();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -34,6 +34,12 @@ import ru.ispras.microtesk.options.Options;
 
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
+/**
+ * The {@link DataDirectiveFactory} class is a configurable factory
+ * for creating data directives.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class DataDirectiveFactory {
   private final Options options;
   private final Map<String, TypeInfo> types;
