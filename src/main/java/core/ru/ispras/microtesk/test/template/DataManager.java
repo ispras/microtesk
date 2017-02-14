@@ -32,7 +32,6 @@ import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 public final class DataManager {
   private final EngineContext engineContext;
 
-  private DataDirectiveFactory factory;
   private DataDirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
@@ -40,7 +39,6 @@ public final class DataManager {
     InvariantChecks.checkNotNull(engineContext);
 
     this.engineContext = engineContext;
-    this.factory = null;
     this.factoryBuilder = null;
     this.dataBuilder = null;
   }
@@ -73,8 +71,7 @@ public final class DataManager {
     checkReinitialized();
 
     InvariantChecks.checkNotNull(factoryBuilder);
-    factory = factoryBuilder.build();
-
+    engineContext.setDataDirectiveFactory(factoryBuilder.build());
     factoryBuilder = null;
   }
 
@@ -85,6 +82,7 @@ public final class DataManager {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
+    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
     dataBuilder = new DataSectionBuilder(blockId, factory, isGlobal, isSeparateFile);
     return dataBuilder; 
   }
@@ -99,7 +97,7 @@ public final class DataManager {
   }
 
   public boolean isInitialized() {
-    return factory != null;
+    return engineContext.getDataDirectiveFactory() != null;
   }
 
   public DataSection generateData(
@@ -116,6 +114,7 @@ public final class DataManager {
     InvariantChecks.checkNotNull(method);
 
     checkInitialized();
+    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
 
     final DataSectionBuilder dataBuilder =
         new DataSectionBuilder(new BlockId(), factory, true, isSeparateFile);

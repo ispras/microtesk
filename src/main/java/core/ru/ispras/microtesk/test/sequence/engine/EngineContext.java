@@ -27,6 +27,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
+import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -47,6 +48,7 @@ public final class EngineContext {
   private final TestBase testBase;
   private final Statistics statistics;
   private final int delaySlotSize;
+  private DataDirectiveFactory dataDirectiveFactory;
 
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
@@ -74,6 +76,8 @@ public final class EngineContext {
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
+
+    this.dataDirectiveFactory = null;
   }
 
   public Options getOptions() {
@@ -114,6 +118,16 @@ public final class EngineContext {
 
   public int getDelaySlotSize() {
     return delaySlotSize;
+  }
+
+  public DataDirectiveFactory getDataDirectiveFactory() {
+    return dataDirectiveFactory;
+  }
+
+  public void setDataDirectiveFactory(final DataDirectiveFactory value) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(null == dataDirectiveFactory);
+    dataDirectiveFactory = value;
   }
 
   public Object getCustomContext(final String id) {
