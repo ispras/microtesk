@@ -663,10 +663,6 @@ class Template
     buffer_id = get_attribute attrs, :target
     builder = @template.beginBufferPreparator buffer_id
 
-    if attrs.has_key?(:level)
-      builder.setLevel attrs[:level]
-    end
-
     self.instance_eval &contents
     @template.endBufferPreparator
   end
