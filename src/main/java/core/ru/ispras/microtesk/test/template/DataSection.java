@@ -24,7 +24,13 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.test.LabelManager;
 
-public class DataSection {
+/**
+ * The {@link DataSection} class describes data sections defined in
+ * test templates or created by engines.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+public final class DataSection {
   private final List<LabelValue> labelValues;
   private final List<DataDirective> directives;
 
