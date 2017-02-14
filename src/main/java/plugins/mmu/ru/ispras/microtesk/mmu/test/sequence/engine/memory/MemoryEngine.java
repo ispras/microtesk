@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -48,6 +48,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.EngineParameter;
 import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -62,27 +63,95 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 public final class MemoryEngine implements Engine<MemorySolution> {
   public static final String ID = "memory";
 
-  public static final String PARAM_ABSTRACTION = "classifier";
-  public static final String PARAM_ABSTRACTION_TRIVIAL = "trivial";
-  public static final String PARAM_ABSTRACTION_UNIVERSAL = "universal";
-  public static final String PARAM_ABSTRACTION_BUFFER_ACCESS = "buffer-access";
-  public static final MemoryGraphAbstraction PARAM_ABSTRACTION_DEFAULT =
-      MemoryGraphAbstraction.BUFFER_ACCESS;
+  final static class ParamAbstraction extends EngineParameter<MemoryGraphAbstraction> {
+    ParamAbstraction() {
+      super("classifier",
+          new EngineParameter.Option<>("buffer-access", MemoryGraphAbstraction.BUFFER_ACCESS),
+          new EngineParameter.Option<>("trivial", MemoryGraphAbstraction.TRIVIAL),
+          new EngineParameter.Option<>("universal", MemoryGraphAbstraction.UNIVERSAL));
+    }
+  }
 
-  public static final String PARAM_ITERATOR = "iterator";
-  public static final String PARAM_ITERATOR_RANDOM = "random";
-  public static final String PARAM_ITERATOR_EXHAUSTIVE = "exhaustive";
-  public static final MemoryAccessStructureIterator.Mode PARAM_ITERATOR_DEFAULT =
-      MemoryAccessStructureIterator.Mode.RANDOM;
+  final static class ParamPreparator extends EngineParameter<Boolean> {
+    ParamPreparator() {
+      super("preparator",
+          new EngineParameter.Option<>("static", Boolean.TRUE),
+          new EngineParameter.Option<>("dynamic", Boolean.FALSE));
+    }
+  }
 
-  public static final String PARAM_COUNT = "count";
-  public static final int PARAM_COUNT_DEFAULT = 1;
+  final static class ParamIterator extends EngineParameter<MemoryAccessStructureIterator.Mode> {
+    ParamIterator() {
+      super("iterator",
+          new EngineParameter.Option<>("static", MemoryAccessStructureIterator.Mode.RANDOM),
+          new EngineParameter.Option<>("dynamic", MemoryAccessStructureIterator.Mode.EXHAUSTIVE));
+    }
+  }
 
-  public static final String PARAM_PAGE_MASK = "page_mask";
-  public static final long PARAM_PAGE_MASK_DEFAULT = 0x0fff;
+  final static class ParamCount extends EngineParameter<Integer> {
+    ParamCount() {
+      super("count");
+    }
 
-  public static final String PARAM_ALIGN = "align";
-  public static final DataType PARAM_ALIGN_DEFAULT = null;
+    @Override
+    public Integer getValue(final Object option) {
+      final Number number = (option instanceof Number)
+          ? (Number) option : Integer.parseInt(option.toString(), 10);
+
+      return number.intValue();
+    }
+
+    @Override
+    public Integer getDefaultValue() {
+      return 1;
+    }
+  }
+
+  final static class ParamPageMask extends EngineParameter<Long> {
+    ParamPageMask() {
+      super("page_mask");
+    }
+
+    @Override
+    public Long getValue(final Object option) {
+      final Number number = (option instanceof Number)
+          ? (Number) option : Long.parseLong(option.toString(), 16);
+
+      return number.longValue();
+    }
+
+    @Override
+    public Long getDefaultValue() {
+      // 4KB pages.
+      return 0x0fffL;
+    }
+  }
+
+  final static class ParamAlign extends EngineParameter<DataType> {
+    ParamAlign() {
+      super("align");
+    }
+
+    @Override
+    public DataType getValue(final Object option) {
+      final Number number = (option instanceof Number)
+          ? (Number) option : Integer.parseInt(option.toString(), 10);
+
+      return DataType.type(number.intValue());
+    }
+
+    @Override
+    public DataType getDefaultValue() {
+      return null;
+    }
+  }
+
+  static final ParamAbstraction PARAM_ABSTRACTION = new ParamAbstraction();
+  static final ParamPreparator PARAM_PREPARATOR = new ParamPreparator();
+  static final ParamIterator PARAM_ITERATOR = new ParamIterator();
+  static final ParamCount PARAM_COUNT = new ParamCount();
+  static final ParamPageMask PARAM_PAGE_MASK = new ParamPageMask();
+  static final ParamAlign PARAM_ALIGN = new ParamAlign();
 
   public static boolean isMemoryAccessWithSituation(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
@@ -119,76 +188,18 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return null;
   }
 
-  private static MemoryGraphAbstraction getAbstraction(final Object value) {
-    final String id = value != null ? value.toString() : null;
-
-    if (PARAM_ABSTRACTION_TRIVIAL.equals(id)) {
-      return MemoryGraphAbstraction.TRIVIAL;
-    }
-    if (PARAM_ABSTRACTION_UNIVERSAL.equals(id)) {
-      return MemoryGraphAbstraction.UNIVERSAL;
-    }
-    if (PARAM_ABSTRACTION_BUFFER_ACCESS.equals(id)) {
-      return MemoryGraphAbstraction.BUFFER_ACCESS;
-    }
-
-    return PARAM_ABSTRACTION_DEFAULT;
-  }
-
-  private static MemoryAccessStructureIterator.Mode getIterator(final Object value) {
-    final String id = value != null ? value.toString() : null;
-
-    if (PARAM_ITERATOR_RANDOM.equals(id)) {
-      return MemoryAccessStructureIterator.Mode.RANDOM;
-    }
-    if (PARAM_ITERATOR_EXHAUSTIVE.equals(id)) {
-      return MemoryAccessStructureIterator.Mode.EXHAUSTIVE;
-    }
-
-    return PARAM_ITERATOR_DEFAULT;
-  }
-
-  private static int getCount(final Object value) {
-    if (value == null) {
-      return PARAM_COUNT_DEFAULT;
-    }
-
-    final Number number = (value instanceof Number)
-        ? (Number) value : Integer.parseInt(value.toString(), 10);
-
-    return number.intValue();
-  }
-  
-  private static long getPageMask(final Object value) {
-    if (value == null) {
-      return PARAM_PAGE_MASK_DEFAULT;
-    }
-
-    final Number number = (value instanceof Number)
-        ? (Number) value : Long.parseLong(value.toString(), 16);
-
-    return number.longValue();
-  }
-
-  private static DataType getAlign(final Object value) {
-    if (value == null) {
-      return PARAM_ALIGN_DEFAULT;
-    }
-
-    final Number id =
-        value instanceof Number ? (Number) value : Long.parseLong(value.toString(), 10);
-
-    return DataType.type(id.intValue());
-  }
-
-  private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION_DEFAULT;
-  private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR_DEFAULT;
-  private int count = PARAM_COUNT_DEFAULT;
-  private long pageMask = PARAM_PAGE_MASK_DEFAULT;
-  private DataType align = PARAM_ALIGN_DEFAULT;
+  private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
+  private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
+  private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
+  private int count = PARAM_COUNT.getDefaultValue();
+  private long pageMask = PARAM_PAGE_MASK.getDefaultValue();
+  private DataType align = PARAM_ALIGN.getDefaultValue();
 
   private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
+
+  private Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
+  private MemoryAccessPathChooser normalPathChooser;
 
   @Override
   public Class<MemorySolution> getSolutionClass() {
@@ -199,14 +210,16 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    abstraction = getAbstraction(attributes.get(PARAM_ABSTRACTION));
-    iterator = getIterator(attributes.get(PARAM_ITERATOR));
-    count = getCount(attributes.get(PARAM_COUNT));
-    pageMask = getPageMask(attributes.get(PARAM_PAGE_MASK));
-    align = getAlign(attributes.get(PARAM_ALIGN));
+    abstraction = PARAM_ABSTRACTION.parse(attributes.get(PARAM_ABSTRACTION.getName()));
+    preparator = PARAM_PREPARATOR.parse(attributes.get(PARAM_PREPARATOR.getName()));
+    iterator = PARAM_ITERATOR.parse(attributes.get(PARAM_ITERATOR.getName()));
+    count = PARAM_COUNT.parse(attributes.get(PARAM_COUNT.getName()));
+    pageMask = PARAM_PAGE_MASK.parse(attributes.get(PARAM_PAGE_MASK.getName()));
+    align = PARAM_ALIGN.parse(attributes.get(PARAM_ALIGN.getName()));
 
-    Logger.debug("Memory engine configuration: %s=%s, %s=%s, %s=%d, %s=0x%x, %s=%s",
+    Logger.debug("Memory engine configuration: %s=%s, %s=%b, %s=%s, %s=%d, %s=0x%x, %s=%s",
         PARAM_ABSTRACTION, abstraction,
+        PARAM_PREPARATOR, preparator,
         PARAM_ITERATOR, iterator,
         PARAM_COUNT, count,
         PARAM_PAGE_MASK, pageMask,
@@ -251,6 +264,41 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     this.addressAllocator = new AddressAllocator(memory, addressToRegions);
     this.entryIdAllocator = new EntryIdAllocator(memory);
+
+    final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
+
+    for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
+      hitCheckers.put(addressType, new Predicate<Long>() {
+        @Override
+        public boolean test(final Long address) {
+          final MmuModel model = MmuPlugin.getMmuModel();
+          final MmuSubsystem memory = MmuPlugin.getSpecification();
+
+          for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
+            if (buffer.getAddress().equals(addressType) && buffer != memory.getTargetBuffer()) {
+              Logger.debug("Hit checker: %s", buffer);
+
+              final BufferObserver observer = model.getBufferObserver(buffer.getName());
+
+              if (observer.isHit(BitVector.valueOf(address, addressType.getWidth()))) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        }
+      });
+    }
+
+    this.hitCheckers = hitCheckers;
+
+    this.normalPathChooser = CoverageExtractor.get().getPathChooser(
+        memory,
+        MemoryGraphAbstraction.TARGET_BUFFER_ACCESS,
+        MemoryAccessType.LOAD(DataType.BYTE),
+        new MemoryAccessConstraints.Builder().build(),
+        true);
 
     return new EngineResult<MemorySolution>(solutionIterator);
   }
@@ -310,50 +358,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(structureIterator);
 
-    // TODO: Remove the custom context (it is required for MMU TestGen only).
-    final MemoryEngineContext customContext;
-
-    if (engineContext.getCustomContext(ID) != null) {
-      customContext = (MemoryEngineContext) engineContext.getCustomContext(ID);
-    } else {
-      final MmuSubsystem memory = MmuPlugin.getSpecification();
-      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
-
-      for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
-        hitCheckers.put(addressType, new Predicate<Long>() {
-          @Override
-          public boolean test(final Long address) {
-            final MmuModel model = MmuPlugin.getMmuModel();
-            final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-            for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
-              if (buffer.getAddress().equals(addressType) && buffer != memory.getTargetBuffer()) {
-                Logger.debug("Hit checker: %s", buffer);
-
-                final BufferObserver observer = model.getBufferObserver(buffer.getName());
-
-                if (observer.isHit(BitVector.valueOf(address, addressType.getWidth()))) {
-                  return true;
-                }
-              }
-            }
-
-            return false;
-          }
-        });
-      }
-
-      final MemoryAccessPathChooser normalPathChooser =
-          CoverageExtractor.get().getPathChooser(
-              memory,
-              MemoryGraphAbstraction.TARGET_BUFFER_ACCESS,
-              MemoryAccessType.LOAD(DataType.BYTE),
-              new MemoryAccessConstraints.Builder().build(),
-              true);
-
-      customContext = new MemoryEngineContext(null, hitCheckers, normalPathChooser);
-    }
-
     return new Iterator<MemorySolution>() {
       private MemorySolution solution = null;
 
@@ -366,8 +370,14 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           entryIdAllocator.reset();
 
           final MemorySolver solver = new MemorySolver(
-              structure, customContext, addressAllocator, entryIdAllocator,
-              pageMask, align, engineContext.getSettings());
+              structure,
+              addressAllocator,
+              entryIdAllocator,
+              hitCheckers,
+              normalPathChooser,
+              pageMask,
+              align,
+              engineContext.getSettings());
 
           final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
           InvariantChecks.checkNotNull(result);

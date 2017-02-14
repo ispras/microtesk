@@ -101,26 +101,28 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   public MemorySolver(
       final MemoryAccessStructure structure,
-      final MemoryEngineContext context,
       final AddressAllocator addressAllocator,
       final EntryIdAllocator entryIdAllocator,
+      final Map<MmuAddressInstance, Predicate<Long>> hitCheckers,
+      final MemoryAccessPathChooser normalPathChooser,
       final long pageMask,
       final DataType alignType,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
-    InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(addressAllocator);
     InvariantChecks.checkNotNull(entryIdAllocator);
+    InvariantChecks.checkNotNull(hitCheckers);
+    InvariantChecks.checkNotNull(normalPathChooser);
     InvariantChecks.checkNotNull(settings);
 
     this.structure = structure;
 
     this.addressAllocator = addressAllocator;
     this.entryIdAllocator = entryIdAllocator;
+    this.hitCheckers = hitCheckers;
+    this.normalPathChooser = normalPathChooser;
 
-    this.hitCheckers = context.getHitCheckers();
-    this.normalPathChooser = context.getNormalPathChooser();
     this.constraints = MmuSettingsUtils.getConstraints(memory, settings);
 
     this.pageMask = pageMask;
@@ -268,8 +270,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     hitTags.add(tag);
 
     // Add a memory access to cause a HIT.
-    // DO NOT CHANGE OFFSET: there are buffers, in which offset bits have special meaning, e.g. 
-    // in the MIPS TLB, VA[12] chooses between EntryLo0 and EntryLo1.
+    // DO NOT CHANGE OFFSET: there are buffers, in which offset bits have special meaning,
+    // e.g. in the MIPS TLB, VA[12] chooses between EntryLo0 and EntryLo1.
     final List<Long> sequence = new ArrayList<>();
     sequence.add(address);
 
