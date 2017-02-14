@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,11 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link BufferPreparatorStore} class stores a collection of buffer preparators.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class BufferPreparatorStore {
   private final Map<String, BufferPreparator> preparators;
 
@@ -28,24 +33,11 @@ public final class BufferPreparatorStore {
 
   public void addPreparator(final BufferPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-
-    final String id = getBufferIdWithLevel(preparator.getBufferId(), preparator.getLevel());
-    preparators.put(id, preparator);
-  }
-
-  public BufferPreparator getPreparatorFor(final String bufferId, final int level) {
-    InvariantChecks.checkNotNull(bufferId);
-    InvariantChecks.checkGreaterOrEqZero(level);
-
-    final String id = getBufferIdWithLevel(bufferId, level);
-    return preparators.get(id);
+    preparators.put(preparator.getBufferId(), preparator);
   }
 
   public BufferPreparator getPreparatorFor(final String bufferId) {
-    return getPreparatorFor(bufferId, 0);
-  }
-
-  private static String getBufferIdWithLevel(final String bufferId, final int level) {
-    return String.format("%s#%d", bufferId, level);
+    InvariantChecks.checkNotNull(bufferId);
+    return preparators.get(bufferId);
   }
 }

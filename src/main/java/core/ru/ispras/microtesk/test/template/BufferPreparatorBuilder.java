@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,9 +21,14 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link BufferPreparatorBuilder} class is responsible for construction
+ * of buffer preparators.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class BufferPreparatorBuilder {
   private final String bufferId;
-  private int level;
   private final LazyData address;
   private final Map<String, LazyData> entry;
   private final LazyData entryData;
@@ -33,7 +38,6 @@ public final class BufferPreparatorBuilder {
     InvariantChecks.checkNotNull(bufferId);
 
     this.bufferId = bufferId;
-    this.level = 0;
     this.address = new LazyData();
     this.entry = new HashMap<>();
     this.entryData = new LazyData();
@@ -42,15 +46,6 @@ public final class BufferPreparatorBuilder {
 
   public String getBufferId() {
     return bufferId;
-  }
-
-  public int getLevel() {
-    return level;
-  }
-
-  public void setLevel(final int value) {
-    InvariantChecks.checkGreaterOrEqZero(value);
-    this.level = value;
   }
 
   public LazyValue newAddressReference() {
@@ -103,7 +98,6 @@ public final class BufferPreparatorBuilder {
   public BufferPreparator build() {
     return new BufferPreparator(
         bufferId,
-        level,
         address,
         entry,
         entryData,
