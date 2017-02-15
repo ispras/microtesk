@@ -97,8 +97,9 @@ public final class DataSection {
   }
 
   public void setSequenceIndex(final int value) {
-    InvariantChecks.checkTrue(global ? value == Label.NO_SEQUENCE_INDEX : value >= 0);
-    sequenceIndex = value;
+    if (global ? value == Label.NO_SEQUENCE_INDEX : value >= 0) {
+      sequenceIndex = value;
+    }
   }
 
   public List<Label> getLabels() {
