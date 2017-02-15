@@ -24,16 +24,32 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 
 /**
- * The {@link BufferPreparator} describes instruction sequences
- * to set up the state of MMU buffers.
+ * The {@link BufferPreparator} describes instruction sequences to set up the state of MMU buffers.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class BufferPreparator {
+  protected final static class AddressAndEntry {
+    private final LazyData address;
+    private final Map<String, LazyData> entry;
+    private final LazyData entryData;
+
+    private AddressAndEntry(
+        final LazyData address,
+        final Map<String, LazyData> entry,
+        final LazyData entryData) {
+      InvariantChecks.checkNotNull(address);
+      InvariantChecks.checkNotNull(entry);
+      InvariantChecks.checkNotNull(entryData);
+
+      this.address = address;
+      this.entry = Collections.unmodifiableMap(entry);
+      this.entryData = entryData;
+    }
+  }
+
   private final String bufferId;
-  private final LazyData address;
-  private final Map<String, LazyData> entry;
-  private final LazyData entryData;
+  private final AddressAndEntry addressAndEntry;
   private final List<Call> calls;
   private final LabelUniqualizer.SeriesId labelSeriesId;
 
@@ -49,9 +65,7 @@ public final class BufferPreparator {
     InvariantChecks.checkNotNull(calls);
 
     this.bufferId = bufferId;
-    this.address = address;
-    this.entry = Collections.unmodifiableMap(entry);
-    this.entryData = entryData;
+    this.addressAndEntry = new AddressAndEntry(address, entry, entryData);
     this.calls = Collections.unmodifiableList(calls);
     this.labelSeriesId = LabelUniqualizer.get().newSeries();
   }
@@ -71,6 +85,10 @@ public final class BufferPreparator {
     Logger.debug("Making a preparator for buffer %s", getBufferId());
     Logger.debug("Address: %s", addressValue);
     Logger.debug("Entry fields: %s", entryFieldValues);
+
+    final LazyData address = addressAndEntry.address;
+    final Map<String, LazyData> entry = addressAndEntry.entry;
+    final LazyData entryData = addressAndEntry.entryData;
 
     address.setValue(addressValue);
 
