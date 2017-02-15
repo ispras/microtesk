@@ -46,31 +46,32 @@ public final class BufferPreparatorBuilder {
     return bufferId;
   }
 
-  public LazyValue newAddressReference() {
-    return getAddressEntry(0).newAddressReference();
+  public LazyValue newAddressReference(final int level) {
+    return getAddressEntry(level).newAddressReference();
   }
 
-  public LazyValue newAddressReference(final int start, final int end) {
-    return getAddressEntry(0).newAddressReference(start, end);
+  public LazyValue newAddressReference(final int level, final int start, final int end) {
+    return getAddressEntry(level).newAddressReference(start, end);
   }
 
-  public LazyValue newEntryReference() {
-    return getAddressEntry(0).newEntryReference();
+  public LazyValue newEntryReference(final int level) {
+    return getAddressEntry(level).newEntryReference();
   }
 
-  public LazyValue newEntryReference(final int start, final int end) {
-    return getAddressEntry(0).newEntryReference(start, end);
+  public LazyValue newEntryReference(final int level, final int start, final int end) {
+    return getAddressEntry(level).newEntryReference(start, end);
   }
 
-  public LazyValue newEntryFieldReference(final String fieldId) {
-    return getAddressEntry(0).newEntryFieldReference(fieldId);
+  public LazyValue newEntryFieldReference(final int level, final String fieldId) {
+    return getAddressEntry(level).newEntryFieldReference(fieldId);
   }
 
   public LazyValue newEntryFieldReference(
+      final int level,
       final String fieldId,
       final int start,
       final int end) {
-    return getAddressEntry(0).newEntryFieldReference(fieldId, start, end);
+    return getAddressEntry(level).newEntryFieldReference(fieldId, start, end);
   }
 
   public void addCall(final Call call) {

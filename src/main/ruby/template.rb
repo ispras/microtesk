@@ -674,22 +674,24 @@ class Template
       raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
     end
 
+    reference = AddressReference.new @template
     if args.count == 2
-      @template.newAddressReference args.at(0), args.at(1)
+      reference.bits args[0], args[1]
     else
-      @template.newAddressReference
+      reference
     end
   end
 
   def entry(*args)
-    if args.count == 2
-      @template.newEntryReference args.at(0), args.at(1)
-    else
-      unless defined? @entry_reference
-        @entry_reference = BufferEntryReference.new @template
-      end
+    if args.count != 0 and args.count != 2
+      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+    end
 
-      @entry_reference
+    reference = BufferEntryReference.new @template
+    if args.count == 2
+      reference.bits args[0], args[1]
+    else
+      reference
     end
   end
 
@@ -1160,10 +1162,57 @@ class ExceptionHandler
 
 end # ExceptionHandler
 
-class BufferEntryReference
+class WrappedObject
+  def java_object
+    raise NotImplementedError, "Method java_object is not implemented"
+  end
+end
 
-  def initialize template
+class AddressReference < WrappedObject
+  def initialize(template)
     @template = template
+    @level = 0;
+  end
+
+  def [](arg)
+    @level = arg;
+    self
+  end
+
+  def java_object
+    @template.newAddressReference @level
+  end
+
+  def call(min, max)
+    bits(min, max)
+  end
+
+  def bits(min, max)
+    @template.newAddressReference @level, min, max
+  end
+end # AddressReference
+
+class BufferEntryReference < WrappedObject
+  def initialize(template)
+    @template = template
+    @level = 0;
+  end
+
+  def [](arg)
+    @level = arg;
+    self
+  end
+
+  def java_object
+    @template.newEntryReference @level
+  end
+
+  def call(min, max)
+    bits(min, max)
+  end
+
+  def bits(min, max)
+    @template.newEntryReference @level, min, max
   end
 
   def method_missing(meth, *args)
@@ -1172,15 +1221,14 @@ class BufferEntryReference
     end
 
     if args.count == 2
-      @template.newEntryFieldReference meth.to_s, args.at(0), args.at(1)
+      @template.newEntryFieldReference @level, meth.to_s, args[0], args[1]
     else
-      @template.newEntryFieldReference meth.to_s
+      @template.newEntryFieldReference @level, meth.to_s
     end
   end
-end # BufferEntry
+end # BufferEntryReference
 
 class PageTable
-
   def initialize(template, data_manager)
     @template = template
     @data_manager = data_manager
@@ -1250,5 +1298,4 @@ class PageTable
       @attrs[name.to_sym]
     end
   end # PageTable::Entry
-
 end # PageTable

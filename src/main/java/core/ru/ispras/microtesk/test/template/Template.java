@@ -793,30 +793,38 @@ public final class Template {
     bufferPreparatorBuilder = null;
   }
 
-  public LazyValue newAddressReference() {
+  public LazyValue newAddressReference(final int level) {
     checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newAddressReference();
+    return bufferPreparatorBuilder.newAddressReference(level);
   }
 
-  public LazyValue newAddressReference(final int start, final int end) {
+  public LazyValue newAddressReference(final int level, final int start, final int end) {
     checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newAddressReference(start, end);
+    return bufferPreparatorBuilder.newAddressReference(level, start, end);
   }
 
-  public LazyValue newEntryReference(final int start, final int end) {
+  public LazyValue newEntryReference(final int level) {
     checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryReference(start, end);
+    return bufferPreparatorBuilder.newEntryReference(level);
   }
 
-  public LazyValue newEntryFieldReference(final String fieldId) {
+  public LazyValue newEntryReference(final int level, final int start, final int end) {
     checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryFieldReference(fieldId);
+    return bufferPreparatorBuilder.newEntryReference(level, start, end);
+  }
+
+  public LazyValue newEntryFieldReference(final int level, final String fieldId) {
+    checkBufferPreparatorBlock();
+    return bufferPreparatorBuilder.newEntryFieldReference(level, fieldId);
   }
 
   public LazyValue newEntryFieldReference(
-      final String fieldId, final int start, final int end) {
+      final int level,
+      final String fieldId,
+      final int start,
+      final int end) {
     checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryFieldReference(fieldId, start, end);
+    return bufferPreparatorBuilder.newEntryFieldReference(level, fieldId, start, end);
   }
 
   private void checkBufferPreparatorBlock() {

@@ -162,6 +162,7 @@ end
 
 def set_arguments_from_hash(builder, args)
   args.each_pair do |name, value|
+    value = value.java_object if value.is_a? WrappedObject
     value = value.to_s if value.is_a? Symbol
     builder.setArgument name.to_s, value
   end
@@ -172,6 +173,7 @@ def set_arguments_from_array(builder, args)
     if value.is_a? Array
       set_arguments_from_array builder, value
     else
+      value = value.java_object if value.is_a? WrappedObject
       value = value.to_s if value.is_a? Symbol
       builder.addArgument value
     end
