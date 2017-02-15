@@ -214,6 +214,8 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processBlock(final Block block) throws ConfigurationException, IOException {
+    startProgram();
+
     final int instanceIndex =
         findInstanceAtEndOfTestSequence(testProgram.getLastAllocatedEntry());
 
