@@ -38,35 +38,39 @@ public final class BufferPreparatorBuilder {
     this.calls = new ArrayList<>();
   }
 
+  private BufferPreparatorAddressEntry getAddressEntry(final int level) {
+    return addressEntry;
+  }
+
   public String getBufferId() {
     return bufferId;
   }
 
   public LazyValue newAddressReference() {
-    return addressEntry.newAddressReference();
+    return getAddressEntry(0).newAddressReference();
   }
 
   public LazyValue newAddressReference(final int start, final int end) {
-    return addressEntry.newAddressReference(start, end);
+    return getAddressEntry(0).newAddressReference(start, end);
   }
 
   public LazyValue newEntryReference() {
-    return addressEntry.newEntryReference();
+    return getAddressEntry(0).newEntryReference();
   }
 
   public LazyValue newEntryReference(final int start, final int end) {
-    return addressEntry.newEntryReference(start, end);
+    return getAddressEntry(0).newEntryReference(start, end);
   }
 
   public LazyValue newEntryFieldReference(final String fieldId) {
-    return addressEntry.newEntryFieldReference(fieldId);
+    return getAddressEntry(0).newEntryFieldReference(fieldId);
   }
 
   public LazyValue newEntryFieldReference(
       final String fieldId,
       final int start,
       final int end) {
-    return addressEntry.newEntryFieldReference(fieldId, start, end);
+    return getAddressEntry(0).newEntryFieldReference(fieldId, start, end);
   }
 
   public void addCall(final Call call) {
