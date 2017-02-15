@@ -217,6 +217,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   /** Memory subsystem representation. */
   private final MmuSubsystem memory;
+  /** Target trajectory. */
+  private final List<Object> trajectory;
   /** Labeled memory graph. */
   private final MemoryGraph graph;
   /** Memory access type. */
@@ -280,6 +282,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     // Parameter trajectory can be null.
 
     this.memory = memory;
+    this.trajectory = trajectory;
     this.graph = graph;
     this.type = type;
     this.constraints = constraints;
@@ -417,6 +420,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private Result getNext() {
+    Logger.debug("Searching for a memory access path: %s", trajectory);
+
     while (!searchStack.isEmpty()) {
       final SearchEntry searchEntry = searchStack.peek();
       boolean isCompleted = true;
@@ -545,7 +550,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         if (isFullPath) {
           final MemoryAccessPath path = builder.build();
 
-          Logger.debug("Memory access %s of the length %d",
+          Logger.debug("Memory access %s of length %d",
               stack.isEmpty() ? "path" : "fragment", path.size());
 
           return new Result(path, top.context);

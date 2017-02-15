@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,10 +42,14 @@ import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
+import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.DataDirectiveFactory;
+import ru.ispras.microtesk.test.template.DataSectionBuilder;
+import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
@@ -56,6 +60,10 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAdapter implements Adapter<MemorySolution> {
+
+  static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
+  private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
+
   @Override
   public Class<MemorySolution> getSolutionClass() {
     return MemorySolution.class;
@@ -63,7 +71,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   @Override
   public void configure(final Map<String, Object> attributes) {
-    // Do nothing.
+    InvariantChecks.checkNotNull(attributes);
+    isStaticPreparator = PARAM_PREPARATOR.parse(attributes.get(PARAM_PREPARATOR.getName()));
   }
 
   @Override
@@ -117,6 +126,14 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(solution);
 
+    final BlockId blockId = new BlockId();
+    final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
+    InvariantChecks.checkNotNull(dataDirectiveFactory);
+
+    final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
+        blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
+
+    boolean isBufferFull = false;
     final List<ConcreteCall> preparation = new ArrayList<>();
 
     final Map<Long, EntryObject> entries = solution.getEntries(buffer);
@@ -136,17 +153,42 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
-      final List<ConcreteCall> initializer = prepareBuffer(
-          buffer, engineContext, addressValue, entryFieldValues);
-      InvariantChecks.checkNotNull(initializer);
+      final String comment = String.format("Initializing %s[%d]=%s", buffer.getName(), index, data);
 
-      if (!initializer.isEmpty()) {
-        preparation.add(ConcreteCall.newLine());
-        preparation.add(ConcreteCall.newComment(String.format(
-            "Initializing %s: Goal=WRITE[0x%x], Entry=%s", buffer.getName(), index, data)));
+      if (isStaticPreparator && isBufferFull) {
+        // Static buffer initialization.
+        dataSectionBuilder.addComment(comment);
 
-        preparation.addAll(initializer);
+        final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
+        Collections.reverse(fieldValues);
+
+        final BitVector entryValue =
+            BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
+
+        final DataValueBuilder dataValueBuilder =
+            dataSectionBuilder.addDataValuesForSize(entryValue.getBitSize());
+
+        dataValueBuilder.add(entryValue.bigIntegerValue());
+      } else {
+        // Dynamic buffer initialization.
+        final List<ConcreteCall> initializer = prepareBuffer(
+            buffer, engineContext, addressValue, entryFieldValues);
+        InvariantChecks.checkNotNull(initializer);
+
+        if (!initializer.isEmpty()) {
+          preparation.add(ConcreteCall.newLine());
+          preparation.add(ConcreteCall.newComment(comment));
+
+          preparation.addAll(initializer);
+        }
       }
+    }
+
+    if (isStaticPreparator) {
+      final Call abstractCall = Call.newData(dataSectionBuilder.build());
+      final ConcreteCall concreteCall = new ConcreteCall(abstractCall);
+
+      preparation.add(concreteCall);
     }
 
     return preparation;
