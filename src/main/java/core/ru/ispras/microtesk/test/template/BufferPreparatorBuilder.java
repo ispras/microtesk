@@ -15,9 +15,7 @@
 package ru.ispras.microtesk.test.template;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -29,18 +27,14 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class BufferPreparatorBuilder {
   private final String bufferId;
-  private final LazyData address;
-  private final Map<String, LazyData> entry;
-  private final LazyData entryData;
+  private final BufferPreparatorAddressEntry addressEntry;
   private final List<Call> calls;
 
   protected BufferPreparatorBuilder(final String bufferId) {
     InvariantChecks.checkNotNull(bufferId);
 
     this.bufferId = bufferId;
-    this.address = new LazyData();
-    this.entry = new HashMap<>();
-    this.entryData = new LazyData();
+    this.addressEntry = new BufferPreparatorAddressEntry();
     this.calls = new ArrayList<>();
   }
 
@@ -49,45 +43,30 @@ public final class BufferPreparatorBuilder {
   }
 
   public LazyValue newAddressReference() {
-    return new LazyValue(address);
+    return addressEntry.newAddressReference();
   }
 
   public LazyValue newAddressReference(final int start, final int end) {
-    return new LazyValue(address, start, end);
+    return addressEntry.newAddressReference(start, end);
   }
 
   public LazyValue newEntryReference() {
-    return new LazyValue(entryData);
+    return addressEntry.newEntryReference();
   }
 
   public LazyValue newEntryReference(final int start, final int end) {
-    return new LazyValue(entryData, start, end);
+    return addressEntry.newEntryReference(start, end);
   }
 
   public LazyValue newEntryFieldReference(final String fieldId) {
-    InvariantChecks.checkNotNull(fieldId);
-
-    final LazyData field = getEntryField(fieldId);
-    return new LazyValue(field);
+    return addressEntry.newEntryFieldReference(fieldId);
   }
 
   public LazyValue newEntryFieldReference(
-      final String fieldId, final int start, final int end) {
-    InvariantChecks.checkNotNull(fieldId);
-
-    final LazyData field = getEntryField(fieldId);
-    return new LazyValue(field, start, end);
-  }
-
-  private LazyData getEntryField(final String fieldId) {
-    LazyData field = entry.get(fieldId);
-
-    if (null == field) {
-      field = new LazyData();
-      entry.put(fieldId, field);
-    }
-
-    return field;
+      final String fieldId,
+      final int start,
+      final int end) {
+    return addressEntry.newEntryFieldReference(fieldId, start, end);
   }
 
   public void addCall(final Call call) {
@@ -96,12 +75,6 @@ public final class BufferPreparatorBuilder {
   }
 
   public BufferPreparator build() {
-    return new BufferPreparator(
-        bufferId,
-        address,
-        entry,
-        entryData,
-        calls
-        );
+    return new BufferPreparator(bufferId, addressEntry, calls);
   }
 }
