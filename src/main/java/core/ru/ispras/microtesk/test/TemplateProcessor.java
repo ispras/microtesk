@@ -447,8 +447,8 @@ final class TemplateProcessor implements Template.Processor {
       engine.onStartProgram();
     }
 
-    for (final Adapter<?> engine : GeneratorConfig.get().getAdapters()) {
-      engine.onStartProgram();
+    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+      adapter.onStartProgram();
     }
   }
 
@@ -457,8 +457,8 @@ final class TemplateProcessor implements Template.Processor {
       engine.onEndProgram();
     }
 
-    for (final Adapter<?> engine : GeneratorConfig.get().getAdapters()) {
-      engine.onEndProgram();
+    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+      adapter.onEndProgram();
     }
   }
 
