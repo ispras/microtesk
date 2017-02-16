@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +183,10 @@ public final class GeneratorConfig<T> {
     return engines.get(name.toLowerCase());
   }
 
+  public Collection<Engine<?>> getEngines() {
+    return engines.values();
+  }
+
   public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(adapter);
@@ -192,6 +197,10 @@ public final class GeneratorConfig<T> {
   public Adapter<?> getAdapter(final String name) {
     InvariantChecks.checkNotNull(name);
     return adapters.get(name.toLowerCase());
+  }
+
+  public Collection<Adapter<?>> getAdapters() {
+    return adapters.values();
   }
 
   /**

@@ -30,4 +30,8 @@ public interface Engine<T> {
   void configure(Map<String, Object> attributes);
 
   EngineResult<T> solve(EngineContext engineContext, List<Call> abstractSequence);
+
+  void onStartProgram();
+
+  void onEndProgram();
 }
