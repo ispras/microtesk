@@ -46,6 +46,7 @@ final class Printer {
   private static Printer console = null;
 
   private final Options options;
+  private final boolean printToScreen;
 
   private final File file;
   private final PrintWriter fileWritter;
@@ -79,7 +80,7 @@ final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    return new Printer(options, file, binaryFile);
+    return new Printer(options, false, file, binaryFile);
   }
 
   public static Printer getConsole(
@@ -92,7 +93,7 @@ final class Printer {
     InvariantChecks.checkNotNull(statistics);
 
     try {
-      console = new Printer(options, null, null);
+      console = new Printer(options, true, null, null);
     } catch (final IOException e) {
       throw new IllegalArgumentException(e);
     }
@@ -113,7 +114,7 @@ final class Printer {
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.DATA_EXT));
 
-    return new Printer(options, file, null);
+    return new Printer(options, false, file, null);
   }
 
   public static Printer newExcHandlerFile(
@@ -132,7 +133,7 @@ final class Printer {
     final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
-    final Printer result = new Printer(options, file, binaryFile);
+    final Printer result = new Printer(options, false, file, binaryFile);
     result.needPrintCodeKeyword = false;
 
     return result;
@@ -146,11 +147,13 @@ final class Printer {
 
   private Printer(
       final Options options,
+      final boolean printToScreen,
       final File file,
       final File binaryFile) throws IOException {
     InvariantChecks.checkNotNull(options);
 
     this.options = options;
+    this.printToScreen = printToScreen;
     this.file = file;
     this.binaryFile = binaryFile;
 
@@ -383,7 +386,9 @@ final class Printer {
    */
   private void printTextNoIndent(final String text) {
     if (text != null) {
-      Logger.debug(text);
+      if (printToScreen) {
+        Logger.debug(text);
+      }
       printToFileNoIndent(text);
     }
   }
@@ -450,7 +455,7 @@ final class Printer {
   }
 
   private void printToScreen(final String text) {
-    if (Logger.isDebug()) {
+    if (printToScreen && Logger.isDebug()) {
       Logger.debug(indentToken + text);
     }
   }
@@ -493,7 +498,6 @@ final class Printer {
       return;
     }
 
-    Logger.debugHeader("Printing Data to %s", getFileName());
     printHeaderToFile("Data");
 
     if (needPrintDataKeyword) {

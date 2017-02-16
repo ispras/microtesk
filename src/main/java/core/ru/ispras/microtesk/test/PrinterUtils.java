@@ -59,6 +59,7 @@ final class PrinterUtils {
     Printer printer = null;
     try {
       printer = Printer.newDataFile(engineContext.getOptions(), statistics.getDataFiles());
+      Logger.debugHeader("Printing data to %s", printer.getFileName());
       printer.printDataDirectives(data.getDirectives());
       statistics.incDataFiles();
     } finally {
@@ -82,8 +83,9 @@ final class PrinterUtils {
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
     Printer printer = null;
-    try { 
+    try {
       printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
+      Logger.debugHeader("Printing exception handler to %s", printer.getFileName());
       for (final TestSequence sequence : sequences) {
         statistics.incInstructions(sequence.getInstructionCount());
         printer.printSequence(engineContext.getModel().getPE(), sequence);
@@ -108,12 +110,12 @@ final class PrinterUtils {
 
     final int programIndex = statistics.getPrograms();
     final Printer printer = Printer.newCodeFile(engineContext.getOptions(), programIndex);
+    Logger.debugHeader("Printing test program to %s", printer.getFileName());
 
     try {
       statistics.incPrograms();
 
       for (final TestSequence sequence : testProgram.getEntries()) {
-        Logger.debugHeader("Printing %s to %s", sequence.getTitle(), printer.getFileName());
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 
