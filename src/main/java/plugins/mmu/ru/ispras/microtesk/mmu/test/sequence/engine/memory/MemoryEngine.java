@@ -426,4 +426,14 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
     };
   }
+
+  @Override
+  public void onStartProgram() {
+    // TODO
+  }
+
+  @Override
+  public void onEndProgram() {
+    // TODO
+  }
 }
