@@ -110,6 +110,10 @@ public final class BlockBuilder {
     this.where = where;
   }
 
+  public Where getWhere() {
+    return where;
+  }
+
   public void setCompositor(final String name) {
     InvariantChecks.checkTrue(null == compositorName);
     compositorName = name;

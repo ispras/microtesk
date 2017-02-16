@@ -311,8 +311,12 @@ public final class Template {
       }
 
       if (!block.getBlockId().isRoot()) {
+        final BlockBuilder wrapping = blockBuilders.peek();
         throw new GenerationAbortedException(String.format(
-            "Running nested blocks is not allowed. At: %s", block.getWhere()));
+            "Running nested blocks is not allowed. Nested is at: %s, wrapping is at: %s",
+            block.getWhere(),
+            wrapping.getWhere()
+            ));
       }
     }
 
