@@ -209,7 +209,15 @@ public final class DataDirectiveFactory {
 
     @Override
     public String getText() {
-      return options.getValueAsString(Option.COMMENT_TOKEN) + super.getText();
+      final String text = super.getText();
+      final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
+
+      return String.format(
+          "%s%s%s",
+          commentToken,
+          text.isEmpty() || commentToken.endsWith(" ") ? "" : " ",
+          text
+          );
     }
   }
 
