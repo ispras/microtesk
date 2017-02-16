@@ -85,19 +85,30 @@ public final class MmuEntry {
     }
   }
 
+  private static String getShortName(final IntegerVariable variable) {
+    final String fullName = variable.getName();
+    final int lastIndex = fullName.lastIndexOf('.');
+
+    return lastIndex == -1 ? fullName : fullName.substring(lastIndex + 1);
+  }
+
   @Override
   public String toString() {
+    final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
     builder.append("[");
 
     boolean comma = false; 
     for (final Map.Entry<IntegerVariable, BigInteger> entry : fields.entrySet()) {
-      builder.append(comma ? ", " : "");
-      builder.append(entry.getKey());
+      if (comma) {
+        builder.append(separator);
+      }
+
+      builder.append(getShortName(entry.getKey()));
       builder.append("=");
-      builder.append(String.format("%s [%s]",
-          entry.getValue().toString(16), isValid(entry.getKey()) ? "Valid" : "Invalid"));
+      builder.append(entry.getValue().toString(16));
+
       comma = true;
     }
 

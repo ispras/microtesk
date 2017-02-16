@@ -204,7 +204,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       if (addrEqualRelation.contains(j)) {
         final DataType dataType = nextAccess.getType().getDataType();
-        if (maxDataType.size() < dataType.size()) {
+        if (maxDataType.getSizeInBytes() < dataType.getSizeInBytes()) {
           maxDataType = dataType;
         }
       }
@@ -283,6 +283,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // TODO:
     final List<MmuBuffer> buffers = new ArrayList<>(path.getBuffers());
+    Logger.debug("Buffers: %s", buffers);
 
     // Scan the buffers of the same address type in reverse order.
     boolean found = false;
@@ -398,7 +399,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           // Allocate an entry of the buffer.
           final Long bufferEntryId = allocateEntryId(buffer, false);
           final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
-  
+
           if (bufferEntryId == null || bufferEntry == null) {
             return new SolverResult<>(
                 String.format("Cannot allocate an entry for buffer %s", buffer));

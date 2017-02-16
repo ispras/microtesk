@@ -30,6 +30,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -62,7 +63,10 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
+
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
+
+  //private final Map<MmuBuffer, DataSectionBuilder> dataSectionBuilders = new HashMap<>();
 
   @Override
   public Class<MemorySolution> getSolutionClass() {
@@ -153,10 +157,11 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
-      final String comment = String.format("Initializing %s[%d]=%s", buffer.getName(), index, data);
+      final String comment = String.format("%s[%d]=%s", buffer.getName(), index, data);
 
-      if (isStaticPreparator && isBufferFull) {
+      if (isStaticPreparator && !isBufferFull) {
         // Static buffer initialization.
+        dataSectionBuilder.addText("");
         dataSectionBuilder.addComment(comment);
 
         final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
@@ -165,10 +170,26 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final BitVector entryValue =
             BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
 
-        final DataValueBuilder dataValueBuilder =
-            dataSectionBuilder.addDataValuesForSize(entryValue.getBitSize());
+        final int sizeInBits = entryValue.getBitSize();
+        InvariantChecks.checkTrue((sizeInBits & 0x3) == 0);
 
-        dataValueBuilder.add(entryValue.bigIntegerValue());
+        int itemSizeInBits = 8;
+        while (itemSizeInBits < (DataType.DWORD.getSizeInBytes() << 3)) {
+          if ((sizeInBits & ((itemSizeInBits << 1) - 1)) == 0) {
+            itemSizeInBits <<= 1;
+          }
+        }
+
+        final DataValueBuilder dataValueBuilder =
+            dataSectionBuilder.addDataValuesForSize(itemSizeInBits);
+
+        // TODO: Take into account big-endianess/little-endianess. 
+        for (int i = 0; i < sizeInBits; i += itemSizeInBits) {
+          final BitVector item = entryValue.field(i, i + itemSizeInBits - 1);
+          dataValueBuilder.add(item.bigIntegerValue());
+        }
+
+        dataValueBuilder.build();
       } else {
         // Dynamic buffer initialization.
         final List<ConcreteCall> initializer = prepareBuffer(

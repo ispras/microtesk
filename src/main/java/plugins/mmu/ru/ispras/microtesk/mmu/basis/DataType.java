@@ -53,7 +53,7 @@ public enum DataType {
   
 
   /** The size in bytes. */
-  private final int size;
+  private final int sizeInBytes;
 
   /**
    * Constructs a data type for the given size.
@@ -61,7 +61,7 @@ public enum DataType {
    * @param size the size in bytes.
    */
   private DataType(final int size) {
-    this.size = size;
+    this.sizeInBytes = size;
   }
 
   /**
@@ -69,8 +69,8 @@ public enum DataType {
    * 
    * @return the size.
    */
-  public int size() {
-    return size;
+  public int getSizeInBytes() {
+    return sizeInBytes;
   }
 
   /**
@@ -80,7 +80,7 @@ public enum DataType {
    * @return {@code true} if the address is aligned; {@code false} otherwise.
    */
   public boolean isAligned(final long address) {
-    return (address & (size - 1)) == 0;
+    return (address & (sizeInBytes - 1)) == 0;
   }
 
   /**
@@ -90,6 +90,6 @@ public enum DataType {
    * @return the aligned address.
    */
   public long align(final long address) {
-    return address & ~(size - 1);
+    return address & ~(sizeInBytes - 1);
   }
 }
