@@ -32,19 +32,28 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 public final class MmuEntry {
   private final Set<IntegerVariable> validFields = new LinkedHashSet<>();
   private final Map<IntegerVariable, BigInteger> fields = new LinkedHashMap<>();
+  private final int sizeInBits;
 
   private boolean valid = false;
 
   public MmuEntry(final Collection<IntegerVariable> variables) {
     InvariantChecks.checkNotNull(variables);
 
+    int sizeInBits = 0;
     for (final IntegerVariable variable : variables) {
       fields.put(variable, BigInteger.ZERO);
+      sizeInBits += variable.getWidth();
     }
+
+    this.sizeInBits = sizeInBits;
   }
 
   public Collection<IntegerVariable> getVariables() {
     return fields.keySet();
+  }
+
+  public int getSizeInBits() {
+    return sizeInBits;
   }
 
   public boolean isValid() {

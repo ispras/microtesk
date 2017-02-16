@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,7 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  * calls (memory access structure).
  * 
  * <p>Solution includes test data for individual memory accesses (see {@link AddressObject}) and
- * a set of entries to be written into the devices (buffers).</p>
+ * a set of entries to be written into the buffers.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -45,7 +45,7 @@ public final class MemorySolution {
   private final MemoryLoader loader;
 
   /**
-   * Contains entries to be written into the devices to prepare hit/miss situations.
+   * Contains entries to be written into the buffers to prepare hit/miss situations.
    * 
    * <p>This map unites the analogous maps of the test data of the executions stored in
    * {@link MemorySolution#solution}.</p>
@@ -69,8 +69,8 @@ public final class MemorySolution {
       this.solution.add(new AddressObject(execution));
     }
 
-    for (final MmuBuffer device : MmuPlugin.getSpecification().getBuffers()) {
-      this.entries.put(device, new LinkedHashMap<Long, EntryObject>());
+    for (final MmuBuffer buffer : MmuPlugin.getSpecification().getBuffers()) {
+      this.entries.put(buffer, new LinkedHashMap<Long, EntryObject>());
     }
 
     loader = new MemoryLoader();
@@ -135,43 +135,42 @@ public final class MemorySolution {
   }
 
   /**
-   * Returns the entries to written to the given device.
+   * Returns the entries to written to the given buffer.
    * 
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer.
    * @return the index-to-entry map.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, EntryObject> getEntries(final MmuBuffer device) {
-    InvariantChecks.checkNotNull(device);
-
-    return entries.get(device);
+  public Map<Long, EntryObject> getEntries(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+    return entries.get(buffer);
   }
 
   /**
-   * Sets the entries to be written to the given device.
+   * Sets the entries to be written to the given buffer.
    * 
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer.
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer device, final Map<Long, EntryObject> entries) {
-    InvariantChecks.checkNotNull(device);
+  public void setEntries(final MmuBuffer buffer, final Map<Long, EntryObject> entries) {
+    InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entries);
 
-    this.entries.put(device, entries);
+    this.entries.put(buffer, entries);
   }
 
   /**
-   * Adds the entry to the set of entries to be written to the given device.
+   * Adds the entry to the set of entries to be written to the given buffer.
    * 
-   * @param device the MMU device (buffer).
+   * @param buffer the MMU buffer.
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer device, final EntryObject entry) {
-    InvariantChecks.checkNotNull(device);
+  public void addEntry(final MmuBuffer buffer, final EntryObject entry) {
+    InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(entry);
 
-    entries.get(device).put(entry.getId(), entry);
+    entries.get(buffer).put(entry.getId(), entry);
   }
 }

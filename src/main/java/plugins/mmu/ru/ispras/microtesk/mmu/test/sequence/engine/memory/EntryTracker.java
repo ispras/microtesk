@@ -25,7 +25,22 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryTracker {
+  private final long bufferBaseAddress;
+
   private final Map<Long, EntryObject> entries = new LinkedHashMap<>();
+
+  public EntryTracker(final long bufferBaseAddress) {
+    this.bufferBaseAddress = bufferBaseAddress;
+  }
+
+  public long getEntryAddress(final EntryObject entry) {
+    InvariantChecks.checkNotNull(entry);
+    return bufferBaseAddress + entry.getId() * (entry.getEntry().getSizeInBits() >>> 3);
+  }
+
+  public boolean contains(final long id) {
+    return entries.containsKey(id);
+  }
 
   public void add(final EntryObject entry) {
     InvariantChecks.checkNotNull(entry);

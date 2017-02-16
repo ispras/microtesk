@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,10 +64,9 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
-
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
-  //private final Map<MmuBuffer, DataSectionBuilder> dataSectionBuilders = new HashMap<>();
+  private final Map<MmuBuffer, Set<Long>> allocatedEntries = new HashMap<>();
 
   @Override
   public Class<MemorySolution> getSolutionClass() {
@@ -106,12 +106,12 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   @Override
   public void onStartProgram() {
-    // TODO
+    allocatedEntries.clear();
   }
 
   @Override
   public void onEndProgram() {
-    // TODO
+    Logger.debug("Allocated entries: %s", allocatedEntries);
   }
 
   private List<ConcreteCall> prepareEntries(
@@ -144,10 +144,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
     InvariantChecks.checkNotNull(dataDirectiveFactory);
 
-    final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
-        blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
-
-    boolean isBufferFull = false;
     final List<ConcreteCall> preparation = new ArrayList<>();
 
     final Map<Long, EntryObject> entries = solution.getEntries(buffer);
@@ -167,11 +163,22 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
+      final Set<Long> entriesInDataSection = getAllocatedEntries(buffer);
+      final boolean isEntryInDataSection = entriesInDataSection.contains(index);
+
       final String comment = String.format("%s[%d]=%s", buffer.getName(), index, data);
 
-      if (isStaticPreparator && !isBufferFull) {
+      if (isStaticPreparator && !isEntryInDataSection) {
         // Static buffer initialization.
-        dataSectionBuilder.addText("");
+        entriesInDataSection.add(index);
+
+        final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
+            blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
+
+        final long bufferAddress = 0; // TODO:
+        final long entryOffset = index * (data.getSizeInBits() >>> 3);
+
+        dataSectionBuilder.setOrigin(BigInteger.valueOf(bufferAddress + entryOffset));
         dataSectionBuilder.addComment(comment);
 
         final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
@@ -193,13 +200,17 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final DataValueBuilder dataValueBuilder =
             dataSectionBuilder.addDataValuesForSize(itemSizeInBits);
 
-        // TODO: Take into account big-endianess/little-endianess. 
         for (int i = 0; i < sizeInBits; i += itemSizeInBits) {
           final BitVector item = entryValue.field(i, i + itemSizeInBits - 1);
           dataValueBuilder.add(item.bigIntegerValue());
         }
 
         dataValueBuilder.build();
+
+        final Call abstractCall = Call.newData(dataSectionBuilder.build());
+        final ConcreteCall concreteCall = new ConcreteCall(abstractCall);
+
+        preparation.add(concreteCall);
       } else {
         // Dynamic buffer initialization.
         final List<ConcreteCall> initializer = prepareBuffer(
@@ -215,12 +226,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       }
     }
 
-    if (isStaticPreparator) {
-      final Call abstractCall = Call.newData(dataSectionBuilder.build());
-      final ConcreteCall concreteCall = new ConcreteCall(abstractCall);
-
-      preparation.add(concreteCall);
-    }
 
     return preparation;
   }
@@ -408,5 +413,16 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;
     }
+  }
+
+  private Set<Long> getAllocatedEntries(final MmuBuffer buffer) {
+    InvariantChecks.checkNotNull(buffer);
+
+    Set<Long> entries = allocatedEntries.get(buffer);
+    if (entries == null) {
+      allocatedEntries.put(buffer, entries = new HashSet<>());
+    }
+
+    return entries;
   }
 }
