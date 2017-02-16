@@ -784,18 +784,17 @@ public final class DataDirectiveFactory {
     return typeInfo;
   }
 
-  public TypeInfo findTypeInfo(final int typeSizeInBytes) {
-    InvariantChecks.checkGreaterThanZero(typeSizeInBytes);
+  public TypeInfo findTypeInfo(final int typeSizeInBits) {
+    InvariantChecks.checkGreaterThanZero(typeSizeInBits);
 
-    final int bitSize = typeSizeInBytes * 8;
     for (final TypeInfo typeInfo : types.values()) {
-      if (bitSize == typeInfo.type.getBitSize()) {
+      if (typeSizeInBits == typeInfo.type.getBitSize()) {
         return typeInfo;
       }
     }
 
     throw new GenerationAbortedException(
-        String.format("No %d-byte type is defined.", typeSizeInBytes));
+        String.format("No %d-bit type is defined.", typeSizeInBits));
   }
 
   private static void linkLabelsToAddress(
