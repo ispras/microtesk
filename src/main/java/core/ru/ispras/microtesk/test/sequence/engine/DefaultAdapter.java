@@ -41,4 +41,14 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
       final TestSequence solution) {
     return new AdapterResult(solution);
   }
+
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
 }

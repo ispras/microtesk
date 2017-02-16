@@ -199,6 +199,16 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     return new AdapterResult(testSequence);
   }
 
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
+
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,

@@ -31,4 +31,8 @@ public interface Adapter<T> {
   void configure(Map<String, Object> attributes);
 
   AdapterResult adapt(EngineContext engineContext, List<Call> abstractSequence, T solution);
+
+  void onStartProgram();
+
+  void onEndProgram();
 }

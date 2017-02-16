@@ -104,6 +104,16 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     return new AdapterResult(sequence);
   }
 
+  @Override
+  public void onStartProgram() {
+    // TODO
+  }
+
+  @Override
+  public void onEndProgram() {
+    // TODO
+  }
+
   private List<ConcreteCall> prepareEntries(
       final EngineContext engineContext,
       final MemorySolution solution) {
