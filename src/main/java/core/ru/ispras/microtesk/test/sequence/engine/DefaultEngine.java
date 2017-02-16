@@ -80,6 +80,16 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
+
   private TestSequence process(
       final EngineContext engineContext,
       final List<Call> abstractSequence) throws ConfigurationException {

@@ -103,6 +103,16 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     return adapt(adapter, context, sequence, result.getResult());
   }
 
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
+
   private static void allocateModes(
       final List<Call> abstractSequence, final boolean markExplicitAsUsed) {
     final ModeAllocator modeAllocator = ModeAllocator.get();

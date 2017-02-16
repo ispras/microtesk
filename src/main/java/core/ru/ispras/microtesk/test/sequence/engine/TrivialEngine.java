@@ -73,4 +73,14 @@ public final class TrivialEngine implements Engine<TestSequence> {
 
     return sequenceBuilder.build();
   }
+
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
 }

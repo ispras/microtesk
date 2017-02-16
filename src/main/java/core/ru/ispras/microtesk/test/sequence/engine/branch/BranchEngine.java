@@ -209,4 +209,14 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
     return new EngineResult<>(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
   }
+
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
 }
