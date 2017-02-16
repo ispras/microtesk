@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.sequence;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -64,6 +65,9 @@ public final class GeneratorCompositor<T> implements Generator<T> {
   @Override
   public List<T> value() {
     final List<List<T>> combination = combinator.value();
+    if (combination.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     final List<Iterator<T>> iterators = new ArrayList<>();
     for (final List<T> sequence : combination) {
