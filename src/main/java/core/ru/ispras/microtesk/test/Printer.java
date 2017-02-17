@@ -488,54 +488,33 @@ final class Printer {
     }
   }
 
-  public void printData(
-      final List<DataSection> globalData,
-      final List<DataSection> localData) {
-    InvariantChecks.checkNotNull(globalData);
-    InvariantChecks.checkNotNull(localData);
+  public void printData(final List<DataSection> dataSections) {
+    InvariantChecks.checkNotNull(dataSections);
 
-    if (globalData.isEmpty() && localData.isEmpty()) {
+    if (dataSections.isEmpty()) {
       return;
     }
 
-    printHeaderToFile("Data");
-
     if (needPrintDataKeyword) {
+      printHeaderToFile("Data");
       printText(dataKeyword);
       needPrintCodeKeyword = true;
       needPrintDataKeyword = false;
     }
 
-    if (!globalData.isEmpty()) {
-      printToFile("");
-      printSeparatorToFile("Global Data");
-    }
-
-    for (final DataSection data : globalData) {
-      if (data.isSeparateFile()) {
+    int currentTestCaseIndex = Integer.MIN_VALUE;
+    for (final DataSection dataSection : dataSections) {
+      if (dataSection.isSeparateFile()) {
         continue;
       }
 
-      printDataDirectives(data.getDirectives());
-    }
-
-    if (!localData.isEmpty()) {
-      printToFile("");
-      printSeparatorToFile("Test Case Data");
-    }
-
-    int currentTestCaseIndex = -1;
-    for (final DataSection data : localData) {
-      if (data.isSeparateFile()) {
-        continue;
-      }
-
-      final List<DataDirective> directives = data.getDirectives();
-      final int index = data.getSequenceIndex();
+      final int index = dataSection.getSequenceIndex();
+      final List<DataDirective> directives = dataSection.getDirectives();
 
       if (index != currentTestCaseIndex) {
-        currentTestCaseIndex = index;
-        printHeaderToFile(String.format("Test Case %d", currentTestCaseIndex));
+        printToFile("");
+        printSeparatorToFile(index == Label.NO_SEQUENCE_INDEX ?
+            "Global Data" : String.format("Test Case %d", index));
       }
 
       printDataDirectives(directives);

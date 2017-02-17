@@ -119,9 +119,8 @@ final class PrinterUtils {
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 
-      final List<DataSection> globalData = testProgram.getGlobalData();
-      final List<DataSection> localData = testProgram.getLocalData();
-      printer.printData(globalData, localData);
+      printer.printData(testProgram.getGlobalData());
+      printer.printData(testProgram.getLocalData());
     } finally {
       printer.close();
       statistics.popActivity();
