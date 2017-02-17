@@ -626,5 +626,7 @@ final class TemplateProcessor implements Template.Processor {
       data.allocate(memoryAllocator);
       data.registerLabels(engineContext.getLabelManager());
     }
+
+    testProgram.readdGlobalData();
   }
 }

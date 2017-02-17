@@ -14,10 +14,13 @@
 
 package ru.ispras.microtesk.test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -37,8 +40,8 @@ final class TestProgram {
   private final Map<TestSequence, Block> postponedEntries;
   private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
-  private final List<DataSection> globalData;
-  private final List<DataSection> localData;
+  private final Map<BigInteger, DataSection> dataSections;
+  private final List<DataSection> globalDataSections;
 
   public TestProgram() {
     this.prologue = null;
@@ -46,8 +49,8 @@ final class TestProgram {
     this.entries = new AdjacencyList<>();
     this.postponedEntries = new IdentityHashMap<>();
     this.exceptionHandlers = new ArrayList<>();
-    this.globalData = new ArrayList<>();
-    this.localData = new ArrayList<>();
+    this.dataSections = new TreeMap<>();
+    this.globalDataSections = new ArrayList<>();
   }
 
   public TestSequence getPrologue() {
@@ -130,24 +133,37 @@ final class TestProgram {
 
   public void addData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
+    registerData(data);
+
     if (data.isGlobal()) {
-      globalData.add(data);
-    } else {
-      localData.add(data);
+      globalDataSections.add(data);
     }
   }
 
-  public List<DataSection> getGlobalData() {
-    return globalData;
+  public void readdGlobalData() {
+    InvariantChecks.checkTrue(dataSections.isEmpty());
+    for (final DataSection data : globalDataSections) {
+      registerData(data);
+    }
   }
 
-  public List<DataSection> getLocalData() {
-    return localData;
+  private void registerData(final DataSection data) {
+    final BigInteger address = data.getAllocationEndAddress();
+    InvariantChecks.checkNotNull(address);
+    dataSections.put(address, data);
+  }
+
+  public Collection<DataSection> getAllData() {
+    return dataSections.values();
+  }
+
+  public Collection<DataSection> getGlobalData() {
+    return globalDataSections;
   }
 
   public void reset() {
     entries.clear();
     postponedEntries.clear();
-    localData.clear();
+    dataSections.clear();
   }
 }

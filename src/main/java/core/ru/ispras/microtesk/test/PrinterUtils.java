@@ -119,8 +119,7 @@ final class PrinterUtils {
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 
-      printer.printData(testProgram.getGlobalData());
-      printer.printData(testProgram.getLocalData());
+      printer.printData(testProgram.getAllData());
     } finally {
       printer.close();
       statistics.popActivity();

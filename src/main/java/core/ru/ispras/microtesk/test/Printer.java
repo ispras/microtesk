@@ -509,11 +509,12 @@ final class Printer {
         continue;
       }
 
+      printToFile("");
       final int index = dataSection.getSequenceIndex();
       if (index != currentTestCaseIndex) {
-        printToFile("");
         printSeparatorToFile(index == Label.NO_SEQUENCE_INDEX ?
             "Global Data" : String.format("Test Case %d", index));
+        currentTestCaseIndex = index;
       }
 
       printData(dataSection);
