@@ -39,6 +39,7 @@ public final class DataSection {
   private final boolean separateFile;
 
   private int sequenceIndex;
+  private BigInteger allocationEndAddress;
 
   protected DataSection(
       final List<LabelValue> labelValues,
@@ -56,6 +57,7 @@ public final class DataSection {
     this.separateFile = separateFile;
 
     this.sequenceIndex = Label.NO_SEQUENCE_INDEX;
+    this.allocationEndAddress = null;
   }
 
   protected DataSection(final DataSection other) {
@@ -126,6 +128,10 @@ public final class DataSection {
     return separateFile;
   }
 
+  public BigInteger getAllocationEndAddress() {
+    return allocationEndAddress;
+  }
+
   public void allocate(final MemoryAllocator allocator) {
     InvariantChecks.checkNotNull(allocator);
 
@@ -139,6 +145,7 @@ public final class DataSection {
         directive.apply(allocator);
       }
     } finally {
+      allocationEndAddress = allocator.getCurrentAddress();
       if (null != physicalAddress) {
         allocator.setCurrentAddress(oldAddress);
       }
