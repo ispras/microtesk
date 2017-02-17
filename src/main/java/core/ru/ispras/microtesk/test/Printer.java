@@ -477,8 +477,8 @@ final class Printer {
     }
   }
 
-  public void printDataDirectives(final List<DataDirective> directives) {
-    for (final DataDirective directive : directives) {
+  public void printData(final DataSection dataSection) {
+    for (final DataDirective directive : dataSection.getDirectives()) {
       final String text = directive.getText();
       if (directive.needsIndent()) {
         printText(text);
@@ -509,15 +509,13 @@ final class Printer {
       }
 
       final int index = dataSection.getSequenceIndex();
-      final List<DataDirective> directives = dataSection.getDirectives();
-
       if (index != currentTestCaseIndex) {
         printToFile("");
         printSeparatorToFile(index == Label.NO_SEQUENCE_INDEX ?
             "Global Data" : String.format("Test Case %d", index));
       }
 
-      printDataDirectives(directives);
+      printData(dataSection);
     }
   }
 }

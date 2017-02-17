@@ -60,7 +60,7 @@ final class PrinterUtils {
     try {
       printer = Printer.newDataFile(engineContext.getOptions(), statistics.getDataFiles());
       Logger.debugHeader("Printing data to %s", printer.getFileName());
-      printer.printDataDirectives(data.getDirectives());
+      printer.printData(data);
       statistics.incDataFiles();
     } finally {
       if (null != printer) {
