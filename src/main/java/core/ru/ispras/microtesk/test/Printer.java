@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -488,7 +489,7 @@ final class Printer {
     }
   }
 
-  public void printData(final List<DataSection> dataSections) {
+  public void printData(final Collection<DataSection> dataSections) {
     InvariantChecks.checkNotNull(dataSections);
 
     if (dataSections.isEmpty()) {
