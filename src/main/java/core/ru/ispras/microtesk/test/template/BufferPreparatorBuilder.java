@@ -27,6 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class BufferPreparatorBuilder {
   private final String bufferId;
+  private int levels;
   private final BufferPreparatorAddressEntry addressEntry;
   private final List<Call> calls;
 
@@ -34,6 +35,7 @@ public final class BufferPreparatorBuilder {
     InvariantChecks.checkNotNull(bufferId);
 
     this.bufferId = bufferId;
+    this.levels = 0;
     this.addressEntry = new BufferPreparatorAddressEntry();
     this.calls = new ArrayList<>();
   }
@@ -44,6 +46,11 @@ public final class BufferPreparatorBuilder {
 
   public String getBufferId() {
     return bufferId;
+  }
+
+  public void setLevels(final int value) {
+    InvariantChecks.checkGreaterOrEqZero(value);
+    levels = value;
   }
 
   public LazyValue newAddressReference(final int level) {
@@ -80,6 +87,6 @@ public final class BufferPreparatorBuilder {
   }
 
   public BufferPreparator build() {
-    return new BufferPreparator(bufferId, addressEntry, calls);
+    return new BufferPreparator(bufferId, levels, addressEntry, calls);
   }
 }

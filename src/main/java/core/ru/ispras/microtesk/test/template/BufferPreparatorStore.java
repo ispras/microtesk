@@ -33,11 +33,23 @@ public final class BufferPreparatorStore {
 
   public void addPreparator(final BufferPreparator preparator) {
     InvariantChecks.checkNotNull(preparator);
-    preparators.put(preparator.getBufferId(), preparator);
+    final String id = getBufferIdWithLevels(preparator.getBufferId(), preparator.getLevels());
+    preparators.put(id, preparator);
+  }
+
+  public BufferPreparator getPreparatorFor(final String bufferId, final int levels) {
+    InvariantChecks.checkNotNull(bufferId);
+    InvariantChecks.checkGreaterOrEqZero(levels);
+
+    final String id = getBufferIdWithLevels(bufferId, levels);
+    return preparators.get(id);
   }
 
   public BufferPreparator getPreparatorFor(final String bufferId) {
-    InvariantChecks.checkNotNull(bufferId);
-    return preparators.get(bufferId);
+    return getPreparatorFor(bufferId, 0);
+  }
+
+  private static String getBufferIdWithLevels(final String bufferId, final int levels) {
+    return String.format("%s#%d", bufferId, levels);
   }
 }
