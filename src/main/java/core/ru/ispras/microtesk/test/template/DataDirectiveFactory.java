@@ -72,6 +72,7 @@ public final class DataDirectiveFactory {
 
   public static final class Builder {
     private final Options options;
+    private final boolean isDebugPrinting;
     private final int addressableUnitBitSize;
 
     private final Map<String, TypeInfo> types;
@@ -87,6 +88,7 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
       this.options = options;
+      this.isDebugPrinting = options.getValueAsBoolean(Option.DEBUG);
       this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.types = new HashMap<>();
@@ -107,7 +109,7 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkNotNull(typeArgs);
 
       final Type type = Type.typeOf(typeName, typeArgs);
-      Logger.debug("Defining %s as %s ('%s')...", type, id, text);
+      debug("Defining %s as %s ('%s')...", type, id, text);
 
       types.put(id, new TypeInfo(type, text));
     }
@@ -120,7 +122,7 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkNotNull(text);
       InvariantChecks.checkNotNull(fillWith);
 
-      Logger.debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
+      debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
 
       spaceText = text;
       spaceData = BitVector.valueOf(fillWith, addressableUnitBitSize);
@@ -133,7 +135,7 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkNotNull(id);
       InvariantChecks.checkNotNull(text);
 
-      Logger.debug("Defining %snull-terminated ASCII string as %s ('%s')...",
+      debug("Defining %snull-terminated ASCII string as %s ('%s')...",
           zeroTerm ? "" : "not ", id, text);
 
       if (zeroTerm) {
@@ -152,6 +154,12 @@ public final class DataDirectiveFactory {
           ztermStrText,
           nztermStrText
           );
+    }
+
+    private void debug(final String format, final Object... args) {
+      if (isDebugPrinting) {
+        Logger.debug(format, args);
+      }
     }
   }
 

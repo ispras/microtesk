@@ -61,6 +61,7 @@ public enum Option {
   SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
   DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),
   NO_SIMULATION("no-simulation", "Disables simulation of generated code", false, GENERATE),
+  DEBUG("debug-print", "Enables printing detailed debug messages", false, GENERATE),
   COMMENTS_ENABLED("comments-enabled", "Enables generation of comments", false, GENERATE),
   COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --" +
       COMMENTS_ENABLED.getName(), false, GENERATE),

@@ -36,6 +36,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaData;
 import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -66,6 +67,7 @@ public final class Template {
   }
 
   private final EngineContext context;
+  private final boolean isDebugPrinting;
 
   private final MetaModel metaModel;
   private final DataManager dataManager;
@@ -102,6 +104,7 @@ public final class Template {
     InvariantChecks.checkNotNull(processor);
 
     this.context = context;
+    this.isDebugPrinting = context.getOptions().getValueAsBoolean(Option.DEBUG);
 
     this.metaModel = context.getModel().getMetaData();
     this.dataManager = new DataManager(context);
@@ -234,7 +237,7 @@ public final class Template {
         new BlockBuilder(false) : new BlockBuilder(parent);
 
     blockBuilders.push(current);
-    Logger.debug("Begin block: " + current.getBlockId());
+    debug("Begin block: " + current.getBlockId());
 
     return current;
   }
@@ -243,7 +246,7 @@ public final class Template {
     InvariantChecks.checkTrue(blockBuilders.size() > 1);
     endBuildingCall();
 
-    Logger.debug("End block: " + getCurrentBlockId());
+    debug("End block: " + getCurrentBlockId());
 
     final BlockBuilder builder = blockBuilders.pop();
     final Block block;
@@ -359,12 +362,12 @@ public final class Template {
 
   public void addLabel(final String name) {
     final Label label = new Label(name, getCurrentBlockId());
-    Logger.debug("Label: " + label.toString());
+    debug("Label: " + label.toString());
     callBuilder.addLabel(label);
   }
 
   public void addOutput(final Output output) {
-    Logger.debug(output.toString());
+    debug(output.toString());
     callBuilder.addOutput(output);
   }
 
@@ -378,7 +381,7 @@ public final class Template {
 
   public void endBuildingCall() {
     final Call call = callBuilder.build();
-    Logger.debug("Ended building a call (empty = %b, executable = %b)",
+    debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
     addCall(call);
@@ -404,14 +407,14 @@ public final class Template {
   }
 
   public PrimitiveBuilder newOperationBuilder(final String name) {
-    Logger.debug("Operation: " + name);
+    debug("Operation: " + name);
     InvariantChecks.checkNotNull(name);
 
     return new PrimitiveBuilderOperation(name, metaModel, callBuilder);
   }
 
   public PrimitiveBuilder newAddressingModeBuilder(final String name) {
-    Logger.debug("Addressing mode: " + name);
+    debug("Addressing mode: " + name);
     InvariantChecks.checkNotNull(name);
 
     final MetaAddressingMode metaData = metaModel.getAddressingMode(name);
@@ -524,7 +527,7 @@ public final class Template {
       final String targetName, final boolean isComparator) {
     endBuildingCall();
 
-    Logger.debug("Begin preparator: %s", targetName);
+    debug("Begin preparator: %s", targetName);
     InvariantChecks.checkNotNull(targetName);
 
     if (null != preparatorBuilder) {
@@ -550,10 +553,10 @@ public final class Template {
 
   public void endPreparator() {
     endBuildingCall();
-    Logger.debug("End preparator: %s", preparatorBuilder.getTargetName());
+    debug("End preparator: %s", preparatorBuilder.getTargetName());
 
     final Preparator preparator = preparatorBuilder.build();
-    Logger.debug("Registering preparator: %s", preparator);
+    debug("Registering preparator: %s", preparator);
 
     final Preparator oldPreparator = preparators.addPreparator(preparator);
     if (null != oldPreparator) {
@@ -625,7 +628,7 @@ public final class Template {
     }
 
     endBuildingCall();
-    Logger.debug("Preparator reference: %s", targetMode.getName()); 
+    debug("Preparator reference: %s", targetMode.getName()); 
 
     final MetaAddressingMode metaTargetMode =
         metaModel.getAddressingMode(targetMode.getName());
@@ -647,7 +650,7 @@ public final class Template {
 
     endBuildingCall();
 
-    Logger.debug("Begin stream preparator(data_source: %s, index_source: %s)",
+    debug("Begin stream preparator(data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
@@ -676,7 +679,7 @@ public final class Template {
   public void endStreamPreparator() {
     endBuildingCall();
 
-    Logger.debug("End stream preparator");
+    debug("End stream preparator");
 
     final StreamPreparator streamPreparator = streamPreparatorBuilder.build();
     streams.addPreparator(streamPreparator);
@@ -707,22 +710,22 @@ public final class Template {
   }
   
   public void beginStreamInitMethod() {
-    Logger.debug("Begin Stream Method: init");
+    debug("Begin Stream Method: init");
     streamPreparatorBuilder.beginInitMethod();
   }
 
   public void beginStreamReadMethod() {
-    Logger.debug("Begin Stream Method: read");
+    debug("Begin Stream Method: read");
     streamPreparatorBuilder.beginReadMethod();
   }
 
   public void beginStreamWriteMethod() {
-    Logger.debug("Begin Stream Method: write");
+    debug("Begin Stream Method: write");
     streamPreparatorBuilder.beginWriteMethod();
   }
 
   public void endStreamMethod() {
-    Logger.debug("End Stream Method");
+    debug("End Stream Method");
     endBuildingCall();
     streamPreparatorBuilder.endMethod(); 
   }
@@ -732,8 +735,7 @@ public final class Template {
       final Primitive dataSource,
       final Primitive indexSource,
       final int length) {
-
-    Logger.debug("Stream: label=%s, data=%s, source=%s, length=%s",
+    debug("Stream: label=%s, data=%s, source=%s, length=%s",
         startLabelName, dataSource.getName(), indexSource.getName(), length);
 
     // Stream registers are excluded from random selection.
@@ -775,7 +777,7 @@ public final class Template {
   public BufferPreparatorBuilder beginBufferPreparator(final String bufferId) {
     endBuildingCall();
 
-    Logger.debug("Begin buffer preparator: %s", bufferId);
+    debug("Begin buffer preparator: %s", bufferId);
     InvariantChecks.checkNotNull(bufferId);
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
@@ -789,7 +791,7 @@ public final class Template {
 
   public void endBufferPreparator() {
     endBuildingCall();
-    Logger.debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());
+    debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());
 
     final BufferPreparator bufferPreparator = bufferPreparatorBuilder.build();
     bufferPreparators.addPreparator(bufferPreparator);
@@ -911,7 +913,7 @@ public final class Template {
     InvariantChecks.checkNotNull(id);
 
     endBuildingCall();
-    Logger.debug("Begin exception handler");
+    debug("Begin exception handler");
 
     if (definedExceptionHandlers.contains(id)) {
       throw new IllegalStateException(
@@ -923,13 +925,13 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id);
+    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id, isDebugPrinting);
     return exceptionHandlerBuilder;
   }
 
   public void endExceptionHandler() {
     endBuildingCall();
-    Logger.debug("End exception handler");
+    debug("End exception handler");
 
     final ExceptionHandler handler = exceptionHandlerBuilder.build();
     exceptionHandlerBuilder = null;
@@ -949,12 +951,12 @@ public final class Template {
         exceptionHandlerBuilder == null;
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
-    Logger.debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
+    debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
     return dataManager.beginData(getCurrentBlockId(), isGlobal, isSeparateFile);
   }
 
   public void endData() {
-    Logger.debug("End Data");
+    debug("End Data");
 
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
@@ -983,23 +985,23 @@ public final class Template {
       processExternalCode();
     }
 
-    Logger.debug("Set Origin to 0x%x", origin);
+    debug("Set Origin to 0x%x", origin);
     callBuilder.setOrigin(origin, false);
   }
 
   public void setRelativeOrigin(final BigInteger delta) {
-    Logger.debug("Set Relative Origin to 0x%x", delta);
+    debug("Set Relative Origin to 0x%x", delta);
     callBuilder.setOrigin(delta, true);
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
-    Logger.debug("Align %d (%d bytes)", value, valueInBytes);
+    debug("Align %d (%d bytes)", value, valueInBytes);
     callBuilder.setAlignment(value, valueInBytes);
   }
 
   public void beginPrologue() {
     endBuildingCall();
-    Logger.debug("Begin Test Case Level Prologue");
+    debug("Begin Test Case Level Prologue");
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
@@ -1011,7 +1013,7 @@ public final class Template {
 
   public void endPrologue() {
     endBuildingCall();
-    Logger.debug("End Test Case Level Prologue");
+    debug("End Test Case Level Prologue");
 
     final BlockBuilder currentBlockBuilder = blockBuilders.peek();
     currentBlockBuilder.setPrologue(false);
@@ -1024,7 +1026,7 @@ public final class Template {
 
   public void beginEpilogue() {
     endBuildingCall();
-    Logger.debug("Begin Test Case Level Epilogue");
+    debug("Begin Test Case Level Epilogue");
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
@@ -1036,7 +1038,7 @@ public final class Template {
 
   public void endEpilogue() {
     endBuildingCall();
-    Logger.debug("End Test Case Level Epilogue");
+    debug("End Test Case Level Epilogue");
 
     final BlockBuilder currentBlockBuilder = blockBuilders.peek();
     currentBlockBuilder.setEpilogue(false);
@@ -1057,5 +1059,11 @@ public final class Template {
 
   public Where where(final String file, final int line) {
     return new Where(file, line);
+  }
+
+  private void debug(final String format, final Object... args) {
+    if (isDebugPrinting) {
+      Logger.debug(format, args);
+    }
   }
 }

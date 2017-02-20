@@ -34,6 +34,7 @@ import ru.ispras.microtesk.Logger;
  */
 public final class ExceptionHandlerBuilder {
   private final String id;
+  private final boolean isDebugPrinting;
   private Set<Integer> instances;
   private final List<ExceptionHandler.Section> sections;
 
@@ -41,10 +42,11 @@ public final class ExceptionHandlerBuilder {
   private Set<String> exceptions; 
   private List<Call> calls;
 
-  public ExceptionHandlerBuilder(final String id) {
+  public ExceptionHandlerBuilder(final String id, final boolean isDebugPrinting) {
     InvariantChecks.checkNotNull(id);
 
     this.id = id;
+    this.isDebugPrinting = isDebugPrinting;
     this.instances = null;
     this.sections = new ArrayList<>();
     this.exceptions = null;
@@ -82,7 +84,9 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
     InvariantChecks.checkNotEmpty(exceptions);
 
-    Logger.debug("Exception handler: .org 0x%x for %s", origin, exceptions);
+    if (isDebugPrinting) {
+      Logger.debug("Exception handler: .org 0x%x for %s", origin, exceptions);
+    }
 
     InvariantChecks.checkTrue(this.origin == null);
     InvariantChecks.checkTrue(this.exceptions == null);
