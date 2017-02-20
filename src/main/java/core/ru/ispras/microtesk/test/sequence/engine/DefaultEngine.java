@@ -165,18 +165,25 @@ public final class DefaultEngine implements Engine<TestSequence> {
     checkNotNull(context);
     checkNotNull(abstractCall);
 
-    // Only executable calls are worth printing.
-    if (abstractCall.isExecutable()) {
-      Logger.debug("%nProcessing %s...", abstractCall);
+    final boolean isDebug = Logger.isDebug();
+    Logger.setDebug(context.getOptions().getValueAsBoolean(Option.DEBUG));
 
-      final Primitive rootOp = abstractCall.getRootOperation();
-      checkRootOp(rootOp);
+    try {
+      // Only executable calls are worth printing.
+      if (abstractCall.isExecutable()) {
+        Logger.debug("%nProcessing %s...", abstractCall);
 
-      processSituations(context, rootOp);
+        final Primitive rootOp = abstractCall.getRootOperation();
+        checkRootOp(rootOp);
+
+        processSituations(context, rootOp);
+      }
+
+      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
+      registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
+    } finally {
+      Logger.setDebug(isDebug);
     }
-
-    final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-    registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
   }
 
   private void processSituations(
