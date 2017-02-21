@@ -433,7 +433,7 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void notifyProgramStart() {
+  private static void notifyProgramStart() {
     for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
       engine.onStartProgram();
     }
@@ -443,7 +443,7 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void notifyProgramEnd() {
+  private static void notifyProgramEnd() {
     for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
       engine.onEndProgram();
     }
