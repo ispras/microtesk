@@ -106,20 +106,21 @@ final class PrinterUtils {
     final Statistics statistics = engineContext.getStatistics();
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
-    final int programIndex = statistics.getPrograms();
-    final Printer printer = Printer.newCodeFile(engineContext.getOptions(), programIndex);
-    Logger.debugHeader("Printing test program to %s", printer.getFileName());
-
+    Printer printer = null;
     try {
-      statistics.incPrograms();
+      printer = Printer.newCodeFile(engineContext.getOptions(), statistics.getPrograms());
+      Logger.debugHeader("Printing test program to %s", printer.getFileName());
 
       for (final TestSequence sequence : testProgram.getEntries()) {
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 
       printer.printData(testProgram.getAllData());
+      statistics.incPrograms();
     } finally {
-      printer.close();
+      if (null != printer) {
+        printer.close();
+      }
       statistics.popActivity();
     }
   }
