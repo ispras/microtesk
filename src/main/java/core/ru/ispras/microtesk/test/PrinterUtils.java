@@ -66,7 +66,6 @@ final class PrinterUtils {
       if (null != printer) {
         printer.close();
       }
-      Logger.debugBar();
       statistics.popActivity();
     }
   }
@@ -94,7 +93,6 @@ final class PrinterUtils {
       if (null != printer) {
         printer.close();
       }
-      Logger.debugBar();
       statistics.popActivity();
     }
   }
