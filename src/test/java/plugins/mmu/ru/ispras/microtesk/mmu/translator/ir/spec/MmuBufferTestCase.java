@@ -37,8 +37,11 @@ import ru.ispras.microtesk.utils.function.Function;
 public class MmuBufferTestCase {
   private static MmuAddressInstance newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
-    return new MmuAddressInstance(new Variable(name, type),
-                              new IntegerVariable(name + ".value", width));
+
+    return new MmuAddressInstance(
+        name,
+        new Variable(name, type),
+        new IntegerVariable(name + ".value", width));
   }
 
   public static final MmuAddressInstance VA_ADDR = newAddress("VA", 64);

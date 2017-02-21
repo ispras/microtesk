@@ -64,7 +64,6 @@ public final class MemoryAccessStack {
       InvariantChecks.checkNotNull(field);
 
       final IntegerVariable frameVariable = getInstance(field.getVariable());
-
       return new IntegerField(frameVariable, field.getLoIndex(), field.getHiIndex());
     }
 

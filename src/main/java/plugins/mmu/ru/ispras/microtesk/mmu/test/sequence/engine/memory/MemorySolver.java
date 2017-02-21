@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,7 +71,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySolver implements Solver<MemorySolution> {
-  /** Memory access structures being processed. */
+  /** Memory access structure being processed. */
   private final MemoryAccessStructure structure;
 
   private final Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
@@ -1054,8 +1054,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
     InvariantChecks.checkNotNull(access);
 
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
-
     final MmuAddressInstance vaType = memory.getVirtualAddress();
     final MmuAddressInstance paType = memory.getPhysicalAddress();
 
@@ -1115,6 +1113,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Fix the address tags and indices.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
+
+    Logger.debug("Refine address: buffers=%s", path.getBuffers());
 
     for (final MmuBuffer buffer : path.getBuffers()) {
       if (buffer.isFake()) {

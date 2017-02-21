@@ -124,8 +124,10 @@ public final class MmuUnderTest {
   private static MmuAddressInstance newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
 
-    return new MmuAddressInstance(new Variable(name, type),
-                              new IntegerVariable(name + ".value", width));
+    return new MmuAddressInstance(
+        name,
+        new Variable(name, type),
+        new IntegerVariable(name + ".value", width));
   }
 
   // ===============================================================================================

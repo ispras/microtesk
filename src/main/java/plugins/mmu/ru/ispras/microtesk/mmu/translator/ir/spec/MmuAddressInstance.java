@@ -30,30 +30,17 @@ public class MmuAddressInstance extends MmuStruct {
   private final Variable addrStruct;
   private IntegerVariable address;
 
-  public MmuAddressInstance(final Variable addrStruct, final IntegerVariable address) {
-    super(addrStruct != null ? addrStruct.getName() : "<undefined>");
-
-    InvariantChecks.checkNotNull(address);
-    this.addrStruct = addrStruct;
-    this.address = address;
-  }
-
-  public MmuAddressInstance(final Variable addrStruct) {
-    super(addrStruct != null ? addrStruct.getName() : "<undefined>");
-
-    this.addrStruct = addrStruct;
-    this.address = null;
-  }
-
-  public MmuAddressInstance(final String name, final IntegerVariable address) {
+  public MmuAddressInstance(
+      final String name,
+      final Variable addrStruct,
+      final IntegerVariable address) {
     super(name);
 
-    InvariantChecks.checkNotNull(address);
-    this.addrStruct = null;
+    this.addrStruct = addrStruct;
     this.address = address;
   }
 
-  protected MmuAddressInstance(final String name) {
+  public MmuAddressInstance(final String name) {
     super(name);
 
     this.addrStruct = null;
@@ -83,7 +70,7 @@ public class MmuAddressInstance extends MmuStruct {
   public MmuAddressInstance getInstance(final MemoryAccessStack stack) {
     InvariantChecks.checkNotNull(stack);
 
-    final MmuAddressInstance instance = new MmuAddressInstance(addrStruct);
+    final MmuAddressInstance instance = new MmuAddressInstance(name, addrStruct, address);
 
     for (final IntegerVariable field : fields) {
       instance.fields.add(stack.getInstance(field));
@@ -98,12 +85,12 @@ public class MmuAddressInstance extends MmuStruct {
 
   @Override
   public String toString() {
-    return String.format("%s[%d]", getName(), getWidth());
+    return String.format("%s:%s[%d]", name, address.getName(), address.getWidth());
   }
 
   @Override
   public int hashCode() {
-    return getName().hashCode();
+    return 31 * getName().hashCode() + (address != null ? address.hashCode() : 0);
   }
 
   @Override
@@ -117,6 +104,9 @@ public class MmuAddressInstance extends MmuStruct {
     }
 
     final MmuAddressInstance other = (MmuAddressInstance) obj;
-    return getName().equals(other.getName());
+
+    return name.equals(other.name)
+        && ((address == null && other.address == null)
+        ||  (address != null && address.equals(other.address)));
   }
 }

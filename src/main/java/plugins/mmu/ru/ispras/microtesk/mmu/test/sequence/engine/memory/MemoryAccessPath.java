@@ -161,24 +161,34 @@ public final class MemoryAccessPath {
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
+      final MmuSubsystem memory = MmuPlugin.getSpecification();
+
       final MemoryAccessStack stack = new MemoryAccessStack();
       final Collection<MmuAddressInstance> result = new LinkedHashSet<>();
 
+      // Virtual address.
+      result.add(memory.getVirtualAddress());
+
+      // Intermediate addresses.
       for (final Entry entry : entries) {
         updateStack(stack, entry);
 
         final MmuProgram program = entry.getProgram();
 
         for (final MmuTransition transition : program.getTransitions()) {
-          final MmuAction action = transition.getSource();
-          final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
-
-          if (bufferAccess != null) {
-            final MmuAddressInstance address = bufferAccess.getAddress();
-            result.add(address);
+          for (final MmuAction action
+              : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
+            final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+  
+            if (bufferAccess != null) {
+              result.add(bufferAccess.getAddress());
+            }
           }
         }
       }
+
+      // Physical address.
+      result.add(memory.getPhysicalAddress());
 
       return result;
     }
@@ -197,24 +207,20 @@ public final class MemoryAccessPath {
 
         for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
-          final MmuBufferAccess guardBufferAccess = guard != null ? guard.getBufferAccess(stack) : null;
+          final MmuBufferAccess guardBufferAccess = guard != null
+              ? guard.getBufferAccess(stack) : null;
 
           if (guardBufferAccess != null) {
             result.add(guardBufferAccess);
           }
 
-          final MmuAction source = transition.getSource();
-          final MmuBufferAccess sourceBufferAccess = source.getBufferAccess(stack);
+          for (final MmuAction action
+              : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
+            final MmuBufferAccess actionBufferAccess = action.getBufferAccess(stack);
 
-          if (sourceBufferAccess != null) {
-            result.add(sourceBufferAccess);
-          }
-
-          final MmuAction target = transition.getTarget();
-          final MmuBufferAccess targetBufferAccess = target.getBufferAccess(stack);
-
-          if (targetBufferAccess != null) {
-            result.add(targetBufferAccess);
+            if (actionBufferAccess != null) {
+              result.add(actionBufferAccess);
+            }
           }
         }
       }
@@ -332,7 +338,6 @@ public final class MemoryAccessPath {
       InvariantChecks.checkNotNull(entries);
 
       final MmuSubsystem memory = MmuPlugin.getSpecification();
-
       final Map<RegionSettings, Collection<MmuSegment>> regions = new LinkedHashMap<>();
 
       // Compose all regions and the corresponding segments.
@@ -395,7 +400,7 @@ public final class MemoryAccessPath {
       return regions;
     }
 
-    private Collection<Entry> entries = new ArrayList<>();
+    private final Collection<Entry> entries = new ArrayList<>();
 
     public void add(final Entry entry) {
       InvariantChecks.checkNotNull(entry);
@@ -576,8 +581,14 @@ public final class MemoryAccessPath {
 
     final MemoryAccessStack stack = new MemoryAccessStack();
 
+    boolean comma = false;
+
     for (final Entry entry : entries) {
       updateStack(stack, entry);
+
+      if (comma) {
+        builder.append(separator);
+      }
 
       if (entry.isCall()) {
         builder.append("CALL");
@@ -606,6 +617,8 @@ public final class MemoryAccessPath {
           builder.append("...");
         }
       }
+
+      comma = true;
     }
 
     final MmuProgram lastProgram = lastEntry.getProgram();
