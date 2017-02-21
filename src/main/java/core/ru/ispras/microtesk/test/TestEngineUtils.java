@@ -246,4 +246,32 @@ final class TestEngineUtils {
       throw new GenerationAbortedException(e);
     }
   }
+
+  /**
+   * Sends notifications to all registered engines and adapters about
+   * the start of generating a test program file.
+   */
+  public static void notifyProgramStart() {
+    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
+      engine.onStartProgram();
+    }
+
+    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+      adapter.onStartProgram();
+    }
+  }
+
+  /**
+   * Sends notifications to all registered engines and adapters about
+   * the end of generating a test program file.
+   */
+  public static void notifyProgramEnd() {
+    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
+      engine.onEndProgram();
+    }
+
+    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+      adapter.onEndProgram();
+    }
+  }
 }

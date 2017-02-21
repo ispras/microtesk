@@ -26,10 +26,7 @@ import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.test.sequence.GeneratorConfig;
-import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
-import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
@@ -401,13 +398,13 @@ final class TemplateProcessor implements Template.Processor {
     executeTestSequence(prologue);
     engineContext.getStatistics().incInstructions(prologue.getInstructionCount());
 
-    notifyProgramStart();
+    TestEngineUtils.notifyProgramStart();
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
     try {
       startProgram();
-      notifyProgramEnd();
+      TestEngineUtils.notifyProgramEnd();
 
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
@@ -430,26 +427,6 @@ final class TemplateProcessor implements Template.Processor {
       executorStatuses.clear();
 
       isProgramStarted = false;
-    }
-  }
-
-  private static void notifyProgramStart() {
-    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
-      engine.onStartProgram();
-    }
-
-    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
-      adapter.onStartProgram();
-    }
-  }
-
-  private static void notifyProgramEnd() {
-    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
-      engine.onEndProgram();
-    }
-
-    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
-      adapter.onEndProgram();
     }
   }
 
