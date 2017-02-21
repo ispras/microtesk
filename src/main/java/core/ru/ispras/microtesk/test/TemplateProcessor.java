@@ -86,7 +86,7 @@ final class TemplateProcessor implements Template.Processor {
       testProgram.addExceptionHandlers(concreteHandler);
       PrinterUtils.printExceptionHandler(engineContext, handler.getId(), concreteHandler.first);
     } catch (final Exception e) {
-      rethrowException(e);
+      TestEngineUtils.rethrowException(e);
     }
   }
 
@@ -108,7 +108,7 @@ final class TemplateProcessor implements Template.Processor {
         processBlock(block);
       }
     } catch (final Exception e) {
-      rethrowException(e);
+      TestEngineUtils.rethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
     }
@@ -125,7 +125,7 @@ final class TemplateProcessor implements Template.Processor {
       try {
         PrinterUtils.printDataSection(engineContext, data);
       } catch (final Exception e) {
-        rethrowException(e);
+        TestEngineUtils.rethrowException(e);
       }
 
       if (!data.isGlobal()) {
@@ -150,18 +150,10 @@ final class TemplateProcessor implements Template.Processor {
       finishProgram();
       Logger.debugHeader("Ended Processing Template");
     } catch (final Exception e) {
-      rethrowException(e);
+      TestEngineUtils.rethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // PARSING
       engineContext.getStatistics().saveTotalTime();
-    }
-  }
-
-  private static void rethrowException(final Exception e) {
-    if (e instanceof RuntimeException) {
-      throw (RuntimeException) e;
-    } else {
-      throw new GenerationAbortedException(e);
     }
   }
 

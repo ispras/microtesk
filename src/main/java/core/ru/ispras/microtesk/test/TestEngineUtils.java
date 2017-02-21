@@ -230,4 +230,20 @@ final class TestEngineUtils {
 
     return false;
   }
+
+  /**
+   * Rethows the specified exception. Used to stop propagation of checked exceptions.
+   * 
+   * <p>Unchecked exceptions (extend {@link RuntimeException}) are rethrown as they are.
+   * Checked exceptions are wrapped into the {@link GenerationAbortedException} class.
+   * 
+   * @param e Exception to be rethrown.
+   */
+  public static void rethrowException(final Exception e) {
+    if (e instanceof RuntimeException) {
+      throw (RuntimeException) e;
+    } else {
+      throw new GenerationAbortedException(e);
+    }
+  }
 }
