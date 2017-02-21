@@ -157,7 +157,7 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void rethrowException(final Exception e) {
+  private static void rethrowException(final Exception e) {
     if (e instanceof RuntimeException) {
       throw (RuntimeException) e;
     } else {
