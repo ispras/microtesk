@@ -96,7 +96,6 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(block);
 
     engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
-
     try {
       if (section == Section.PRE) {
         processPrologue(block);
