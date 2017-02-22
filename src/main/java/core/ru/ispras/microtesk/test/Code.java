@@ -31,15 +31,13 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class Code {
-  private final Map<Long, CodeBlock> blockStarts;
-  private final Map<Long, CodeBlock> blockEnds;
+  private final Map<Long, CodeBlock> blocks;
   private final Map<Long, Pair<CodeBlock, Integer>> addresses;
   private final Map<String, Long> handlerAddresses;
   private final Set<Long> breakAddresses;
 
   public Code() {
-    this.blockStarts = new TreeMap<>();
-    this.blockEnds = new TreeMap<>();
+    this.blocks = new TreeMap<>();
     this.addresses = new HashMap<>();
     this.handlerAddresses = new HashMap<>();
     this.breakAddresses = new HashSet<>();
@@ -49,7 +47,7 @@ final class Code {
     InvariantChecks.checkNotNull(newBlock);
 
     CodeBlock blockToLink = null;
-    for(final CodeBlock block : blockStarts.values()) {
+    for(final CodeBlock block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
         throw newOverlappingException(overlapping);
@@ -64,9 +62,7 @@ final class Code {
       blockToLink.setNext(newBlock);
     }
 
-    blockStarts.put(newBlock.getStartAddress(), newBlock);
-    blockEnds.put(newBlock.getEndAddress(), newBlock);
-
+    blocks.put(newBlock.getStartAddress(), newBlock);
     registerAddresses(newBlock);
   }
 
@@ -109,17 +105,12 @@ final class Code {
   }
 
   public boolean hasBlockStartAt(final long address) {
-    return blockStarts.containsKey(address);
-  }
-
-  public boolean hasNextBlockAfter(final long address) {
-    final CodeBlock block = blockEnds.get(address);
-    return null != block && null != block.getNext();
+    return blocks.containsKey(address);
   }
 
   public Iterator getIterator(final long address, final boolean fromBlockStart) {
     if (fromBlockStart) {
-      final CodeBlock block = blockStarts.get(address);
+      final CodeBlock block = blocks.get(address);
       if (null != block) {
         return new Iterator(block, 0);
       }
