@@ -20,6 +20,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
+/**
+ * The {@link CodeBlock} class describes a block of code to be simulated.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class CodeBlock {
   private final List<ConcreteCall> calls;
   private final long startAddress;
