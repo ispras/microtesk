@@ -1143,9 +1143,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints ?
-        new ArrayList<>(this.constraints.getIntegers()) :
-        new ArrayList<IntegerConstraint<IntegerField>>();
+    final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints
+        ? new ArrayList<>(this.constraints.getIntegers())
+        : new ArrayList<IntegerConstraint<IntegerField>>();
 
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       final IntegerField field = entry.getKey();
