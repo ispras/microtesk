@@ -25,14 +25,21 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
+/**
+ * The {@link Code} class describes the organization of code sections to be simulated.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class Code {
-  private final Map<Long, CodeBlock> blocks;
+  private final Map<Long, CodeBlock> blockStarts;
+  private final Map<Long, CodeBlock> blockEnds;
   private final Map<Long, Pair<CodeBlock, Integer>> addresses;
   private final Map<String, Long> handlerAddresses;
   private final Set<Long> breakAddresses;
 
   public Code() {
-    this.blocks = new TreeMap<>();
+    this.blockStarts = new TreeMap<>();
+    this.blockEnds = new TreeMap<>();
     this.addresses = new HashMap<>();
     this.handlerAddresses = new HashMap<>();
     this.breakAddresses = new HashSet<>();
@@ -42,7 +49,7 @@ final class Code {
     InvariantChecks.checkNotNull(newBlock);
 
     CodeBlock blockToLink = null;
-    for(final CodeBlock block : blocks.values()) {
+    for(final CodeBlock block : blockStarts.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
         throw newOverlappingException(overlapping);
@@ -57,7 +64,9 @@ final class Code {
       blockToLink.setNext(newBlock);
     }
 
-    blocks.put(newBlock.getStartAddress(), newBlock);
+    blockStarts.put(newBlock.getStartAddress(), newBlock);
+    blockEnds.put(newBlock.getEndAddress(), newBlock);
+
     registerAddresses(newBlock);
   }
 
@@ -100,12 +109,17 @@ final class Code {
   }
 
   public boolean hasBlockStartAt(final long address) {
-    return blocks.containsKey(address);
+    return blockStarts.containsKey(address);
+  }
+
+  public boolean hasNextBlockAfter(final long address) {
+    final CodeBlock block = blockEnds.get(address);
+    return null != block && null != block.getNext();
   }
 
   public Iterator getIterator(final long address, final boolean fromBlockStart) {
     if (fromBlockStart) {
-      final CodeBlock block = blocks.get(address);
+      final CodeBlock block = blockStarts.get(address);
       if (null != block) {
         return new Iterator(block, 0);
       }
