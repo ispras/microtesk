@@ -42,77 +42,132 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
     this.variable = variable;
     this.range = range;
 
-    final IntegerVariable x = variable;
-    //final BigInteger a = range.getMin();
-    final BigInteger b = range.getMax();
-
-    // Represents the constraint a <= x <= b.
     final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
+    encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
+    encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
 
-    // The lower bound: x >= a.
-    // TODO:
+    this.formula = formulaBuilder.build();
+  }
 
-    // The upper bound: x <= b.
-    int lower = 0;
-    while (lower < x.getWidth() && b.testBit(lower)) {
-      lower++;
+  private static void encodeGreaterThanOrEqualTo(
+      final IntegerFormula.Builder<IntegerField> formulaBuilder,
+      final IntegerVariable x,
+      final BigInteger a) {
+    // Represent x >= a.
+    encodeInequality(formulaBuilder, x, a, true);
+  }
+
+  private static void encodeLessThanOrEqualTo(
+      final IntegerFormula.Builder<IntegerField> formulaBuilder,
+      final IntegerVariable x,
+      final BigInteger b) {
+    // Represent x <= b.
+    encodeInequality(formulaBuilder, x, b, false);
+  }
+
+  private static void encodeInequality(
+      final IntegerFormula.Builder<IntegerField> formulaBuilder,
+      final IntegerVariable x,
+      final BigInteger a,
+      final boolean greaterThanOrEqualTo) {
+
+    int lowerBit = 0;
+    while (lowerBit < x.getWidth() && greaterThanOrEqualTo != a.testBit(lowerBit)) {
+      lowerBit++;
     }
 
-    int upper = x.getWidth() - 1;
-    while (upper >= 0 && !b.testBit(upper)) {
-      upper--;
+    int upperBit = x.getWidth() - 1;
+    while (upperBit >= 0 && greaterThanOrEqualTo == a.testBit(upperBit)) {
+      upperBit--;
     }
 
-    if (upper + 1 < x.getWidth()) {
-      formulaBuilder.addEquation(x.field(upper + 1, x.getWidth() - 1), BigInteger.ZERO, true);
+    if (upperBit + 1 < x.getWidth()) {
+      final BigInteger value = greaterThanOrEqualTo
+          ? BitUtils.getBigIntegerMask((x.getWidth() - upperBit) - 1)
+          : BigInteger.ZERO;
+
+      formulaBuilder.addEquation(x.field(upperBit + 1, x.getWidth() - 1), value, true);
     }
 
-    if (upper > lower) {
-      final int n = (upper - lower) + 1;
+    if (upperBit <= lowerBit) {
+      return;
+    }
 
-      // Introduce a new variable to encode OR.
-      final IntegerVariable e = new IntegerVariable(
-          String.format("%s%d", NEW_VARIABLE_PREFIX, newVariableId++), n);
-
-      // (e[0] | ... | e[n-1]) == (e != 0).
-      formulaBuilder.addEquation(e.field(0, e.getWidth() - 1), BigInteger.ZERO, false);
-
-      for (int i = lower; i <= upper; i++) {
-        if (b.testBit(i)) {
-          final int k = i - lower;
-
-          // e[k] <=> u[k] & v[k] == (~u[k] | ~v[k] | e[k]) & (u[k] | ~e[k]) & (v[k] | ~e[k]).
-          //                                 clause 1            clause 2         clause 3
-          final IntegerClause.Builder<IntegerField> clauseBuilder1 =
-              new IntegerClause.Builder<>(IntegerClause.Type.OR);
-
-          final IntegerClause.Builder<IntegerField> clauseBuilder2 =
-              new IntegerClause.Builder<>(IntegerClause.Type.OR);
-
-          clauseBuilder1.addEquation(x.field(i, upper), BitUtils.getField(b, i, upper), false);
-
-          clauseBuilder2.addEquation(x.field(i, upper), BitUtils.getField(b, i, upper), true);
-          clauseBuilder2.addEquation(e.field(k, k), BigInteger.ONE, false);
-          formulaBuilder.addClause(clauseBuilder2.build());
-
-          if (i > lower) {
-            final IntegerClause.Builder<IntegerField> clauseBuilder3 =
-                new IntegerClause.Builder<>(IntegerClause.Type.OR);
-
-            clauseBuilder1.addEquation(x.field(i - 1, i - 1), BigInteger.ZERO, false);
-
-            clauseBuilder3.addEquation(x.field(i - 1, i - 1), BigInteger.ZERO, true);
-            clauseBuilder3.addEquation(e.field(k, k), BigInteger.ONE, false);
-            formulaBuilder.addClause(clauseBuilder3.build());
-          }
-
-          clauseBuilder1.addEquation(e.field(k, k), BigInteger.ONE, true);
-          formulaBuilder.addClause(clauseBuilder1.build());
-        }
+    int numberOfBits = 0;
+    for (int i = lowerBit; i <= upperBit; i++) {
+      if (greaterThanOrEqualTo != a.testBit(i)) {
+        numberOfBits++;
       }
     }
 
-    this.formula = null;
+    // Introduce a new variable to encode OR.
+    final IntegerVariable e = new IntegerVariable(
+        String.format("%s%d", NEW_VARIABLE_PREFIX, newVariableId++), numberOfBits + 1);
+
+    // (e[0] | ... | e[n-1]) == (e != 0).
+    formulaBuilder.addEquation(e.field(0, e.getWidth() - 1), BigInteger.ZERO, false);
+
+    // u[0] == (x[upper] = a[upper]).
+    // e[0] <=> u[0] == (~u[0] | e[0]) & (u[0] | ~e[0]).
+    //                     clause 1         clause 2
+    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    clauseBuilder1.addEquation(
+        x.field(lowerBit, upperBit), BitUtils.getField(a, lowerBit, upperBit), false);
+    clauseBuilder1.addEquation(e.field(0, 0), BigInteger.ONE, true);
+    formulaBuilder.addClause(clauseBuilder1.build());
+
+    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
+        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+    clauseBuilder2.addEquation(
+        x.field(lowerBit, upperBit), BitUtils.getField(a, lowerBit, upperBit), true);
+    clauseBuilder2.addEquation(e.field(0, 0), BigInteger.ONE, false);
+    formulaBuilder.addClause(clauseBuilder2.build());
+
+    int k = 1;
+    for (int i = upperBit; i >= lowerBit; i--) {
+      if (greaterThanOrEqualTo == a.testBit(i)) {
+        continue;
+      }
+
+      // u[k] == (x[upper] = a[upper]).
+      // v[k] == (x[next] = 1 (for >=) or 0 (for <=)).
+
+      // e[k] <=> u[k] & v[k] == (~u[k] | ~v[k] | e[k]) & (u[k] | ~e[k]) & (v[k] | ~e[k]).
+      //                                 clause 3            clause 4         clause 5
+      final IntegerClause.Builder<IntegerField> clauseBuilder3 =
+          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+      if (i < upperBit) {
+        final int j = i + 1;
+
+        clauseBuilder3.addEquation(
+            x.field(j, upperBit), BitUtils.getField(a, j, upperBit), false);
+
+        final IntegerClause.Builder<IntegerField> clauseBuilder4 =
+            new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+        clauseBuilder4.addEquation(
+            x.field(j, upperBit), BitUtils.getField(a, j, upperBit), true);
+        clauseBuilder4.addEquation(e.field(k, k), BigInteger.ONE, false);
+        formulaBuilder.addClause(clauseBuilder4.build());
+      }
+
+      clauseBuilder3.addEquation(x.field(i, i), BigInteger.ONE, !greaterThanOrEqualTo);
+      clauseBuilder3.addEquation(e.field(k, k), BigInteger.ONE, true);
+      formulaBuilder.addClause(clauseBuilder3.build());
+
+      final IntegerClause.Builder<IntegerField> clauseBuilder5 =
+          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+
+      clauseBuilder5.addEquation(x.field(i, i), BigInteger.ONE, greaterThanOrEqualTo);
+      clauseBuilder5.addEquation(e.field(k, k), BigInteger.ONE, false);
+      formulaBuilder.addClause(clauseBuilder5.build());
+
+      k++;
+    }
   }
 
   public IntegerVariable getVariable() {
