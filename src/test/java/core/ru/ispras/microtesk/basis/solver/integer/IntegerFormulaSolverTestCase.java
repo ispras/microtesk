@@ -31,15 +31,15 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerFormulaSolverTestCase {
-  private final static IntegerVariable a = new IntegerVariable("a", 4);
-  private final static IntegerVariable b = new IntegerVariable("b", 4);
-  private final static IntegerVariable c = new IntegerVariable("c", 4);
-  private final static IntegerVariable d = new IntegerVariable("d", 4);
-  private final static IntegerVariable e = new IntegerVariable("e", 4);
-  private final static IntegerVariable f = new IntegerVariable("f", 4);
-  private final static IntegerVariable z = new IntegerVariable("z", 2);
+  private final static IntegerField a = new IntegerField(new IntegerVariable("a", 4));
+  private final static IntegerField b = new IntegerField(new IntegerVariable("b", 4));
+  private final static IntegerField c = new IntegerField(new IntegerVariable("c", 4));
+  private final static IntegerField d = new IntegerField(new IntegerVariable("d", 4));
+  private final static IntegerField e = new IntegerField(new IntegerVariable("e", 4));
+  private final static IntegerField f = new IntegerField(new IntegerVariable("f", 4));
+  private final static IntegerField z = new IntegerField(new IntegerVariable("z", 4));
 
-  private final static List<IntegerVariable> VARS = new ArrayList<>();
+  private final static List<IntegerField> VARS = new ArrayList<>();
   static {
     VARS.add(a);
     VARS.add(b);
@@ -50,14 +50,14 @@ public final class IntegerFormulaSolverTestCase {
     VARS.add(z);
   }
 
-  private static IntegerFormulaSolver getSolver(final IntegerFormula<IntegerVariable> formula) {
-    final IntegerFormulaSolver solver = new IntegerFormulaSolver(formula);
-    return solver;
+  private static IntegerFieldFormulaSolverSat4j getSolver(
+      final IntegerFormula<IntegerField> formula) {
+    return new IntegerFieldFormulaSolverSat4j(formula, IntegerVariableInitializer.RANDOM);
   }
 
   private static Map<IntegerVariable, BigInteger> check(
       final String id,
-      final IntegerFormula<IntegerVariable> formula,
+      final IntegerFormula<IntegerField> formula,
       final boolean expected) {
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
         getSolver(formula).solve(Solver.Mode.MAP);
@@ -74,7 +74,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestA() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
     formulaBuilder.addEquation(a, c, true);
@@ -88,7 +88,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestB() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
     formulaBuilder.addEquation(b, c, true);
@@ -104,7 +104,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestC() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
     formulaBuilder.addEquation(a, BigInteger.ZERO, false);
@@ -119,7 +119,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestD() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 15; i++) {
       formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
@@ -133,7 +133,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestE() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 16; i++) {
       formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
@@ -147,7 +147,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestF() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 15; i >= 8; i--) {
       formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
@@ -167,17 +167,19 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestG() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     for (int i = 0; i < 16; i++) {
       if (i != 8) {
+        formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
         formulaBuilder.addEquation(b, BigInteger.valueOf(i), false);
       }
     }
 
     formulaBuilder.addEquation(a, b, false);
 
-    check("G: a != b, where |dom(b)| = 1 and dom(a) and dom(b) are overlapping", formulaBuilder.build(), false);
+    check("G: a != b, where |dom(b)| = 1 and dom(a) and dom(b) are overlapping",
+        formulaBuilder.build(), false);
   }
 
   /**
@@ -188,7 +190,16 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestH() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
+
+    // |dom(a)| = ... = |dom(z)| = 4.
+    for (int i = 4; i < 16; i++) {
+      formulaBuilder.addEquation(a, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(b, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(c, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(d, BigInteger.valueOf(i), false);
+      formulaBuilder.addEquation(z, BigInteger.valueOf(i), false);
+    }
 
     formulaBuilder.addEquation(z, a, false);
     formulaBuilder.addEquation(z, b, false);
@@ -212,18 +223,18 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestI() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder1.addEquation(b, c, true);
     clauseBuilder1.addEquation(b, d, true);
     formulaBuilder.addClause(clauseBuilder1.build());
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder2.addEquation(a, c, false);
@@ -238,18 +249,18 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestJ() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder1.addEquation(b, c, true);
     clauseBuilder1.addEquation(b, d, true);
     formulaBuilder.addClause(clauseBuilder1.build());
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
         new IntegerClause.Builder<>(IntegerClause.Type.AND);
 
     clauseBuilder2.addEquation(a, c, false);
@@ -264,33 +275,33 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestK() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder1 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder1.addEquation(b, c, true);
     clauseBuilder1.addEquation(b, d, true);
     formulaBuilder.addClause(clauseBuilder1.build());
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder2 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder2.addEquation(c, d, true);
     clauseBuilder2.addEquation(c, e, true);
     formulaBuilder.addClause(clauseBuilder2.build());
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder3 =
+    final IntegerClause.Builder<IntegerField> clauseBuilder3 =
         new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
     clauseBuilder3.addEquation(d, e, true);
     clauseBuilder3.addEquation(d, f, true);
     formulaBuilder.addClause(clauseBuilder3.build());
 
-    final IntegerClause.Builder<IntegerVariable> clauseBuilder4 =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    final IntegerClause.Builder<IntegerField> clauseBuilder4 =
+        new IntegerClause.Builder<>(IntegerClause.Type.AND);
 
     clauseBuilder4.addEquation(a, e, false);
     clauseBuilder4.addEquation(a, f, false);
@@ -305,22 +316,22 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestN() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     final int numberOfDisjunctions = 10;
     final int numberOfEqualitiesInDisjuntion = 5; 
 
-    final IntegerVariable[][] arrayVariable =
-        new IntegerVariable[numberOfDisjunctions][numberOfEqualitiesInDisjuntion];
+    final IntegerField[][] arrayVariable =
+        new IntegerField[numberOfDisjunctions][numberOfEqualitiesInDisjuntion];
 
     for (int i = 0; i < numberOfDisjunctions; i++) {
       for (int j = 0; j < numberOfEqualitiesInDisjuntion; j++) {
-        arrayVariable[i][j] = new IntegerVariable("a_" + i + "_"+ j, 4);
+        arrayVariable[i][j] = new IntegerField(new IntegerVariable("a_" + i + "_"+ j, 4));
       }
     }
 
     for (int i = 1; i < numberOfDisjunctions; i++) {
-      final IntegerClause.Builder<IntegerVariable> clauseBuilder =
+      final IntegerClause.Builder<IntegerField> clauseBuilder =
           new IntegerClause.Builder<>(IntegerClause.Type.OR);
 
       for (int j = 0; j < numberOfEqualitiesInDisjuntion; j++) {
@@ -338,7 +349,7 @@ public final class IntegerFormulaSolverTestCase {
    */
   @Test
   public void runTestO() {
-    final IntegerFormula.Builder<IntegerVariable> formulaBuilder = new IntegerFormula.Builder<>();
+    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
 
     formulaBuilder.addEquation(a, b, true);
     formulaBuilder.addEquation(b, c, true);
@@ -352,7 +363,10 @@ public final class IntegerFormulaSolverTestCase {
       final IntegerVariable variable = entry.getKey();
       final BigInteger value = entry.getValue();
 
-      if (variable == a || variable == b || variable == c || variable == d) {
+      if (variable == a.getVariable()
+          || variable == b.getVariable()
+          || variable == c.getVariable()
+          || variable == d.getVariable()) {
         Assert.assertTrue(value.equals(BigInteger.TEN));
       }
     }
