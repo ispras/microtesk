@@ -20,7 +20,6 @@ import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeCon
 import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,25 +98,33 @@ public final class DefaultEngine implements Engine<TestSequence> {
     initializedModes = new HashSet<>();
     sequenceBuilder = new TestSequence.Builder();
 
-    // Get modes for output arguments for self-checks if the setting is enabled.
-    final boolean isSelfChecks = engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS);
-    final Set<AddressingModeWrapper> outModes = isSelfChecks ?
-        EngineUtils.getOutAddressingModes(abstractSequence):
-        Collections.<AddressingModeWrapper>emptySet(); 
-
     try {
       for (final Call abstractCall : abstractSequence) {
         processAbstractCall(engineContext, abstractCall);
       }
 
-      for (final AddressingModeWrapper mode : outModes) {
-        sequenceBuilder.addCheck(new SelfCheck(mode));
-      }
-
+      createSelfChecks(engineContext, abstractSequence);
       return sequenceBuilder.build();
     } finally {
       initializedModes = null;
       sequenceBuilder = null;
+    }
+  }
+
+  private void createSelfChecks(
+      final EngineContext engineContext,
+      final List<Call> abstractSequence) {
+    checkNotNull(engineContext);
+    checkNotNull(abstractSequence);
+
+    final boolean isSelfChecks = engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS);
+    if (!isSelfChecks) {
+      return;
+    }
+
+    final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
+    for (final AddressingModeWrapper mode : modes) {
+      sequenceBuilder.addCheck(new SelfCheck(mode));
     }
   }
 
