@@ -66,9 +66,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
-  /** Contains a reference to the memory subsystem specification. */
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
-
   private final Map<MmuBuffer, Set<Long>> allocatedEntries = new HashMap<>();
 
   @Override
@@ -142,6 +139,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(solution);
+
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final BlockId blockId = new BlockId();
     final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
