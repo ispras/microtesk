@@ -190,11 +190,11 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final int sizeInBits = entryValue.getBitSize();
         InvariantChecks.checkTrue((sizeInBits & 0x3) == 0);
 
+        final int maxItemSizeInBits = DataType.DWORD.getSizeInBytes() << 3;
+
         int itemSizeInBits = 8;
-        while (itemSizeInBits < (DataType.DWORD.getSizeInBytes() << 3)) {
-          if ((sizeInBits & ((itemSizeInBits << 1) - 1)) == 0) {
-            itemSizeInBits <<= 1;
-          }
+        while (itemSizeInBits >= sizeInBits && itemSizeInBits < maxItemSizeInBits) {
+          itemSizeInBits <<= 1;
         }
 
         final DataValueBuilder dataValueBuilder =
