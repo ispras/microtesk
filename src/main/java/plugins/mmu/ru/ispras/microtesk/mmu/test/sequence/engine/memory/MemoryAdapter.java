@@ -193,7 +193,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final int maxItemSizeInBits = DataType.DWORD.getSizeInBytes() << 3;
 
         int itemSizeInBits = 8;
-        while (itemSizeInBits >= sizeInBits && itemSizeInBits < maxItemSizeInBits) {
+        while (itemSizeInBits < sizeInBits && itemSizeInBits < maxItemSizeInBits) {
           itemSizeInBits <<= 1;
         }
 
