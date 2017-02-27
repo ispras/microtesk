@@ -195,7 +195,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final int sizeInBits = entryValue.getBitSize();
         InvariantChecks.checkTrue((sizeInBits & 0x3) == 0);
 
-        final int maxItemSizeInBits = DataType.DWORD.getSizeInBytes() << 3;
+        final int maxItemSizeInBits = dataDirectiveFactory.getMaxTypeBitSize();
 
         int itemSizeInBits = 8;
         while (itemSizeInBits < sizeInBits && itemSizeInBits < maxItemSizeInBits) {
