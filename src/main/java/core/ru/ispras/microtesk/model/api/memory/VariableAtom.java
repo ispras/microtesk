@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.api.memory;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
-final class VariableAtom implements LocationAtom {
+final class VariableAtom extends LocationAtom {
   private final BitVector value;
   private final int bitSize;
   private final int startBitPos;

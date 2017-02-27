@@ -113,7 +113,7 @@ final class RegisterFile extends Memory {
     }
   }
 
-  private static final class RegisterAtom implements LocationAtom, Location.LoggableAtom {
+  private static final class RegisterAtom extends LocationAtom implements Location.LoggableAtom {
     private final BitVector value;
     private final BitVector flags;
 

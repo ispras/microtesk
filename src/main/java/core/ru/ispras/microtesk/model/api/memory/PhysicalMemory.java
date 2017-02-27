@@ -146,7 +146,7 @@ final class PhysicalMemory extends Memory {
     return Location.newLocationForAtom(getType(), atom);
   }
 
-  private final class PhysicalMemoryAtom implements LocationAtom {
+  private final class PhysicalMemoryAtom extends LocationAtom {
     private final BitVector index;
     private final int bitSize;
     private final int startBitPos;
@@ -287,7 +287,7 @@ final class PhysicalMemory extends Memory {
     }
   }
 
-  private final class LogicalMemoryAtom implements LocationAtom {
+  private final class LogicalMemoryAtom extends LocationAtom {
     private final BitVector index;
     private final int bitSize;
     private final int startBitPos;

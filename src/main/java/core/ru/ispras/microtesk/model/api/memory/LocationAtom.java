@@ -17,17 +17,20 @@ package ru.ispras.microtesk.model.api.memory;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * The {@link LocationAtom} interface is to be implemented by all location atoms.
+ * The {@link LocationAtom} class is to be extended by all location atoms.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-interface LocationAtom {
-  boolean isInitialized();
+abstract class LocationAtom {
+  public abstract boolean isInitialized();
 
-  int getBitSize();
-  int getStartBitPos();
-  LocationAtom resize(int newBitSize, int newStartBitPos);
+  //String getName();
+  //BitVector getIndex();
 
-  BitVector load(boolean useHandler);
-  void store(BitVector data, boolean callHandler);
+  public abstract int getBitSize();
+  public abstract int getStartBitPos();
+  public abstract LocationAtom resize(int newBitSize, int newStartBitPos);
+
+  public abstract BitVector load(boolean useHandler);
+  public abstract void store(BitVector data, boolean callHandler);
 }

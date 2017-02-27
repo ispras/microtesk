@@ -36,7 +36,7 @@ public final class Location implements LocationAccessor {
 
   protected interface LoggableAtom {}
 
-  private static final class AtomLogger implements LocationAtom {
+  private static final class AtomLogger extends LocationAtom {
     private final LocationAtom atom;
     private final String name;
     private final int originalBitSize;
