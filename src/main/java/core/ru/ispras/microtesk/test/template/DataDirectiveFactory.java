@@ -43,6 +43,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 public final class DataDirectiveFactory {
   private final Options options;
   private final Map<String, TypeInfo> types;
+  private final int maxTypeBitSize;
   private final String spaceText;
   private final BitVector spaceData;
   private final String ztermStrText;
@@ -53,6 +54,7 @@ public final class DataDirectiveFactory {
   private DataDirectiveFactory(
       final Options options,
       final Map<String, TypeInfo> types,
+      final int maxTypeBitSize,
       final String spaceText,
       final BitVector spaceData,
       final String ztermStrText,
@@ -62,6 +64,7 @@ public final class DataDirectiveFactory {
 
     this.options = options;
     this.types = types;
+    this.maxTypeBitSize = maxTypeBitSize;
     this.spaceText = spaceText;
     this.spaceData = spaceData;
     this.ztermStrText = ztermStrText;
@@ -76,6 +79,7 @@ public final class DataDirectiveFactory {
     private final int addressableUnitBitSize;
 
     private final Map<String, TypeInfo> types;
+    private int maxTypeBitSize;
     private String spaceText;
     private BitVector spaceData;
     private String ztermStrText;
@@ -92,6 +96,7 @@ public final class DataDirectiveFactory {
       this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.types = new HashMap<>();
+      this.maxTypeBitSize = 0;
       this.spaceText = null;
       this.spaceData = null;
       this.ztermStrText = null;
@@ -112,6 +117,7 @@ public final class DataDirectiveFactory {
       debug("Defining %s as %s ('%s')...", type, id, text);
 
       types.put(id, new TypeInfo(type, text));
+      maxTypeBitSize = Math.max(maxTypeBitSize, type.getBitSize());
     }
 
     public void defineSpace(
@@ -149,6 +155,7 @@ public final class DataDirectiveFactory {
       return new DataDirectiveFactory(
           options,
           types,
+          maxTypeBitSize,
           spaceText,
           spaceData,
           ztermStrText,
@@ -778,6 +785,10 @@ public final class DataDirectiveFactory {
     preceedingLabels = Collections.emptyList();
 
     return result;
+  }
+
+  public int getMaxTypeBitSize() {
+    return maxTypeBitSize;
   }
 
   public TypeInfo findTypeInfo(final String typeName) {
