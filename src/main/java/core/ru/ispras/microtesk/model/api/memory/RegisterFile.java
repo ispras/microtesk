@@ -113,7 +113,7 @@ final class RegisterFile extends Memory {
     }
   }
 
-  private static final class RegisterAtom implements Location.Atom, Location.LoggableAtom {
+  private static final class RegisterAtom implements LocationAtom, Location.LoggableAtom {
     private final BitVector value;
     private final BitVector flags;
 
@@ -181,7 +181,7 @@ final class RegisterFile extends Memory {
     }
 
     @Override
-    public Location.Atom resize(final int newBitSize, final int newStartBitPos) {
+    public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
       return new RegisterAtom(value, flags, newBitSize, newStartBitPos);
     }
 

@@ -34,26 +34,15 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
  */
 public final class Location implements LocationAccessor {
 
-  protected interface Atom {
-    boolean isInitialized();
-
-    int getBitSize();
-    int getStartBitPos();
-    Atom resize(int newBitSize, int newStartBitPos);
-
-    BitVector load(boolean useHandler);
-    void store(BitVector data, boolean callHandler);
-  }
-
   protected interface LoggableAtom {}
 
-  private static final class AtomLogger implements Atom {
-    private final Atom atom;
+  private static final class AtomLogger implements LocationAtom {
+    private final LocationAtom atom;
     private final String name;
     private final int originalBitSize;
     private final int originalStartBitPos;
 
-    private AtomLogger(final Atom atom, final String name) {
+    private AtomLogger(final LocationAtom atom, final String name) {
       InvariantChecks.checkNotNull(atom);
       InvariantChecks.checkNotNull(name);
 
@@ -64,7 +53,7 @@ public final class Location implements LocationAccessor {
     }
 
     private AtomLogger(
-        final Atom atom,
+        final LocationAtom atom,
         final String name,
         final int originalBitSize,
         final int originalStartBitPos) {
@@ -104,12 +93,12 @@ public final class Location implements LocationAccessor {
     }
 
     @Override
-    public Atom resize(final int newBitSize, final int newStartBitPos) {
+    public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
       // Field extending is not currently supported.
       InvariantChecks.checkTrue(newBitSize <= getBitSize());
       InvariantChecks.checkTrue(newStartBitPos >= getStartBitPos());
 
-      final Atom resized = atom.resize(newBitSize, newStartBitPos);
+      final LocationAtom resized = atom.resize(newBitSize, newStartBitPos);
       return new AtomLogger(
           resized,
           name,
@@ -134,9 +123,9 @@ public final class Location implements LocationAccessor {
   }
 
   private final Type type;
-  private final List<Atom> atoms;
+  private final List<LocationAtom> atoms;
 
-  private Location(final Type type, final List<Atom> atoms) {
+  private Location(final Type type, final List<LocationAtom> atoms) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotEmpty(atoms);
 
@@ -144,7 +133,7 @@ public final class Location implements LocationAccessor {
     this.atoms = atoms;
   }
 
-  private Location(final Type type, final Atom atom) {
+  private Location(final Type type, final LocationAtom atom) {
     this(type, atom != null ? Collections.singletonList(atom) : null);
   }
 
@@ -160,7 +149,7 @@ public final class Location implements LocationAccessor {
     return new Location(data);
   }
 
-  public static Location newLocationForAtom(final Type type, final Atom atom) {
+  public static Location newLocationForAtom(final Type type, final LocationAtom atom) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(atom);
     InvariantChecks.checkTrue(type.getBitSize() == atom.getBitSize());
@@ -173,12 +162,12 @@ public final class Location implements LocationAccessor {
     }
 
     boolean isLoggerAdded = false;
-    final List<Atom> newAtoms = new ArrayList<>(atoms.size());
+    final List<LocationAtom> newAtoms = new ArrayList<>(atoms.size());
 
     int bitPos = 0;
     final boolean needSuffix = atoms.size() > 1;
 
-    for (final Atom atom : atoms) {
+    for (final LocationAtom atom : atoms) {
       final int bitSize = atom.getBitSize();
       if (atom instanceof LoggableAtom) {
         final String atomName = needSuffix ?
@@ -213,7 +202,7 @@ public final class Location implements LocationAccessor {
   }
 
   public boolean isInitialized() {
-    for (final Atom atom : atoms) {
+    for (final LocationAtom atom : atoms) {
       if (!atom.isInitialized()) {
         return false;
       }
@@ -268,17 +257,17 @@ public final class Location implements LocationAccessor {
     final int newBitSize = end - start + 1;
     final Type newType = getType().resize(newBitSize);
 
-    final List<Atom> newAtoms = new ArrayList<>();
+    final List<LocationAtom> newAtoms = new ArrayList<>();
 
     int position = 0;
-    for (final Atom atom : atoms) {
+    for (final LocationAtom atom : atoms) {
       final int atomStart = position; 
       final int atomEnd = position + atom.getBitSize() - 1;
 
       if (atomStart <= start && start <= atomEnd) {
         if (end <= atomEnd) {
           final int newStartBitPos = atom.getStartBitPos() + (start - position);
-          final Atom newSource = atom.resize(newBitSize, newStartBitPos);
+          final LocationAtom newSource = atom.resize(newBitSize, newStartBitPos);
           newAtoms.add(newSource);
           break;
         } else {
@@ -330,7 +319,7 @@ public final class Location implements LocationAccessor {
     }
 
     int newBitSize = 0;
-    final List<Atom> newAtoms = new ArrayList<>();
+    final List<LocationAtom> newAtoms = new ArrayList<>();
 
     for (int index = locations.length - 1; index >= 0; index--) {
       final Location location = locations[index];
@@ -377,7 +366,7 @@ public final class Location implements LocationAccessor {
   private BitVector readData(final boolean callHandlers) {
     final BitVector[] dataItems = new BitVector[atoms.size()];
     for (int index = 0; index < atoms.size(); ++index) {
-      final Atom atom = atoms.get(index);
+      final LocationAtom atom = atoms.get(index);
       dataItems[index] = atom.load(callHandlers);
     }
 
@@ -386,7 +375,7 @@ public final class Location implements LocationAccessor {
 
   private void writeData(final BitVector data, final boolean callHandlers) {
     int position = 0;
-    for (final Atom atom : atoms) {
+    for (final LocationAtom atom : atoms) {
       final BitVector dataItem =
           BitVector.newMapping(data, position, atom.getBitSize());
 

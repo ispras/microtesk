@@ -139,14 +139,14 @@ final class PhysicalMemory extends Memory {
   private Location newLocationForRegion(final BitVector index) {
     InvariantChecks.checkNotNull(index);
 
-    final Location.Atom atom = isLogical ?
+    final LocationAtom atom = isLogical ?
         new LogicalMemoryAtom(index, getType().getBitSize(), 0) :
         new PhysicalMemoryAtom(index, getType().getBitSize(), 0);
 
     return Location.newLocationForAtom(getType(), atom);
   }
 
-  private final class PhysicalMemoryAtom implements Location.Atom {
+  private final class PhysicalMemoryAtom implements LocationAtom {
     private final BitVector index;
     private final int bitSize;
     private final int startBitPos;
@@ -287,7 +287,7 @@ final class PhysicalMemory extends Memory {
     }
   }
 
-  private final class LogicalMemoryAtom implements Location.Atom {
+  private final class LogicalMemoryAtom implements LocationAtom {
     private final BitVector index;
     private final int bitSize;
     private final int startBitPos;

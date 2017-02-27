@@ -16,9 +16,8 @@ package ru.ispras.microtesk.model.api.memory;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.Location.Atom;
 
-final class VariableAtom implements Location.Atom {
+final class VariableAtom implements LocationAtom {
   private final BitVector value;
   private final int bitSize;
   private final int startBitPos;
@@ -63,7 +62,7 @@ final class VariableAtom implements Location.Atom {
   }
 
   @Override
-  public Atom resize(final int newBitSize, final int newStartBitPos) {
+  public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
     return new VariableAtom(value, newBitSize, newStartBitPos);
   }
 
