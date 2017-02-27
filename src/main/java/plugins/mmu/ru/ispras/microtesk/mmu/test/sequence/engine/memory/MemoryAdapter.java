@@ -66,6 +66,9 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
+  /** Contains a reference to the memory subsystem specification. */
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
+
   private final Map<MmuBuffer, Set<Long>> allocatedEntries = new HashMap<>();
 
   @Override
@@ -163,12 +166,15 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
+      final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY
+          || buffer == memory.getTargetBuffer();
+
       final Set<Long> entriesInDataSection = getAllocatedEntries(buffer);
       final boolean isEntryInDataSection = entriesInDataSection.contains(index);
 
       final String comment = String.format("%s[%d]=%s", buffer.getName(), index, data);
 
-      if (isStaticPreparator && !isEntryInDataSection) {
+      if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
         // Static buffer initialization.
         entriesInDataSection.add(index);
 

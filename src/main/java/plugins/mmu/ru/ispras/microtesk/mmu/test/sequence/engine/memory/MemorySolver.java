@@ -71,6 +71,9 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySolver implements Solver<MemorySolution> {
+  /** Contains a reference to the memory subsystem specification. */
+  private final MmuSubsystem memory = MmuPlugin.getSpecification();
+
   /** Memory access structure being processed. */
   private final MemoryAccessStructure structure;
 
@@ -92,9 +95,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<MmuBuffer, Set<Long>> bufferReplacedIndices = new LinkedHashMap<>();
   /** Given an access index, contains the buffers having been processed. */
   private final Map<Integer, Set<MmuBuffer>> handledBuffers = new LinkedHashMap<>();
-
-  /** Contains a reference to the memory subsystem specification. */
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   /** Current solution. */
   private MemorySolution solution;
