@@ -66,6 +66,16 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
+
+  @Override
   public EngineResult<TestSequence> solve(
       final EngineContext engineContext,
       final List<Call> abstractSequence) {
@@ -77,16 +87,6 @@ public final class DefaultEngine implements Engine<TestSequence> {
     } catch (final ConfigurationException e) {
       return new EngineResult<>(e.getMessage());
     }
-  }
-
-  @Override
-  public void onStartProgram() {
-    // Empty
-  }
-
-  @Override
-  public void onEndProgram() {
-    // Empty
   }
 
   private TestSequence process(
