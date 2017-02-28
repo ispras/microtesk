@@ -25,95 +25,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 import ru.ispras.microtesk.model.api.data.TypeId;
-import ru.ispras.microtesk.model.api.tarmac.Record;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 
 /**
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Location implements LocationAccessor {
-
-  private static final class AtomLogger extends LocationAtom {
-    private final LocationAtom atom;
-    private final String name;
-    private final int originalBitSize;
-    private final int originalStartBitPos;
-
-    private AtomLogger(final LocationAtom atom, final String name) {
-      super(atom);
-
-      InvariantChecks.checkNotNull(atom);
-      InvariantChecks.checkNotNull(name);
-
-      this.atom = (atom instanceof AtomLogger) ? ((AtomLogger) atom).atom : atom;
-      this.name = name;
-      this.originalBitSize = atom.getBitSize();
-      this.originalStartBitPos = atom.getStartBitPos();
-    }
-
-    private AtomLogger(
-        final LocationAtom atom,
-        final String name,
-        final int originalBitSize,
-        final int originalStartBitPos) {
-      super(atom);
-
-      InvariantChecks.checkNotNull(atom);
-      InvariantChecks.checkNotNull(name);
-
-      this.atom = (atom instanceof AtomLogger) ? ((AtomLogger) atom).atom : atom;
-      this.name = name;
-      this.originalBitSize = originalBitSize;
-      this.originalStartBitPos = originalStartBitPos;
-    }
-
-    private String getName() {
-      if (originalBitSize == getBitSize() && originalStartBitPos == getStartBitPos()) {
-        return name;
-      }
-
-      final int start = getStartBitPos() - originalStartBitPos;
-      final int end = start + getBitSize() - 1;
-
-      return String.format("%s<%d..%d>", name, end, start);
-    }
-
-    @Override
-    public boolean isInitialized() {
-      return atom.isInitialized();
-    }
-
-    @Override
-    public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
-      // Field extending is not currently supported.
-      InvariantChecks.checkTrue(newBitSize <= getBitSize());
-      InvariantChecks.checkTrue(newStartBitPos >= getStartBitPos());
-
-      final LocationAtom resized = atom.resize(newBitSize, newStartBitPos);
-      return new AtomLogger(
-          resized,
-          name,
-          originalBitSize,
-          originalStartBitPos
-          );
-    }
-
-    @Override
-    public BitVector load(final boolean useHandler) {
-      return atom.load(useHandler);
-    }
-
-    @Override
-    public void store(final BitVector data, final boolean callHandler) {
-      atom.store(data, callHandler);
-
-      if (Tarmac.isEnabled()) {
-        Tarmac.addRecord(Record.newRegisterWrite(getName(), data));
-      }
-    }
-  }
-
   private final Type type;
   private final List<LocationAtom> atoms;
 
@@ -167,7 +84,7 @@ public final class Location implements LocationAccessor {
             name
             ;
 
-        newAtoms.add(new AtomLogger(atom, atomName));
+        newAtoms.add(new LocationAtomLogger(atom, atomName));
         isLoggerAdded = true;
       } else {
         newAtoms.add(atom);
