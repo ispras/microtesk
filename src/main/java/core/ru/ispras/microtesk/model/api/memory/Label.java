@@ -16,6 +16,16 @@ package ru.ispras.microtesk.model.api.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Label} class labels some memory location with the provided identifier.
+ * 
+ * <p>This is required to provide an external access to this location using
+ * an architecture-independent identifier. For example, a register storing
+ * program counter value is marked as PC to allow the external engines that
+ * have no knowledge about the architecture to access it.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Label {
   private final String name;
   private final Memory memory;
