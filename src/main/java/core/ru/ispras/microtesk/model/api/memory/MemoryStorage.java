@@ -32,7 +32,7 @@ import ru.ispras.microtesk.test.TestEngine;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MemoryStorage implements MemoryDevice {
+final class MemoryStorage implements MemoryDevice {
   private String id;
   private boolean isReadOnly;
   private boolean isAddressCheckNeeded;
