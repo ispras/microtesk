@@ -34,8 +34,6 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
  */
 public final class Location implements LocationAccessor {
 
-  protected interface LoggableAtom {}
-
   private static final class AtomLogger extends LocationAtom {
     private final LocationAtom atom;
     private final String name;
@@ -163,7 +161,7 @@ public final class Location implements LocationAccessor {
 
     for (final LocationAtom atom : atoms) {
       final int bitSize = atom.getBitSize();
-      if (atom instanceof LoggableAtom) {
+      if (atom.isLoggable()) {
         final String atomName = needSuffix ?
             String.format("%s<%d..%d>", name, bitPos + bitSize - 1, bitPos) :
             name

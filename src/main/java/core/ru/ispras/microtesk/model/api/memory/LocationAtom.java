@@ -45,6 +45,10 @@ abstract class LocationAtom {
     return startBitPos;
   }
 
+  public boolean isLoggable() {
+    return false;
+  }
+
   //String getName();
   //BitVector getIndex();
 

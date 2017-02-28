@@ -113,7 +113,7 @@ final class RegisterFile extends Memory {
     }
   }
 
-  private static final class RegisterAtom extends LocationAtom implements Location.LoggableAtom {
+  private static final class RegisterAtom extends LocationAtom {
     private final BitVector value;
     private final BitVector flags;
 
@@ -150,6 +150,11 @@ final class RegisterFile extends Memory {
       super(other);
       this.value = other.value.copy();
       this.flags = BitVector.newEmpty(getBitSize()); // Flags are reset for the new copy.
+    }
+
+    @Override
+    public boolean isLoggable() {
+      return true;
     }
 
     @Override
