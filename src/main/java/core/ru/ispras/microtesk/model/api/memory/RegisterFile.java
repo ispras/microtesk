@@ -117,17 +117,12 @@ final class RegisterFile extends Memory {
     private final BitVector value;
     private final BitVector flags;
 
-    private final int bitSize;
-    private final int startBitPos;
-
     private RegisterAtom(final int bitSize) {
+      super(bitSize, 0);
       InvariantChecks.checkGreaterThanZero(bitSize);
 
       this.value = BitVector.newEmpty(bitSize);
       this.flags = BitVector.newEmpty(bitSize);
-
-      this.bitSize = bitSize;
-      this.startBitPos = 0;
     }
 
     private RegisterAtom(
@@ -135,6 +130,8 @@ final class RegisterFile extends Memory {
         final BitVector flags,
         final int bitSize,
         final int startBitPos) {
+      super(bitSize, startBitPos);
+
       InvariantChecks.checkNotNull(value);
       InvariantChecks.checkNotNull(flags);
       InvariantChecks.checkTrue(value.getBitSize() == flags.getBitSize());
@@ -147,37 +144,23 @@ final class RegisterFile extends Memory {
 
       this.value = value;
       this.flags = flags;
-      this.bitSize = bitSize;
-      this.startBitPos = startBitPos;
     }
 
     private RegisterAtom(final RegisterAtom other) {
+      super(other);
       this.value = other.value.copy();
-      // Flags are reset for the new copy.
-      this.flags = BitVector.newEmpty(other.bitSize);
-      this.bitSize = other.bitSize;
-      this.startBitPos = other.startBitPos;
+      this.flags = BitVector.newEmpty(getBitSize()); // Flags are reset for the new copy.
     }
 
     @Override
     public boolean isInitialized() {
       final BitVector initialized;
-      if (flags.getBitSize() == bitSize) {
+      if (flags.getBitSize() == getBitSize()) {
         initialized = flags;
       } else {
-        initialized = BitVector.newMapping(flags, startBitPos, bitSize);
+        initialized = BitVector.newMapping(flags, getStartBitPos(), getBitSize());
       }
       return initialized.isAllSet();
-    }
-
-    @Override
-    public int getBitSize() {
-      return bitSize;
-    }
-
-    @Override
-    public int getStartBitPos() {
-      return startBitPos;
     }
 
     @Override
@@ -187,21 +170,21 @@ final class RegisterFile extends Memory {
 
     @Override
     public BitVector load(final boolean callHandler) {
-      return BitVector.newMapping(value, startBitPos, bitSize);
+      return BitVector.newMapping(value, getStartBitPos(), getBitSize());
     }
 
     @Override
     public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
-      InvariantChecks.checkTrue(data.getBitSize() == bitSize);
+      InvariantChecks.checkTrue(data.getBitSize() == getBitSize());
 
-      BitVector.newMapping(value, startBitPos, bitSize).assign(data);
-      BitVector.newMapping(flags, startBitPos, bitSize).setAll();
+      BitVector.newMapping(value, getStartBitPos(), getBitSize()).assign(data);
+      BitVector.newMapping(flags, getStartBitPos(), getBitSize()).setAll();
     }
 
     public void reset() {
-      BitVector.newMapping(value, startBitPos, bitSize).reset();
-      BitVector.newMapping(flags, startBitPos, bitSize).reset();
+      BitVector.newMapping(value, getStartBitPos(), getBitSize()).reset();
+      BitVector.newMapping(flags, getStartBitPos(), getBitSize()).reset();
     }
   }
 }

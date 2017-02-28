@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,22 +17,27 @@ package ru.ispras.microtesk.model.api.memory;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link VariableAtom} class is a location atom used in variables and
+ * immediate values. It does not track modification and does require logging.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class VariableAtom extends LocationAtom {
   private final BitVector value;
-  private final int bitSize;
-  private final int startBitPos;
 
   protected VariableAtom(final BitVector value) {
+    super(null != value ? value.getBitSize() : 0, 0);
     InvariantChecks.checkNotNull(value);
     this.value = value;
-    this.bitSize = value.getBitSize();
-    this.startBitPos = 0;
   }
 
   private VariableAtom(
       final BitVector value,
       final int bitSize,
       final int startBitPos) {
+    super(bitSize, startBitPos);
+
     InvariantChecks.checkNotNull(value);
 
     InvariantChecks.checkGreaterThanZero(bitSize);
@@ -42,23 +47,11 @@ final class VariableAtom extends LocationAtom {
     InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, value.getBitSize());
 
     this.value = value;
-    this.bitSize = bitSize;
-    this.startBitPos = startBitPos;
   }
 
   @Override
   public boolean isInitialized() {
     return true;
-  }
-
-  @Override
-  public int getBitSize() {
-    return bitSize;
-  }
-
-  @Override
-  public int getStartBitPos() {
-    return startBitPos;
   }
 
   @Override
@@ -68,15 +61,15 @@ final class VariableAtom extends LocationAtom {
 
   @Override
   public BitVector load(final boolean callHandler) {
-    return BitVector.newMapping(value, startBitPos, bitSize);
+    return BitVector.newMapping(value, getStartBitPos(), getBitSize());
   }
 
   @Override
   public void store(final BitVector data, final boolean callHandler) {
     InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkTrue(data.getBitSize() == bitSize);
+    InvariantChecks.checkTrue(data.getBitSize() == getBitSize());
 
-    final BitVector target = BitVector.newMapping(value, startBitPos, bitSize);
+    final BitVector target = BitVector.newMapping(value, getStartBitPos(), getBitSize());
     target.assign(data);
   }
 }

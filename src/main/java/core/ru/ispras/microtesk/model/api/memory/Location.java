@@ -43,6 +43,8 @@ public final class Location implements LocationAccessor {
     private final int originalStartBitPos;
 
     private AtomLogger(final LocationAtom atom, final String name) {
+      super(atom);
+
       InvariantChecks.checkNotNull(atom);
       InvariantChecks.checkNotNull(name);
 
@@ -57,6 +59,8 @@ public final class Location implements LocationAccessor {
         final String name,
         final int originalBitSize,
         final int originalStartBitPos) {
+      super(atom);
+
       InvariantChecks.checkNotNull(atom);
       InvariantChecks.checkNotNull(name);
 
@@ -80,16 +84,6 @@ public final class Location implements LocationAccessor {
     @Override
     public boolean isInitialized() {
       return atom.isInitialized();
-    }
-
-    @Override
-    public int getBitSize() {
-      return atom.getBitSize();
-    }
-
-    @Override
-    public int getStartBitPos() {
-      return atom.getStartBitPos();
     }
 
     @Override

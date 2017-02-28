@@ -148,16 +148,13 @@ final class PhysicalMemory extends Memory {
 
   private final class PhysicalMemoryAtom extends LocationAtom {
     private final BitVector index;
-    private final int bitSize;
-    private final int startBitPos;
 
     private PhysicalMemoryAtom(
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
+      super(bitSize, startBitPos);
       this.index = index;
-      this.bitSize = bitSize;
-      this.startBitPos = startBitPos;
     }
 
     @Override
@@ -170,16 +167,6 @@ final class PhysicalMemory extends Memory {
         final int newBitSize,
         final int newStartBitPos) {
       return new PhysicalMemoryAtom(index, newBitSize, newStartBitPos);
-    }
-
-    @Override
-    public int getBitSize() {
-      return bitSize;
-    }
-
-    @Override
-    public int getStartBitPos() {
-      return startBitPos;
     }
 
     @Override
@@ -198,7 +185,7 @@ final class PhysicalMemory extends Memory {
       }
 
       final BitVector region = targetDevice.load(targetAddress);
-      final BitVector data = BitVector.newMapping(region, startBitPos, bitSize);
+      final BitVector data = BitVector.newMapping(region, getStartBitPos(), getBitSize());
 
       if (Tarmac.isEnabled()) {
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
@@ -231,11 +218,11 @@ final class PhysicalMemory extends Memory {
       }
 
       final BitVector region;
-      if (bitSize == targetDevice.getDataBitSize()) {
+      if (getBitSize() == targetDevice.getDataBitSize()) {
         region = data;
       } else {
         region = targetDevice.load(targetAddress).copy();
-        final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
+        final BitVector mapping = BitVector.newMapping(region, getStartBitPos(), getBitSize());
         mapping.assign(data);
       }
 
@@ -257,8 +244,8 @@ final class PhysicalMemory extends Memory {
       return String.format("%s[%d]<%d..%d>",
           getName(),
           index.bigIntegerValue(false),
-          startBitPos,
-          startBitPos + bitSize - 1
+          getStartBitPos(),
+          getStartBitPos() + getBitSize() - 1
           );
     }
 
@@ -289,16 +276,13 @@ final class PhysicalMemory extends Memory {
 
   private final class LogicalMemoryAtom extends LocationAtom {
     private final BitVector index;
-    private final int bitSize;
-    private final int startBitPos;
 
     private LogicalMemoryAtom(
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
+      super(bitSize, startBitPos);
       this.index = index;
-      this.bitSize = bitSize;
-      this.startBitPos = startBitPos;
     }
 
     @Override
@@ -314,19 +298,9 @@ final class PhysicalMemory extends Memory {
     }
 
     @Override
-    public int getBitSize() {
-      return bitSize;
-    }
-
-    @Override
-    public int getStartBitPos() {
-      return startBitPos;
-    }
-
-    @Override
     public BitVector load(final boolean callHandler) {
       final BitVector region = storage.load(index);
-      return BitVector.newMapping(region, startBitPos, bitSize);
+      return BitVector.newMapping(region, getStartBitPos(), getBitSize());
     }
 
     @Override
@@ -334,11 +308,11 @@ final class PhysicalMemory extends Memory {
       InvariantChecks.checkNotNull(data);
 
       final BitVector region;
-      if (bitSize == storage.getDataBitSize()) {
+      if (getBitSize() == storage.getDataBitSize()) {
         region = data;
       } else {
         region = storage.load(index).copy();
-        final BitVector mapping = BitVector.newMapping(region, startBitPos, bitSize);
+        final BitVector mapping = BitVector.newMapping(region, getStartBitPos(), getBitSize());
         mapping.assign(data);
       }
 
@@ -350,8 +324,8 @@ final class PhysicalMemory extends Memory {
       return String.format("%s[%d]<%d..%d>",
           getName(),
           index.bigIntegerValue(false),
-          startBitPos,
-          startBitPos + bitSize - 1
+          getStartBitPos(),
+          getStartBitPos() + getBitSize() - 1
           );
     }
   }
