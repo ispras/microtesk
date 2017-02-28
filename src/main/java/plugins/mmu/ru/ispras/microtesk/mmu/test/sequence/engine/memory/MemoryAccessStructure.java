@@ -37,11 +37,11 @@ public final class MemoryAccessStructure {
   /** Memory accesses (accesses). */
   private final List<MemoryAccess> accesses;
   /** Dependencies between the memory accesses. */
-  private final MemoryDependency[][] dependencies;
+  private final BufferDependency[][] dependencies;
 
   public MemoryAccessStructure(
       final List<MemoryAccess> accesses,
-      final MemoryDependency[][] dependencies) {
+      final BufferDependency[][] dependencies) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(accesses);
     InvariantChecks.checkNotNull(dependencies);
@@ -54,7 +54,7 @@ public final class MemoryAccessStructure {
   public MemoryAccessStructure(
       final MemoryAccess access1,
       final MemoryAccess access2,
-      final MemoryDependency dependency) {
+      final BufferDependency dependency) {
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
     InvariantChecks.checkNotNull(dependency);
@@ -63,7 +63,7 @@ public final class MemoryAccessStructure {
     this.accesses.add(access1);
     this.accesses.add(access2);
 
-    this.dependencies = new MemoryDependency[2][2];
+    this.dependencies = new BufferDependency[2][2];
     this.dependencies[0][0] = null;
     this.dependencies[1][0] = dependency;
     this.dependencies[0][1] = null;
@@ -117,7 +117,7 @@ public final class MemoryAccessStructure {
    * @param j the index of the secondary memory access.
    * @return the dependency between the memory accesses.
    */
-  public MemoryDependency getDependency(final int i, final int j) {
+  public BufferDependency getDependency(final int i, final int j) {
     InvariantChecks.checkTrue(i < j);
     InvariantChecks.checkBounds(j, dependencies.length);
     InvariantChecks.checkBounds(i, dependencies[j].length);
@@ -130,7 +130,7 @@ public final class MemoryAccessStructure {
    * 
    * @return the dependencies between all memory accesses.
    */
-  public MemoryDependency[][] getDependencies() {
+  public BufferDependency[][] getDependencies() {
     return dependencies;
   }
 
@@ -140,20 +140,20 @@ public final class MemoryAccessStructure {
    * @param j the index of the memory access.
    * @return the united dependency.
    */
-  public MemoryUnitedDependency getUnitedDependency(final int j) {
+  public BufferUnitedDependency getUnitedDependency(final int j) {
     InvariantChecks.checkBounds(j, dependencies.length);
 
-    final Map<MemoryDependency, Integer> dependencies = new LinkedHashMap<>();
+    final Map<BufferDependency, Integer> dependencies = new LinkedHashMap<>();
 
     for (int i = 0; i < j; i++) {
-      final MemoryDependency dependency = getDependency(i, j);
+      final BufferDependency dependency = getDependency(i, j);
 
       if (dependency != null) {
         dependencies.put(dependency, i);
       }
     }
 
-    return new MemoryUnitedDependency(dependencies);
+    return new BufferUnitedDependency(dependencies);
   }
 
   @Override

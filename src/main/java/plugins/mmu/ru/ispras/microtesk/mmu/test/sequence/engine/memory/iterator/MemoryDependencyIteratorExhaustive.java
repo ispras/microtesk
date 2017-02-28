@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -47,7 +47,7 @@ public final class MemoryDependencyIteratorExhaustive extends MemoryDependencyIt
   }
 
   @Override
-  public MemoryDependency value() {
+  public BufferDependency value() {
     return allPossibleDependencies[index];
   }
 

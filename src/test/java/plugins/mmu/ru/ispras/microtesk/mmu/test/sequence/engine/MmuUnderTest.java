@@ -216,9 +216,6 @@ public final class MmuUnderTest {
     @Override public boolean test(final MemoryAccess access) {
       final MemoryAccessPath path = access.getPath();
 
-      final boolean dtlbHit = path.getEvent(MmuUnderTest.get().dtlb) == BufferAccessEvent.HIT; // TODO: remove
-      final boolean jtlbHit = path.getEvent(MmuUnderTest.get().jtlb) == BufferAccessEvent.HIT; // TODO: remove
-
       boolean v = false;
       for (final MemoryAccessPath.Entry entry : path.getEntries()) {
         final MmuProgram program = entry.getProgram();
@@ -230,7 +227,7 @@ public final class MmuUnderTest {
         }
       }
 
-      return (dtlbHit || jtlbHit) && v;
+      return v;
     }
   };
 

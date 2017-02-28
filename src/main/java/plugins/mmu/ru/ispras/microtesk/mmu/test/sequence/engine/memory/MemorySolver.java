@@ -26,6 +26,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -50,6 +51,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
@@ -93,8 +95,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final Map<MmuBuffer, Map<Long, Set<Long>>> bufferHitTags = new LinkedHashMap<>();
   /** Given a buffer, contains indices for which replacing sequences have been constructed. */
   private final Map<MmuBuffer, Set<Long>> bufferReplacedIndices = new LinkedHashMap<>();
-  /** Given an access index, contains the buffers having been processed. */
-  private final Map<Integer, Set<MmuBuffer>> handledBuffers = new LinkedHashMap<>();
+  /** Given an access index, contains the buffer accesses having been processed. */
+  private final Map<Integer, Set<MmuBufferAccess>> handledBufferAccesses = new LinkedHashMap<>();
 
   /** Current solution. */
   private MemorySolution solution;
@@ -182,39 +184,26 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the address alignment constraint (aligns the address according to the data type).
    * 
-   * <p>The approach works only if the address equality relation is transitively closed.</p>
-   * 
    * @param j the access index.
    * @param addrType the address type to be aligned.
    * @return the solution.
    */
   private SolverResult<MemorySolution> solveAlignConstraint(
-      final int j, final MmuAddressInstance addrType) {
+      final int j,
+      final MmuAddressInstance addrType) {
+
+    Logger.debug("Solving the alignment constraint for %s", addrType);
 
     final MemoryAccess access = structure.getAccess(j);
     final AddressObject addrObject = solution.getAddressObject(j);
 
-    DataType maxDataType = access.getType().getDataType();
-
-    // Get the maximal data type among the dependent instructions.
-    for (int k = j + 1; k < solution.size(); k++) {
-      final MemoryAccess nextAccess = structure.getAccess(k);
-      final MemoryUnitedDependency nextDependency = structure.getUnitedDependency(k);
-      final Set<Integer> addrEqualRelation = nextDependency.getAddrEqualRelation(addrType);
-
-      if (addrEqualRelation.contains(j)) {
-        final DataType dataType = nextAccess.getType().getDataType();
-        if (maxDataType.getSizeInBytes() < dataType.getSizeInBytes()) {
-          maxDataType = dataType;
-        }
-      }
-    }
+    final DataType dataType = access.getType().getDataType();
 
     // Checks whether the address is unaligned.
     final long oldAddress = addrObject.getAddress(addrType);
 
-    if (!maxDataType.isAligned(oldAddress)) {
-      final long newAddress = maxDataType.align(oldAddress);
+    if (!dataType.isAligned(oldAddress)) {
+      final long newAddress = dataType.align(oldAddress);
       addrObject.setAddress(addrType, newAddress);
     }
 
@@ -225,12 +214,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the HIT constraint.
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveHitConstraint(final int j, final MmuBuffer buffer) {
+  private SolverResult<MemorySolution> solveHitConstraint(
+      final int j,
+      final MmuBufferAccess bufferAccess) {
+
+    Logger.debug("Solving the hit constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -243,8 +238,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(solution);
     }
 
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final Set<Pair<Integer, BufferHazard.Instance>> tagEqualRelation =
+        dependency.getTagEqualRelation(bufferAccess);
 
     // Check whether the previous instructions load the data into the buffer.
     if (!tagEqualRelation.isEmpty()) {
@@ -252,7 +248,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(solution);
     }
 
-    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
+    final Set<Pair<Integer, BufferHazard.Instance>> tagReplacedRelation =
+        dependency.getTagReplacedRelation(bufferAccess);
 
     // Check whether there is a tag-replaced dependency.
     if (!tagReplacedRelation.isEmpty()) {
@@ -282,25 +279,25 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath path = access.getPath();
 
     // TODO:
-    final List<MmuBuffer> buffers = new ArrayList<>(path.getBuffers());
-    Logger.debug("Buffers: %s", buffers);
+    final List<MmuBufferAccess> bufferAccesses = new ArrayList<>(path.getBufferAccesses());
+    Logger.debug("Buffer accesses: %s", bufferAccesses);
 
     // Scan the buffers of the same address type in reverse order.
     boolean found = false;
-    for (int i = buffers.size() - 1; i >= 0; i--) {
-      final MmuBuffer prevDevice = buffers.get(i);
+    for (int i = bufferAccesses.size() - 1; i >= 0; i--) {
+      final MmuBufferAccess prevBufferAccess = bufferAccesses.get(i);
 
       if (!found) {
-        found = (prevDevice == buffer);
+        found = (prevBufferAccess == bufferAccess);
         continue;
       }
 
-      if (prevDevice.getAddress() != buffer.getAddress()) {
+      if (prevBufferAccess.getAddress() != buffer.getAddress()) {
         continue;
       }
 
-      if (path.getEvent(prevDevice) == BufferAccessEvent.MISS) {
-        final SolverResult<MemorySolution> result = solveMissConstraint(j, prevDevice);
+      if (path.getEvent(prevBufferAccess) == BufferAccessEvent.MISS) {
+        final SolverResult<MemorySolution> result = solveMissConstraint(j, prevBufferAccess);
 
         if (result.getStatus() == SolverResult.Status.UNSAT) {
           return result;
@@ -315,13 +312,19 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the MISS constraint.
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveMissConstraint(final int j, final MmuBuffer buffer) {
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
+  private SolverResult<MemorySolution> solveMissConstraint(
+      final int j,
+      final MmuBufferAccess bufferAccess) {
 
-    if (!FilterAccessThenMiss.test(buffer, dependency)) {
+    Logger.debug("Solving the miss constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+
+    if (!FilterAccessThenMiss.test(bufferAccess, dependency)) {
       return new SolverResult<>(String.format("Miss constraint violation for buffer %s", buffer));
     }
 
@@ -339,7 +342,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return new SolverResult<>(solution);
     }
 
-    final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
+    final Set<Pair<Integer, BufferHazard.Instance>> tagReplacedRelation =
+        dependency.getTagReplacedRelation(bufferAccess);
+
     final Set<Long> replacedIndices = getReplacedIndices(buffer);
 
     // It is enough to use one replacing sequence for all test case instructions.
@@ -349,7 +354,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       for (int i = 0; i < buffer.getWays(); i++) {
         final AddressAndEntry evictingAddressAndEntry =
-            allocateAddrMissTagAndParentEntry(buffer, address, chooseRegion(), false);
+            allocateAddrMissTagAndParentEntry(bufferAccess, address, chooseRegion(), false);
 
         sequence.add(evictingAddressAndEntry);
       }
@@ -366,36 +371,44 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the HIT constraint for the given non-replaceable buffer.
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param buffer access the buffer access under scrutiny.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solveEntryConstraint(final int j, final MmuBuffer buffer) {
-    final AddressObject addrObject = solution.getAddressObject(j);
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
+  private SolverResult<MemorySolution> solveEntryConstraint(
+      final int j,
+      final MmuBufferAccess bufferAccess) {
 
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
+    Logger.debug("Solving the entry constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+
+    final Set<Pair<Integer, BufferHazard.Instance>> tagEqualRelation =
+        dependency.getTagEqualRelation(bufferAccess);
 
     if (!tagEqualRelation.isEmpty()) {
-      final int i = tagEqualRelation.iterator().next();
+      final int i = tagEqualRelation.iterator().next().first;
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
       // Instruction uses the same entry of the buffer (the map contains one entry).
-      final Map<Long, EntryObject> entries = prevAddrObject.getEntries(buffer);
+      final Map<Long, EntryObject> entries = prevAddrObject.getEntries(bufferAccess);
       // Set the reference to the entry (filling is done when all dependencies are resolved).
-      addrObject.setEntries(buffer, entries);
+      addrObject.setEntries(bufferAccess, entries);
     } else {
       // Check whether there are tag replace constraints.
       boolean tagReplaced = false;
 
-      for (final MmuBuffer child : buffer.getChildren()) {
-        if (!dependency.getTagReplacedRelation(child).isEmpty()) {
+      for (final MmuBufferAccess childAccess : bufferAccess.getChildAccesses()) {
+        if (!dependency.getTagReplacedRelation(childAccess).isEmpty()) {
           tagReplaced = true;
           break;
         }
       }
 
       if (!tagReplaced) {
-        if (addrObject.getEntries(buffer) == null || addrObject.getEntries(buffer).isEmpty()) {
+        if (addrObject.getEntries(bufferAccess) == null
+            || addrObject.getEntries(bufferAccess).isEmpty()) {
           // Allocate an entry of the buffer.
           final Long bufferEntryId = allocateEntryId(buffer, false);
           final MmuEntry bufferEntry = new MmuEntry(buffer.getFields());
@@ -408,38 +421,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
           // Filling the entry with appropriate data is done when all dependencies are resolved.
           final EntryObject entryObject = new EntryObject(bufferEntryId, bufferEntry);
 
-          addrObject.addEntry(buffer, entryObject);
-          solution.addEntry(buffer, entryObject);
+          addrObject.addEntry(bufferAccess, entryObject);
+          solution.addEntry(bufferAccess, entryObject);
         }
       }
-    }
-
-    return new SolverResult<>(solution);
-  }
-
-  /**
-   * Solves the ADDR-EQUAL constraint ({@code ADDR[j] == ADDR[i]}).
-   * 
-   * @param j the access index.
-   * @param addrType the address type.
-   * @return the partial solution.
-   */
-  private SolverResult<MemorySolution> solveAddrEqualConstraint(
-      final int j, final MmuAddressInstance addrType) {
-    final AddressObject addrObject = solution.getAddressObject(j);
-
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
-
-    // The instruction uses the same address as one of the previous instructions.
-    if (!addrEqualRelation.isEmpty()) {
-      final int i = addrEqualRelation.iterator().next();
-      final AddressObject prevAddrObject = solution.getAddressObject(i);
-
-      final long newAddress = prevAddrObject.getAddress(addrType);
-
-      // Copy the address from the previous instruction.
-      addrObject.setAddress(addrType, newAddress);
     }
 
     return new SolverResult<>(solution);
@@ -449,19 +434,25 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the INDEX-EQUAL constraint ({@code INDEX[j] == INDEX[i]}).
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveIndexEqualConstraint(
-      final int j, final MmuBuffer buffer) {
-    final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = buffer.getAddress();
+      final int j,
+      final MmuBufferAccess bufferAccess) {
 
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(buffer);
+    Logger.debug("Solving the index equality constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
+
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final Set<Pair<Integer, BufferHazard.Instance>> indexEqualRelation =
+        dependency.getIndexEqualRelation(bufferAccess);
 
     if (!indexEqualRelation.isEmpty()) {
-      final int i = indexEqualRelation.iterator().next();
+      final int i = indexEqualRelation.iterator().next().first;
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
       final long oldTag = buffer.getTag(addrObject.getAddress(addrType));
@@ -477,7 +468,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       if (newIndex != oldIndex) {
         final AddressAndEntry allocated =
-            allocateAddrMissTagAndParentEntry(buffer, newAddress, chooseRegion(), false);
+            allocateAddrMissTagAndParentEntry(bufferAccess, newAddress, chooseRegion(), false);
 
         newTag = buffer.getTag(allocated.address);
       } else {
@@ -494,20 +485,26 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solves the TAG-EQUAL constraint ({@code INDEX[j] == INDEX[i] && TAG[j] == TAG[i]}).
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveTagEqualConstraint(
-      final int j, final MmuBuffer buffer) {
-    final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = buffer.getAddress();
+      final int j,
+      final MmuBufferAccess bufferAccess) {
 
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
-    final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(buffer);
+    Logger.debug("Solving the tag equality constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final AddressObject addrObject = solution.getAddressObject(j);
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
+
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final Set<Pair<Integer, BufferHazard.Instance>> tagEqualRelation =
+        dependency.getTagEqualRelation(bufferAccess);
 
     // Instruction uses the same tag and the same index as one of the previous instructions.
     if (!tagEqualRelation.isEmpty()) {
-      final int i = tagEqualRelation.iterator().next();
+      final int i = tagEqualRelation.iterator().next().first;
       final AddressObject prevAddrObject = solution.getAddressObject(i);
 
       // Copy the tag and the index from the previous instruction.
@@ -526,12 +523,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * corresponding constraints.
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveTagReplacedConstraints(
-      final int j, final MmuBuffer buffer) {
-    final MmuAddressInstance addrType = buffer.getAddress();
+      final int j,
+      final MmuBufferAccess bufferAccess) {
+
+    Logger.debug("Solving the tag replacement constraint for %s", bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
 
     final BufferStateTracker<Long> stateTracker = new BufferStateTracker<>(
         buffer.getSets(), buffer.getWays(), buffer.getAddressView());
@@ -543,7 +545,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (int i = 0; i <= j; i++) {
       final MemoryAccess access = structure.getAccess(i);
       final MemoryAccessPath path = access.getPath();
-      final MemoryUnitedDependency dependency = structure.getUnitedDependency(i);
+      final BufferUnitedDependency dependency = structure.getUnitedDependency(i);
       final AddressObject addrObject = solution.getAddressObject(i);
 
       final long address = addrObject.getAddress(addrType);
@@ -560,10 +562,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
 
       // Satisfy the TAG-REPLACED constraint.
-      final Set<Integer> tagReplacedRelation = dependency.getTagReplacedRelation(buffer);
+      final Set<Pair<Integer, BufferHazard.Instance>> tagReplacedRelation =
+          dependency.getTagReplacedRelation(bufferAccess);
 
       if (!tagReplacedRelation.isEmpty()) {
-        final int dependsOn = tagReplacedRelation.iterator().next();
+        final int dependsOn = tagReplacedRelation.iterator().next().first;
         final Long replacedTag = replacedTags.get(dependsOn);
 
         if (replacedTag == null) {
@@ -573,12 +576,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
         addrObject.setAddress(addrType, buffer.getAddress(replacedTag, index, offset));
 
         if (buffer.isView()) { 
-          final MmuBuffer parent = buffer.getParent();
+          final MmuBuffer parent = buffer.getBuffer();
           InvariantChecks.checkTrue(parent != null && !parent.isReplaceable());
+
+          final MmuBufferAccess parentAccess = bufferAccess.getParentAccess();
 
           // Search for the entry in the parent buffer.
           boolean entryFound = false;
-          for (final EntryObject entryObject : solution.getEntries(parent).values()) {
+          for (final EntryObject entryObject : solution.getEntries(parentAccess).values()) {
             final long otherAddress;
 
             if (entryObject.isAuxiliary()) {
@@ -602,7 +607,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
             if (otherIndex == index && otherTag == replacedTag) {
               // Set the reference to the entry from this address object (to be able to fill it).
-              addrObject.addEntry(parent, entryObject);
+              addrObject.addEntry(parentAccess, entryObject);
 
               entryFound = true;
               break;
@@ -623,37 +628,43 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Solve hit/miss constraints specified for the given buffer.
    * 
    * @param j the access index.
-   * @param buffer the buffer under scrutiny.
+   * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solveBufferConstraint(
-      final int j, final MmuBuffer buffer) {
-    // Do nothing if the buffer has been already handled.
-    Set<MmuBuffer> handledBuffersForExecution = handledBuffers.get(j);
+      final int j,
+      final MmuBufferAccess bufferAccess) {
 
-    if (handledBuffersForExecution == null) {
-      handledBuffers.put(j, handledBuffersForExecution = new LinkedHashSet<>());
-    } else if (handledBuffersForExecution.contains(buffer)) {
+    Logger.debug("Solving the buffer constraint for %s", bufferAccess);
+
+    // Do nothing if the buffer has been already handled.
+    Set<MmuBufferAccess> handledBufferAccessesForExecution = handledBufferAccesses.get(j);
+
+    if (handledBufferAccessesForExecution == null) {
+      handledBufferAccesses.put(j, handledBufferAccessesForExecution = new LinkedHashSet<>());
+    } else if (handledBufferAccessesForExecution.contains(bufferAccess)) {
       return new SolverResult<MemorySolution>(solution);
     }
 
-    handledBuffersForExecution.add(buffer);
+    handledBufferAccessesForExecution.add(bufferAccess);
 
     final MemoryAccess access = structure.getAccess(j);
     final MemoryAccessPath path = access.getPath();
 
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the buffer is a parent of some view and is not in the access. 
-    final BufferAccessEvent realEvent = path.getEvent(buffer);
+    final BufferAccessEvent realEvent = path.getEvent(bufferAccess);
     final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
 
     // The buffer is a view of another buffer (e.g., DTLB is a view of JTLB).
     if (buffer.isView()) {
-      solveBufferConstraint(j, buffer.getParent());
+      solveBufferConstraint(j, bufferAccess.getParentAccess());
     }
 
     // The parent access event is a hit or null, but not a miss.
-    if (!buffer.isView() || path.getEvent(buffer.getParent()) != BufferAccessEvent.MISS) {
+    if (!buffer.isView() || path.getEvent(bufferAccess.getParentAccess()) != BufferAccessEvent.MISS) {
       SolverResult<MemorySolution> result = null;
 
       if (buffer.isFake()) {
@@ -661,18 +672,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
       } else if (buffer.isReplaceable()) {
         // Construct a sequence of addresses to be accessed.
         if (usedEvent == BufferAccessEvent.HIT) {
-          result = solveHitConstraint(j, buffer);
+          result = solveHitConstraint(j, bufferAccess);
         } else {
-          result = solveMissConstraint(j, buffer);
+          result = solveMissConstraint(j, bufferAccess);
         }
 
         if (result.getStatus() != SolverResult.Status.UNSAT) {
-          result = solveTagReplacedConstraints(j, buffer);
+          result = solveTagReplacedConstraints(j, bufferAccess);
         }
       } else {
         // Construct a set of entries to be written to the buffer.
         if (usedEvent == BufferAccessEvent.HIT) {
-          result = solveEntryConstraint(j, buffer);
+          result = solveEntryConstraint(j, bufferAccess);
         } else {
           // Do nothing: the constraint is satisfied by tag allocators.
         }
@@ -682,7 +693,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return result;
       }
     } else {
-      if (path.getEvent(buffer) == BufferAccessEvent.HIT) {
+      if (path.getEvent(bufferAccess) == BufferAccessEvent.HIT) {
         return new SolverResult<>(String.format("Constraint violation for buffer %s", buffer));
       }
     }
@@ -702,7 +713,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     Logger.debug("Solve[%d]: %s", j, access);
 
-    final MemoryUnitedDependency dependency = structure.getUnitedDependency(j);
+    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
 
     // Construct the initial address object for the access.
     final AddressObject addrObject = constructAddr(access, true);
@@ -714,43 +725,25 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // Assign the tag, index and offset according to the dependencies.
-    final Map<MmuAddressInstance, MemoryUnitedHazard> addrHazards = dependency.getAddrHazards();
+    final Map<MmuBufferAccess, BufferUnitedHazard> bufferHazards = dependency.getBufferHazards();
 
-    for (final Map.Entry<MmuAddressInstance, MemoryUnitedHazard> addrEntry : addrHazards.entrySet()) {
-      final MmuAddressInstance addrType = addrEntry.getKey();
-      final Set<Integer> addrEqualRelation = dependency.getAddrEqualRelation(addrType);
+    for (Map.Entry<MmuBufferAccess, BufferUnitedHazard> bufferEntry : bufferHazards.entrySet()) {
+      final MmuBufferAccess bufferAccess = bufferEntry.getKey();
+      final Set<Pair<Integer, BufferHazard.Instance>> tagEqualRelation =
+          dependency.getTagEqualRelation(bufferAccess);
+      final Set<Pair<Integer, BufferHazard.Instance>> indexEqualRelation =
+          dependency.getIndexEqualRelation(bufferAccess);
 
-      if (!addrEqualRelation.isEmpty()) {
-        solveAddrEqualConstraint(j, addrType);
-
-        // Paranoid check.
-        final long addr = addrObject.getAddress(addrType);
-
-        if (!addrObject.getType().getDataType().isAligned(addr)) {
-          throw new IllegalStateException(
-              String.format("Unaligned address after solving AddrEqual constraints: %x", addr));
-        }
-      } else {
-        final Map<MmuBuffer, MemoryUnitedHazard> bufferHazards =
-            dependency.getDeviceHazards(addrType);
-
-        for (Map.Entry<MmuBuffer, MemoryUnitedHazard> bufferEntry : bufferHazards.entrySet()) {
-          final MmuBuffer bufferType = bufferEntry.getKey();
-          final Set<Integer> tagEqualRelation = dependency.getTagEqualRelation(bufferType);
-          final Set<Integer> indexEqualRelation = dependency.getIndexEqualRelation(bufferType);
-
-          if (!tagEqualRelation.isEmpty()) {
-            solveTagEqualConstraint(j, bufferType);
-          } else if (!indexEqualRelation.isEmpty()) {
-            solveIndexEqualConstraint(j, bufferType);
-          }
-        }
+      if (!tagEqualRelation.isEmpty()) {
+        solveTagEqualConstraint(j, bufferAccess);
+      } else if (!indexEqualRelation.isEmpty()) {
+        solveIndexEqualConstraint(j, bufferAccess);
       }
     }
 
     // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
-    for (final MmuBuffer buffer : path.getBuffers()) {
-      final SolverResult<MemorySolution> result = solveBufferConstraint(j, buffer);
+    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+      final SolverResult<MemorySolution> result = solveBufferConstraint(j, bufferAccess);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
         return result;
@@ -770,35 +763,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     correctAddr(addrObject);
 
     // Satisfying dependencies may change the memory access path.
-    boolean pathFound = false;
-
     // Check whether the original path is still valid.
-    if (!(pathFound = refineAddr(path, addrObject, true))) {
-      // TODO: This logic is temporarily disabled
-      /*
-      >>>>>>>>>> BEGIN
-      // Find some similar path.
-      final Iterable<MemoryAccessPath> paths =
-          CoverageExtractor.get().getEnabledPaths(memory, access.getType(), constraints);
-      final Iterable<MemoryAccessPath> variants =
-          MemoryEngineUtils.getFeasibleSimilarPaths(path, paths, constraints.getIntegers());
-
-      for (final MemoryAccessPath variant : variants) {
-        // The original path has been checked already.
-        if (path == variant) {
-          continue;
-        }
-
-        if (pathFound = refineAddr(variant, addrObject, true)) {
-          // Update the memory access path in the address object.
-          Logger.debug("Path has been changed to a similar one: %s", variant);
-          addrObject.setPath(variant);
-          break;
-        }
-      }
-      >>>>>>>>>> END
-      */
-    }
+    boolean pathFound = refineAddr(path, addrObject, true);
 
     if (!pathFound) {
       Logger.debug("Feasible variant has not been found");
@@ -811,14 +777,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private SolverResult<MemorySolution> fill(final int j) {
     final MemoryAccess access = structure.getAccess(j);
     final AddressObject addrObject = solution.getAddressObject(j);
-    final Map<MmuBuffer, Map<Long, EntryObject>> pathEntries = addrObject.getEntries();
+    final Map<MmuBufferAccess, Map<Long, EntryObject>> pathEntries = addrObject.getEntries();
 
     Logger.debug("Fill[%d]: %s", j, access);
 
-    for (final MmuBuffer buffer : pathEntries.keySet()) {
-      Logger.debug("Fill[%d]: %s", j, buffer);
+    for (final MmuBufferAccess bufferAccess : pathEntries.keySet()) {
+      Logger.debug("Fill[%d]: %s", j, bufferAccess.getBuffer());
 
-      for (final EntryObject entryObject : pathEntries.get(buffer).values()) {
+      for (final EntryObject entryObject : pathEntries.get(bufferAccess).values()) {
         // Fill the entry according to the path constraints.
         final MmuEntry entry = entryObject.getEntry();
         fillEntry(addrObject, entry);
@@ -982,12 +948,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * address) and was not returned previously for that set.</p>
    */
   private long allocateAddrMissTag(
-      final MmuBuffer buffer,
+      final MmuBufferAccess bufferAccess,
       final long partialAddress, // Index and offset
       final Range<Long> region,
       final boolean peek) {
-    InvariantChecks.checkNotNull(buffer);
-
+    final MmuBuffer buffer = bufferAccess.getBuffer();
     final Predicate<Long> hitChecker = hitCheckers.get(buffer.getAddress());
 
     while (true) {
@@ -1001,15 +966,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private AddressAndEntry allocateAddrMissTagAndParentEntry(
-      final MmuBuffer buffer,
+      final MmuBufferAccess bufferAccess,
       final long partialAddress, // Index and offset
       final Range<Long> region,
       final boolean peek) {
-    InvariantChecks.checkNotNull(buffer);
+    final MmuBuffer buffer = bufferAccess.getBuffer();
 
     // The buffer is not a view of another buffer.
     if (!buffer.isView()) {
-      return new AddressAndEntry(allocateAddrMissTag(buffer, partialAddress, region, peek));
+      return new AddressAndEntry(allocateAddrMissTag(bufferAccess, partialAddress, region, peek));
     }
 
     // The buffer is a view of a non-replaceable buffer.
@@ -1039,9 +1004,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     fillEntry(normalAddrObject, entry);
 
     final EntryObject entryObject = new EntryObject(id, entry);
-    solution.addEntry(parent, entryObject);
+    solution.addEntry(bufferAccess.getParentAccess(), entryObject);
 
-    return new AddressAndEntry(normalAddrObject.getAddress(buffer.getAddress()), entryObject);
+    return new AddressAndEntry(normalAddrObject.getAddress(bufferAccess.getAddress()), entryObject);
   }
 
   private long allocateEntryId(final MmuBuffer buffer, final boolean peek) {
@@ -1071,7 +1036,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // The address should be aligned not to cause the exception.
     pa = addrObject.getType().getDataType().align(pa);
 
-    // Align the addresses if the option is set.
+    // Align the addresses if the corresponding option is set.
     if (alignType != null) {
       pa = alignType.align(pa);
     }
@@ -1111,17 +1076,28 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     Logger.debug("Refine address: VA=%x, PA=%x", va, pa);
 
+    final Map<MmuAddressInstance, Long> addresses = addrObject.getAddresses();
+
     // Fix the address tags and indices.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
-    Logger.debug("Refine address: buffers=%s", path.getBuffers());
+    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+      Logger.debug("Refine address: buffer access %s", bufferAccess);
 
-    for (final MmuBuffer buffer : path.getBuffers()) {
+      final MmuBuffer buffer = bufferAccess.getBuffer();
+
       if (buffer.isFake()) {
+        Logger.debug("Refine address: fake buffer %s is skipped", buffer);
         continue;
       }
 
-      final MmuAddressInstance addrType = buffer.getAddress();
+      final MmuAddressInstance addrType = bufferAccess.getAddress();
+
+      if (!addresses.containsKey(addrType)) {
+        Logger.debug("Refine address: value of address %s is unknown", addrType);
+        continue;
+      }
+
       final long address = addrObject.getAddress(addrType);
 
       if (buffer.getWays() > 1) {

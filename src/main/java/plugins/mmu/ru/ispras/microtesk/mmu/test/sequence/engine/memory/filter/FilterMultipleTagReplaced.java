@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -27,10 +27,12 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterMultipleTagReplaced implements BiPredicate<MemoryAccess, MemoryUnitedHazard> {
+public final class FilterMultipleTagReplaced
+    implements BiPredicate<MemoryAccess, BufferUnitedHazard> {
+
   @Override
-  public boolean test(final MemoryAccess access, final MemoryUnitedHazard hazard) {
-    if (hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).size() > 1) {
+  public boolean test(final MemoryAccess access, final BufferUnitedHazard hazard) {
+    if (hazard.getRelation(BufferHazard.Type.TAG_REPLACED).size() > 1) {
       // Filter off.
       return false;
     }

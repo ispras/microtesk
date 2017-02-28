@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,6 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -38,51 +34,6 @@ public final class CoverageExtractor {
 
   public static CoverageExtractor get() {
     return instance;
-  }
-
-  private final Map<MmuAddressInstance, Collection<MemoryHazard>> addressHazards = new HashMap<>();
-
-  public Collection<MemoryHazard> getHazards(final MmuAddressInstance address) {
-    InvariantChecks.checkNotNull(address);
-
-    Collection<MemoryHazard> coverage = addressHazards.get(address);
-    if (coverage == null) {
-      final AddressCoverageExtractor extractor = new AddressCoverageExtractor(address);
-      addressHazards.put(address, coverage = extractor.getHazards());
-    }
-
-    return coverage;
-  }
-
-  private final Map<MmuBuffer, Collection<MemoryHazard>> bufferHazards = new HashMap<>();
-
-  public Collection<MemoryHazard> getHazards(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-
-    Collection<MemoryHazard> coverage = bufferHazards.get(buffer);
-    if (coverage == null) {
-      final BufferCoverageExtractor extractor = new BufferCoverageExtractor(buffer);
-      bufferHazards.put(buffer, coverage = extractor.getHazards());
-    }
-
-    return coverage;
-  }
-
-  private final Map<MmuSubsystem, Collection<MemoryHazard>> memoryHazards = new HashMap<>();
-
-  public Collection<MemoryHazard> getHazards(final MmuSubsystem memory) {
-    InvariantChecks.checkNotNull(memory);
-
-    Collection<MemoryHazard> coverage = memoryHazards.get(memory);
-    if (coverage == null) {
-      coverage = new ArrayList<>();
-      for (final MmuBuffer device : memory.getBuffers()) {
-        coverage.addAll(getHazards(device));
-      }
-      memoryHazards.put(memory, coverage);
-    }
-
-    return coverage;
   }
 
   private final Map<MemoryAccessType, MemoryTrajectoryExtractor.Result> trajectories = new HashMap<>(); 

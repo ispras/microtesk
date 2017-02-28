@@ -557,9 +557,24 @@ public final class MemoryAccessPath {
     return variables.contains(variable);
   }
 
-  public BufferAccessEvent getEvent(final MmuBuffer buffer) {
+  public BufferAccessEvent getEvent(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    return events.get(bufferAccess);
+  }
+
+  // TODO:
+  public Collection<BufferAccessEvent> getEvents(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
-    return events.get(buffer);
+
+    final Collection<BufferAccessEvent> events = new LinkedHashSet<>();
+
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+      if (bufferAccess.getBuffer() == buffer) {
+        events.add(getEvent(bufferAccess));
+      }
+    }
+
+    return events;
   }
 
   public boolean hasSymbolicResult() {

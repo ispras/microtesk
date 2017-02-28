@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
@@ -75,6 +78,20 @@ public final class MmuBufferAccess {
         address.getInstance(stack),
         entry.getInstance(stack),
         argument != null ? argument.getInstance(stack) : null);
+  }
+
+  public MmuBufferAccess getParentAccess() {
+    return new MmuBufferAccess(buffer.getParent(), address, entry, argument);
+  }
+
+  public Collection<MmuBufferAccess> getChildAccesses() {
+    final Collection<MmuBufferAccess> childAccesses = new ArrayList<>();
+
+    for (final MmuBuffer child : buffer.getChildren()) {
+      childAccesses.add(new MmuBufferAccess(child, address, entry, argument));
+    }
+
+    return childAccesses;
   }
 
   @Override

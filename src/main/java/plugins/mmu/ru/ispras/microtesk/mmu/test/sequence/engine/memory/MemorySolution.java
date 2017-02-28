@@ -20,9 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 /**
  * {@link MemorySolution} represents a solution (test data) for a number of dependent instruction
@@ -50,7 +49,7 @@ public final class MemorySolution {
    * <p>This map unites the analogous maps of the test data of the executions stored in
    * {@link MemorySolution#solution}.</p>
    */
-  private final Map<MmuBuffer, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
+  private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs an uninitialized solution for the given memory access structure.
@@ -61,19 +60,22 @@ public final class MemorySolution {
     InvariantChecks.checkNotNull(structure);
 
     this.structure = structure;
-
     this.solution = new ArrayList<>(structure.size());
+    this.loader = new MemoryLoader();
+
     for (int i = 0; i < structure.size(); i++) {
-      final MemoryAccess execution = structure.getAccess(i);
+      final MemoryAccess access = structure.getAccess(i);
+      final MemoryAccessPath path = access.getPath();
 
-      this.solution.add(new AddressObject(execution));
+      this.solution.add(new AddressObject(access));
+
+      for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+        if (!this.entries.containsKey(bufferAccess)) {
+          this.entries.put(bufferAccess, new LinkedHashMap<Long, EntryObject>());
+        }
+      }
     }
 
-    for (final MmuBuffer buffer : MmuPlugin.getSpecification().getBuffers()) {
-      this.entries.put(buffer, new LinkedHashMap<Long, EntryObject>());
-    }
-
-    loader = new MemoryLoader();
   }
 
   /**
@@ -135,42 +137,51 @@ public final class MemorySolution {
   }
 
   /**
+   * Returns the entries to written.
+   * 
+   * @return the entries.
+   */
+  public Map<MmuBufferAccess, Map<Long, EntryObject>> getEntries() {
+    return entries;
+  }
+
+  /**
    * Returns the entries to written to the given buffer.
    * 
-   * @param buffer the MMU buffer.
+   * @param bufferAccess the buffer access.
    * @return the index-to-entry map.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, EntryObject> getEntries(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-    return entries.get(buffer);
+  public Map<Long, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    return entries.get(bufferAccess);
   }
 
   /**
    * Sets the entries to be written to the given buffer.
    * 
-   * @param buffer the MMU buffer.
+   * @param bufferAccess the buffer access.
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer buffer, final Map<Long, EntryObject> entries) {
-    InvariantChecks.checkNotNull(buffer);
+  public void setEntries(final MmuBufferAccess bufferAccess, final Map<Long, EntryObject> entries) {
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entries);
 
-    this.entries.put(buffer, entries);
+    this.entries.put(bufferAccess, entries);
   }
 
   /**
    * Adds the entry to the set of entries to be written to the given buffer.
    * 
-   * @param buffer the MMU buffer.
+   * @param bufferAccess the buffer access.
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer buffer, final EntryObject entry) {
-    InvariantChecks.checkNotNull(buffer);
+  public void addEntry(final MmuBufferAccess bufferAccess, final EntryObject entry) {
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entry);
 
-    entries.get(buffer).put(entry.getId(), entry);
+    entries.get(bufferAccess).put(entry.getId(), entry);
   }
 }

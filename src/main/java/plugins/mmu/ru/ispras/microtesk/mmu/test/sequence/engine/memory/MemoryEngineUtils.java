@@ -256,7 +256,7 @@ public final class MemoryEngineUtils {
       final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
       InvariantChecks.checkNotNull(events);
 
-      if (path.contains(buffer) && !events.contains(path.getEvent(buffer))) {
+      if (path.contains(buffer) && !events.containsAll(path.getEvents(buffer))) {
         return false;
       }
     }

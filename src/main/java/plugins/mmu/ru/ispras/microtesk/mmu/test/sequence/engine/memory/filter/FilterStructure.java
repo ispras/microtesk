@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,8 +19,8 @@ import java.util.Collection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -32,8 +32,8 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class FilterStructure implements Predicate<MemoryAccessStructure> {
-  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters;
-  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters;
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>> dependencyFilters;
+  private final Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>> unitedDependencyFilters;
 
   /**
    * Constructs a template-level filter from dependency-level filters.
@@ -43,8 +43,8 @@ public final class FilterStructure implements Predicate<MemoryAccessStructure> {
    * @throws IllegalArgumentException if some parameters are null.
    */
   public FilterStructure(
-      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> dependencyFilters,
-      final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> unitedDependencyFilters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>> dependencyFilters,
+      final Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>> unitedDependencyFilters) {
     InvariantChecks.checkNotNull(dependencyFilters);
     InvariantChecks.checkNotNull(unitedDependencyFilters);
 
@@ -59,14 +59,14 @@ public final class FilterStructure implements Predicate<MemoryAccessStructure> {
 
       for (int j = i + 1; j < template.size(); j++) {
         final MemoryAccess execution2 = template.getAccess(j);
-        final MemoryDependency dependency = template.getDependency(i, j);
+        final BufferDependency dependency = template.getDependency(i, j);
 
         if (dependency == null) {
           continue;
         }
 
         // Apply the dependency-level filters.
-        for (final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter : dependencyFilters) {
+        for (final TriPredicate<MemoryAccess, MemoryAccess, BufferDependency> filter : dependencyFilters) {
           if (!filter.test(execution1, execution2, dependency)) {
             // Filter off.
             return false;
@@ -74,10 +74,10 @@ public final class FilterStructure implements Predicate<MemoryAccessStructure> {
         }
       }
 
-      final MemoryUnitedDependency unitedDependency = template.getUnitedDependency(i);
+      final BufferUnitedDependency unitedDependency = template.getUnitedDependency(i);
 
       // Apply the united-dependency-level filters.
-      for (final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter : unitedDependencyFilters) {
+      for (final BiPredicate<MemoryAccess, BufferUnitedDependency> filter : unitedDependencyFilters) {
         if (!filter.test(execution1, unitedDependency)) {
           // Filter off.
           return false;

@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -48,7 +48,7 @@ public final class MemoryDependencyIteratorRandom extends MemoryDependencyIterat
   }
 
   @Override
-  public MemoryDependency value() {
+  public BufferDependency value() {
     return Randomizer.get().choose(allPossibleDependencies);
   }
 

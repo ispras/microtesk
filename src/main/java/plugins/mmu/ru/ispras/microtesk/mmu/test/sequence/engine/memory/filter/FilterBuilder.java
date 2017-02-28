@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,10 +20,10 @@ import java.util.Collection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.microtesk.utils.function.TriPredicate;
@@ -35,16 +35,16 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  */
 public final class FilterBuilder {
 
-  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>>
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance>>
     hazardFilters = new ArrayList<>();
 
-  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>>
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>>
     dependencyFilters = new ArrayList<>();
 
-  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>>
+  private final Collection<BiPredicate<MemoryAccess, BufferUnitedHazard>>
     unitedHazardFilters = new ArrayList<>();
 
-  private final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>>
+  private final Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>>
     unitedDependencyFilters = new ArrayList<>();
 
   private final Collection<Predicate<MemoryAccessStructure>>
@@ -57,19 +57,19 @@ public final class FilterBuilder {
     addFilterBuilder(r);
   }
 
-  public Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> getHazardFilters() {
+  public Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance>> getHazardFilters() {
     return hazardFilters;
   }
 
-  public Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> getDependencyFilters() {
+  public Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>> getDependencyFilters() {
     return dependencyFilters;
   }
 
-  public Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> getUnitedHazardFilters() {
+  public Collection<BiPredicate<MemoryAccess, BufferUnitedHazard>> getUnitedHazardFilters() {
     return unitedHazardFilters;
   }
 
-  public Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> getUnitedDependencyFilters() {
+  public Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>> getUnitedDependencyFilters() {
     return unitedDependencyFilters;
   }
 
@@ -77,47 +77,47 @@ public final class FilterBuilder {
     return structureFilters;
   }
 
-  public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
+  public void addHazardFilter(final TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance> filter) {
     InvariantChecks.checkNotNull(filter);
     hazardFilters.add(filter);
   }
 
   public void addHazardFilters(
-      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance>> filters) {
     InvariantChecks.checkNotNull(filters);
     hazardFilters.addAll(filters);
   }
 
   public void addDependencyFilter(
-      final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter) {
+      final TriPredicate<MemoryAccess, MemoryAccess, BufferDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     dependencyFilters.add(filter);
   }
 
   public void addDependencyFilters(
-      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>> filters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>> filters) {
     InvariantChecks.checkNotNull(filters);
     dependencyFilters.addAll(filters);
   }
 
-  public void addUnitedHazardFilter(final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
+  public void addUnitedHazardFilter(final BiPredicate<MemoryAccess, BufferUnitedHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     unitedHazardFilters.add(filter);
   }
 
   public void addUnitedHazardFilters(
-      final Collection<BiPredicate<MemoryAccess, MemoryUnitedHazard>> filters) {
+      final Collection<BiPredicate<MemoryAccess, BufferUnitedHazard>> filters) {
     InvariantChecks.checkNotNull(filters);
     unitedHazardFilters.addAll(filters);
   }
 
-  public void addUnitedDependencyFilter(final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
+  public void addUnitedDependencyFilter(final BiPredicate<MemoryAccess, BufferUnitedDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     unitedDependencyFilters.add(filter);
   }
 
   public void addUnitedDependencyFilters(
-      final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>> filters) {
+      final Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>> filters) {
     InvariantChecks.checkNotNull(filters);
     unitedDependencyFilters.addAll(filters);
   }
@@ -143,11 +143,11 @@ public final class FilterBuilder {
   }
 
   public Predicate<MemoryAccessStructure> build() {
-    final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency>>
+    final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferDependency>>
       newDependencyFilters = new ArrayList<>(dependencyFilters);
     newDependencyFilters.add(new FilterDependency(hazardFilters));
 
-    final Collection<BiPredicate<MemoryAccess, MemoryUnitedDependency>>
+    final Collection<BiPredicate<MemoryAccess, BufferUnitedDependency>>
       newUnitedDependencyFilters = new ArrayList<>(unitedDependencyFilters);
     newUnitedDependencyFilters.add(new FilterUnitedDependency(unitedHazardFilters));
 

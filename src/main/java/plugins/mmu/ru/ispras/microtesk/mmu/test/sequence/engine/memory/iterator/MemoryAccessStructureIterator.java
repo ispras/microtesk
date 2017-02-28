@@ -25,10 +25,10 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
@@ -39,7 +39,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterNonRepla
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterParentMissChildHitOrReplace;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqualTagReplaced;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterVaEqualPaNotEqual;
 import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.translator.coverage.MemoryGraphAbstraction;
@@ -112,7 +111,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     basicFilters.addUnitedHazardFilter(new FilterParentMissChildHitOrReplace());
     basicFilters.addUnitedDependencyFilter(new FilterHitAndTagReplacedEx());
     basicFilters.addUnitedDependencyFilter(new FilterMultipleTagReplacedEx());
-    basicFilters.addUnitedDependencyFilter(new FilterVaEqualPaNotEqual());
     basicFilters.addStructureFilter(new FilterUnclosedEqualRelations());
   }
 
@@ -144,7 +142,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private boolean enoughDependencies;
 
   private List<MemoryAccess> accesses;
-  private MemoryDependency[][] dependencies;
+  private BufferDependency[][] dependencies;
 
   public MemoryAccessStructureIterator(
       final MemoryGraphAbstraction abstraction,
@@ -188,7 +186,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.accessIterator = mode.getAccessIterator(accessTypes, accessPathChoosers);
     this.dependencyIterators = new MemoryDependencyIterator[size][size];
 
-    this.dependencies = new MemoryDependency[size][size];
+    this.dependencies = new BufferDependency[size][size];
   }
 
   @Override
@@ -366,25 +364,25 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   //------------------------------------------------------------------------------------------------
 
   public void addHazardFilter(
-      final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter) {
+      final TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addHazardFilter(filter);
   }
 
   public void addDependencyFilter(
-      final TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> filter) {
+      final TriPredicate<MemoryAccess, MemoryAccess, BufferDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addDependencyFilter(filter);
   }
 
   public void addUnitedHazardFilter(
-      final BiPredicate<MemoryAccess, MemoryUnitedHazard> filter) {
+      final BiPredicate<MemoryAccess, BufferUnitedHazard> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedHazardFilter(filter);
   }
 
   public void addUnitedDependencyFilter(
-      final BiPredicate<MemoryAccess, MemoryUnitedDependency> filter) {
+      final BiPredicate<MemoryAccess, BufferUnitedDependency> filter) {
     InvariantChecks.checkNotNull(filter);
     filterBuilder.addUnitedDependencyFilter(filter);
   }

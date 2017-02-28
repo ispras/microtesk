@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,8 +19,8 @@ import java.util.List;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
@@ -31,28 +31,32 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterNonReplaceableTagEqual implements TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> {
+public final class FilterNonReplaceableTagEqual
+    implements TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance> {
+
   @Override
   public boolean test(
-      final MemoryAccess access1, final MemoryAccess access2, final MemoryHazard hazard) {
+      final MemoryAccess access1,
+      final MemoryAccess access2,
+      final BufferHazard.Instance hazard) {
 
-    if (hazard.getType() == MemoryHazard.Type.TAG_EQUAL) {
-      final MmuBuffer hazardDevice = hazard.getDevice();
-      final List<MmuBuffer> devices = new ArrayList<>();
+    if (hazard.getHazardType().getType() == BufferHazard.Type.TAG_EQUAL) {
+      final MmuBufferAccess hazardBufferAccess = hazard.getPrimaryAccess();
+      final List<MmuBufferAccess> bufferAccesses = new ArrayList<>();
 
-      if (hazardDevice != null) {
-        devices.add(hazardDevice);
-        if (hazardDevice.isView()) {
-          devices.add(hazardDevice.getParent());
+      if (hazardBufferAccess != null) {
+        bufferAccesses.add(hazardBufferAccess);
+        if (hazardBufferAccess.getBuffer().isView()) {
+          bufferAccesses.add(hazardBufferAccess.getParentAccess());
         }
       }
 
       final MemoryAccessPath path1 = access1.getPath();
       final MemoryAccessPath path2 = access2.getPath();
 
-      for (final MmuBuffer device : devices) {
-        if (!device.isReplaceable()) {
-          if (path1.getEvent(device) != path2.getEvent(device)) {
+      for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+        if (!bufferAccess.getBuffer().isReplaceable()) {
+          if (path1.getEvent(bufferAccess) != path2.getEvent(bufferAccess)) {
             // Filter off.
             return false;
           }

@@ -31,10 +31,10 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.api.ConfigurationException;
@@ -121,26 +121,26 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
 
     final List<ConcreteCall> sequence = new ArrayList<>(); 
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
+    final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = solution.getEntries();
 
-    for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
-      if (!buffer.isReplaceable()) {
-        sequence.addAll(prepareEntries(buffer, engineContext, solution));
-      }
+    for (final Map.Entry<MmuBufferAccess, Map<Long, EntryObject>> entry : entries.entrySet()) {
+      final MmuBufferAccess bufferAccess = entry.getKey();
+      sequence.addAll(prepareEntries(bufferAccess, engineContext, solution));
     }
 
     return sequence;
   }
 
   private List<ConcreteCall> prepareEntries(
-      final MmuBuffer buffer,
+      final MmuBufferAccess bufferAccess,
       final EngineContext engineContext,
       final MemorySolution solution) {
-    InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(solution);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
+    final MmuBuffer buffer = bufferAccess.getBuffer();
 
     final BlockId blockId = new BlockId();
     final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
@@ -148,7 +148,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     final List<ConcreteCall> preparation = new ArrayList<>();
 
-    final Map<Long, EntryObject> entries = solution.getEntries(buffer);
+    final Map<Long, EntryObject> entries = solution.getEntries(bufferAccess);
     InvariantChecks.checkNotNull(entries);
 
     for (final Map.Entry<Long, EntryObject> entry : entries.entrySet()) {
@@ -230,7 +230,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         }
       }
     }
-
 
     return preparation;
   }

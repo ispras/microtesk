@@ -35,8 +35,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
@@ -112,7 +112,7 @@ public final class MemorySymbolicExecutor {
 
       for (int i = 0; i < j; i++) {
         final MemoryAccessPath path1 = structure.getAccess(i).getPath();
-        final MemoryDependency dependency = structure.getDependency(i, j);
+        final BufferDependency dependency = structure.getDependency(i, j);
 
         if (dependency != null) {
           // It does not execute the paths (only the dependency).
@@ -150,9 +150,9 @@ public final class MemorySymbolicExecutor {
       final int pathIndex1,
       final MemoryAccessPath path2,
       final int pathIndex2,
-      final MemoryDependency dependency) {
+      final BufferDependency dependency) {
 
-    for (final MemoryHazard hazard : dependency.getHazards()) {
+    for (final BufferHazard.Instance hazard : dependency.getHazards()) {
       if (result.hasConflict()) {
         return Boolean.FALSE;
       }
@@ -166,7 +166,7 @@ public final class MemorySymbolicExecutor {
   private Boolean executeHazard(
       final MemorySymbolicResult result, 
       final Set<IntegerVariable> defines,
-      final MemoryHazard hazard,
+      final BufferHazard.Instance hazard,
       final int pathIndex1,
       final int pathIndex2) {
 

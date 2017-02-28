@@ -17,18 +17,14 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.translator.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -37,9 +33,9 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public abstract class MemoryDependencyIterator implements Iterator<MemoryDependency> {
+public abstract class MemoryDependencyIterator implements Iterator<BufferDependency> {
 
-  protected final MemoryDependency[] allPossibleDependencies;
+  protected final BufferDependency[] allPossibleDependencies;
 
   protected MemoryDependencyIterator(
       final MemoryAccess access1,
@@ -57,72 +53,66 @@ public abstract class MemoryDependencyIterator implements Iterator<MemoryDepende
     throw new UnsupportedOperationException();
   }
 
-  private static MemoryDependency[] getAllPossibleDependencies(
+  private static BufferDependency[] getAllPossibleDependencies(
       final MemoryAccess access1,
       final MemoryAccess access2,
       final Predicate<MemoryAccessStructure> checker) {
-    final Collection<MmuBuffer> buffers1 = access1.getPath().getBuffers();
-    final Collection<MmuBuffer> buffers2 = access2.getPath().getBuffers();
+    final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferAccesses();
+    final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferAccesses();
 
-    // Intersect the sets of buffers used in the memory accesses.
-    final Collection<MmuBuffer> buffers = new ArrayList<>(buffers1);
-    buffers.retainAll(buffers2);
+    final Collection<MmuBufferAccess> bufferAccesses =
+        new ArrayList<>(bufferAccesses1.size() + bufferAccesses2.size());
 
-    final Set<MmuAddressInstance> addresses = new LinkedHashSet<>();
-    for (final MmuBuffer buffer : buffers) {
-      addresses.add(buffer.getAddress());
-    }
+    bufferAccesses.addAll(bufferAccesses1);
+    bufferAccesses.addAll(bufferAccesses2);
 
-    Collection<MemoryDependency> addressDependencies =
-        Collections.<MemoryDependency>singleton(new MemoryDependency());
+    Collection<BufferDependency> bufferDependencies =
+        Collections.<BufferDependency>singleton(new BufferDependency());
 
-    for (final MmuAddressInstance address : addresses) {
-      final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(address);
+    for (final MmuBufferAccess bufferAccess1 : bufferAccesses) {
+      for (final MmuBufferAccess bufferAccess2 : bufferAccesses) {
+        final MmuBuffer buffer1 = bufferAccess1.getBuffer();
+        final MmuBuffer buffer2 = bufferAccess2.getBuffer();
 
-      addressDependencies = refineDependencies(
-          addressDependencies, access1, access2, hazards, checker);
-    }
+        // Different accesses to the same buffer.
+        if (bufferAccess1 != bufferAccess2 && buffer1 == buffer2) {
+          final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
+          final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 
-    final List<MemoryDependency> allPossibleDependencies = new ArrayList<>();
+          for (final BufferHazard hazardType : hazardTypes) {
+            hazardInstances.add(hazardType.makeInstance(bufferAccess1, bufferAccess2));
+          }
 
-    for (final MemoryDependency addressDependency : addressDependencies) {
-      Collection<MemoryDependency> bufferDependencies =
-          Collections.<MemoryDependency>singleton(addressDependency);
+          bufferDependencies = refineDependencies(
+              bufferDependencies, access1, access2, hazardInstances, checker);
 
-      for (final MmuBuffer buffer : buffers) {
-        final Collection<MemoryHazard> hazards = CoverageExtractor.get().getHazards(buffer);
-
-        bufferDependencies = refineDependencies(
-            bufferDependencies, access1, access2, hazards, checker);
-
-        if (bufferDependencies.isEmpty()) {
-          break;
+          if (bufferDependencies.isEmpty()) {
+            break;
+          }
         }
       }
-
-      allPossibleDependencies.addAll(bufferDependencies);
     }
 
-    return allPossibleDependencies.toArray(new MemoryDependency[]{});
+    return bufferDependencies.toArray(new BufferDependency[]{});
   }
 
-  private static Collection<MemoryDependency> refineDependencies(
-      final Collection<MemoryDependency> oldDependencies,
+  private static Collection<BufferDependency> refineDependencies(
+      final Collection<BufferDependency> oldDependencies,
       final MemoryAccess access1,
       final MemoryAccess access2,
-      final Collection<MemoryHazard> hazards,
+      final Collection<BufferHazard.Instance> hazards,
       final Predicate<MemoryAccessStructure> checker) {
 
     if (hazards.isEmpty()) {
       return oldDependencies;
     }
 
-    final Collection<MemoryDependency> newDependencies =
+    final Collection<BufferDependency> newDependencies =
         new ArrayList<>(oldDependencies.size() * hazards.size());
 
-    for (final MemoryDependency oldDependency : oldDependencies) {
-      for (final MemoryHazard hazard : hazards) {
-        final MemoryDependency newDependency = new MemoryDependency(oldDependency);
+    for (final BufferDependency oldDependency : oldDependencies) {
+      for (final BufferHazard.Instance hazard : hazards) {
+        final BufferDependency newDependency = new BufferDependency(oldDependency);
         newDependency.addHazard(hazard);
 
         final MemoryAccessStructure structure =

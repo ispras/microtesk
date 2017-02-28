@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
 /**
@@ -34,18 +34,20 @@ import ru.ispras.microtesk.utils.function.BiPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterMultipleTagReplacedEx implements BiPredicate<MemoryAccess, MemoryUnitedDependency> {
+public final class FilterMultipleTagReplacedEx
+    implements BiPredicate<MemoryAccess, BufferUnitedDependency> {
+
   @Override
-  public boolean test(final MemoryAccess access, final MemoryUnitedDependency dependency) {
+  public boolean test(final MemoryAccess access, final BufferUnitedDependency dependency) {
     final Set<MmuAddressInstance> addresses = new HashSet<>();
-    final Map<MmuBuffer, MemoryUnitedHazard> hazards = dependency.getDeviceHazards();
+    final Map<MmuBufferAccess, BufferUnitedHazard> hazards = dependency.getBufferHazards();
 
-    for (final Map.Entry<MmuBuffer, MemoryUnitedHazard> entry : hazards.entrySet()) {
-      final MmuBuffer device = entry.getKey();
-      final MemoryUnitedHazard hazard = entry.getValue();
+    for (final Map.Entry<MmuBufferAccess, BufferUnitedHazard> entry : hazards.entrySet()) {
+      final MmuBufferAccess bufferAccess = entry.getKey();
+      final BufferUnitedHazard hazard = entry.getValue();
 
-      if (!hazard.getRelation(MemoryHazard.Type.TAG_REPLACED).isEmpty()) {
-        if(!addresses.add(device.getAddress())) {
+      if (!hazard.getRelation(BufferHazard.Type.TAG_REPLACED).isEmpty()) {
+        if(!addresses.add(bufferAccess.getAddress())) {
           // Filter off.
           return false;
         }

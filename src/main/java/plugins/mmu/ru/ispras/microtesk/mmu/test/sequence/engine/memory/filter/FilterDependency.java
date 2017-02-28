@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,8 +18,8 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
 /**
@@ -27,9 +27,11 @@ import ru.ispras.microtesk.utils.function.TriPredicate;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class FilterDependency implements TriPredicate<MemoryAccess, MemoryAccess, MemoryDependency> {
+public final class FilterDependency
+    implements TriPredicate<MemoryAccess, MemoryAccess, BufferDependency> {
+
   /** The hazard-level filters to be composed. */
-  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters;
+  private final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance>> filters;
 
   /**
    * Constructs a dependency-level filter from the collection of hazard-level filters.
@@ -38,21 +40,23 @@ public final class FilterDependency implements TriPredicate<MemoryAccess, Memory
    * @throws IllegalArgumentException if {@code filters} is {@code null}.
    */
   public FilterDependency(
-      final Collection<TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard>> filters) {
+      final Collection<TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance>> filters) {
     InvariantChecks.checkNotNull(filters);
     this.filters = filters;
   }
-  
+
   @Override
   public boolean test(
-      final MemoryAccess access1, final MemoryAccess access2, final MemoryDependency dependency) {
+      final MemoryAccess access1,
+      final MemoryAccess access2,
+      final BufferDependency dependency) {
 
     if (dependency == null) {
       return true;
     }
 
-    for (final MemoryHazard hazard : dependency.getHazards()) {
-      for (final TriPredicate<MemoryAccess, MemoryAccess, MemoryHazard> filter : filters) {
+    for (final BufferHazard.Instance hazard : dependency.getHazards()) {
+      for (final TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance> filter : filters) {
         if (!filter.test(access1, access2, hazard)) {
           // Filter off.
           return false;

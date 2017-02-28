@@ -23,6 +23,7 @@ import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -55,7 +56,7 @@ public final class AddressObject {
    * <p>Typically, one memory access affects one entry of one buffer. It is assumed that each map
    * contains exactly one entry.</p>
    */
-  private final Map<MmuBuffer, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
+  private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
   /** Refers to the memory access. */
   private MemoryAccess access;
@@ -167,31 +168,31 @@ public final class AddressObject {
     setAddress(memory.getPhysicalAddress(), value);
   }
 
-  public Map<MmuBuffer, Map<Long, EntryObject>> getEntries() {
+  public Map<MmuBufferAccess, Map<Long, EntryObject>> getEntries() {
     return entries;
   }
 
   /**
    * Returns the entries to be written to the given buffer.
    * 
-   * @param buffer the buffer to be prepared.
+   * @param bufferAccess the buffer access.
    * @return the entries to written.
    * @throws IllegalArgumentException if {@code buffer} is null.
    */
-  public Map<Long, EntryObject> getEntries(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-    return entries.get(buffer);
+  public Map<Long, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    return entries.get(bufferAccess);
   }
 
   /**
    * Sets the entries to be written to the given buffer.
    * 
-   * @param buffer the buffer to be prepared.
+   * @param bufferAccess the buffer access.
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBuffer buffer, final Map<Long, EntryObject> entries) {
-    InvariantChecks.checkNotNull(buffer);
+  public void setEntries(final MmuBufferAccess bufferAccess, final Map<Long, EntryObject> entries) {
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkTrue(entries.size() == 1);
 
@@ -199,24 +200,24 @@ public final class AddressObject {
       entry.addAddrObject(this);
     }
 
-    this.entries.put(buffer, entries);
+    this.entries.put(bufferAccess, entries);
   }
 
   /**
    * Adds the entry to the set of entries to be written to the given buffer.
    * 
-   * @param buffer the buffer to be prepared.
+   * @param bufferAccess the buffer access.
    * @param entry the entry to be added.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void addEntry(final MmuBuffer buffer, final EntryObject entry) {
-    InvariantChecks.checkNotNull(buffer);
+  public void addEntry(final MmuBufferAccess bufferAccess, final EntryObject entry) {
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entry);
 
-    Map<Long, EntryObject> bufferEntries = entries.get(buffer);
+    Map<Long, EntryObject> bufferEntries = entries.get(bufferAccess);
 
     if (bufferEntries == null) {
-      entries.put(buffer, bufferEntries = new LinkedHashMap<>());
+      entries.put(bufferAccess, bufferEntries = new LinkedHashMap<>());
     }
 
     entry.addAddrObject(this);

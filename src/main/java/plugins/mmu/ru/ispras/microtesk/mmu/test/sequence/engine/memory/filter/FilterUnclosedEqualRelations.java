@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,8 +23,8 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.utils.function.Predicate;
@@ -45,13 +45,14 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class FilterUnclosedEqualRelations implements Predicate<MemoryAccessStructure> {
+
   @Override
   public boolean test(final MemoryAccessStructure structure) {
     final Map<String, Map<Integer, Set<Integer>>> relations = new LinkedHashMap<>();
 
     for (int i = 0; i < structure.size() - 1; i++) {
       for (int j = i + 1; j < structure.size(); j++) {
-        final MemoryDependency dependency = structure.getDependency(i, j);
+        final BufferDependency dependency = structure.getDependency(i, j);
 
         if (dependency != null) {
           update(structure.getSubsystem(), relations, i, j, dependency);
@@ -67,38 +68,28 @@ public final class FilterUnclosedEqualRelations implements Predicate<MemoryAcces
   }
 
   private static void update(
-      final MmuSubsystem memory,final Map<String, Map<Integer, Set<Integer>>> relations,
-      final int i, final int j, final MemoryDependency dependency) {
+      final MmuSubsystem memory,
+      final Map<String, Map<Integer, Set<Integer>>> relations,
+      final int i,
+      final int j,
+      final BufferDependency dependency) {
     InvariantChecks.checkTrue(i < j);
 
-    for (final MemoryHazard hazard : dependency.getHazards()) {
+    for (final BufferHazard.Instance hazardInstance : dependency.getHazards()) {
+      final BufferHazard hazardType = hazardInstance.getHazardType();
       final List<String> hazardNames = new ArrayList<>();
 
-      switch (hazard.getType()) {
-        case ADDR_EQUAL:
-          InvariantChecks.checkNotNull(hazard.getAddress());
+      final MmuBuffer buffer = hazardType.getBuffer();
 
-          hazardNames.add(String.format("%s.%s", hazard.getAddress(), "ADDR_EQUAL"));
-
-          for (final MmuBuffer device : memory.getBuffers()) {
-            if (device.getAddress() == hazard.getAddress()) {
-              hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));
-              hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));
-            }
-          }
-          break;
+      switch (hazardType.getType()) {
         case TAG_EQUAL:
-          InvariantChecks.checkNotNull(hazard.getDevice());
-
-          hazardNames.add(String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"));
-          hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));
+          hazardNames.add(String.format("%s.%s", buffer, "TAG_EQUAL"));
+          hazardNames.add(String.format("%s.%s", buffer, "INDEX_EQUAL"));
           break;
         case TAG_NOT_EQUAL:
         case TAG_REPLACED:
         case TAG_NOT_REPLACED:
-          InvariantChecks.checkNotNull(hazard.getDevice());
-
-          hazardNames.add(String.format("%s.%s", hazard.getDevice(), "INDEX_EQUAL"));
+          hazardNames.add(String.format("%s.%s", buffer, "INDEX_EQUAL"));
           break;
         default:
           break;
@@ -108,8 +99,8 @@ public final class FilterUnclosedEqualRelations implements Predicate<MemoryAcces
         update(relations, hazardName, i, j);
       }
 
-      if (hazard.getType() == MemoryHazard.Type.TAG_REPLACED) {
-        update(relations, String.format("%s.%s", hazard.getDevice(), "TAG_EQUAL"), -i, j);
+      if (hazardType.getType() == BufferHazard.Type.TAG_REPLACED) {
+        update(relations, String.format("%s.%s", buffer, "TAG_EQUAL"), -i, j);
       }
     }
   }
