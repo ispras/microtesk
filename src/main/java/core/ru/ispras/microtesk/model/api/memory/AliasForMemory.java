@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,18 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
+
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
 
+/**
+ * The {@link AliasForMemory} class implements a memory storage which
+ * is an alias for another memory storage.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class AliasForMemory extends Memory {
   private final int itemBitSize;
   private final int sourceItemBitSize;
@@ -34,13 +39,12 @@ final class AliasForMemory extends Memory {
       final BigInteger length,
       final Memory source,
       final int min, 
-      final int max
-      ) {
+      final int max) {
     super(kind, name, type, length, true);
-    checkNotNull(source);
+    InvariantChecks.checkNotNull(source);
 
-    checkBounds(min, source.getLength().intValue());
-    checkBounds(max, source.getLength().intValue());
+    InvariantChecks.checkBounds(min, source.getLength().intValue());
+    InvariantChecks.checkBounds(max, source.getLength().intValue());
 
     this.itemBitSize = type.getBitSize();
     this.sourceItemBitSize = source.getType().getBitSize();
@@ -70,13 +74,11 @@ final class AliasForMemory extends Memory {
   }
 
   /*
-   * TODO:
    * NOTE: the implementation based on longs has limitations.
-   * But we usually dont use aliases for registers. So it implies 
+   * However, we usually use aliases for registers. So, it implies 
    * that the index value is small enough to fit a Java long value
    * without causing any troubles. 
    */
-
   @Override
   public Location access(final long address) {
     if (itemBitSize == sourceItemBitSize) {
@@ -109,6 +111,6 @@ final class AliasForMemory extends Memory {
 
   @Override
   public void reset() {
-    // Does not work for aliases (and should not be called)
+    // Does not work for aliases (and must not be called)
   }
 }
