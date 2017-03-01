@@ -106,16 +106,17 @@ public final class MmuBufferAccess {
 
     final MmuBufferAccess r = (MmuBufferAccess) o;
 
-    return buffer.equals(r.buffer);
+    return buffer.equals(r.buffer)
+        && (address != null && address.equals(r.address) || address == null && r.address == null);
   }
 
   @Override
   public int hashCode() {
-    return buffer.hashCode();
+    return 31 * buffer.hashCode() + (address != null ? address.hashCode() : 0);
   }
 
   @Override
   public String toString() {
-    return String.format("%s", buffer);
+    return String.format("%s[%s]", buffer, address);
   }
 }

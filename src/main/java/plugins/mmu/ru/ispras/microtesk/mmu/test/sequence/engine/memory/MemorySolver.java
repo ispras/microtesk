@@ -1158,6 +1158,21 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
 
+    // Set the intermediate addresses used along the memory access path.
+    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+      final MmuBuffer buffer = bufferAccess.getBuffer();
+
+      if (vaType.equals(buffer.getAddress()) || paType.equals(buffer.getAddress())) {
+        continue;
+      }
+
+      final MmuAddressInstance addrType = bufferAccess.getAddress();
+      final IntegerVariable addrVar = addrType.getVariable(); 
+      final BigInteger addrValue = values.get(addrVar);
+
+      addrObject.setAddress(addrType, addrValue.longValue());
+    }
+
     // Set the attributes to be used in an adapter (if required).
     addrObject.clearAttrs();
 
@@ -1166,7 +1181,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final BigInteger value = attribute.getValue();
 
       if (!key.equals(vaVar) && !key.equals(paVar)) {
-        addrObject.setAttrValue(key, value.longValue());
+        addrObject.setAttrValue(key, value.longValue()); // TODO: too many attributes.
       }
     }
 

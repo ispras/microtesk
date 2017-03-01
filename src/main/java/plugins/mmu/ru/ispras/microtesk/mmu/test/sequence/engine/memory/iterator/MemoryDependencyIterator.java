@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
@@ -60,7 +61,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
     final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferAccesses();
     final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferAccesses();
 
-    final Collection<MmuBufferAccess> bufferAccesses =
+    final List<MmuBufferAccess> bufferAccesses =
         new ArrayList<>(bufferAccesses1.size() + bufferAccesses2.size());
 
     bufferAccesses.addAll(bufferAccesses1);
@@ -69,13 +70,16 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
     Collection<BufferDependency> bufferDependencies =
         Collections.<BufferDependency>singleton(new BufferDependency());
 
-    for (final MmuBufferAccess bufferAccess1 : bufferAccesses) {
-      for (final MmuBufferAccess bufferAccess2 : bufferAccesses) {
+    for (int i = 0; i < bufferAccesses.size() - 1; i++) {
+      for (int j = i + 1; j < bufferAccesses.size(); j++) {
+        final MmuBufferAccess bufferAccess1 = bufferAccesses.get(i);
+        final MmuBufferAccess bufferAccess2 = bufferAccesses.get(j);
+
         final MmuBuffer buffer1 = bufferAccess1.getBuffer();
         final MmuBuffer buffer2 = bufferAccess2.getBuffer();
 
         // Different accesses to the same buffer.
-        if (bufferAccess1 != bufferAccess2 && buffer1 == buffer2) {
+        if (buffer1 == buffer2) {
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
           final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 

@@ -205,6 +205,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     hasValue = initAccesses();
 
     while (hasValue && !checkStructure()) {
+      Logger.debug("Inconsistent memory access structure");
       hasValue = nextStructure();
     }
 

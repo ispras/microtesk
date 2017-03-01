@@ -405,9 +405,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MmuProgram program = getNextProgram(searchEntry.action);
 
       if (program != null) {
-        Logger.debug("Program extracted: %s", program);
         searchEntry.iterator.stop();
-
         return program;
       }
     }

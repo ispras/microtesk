@@ -447,7 +447,6 @@ public final class MemorySymbolicExecutor {
         switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
       }
   
-      Logger.debug("Switch: %s", switchBuilder.build());
       result.addClause(switchBuilder.build());
 
       for (int i = 0; i < switchResults.size(); i++) {
@@ -458,8 +457,6 @@ public final class MemorySymbolicExecutor {
 
         // Case: (PHI == i) -> CASE(i).
         final IntegerFormula<IntegerField> ifThenFormula = getIfThenFormula(phi, i, caseFormula);
-        Logger.debug("Case %d: %s", i, ifThenFormula);
-
         result.addFormula(ifThenFormula);
       }
     }
@@ -646,17 +643,13 @@ public final class MemorySymbolicExecutor {
             final boolean truthValue = (value.equals(fieldConst) != atom.isNegated());
 
             if (!truthValue && clauseBuilder.getType() == IntegerClause.Type.AND) {
-              Logger.debug("Condition is always FALSE: %s %s %s",
-                  field, (atom.isNegated() ? "!=" : "=="), fieldConst);
-
+              // Condition is always false.
               result.setConflict(true);
               return Boolean.FALSE;
             }
 
             if (truthValue && clauseBuilder.getType() == IntegerClause.Type.OR) {
-              Logger.debug("Condition is always TRUE: %s %s %s",
-                  field, (atom.isNegated() ? "!=" : "=="), fieldConst);
-
+              // Condition is always true.
               // Formally, the empty OR clause is false, but it is simply ignored.
               clauseBuilder.clear();
               isTrue = true;
@@ -795,7 +788,7 @@ public final class MemorySymbolicExecutor {
             }, false);
 
         if (constant != null) {
-          Logger.debug("Constant propagation: %s == 0x%s", newLhsVar, constant.toString(16));
+          // Constant propagation.
           result.addConstant(newLhsVar, constant);
         }
       } // if right-hand side exists.

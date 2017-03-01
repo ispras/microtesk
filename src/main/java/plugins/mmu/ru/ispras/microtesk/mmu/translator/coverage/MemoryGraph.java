@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -160,7 +159,7 @@ public final class MemoryGraph {
     // Reduce the overall memory graph on the base of settings.
     if (!MemoryEngineUtils.isValidTransition(transition, accessType)
         || MemoryEngineUtils.isDisabledTransition(transition)) {
-      Logger.debug("Ignore the disabled transition %s", transition);
+      // Ignore the disabled transition.
       return;
     }
 
