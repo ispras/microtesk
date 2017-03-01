@@ -180,6 +180,10 @@ public abstract class IsaPrimitive {
     return null;
   }
 
+  protected final Location annotate(final Location location, final TemporaryVariables tempVars) {
+    return location.setAddressingMode(new IsaAddressingMode(this, tempVars));
+  }
+
   private void reportUndefined(final String attrName, final String message) {
     Logger.error(
         "The '%s' attribute is undefined for the '%s' primitive. %s.",

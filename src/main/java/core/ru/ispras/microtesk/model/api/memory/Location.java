@@ -65,7 +65,9 @@ public final class Location implements LocationAccessor {
     return new Location(type, atom);
   }
 
-  public Location setName(final String name) {
+  public Location setAddressingMode(final AddressingMode addressingMode) {
+    final String name = addressingMode.getName();
+
     if (null == name || name.isEmpty()) {
       return this;
     }
