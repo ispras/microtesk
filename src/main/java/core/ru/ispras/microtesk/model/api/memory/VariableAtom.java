@@ -33,22 +33,18 @@ final class VariableAtom extends LocationAtom {
   }
 
   private VariableAtom(
-      final String memory,
-      final BitVector index,
-      final BitVector value,
+      final VariableAtom other,
       final int bitSize,
       final int startBitPos) {
-    super(memory, index, bitSize, startBitPos);
-
-    InvariantChecks.checkNotNull(value);
+    super(other, bitSize, startBitPos);
 
     InvariantChecks.checkGreaterThanZero(bitSize);
     InvariantChecks.checkGreaterOrEqZero(startBitPos);
 
-    InvariantChecks.checkBounds(startBitPos, value.getBitSize());
-    InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, value.getBitSize());
+    InvariantChecks.checkBounds(startBitPos, other.value.getBitSize());
+    InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, other.value.getBitSize());
 
-    this.value = value;
+    this.value = other.value;
   }
 
   @Override
@@ -58,7 +54,7 @@ final class VariableAtom extends LocationAtom {
 
   @Override
   public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
-    return new VariableAtom(getMemory(), getIndex(), value, newBitSize, newStartBitPos);
+    return new VariableAtom(this, newBitSize, newStartBitPos);
   }
 
   @Override

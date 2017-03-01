@@ -28,14 +28,6 @@ abstract class LocationAtom {
   private final int bitSize;
   private final int startBitPos;
 
-  protected LocationAtom(final LocationAtom other) {
-    InvariantChecks.checkNotNull(other);
-    this.memory = other.memory;
-    this.index = other.index;
-    this.bitSize = other.bitSize;
-    this.startBitPos = other.startBitPos;
-  }
-
   protected LocationAtom(
       final String memory,
       final BitVector index,
@@ -45,6 +37,27 @@ abstract class LocationAtom {
     this.index = index;
     this.bitSize = bitSize;
     this.startBitPos = startBitPos;
+  }
+
+  protected LocationAtom(final LocationAtom other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.memory = other.memory;
+    this.index = other.index;
+    this.bitSize = other.bitSize;
+    this.startBitPos = other.startBitPos;
+  }
+
+  protected LocationAtom(
+      final LocationAtom other,
+      final int newBitSize,
+      final int newStartBitPos) {
+    InvariantChecks.checkNotNull(other);
+
+    this.memory = other.memory;
+    this.index = other.index;
+    this.bitSize = newBitSize;
+    this.startBitPos = newStartBitPos;
   }
 
   public boolean isLoggable() {

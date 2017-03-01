@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -130,36 +130,26 @@ final class RegisterFile extends Memory {
       this.flags = BitVector.newEmpty(bitSize);
     }
 
-    private RegisterAtom(
-        final String memory,
-        final BitVector index,
-        final BitVector value,
-        final BitVector flags,
-        final int bitSize,
-        final int startBitPos) {
-      super(memory, index, bitSize, startBitPos);
-
-      InvariantChecks.checkNotNull(memory);
-      InvariantChecks.checkNotNull(index);
-
-      InvariantChecks.checkNotNull(value);
-      InvariantChecks.checkNotNull(flags);
-      InvariantChecks.checkTrue(value.getBitSize() == flags.getBitSize());
-
-      InvariantChecks.checkGreaterThanZero(bitSize);
-      InvariantChecks.checkGreaterOrEqZero(startBitPos);
-
-      InvariantChecks.checkBounds(startBitPos, value.getBitSize());
-      InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, value.getBitSize());
-
-      this.value = value;
-      this.flags = flags;
-    }
-
     private RegisterAtom(final RegisterAtom other) {
       super(other);
       this.value = other.value.copy();
       this.flags = BitVector.newEmpty(getBitSize()); // Flags are reset for the new copy.
+    }
+
+    private RegisterAtom(
+        final RegisterAtom other,
+        final int bitSize,
+        final int startBitPos) {
+      super(other, bitSize, startBitPos);
+
+      InvariantChecks.checkGreaterThanZero(bitSize);
+      InvariantChecks.checkGreaterOrEqZero(startBitPos);
+
+      InvariantChecks.checkBounds(startBitPos, other.value.getBitSize());
+      InvariantChecks.checkBoundsInclusive(startBitPos + bitSize, other.value.getBitSize());
+
+      this.value = other.value;
+      this.flags = other.flags;
     }
 
     @Override
@@ -180,7 +170,7 @@ final class RegisterFile extends Memory {
 
     @Override
     public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
-      return new RegisterAtom(getMemory(), getIndex(), value, flags, newBitSize, newStartBitPos);
+      return new RegisterAtom(this, newBitSize, newStartBitPos);
     }
 
     @Override
