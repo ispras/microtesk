@@ -132,6 +132,17 @@ public abstract class Memory {
     this.addressBitSize = other.addressBitSize;
   }
 
+  protected static int getIndexBitSize(final int count) {
+    InvariantChecks.checkGreaterOrEqZero(count);
+
+    if (count <= 1) {
+      return 1;
+    }
+
+    final int result = 31 - Integer.numberOfLeadingZeros(count);
+    return result == Integer.numberOfTrailingZeros(count) ? result : result + 1;
+  }
+
   public void initAllocator(
       final int addressableUnitBitSize, final BigInteger baseAddress) {
     throw new UnsupportedOperationException(
