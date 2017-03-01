@@ -81,7 +81,7 @@ abstract class LocationAtom {
   }
 
   public abstract boolean isInitialized();
-  public abstract LocationAtom resize(int newBitSize, int newStartBitPos);
+  public abstract LocationAtom resize(int bitFieldSize, int bitFieldStart);
 
   public abstract BitVector load(boolean useHandler);
   public abstract void store(BitVector data, boolean callHandler);
