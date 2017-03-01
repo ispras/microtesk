@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.AddressingMode;
 
 /**
- * The {@link IsaAddressingMode} class provides information on an addresing
+ * The {@link IsaAddressingMode} class provides information on an addressing
  * mode that is used to access a location.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
