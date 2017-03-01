@@ -69,16 +69,22 @@ public final class MemorySymbolicExecutor {
 
   public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
+
+    Logger.debug("Symbolically execute constraint %s", constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
   public Boolean execute(final MemoryAccessPath.Entry entry) {
     InvariantChecks.checkNotNull(entry);
+
+    Logger.debug("Symbolically execute entry %s", entry);
     return executeEntry(result, null, entry, -1);
   }
 
   public Boolean execute(final MemoryAccessPath path, final boolean finalize) {
     InvariantChecks.checkNotNull(path);
+
+    Logger.debug("Symbolically execute path %s", path);
 
     final Boolean status = executePath(result, null, path, -1);
 
@@ -92,6 +98,8 @@ public final class MemorySymbolicExecutor {
   public Boolean execute(final MemoryAccessStructure structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
+
+    Logger.debug("Symbolically execute structure %s", structure);
 
     final Boolean status = executeStructure(result, null, structure);
 

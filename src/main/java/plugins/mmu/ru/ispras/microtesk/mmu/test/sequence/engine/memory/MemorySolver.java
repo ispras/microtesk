@@ -678,7 +678,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
         }
 
         if (result.getStatus() != SolverResult.Status.UNSAT) {
-          result = solveTagReplacedConstraints(j, bufferAccess);
+          // External buffer accesses only.
+          if (bufferAccess.getAddress().equals(buffer.getAddress())) {
+            result = solveTagReplacedConstraints(j, bufferAccess);
+          }
         }
       } else {
         // Construct a set of entries to be written to the buffer.
@@ -720,9 +723,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
-    for (final MmuAddressInstance addrType : addrObject.getAddresses().keySet()) {
-      solveAlignConstraint(j, addrType);
-    }
+    solveAlignConstraint(j, memory.getVirtualAddress());
+    solveAlignConstraint(j, memory.getPhysicalAddress());
 
     // Assign the tag, index and offset according to the dependencies.
     final Map<MmuBufferAccess, BufferUnitedHazard> bufferHazards = dependency.getBufferHazards();
@@ -1162,7 +1164,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
       final MmuBuffer buffer = bufferAccess.getBuffer();
 
-      if (vaType.equals(buffer.getAddress()) || paType.equals(buffer.getAddress())) {
+      if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
+        continue;
+      }
+
+      if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())) {
         continue;
       }
 
@@ -1170,6 +1176,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final IntegerVariable addrVar = addrType.getVariable(); 
       final BigInteger addrValue = values.get(addrVar);
 
+      Logger.debug("Refine address: %s=0x%x", addrType, addrValue.longValue());
       addrObject.setAddress(addrType, addrValue.longValue());
     }
 

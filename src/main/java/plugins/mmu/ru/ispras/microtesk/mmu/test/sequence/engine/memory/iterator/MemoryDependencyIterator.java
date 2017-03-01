@@ -78,8 +78,11 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final MmuBuffer buffer1 = bufferAccess1.getBuffer();
         final MmuBuffer buffer2 = bufferAccess2.getBuffer();
 
-        // Different accesses to the same buffer.
-        if (buffer1 == buffer2) {
+        final boolean isExternal1 = bufferAccess1.getAddress().equals(buffer1.getAddress());
+        final boolean isExternal2 = bufferAccess2.getAddress().equals(buffer2.getAddress());
+
+        // Different external accesses to the same buffer (recursive accesses are uncontrollable).
+        if (buffer1 == buffer2 && !buffer1.isFake() && isExternal1 && isExternal2) {
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
           final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 
