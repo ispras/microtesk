@@ -16,7 +16,6 @@ package ru.ispras.microtesk.model.api.memory;
 
 import java.math.BigInteger;
 import java.util.Map;
-import ru.ispras.microtesk.model.api.data.Type;
 
 /**
  * The {@link AddressingMode} interface describes an object that holds
@@ -27,6 +26,5 @@ import ru.ispras.microtesk.model.api.data.Type;
 public interface AddressingMode {
   String getName();
   String getSyntax();
-  Type getType();
   Map<String, BigInteger> getArguments();
 }
