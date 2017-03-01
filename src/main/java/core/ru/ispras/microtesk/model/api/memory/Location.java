@@ -49,7 +49,7 @@ public final class Location implements LocationAccessor {
   public Location(final Data data) {
     this(
         data != null ? data.getType() : null,
-        data != null ? new VariableAtom(data.getRawData()) : null
+        data != null ? new VariableAtom(null, data.getRawData()) : null
         );
   }
 

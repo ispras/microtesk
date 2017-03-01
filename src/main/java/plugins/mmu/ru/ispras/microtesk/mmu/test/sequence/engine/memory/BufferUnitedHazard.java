@@ -45,7 +45,7 @@ public final class BufferUnitedHazard {
 
     // Initialize the relation map with empty sets of indices.
     for (final BufferHazard.Type hazardType : BufferHazard.Type.values()) {
-      relation.put(hazardType, new LinkedHashSet<>());
+      relation.put(hazardType, new LinkedHashSet<Pair<Integer, BufferHazard.Instance>>());
     }
 
     for (final Map.Entry<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>> entry

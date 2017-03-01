@@ -147,30 +147,29 @@ final class PhysicalMemory extends Memory {
   }
 
   private final class PhysicalMemoryAtom extends LocationAtom {
-    private final BitVector index;
-
     private PhysicalMemoryAtom(
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
-      super(bitSize, startBitPos);
-      this.index = index;
+      super(index, bitSize, startBitPos);
+      InvariantChecks.checkNotNull(index);
     }
 
     @Override
     public boolean isInitialized() {
-      return storage.isInitialized(virtualIndexToPhysicalIndex(index));
+      return storage.isInitialized(virtualIndexToPhysicalIndex(getIndex()));
     }
 
     @Override
     public PhysicalMemoryAtom resize(
         final int newBitSize,
         final int newStartBitPos) {
-      return new PhysicalMemoryAtom(index, newBitSize, newStartBitPos);
+      return new PhysicalMemoryAtom(getIndex(), newBitSize, newStartBitPos);
     }
 
     @Override
     public BitVector load(final boolean callHandler) {
+      final BitVector index = getIndex();
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
@@ -204,6 +203,7 @@ final class PhysicalMemory extends Memory {
     public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
 
+      final BitVector index = getIndex();
       final MemoryDevice targetDevice;
       final BitVector targetAddress;
 
@@ -243,7 +243,7 @@ final class PhysicalMemory extends Memory {
     public String toString() {
       return String.format("%s[%d]<%d..%d>",
           getName(),
-          index.bigIntegerValue(false),
+          getIndex().bigIntegerValue(false),
           getStartBitPos(),
           getStartBitPos() + getBitSize() - 1
           );
@@ -275,31 +275,29 @@ final class PhysicalMemory extends Memory {
   }
 
   private final class LogicalMemoryAtom extends LocationAtom {
-    private final BitVector index;
-
     private LogicalMemoryAtom(
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
-      super(bitSize, startBitPos);
-      this.index = index;
+      super(index, bitSize, startBitPos);
+      InvariantChecks.checkNotNull(index);
     }
 
     @Override
     public boolean isInitialized() {
-      return storage.isInitialized(index);
+      return storage.isInitialized(getIndex());
     }
 
     @Override
     public LogicalMemoryAtom resize(
         final int newBitSize,
         final int newStartBitPos) {
-      return new LogicalMemoryAtom(index, newBitSize, newStartBitPos);
+      return new LogicalMemoryAtom(getIndex(), newBitSize, newStartBitPos);
     }
 
     @Override
     public BitVector load(final boolean callHandler) {
-      final BitVector region = storage.load(index);
+      final BitVector region = storage.load(getIndex());
       return BitVector.newMapping(region, getStartBitPos(), getBitSize());
     }
 
@@ -311,19 +309,19 @@ final class PhysicalMemory extends Memory {
       if (getBitSize() == storage.getDataBitSize()) {
         region = data;
       } else {
-        region = storage.load(index).copy();
+        region = storage.load(getIndex()).copy();
         final BitVector mapping = BitVector.newMapping(region, getStartBitPos(), getBitSize());
         mapping.assign(data);
       }
 
-      storage.store(index, region);
+      storage.store(getIndex(), region);
     }
 
     @Override
     public String toString() {
       return String.format("%s[%d]<%d..%d>",
           getName(),
-          index.bigIntegerValue(false),
+          getIndex().bigIntegerValue(false),
           getStartBitPos(),
           getStartBitPos() + getBitSize() - 1
           );

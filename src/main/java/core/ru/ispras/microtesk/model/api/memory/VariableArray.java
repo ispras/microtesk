@@ -37,13 +37,15 @@ final class VariableArray extends Memory {
     InvariantChecks.checkGreaterOrEq(BigInteger.valueOf(Integer.MAX_VALUE), length);
 
     final int count = length.intValue();
+    final int indexBitSize = getIndexBitSize(count);
 
     this.locations = new ArrayList<>(count);
     this.values = new ArrayList<>(count);
 
     for (int index = 0; index < count; ++index) {
       final BitVector value = BitVector.newEmpty(type.getBitSize());
-      final Location location = Location.newLocationForAtom(type, new VariableAtom(value));
+      final LocationAtom atom = new VariableAtom(BitVector.valueOf(index, indexBitSize), value);
+      final Location location = Location.newLocationForAtom(type, atom);
 
       this.values.add(value);
       this.locations.add(location);
@@ -55,6 +57,7 @@ final class VariableArray extends Memory {
 
     final int count = other.locations.size();
     InvariantChecks.checkTrue(other.locations.size() == other.values.size());
+    final int indexBitSize = getIndexBitSize(count);
 
     this.locations = new ArrayList<>(count);
     this.values = new ArrayList<>(count);
@@ -62,7 +65,9 @@ final class VariableArray extends Memory {
     for (int index = 0; index < count; ++index) {
       final Type type = other.locations.get(index).getType();
       final BitVector value = other.values.get(index).copy();
-      final Location location = Location.newLocationForAtom(type, new VariableAtom(value));
+
+      final LocationAtom atom = new VariableAtom(BitVector.valueOf(index, indexBitSize), value);
+      final Location location = Location.newLocationForAtom(type, atom);
 
       this.values.add(value);
       this.locations.add(location);

@@ -26,17 +26,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 final class VariableAtom extends LocationAtom {
   private final BitVector value;
 
-  protected VariableAtom(final BitVector value) {
-    super(null != value ? value.getBitSize() : 0, 0);
+  protected VariableAtom(final BitVector index, final BitVector value) {
+    super(index, null != value ? value.getBitSize() : 0, 0);
     InvariantChecks.checkNotNull(value);
     this.value = value;
   }
 
   private VariableAtom(
+      final BitVector index,
       final BitVector value,
       final int bitSize,
       final int startBitPos) {
-    super(bitSize, startBitPos);
+    super(index, bitSize, startBitPos);
 
     InvariantChecks.checkNotNull(value);
 
@@ -56,7 +57,7 @@ final class VariableAtom extends LocationAtom {
 
   @Override
   public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
-    return new VariableAtom(value, newBitSize, newStartBitPos);
+    return new VariableAtom(getIndex(), value, newBitSize, newStartBitPos);
   }
 
   @Override

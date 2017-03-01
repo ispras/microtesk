@@ -23,18 +23,28 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 abstract class LocationAtom {
+  private final BitVector index;
   private final int bitSize;
   private final int startBitPos;
 
   protected LocationAtom(final LocationAtom other) {
     InvariantChecks.checkNotNull(other);
+    this.index = other.index;
     this.bitSize = other.bitSize;
     this.startBitPos = other.startBitPos;
   }
 
-  protected LocationAtom(final int bitSize, final int startBitPos) {
+  protected LocationAtom(
+      final BitVector index,
+      final int bitSize,
+      final int startBitPos) {
+    this.index = index;
     this.bitSize = bitSize;
     this.startBitPos = startBitPos;
+  }
+
+  public boolean isLoggable() {
+    return false;
   }
 
   public final int getBitSize() {
@@ -45,12 +55,9 @@ abstract class LocationAtom {
     return startBitPos;
   }
 
-  public boolean isLoggable() {
-    return false;
+  public final BitVector getIndex() {
+    return index;
   }
-
-  //String getName();
-  //BitVector getIndex();
 
   public abstract boolean isInitialized();
   public abstract LocationAtom resize(int newBitSize, int newStartBitPos);

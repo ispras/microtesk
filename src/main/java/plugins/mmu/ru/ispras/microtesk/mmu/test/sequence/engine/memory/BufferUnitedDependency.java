@@ -82,7 +82,7 @@ public final class BufferUnitedDependency {
       final MmuBufferAccess bufferAccess,
       final BufferHazard.Type hazardType) {
     final BufferUnitedHazard hazard = getHazard(bufferAccess);
-    return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<>();
+    return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Pair<Integer, BufferHazard.Instance>>();
   }
 
   @Override
