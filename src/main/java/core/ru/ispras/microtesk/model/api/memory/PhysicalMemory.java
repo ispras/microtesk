@@ -151,7 +151,7 @@ final class PhysicalMemory extends Memory {
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
-      super(index, bitSize, startBitPos);
+      super(getName(), index, bitSize, startBitPos);
       InvariantChecks.checkNotNull(index);
     }
 
@@ -279,7 +279,7 @@ final class PhysicalMemory extends Memory {
         final BitVector index,
         final int bitSize,
         final int startBitPos) {
-      super(index, bitSize, startBitPos);
+      super(getName(), index, bitSize, startBitPos);
       InvariantChecks.checkNotNull(index);
     }
 

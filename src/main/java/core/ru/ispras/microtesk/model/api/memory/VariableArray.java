@@ -44,7 +44,7 @@ final class VariableArray extends Memory {
 
     for (int index = 0; index < count; ++index) {
       final BitVector value = BitVector.newEmpty(type.getBitSize());
-      final LocationAtom atom = new VariableAtom(BitVector.valueOf(index, indexBitSize), value);
+      final LocationAtom atom = new VariableAtom(getName(), BitVector.valueOf(index, indexBitSize), value);
       final Location location = Location.newLocationForAtom(type, atom);
 
       this.values.add(value);
@@ -66,7 +66,7 @@ final class VariableArray extends Memory {
       final Type type = other.locations.get(index).getType();
       final BitVector value = other.values.get(index).copy();
 
-      final LocationAtom atom = new VariableAtom(BitVector.valueOf(index, indexBitSize), value);
+      final LocationAtom atom = new VariableAtom(getName(), BitVector.valueOf(index, indexBitSize), value);
       final Location location = Location.newLocationForAtom(type, atom);
 
       this.values.add(value);

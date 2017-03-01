@@ -39,14 +39,14 @@ final class RegisterFile extends Memory {
     InvariantChecks.checkGreaterOrEq(BigInteger.valueOf(Integer.MAX_VALUE), length);
 
     final Pair<List<Location>, List<RegisterAtom>> registers =
-        newRegisters(type, length.intValue());
+        newRegisters(name, type, length.intValue());
 
     this.locations = registers.first;
     this.atoms = registers.second;
   }
 
   private static Pair<List<Location>, List<RegisterAtom>>
-      newRegisters(final Type type, final int count) {
+      newRegisters(final String memory, final Type type, final int count) {
     final List<RegisterAtom> atoms = new ArrayList<>(count);
     final List<Location> locations = new ArrayList<>(count);
 
@@ -54,7 +54,7 @@ final class RegisterFile extends Memory {
     final int indexBitSize = getIndexBitSize(count);
 
     for(int index = 0; index < count; ++index) {
-      final RegisterAtom atom = new RegisterAtom(BitVector.valueOf(index, indexBitSize), bitSize);
+      final RegisterAtom atom = new RegisterAtom(memory, BitVector.valueOf(index, indexBitSize), bitSize);
       atoms.add(atom);
 
       final Location location = Location.newLocationForAtom(type, atom);
@@ -119,9 +119,10 @@ final class RegisterFile extends Memory {
     private final BitVector value;
     private final BitVector flags;
 
-    private RegisterAtom(final BitVector index, final int bitSize) {
-      super(index, bitSize, 0);
+    private RegisterAtom(final String memory, final BitVector index, final int bitSize) {
+      super(memory, index, bitSize, 0);
 
+      InvariantChecks.checkNotNull(memory);
       InvariantChecks.checkNotNull(index);
       InvariantChecks.checkGreaterThanZero(bitSize);
 
@@ -130,12 +131,15 @@ final class RegisterFile extends Memory {
     }
 
     private RegisterAtom(
+        final String memory,
         final BitVector index,
         final BitVector value,
         final BitVector flags,
         final int bitSize,
         final int startBitPos) {
-      super(index, bitSize, startBitPos);
+      super(memory, index, bitSize, startBitPos);
+
+      InvariantChecks.checkNotNull(memory);
       InvariantChecks.checkNotNull(index);
 
       InvariantChecks.checkNotNull(value);
@@ -176,7 +180,7 @@ final class RegisterFile extends Memory {
 
     @Override
     public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
-      return new RegisterAtom(getIndex(), value, flags, newBitSize, newStartBitPos);
+      return new RegisterAtom(getMemory(), getIndex(), value, flags, newBitSize, newStartBitPos);
     }
 
     @Override
