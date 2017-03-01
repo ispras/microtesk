@@ -48,6 +48,11 @@ final class VariableAtom extends LocationAtom {
   }
 
   @Override
+  public int getStorageBitSize() {
+    return value.getBitSize();
+  }
+
+  @Override
   public boolean isInitialized() {
     return true;
   }

@@ -158,6 +158,11 @@ final class RegisterFile extends Memory {
     }
 
     @Override
+    public int getStorageBitSize() {
+      return value.getBitSize();
+    }
+
+    @Override
     public boolean isInitialized() {
       final BitVector initialized;
       if (flags.getBitSize() == getBitFieldSize()) {

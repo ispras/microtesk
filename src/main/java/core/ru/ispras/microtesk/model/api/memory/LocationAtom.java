@@ -23,17 +23,17 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 abstract class LocationAtom {
-  private final String memory;
+  private final String storage;
   private final BitVector index;
   private final int bitFieldStart;
   private final int bitFieldSize;
 
   protected LocationAtom(
-      final String memory,
+      final String storage,
       final BitVector index,
       final int bitFieldSize,
       final int bitFieldStart) {
-    this.memory = memory;
+    this.storage = storage;
     this.index = index;
     this.bitFieldStart = bitFieldStart;
     this.bitFieldSize = bitFieldSize;
@@ -42,7 +42,7 @@ abstract class LocationAtom {
   protected LocationAtom(final LocationAtom other) {
     InvariantChecks.checkNotNull(other);
 
-    this.memory = other.memory;
+    this.storage = other.storage;
     this.index = other.index;
     this.bitFieldSize = other.bitFieldSize;
     this.bitFieldStart = other.bitFieldStart;
@@ -54,7 +54,7 @@ abstract class LocationAtom {
       final int newBitFieldStart) {
     InvariantChecks.checkNotNull(other);
 
-    this.memory = other.memory;
+    this.storage = other.storage;
     this.index = other.index;
     this.bitFieldStart = newBitFieldStart;
     this.bitFieldSize = newBitFieldSize;
@@ -65,7 +65,7 @@ abstract class LocationAtom {
   }
 
   public final String getMemory() {
-    return memory;
+    return storage;
   }
 
   public final BitVector getIndex() {
@@ -80,6 +80,7 @@ abstract class LocationAtom {
     return bitFieldSize;
   }
 
+  public abstract int getStorageBitSize();
   public abstract boolean isInitialized();
   public abstract LocationAtom resize(int bitFieldSize, int bitFieldStart);
 
@@ -90,15 +91,18 @@ abstract class LocationAtom {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
 
-    if (null != memory) {
-      sb.append(memory);
+    if (null != storage) {
+      sb.append(storage);
     }
 
     if (null != index) {
       sb.append(String.format("[0x%s]", index.toHexString()));
     }
 
-    sb.append(String.format("<%d..%d>", bitFieldStart, bitFieldStart + bitFieldSize - 1));
+    if (bitFieldStart != 0 || bitFieldSize != getStorageBitSize()) {
+      sb.append(String.format("<%d..%d>", bitFieldStart, bitFieldStart + bitFieldSize - 1));
+    }
+
     return sb.toString();
   }
 }

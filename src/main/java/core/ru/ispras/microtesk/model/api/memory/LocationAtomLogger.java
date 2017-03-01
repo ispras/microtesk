@@ -75,6 +75,11 @@ final class LocationAtomLogger extends LocationAtom {
   }
 
   @Override
+  public int getStorageBitSize() {
+    return atom.getStorageBitSize();
+  }
+
+  @Override
   public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
     // Field extending is not currently supported.
     InvariantChecks.checkTrue(newBitSize <= getBitFieldSize());

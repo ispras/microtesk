@@ -156,6 +156,11 @@ final class PhysicalMemory extends Memory {
     }
 
     @Override
+    public int getStorageBitSize() {
+      return getType().getBitSize();
+    }
+
+    @Override
     public boolean isInitialized() {
       return storage.isInitialized(virtualIndexToPhysicalIndex(getIndex()));
     }
@@ -281,6 +286,11 @@ final class PhysicalMemory extends Memory {
         final int startBitPos) {
       super(getName(), index, bitSize, startBitPos);
       InvariantChecks.checkNotNull(index);
+    }
+
+    @Override
+    public int getStorageBitSize() {
+      return getType().getBitSize();
     }
 
     @Override
