@@ -47,16 +47,16 @@ abstract class LocationAtom {
     return false;
   }
 
+  public final BitVector getIndex() {
+    return index;
+  }
+
   public final int getBitSize() {
     return bitSize;
   }
 
   public final int getStartBitPos() {
     return startBitPos;
-  }
-
-  public final BitVector getIndex() {
-    return index;
   }
 
   public abstract boolean isInitialized();
