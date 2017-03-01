@@ -184,7 +184,7 @@ final class PhysicalMemory extends Memory {
       }
 
       final BitVector region = targetDevice.load(targetAddress);
-      final BitVector data = BitVector.newMapping(region, getStartBitPos(), getBitSize());
+      final BitVector data = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
 
       if (Tarmac.isEnabled()) {
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
@@ -218,11 +218,11 @@ final class PhysicalMemory extends Memory {
       }
 
       final BitVector region;
-      if (getBitSize() == targetDevice.getDataBitSize()) {
+      if (getBitFieldSize() == targetDevice.getDataBitSize()) {
         region = data;
       } else {
         region = targetDevice.load(targetAddress).copy();
-        final BitVector mapping = BitVector.newMapping(region, getStartBitPos(), getBitSize());
+        final BitVector mapping = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
         mapping.assign(data);
       }
 
@@ -244,8 +244,8 @@ final class PhysicalMemory extends Memory {
       return String.format("%s[%d]<%d..%d>",
           getName(),
           getIndex().bigIntegerValue(false),
-          getStartBitPos(),
-          getStartBitPos() + getBitSize() - 1
+          getBitFieldStart(),
+          getBitFieldStart() + getBitFieldSize() - 1
           );
     }
 
@@ -298,7 +298,7 @@ final class PhysicalMemory extends Memory {
     @Override
     public BitVector load(final boolean callHandler) {
       final BitVector region = storage.load(getIndex());
-      return BitVector.newMapping(region, getStartBitPos(), getBitSize());
+      return BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
     }
 
     @Override
@@ -306,11 +306,11 @@ final class PhysicalMemory extends Memory {
       InvariantChecks.checkNotNull(data);
 
       final BitVector region;
-      if (getBitSize() == storage.getDataBitSize()) {
+      if (getBitFieldSize() == storage.getDataBitSize()) {
         region = data;
       } else {
         region = storage.load(getIndex()).copy();
-        final BitVector mapping = BitVector.newMapping(region, getStartBitPos(), getBitSize());
+        final BitVector mapping = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
         mapping.assign(data);
       }
 
@@ -322,8 +322,8 @@ final class PhysicalMemory extends Memory {
       return String.format("%s[%d]<%d..%d>",
           getName(),
           getIndex().bigIntegerValue(false),
-          getStartBitPos(),
-          getStartBitPos() + getBitSize() - 1
+          getBitFieldStart(),
+          getBitFieldStart() + getBitFieldSize() - 1
           );
     }
   }

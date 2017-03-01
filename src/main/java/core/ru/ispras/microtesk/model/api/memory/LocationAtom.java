@@ -25,18 +25,18 @@ import ru.ispras.fortress.util.InvariantChecks;
 abstract class LocationAtom {
   private final String memory;
   private final BitVector index;
-  private final int bitSize;
-  private final int startBitPos;
+  private final int bitFieldStart;
+  private final int bitFieldSize;
 
   protected LocationAtom(
       final String memory,
       final BitVector index,
-      final int bitSize,
-      final int startBitPos) {
+      final int bitFieldSize,
+      final int bitFieldStart) {
     this.memory = memory;
     this.index = index;
-    this.bitSize = bitSize;
-    this.startBitPos = startBitPos;
+    this.bitFieldStart = bitFieldStart;
+    this.bitFieldSize = bitFieldSize;
   }
 
   protected LocationAtom(final LocationAtom other) {
@@ -44,20 +44,20 @@ abstract class LocationAtom {
 
     this.memory = other.memory;
     this.index = other.index;
-    this.bitSize = other.bitSize;
-    this.startBitPos = other.startBitPos;
+    this.bitFieldSize = other.bitFieldSize;
+    this.bitFieldStart = other.bitFieldStart;
   }
 
   protected LocationAtom(
       final LocationAtom other,
-      final int newBitSize,
-      final int newStartBitPos) {
+      final int newBitFieldSize,
+      final int newBitFieldStart) {
     InvariantChecks.checkNotNull(other);
 
     this.memory = other.memory;
     this.index = other.index;
-    this.bitSize = newBitSize;
-    this.startBitPos = newStartBitPos;
+    this.bitFieldStart = newBitFieldStart;
+    this.bitFieldSize = newBitFieldSize;
   }
 
   public boolean isLoggable() {
@@ -72,12 +72,12 @@ abstract class LocationAtom {
     return index;
   }
 
-  public final int getBitSize() {
-    return bitSize;
+  public final int getBitFieldStart() {
+    return bitFieldStart;
   }
 
-  public final int getStartBitPos() {
-    return startBitPos;
+  public final int getBitFieldSize() {
+    return bitFieldSize;
   }
 
   public abstract boolean isInitialized();
@@ -98,7 +98,7 @@ abstract class LocationAtom {
       sb.append(String.format("[0x%s]", index.toHexString()));
     }
 
-    sb.append(String.format("<%d..%d>", startBitPos, startBitPos + bitSize - 1));
+    sb.append(String.format("<%d..%d>", bitFieldStart, bitFieldStart + bitFieldSize - 1));
     return sb.toString();
   }
 }

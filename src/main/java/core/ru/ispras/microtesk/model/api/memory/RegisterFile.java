@@ -133,7 +133,7 @@ final class RegisterFile extends Memory {
     private RegisterAtom(final RegisterAtom other) {
       super(other);
       this.value = other.value.copy();
-      this.flags = BitVector.newEmpty(getBitSize()); // Flags are reset for the new copy.
+      this.flags = BitVector.newEmpty(getBitFieldSize()); // Flags are reset for the new copy.
     }
 
     private RegisterAtom(
@@ -160,10 +160,10 @@ final class RegisterFile extends Memory {
     @Override
     public boolean isInitialized() {
       final BitVector initialized;
-      if (flags.getBitSize() == getBitSize()) {
+      if (flags.getBitSize() == getBitFieldSize()) {
         initialized = flags;
       } else {
-        initialized = BitVector.newMapping(flags, getStartBitPos(), getBitSize());
+        initialized = BitVector.newMapping(flags, getBitFieldStart(), getBitFieldSize());
       }
       return initialized.isAllSet();
     }
@@ -175,21 +175,21 @@ final class RegisterFile extends Memory {
 
     @Override
     public BitVector load(final boolean callHandler) {
-      return BitVector.newMapping(value, getStartBitPos(), getBitSize());
+      return BitVector.newMapping(value, getBitFieldStart(), getBitFieldSize());
     }
 
     @Override
     public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
-      InvariantChecks.checkTrue(data.getBitSize() == getBitSize());
+      InvariantChecks.checkTrue(data.getBitSize() == getBitFieldSize());
 
-      BitVector.newMapping(value, getStartBitPos(), getBitSize()).assign(data);
-      BitVector.newMapping(flags, getStartBitPos(), getBitSize()).setAll();
+      BitVector.newMapping(value, getBitFieldStart(), getBitFieldSize()).assign(data);
+      BitVector.newMapping(flags, getBitFieldStart(), getBitFieldSize()).setAll();
     }
 
     public void reset() {
-      BitVector.newMapping(value, getStartBitPos(), getBitSize()).reset();
-      BitVector.newMapping(flags, getStartBitPos(), getBitSize()).reset();
+      BitVector.newMapping(value, getBitFieldStart(), getBitFieldSize()).reset();
+      BitVector.newMapping(flags, getBitFieldStart(), getBitFieldSize()).reset();
     }
   }
 }

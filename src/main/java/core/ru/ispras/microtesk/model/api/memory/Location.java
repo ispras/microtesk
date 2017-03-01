@@ -61,7 +61,7 @@ public final class Location implements LocationAccessor {
   public static Location newLocationForAtom(final Type type, final LocationAtom atom) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(atom);
-    InvariantChecks.checkTrue(type.getBitSize() == atom.getBitSize());
+    InvariantChecks.checkTrue(type.getBitSize() == atom.getBitFieldSize());
     return new Location(type, atom);
   }
 
@@ -79,7 +79,7 @@ public final class Location implements LocationAccessor {
     final boolean needSuffix = atoms.size() > 1;
 
     for (final LocationAtom atom : atoms) {
-      final int bitSize = atom.getBitSize();
+      final int bitSize = atom.getBitFieldSize();
       if (atom.isLoggable()) {
         final String atomName =
             needSuffix ? String.format("%s<%d..%d>", name, bitPos + bitSize - 1, bitPos) : name;
@@ -171,11 +171,11 @@ public final class Location implements LocationAccessor {
     int position = 0;
     for (final LocationAtom atom : atoms) {
       final int atomStart = position; 
-      final int atomEnd = position + atom.getBitSize() - 1;
+      final int atomEnd = position + atom.getBitFieldSize() - 1;
 
       if (atomStart <= start && start <= atomEnd) {
         if (end <= atomEnd) {
-          final int newStartBitPos = atom.getStartBitPos() + (start - position);
+          final int newStartBitPos = atom.getBitFieldStart() + (start - position);
           final LocationAtom newSource = atom.resize(newBitSize, newStartBitPos);
           newAtoms.add(newSource);
           break;
@@ -183,7 +183,7 @@ public final class Location implements LocationAccessor {
           newAtoms.add(atom);
         }
       } else if (atomStart <= end && end <= atomEnd) {
-        newAtoms.add(atom.resize(atom.getBitSize() - (atomEnd - end), atom.getStartBitPos()));
+        newAtoms.add(atom.resize(atom.getBitFieldSize() - (atomEnd - end), atom.getBitFieldStart()));
         break;
       }
 
@@ -286,7 +286,7 @@ public final class Location implements LocationAccessor {
     int position = 0;
     for (final LocationAtom atom : atoms) {
       final BitVector dataItem =
-          BitVector.newMapping(data, position, atom.getBitSize());
+          BitVector.newMapping(data, position, atom.getBitFieldSize());
 
       atom.store(dataItem, callHandlers);
       position += dataItem.getBitSize();

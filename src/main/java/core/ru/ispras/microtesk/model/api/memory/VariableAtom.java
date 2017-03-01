@@ -59,15 +59,15 @@ final class VariableAtom extends LocationAtom {
 
   @Override
   public BitVector load(final boolean callHandler) {
-    return BitVector.newMapping(value, getStartBitPos(), getBitSize());
+    return BitVector.newMapping(value, getBitFieldStart(), getBitFieldSize());
   }
 
   @Override
   public void store(final BitVector data, final boolean callHandler) {
     InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkTrue(data.getBitSize() == getBitSize());
+    InvariantChecks.checkTrue(data.getBitSize() == getBitFieldSize());
 
-    final BitVector target = BitVector.newMapping(value, getStartBitPos(), getBitSize());
+    final BitVector target = BitVector.newMapping(value, getBitFieldStart(), getBitFieldSize());
     target.assign(data);
   }
 }

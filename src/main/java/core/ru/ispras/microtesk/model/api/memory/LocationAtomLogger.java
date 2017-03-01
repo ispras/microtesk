@@ -38,8 +38,8 @@ final class LocationAtomLogger extends LocationAtom {
 
     this.atom = (atom instanceof LocationAtomLogger) ? ((LocationAtomLogger) atom).atom : atom;
     this.name = name;
-    this.originalBitSize = atom.getBitSize();
-    this.originalStartBitPos = atom.getStartBitPos();
+    this.originalBitSize = atom.getBitFieldSize();
+    this.originalStartBitPos = atom.getBitFieldStart();
   }
 
   private LocationAtomLogger(
@@ -59,12 +59,12 @@ final class LocationAtomLogger extends LocationAtom {
   }
 
   private String getName() {
-    if (originalBitSize == getBitSize() && originalStartBitPos == getStartBitPos()) {
+    if (originalBitSize == getBitFieldSize() && originalStartBitPos == getBitFieldStart()) {
       return name;
     }
 
-    final int start = getStartBitPos() - originalStartBitPos;
-    final int end = start + getBitSize() - 1;
+    final int start = getBitFieldStart() - originalStartBitPos;
+    final int end = start + getBitFieldSize() - 1;
 
     return String.format("%s<%d..%d>", name, end, start);
   }
@@ -77,8 +77,8 @@ final class LocationAtomLogger extends LocationAtom {
   @Override
   public LocationAtom resize(final int newBitSize, final int newStartBitPos) {
     // Field extending is not currently supported.
-    InvariantChecks.checkTrue(newBitSize <= getBitSize());
-    InvariantChecks.checkTrue(newStartBitPos >= getStartBitPos());
+    InvariantChecks.checkTrue(newBitSize <= getBitFieldSize());
+    InvariantChecks.checkTrue(newStartBitPos >= getBitFieldStart());
 
     final LocationAtom resized = atom.resize(newBitSize, newStartBitPos);
     return new LocationAtomLogger(
