@@ -240,7 +240,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
       if (!checkType(arg, instanceArg)) {
         raiseError(where, String.format(
-            "The %s argument of %s has an invalid type %s while %s is expected.",
+            "The %s argument of %s has invalid type %s while %s is expected.",
             argName,
             name,
             instanceArg.getTypeName(),
@@ -284,6 +284,11 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     if (argType.getKind() == Primitive.Kind.IMM) {
       return argType.getReturnType().equals(arg.getReturnType());
     }
+
+    if (!argType.isOrRule()) {
+      return argType.getName().equals(arg.getName());
+    }
+
     // TODO Auto-generated method stub
     return true;
   }
