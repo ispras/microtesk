@@ -655,9 +655,15 @@ $res = Collections.singletonList(
 {
 $res = Collections.singletonList(getStatementFactory().createUnpredicted());
 }
-    |  UNDEFINED 
+    |  UNDEFINED
 {
 $res = Collections.singletonList(getStatementFactory().createUndefined());
+}
+    |  ^(id=ASSERT e=logicExpr (str=STRING_CONST)?)
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = Collections.singletonList(
+    getStatementFactory().createAssert(where($id), $e.res, $str.text));
 }
     ;
 

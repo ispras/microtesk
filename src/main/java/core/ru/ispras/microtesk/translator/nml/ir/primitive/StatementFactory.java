@@ -311,4 +311,14 @@ public final class StatementFactory extends WalkerFactoryBase {
   public Statement createUndefined() {
     return new StatementFunctionCall("undefined");
   }
+
+  public Statement createAssert(
+      final Where where,
+      final Expr condition,
+      final String message) {
+    final String name = "assertion";
+    return null != message ?
+        new StatementFunctionCall(name, condition, message) :
+        new StatementFunctionCall(name, condition);
+  }
 }

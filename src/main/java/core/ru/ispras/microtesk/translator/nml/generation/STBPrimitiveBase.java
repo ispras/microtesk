@@ -42,11 +42,11 @@ abstract class STBPrimitiveBase implements STBuilder {
     RET_TYPE_MAP.put(Attribute.Kind.EXPRESSION, "String");
   }
 
-  protected final String getRetTypeName(Attribute.Kind kind) {
+  protected final String getRetTypeName(final Attribute.Kind kind) {
     return RET_TYPE_MAP.get(kind);
   }
 
-  protected static void addStatement(ST attrST, Statement stmt, boolean isReturn) {
+  protected static void addStatement(final ST attrST, final Statement stmt, final boolean isReturn) {
     new StatementBuilder(attrST, isReturn).build(stmt);
   }
 }
@@ -59,7 +59,7 @@ final class StatementBuilder {
   private final boolean isReturn;
   private int indent;
 
-  StatementBuilder(ST sequenceST, boolean isReturn) {
+  StatementBuilder(final ST sequenceST, final boolean isReturn) {
     this.sequenceST = sequenceST;
     this.isReturn = isReturn;
     this.indent = 0;
@@ -75,11 +75,11 @@ final class StatementBuilder {
       indent--;
   }
 
-  public void build(Statement stmt) {
+  public void build(final Statement stmt) {
     addStatement(stmt);
   }
 
-  private void addStatement(Statement stmt) {
+  private void addStatement(final Statement stmt) {
     if (null == stmt) {
       if (isReturn)
         addStatement("null;");
@@ -115,7 +115,7 @@ final class StatementBuilder {
     }
   }
 
-  private void addStatement(String stmt) {
+  private void addStatement(final String stmt) {
     final StringBuilder sb = new StringBuilder();
 
     if (isReturn)
@@ -129,7 +129,7 @@ final class StatementBuilder {
     sequenceST.add("stmts", sb.toString());
   }
 
-  private void addStatement(StatementAssignment stmt) {
+  private void addStatement(final StatementAssignment stmt) {
     addStatement(
         String.format("%s.store(%s);",
         ExprPrinter.toString(stmt.getLeft(), true),
@@ -137,7 +137,7 @@ final class StatementBuilder {
         );
   }
 
-  private void addStatement(StatementCondition stmt) {
+  private void addStatement(final StatementCondition stmt) {
     final int FIRST = 0;
     final int LAST = stmt.getBlockCount() - 1;
 
@@ -162,7 +162,7 @@ final class StatementBuilder {
     addStatement("}");
   }
 
-  private void addStatement(StatementAttributeCall stmt) {
+  private void addStatement(final StatementAttributeCall stmt) {
     final String attrName = stmt.getAttributeName();
     final boolean usePE = !attrName.equals(Attribute.INIT_NAME) &&
                           !attrName.equals(Attribute.IMAGE_NAME) &&
@@ -184,7 +184,7 @@ final class StatementBuilder {
     addStatement(String.format("%s(%s);", methodName, arguments));
   }
 
-  private void addStatement(StatementFormat stmt) {
+  private void addStatement(final StatementFormat stmt) {
     if (null == stmt.getArguments()) {
       if (null == stmt.getFunction()) {
         addStatement(String.format("\"%s\";", stmt.getFormat()));
@@ -214,7 +214,7 @@ final class StatementBuilder {
     }
   }
 
-  private void addStatement(StatementFunctionCall stmt) {
+  private void addStatement(final StatementFunctionCall stmt) {
     final StringBuffer sb = new StringBuffer();
     for (int index = 0; index < stmt.getArgumentCount(); ++index) {
       if (sb.length() > 0) {
@@ -222,11 +222,15 @@ final class StatementBuilder {
       }
 
       final Object arg = stmt.getArgument(index);
-      final boolean isString = arg instanceof String;
-
-      if (isString) sb.append('"');
-      sb.append(arg);
-      if (isString) sb.append('"');
+      if (arg instanceof Expr) {
+        sb.append(ExprPrinter.toString((Expr) arg));
+      } else if (arg instanceof String) {
+        sb.append('"');
+        sb.append(arg);
+        sb.append('"');
+      } else {
+        sb.append(arg);
+      }
     }
 
     addStatement(String.format(
