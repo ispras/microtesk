@@ -27,6 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.model.api.Execution;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.model.api.Reader;
@@ -209,6 +210,8 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
+    Execution.setAssertionsEnabled(options.getValueAsBoolean(Option.ASSERTIONS_ENABLED));
+
     final int instanceNumber = options.getValueAsInteger(Option.INSTANCE_NUMBER);
     Logger.message("Instance number: %d", instanceNumber);
 

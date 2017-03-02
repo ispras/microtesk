@@ -57,6 +57,8 @@ public enum Option {
   BRANCH_LIMIT("branch-exec-limit", "Maximum execution count for an instruction", 100, GENERATE),
   RATE_LIMIT("rate-limit", "Minimum generation rate", 0, GENERATE),
 
+  ASSERTIONS_ENABLED("assertions-enabled",
+      "Enables assertion checks during simulation", false, GENERATE),
   TARMAC_LOG("tarmac-log", "Enables generation of Tarmac logs for simulation", false, GENERATE),
   SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
   DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),

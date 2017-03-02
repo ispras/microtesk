@@ -28,6 +28,8 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 public final class Execution {
   private Execution() {}
 
+  private static boolean assertionsEnabled = false;
+
   public static void exception(final String text) {
     Logger.debug("Exception was raised: %s", text);
     throw new ExecutionException(text);
@@ -49,6 +51,28 @@ public final class Execution {
 
   public static void mark(final String name) {
     //Logger.debug("Mark \"%s\" was reached", name);
+  }
+
+  public static void assertion(final boolean condition) {
+    assertion(condition, null);
+  }
+
+  public static void assertion(final boolean condition, final String message) {
+    if (condition || !assertionsEnabled) {
+      return;
+    }
+
+    final StringBuilder sb = new StringBuilder("Assertion failed");
+    if (null != message) {
+      sb.append(": ");
+      sb.append(message);
+    }
+
+    throw new GenerationAbortedException(sb.toString());
+  }
+
+  public static void setAssertionsEnabled(final boolean value) {
+    assertionsEnabled = value;
   }
 
   public static abstract class InternalVariable {
