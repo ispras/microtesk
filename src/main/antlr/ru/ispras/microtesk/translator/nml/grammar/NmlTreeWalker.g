@@ -565,6 +565,7 @@ $res = getPrimitiveFactory().newInstance(where($id), $id.text, args);
 instance_arg returns [InstanceArgument res]
     :  i=instance
 {
+checkNotNull($i.start, $i.res, $i.text);
 $res = InstanceArgument.newInstance($i.res);
 }
     |  e=dataExpr
