@@ -63,6 +63,19 @@ public final class InstanceArgument {
     return kind;
   }
 
+  public String getTypeName() {
+    switch(kind) {
+      case EXPR:
+        return getExpr().getNodeInfo().getType().getJavaText();
+      case PRIMITIVE:
+        return getPrimitive().getName();
+      case INSTANCE:
+        return getInstance().getPrimitive().getName();
+    }
+    InvariantChecks.checkTrue(false);
+    return null;
+  }
+
   public Expr getExpr() {
     return (Expr) getValueIfAssignable(Expr.class); 
   }

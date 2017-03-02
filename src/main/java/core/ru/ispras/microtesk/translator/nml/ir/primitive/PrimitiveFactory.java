@@ -238,9 +238,14 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final String argName = argNames[index];
       final Primitive arg = primitiveAND.getArguments().get(argName);
 
-      if (!checkCompatibility(arg, instanceArg)) {
+      if (!checkTypes(arg, instanceArg)) {
         raiseError(where, String.format(
-            "The %s argument has an incompatible type: %s is expected.", argName, arg.getName()));
+            "The %s argument of %s has an invalid type %s while %s is expected.",
+            argName,
+            name,
+            instanceArg.getTypeName(),
+            arg.getName())
+            );
       }
 
       if (instanceArg.getKind() == InstanceArgument.Kind.EXPR && 
@@ -257,34 +262,28 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new Instance(primitiveAND, args);
   }
 
-  private static boolean checkCompatibility(
-      final Primitive arg,
-      final InstanceArgument instanceArg) {
+  private static boolean checkTypes(final Primitive arg, final InstanceArgument instanceArg) {
     switch(instanceArg.getKind()) {
       case EXPR:
-        return checkCompatibility(arg, instanceArg.getExpr());
+        return checkTypes(arg, instanceArg.getExpr());
       case PRIMITIVE:
-        return checkCompatibility(arg, instanceArg.getPrimitive());
+        return checkTypes(arg, instanceArg.getPrimitive());
       case INSTANCE:
-        return checkCompatibility(arg, instanceArg.getInstance().getPrimitive());
+        return checkTypes(arg, instanceArg.getInstance().getPrimitive());
     }
 
     InvariantChecks.checkTrue(false);
     return false;
   }
 
-  private static boolean checkCompatibility(
-      final Primitive arg,
-      final Primitive primitive) {
+  private static boolean checkTypes(final Primitive arg, final Primitive primitive) {
     // TODO Auto-generated method stub
     return true;
   }
 
-  private static boolean checkCompatibility(
-      final Primitive arg,
-      final Expr expr) {
-    // TODO Auto-generated method stub
-    return true;
+  private static boolean checkTypes(final Primitive arg, final Expr expr) {
+    return arg.getKind() == Primitive.Kind.IMM &&
+          (expr.isConstant() || expr.isTypeOf(arg.getReturnType()));
   }
 
   public Attribute createAction(final String name, final List<Statement> stmts) {
