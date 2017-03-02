@@ -25,7 +25,7 @@ public abstract class Statement {
 
   private final Kind kind;
 
-  Statement(Kind kind) {
+  Statement(final Kind kind) {
     this.kind = kind;
   }
 

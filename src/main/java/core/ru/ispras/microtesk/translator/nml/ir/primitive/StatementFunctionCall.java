@@ -14,16 +14,15 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 public final class StatementFunctionCall extends Statement {
   private final String name;
   private final Object[] args;
 
-  public StatementFunctionCall(String name, Object ... args) {
+  public StatementFunctionCall(final String name, final Object ... args) {
     super(Kind.FUNCALL);
-
-    if (null == name) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(name);
 
     this.name = name;
     this.args = args;
@@ -37,7 +36,7 @@ public final class StatementFunctionCall extends Statement {
     return args.length;
   }
 
-  public Object getArgument(int index) {
+  public Object getArgument(final int index) {
     return args[index];
   }
 }

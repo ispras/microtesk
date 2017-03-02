@@ -14,12 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkBounds;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.List;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 public final class StatementCondition extends Statement {
@@ -27,19 +23,19 @@ public final class StatementCondition extends Statement {
     private final Expr condition;
     private final List<Statement> statements;
 
-    private Block(Expr condition, List<Statement> statements) {
-      checkNotNull(statements);
+    private Block(final Expr condition, final List<Statement> statements) {
+      InvariantChecks.checkNotNull(statements);
 
       this.condition = condition;
       this.statements = statements;
     }
 
-    public static Block newIfBlock(Expr condition, List<Statement> statements) {
-      checkNotNull(condition);
+    public static Block newIfBlock(final Expr condition, final List<Statement> statements) {
+      InvariantChecks.checkNotNull(condition);
       return new Block(condition, statements);
     }
 
-    public static Block newElseBlock(List<Statement> statements) {
+    public static Block newElseBlock(final List<Statement> statements) {
       return new Block(null, statements);
     }
 
@@ -58,10 +54,10 @@ public final class StatementCondition extends Statement {
 
   private final List<Block> blocks;
 
-  StatementCondition(List<Block> blocks) {
+  StatementCondition(final List<Block> blocks) {
     super(Kind.COND);
 
-    checkNotEmpty(blocks);
+    InvariantChecks.checkNotEmpty(blocks);
     this.blocks = blocks;
   }
 
@@ -69,8 +65,8 @@ public final class StatementCondition extends Statement {
     return blocks.size();
   }
 
-  public Block getBlock(int index) {
-    checkBounds(index, getBlockCount());
+  public Block getBlock(final int index) {
+    InvariantChecks.checkBounds(index, getBlockCount());
     return blocks.get(index);
   }
 }
