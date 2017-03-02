@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -211,10 +210,8 @@ public final class MemorySymbolicResult {
 
     if (entry.isCall()) {
       stack.call(entry.getFrame());
-      Logger.debug("CALL: %d", stack.size());
     } else if (entry.isReturn()) {
       stack.ret();
-      Logger.debug("RETURN: %d", stack.size());
     }
   }
 

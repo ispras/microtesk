@@ -601,14 +601,18 @@ public final class MemoryAccessPath {
     for (final Entry entry : entries) {
       updateStack(stack, entry);
 
-      if (comma) {
-        builder.append(separator);
-      }
-
       if (entry.isCall()) {
+        if (comma) {
+          builder.append(separator);
+        }
         builder.append("CALL");
+        comma = true;
       } else if (entry.isReturn()) {
+        if (comma) {
+          builder.append(separator);
+        }
         builder.append("RETURN");
+        comma = true;
       } else {
         final MmuProgram program = entry.getProgram();
 
@@ -617,23 +621,31 @@ public final class MemoryAccessPath {
           final MmuGuard guard = transition.getGuard();
 
           if (guard != null && guard.getOperation() == null) {
+            if (comma) {
+              builder.append(separator);
+            }
             builder.append(guard);
-            builder.append(separator);
+            comma = true;
           }
 
           final MmuAction action = program.getSource();
           final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
 
           if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
+            if (comma) {
+              builder.append(separator);
+            }
             builder.append(bufferAccess);
-            builder.append(separator);
+            comma = true;
           }
         } else {
+          if (comma) {
+            builder.append(separator);
+          }
           builder.append("...");
+          comma = true;
         }
       }
-
-      comma = true;
     }
 
     final MmuProgram lastProgram = lastEntry.getProgram();

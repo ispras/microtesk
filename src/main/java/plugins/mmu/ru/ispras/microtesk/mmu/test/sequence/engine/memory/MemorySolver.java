@@ -144,6 +144,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       result = solve(j);
 
       if (result.getStatus() != SolverResult.Status.SAT) {
+        Logger.debug("Solve[%d]: UNSAT", j);
         return result;
       }
     }
@@ -153,6 +154,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       result = correct(j);
 
       if (result.getStatus() != SolverResult.Status.SAT) {
+        Logger.debug("Correct[%d]: UNSAT", j);
         return result;
       }
     }
@@ -162,10 +164,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
       result = fill(j);
 
       if (result.getStatus() != SolverResult.Status.SAT) {
+        Logger.debug("Fill[%d]: UNSAT", j);
         return result;
       }
     }
 
+    Logger.debug("Solve: SAT");
     return result;
   }
 
@@ -184,7 +188,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the address alignment constraint (aligns the address according to the data type).
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param addrType the address type to be aligned.
    * @return the solution.
    */
@@ -213,7 +217,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the HIT constraint.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -311,7 +315,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the MISS constraint.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -370,7 +374,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the HIT constraint for the given non-replaceable buffer.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param buffer access the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -433,7 +437,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the INDEX-EQUAL constraint ({@code INDEX[j] == INDEX[i]}).
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -443,22 +447,30 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     Logger.debug("Solving the index equality constraint for %s", bufferAccess);
 
-    final MmuBuffer buffer = bufferAccess.getBuffer();
-    final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = bufferAccess.getAddress();
-
     final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Pair<Integer, BufferHazard.Instance>> indexEqualRelation =
         dependency.getIndexEqualRelation(bufferAccess);
 
     if (!indexEqualRelation.isEmpty()) {
-      final int i = indexEqualRelation.iterator().next().first;
-      final AddressObject prevAddrObject = solution.getAddressObject(i);
+      final Pair<Integer, BufferHazard.Instance> dependsOn = indexEqualRelation.iterator().next();
+      final int i = dependsOn.first;
+      final BufferHazard.Instance hazard = dependsOn.second;
 
-      final long oldTag = buffer.getTag(addrObject.getAddress(addrType));
-      final long oldIndex = buffer.getIndex(addrObject.getAddress(addrType));
-      final long newIndex = buffer.getIndex(prevAddrObject.getAddress(addrType));
-      final long oldOffset = buffer.getOffset(addrObject.getAddress(addrType));
+      final AddressObject addrObject1 = solution.getAddressObject(i);
+      final AddressObject addrObject2 = solution.getAddressObject(j);
+
+      final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
+      final MmuBufferAccess bufferAccess2 = bufferAccess;
+
+      final long addrValue1 = addrObject1.getAddress(bufferAccess1);
+      final long addrValue2 = addrObject2.getAddress(bufferAccess2);
+
+      final MmuBuffer buffer = bufferAccess.getBuffer();
+
+      final long oldTag = buffer.getTag(addrValue2);
+      final long oldIndex = buffer.getIndex(addrValue2);
+      final long newIndex = buffer.getIndex(addrValue1);
+      final long oldOffset = buffer.getOffset(addrValue2);
 
       // Copy the index from the previous instruction.
       final long newAddress = buffer.getAddress(oldTag, newIndex, oldOffset);
@@ -467,15 +479,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final long newTag;
 
       if (newIndex != oldIndex) {
-        final AddressAndEntry allocated =
-            allocateAddrMissTagAndParentEntry(bufferAccess, newAddress, chooseRegion(), false);
+        final AddressAndEntry allocated = allocateAddrMissTagAndParentEntry(
+            bufferAccess, newAddress, chooseRegion(), false);
 
         newTag = buffer.getTag(allocated.address);
       } else {
         newTag = oldTag;
       }
 
-      addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
+      addrObject2.setAddress(bufferAccess2, buffer.getAddress(newTag, newIndex, oldOffset));
     }
 
     return new SolverResult<>(solution);
@@ -484,7 +496,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solves the TAG-EQUAL constraint ({@code INDEX[j] == INDEX[i] && TAG[j] == TAG[i]}).
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -494,25 +506,33 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     Logger.debug("Solving the tag equality constraint for %s", bufferAccess);
 
-    final MmuBuffer buffer = bufferAccess.getBuffer();
-    final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = bufferAccess.getAddress();
-
     final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
     final Set<Pair<Integer, BufferHazard.Instance>> tagEqualRelation =
         dependency.getTagEqualRelation(bufferAccess);
 
     // Instruction uses the same tag and the same index as one of the previous instructions.
     if (!tagEqualRelation.isEmpty()) {
-      final int i = tagEqualRelation.iterator().next().first;
-      final AddressObject prevAddrObject = solution.getAddressObject(i);
+      final Pair<Integer, BufferHazard.Instance> dependsOn = tagEqualRelation.iterator().next();
+      final int i = dependsOn.first;
+      final BufferHazard.Instance hazard = dependsOn.second;
+
+      final AddressObject addrObject1 = solution.getAddressObject(i);
+      final AddressObject addrObject2 = solution.getAddressObject(j);
+
+      final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
+      final MmuBufferAccess bufferAccess2 = bufferAccess;
+
+      final long addrValue1 = addrObject1.getAddress(bufferAccess1);
+      final long addrValue2 = addrObject2.getAddress(bufferAccess2);
+
+      final MmuBuffer buffer = bufferAccess.getBuffer();
 
       // Copy the tag and the index from the previous instruction.
-      final long newTag = buffer.getTag(prevAddrObject.getAddress(addrType));
-      final long newIndex = buffer.getIndex(prevAddrObject.getAddress(addrType));
-      final long oldOffset = buffer.getOffset(addrObject.getAddress(addrType));
+      final long newTag = buffer.getTag(addrValue1);
+      final long newIndex = buffer.getIndex(addrValue1);
+      final long oldOffset = buffer.getOffset(addrValue2);
 
-      addrObject.setAddress(addrType, buffer.getAddress(newTag, newIndex, oldOffset));
+      addrObject2.setAddress(bufferAccess2, buffer.getAddress(newTag, newIndex, oldOffset));
     }
 
     return new SolverResult<>(solution);
@@ -522,7 +542,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Predicts replacements in the buffer (buffer) up to the {@code j} access and solve the
    * corresponding constraints.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -627,7 +647,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Solve hit/miss constraints specified for the given buffer.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @param bufferAccess the buffer access under scrutiny.
    * @return the partial solution.
    */
@@ -707,19 +727,19 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Handles the given instruction call (access) of the memory access structure.
    * 
-   * @param j the access index.
+   * @param j the memory access index.
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solve(final int j) {
     final MemoryAccess access = structure.getAccess(j);
-    final MemoryAccessPath path = access.getPath();
-
     Logger.debug("Solve[%d]: %s", j, access);
 
     final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
 
-    // Construct the initial address object for the access.
-    final AddressObject addrObject = constructAddr(access, true);
+    // Construct the initial address object for the memory access.
+    final boolean applyConstraints = true;
+    final AddressObject addrObject = constructAddr(access, applyConstraints);
+
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
@@ -742,6 +762,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
         solveIndexEqualConstraint(j, bufferAccess);
       }
     }
+
+    final MemoryAccessPath path = access.getPath();
+
+    // Refine the addresses (in particular, assign the intermediate addresses).
+    final boolean hasRefined = refineAddr(path, addrObject, applyConstraints);
+    InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", path));
 
     // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
     for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
@@ -799,7 +825,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Returns the set of tags to be explicitly loaded into the buffer to cause the hits.
    * 
-   * @param buffer the MMU buffer (buffer).
+   * @param buffer the memory buffer being accessed.
    * @param address the address.
    * @return the set of tags.
    */
@@ -822,7 +848,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Returns the indices for which replacing sequences have been constructed.
    * 
-   * @param buffer the MMU buffer (buffer).
+   * @param buffer the memory buffer being accessed.
    * @return the set of indices.
    */
   private Set<Long> getReplacedIndices(final MmuBuffer buffer) {
@@ -837,8 +863,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /**
    * Checks whether a hit into the given buffer is possible for the given access.
    * 
-   * @param j the access index.
-   * @param buffer the MMU buffer (buffer).
+   * @param j the memory access index.
+   * @param buffer the memory buffer being accessed.
    * @return {@code false} if a hit is infeasible; {@code true} if a hit is possible.
    */
   private boolean mayBeHit(final int j, final MmuBuffer buffer) {
@@ -999,7 +1025,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.
-    final AddressObject normalAddrObject = constructAddr(normalAccess, false /*TODO: hasBestPaths*/);
+    final boolean applyConstraints = false;
+    final AddressObject normalAddrObject = constructAddr(normalAccess, applyConstraints /*TODO: hasBestPaths*/);
+
+    // Refine the addresses (in particular, assign the intermediate addresses).
+    final boolean hasRefined = refineAddr(normalPath, normalAddrObject, applyConstraints);
+    InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", normalPath));
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());
@@ -1019,8 +1050,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
-    InvariantChecks.checkNotNull(access);
-
     final MmuAddressInstance vaType = memory.getVirtualAddress();
     final MmuAddressInstance paType = memory.getPhysicalAddress();
 
@@ -1046,22 +1075,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
 
-    final boolean done = refineAddr(access.getPath(), addrObject, applyConstraints);
-    InvariantChecks.checkTrue(done, String.format("Infeasible path=%s", access.getPath()));
-
     return addrObject;
   }
 
-  /**
-   * Returns {@code true} if success.
-   */
   private boolean refineAddr(
       final MemoryAccessPath path,
       final AddressObject addrObject,
       final boolean applyConstraints) {
-    InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(addrObject);
-
     correctOffset(addrObject);
 
     final MmuAddressInstance vaType = memory.getVirtualAddress();

@@ -61,12 +61,6 @@ public final class AddressObject {
   /** Refers to the memory access. */
   private MemoryAccess access;
 
-  /**
-   * Constructs uninitialized test data for the given access of the given memory subsystem.
-   * 
-   * @param access the memory access.
-   * @throws IllegalArgumentException if some parameters are null.
-   */
   public AddressObject(final MemoryAccess access) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(access);
@@ -91,25 +85,11 @@ public final class AddressObject {
     this.access = access;
   }
 
-  /**
-   * Returns the value of the given attribute.
-   * 
-   * @param variable the attribute (variable).
-   * @return the attribute value.
-   * @throws IllegalArgumentException if {@code variable} is null.
-   */
   public Long getAttrValue(final IntegerVariable variable) {
     InvariantChecks.checkNotNull(variable);
     return attributes.get(variable);
   }
 
-  /**
-   * Sets the value of the given attribute.
-   * 
-   * @param variable the attribute (variable).
-   * @param value the value to be set.
-   * @throws IllegalArgumentException if {@code variable} is null.
-   */
   public void setAttrValue(final IntegerVariable variable, final long value) {
     InvariantChecks.checkNotNull(variable);
     attributes.put(variable, value);
@@ -119,16 +99,14 @@ public final class AddressObject {
     attributes.clear();
   }
 
-  /**
-   * Returns the address of the given type.
-   * 
-   * @param addressType the address type.
-   * @return the address value.
-   * @throws IllegalArgumentException if {@code addressType} is null.
-   */
   public long getAddress(final MmuAddressInstance addressType) {
     InvariantChecks.checkNotNull(addressType);
     return addresses.get(addressType); 
+  }
+
+  public long getAddress(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    return addresses.get(bufferAccess.getAddress()); 
   }
 
   public long getVirtualAddress() {
@@ -139,25 +117,18 @@ public final class AddressObject {
     return getAddress(memory.getPhysicalAddress());
   }
 
-  /**
-   * Returns the address map, which maps address types to address values.
-   * 
-   * @return the address map.
-   */
   public Map<MmuAddressInstance, Long> getAddresses() {
     return addresses; 
   }
 
-  /**
-   * Sets the address of the given type.
-   * 
-   * @param addressType the address type.
-   * @param value the address value.
-   * @throws IllegalArgumentException if {@code addressType} is null.
-   */
   public void setAddress(final MmuAddressInstance addressType, final long value) {
     InvariantChecks.checkNotNull(addressType);
     addresses.put(addressType, value);
+  }
+
+  public void setAddress(final MmuBufferAccess bufferAccess, final long value) {
+    InvariantChecks.checkNotNull(bufferAccess);
+    addresses.put(bufferAccess.getAddress(), value);
   }
 
   public void setVirtualAddress(final long value) {

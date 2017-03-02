@@ -158,9 +158,11 @@ public final class MemoryAccessStructure {
 
   @Override
   public String toString() {
+    final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
-    builder.append("Executions: ");
+    builder.append("[");
+    builder.append("Accesses: ");
     builder.append(accesses.toString());
 
     builder.append(", ");
@@ -170,12 +172,14 @@ public final class MemoryAccessStructure {
     for (int i = 0; i < dependencies.length; i++) {
       for (int j = 0; j < dependencies.length; j++) {
         if (comma) {
-          builder.append(", ");
+          builder.append(separator);
         }
         builder.append(String.format("[%d][%d]=%s", j, i, dependencies[j][i]));
         comma = true;
       }
     }
+
+    builder.append("]");
 
     return builder.toString();
   }

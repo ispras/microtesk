@@ -306,8 +306,6 @@ public final class MemorySymbolicExecutor {
       final MmuAddressInstance formalArg = newBufferAccess.getAddress();
 
       final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
-      Logger.debug("Bindings: %s", bindings);
-
       return executeBindings(result, defines, bindings, pathIndex);
     }
 
