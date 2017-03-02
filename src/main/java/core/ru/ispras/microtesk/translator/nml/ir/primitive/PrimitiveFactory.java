@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
@@ -234,7 +235,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     int index = 0;
     for (final InstanceArgument instanceArg : args) {
-      final Primitive arg = primitiveAND.getArguments().get(argNames[index]);
+      final String argName = argNames[index];
+      final Primitive arg = primitiveAND.getArguments().get(argName);
+
+      if (!checkCompatibility(arg, instanceArg)) {
+        raiseError(where, String.format(
+            "The %s argument has an incompatible type: %s is expected.", argName, arg.getName()));
+      }
 
       if (instanceArg.getKind() == InstanceArgument.Kind.EXPR && 
           instanceArg.getExpr().isConstant()) {
@@ -247,8 +254,37 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       index++;
     }
 
-    final Instance result = new Instance(primitiveAND, args);
-    return result;
+    return new Instance(primitiveAND, args);
+  }
+
+  private static boolean checkCompatibility(
+      final Primitive arg,
+      final InstanceArgument instanceArg) {
+    switch(instanceArg.getKind()) {
+      case EXPR:
+        return checkCompatibility(arg, instanceArg.getExpr());
+      case PRIMITIVE:
+        return checkCompatibility(arg, instanceArg.getPrimitive());
+      case INSTANCE:
+        return checkCompatibility(arg, instanceArg.getInstance().getPrimitive());
+    }
+
+    InvariantChecks.checkTrue(false);
+    return false;
+  }
+
+  private static boolean checkCompatibility(
+      final Primitive arg,
+      final Primitive primitive) {
+    // TODO Auto-generated method stub
+    return true;
+  }
+
+  private static boolean checkCompatibility(
+      final Primitive arg,
+      final Expr expr) {
+    // TODO Auto-generated method stub
+    return true;
   }
 
   public Attribute createAction(final String name, final List<Statement> stmts) {
