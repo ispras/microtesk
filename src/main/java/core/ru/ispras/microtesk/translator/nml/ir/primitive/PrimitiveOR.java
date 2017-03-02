@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveOR extends Primitive {
   private final List<Primitive> ors;
-  private final Set<String> orNames;
+  private final Set<String> names;
 
   public PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
     super(
@@ -38,7 +38,8 @@ public final class PrimitiveOR extends Primitive {
         );
 
     this.ors = ors;
-    this.orNames = makeNames(ors);
+    this.names = makeNames(ors);
+    this.names.add(name);
   }
 
   private static Modifier getCommonModifier(final List<Primitive> primitives) {
@@ -66,7 +67,7 @@ public final class PrimitiveOR extends Primitive {
     final Set<String> result = new HashSet<String>();
     for (final Primitive primitive : ors) {
       if (primitive.isOrRule()) {
-        result.addAll(((PrimitiveOR) primitive).getOrNames());
+        result.addAll(((PrimitiveOR) primitive).getNames());
       } else {
         result.add(primitive.getName());
       }
@@ -86,8 +87,8 @@ public final class PrimitiveOR extends Primitive {
     return ors;
   }
 
-  public Set<String> getOrNames() {
-    return orNames;
+  public Set<String> getNames() {
+    return names;
   }
 
   private static Type getReturnType(final List<Primitive> ors) {

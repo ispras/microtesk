@@ -290,7 +290,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     final PrimitiveOR argTypeOr = (PrimitiveOR) argType;
-    return argTypeOr.getOrNames().contains(arg.getName());
+    return argTypeOr.getNames().contains(arg.getName());
   }
 
   private static boolean checkType(final Primitive argType, final Expr arg) {
