@@ -238,7 +238,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final String argName = argNames[index];
       final Primitive arg = primitiveAND.getArguments().get(argName);
 
-      if (!checkTypes(arg, instanceArg)) {
+      if (!checkType(arg, instanceArg)) {
         raiseError(where, String.format(
             "The %s argument of %s has an invalid type %s while %s is expected.",
             argName,
@@ -262,28 +262,35 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new Instance(primitiveAND, args);
   }
 
-  private static boolean checkTypes(final Primitive arg, final InstanceArgument instanceArg) {
-    switch(instanceArg.getKind()) {
+  private static boolean checkType(final Primitive argType, final InstanceArgument arg) {
+    switch(arg.getKind()) {
       case EXPR:
-        return checkTypes(arg, instanceArg.getExpr());
+        return checkType(argType, arg.getExpr());
       case PRIMITIVE:
-        return checkTypes(arg, instanceArg.getPrimitive());
+        return checkType(argType, arg.getPrimitive());
       case INSTANCE:
-        return checkTypes(arg, instanceArg.getInstance().getPrimitive());
+        return checkType(argType, arg.getInstance().getPrimitive());
     }
 
     InvariantChecks.checkTrue(false);
     return false;
   }
 
-  private static boolean checkTypes(final Primitive arg, final Primitive primitive) {
+  private static boolean checkType(final Primitive argType, final Primitive arg) {
+    if (argType.getKind() != arg.getKind()) {
+      return false;
+    }
+
+    if (argType.getKind() == Primitive.Kind.IMM) {
+      return argType.getReturnType().equals(arg.getReturnType());
+    }
     // TODO Auto-generated method stub
     return true;
   }
 
-  private static boolean checkTypes(final Primitive arg, final Expr expr) {
-    return arg.getKind() == Primitive.Kind.IMM &&
-          (expr.isConstant() || expr.isTypeOf(arg.getReturnType()));
+  private static boolean checkType(final Primitive argType, final Expr arg) {
+    return argType.getKind() == Primitive.Kind.IMM &&
+           (arg.isConstant() || arg.isTypeOf(argType.getReturnType()));
   }
 
   public Attribute createAction(final String name, final List<Statement> stmts) {
