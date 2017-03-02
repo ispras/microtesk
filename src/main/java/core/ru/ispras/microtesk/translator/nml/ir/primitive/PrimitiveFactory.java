@@ -233,16 +233,17 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         primitiveAND.getArguments().keySet().toArray(new String[primitiveAND.getArguments().size()]);
 
     int index = 0;
-    for (final InstanceArgument ie : args) {
-      if (ie.getKind() == InstanceArgument.Kind.EXPR && ie.getExpr().isConstant()) {
-        final Primitive argument = primitiveAND.getArguments().get(argNames[index]);
-        final Type argumentType = argument.getReturnType();
+    for (final InstanceArgument instanceArg : args) {
+      final Primitive arg = primitiveAND.getArguments().get(argNames[index]);
 
-        final Expr newExpr = TypeCast.castConstantTo(ie.getExpr(), argumentType);
+      if (instanceArg.getKind() == InstanceArgument.Kind.EXPR && 
+          instanceArg.getExpr().isConstant()) {
+        final Type argType = arg.getReturnType();
+        final Expr newExpr = TypeCast.castConstantTo(instanceArg.getExpr(), argType);
         final InstanceArgument newIe = InstanceArgument.newExpr(newExpr);
-
         args.set(index, newIe);
       }
+
       index++;
     }
 
