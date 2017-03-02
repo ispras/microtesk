@@ -55,7 +55,7 @@ public final class PrimitiveUtils {
       return;
     }
 
-    for (final Primitive o : ((PrimitiveOR) source).getORs()) {
+    for (final Primitive o : ((PrimitiveOR) source).getOrs()) {
       saveAllOrsToList(o, destination);
     }
   }
@@ -241,7 +241,7 @@ public final class PrimitiveUtils {
       }
 
       final Collection<Primitive> childs = source.isOrRule() ?
-        ((PrimitiveOR) source).getORs() : ((PrimitiveAND) source).getArguments().values();
+        ((PrimitiveOR) source).getOrs() : ((PrimitiveAND) source).getArguments().values();
 
       int count = 0;
 

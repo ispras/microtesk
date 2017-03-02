@@ -47,8 +47,8 @@ final class STBOperationOr implements STBuilder {
     t.add("base", IsaPrimitive.class.getSimpleName());
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
 
-    final List<String> opNames = new ArrayList<String>(op.getORs().size());
-    for (Primitive p : op.getORs()) {
+    final List<String> opNames = new ArrayList<String>(op.getOrs().size());
+    for (Primitive p : op.getOrs()) {
       opNames.add(p.getName());
     }
 

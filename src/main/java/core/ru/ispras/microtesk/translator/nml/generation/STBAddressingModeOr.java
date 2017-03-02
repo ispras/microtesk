@@ -47,8 +47,8 @@ final class STBAddressingModeOr implements STBuilder {
     t.add("base", IsaPrimitive.class.getSimpleName());
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
 
-    final List<String> modeNames = new ArrayList<String>(mode.getORs().size());
-    for (Primitive p : mode.getORs())
+    final List<String> modeNames = new ArrayList<String>(mode.getOrs().size());
+    for (Primitive p : mode.getOrs())
       modeNames.add(p.getName());
 
     t.add("modes", modeNames);

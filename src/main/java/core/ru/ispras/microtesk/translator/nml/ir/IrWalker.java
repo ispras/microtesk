@@ -189,7 +189,7 @@ public final class IrWalker {
   }
 
   private void visitOrRule(final PrimitiveOR orRule, final boolean isRecursive) {
-    for (final Primitive item : orRule.getORs()) {
+    for (final Primitive item : orRule.getOrs()) {
       visitor.onAlternativeBegin(orRule, item);
       if (isStatus(Status.ABORT)) {
         return;

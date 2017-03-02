@@ -289,8 +289,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       return argType.getName().equals(arg.getName());
     }
 
-    // TODO Auto-generated method stub
-    return true;
+    final PrimitiveOR argTypeOr = (PrimitiveOR) argType;
+    return argTypeOr.getOrNames().contains(arg.getName());
   }
 
   private static boolean checkType(final Primitive argType, final Expr arg) {

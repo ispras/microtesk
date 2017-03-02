@@ -45,7 +45,7 @@ final class STBDecoderGroup implements STBuilder {
     this.imageInfo = group.getInfo().getImageInfo();
     this.items = new ArrayList<>();
 
-    for (final Primitive primitive : group.getORs()) {
+    for (final Primitive primitive : group.getOrs()) {
       if (null != primitive.getInfo().getImageInfo()) {
         this.items.add(DecoderGenerator.getDecoderName(primitive.getName()));
       }

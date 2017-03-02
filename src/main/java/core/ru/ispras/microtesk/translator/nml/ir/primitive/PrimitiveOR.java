@@ -15,14 +15,17 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveOR extends Primitive {
   private final List<Primitive> ors;
+  private final Set<String> orNames;
 
   public PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
     super(
@@ -35,6 +38,7 @@ public final class PrimitiveOR extends Primitive {
         );
 
     this.ors = ors;
+    this.orNames = makeNames(ors);
   }
 
   private static Modifier getCommonModifier(final List<Primitive> primitives) {
@@ -58,6 +62,18 @@ public final class PrimitiveOR extends Primitive {
     return Modifier.NORMAL;
   }
 
+  private static Set<String> makeNames(final List<Primitive> ors) {
+    final Set<String> result = new HashSet<String>();
+    for (final Primitive primitive : ors) {
+      if (primitive.isOrRule()) {
+        result.addAll(((PrimitiveOR) primitive).getOrNames());
+      } else {
+        result.add(primitive.getName());
+      }
+    }
+    return result;
+  }
+
   public void addParentReference(final PrimitiveAND parent, final String referenceName) {
     super.addParentReference(parent, referenceName);
 
@@ -66,8 +82,12 @@ public final class PrimitiveOR extends Primitive {
     }
   }
 
-  public List<Primitive> getORs() {
+  public List<Primitive> getOrs() {
     return ors;
+  }
+
+  public Set<String> getOrNames() {
+    return orNames;
   }
 
   private static Type getReturnType(final List<Primitive> ors) {
