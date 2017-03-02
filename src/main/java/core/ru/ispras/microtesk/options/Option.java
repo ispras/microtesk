@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -57,8 +57,7 @@ public enum Option {
   BRANCH_LIMIT("branch-exec-limit", "Maximum execution count for an instruction", 100, GENERATE),
   RATE_LIMIT("rate-limit", "Minimum generation rate", 0, GENERATE),
 
-  ASSERTIONS_ENABLED("assertions-enabled",
-      "Enables assertion checks during simulation", false, GENERATE),
+  ASSERTS_ENABLED("asserts-enabled", "Enables assertion checks during simulation", false, GENERATE),
   TARMAC_LOG("tarmac-log", "Enables generation of Tarmac logs for simulation", false, GENERATE),
   SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
   DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),

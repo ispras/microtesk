@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -47,6 +47,7 @@ public abstract class TemplateTest implements Logger.Listener {
     this.options = new EnumMap<>(Option.class);
 
     setCommandLineOption(Option.GENERATE);
+    setCommandLineOption(Option.ASSERTS_ENABLED);
   }
 
   public final void setVerbose(final boolean value) {

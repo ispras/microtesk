@@ -210,7 +210,7 @@ public final class TestEngine {
   }
 
   public Template newTemplate() {
-    Execution.setAssertionsEnabled(options.getValueAsBoolean(Option.ASSERTIONS_ENABLED));
+    Execution.setAssertionsEnabled(options.getValueAsBoolean(Option.ASSERTS_ENABLED));
 
     final int instanceNumber = options.getValueAsInteger(Option.INSTANCE_NUMBER);
     Logger.message("Instance number: %d", instanceNumber);
