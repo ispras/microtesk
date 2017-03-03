@@ -14,15 +14,20 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
@@ -49,7 +54,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     this.adapter = adapter;
   }
 
-  public Iterator<AdapterResult> process(
+  public EngineResult<AdapterResult> process(
       final EngineContext context, final List<Call> abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -63,7 +68,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       final EngineResult<AdapterResult> result = solve(context, abstractSequence);
       checkResultStatus(result);
 
-      return result.getResult();
+      return result;
     } finally {
       context.getModel().setUseTempState(false);
       context.getStatistics().popActivity(); // PROCESSING
@@ -100,7 +105,16 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
       return new EngineResult<>(result.getStatus(), null, result.getErrors());
     }
 
-    return adapt(adapter, context, sequence, result.getResult());
+    final EngineResult<AdapterResult> engineResult =
+        adapt(adapter, context, sequence, result.getResult());
+
+    // TODO: temporary implementation of self-checks.
+    if (context.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
+      final List<SelfCheck> selfChecks = createSelfChecks(sequence);
+      engineResult.setSelfChecks(selfChecks);
+    }
+
+    return engineResult;
   }
 
   @Override
@@ -119,6 +133,19 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     if (null != modeAllocator) {
       modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
     }
+  }
+
+  private static List<SelfCheck> createSelfChecks(final List<Call> abstractSequence) {
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
+    final List<SelfCheck> selfChecks = new ArrayList<>(modes.size());
+
+    for (final AddressingModeWrapper mode : modes) {
+      selfChecks.add(new SelfCheck(mode));
+    }
+
+    return selfChecks;
   }
 
   private static List<Call> expandPreparators(

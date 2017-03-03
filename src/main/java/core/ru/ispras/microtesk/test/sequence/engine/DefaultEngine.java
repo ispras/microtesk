@@ -30,10 +30,8 @@ import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.LabelManager;
-import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
-import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -103,28 +101,10 @@ public final class DefaultEngine implements Engine<TestSequence> {
         processAbstractCall(engineContext, abstractCall);
       }
 
-      createSelfChecks(engineContext, abstractSequence);
       return sequenceBuilder.build();
     } finally {
       initializedModes = null;
       sequenceBuilder = null;
-    }
-  }
-
-  private void createSelfChecks(
-      final EngineContext engineContext,
-      final List<Call> abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    final boolean isSelfChecks = engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS);
-    if (!isSelfChecks) {
-      return;
-    }
-
-    final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
-    for (final AddressingModeWrapper mode : modes) {
-      sequenceBuilder.addCheck(new SelfCheck(mode));
     }
   }
 

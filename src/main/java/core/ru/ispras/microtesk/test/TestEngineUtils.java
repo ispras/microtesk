@@ -31,6 +31,7 @@ import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
@@ -135,7 +136,9 @@ final class TestEngineUtils {
     final TestSequenceEngine engine = getEngine(block);
     final List<Call> abstractSequence = getSingleSequence(block);
 
-    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
+    final Iterator<AdapterResult> iterator = engineResult.getResult();
+
     return getSingleTestSequence(iterator);
   }
 

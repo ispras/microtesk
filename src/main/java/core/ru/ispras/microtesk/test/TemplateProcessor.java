@@ -28,6 +28,7 @@ import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.sequence.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.sequence.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
@@ -188,7 +189,8 @@ final class TemplateProcessor implements Template.Processor {
 
     engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
+    final Iterator<AdapterResult> iterator = engineResult.getResult();
 
     final TestSequence sequence = TestEngineUtils.getSingleTestSequence(iterator);
     sequence.setTitle("External Code");
@@ -221,8 +223,8 @@ final class TemplateProcessor implements Template.Processor {
 
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-      final Iterator<AdapterResult> concreteIt =
-          engine.process(engineContext, abstractIt.value());
+      final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+      final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
         startProgram();
@@ -234,7 +236,7 @@ final class TemplateProcessor implements Template.Processor {
         allocateTestSequence(sequence, sequenceIndex);
         executeTestSequence(sequence);
 
-        processSelfChecks(sequence.getChecks(), sequenceIndex);
+        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
         Logger.debugHeader("");
@@ -252,9 +254,7 @@ final class TemplateProcessor implements Template.Processor {
   private void processSelfChecks(
       final List<SelfCheck> selfChecks,
       final int testCaseIndex) throws ConfigurationException {
-    InvariantChecks.checkNotNull(selfChecks);
-
-    if (!engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
+    if (null == selfChecks) {
       return;
     }
 
@@ -316,7 +316,8 @@ final class TemplateProcessor implements Template.Processor {
 
     engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    final Iterator<AdapterResult> iterator = engine.process(engineContext, abstractSequence);
+    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
+    final Iterator<AdapterResult> iterator = engineResult.getResult();
 
     final TestSequence sequence = TestEngineUtils.getSingleTestSequence(iterator);
     sequence.setTitle("External Code");
@@ -350,8 +351,8 @@ final class TemplateProcessor implements Template.Processor {
 
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-      final Iterator<AdapterResult> concreteIt =
-          engine.process(engineContext, abstractIt.value());
+      final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+      final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
@@ -364,7 +365,7 @@ final class TemplateProcessor implements Template.Processor {
         PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
         executeTestSequence(sequence);
-        processSelfChecks(sequence.getChecks(), sequenceIndex);
+        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
         Logger.debugHeader("");

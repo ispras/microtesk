@@ -25,8 +25,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * The {@code TestSequence} class describes a test sequence, a symbolic test program (or a part of a
  * test program) that consists of concrete calls which can be simulated on the microprocessor model
  * or dumped to textual representation (assembler code). The sequence is split into tree parts: (1)
- * prologue that holds the initialization code and (2) body that holds the main code (test case)
- * and (3) self-checks that must be generated after simulating the sequence.
+ * prologue that holds the initialization code and (2) body that holds the main code (test case).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -35,13 +34,11 @@ public final class TestSequence {
   public static final class Builder {
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
-    private final List<SelfCheck> checks;
     private int instructionCount;
 
     public Builder() {
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
-      this.checks = new ArrayList<>();
       this.instructionCount = 0;
     }
 
@@ -78,35 +75,24 @@ public final class TestSequence {
       addTo(body, calls);
     }
 
-    public void addCheck(final SelfCheck check) {
-      InvariantChecks.checkNotNull(check);
-      checks.add(check);
-    }
-
     public TestSequence build() {
-      return new TestSequence(prologue, body, checks, instructionCount);
+      return new TestSequence(prologue, body, instructionCount);
     }
   }
 
   private final List<ConcreteCall> all;
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
-  private final List<SelfCheck> checks;
   private final int instructionCount;
   private String title;
 
   private TestSequence(
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
-      final List<SelfCheck> checks,
       final int instructionCount) {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
-    InvariantChecks.checkNotNull(checks);
     InvariantChecks.checkGreaterOrEqZero(instructionCount);
-
-    // Checks are expected to be empty if prologue and body are empty (for correct work of isEmpty).
-    InvariantChecks.checkTrue(prologue.isEmpty() && body.isEmpty() ? checks.isEmpty() : true);
 
     final List<ConcreteCall> allCalls = merge(prologue, body);
     this.all = Collections.unmodifiableList(allCalls);
@@ -120,9 +106,7 @@ public final class TestSequence {
         prologue.isEmpty() ?
             all : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
 
-    this.checks = Collections.unmodifiableList(checks);
     this.instructionCount = instructionCount;
-
     this.title = "";
   }
 
@@ -153,10 +137,6 @@ public final class TestSequence {
 
   public List<ConcreteCall> getBody() {
     return body;
-  }
-
-  public List<SelfCheck> getChecks() {
-    return checks;
   }
 
   public boolean isEmpty() {
