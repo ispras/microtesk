@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.engine.utils;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 
@@ -29,8 +29,8 @@ import ru.ispras.microtesk.test.template.Primitive;
 public final class AddressingModeWrapper {
   private final Primitive mode;
 
-  public AddressingModeWrapper(Primitive mode) {
-    checkNotNull(mode);
+  public AddressingModeWrapper(final Primitive mode) {
+    InvariantChecks.checkNotNull(mode);
     if (mode.getKind() != Primitive.Kind.MODE) {
       throw new IllegalArgumentException(mode.getSignature() + " is not an addresing mode.");
     }
@@ -44,7 +44,7 @@ public final class AddressingModeWrapper {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    for (Argument arg : mode.getArguments().values()) {
+    for (final Argument arg : mode.getArguments().values()) {
       if (sb.length() > 0) {
         sb.append(", ");
       }
@@ -69,7 +69,7 @@ public final class AddressingModeWrapper {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
