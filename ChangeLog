@@ -6,6 +6,12 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/03/03 MicroTESK 2.4.14 beta
+
+ - Support for assertions in nML was implemented
+ - New option 'debug-print' was introduced
+ - Bug fixes and general improvements
+
 2017/02/17 MicroTESK 2.4.13 beta
 
  - Bug fixes and general improvements
@@ -65,7 +71,7 @@
  - Bug fixes and general improvements
 
 2016/10/28 MicroTESK 2.4.0 alpha
- - Basic facilities for multicore generation (untested, untested)
+ - Basic facilities for multicore generation (unstable, untested)
  - nML: the 'init' attribute was made public
  - Refactoring in the ISA simulator
 
