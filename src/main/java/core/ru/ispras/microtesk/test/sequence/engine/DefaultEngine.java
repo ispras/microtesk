@@ -108,6 +108,50 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
+  private void processAbstractCall(
+      final EngineContext context,
+      final Call abstractCall) throws ConfigurationException {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(abstractCall);
+
+    final boolean isDebug = Logger.isDebug();
+    Logger.setDebug(context.getOptions().getValueAsBoolean(Option.DEBUG));
+
+    try {
+      // Only executable calls are worth printing.
+      if (abstractCall.isExecutable()) {
+        Logger.debug("%nProcessing %s...", abstractCall);
+
+        final Primitive rootOp = abstractCall.getRootOperation();
+        checkRootOp(rootOp);
+
+        processSituations(context, rootOp);
+      }
+
+      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
+      registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
+    } finally {
+      Logger.setDebug(isDebug);
+    }
+  }
+
+  private void processSituations(
+      final EngineContext engineContext,
+      final Primitive primitive) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(primitive);
+
+    for (final Argument arg : primitive.getArguments().values()) {
+      if (Argument.Kind.OP == arg.getKind()) {
+        processSituations(engineContext, (Primitive) arg.getValue());
+      }
+    }
+
+    final List<Call> initializingCalls = makeInitializer(
+        engineContext, primitive, primitive.getSituation(), initializedModes);
+    addCallsToPrologue(engineContext, initializingCalls);
+  }
+
   private void registerCall(
       final ProcessingElement processingElement,
       final ConcreteCall call,
@@ -144,50 +188,6 @@ public final class DefaultEngine implements Engine<TestSequence> {
         labelRef.getPatcher().setValue(BigInteger.valueOf(address));
       }
     }
-  }
-
-  private void processAbstractCall(
-      final EngineContext context,
-      final Call abstractCall) throws ConfigurationException {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(abstractCall);
-
-    final boolean isDebug = Logger.isDebug();
-    Logger.setDebug(context.getOptions().getValueAsBoolean(Option.DEBUG));
-
-    try {
-      // Only executable calls are worth printing.
-      if (abstractCall.isExecutable()) {
-        Logger.debug("%nProcessing %s...", abstractCall);
-
-        final Primitive rootOp = abstractCall.getRootOperation();
-        checkRootOp(rootOp);
-
-        processSituations(context, rootOp);
-      }
-
-      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-      registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
-    } finally {
-      Logger.setDebug(isDebug);
-    }
-  }
-
-  private void processSituations(
-      final EngineContext engineContext,
-      final Primitive primitive) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(primitive);
-
-    for (Argument arg : primitive.getArguments().values()) {
-      if (Argument.Kind.OP == arg.getKind()) {
-        processSituations(engineContext, (Primitive) arg.getValue());
-      }
-    }
-
-    final List<Call> initializingCalls = makeInitializer(
-        engineContext, primitive, primitive.getSituation(), initializedModes);
-    addCallsToPrologue(engineContext, initializingCalls);
   }
 
   private void addCallsToPrologue(
