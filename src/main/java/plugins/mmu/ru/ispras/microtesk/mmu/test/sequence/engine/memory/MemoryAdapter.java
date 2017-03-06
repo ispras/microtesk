@@ -154,6 +154,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     for (final Map.Entry<Long, EntryObject> entry : entries.entrySet()) {
       final long index = entry.getKey();
       final MmuEntry data = entry.getValue().getEntry();
+      final long bufferAccessAddress = data.getAddress();
 
       final BitVector addressValue = BitVector.valueOf(index, Long.SIZE);
       final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
@@ -169,21 +170,18 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
           || buffer == memory.getTargetBuffer();
 
       final Set<Long> entriesInDataSection = getAllocatedEntries(buffer);
-      final boolean isEntryInDataSection = entriesInDataSection.contains(index);
+      final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
       final String comment = String.format("%s[%d]=%s", buffer.getName(), index, data);
 
       if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
         // Static buffer initialization.
-        entriesInDataSection.add(index);
+        entriesInDataSection.add(bufferAccessAddress);
 
         final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
             blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
 
-        final long bufferAddress = 0; // TODO:
-        final long entryOffset = index * (data.getSizeInBits() >>> 3);
-
-        dataSectionBuilder.setOrigin(BigInteger.valueOf(bufferAddress + entryOffset));
+        dataSectionBuilder.setOrigin(BigInteger.valueOf(bufferAccessAddress));
         dataSectionBuilder.addComment(comment);
 
         final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());

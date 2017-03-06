@@ -30,6 +30,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuEntry {
+  private long address = 0x0L;
+
   private final Set<IntegerVariable> validFields = new LinkedHashSet<>();
   private final Map<IntegerVariable, BigInteger> fields = new LinkedHashMap<>();
   private final int sizeInBits;
@@ -46,6 +48,14 @@ public final class MmuEntry {
     }
 
     this.sizeInBits = sizeInBits;
+  }
+
+  public long getAddress() {
+    return address;
+  }
+
+  public void setAddress(final long address) {
+    this.address = address;
   }
 
   public Collection<IntegerVariable> getVariables() {

@@ -779,12 +779,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
     Logger.debug("Fill[%d]: %s", j, access);
 
     for (final MmuBufferAccess bufferAccess : pathEntries.keySet()) {
-      Logger.debug("Fill[%d]: %s", j, bufferAccess.getBuffer());
+      Logger.debug("Fill[%d]: %s", j, bufferAccess);
 
-      for (final EntryObject entryObject : pathEntries.get(bufferAccess).values()) {
+      final Collection<EntryObject> entries = pathEntries.get(bufferAccess).values();
+
+      for (final EntryObject entryObject : entries) {
         // Fill the entry according to the path constraints.
         final MmuEntry entry = entryObject.getEntry();
-        fillEntry(addrObject, entry);
+        fillEntry(bufferAccess, addrObject, entry);
       }
     }
 
@@ -1003,7 +1005,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Construct the corresponding entry.
     final MmuEntry entry = new MmuEntry(parent.getFields());
-    fillEntry(normalAddrObject, entry);
+    fillEntry(bufferAccess.getParentAccess(), normalAddrObject, entry);
 
     final EntryObject entryObject = new EntryObject(id, entry);
     solution.addEntry(bufferAccess.getParentAccess(), entryObject);
@@ -1149,10 +1151,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
-      final MmuBuffer buffer = bufferAccess.getBuffer();
-
-      if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())
-          || buffer.getKind() == MmuBuffer.Kind.MEMORY) {
+      if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())) {
         continue;
       }
 
@@ -1195,10 +1194,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Fills the given entry with appropriate data produced on the basis of the memory access and
    * the address object.
    * 
+   * @param bufferAccess the buffer access that uses the entry to be filled.
    * @param addrObject the address object.
    * @param entry the entry to be filled.
    */
-  private void fillEntry(final AddressObject addrObject, final MmuEntry entry) {
+  private void fillEntry(
+      final MmuBufferAccess bufferAccess,
+      final AddressObject addrObject,
+      final MmuEntry entry) {
+    InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(addrObject);
     InvariantChecks.checkNotNull(entry);
 
@@ -1219,6 +1223,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       constraints.add(new IntegerDomainConstraint<IntegerField>(variable, value));
     }
 
+    // TODO: if there are several buffers, multiple solver invocations are not required.
+
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
         path, constraints, IntegerVariableInitializer.ZEROS);
@@ -1226,6 +1232,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Set the entry fields.
     entry.setValid(true);
+    entry.setAddress(addrObject.getAddress(bufferAccess));
+
     for (final IntegerVariable field : entry.getVariables()) {
       // If an entry field is not used in the path it remains unchanged.
       if (values.containsKey(field) && (!entry.isValid(field) || path.contains(field))) {
