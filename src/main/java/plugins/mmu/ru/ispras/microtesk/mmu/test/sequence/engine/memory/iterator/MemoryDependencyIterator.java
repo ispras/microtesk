@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
@@ -82,18 +83,24 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final boolean isExternal2 = bufferAccess2.getAddress().equals(buffer2.getAddress());
 
         // Different external accesses to the same buffer (recursive accesses are uncontrollable).
-        if (buffer1 == buffer2 && !buffer1.isFake() && isExternal1 && isExternal2) {
+        if (buffer1 == buffer2 && buffer1.getKind() != MmuBuffer.Kind.MEMORY
+            && !buffer1.isFake() && isExternal1 && isExternal2) {
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
           final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 
           for (final BufferHazard hazardType : hazardTypes) {
-            hazardInstances.add(hazardType.makeInstance(bufferAccess1, bufferAccess2));
+            final BufferHazard.Instance hazardInstance =
+                hazardType.makeInstance(bufferAccess1, bufferAccess2);
+
+            Logger.debug("Possible dependencies: hazard %s", hazardInstance);
+            hazardInstances.add(hazardInstance);
           }
 
           bufferDependencies = refineDependencies(
               bufferDependencies, access1, access2, hazardInstances, checker);
 
           if (bufferDependencies.isEmpty()) {
+            Logger.debug("Possible dependencies: break");
             break;
           }
         }

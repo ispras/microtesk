@@ -28,6 +28,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 public final class MmuBufferAccess {
   /** Buffer being accessed. */
   private final MmuBuffer buffer;
+  /** Memory access stack. */
+  private final MemoryAccessStack stack;
   /** Address used to access the buffer. */
   private final MmuAddressInstance address;
   /** Buffer entry being accessed. */
@@ -37,6 +39,7 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
+      final MemoryAccessStack stack,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
@@ -44,13 +47,26 @@ public final class MmuBufferAccess {
     InvariantChecks.checkNotNull(address);
 
     this.buffer = buffer;
+    this.stack = stack;
     this.address = address;
     this.entry = entry;
     this.argument = argument;
   }
 
+  public MmuBufferAccess(
+      final MmuBuffer buffer,
+      final MmuAddressInstance address,
+      final MmuStruct entry,
+      final MmuAddressInstance argument) {
+    this(buffer, MemoryAccessStack.EMPTY, address, entry, argument);
+  }
+
   public MmuBuffer getBuffer() {
     return buffer;
+  }
+
+  public MemoryAccessStack getStack() {
+    return stack;
   }
 
   public MmuAddressInstance getAddress() {
@@ -75,20 +91,22 @@ public final class MmuBufferAccess {
 
     return new MmuBufferAccess(
         buffer,
+        // The memory access stack should be copied.
+        new MemoryAccessStack(stack),
         address.getInstance(stack),
         entry.getInstance(stack),
         argument != null ? argument.getInstance(stack) : null);
   }
 
   public MmuBufferAccess getParentAccess() {
-    return new MmuBufferAccess(buffer.getParent(), address, entry, argument);
+    return new MmuBufferAccess(buffer.getParent(), stack, address, entry, argument);
   }
 
   public Collection<MmuBufferAccess> getChildAccesses() {
     final Collection<MmuBufferAccess> childAccesses = new ArrayList<>();
 
     for (final MmuBuffer child : buffer.getChildren()) {
-      childAccesses.add(new MmuBufferAccess(child, address, entry, argument));
+      childAccesses.add(new MmuBufferAccess(child, stack, address, entry, argument));
     }
 
     return childAccesses;

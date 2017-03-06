@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -28,10 +28,12 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStack {
+  public static final MemoryAccessStack EMPTY = new MemoryAccessStack();
+
   /**
    * {@link Frame} represents a memory access stack's frame.
    */
-  public final static class Frame {
+  public  static final class Frame {
     private final String id;
     private final Map<IntegerVariable, IntegerVariable> frame = new HashMap<>();
 

@@ -562,7 +562,6 @@ public final class MemoryAccessPath {
     return events.get(bufferAccess);
   }
 
-  // TODO:
   public Collection<BufferAccessEvent> getEvents(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
