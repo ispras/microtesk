@@ -787,6 +787,10 @@ public final class DataDirectiveFactory {
     return result;
   }
 
+  public void resetLabels() {
+    preceedingLabels = Collections.emptyList();
+  }
+
   public int getMaxTypeBitSize() {
     return maxTypeBitSize;
   }
