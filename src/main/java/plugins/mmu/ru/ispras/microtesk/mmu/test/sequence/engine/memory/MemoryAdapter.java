@@ -387,8 +387,9 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(initializedModes);
-
     InvariantChecks.checkTrue(MemoryEngine.isMemoryAccessWithSituation(abstractCall));
+
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final Primitive primitive = abstractCall.getRootOperation();
     InvariantChecks.checkNotNull(primitive, "Primitive is null");
@@ -401,7 +402,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     // Specify the situation's parameter (address value).
     final Map<String, Object> newAttributes = new HashMap<>(attributes);
-    newAttributes.put(AddressDataGenerator.PARAM_ADDRESS_VALUE, addressObject.getVirtualAddress());
+    newAttributes.put(AddressDataGenerator.PARAM_ADDRESS_VALUE,
+        addressObject.getAddress(memory.getVirtualAddress()));
 
     final Situation newSituation = new Situation(situation.getName(), newAttributes);
 

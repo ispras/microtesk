@@ -18,13 +18,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link AddressObject} represents test data for an individual {@link MemoryAccess}.
@@ -36,25 +33,16 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressObject {
-  /**
-   * Refers to the MMU specification.
-   *
-   * <p>It is used to initialize the auxiliary data structures and to build a string representation
-   * of the test data (to print tags and indices for all relevant buffers).</p>
-   */
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-  /** Contains addresses (virtual, physical and intermediate addresses). */
+  /** Contains values of the virtual, physical and intermediate addresses. */
   private final Map<MmuAddressInstance, Long> addresses = new LinkedHashMap<>();
-
-  /** Contains attributes associated with the instruction call (cache policy, etc.). */
-  private final Map<IntegerVariable, Long> attributes = new LinkedHashMap<>();
 
   /**
    * Contains entries to be written into the buffers.
    * 
-   * <p>Typically, one memory access affects one entry of one buffer. It is assumed that each map
-   * contains exactly one entry.</p>
+   * <p>
+   * Typically, a single memory access affects one entry per buffer.
+   * Thus, each map usually contains one entry.
+   * </p>
    */
   private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
@@ -62,9 +50,7 @@ public final class AddressObject {
   private MemoryAccess access;
 
   public AddressObject(final MemoryAccess access) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(access);
-
     this.access = access;
   }
 
@@ -85,20 +71,6 @@ public final class AddressObject {
     this.access = access;
   }
 
-  public Long getAttrValue(final IntegerVariable variable) {
-    InvariantChecks.checkNotNull(variable);
-    return attributes.get(variable);
-  }
-
-  public void setAttrValue(final IntegerVariable variable, final long value) {
-    InvariantChecks.checkNotNull(variable);
-    attributes.put(variable, value);
-  }
-
-  public void clearAttrs() {
-    attributes.clear();
-  }
-
   public long getAddress(final MmuAddressInstance addressType) {
     InvariantChecks.checkNotNull(addressType);
     return addresses.get(addressType); 
@@ -107,14 +79,6 @@ public final class AddressObject {
   public long getAddress(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
     return addresses.get(bufferAccess.getAddress()); 
-  }
-
-  public long getVirtualAddress() {
-    return getAddress(memory.getVirtualAddress());
-  }
-
-  public long getPhysicalAddress() {
-    return getAddress(memory.getPhysicalAddress());
   }
 
   public Map<MmuAddressInstance, Long> getAddresses() {
@@ -129,14 +93,6 @@ public final class AddressObject {
   public void setAddress(final MmuBufferAccess bufferAccess, final long value) {
     InvariantChecks.checkNotNull(bufferAccess);
     addresses.put(bufferAccess.getAddress(), value);
-  }
-
-  public void setVirtualAddress(final long value) {
-    setAddress(memory.getVirtualAddress(), value);
-  }
-
-  public void setPhysicalAddress(final long value) {
-    setAddress(memory.getPhysicalAddress(), value);
   }
 
   public Map<MmuBufferAccess, Map<Long, EntryObject>> getEntries() {
@@ -204,14 +160,17 @@ public final class AddressObject {
 
     for (final Map.Entry<MmuAddressInstance, Long> addrEntry : addresses.entrySet()) {
       final MmuAddressInstance addrType = addrEntry.getKey();
+      final String addrName = addrType.getVariable().getName();
       final long addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");
-      builder.append(String.format("%s=0x%x", addrType.getVariable().getName(), addrValue));
+      builder.append(String.format("%s=0x%x", addrName, addrValue));
       comma = true;
 
-      for (final MmuBuffer buffer : memory.getBuffers()) {
-        if (buffer.getAddress() == addrType) {
+      for (final MmuBufferAccess bufferAccess : access.getPath().getBufferAccesses()) {
+        final MmuBuffer buffer = bufferAccess.getBuffer();
+
+        if (addrType.equals(bufferAccess.getAddress())) {
           if (buffer.isReplaceable()) {
             builder.append(comma ? separator : "");
             builder.append(String.format("%s.tag=0x%x", buffer, buffer.getTag(addrValue)));

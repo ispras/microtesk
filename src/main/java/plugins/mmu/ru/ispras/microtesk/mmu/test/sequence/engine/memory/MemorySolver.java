@@ -1129,7 +1129,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     Logger.debug("Constraints for refinement: %s", constraints);
 
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
-        path, constraints, IntegerVariableInitializer.ZEROS);
+        path, constraints, IntegerVariableInitializer.RANDOM);
 
     // Cannot correct the address values.
     if (values == null) {
@@ -1161,18 +1161,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       Logger.debug("Refine address: %s=0x%x", addrType, addrValue.longValue());
       addrObject.setAddress(addrType, addrValue.longValue());
-    }
-
-    // Set the attributes to be used in an adapter (if required).
-    addrObject.clearAttrs();
-
-    for (final Map.Entry<IntegerVariable, BigInteger> attribute : values.entrySet()) {
-      final IntegerVariable key = attribute.getKey();
-      final BigInteger value = attribute.getValue();
-
-      if (!key.equals(vaVar) && !key.equals(paVar)) {
-        addrObject.setAttrValue(key, value.longValue()); // TODO: too many attributes.
-      }
     }
 
     return true;
@@ -1227,7 +1215,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Use the effective memory access path to generate test data.
     final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
-        path, constraints, IntegerVariableInitializer.ZEROS);
+        path, constraints, IntegerVariableInitializer.RANDOM);
     InvariantChecks.checkTrue(values != null && !values.isEmpty(), constraints.toString());
 
     // Set the entry fields.
