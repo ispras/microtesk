@@ -47,7 +47,7 @@ public final class AddressObject {
   private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
 
   /** Refers to the memory access. */
-  private MemoryAccess access;
+  private final MemoryAccess access;
 
   public AddressObject(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
@@ -60,15 +60,6 @@ public final class AddressObject {
 
   public MemoryAccessPath getPath() {
     return access.getPath();
-  }
-
-  public void setPath(final MemoryAccessPath path) {
-    InvariantChecks.checkNotNull(path);
-
-    final MemoryAccess access = new MemoryAccess(
-        this.access.getType(), path, this.access.getRegion(), this.access.getSegment());
-
-    this.access = access;
   }
 
   public long getAddress(final MmuAddressInstance addressType) {
