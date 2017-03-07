@@ -31,12 +31,14 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
@@ -299,6 +301,15 @@ public final class MemorySymbolicExecutor {
 
       final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
       final MmuAddressInstance actualArg = oldBufferAccess.getArgument();
+
+      // Restrict the memory-mapped buffer address.
+      final IntegerVariable variable = actualArg.getVariable();
+      final IntegerRange range = oldBufferAccess.getAddressRange();
+
+      if (range != null) {
+        final IntegerRangeConstraint assertion = new IntegerRangeConstraint(variable, range);
+        executeFormula(result, defines, assertion.getFormula(), pathIndex);
+      }
 
       result.updateStack(entry, pathIndex);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -74,7 +74,7 @@ public final class MemoryAccess {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(segment);
-    // Parameter {@code region} can be null.
+    // Parameter region can be null.
 
     this.type = type;
     this.path = path;
@@ -100,9 +100,10 @@ public final class MemoryAccess {
 
   @Override
   public String toString() {
-    return String.format("%s, %s, %s", type, path,
-        (region != null ?
-            String.format("%s[%s]", region.getName(), segment.getName()) :
-            segment.getName()));
+    final String regionAndSegment = region != null
+        ? String.format("%s[%s]", region.getName(), segment.getName())
+        : segment.getName();
+
+    return String.format("%s, %s, %s", type, path, regionAndSegment);
   }
 }

@@ -34,6 +34,7 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -163,6 +164,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return result;
   }
 
+ 
   private RegionSettings chooseRegion() {
     final Set<RegionSettings> regions = new HashSet<>();
 
@@ -173,6 +175,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     return Randomizer.get().choose(regions);
+  }
+
+  private IntegerRange getRegionRange(final String regionName) {
+    InvariantChecks.checkNotNull(regionName);
+
+    final RegionSettings region = settings.getMemory().getRegion(regionName);
+    InvariantChecks.checkNotNull(region);
+
+    return new IntegerRange(
+        BigIntegerUtils.valueOfUnsignedLong(region.getMin()),
+        BigIntegerUtils.valueOfUnsignedLong(region.getMax()));
   }
 
   /**
@@ -1071,6 +1084,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final Map<MmuAddressInstance, Long> addresses = addrObject.getAddresses();
 
+    final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints
+        ? new ArrayList<>(this.constraints.getIntegers())
+        : new ArrayList<IntegerConstraint<IntegerField>>();
+
     // Fix the address tags and indices.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
@@ -1082,6 +1099,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MmuAddressInstance addrType = bufferAccess.getAddress();
 
       Logger.debug("Memory access stack: %s", stack);
+
+      if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
+        final IntegerVariable variable = bufferAccess.getAddress().getVariable();
+        final IntegerRange range = getRegionRange(buffer.getName());
+
+        Logger.debug("Range constraint: %s in %s", variable, range);
+        bufferAccess.setAddressRange(range);
+      }
 
       if (buffer.isFake() || !addresses.containsKey(addrType)) {
         Logger.debug("Buffer access is skipped");
@@ -1114,10 +1139,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
         knownValues.putAll(IntegerField.split(indexExprInstance.getTerms(), index));
       }
     }
-
-    final Collection<IntegerConstraint<IntegerField>> constraints = applyConstraints
-        ? new ArrayList<>(this.constraints.getIntegers())
-        : new ArrayList<IntegerConstraint<IntegerField>>();
 
     for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
       final IntegerField field = entry.getKey();

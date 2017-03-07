@@ -90,25 +90,11 @@ public final class AddressObject {
     return entries;
   }
 
-  /**
-   * Returns the entries to be written to the given buffer.
-   * 
-   * @param bufferAccess the buffer access.
-   * @return the entries to written.
-   * @throws IllegalArgumentException if {@code buffer} is null.
-   */
   public Map<Long, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
     return entries.get(bufferAccess);
   }
 
-  /**
-   * Sets the entries to be written to the given buffer.
-   * 
-   * @param bufferAccess the buffer access.
-   * @param entries the entries to be written.
-   * @throws IllegalArgumentException if some parameters are null.
-   */
   public void setEntries(final MmuBufferAccess bufferAccess, final Map<Long, EntryObject> entries) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entries);
@@ -121,19 +107,11 @@ public final class AddressObject {
     this.entries.put(bufferAccess, entries);
   }
 
-  /**
-   * Adds the entry to the set of entries to be written to the given buffer.
-   * 
-   * @param bufferAccess the buffer access.
-   * @param entry the entry to be added.
-   * @throws IllegalArgumentException if some parameters are null.
-   */
   public void addEntry(final MmuBufferAccess bufferAccess, final EntryObject entry) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entry);
 
     Map<Long, EntryObject> bufferEntries = entries.get(bufferAccess);
-
     if (bufferEntries == null) {
       entries.put(bufferAccess, bufferEntries = new LinkedHashMap<>());
     }

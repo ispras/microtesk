@@ -33,7 +33,8 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
 
   public static enum Type {
     TEXT,
-    DATA
+    DATA,
+    TABLE
   }
 
   private final String name;
@@ -138,7 +139,6 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
   @Override
   public void add(final AbstractSettings section) {
     InvariantChecks.checkTrue(section instanceof AccessSettings);
-
     accesses.add((AccessSettings) section);
   }
 

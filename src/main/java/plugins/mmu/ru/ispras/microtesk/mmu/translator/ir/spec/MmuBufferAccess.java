@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 
 /**
@@ -36,6 +37,8 @@ public final class MmuBufferAccess {
   private final MmuStruct entry;
   /** Address passed as an argument on buffer access. */
   private final MmuAddressInstance argument;
+
+  private IntegerRange addressRange;
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
@@ -110,6 +113,14 @@ public final class MmuBufferAccess {
     }
 
     return childAccesses;
+  }
+
+  public IntegerRange getAddressRange() {
+    return addressRange;
+  }
+
+  public void setAddressRange(final IntegerRange addressRange) {
+    this.addressRange = addressRange;
   }
 
   @Override
