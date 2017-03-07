@@ -278,7 +278,7 @@ final class TemplateProcessor implements Template.Processor {
           continue;
         }
 
-        final Block block = testProgram.extractPostponedBlock(entry);
+        final Block block = testProgram.getPostponedEntry(entry);
         InvariantChecks.checkNotNull(block);
 
         if (block.isExternal()) {
@@ -288,9 +288,11 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         if (isProcessed) {
+          testProgram.removePostponedEntry(entry);
           break;
         }
       }
+
     } while (isProcessed);
   }
 
@@ -304,7 +306,6 @@ final class TemplateProcessor implements Template.Processor {
 
     if (-1 == instanceIndex) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
-      testProgram.addPostponedEntry(block);
       return false;
     }
 

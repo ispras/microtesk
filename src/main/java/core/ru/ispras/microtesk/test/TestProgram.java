@@ -102,8 +102,12 @@ final class TestProgram {
     return postponedEntries.containsKey(sequence);
   }
 
-  public Block extractPostponedBlock(final TestSequence sequence) {
-    return postponedEntries.remove(sequence);
+  public Block getPostponedEntry(final TestSequence sequence) {
+    return postponedEntries.get(sequence);
+  }
+
+  public void removePostponedEntry(final TestSequence sequence) {
+    postponedEntries.remove(sequence);
   }
 
   public TestSequence getLastEntry() {
