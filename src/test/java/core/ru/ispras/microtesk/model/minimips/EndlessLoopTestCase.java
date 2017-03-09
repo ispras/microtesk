@@ -27,7 +27,7 @@ public class EndlessLoopTestCase extends MiniMipsTest {
 
     Assert.assertEquals(0, statistics.getPrograms());
     Assert.assertEquals(0, statistics.getSequences());
-    Assert.assertEquals(4, statistics.getInstructions());
+    Assert.assertEquals(10, statistics.getInstructions());
   }
 
   @Override
