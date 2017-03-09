@@ -336,9 +336,6 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    final Executor.Status status = executorStatuses.get(instanceIndex);
-    allocator.setAddress(status.getAddress());
-
     engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
