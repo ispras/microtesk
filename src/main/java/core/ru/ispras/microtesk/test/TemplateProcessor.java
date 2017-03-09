@@ -349,6 +349,53 @@ final class TemplateProcessor implements Template.Processor {
 
     return true;
   }
+  
+  private void processPostponedBlocksNoSimulation() throws ConfigurationException {
+    for (final TestSequence entry : testProgram.getEntries()) {
+      if (!testProgram.isPostponedEntry(entry)) {
+        continue;
+      }
+
+      final Block block = testProgram.getPostponedEntry(entry);
+      InvariantChecks.checkNotNull(block);
+
+      if (block.isExternal()) {
+        processPostponedExternalBlockNoSimulation(block, entry);
+      } else {
+        processPostponedBlockNoSimulation(block, entry);
+      }
+    }
+  }
+
+  private void processPostponedExternalBlockNoSimulation(
+      final Block block,
+      final TestSequence entry) throws ConfigurationException {
+    final TestSequence sequence =
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+
+    sequence.setTitle("External Code");
+    allocateTestSequence(entry, sequence, Label.NO_SEQUENCE_INDEX);
+  }
+
+  private void processPostponedBlockNoSimulation(
+      final Block block,
+      final TestSequence entry) throws ConfigurationException {
+    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
+    final Iterator<List<Call>> abstractIt = block.getIterator();
+    for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+      final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+      final Iterator<AdapterResult> concreteIt = engineResult.getResult();
+
+      for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
+        final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+
+        final int sequenceIndex = engineContext.getStatistics().getSequences();
+        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
+
+        allocateTestSequence(entry, sequence, sequenceIndex);
+      } // Concrete sequence iterator
+    } // Abstract sequence iterator
+  }
 
   private void startProgram() throws IOException, ConfigurationException {
     if (isProgramStarted) {
@@ -378,6 +425,8 @@ final class TemplateProcessor implements Template.Processor {
   private void finishProgram() throws ConfigurationException, IOException {
     try {
       startProgram();
+
+      processPostponedBlocksNoSimulation();
       TestEngineUtils.notifyProgramEnd();
 
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
