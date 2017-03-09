@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -589,8 +590,14 @@ final class TemplateProcessor implements Template.Processor {
       return -1;
     }
 
+    final BigInteger address = TestEngineUtils.getSequenceAddress(sequence);
     for (int index = 0; index < instanceNumber; index++) {
       final Executor.Status status = executorStatuses.get(index);
+
+      if (!status.isLabelReference() && status.getAddress() == address.longValue()) {
+        return index;
+      }
+
       if (isJumpIntoSequence(status, sequence)) {
         // Found it!
         return index;

@@ -328,8 +328,13 @@ final class Executor {
         final Long handlerAddress = getExceptionHandlerAddress(code, exception);
         if (null != handlerAddress) {
           labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
+
           logJump(handlerAddress, null);
           fetcher.jump(handlerAddress);
+
+          if (!fetcher.code.hasAddress(handlerAddress)) {
+            fetcher.code.addBreakAddress(handlerAddress);
+          }
         } else {
           Logger.error("Exception handler for %s is not found.", exception);
           Logger.message("Execution will be continued from the next instruction.");
