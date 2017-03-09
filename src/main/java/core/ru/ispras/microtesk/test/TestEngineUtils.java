@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.memory.AddressTranslator;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -207,6 +209,24 @@ final class TestEngineUtils {
     }
 
     return false;
+  }
+
+  public static BigInteger getSequenceAddress(final List<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    for (final Call call : sequence) {
+      final BigInteger origin = call.getOrigin();
+      if (null != origin) {
+        return !call.isRelativeOrigin() ?
+            AddressTranslator.get().virtualFromOrigin(origin) : null;
+      }
+
+      if (call.isExecutable()) {
+        break;
+      }
+    }
+
+    return null;
   }
 
   /**
