@@ -499,14 +499,6 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(index);
       final Executor.Status newStatus = executor.execute(allocator.getCode(), address);
       executorStatuses.set(index, newStatus);
-
-      /*
-      if (newStatus.isLabelReference()) {
-        throw new GenerationAbortedException(String.format(
-            "Label '%s' is undefined or unavailable in the current execution scope.",
-            newStatus.getLabelReference().getReference().getName()));
-      }
-      */
     }
   }
 
