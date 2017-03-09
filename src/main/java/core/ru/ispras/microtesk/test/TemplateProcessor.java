@@ -234,9 +234,6 @@ final class TemplateProcessor implements Template.Processor {
 
         processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
 
-        engineContext.getStatistics().incSequences();
-        Logger.debugHeader("");
-
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
           finishProgram();
         }
@@ -341,15 +338,12 @@ final class TemplateProcessor implements Template.Processor {
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
-
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
+
         allocateTestSequence(entry, sequence, sequenceIndex);
-
         executeTestSequence(sequence);
-        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
 
-        engineContext.getStatistics().incSequences();
-        Logger.debugHeader("");
+        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
       } // Concrete sequence iterator
     } // Abstract sequence iterator
 
@@ -434,6 +428,10 @@ final class TemplateProcessor implements Template.Processor {
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
+
+    if (sequenceIndex != Label.NO_SEQUENCE_INDEX) {
+      engineContext.getStatistics().incSequences();
+    }
 
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
