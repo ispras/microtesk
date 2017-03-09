@@ -198,7 +198,6 @@ final class TemplateProcessor implements Template.Processor {
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
     executeTestSequence(sequence);
 
-    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
       finishProgram();
     }
@@ -241,7 +240,6 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getStatistics().incSequences();
         Logger.debugHeader("");
 
-        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
           finishProgram();
         }
@@ -263,7 +261,6 @@ final class TemplateProcessor implements Template.Processor {
 
     final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
     sequence.setTitle(sequenceId);
-    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
     allocateTestSequence(sequence, testCaseIndex);
     executeTestSequence(sequence);
@@ -323,14 +320,9 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence = TestEngineUtils.getSingleTestSequence(iterator);
     sequence.setTitle("External Code");
 
-    allocateData(sequence, Label.NO_SEQUENCE_INDEX);
-    allocator.allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
-    testProgram.replaceEntryWith(entry, sequence);
-    PrinterUtils.printSequenceToConsole(engineContext, sequence);
-
+    allocateTestSequence(entry, sequence, Label.NO_SEQUENCE_INDEX);
     executeTestSequence(sequence);
 
-    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     return true;
   }
 
@@ -358,19 +350,15 @@ final class TemplateProcessor implements Template.Processor {
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
-        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-        allocateData(sequence, sequenceIndex);
-        allocator.allocateSequence(sequence, sequenceIndex);
-        testProgram.replaceEntryWith(entry, sequence);
-        PrinterUtils.printSequenceToConsole(engineContext, sequence);
+        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
+        allocateTestSequence(entry, sequence, sequenceIndex);
 
         executeTestSequence(sequence);
         processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
 
         engineContext.getStatistics().incSequences();
         Logger.debugHeader("");
-        engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
       } // Concrete sequence iterator
     } // Abstract sequence iterator
 
@@ -395,10 +383,9 @@ final class TemplateProcessor implements Template.Processor {
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
     final TestSequence prologue = testProgram.getPrologue();
-    allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
 
+    allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
     executeTestSequence(prologue);
-    engineContext.getStatistics().incInstructions(prologue.getInstructionCount());
 
     TestEngineUtils.notifyProgramStart();
   }
@@ -412,7 +399,6 @@ final class TemplateProcessor implements Template.Processor {
           engineContext, testProgram.getEpilogue());
 
       sequence.setTitle("Epilogue");
-      engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
 
       allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
       executeTestSequence(sequence);
@@ -435,15 +421,30 @@ final class TemplateProcessor implements Template.Processor {
   private void allocateTestSequence(
       final TestSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
-    allocateData(sequence, sequenceIndex);
+    allocateTestSequence(null, sequence, sequenceIndex);
+  }
 
-    final TestSequence lastAllocated = testProgram.getLastAllocatedEntry();
-    if (null != lastAllocated) {
-     allocator.setAddress(lastAllocated.getEndAddress());
+  private void allocateTestSequence(
+      final TestSequence entry,
+      final TestSequence sequence,
+      final int sequenceIndex) throws ConfigurationException {
+    final TestSequence lastAllocated;
+    if (null != entry) {
+      lastAllocated = testProgram.getPrevAllocatedEntry(entry);
+      testProgram.replaceEntryWith(entry, sequence);
+    } else {
+      lastAllocated = testProgram.getLastAllocatedEntry();
+      testProgram.addEntry(sequence);
     }
 
+    if (null != lastAllocated) {
+      allocator.setAddress(lastAllocated.getEndAddress());
+    }
+
+    allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
-    testProgram.addEntry(sequence);
+
+    engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
   }
 
