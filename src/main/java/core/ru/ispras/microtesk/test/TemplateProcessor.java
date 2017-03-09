@@ -188,11 +188,8 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     engineContext.getModel().setActivePE(instanceIndex);
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
-    final Iterator<AdapterResult> iterator = engineResult.getResult();
 
-    final TestSequence sequence = TestEngineUtils.getSingleTestSequence(iterator);
+    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
     sequence.setTitle("External Code");
 
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
@@ -313,11 +310,8 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     engineContext.getModel().setActivePE(instanceIndex);
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
-    final Iterator<AdapterResult> iterator = engineResult.getResult();
 
-    final TestSequence sequence = TestEngineUtils.getSingleTestSequence(iterator);
+    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
     sequence.setTitle("External Code");
 
     allocateTestSequence(entry, sequence, Label.NO_SEQUENCE_INDEX);
