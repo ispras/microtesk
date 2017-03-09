@@ -21,7 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * The {@link MmuStruct} class describes a variable represented
@@ -172,13 +172,13 @@ public class MmuStruct {
     return result;
   }
 
-  public MmuStruct getInstance(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuStruct getInstance(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
     final IntegerVariable[] fieldInstances = new IntegerVariable[fields.size()];
 
     for (int i = 0; i < fields.size(); i++) {
-      fieldInstances[i] = stack.getInstance(fields.get(i));
+      fieldInstances[i] = context.getInstance(fields.get(i));
     }
 
     final MmuStruct instance = new MmuStruct(name, fieldInstances);

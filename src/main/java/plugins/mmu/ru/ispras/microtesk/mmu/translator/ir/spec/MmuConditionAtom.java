@@ -20,7 +20,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuConditionAtom} represents an atomic condition.
@@ -290,18 +290,18 @@ public final class MmuConditionAtom {
   }
 
   // TODO:
-  public MmuConditionAtom getInstance(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuConditionAtom getInstance(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (stack.isEmpty()) {
+    if (context.isInitial()) {
       return this;
     }
 
     return new MmuConditionAtom(
         type,
         negation,
-        lhsExpr != null ? lhsExpr.getInstance(stack) : null,
-        rhsExpr != null ? rhsExpr.getInstance(stack) : null,
+        lhsExpr != null ? lhsExpr.getInstance(context) : null,
+        rhsExpr != null ? rhsExpr.getInstance(context) : null,
         rhsRange);
   }
 

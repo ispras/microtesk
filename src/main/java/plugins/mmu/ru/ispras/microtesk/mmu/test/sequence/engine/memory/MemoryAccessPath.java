@@ -27,6 +27,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -58,40 +59,37 @@ public final class MemoryAccessPath {
       RETURN
     }
 
-    public static Entry NORMAL(
-        final MmuProgram program,
-        final MemoryAccessStack.Frame frame) {
+    public static Entry NORMAL(final MmuProgram program, final MemoryAccessContext context) {
       InvariantChecks.checkNotNull(program);
-      return new Entry(Kind.NORMAL, program, frame);
+      return new Entry(Kind.NORMAL, program, context);
     }
 
-    public static Entry CALL(
-        final MmuProgram program,
-        final MemoryAccessStack.Frame frame) {
-      InvariantChecks.checkNotNull(frame);
+    public static Entry CALL(final MmuProgram program, final MemoryAccessContext context) {
       InvariantChecks.checkNotNull(program);
+      InvariantChecks.checkNotNull(context);
 
-      return new Entry(Kind.CALL, program, frame);
+      return new Entry(Kind.CALL, program, context);
     }
 
-    public static Entry RETURN() {
-      return new Entry(Kind.RETURN, MmuProgram.EMPTY, null);
+    public static Entry RETURN(final MemoryAccessContext context) {
+      return new Entry(Kind.RETURN, MmuProgram.EMPTY, context);
     }
 
     private final Kind kind;
     private final MmuProgram program;
-    private final MemoryAccessStack.Frame frame;
+    private final MemoryAccessContext context;
 
     private Entry(
         final Kind kind,
         final MmuProgram program,
-        final MemoryAccessStack.Frame frame) {
+        final MemoryAccessContext context) {
       InvariantChecks.checkNotNull(kind);
       InvariantChecks.checkNotNull(program);
+      InvariantChecks.checkNotNull(context);
 
       this.kind = kind;
       this.program = program;
-      this.frame = frame;
+      this.context = new MemoryAccessContext(context);
     }
 
     public boolean isNormal() {
@@ -110,28 +108,21 @@ public final class MemoryAccessPath {
       return program;
     }
 
-    public boolean hasFrame() {
-      return frame != null;
+    public MemoryAccessContext getContext() {
+      return context;
+    }
+
+    public MemoryAccessStack getStack() {
+      return context.getMemoryAccessStack();
     }
 
     public MemoryAccessStack.Frame getFrame() {
-      return frame;
+      return getStack().getFrame();
     }
 
     @Override
     public String toString() {
       return program.toString();
-    }
-  }
-
-  private static void updateStack(final MemoryAccessStack stack, final Entry entry) {
-    InvariantChecks.checkNotNull(stack);
-    InvariantChecks.checkNotNull(entry);
-
-    if (entry.isCall()) {
-      stack.call(entry.getFrame());
-    } else if (entry.isReturn()) {
-      stack.ret();
     }
   }
 
@@ -162,8 +153,6 @@ public final class MemoryAccessPath {
       InvariantChecks.checkNotNull(entries);
 
       final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-      final MemoryAccessStack stack = new MemoryAccessStack();
       final Collection<MmuAddressInstance> result = new LinkedHashSet<>();
 
       // Virtual address.
@@ -171,14 +160,12 @@ public final class MemoryAccessPath {
 
       // Intermediate addresses.
       for (final Entry entry : entries) {
-        updateStack(stack, entry);
-
         final MmuProgram program = entry.getProgram();
 
         for (final MmuTransition transition : program.getTransitions()) {
           for (final MmuAction action
               : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
-            final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+            final MmuBufferAccess bufferAccess = action.getBufferAccess(entry.getContext());
   
             if (bufferAccess != null) {
               result.add(bufferAccess.getAddress());
@@ -197,18 +184,16 @@ public final class MemoryAccessPath {
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
-      final MemoryAccessStack stack = new MemoryAccessStack();
       final Collection<MmuBufferAccess> result = new LinkedHashSet<>();
 
       for (final Entry entry : entries) {
-        updateStack(stack, entry);
-
         final MmuProgram program = entry.getProgram();
+        final MemoryAccessContext context = entry.getContext();
 
         for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
-          final MmuBufferAccess guardBufferAccess = guard != null
-              ? guard.getBufferAccess(stack) : null;
+          final MmuBufferAccess guardBufferAccess =
+              guard != null ? guard.getBufferAccess(context) : null;
 
           if (guardBufferAccess != null) {
             result.add(guardBufferAccess);
@@ -216,7 +201,7 @@ public final class MemoryAccessPath {
 
           for (final MmuAction action
               : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
-            final MmuBufferAccess actionBufferAccess = action.getBufferAccess(stack);
+            final MmuBufferAccess actionBufferAccess = action.getBufferAccess(context);
 
             if (actionBufferAccess != null) {
               result.add(actionBufferAccess);
@@ -232,19 +217,17 @@ public final class MemoryAccessPath {
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
-      final MemoryAccessStack stack = new MemoryAccessStack();
       final Map<MmuBufferAccess, BufferAccessEvent> result = new LinkedHashMap<>();
 
       for (final Entry entry : entries) {
-        updateStack(stack, entry);
-
         final MmuProgram program = entry.getProgram();
+        final MemoryAccessContext context = entry.getContext();
 
         for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
 
           if (guard != null) {
-            final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(stack);
+            final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(context);
 
             if (guardBufferAccess != null) {
               result.put(guardBufferAccess, guard.getEvent());
@@ -260,17 +243,15 @@ public final class MemoryAccessPath {
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
-      final MemoryAccessStack stack = new MemoryAccessStack();
       final Collection<IntegerVariable> result = new LinkedHashSet<>();
 
       for (final Entry entry : entries) {
-        updateStack(stack, entry);
-
         final MmuProgram program = entry.getProgram();
+        final MemoryAccessContext context = entry.getContext();
 
         for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
-          final MmuCondition condition = guard != null ? guard.getCondition(stack) : null;
+          final MmuCondition condition = guard != null ? guard.getCondition(context) : null;
 
           // Variables used in the guards.
           if (condition != null) {
@@ -283,7 +264,7 @@ public final class MemoryAccessPath {
 
           // Variables used/defined in the actions.
           final MmuAction action = transition.getSource();
-          final Map<IntegerField, MmuBinding> bindings = action.getAction(stack);
+          final Map<IntegerField, MmuBinding> bindings = action.getAction(context);
 
           if (bindings != null) {
             for (final Map.Entry<IntegerField, MmuBinding> binding : bindings.entrySet()) {
@@ -593,12 +574,10 @@ public final class MemoryAccessPath {
     final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
-    final MemoryAccessStack stack = new MemoryAccessStack();
-
     boolean comma = false;
 
     for (final Entry entry : entries) {
-      updateStack(stack, entry);
+      final MemoryAccessContext context = entry.getContext();
 
       if (entry.isCall()) {
         if (comma) {
@@ -628,9 +607,9 @@ public final class MemoryAccessPath {
           }
 
           final MmuAction action = program.getSource();
-          final MmuBufferAccess bufferAccess = action.getBufferAccess(stack);
+          final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
 
-          if (bufferAccess != null && (guard == null || guard.getBufferAccess(stack) == null)) {
+          if (bufferAccess != null && (guard == null || guard.getBufferAccess(context) == null)) {
             if (comma) {
               builder.append(separator);
             }

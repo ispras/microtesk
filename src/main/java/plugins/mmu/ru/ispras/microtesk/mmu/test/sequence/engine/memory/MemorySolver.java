@@ -42,7 +42,7 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferStateTracker;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
@@ -1095,10 +1095,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
       Logger.debug("Buffer access: %s", bufferAccess);
 
       final MmuBuffer buffer = bufferAccess.getBuffer();
-      final MemoryAccessStack stack = bufferAccess.getStack();
+      final MemoryAccessContext context = bufferAccess.getContext();
       final MmuAddressInstance addrType = bufferAccess.getAddress();
 
-      Logger.debug("Memory access stack: %s", stack);
+      Logger.debug("Memory access context: %s", context);
 
       if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
         final IntegerVariable variable = bufferAccess.getAddress().getVariable();
@@ -1119,7 +1119,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         final MmuExpression tagExpr = buffer.getTagExpression();
         InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
 
-        final MmuExpression tagExprInstance = tagExpr.getInstance(stack);
+        final MmuExpression tagExprInstance = tagExpr.getInstance(context);
         Logger.debug("Tag expression instance: %s", tagExprInstance);
 
         final BigInteger tag = BigIntegerUtils.valueOfUnsignedLong(buffer.getTag(address));
@@ -1131,7 +1131,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         final MmuExpression indexExpr = buffer.getIndexExpression();
         InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
 
-        final MmuExpression indexExprInstance = indexExpr.getInstance(stack);
+        final MmuExpression indexExprInstance = indexExpr.getInstance(context);
         Logger.debug("Index expression instance: %s", indexExprInstance);
 
         final BigInteger index = BigIntegerUtils.valueOfUnsignedLong(buffer.getIndex(address));

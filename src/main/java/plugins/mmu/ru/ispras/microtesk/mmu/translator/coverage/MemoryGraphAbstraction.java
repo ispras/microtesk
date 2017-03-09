@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.coverage;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
@@ -52,13 +52,11 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
     public Object apply(final MmuSubsystem memory, final MmuTransition transition) {
       InvariantChecks.checkNotNull(transition);
 
-      // When classifying the memory access paths, recursive calls are not taken into account.
-      final MemoryAccessStack emptyStack = new MemoryAccessStack();
-
       final MmuGuard guard = transition.getGuard();
 
       if (guard != null) {
-        final MmuBufferAccess access = guard.getBufferAccess(emptyStack);
+        // When classifying the memory access paths, recursive calls are not taken into account.
+        final MmuBufferAccess access = guard.getBufferAccess(MemoryAccessContext.EMPTY);
 
         if (access != null) {
           return access.getBuffer();
@@ -68,7 +66,7 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
       final MmuAction action = transition.getTarget();
 
       if (action != null) {
-        final MmuBufferAccess access = action.getBufferAccess(emptyStack);
+        final MmuBufferAccess access = action.getBufferAccess(MemoryAccessContext.EMPTY);
 
         if (access != null) {
           return access.getBuffer();
@@ -85,10 +83,8 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
       InvariantChecks.checkNotNull(memory);
       InvariantChecks.checkNotNull(transition);
 
-      final MemoryAccessStack emptyStack = new MemoryAccessStack();
-
       final MmuAction action = transition.getTarget();
-      final MmuBufferAccess access = action.getBufferAccess(emptyStack);
+      final MmuBufferAccess access = action.getBufferAccess(MemoryAccessContext.EMPTY);
 
       if (access == null || !access.getBuffer().equals(memory.getTargetBuffer())) {
         return null;

@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuBufferAccess} represents an MMU buffer access.
@@ -27,10 +27,12 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuBufferAccess {
+  /** Buffer access identifier. */
+  private final int id;
   /** Buffer being accessed. */
   private final MmuBuffer buffer;
-  /** Memory access stack. */
-  private final MemoryAccessStack stack;
+  /** Memory access context. */
+  private final MemoryAccessContext context;
   /** Address used to access the buffer. */
   private final MmuAddressInstance address;
   /** Buffer entry being accessed. */
@@ -42,15 +44,17 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
-      final MemoryAccessStack stack,
+      final MemoryAccessContext context,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
     InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(address);
 
+    this.id = context.getBufferAccessId(buffer);
     this.buffer = buffer;
-    this.stack = stack;
+    this.context = context;
     this.address = address;
     this.entry = entry;
     this.argument = argument;
@@ -61,15 +65,19 @@ public final class MmuBufferAccess {
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
-    this(buffer, MemoryAccessStack.EMPTY, address, entry, argument);
+    this(buffer, MemoryAccessContext.EMPTY, address, entry, argument);
+  }
+
+  public int getId() {
+    return id;
   }
 
   public MmuBuffer getBuffer() {
     return buffer;
   }
 
-  public MemoryAccessStack getStack() {
-    return stack;
+  public MemoryAccessContext getContext() {
+    return context;
   }
 
   public MmuAddressInstance getAddress() {
@@ -85,31 +93,31 @@ public final class MmuBufferAccess {
   }
 
   // TODO:
-  public MmuBufferAccess getInstance(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuBufferAccess getInstance(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (stack.isEmpty()) {
+    if (context.isInitial(buffer)) {
       return this;
     }
 
     return new MmuBufferAccess(
         buffer,
-        // The memory access stack should be copied.
-        new MemoryAccessStack(stack),
-        address.getInstance(stack),
-        entry.getInstance(stack),
-        argument != null ? argument.getInstance(stack) : null);
+        // The memory access context should be copied.
+        new MemoryAccessContext(context),
+        address.getInstance(context),
+        entry.getInstance(context),
+        argument != null ? argument.getInstance(context) : null);
   }
 
   public MmuBufferAccess getParentAccess() {
-    return new MmuBufferAccess(buffer.getParent(), stack, address, entry, argument);
+    return new MmuBufferAccess(buffer.getParent(), context, address, entry, argument);
   }
 
   public Collection<MmuBufferAccess> getChildAccesses() {
     final Collection<MmuBufferAccess> childAccesses = new ArrayList<>();
 
     for (final MmuBuffer child : buffer.getChildren()) {
-      childAccesses.add(new MmuBufferAccess(child, stack, address, entry, argument));
+      childAccesses.add(new MmuBufferAccess(child, context, address, entry, argument));
     }
 
     return childAccesses;
@@ -136,16 +144,22 @@ public final class MmuBufferAccess {
     final MmuBufferAccess r = (MmuBufferAccess) o;
 
     return buffer.equals(r.buffer)
+        && id == r.id
         && (address != null && address.equals(r.address) || address == null && r.address == null);
   }
 
   @Override
   public int hashCode() {
-    return 31 * buffer.hashCode() + (address != null ? address.hashCode() : 0);
+    int hashCode = buffer.hashCode();
+
+    hashCode = 31 * hashCode + id;
+    hashCode = 31 * hashCode + (address != null ? address.hashCode() : 0);
+
+    return hashCode;
   }
 
   @Override
   public String toString() {
-    return String.format("%s[%s]", buffer, address);
+    return String.format("%s(%d)[%s]", buffer, id, address);
   }
 }

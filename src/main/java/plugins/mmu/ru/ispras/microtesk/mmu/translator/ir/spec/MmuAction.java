@@ -22,7 +22,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuAction} describes an action, i.e. a named set of assignments.
@@ -83,20 +83,20 @@ public final class MmuAction {
     return name;
   }
 
-  public MmuBufferAccess getBufferAccess(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (bufferAccess == null || stack.isEmpty()) {
+    if (bufferAccess == null || context.isInitial(bufferAccess.getBuffer())) {
       return bufferAccess;
     }
 
-    return bufferAccess.getInstance(stack);
+    return bufferAccess.getInstance(context);
   }
 
-  public Map<IntegerField, MmuBinding> getAction(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public Map<IntegerField, MmuBinding> getAction(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (stack.isEmpty()) {
+    if (context.isInitial()) {
       return action;
     }
 
@@ -106,7 +106,7 @@ public final class MmuAction {
       final IntegerField lhs = entry.getKey();
       final MmuBinding rhs = entry.getValue();
 
-      actionInstance.put(stack.getInstance(lhs), rhs.getInstance(stack));
+      actionInstance.put(context.getInstance(lhs), rhs.getInstance(context));
     }
 
     return actionInstance;

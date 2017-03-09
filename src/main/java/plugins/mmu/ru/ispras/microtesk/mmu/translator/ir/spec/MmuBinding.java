@@ -20,7 +20,7 @@ import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuBinding} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
@@ -99,9 +99,9 @@ public final class MmuBinding {
   }
 
   // TODO:
-  public MmuBinding getInstance(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
-    return new MmuBinding(stack.getInstance(lhs), rhs != null ? rhs.getInstance(stack) : null);
+  public MmuBinding getInstance(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
+    return new MmuBinding(context.getInstance(lhs), rhs != null ? rhs.getInstance(context) : null);
   }
 
   @Override

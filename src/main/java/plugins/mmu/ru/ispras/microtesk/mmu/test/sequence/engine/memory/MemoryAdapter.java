@@ -31,6 +31,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -172,7 +173,13 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       final Set<Long> entriesInDataSection = getAllocatedEntries(buffer);
       final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
-      final String comment = String.format("%s[%d]=%s", buffer.getName(), index, data);
+      final MemoryAccessContext context = bufferAccess.getContext();
+
+      final String level = context.isInitial()
+          ? String.format("%d", bufferAccess.getId())
+          : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccess.getId());
+
+      final String comment = String.format("%s(%s)[%d]=%s", buffer.getName(), level, index, data);
 
       if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
         // Static buffer initialization.

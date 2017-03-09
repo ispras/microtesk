@@ -42,6 +42,10 @@ public final class MemoryAccessStack {
       this.id = id;
     }
 
+    public String getId() {
+      return id;
+    }
+
     public IntegerVariable getInstance(final IntegerVariable variable) {
       InvariantChecks.checkNotNull(variable);
 
@@ -91,6 +95,10 @@ public final class MemoryAccessStack {
     InvariantChecks.checkNotNull(r);
     this.id = r.id;
     this.stack.addAll(r.stack);
+  }
+
+  public String getId() {
+    return id;
   }
 
   public boolean isEmpty() {

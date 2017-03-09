@@ -26,8 +26,11 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 
 /**
  * {@link MemorySymbolicExecutor} represents a result of symbolic execution.
@@ -46,7 +49,7 @@ public final class MemorySymbolicResult {
   private final IntegerFormulaBuilder<IntegerField> builder;
 
   /** Enables recursive memory calls. */
-  private final Map<Integer, MemoryAccessStack> stacks;
+  private final Map<Integer, MemoryAccessContext> contexts;
 
   /** Contains original variables. */
   private final Collection<IntegerVariable> originals;
@@ -66,20 +69,20 @@ public final class MemorySymbolicResult {
 
   private MemorySymbolicResult(
       final IntegerFormulaBuilder<IntegerField> builder,
-      final Map<Integer, MemoryAccessStack> stacks,
+      final Map<Integer, MemoryAccessContext> contexts,
       final Collection<IntegerVariable> originals,
       final Map<String, Integer> versions,
       final Map<String, IntegerVariable> cache,
       final Map<IntegerVariable, BigInteger> constants) {
     InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkNotNull(stacks);
+    InvariantChecks.checkNotNull(contexts);
     InvariantChecks.checkNotNull(originals);
     InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
     this.builder = builder;
-    this.stacks = stacks;
+    this.contexts = contexts;
     this.originals = originals;
     this.versions = versions;
     this.cache = cache;
@@ -89,7 +92,7 @@ public final class MemorySymbolicResult {
   public MemorySymbolicResult(final IntegerFormulaBuilder<IntegerField> builder) {
     this(
         builder,
-        new HashMap<Integer, MemoryAccessStack>(),
+        new HashMap<Integer, MemoryAccessContext>(),
         new LinkedHashSet<IntegerVariable>(),
         new HashMap<String, Integer>(),
         new HashMap<String, IntegerVariable>(),
@@ -99,15 +102,15 @@ public final class MemorySymbolicResult {
   public MemorySymbolicResult(final MemorySymbolicResult r) {
     this(
         r.builder.clone(),
-        new HashMap<>(r.stacks),
+        new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
         new LinkedHashSet<>(r.originals),
         new HashMap<>(r.versions),
         new HashMap<>(r.cache),
         new HashMap<>(r.constants));
 
-    // Clone the memory access stacks.
-    for (final Map.Entry<Integer, MemoryAccessStack> entry : r.stacks.entrySet()) {
-      stacks.put(entry.getKey(), new MemoryAccessStack(entry.getValue()));
+    // Clone the memory access contexts.
+    for (final Map.Entry<Integer, MemoryAccessContext> entry : r.contexts.entrySet()) {
+      this.contexts.put(entry.getKey(), new MemoryAccessContext(entry.getValue()));
     }
   }
 
@@ -116,15 +119,15 @@ public final class MemorySymbolicResult {
       final MemorySymbolicResult r) {
     this(
         builder,
-        new HashMap<>(r.stacks),
+        new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
         new LinkedHashSet<>(r.originals),
         new HashMap<>(r.versions),
         new HashMap<>(r.cache),
         new HashMap<>(r.constants));
 
-    // Clone the memory access stacks.
-    for (final Map.Entry<Integer, MemoryAccessStack> entry : r.stacks.entrySet()) {
-      stacks.put(entry.getKey(), new MemoryAccessStack(entry.getValue()));
+    // Clone the memory access contexts.
+    for (final Map.Entry<Integer, MemoryAccessContext> entry : r.contexts.entrySet()) {
+      this.contexts.put(entry.getKey(), new MemoryAccessContext(entry.getValue()));
     }
   }
 
@@ -140,8 +143,8 @@ public final class MemorySymbolicResult {
     return builder;
   }
 
-  public Map<Integer, MemoryAccessStack> getStacks() {
-    return stacks;
+  public Map<Integer, MemoryAccessContext> getContexts() {
+    return contexts;
   }
 
   public Collection<IntegerVariable> getOriginalVariables() {
@@ -188,30 +191,49 @@ public final class MemorySymbolicResult {
     builder.addFormula(formula);
   }
 
-  public MemoryAccessStack getStack() {
-    return getStack(-1);
+  public MemoryAccessContext getContext() {
+    return getContext(-1);
   }
 
-  public MemoryAccessStack getStack(final int pathIndex) {
-    MemoryAccessStack stack = stacks.get(pathIndex);
+  public MemoryAccessContext getContext(final int pathIndex) {
+    MemoryAccessContext context = contexts.get(pathIndex);
 
-    if (stack == null) {
+    if (context == null) {
       final String id = pathIndex != -1 ? String.format("%d", pathIndex) : "";
-      stacks.put(pathIndex, stack = new MemoryAccessStack(id));
+      contexts.put(pathIndex, context = new MemoryAccessContext(id));
     }
 
-    return stack;
+    return context;
+  }
+
+  public void accessBuffer(final MemoryAccessPath.Entry entry, final int pathIndex) {
+    InvariantChecks.checkNotNull(entry);
+
+    final MemoryAccessContext context = getContext(pathIndex);
+    final MmuProgram program = entry.getProgram();
+
+    if (program != null) {
+      final MmuAction targetAction = program.getTarget();
+
+      if (targetAction != null) {
+        final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
+
+        if (bufferAccess != null) {
+          context.doAccess(bufferAccess.getBuffer());
+        }
+      }
+    }
   }
 
   public void updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
     InvariantChecks.checkNotNull(entry);
 
-    final MemoryAccessStack stack = getStack(pathIndex);
+    final MemoryAccessContext context = getContext(pathIndex);
 
     if (entry.isCall()) {
-      stack.call(entry.getFrame());
+      context.doCall(entry.getFrame().getId());
     } else if (entry.isReturn()) {
-      stack.ret();
+      context.doReturn();
     }
   }
 

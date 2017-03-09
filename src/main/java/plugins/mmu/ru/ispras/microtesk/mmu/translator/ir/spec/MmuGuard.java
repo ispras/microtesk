@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
 /**
@@ -86,24 +86,24 @@ public final class MmuGuard {
     this(null, null, null, null, regions, segments);
   }
 
-  public MmuBufferAccess getBufferAccess(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (bufferAccess == null || stack.isEmpty()) {
+    if (bufferAccess == null || context.isInitial(bufferAccess.getBuffer())) {
       return bufferAccess;
     }
 
-    return bufferAccess.getInstance(stack);
+    return bufferAccess.getInstance(context);
   }
 
-  public MmuCondition getCondition(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  public MmuCondition getCondition(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (condition == null || stack.isEmpty()) {
+    if (condition == null || context.isInitial()) {
       return condition;
     }
 
-    return condition.getInstance(stack);
+    return condition.getInstance(context);
   }
 
   public MemoryOperation getOperation() {

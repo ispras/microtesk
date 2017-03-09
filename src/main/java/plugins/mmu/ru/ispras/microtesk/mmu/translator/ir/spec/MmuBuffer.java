@@ -20,7 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.AddressView;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuBuffer} represents an MMU buffer.
@@ -187,18 +187,18 @@ public class MmuBuffer extends MmuStruct {
     return offsetExpression;
   }
 
-  // TODO: Replace to MmuBufferAccess
-  public final Collection<MmuBinding> getMatchBindings(final MemoryAccessStack stack) {
-    InvariantChecks.checkNotNull(stack);
+  // TODO: Move this method to MmuBufferAccess
+  public final Collection<MmuBinding> getMatchBindings(final MemoryAccessContext context) {
+    InvariantChecks.checkNotNull(context);
 
-    if (stack.isEmpty()) {
+    if (context.isInitial(this)) {
       return matchBindings;
     }
 
     final Collection<MmuBinding> bindingInstances = new ArrayList<>();
 
     for (final MmuBinding binding : matchBindings) {
-      bindingInstances.add(binding.getInstance(stack));
+      bindingInstances.add(binding.getInstance(context));
     }
 
     return bindingInstances;

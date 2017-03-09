@@ -34,7 +34,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
@@ -203,8 +203,8 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final MemoryAccessStack stack1 = result.getStack(pathIndex1);
-    final MemoryAccessStack stack2 = result.getStack(pathIndex2);
+    final MemoryAccessContext context1 = result.getContext(pathIndex1);
+    final MemoryAccessContext context2 = result.getContext(pathIndex2);
 
     final IntegerClause.Type clauseType = (condition.getType() == MmuCondition.Type.AND)
         ? IntegerClause.Type.AND
@@ -221,8 +221,8 @@ public final class MemorySymbolicExecutor {
       final MmuExpression expression = atom.getLhsExpr();
 
       for (final IntegerField term : expression.getTerms()) {
-        final IntegerField term1 = stack1.getInstance(term);
-        final IntegerField term2 = stack2.getInstance(term);
+        final IntegerField term1 = context1.getInstance(term);
+        final IntegerField term2 = context2.getInstance(term);
 
         final IntegerField field1 = result.getVersion(term1, pathIndex1);
         final IntegerField field2 = result.getVersion(term2, pathIndex2);
@@ -291,6 +291,8 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
+    result.accessBuffer(entry, pathIndex);
+
     final MmuProgram program = entry.getProgram();
 
     if (entry.isCall()) {
@@ -299,7 +301,7 @@ public final class MemorySymbolicExecutor {
       final MmuTransition transition = program.getTransition();
       final MmuAction action = transition.getTarget();
 
-      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
+      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getContext(pathIndex));
       final MmuAddressInstance actualArg = oldBufferAccess.getArgument();
 
       // Restrict the memory-mapped buffer address.
@@ -313,7 +315,7 @@ public final class MemorySymbolicExecutor {
 
       result.updateStack(entry, pathIndex);
 
-      final MmuBufferAccess newBufferAccess = action.getBufferAccess(result.getStack(pathIndex));
+      final MmuBufferAccess newBufferAccess = action.getBufferAccess(result.getContext(pathIndex));
       final MmuAddressInstance formalArg = newBufferAccess.getAddress();
 
       final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
@@ -518,16 +520,16 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final MemoryAccessStack stack = result.getStack(pathIndex);
+    final MemoryAccessContext context = result.getContext(pathIndex);
 
-    final MmuBufferAccess bufferAccess = guard.getBufferAccess(stack);
+    final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
     if (bufferAccess != null) {
       executeBufferAccess(result, defines, bufferAccess, pathIndex);
     }
 
     final Boolean status;
 
-    final MmuCondition condition = guard.getCondition(stack);
+    final MmuCondition condition = guard.getCondition(context);
     if (condition != null) {
       status = executeCondition(result, defines, condition, pathIndex);
     } else {
@@ -547,9 +549,9 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final MemoryAccessStack stack = result.getStack(pathIndex);
+    final MemoryAccessContext context = result.getContext(pathIndex);
 
-    final Map<IntegerField, MmuBinding> assignments = action.getAction(stack);
+    final Map<IntegerField, MmuBinding> assignments = action.getAction(context);
     if (assignments != null) {
       executeBindings(result, defines, assignments.values(), pathIndex);
     }
@@ -567,8 +569,8 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final MemoryAccessStack stack = result.getStack(pathIndex);
-    final Collection<MmuBinding> bindings = bufferAccess.getBuffer().getMatchBindings(stack);
+    final MemoryAccessContext context = result.getContext(pathIndex);
+    final Collection<MmuBinding> bindings = bufferAccess.getBuffer().getMatchBindings(context);
 
     return executeBindings(result, defines, bindings, pathIndex);
   }
