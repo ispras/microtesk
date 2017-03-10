@@ -235,7 +235,7 @@ final class TemplateProcessor implements Template.Processor {
         executeTestSequence(sequence);
 
         processPostponedBlocks(); // In case execution jumped there on exception
-        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
+        processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
 
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
           finishProgram();
@@ -244,11 +244,14 @@ final class TemplateProcessor implements Template.Processor {
     } // Abstract sequence iterator
   }
 
-  private void processSelfChecks(
+  private TestSequence processSelfChecks(
+      final TestSequence previous,
       final List<SelfCheck> selfChecks,
       final int testCaseIndex) throws ConfigurationException {
+    InvariantChecks.checkNotNull(previous);
+
     if (null == selfChecks) {
-      return;
+      return previous;
     }
 
     final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
@@ -257,8 +260,10 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
     sequence.setTitle(sequenceId);
 
-    allocateTestSequence(sequence, testCaseIndex);
+    allocateTestSequenceAfter(previous, sequence, testCaseIndex);
     executeTestSequence(sequence);
+
+    return sequence;
   }
 
   private void processPostponedBlocks() throws ConfigurationException {
@@ -348,11 +353,10 @@ final class TemplateProcessor implements Template.Processor {
           allocateTestSequenceAfter(previous, sequence, sequenceIndex);
         }
 
-        previous = sequence;
         engineContext.getStatistics().incSequences();
-
         executeTestSequence(sequence);
-        processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
+
+        previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
       } // Concrete sequence iterator
     } // Abstract sequence iterator
 
