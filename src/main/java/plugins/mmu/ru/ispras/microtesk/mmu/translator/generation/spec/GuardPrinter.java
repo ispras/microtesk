@@ -41,6 +41,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.StringUtils;
 
 final class GuardPrinter {
@@ -155,7 +156,10 @@ final class GuardPrinter {
 
       return String.format(
           "new MmuGuard(%s, %s)",
-          ControlFlowBuilder.defaultBufferAccess(bufferEvent.first.first, bufferEvent.first.second),
+          ControlFlowBuilder.defaultBufferAccess(
+              bufferEvent.first.first,
+              MmuBufferAccess.Kind.CHECK,
+              bufferEvent.first.second),
           bufferEvent.second);
     }
 

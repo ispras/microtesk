@@ -53,6 +53,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
@@ -332,7 +333,14 @@ final class ControlFlowBuilder {
 
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
-    final String access = selectBufferAccess(address, lhs, rhs);
+    final String readAccess = selectBufferAccess(MmuBufferAccess.Kind.READ, address, lhs);
+    final String writeAccess = selectBufferAccess(MmuBufferAccess.Kind.WRITE, address, lhs);
+
+    if (readAccess != null && writeAccess != null) {
+      throw new IllegalArgumentException("Both " + left + " and " + right + " access buffers.");
+    }
+
+    final String access = readAccess != null ? readAccess : writeAccess;
 
     buildAction(target, filterEmpty(access, targetBindings));
     buildTransition(rule.getState(), target);
@@ -569,22 +577,29 @@ final class ControlFlowBuilder {
     return memory.getDataArg().equals(expr.getUserData());
   }
 
-  private String selectBufferAccess(final String address, final Atom... atoms) {
+  private String selectBufferAccess(
+      final MmuBufferAccess.Kind kind,
+      final String address,
+      final Atom... atoms) {
     for (final Atom atom : atoms) {
       if (atom.getKind().isStruct()) {
         final String name = ((Variable) atom.getObject()).getName();
         if (isBufferAccess(name)) {
-          return defaultBufferAccess(name, address);
+          return defaultBufferAccess(name, kind, address);
         }
       }
     }
     return null;
   }
 
-  protected static String defaultBufferAccess(final String name, final String address) {
+  protected static String defaultBufferAccess(
+      final String name,
+      final MmuBufferAccess.Kind kind,
+      final String address) {
     return String.format(
-        "new MmuBufferAccess(%s.get(), %s.get().getAddress(), %s.get(), %s)",
+        "new MmuBufferAccess(%s.get(), MmuBufferAccess.Kind.%s, %s.get().getAddress(), %s.get(), %s)",
         name,
+        kind,
         name,
         name,
         address

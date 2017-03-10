@@ -27,16 +27,19 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuBufferAccess {
-  /** Buffer access identifier. */
+  public static enum Kind {
+    CHECK,
+    READ,
+    WRITE
+  }
+
   private final int id;
-  /** Buffer being accessed. */
   private final MmuBuffer buffer;
-  /** Memory access context. */
+  private final Kind kind;
   private final MemoryAccessContext context;
-  /** Address used to access the buffer. */
   private final MmuAddressInstance address;
-  /** Buffer entry being accessed. */
   private final MmuStruct entry;
+
   /** Address passed as an argument on buffer access. */
   private final MmuAddressInstance argument;
 
@@ -44,16 +47,19 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
+      final Kind kind,
       final MemoryAccessContext context,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
     InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(address);
 
     this.id = context.getBufferAccessId(buffer);
     this.buffer = buffer;
+    this.kind = kind;
     this.context = context;
     this.address = address;
     this.entry = entry;
@@ -62,10 +68,11 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
+      final Kind kind,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
-    this(buffer, MemoryAccessContext.EMPTY, address, entry, argument);
+    this(buffer, kind, MemoryAccessContext.EMPTY, address, entry, argument);
   }
 
   public int getId() {
@@ -74,6 +81,10 @@ public final class MmuBufferAccess {
 
   public MmuBuffer getBuffer() {
     return buffer;
+  }
+
+  public Kind getKind() {
+    return kind;
   }
 
   public MemoryAccessContext getContext() {
@@ -102,6 +113,7 @@ public final class MmuBufferAccess {
 
     return new MmuBufferAccess(
         buffer,
+        kind,
         // The memory access context should be copied.
         new MemoryAccessContext(context),
         address.getInstance(context),
@@ -110,14 +122,14 @@ public final class MmuBufferAccess {
   }
 
   public MmuBufferAccess getParentAccess() {
-    return new MmuBufferAccess(buffer.getParent(), context, address, entry, argument);
+    return new MmuBufferAccess(buffer.getParent(), kind, context, address, entry, argument);
   }
 
   public Collection<MmuBufferAccess> getChildAccesses() {
     final Collection<MmuBufferAccess> childAccesses = new ArrayList<>();
 
     for (final MmuBuffer child : buffer.getChildren()) {
-      childAccesses.add(new MmuBufferAccess(child, context, address, entry, argument));
+      childAccesses.add(new MmuBufferAccess(child, kind, context, address, entry, argument));
     }
 
     return childAccesses;
