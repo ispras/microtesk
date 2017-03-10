@@ -362,7 +362,7 @@ final class TemplateProcessor implements Template.Processor {
 
     return true;
   }
-  
+
   private void processPostponedBlocksNoSimulation() throws ConfigurationException {
     for (final TestSequence entry : testProgram.getEntries()) {
       if (!testProgram.isPostponedEntry(entry)) {
