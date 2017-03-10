@@ -234,7 +234,11 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getStatistics().incSequences();
         executeTestSequence(sequence);
 
-        processPostponedBlocks(); // In case execution jumped there on exception
+        final Executor.Status status = executorStatuses.get(instanceIndex);
+        if (!status.isAddress() || status.getAddress() != sequence.getEndAddress()) {
+          processPostponedBlocks();
+        }
+
         processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
 
         if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
@@ -242,6 +246,8 @@ final class TemplateProcessor implements Template.Processor {
         }
       } // Concrete sequence iterator
     } // Abstract sequence iterator
+
+    processPostponedBlocks();
   }
 
   private TestSequence processSelfChecks(
