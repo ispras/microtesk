@@ -231,6 +231,7 @@ final class TemplateProcessor implements Template.Processor {
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
         allocateTestSequence(sequence, sequenceIndex);
+        engineContext.getStatistics().incSequences();
         executeTestSequence(sequence);
 
         processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
@@ -342,6 +343,7 @@ final class TemplateProcessor implements Template.Processor {
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
         allocateTestSequence(entry, sequence, sequenceIndex);
+        engineContext.getStatistics().incSequences();
         executeTestSequence(sequence);
 
         processSelfChecks(engineResult.getSelfChecks(), sequenceIndex);
@@ -394,6 +396,7 @@ final class TemplateProcessor implements Template.Processor {
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
         allocateTestSequence(entry, sequence, sequenceIndex);
+        engineContext.getStatistics().incSequences();
       } // Concrete sequence iterator
     } // Abstract sequence iterator
   }
@@ -478,10 +481,6 @@ final class TemplateProcessor implements Template.Processor {
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
-
-    if (sequenceIndex != Label.NO_SEQUENCE_INDEX) {
-      engineContext.getStatistics().incSequences();
-    }
 
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
