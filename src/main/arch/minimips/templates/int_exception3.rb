@@ -81,7 +81,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     j :end
     nop
 
-    org 0x00020000
+    org 0x00010100
     label :bottom
     j :top
     nop
