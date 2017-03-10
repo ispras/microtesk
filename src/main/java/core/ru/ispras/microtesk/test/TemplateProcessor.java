@@ -16,7 +16,10 @@ package ru.ispras.microtesk.test;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +57,7 @@ final class TemplateProcessor implements Template.Processor {
   private final CodeAllocator allocator;
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
+  private final Deque<TestSequence> interruptedSequences;
   private boolean isProgramStarted;
 
   public TemplateProcessor(final EngineContext engineContext) {
@@ -66,6 +70,7 @@ final class TemplateProcessor implements Template.Processor {
     this.allocator = new CodeAllocator(engineContext);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
+    this.interruptedSequences = new ArrayDeque<>();
     this.isProgramStarted = false;
 
     if (engineContext.getOptions().getValueAsBoolean(Option.TARMAC_LOG)) {
@@ -234,9 +239,10 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.getStatistics().incSequences();
         executeTestSequence(sequence);
 
-        final Executor.Status status = executorStatuses.get(instanceIndex);
-        if (!status.isAddress() || status.getAddress() != sequence.getEndAddress()) {
+        if (!isEndOfTestSequence(executorStatuses.get(instanceIndex), sequence)) {
+          interruptedSequences.push(sequence);
           processPostponedBlocks();
+          interruptedSequences.pop();
         }
 
         processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
@@ -301,7 +307,6 @@ final class TemplateProcessor implements Template.Processor {
           break;
         }
       }
-
     } while (isProcessed);
   }
 
@@ -315,6 +320,11 @@ final class TemplateProcessor implements Template.Processor {
 
     if (-1 == instanceIndex) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
+      return false;
+    }
+
+    if (isEndOfTestSequence(executorStatuses.get(instanceIndex), interruptedSequences)) {
+      Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
 
@@ -345,6 +355,11 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
+    if (isEndOfTestSequence(executorStatuses.get(instanceIndex), interruptedSequences)) {
+      Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
+      return false;
+    }
+
     engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
@@ -367,6 +382,14 @@ final class TemplateProcessor implements Template.Processor {
 
         engineContext.getStatistics().incSequences();
         executeTestSequence(sequence);
+
+        final Executor.Status status = executorStatuses.get(instanceIndex);
+        if (!isEndOfTestSequence(status, sequence) &&
+            !isEndOfTestSequence(status, interruptedSequences)) {
+          interruptedSequences.push(sequence);
+          processPostponedBlocks();
+          interruptedSequences.pop();
+        }
 
         previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
       } // Concrete sequence iterator
@@ -596,12 +619,28 @@ final class TemplateProcessor implements Template.Processor {
     return allocator.getCode().hasAddress(status.getAddress());
   }
 
-  private boolean isEndOfTestSequence(final Executor.Status status, final TestSequence sequence) {
+  private static boolean isEndOfTestSequence(
+      final Executor.Status status,
+      final TestSequence sequence) {
     if (!status.isAddress()) {
       return false;
     }
 
-    return sequence != null &&  sequence.getEndAddress() == status.getAddress();
+    return sequence != null && sequence.getEndAddress() == status.getAddress();
+  }
+
+  private static boolean isEndOfTestSequence(
+      final Executor.Status status,
+      final Collection<TestSequence> sequences) {
+    if (!status.isAddress()) {
+      return false;
+    }
+
+    for (final TestSequence sequence : sequences) {
+      return isEndOfTestSequence(status, sequence);
+    }
+
+    return false;
   }
 
   private int findInstanceAtEndOfTestSequence(final TestSequence entry) {

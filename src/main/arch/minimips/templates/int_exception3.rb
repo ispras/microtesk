@@ -39,6 +39,12 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
       lui target, value(16, 31)
       ori target, target, value(0, 15)
     }
+
+    comparator(:target => 'REG') {
+      prepare at, value
+      bne at, target, :check_failed
+      nop
+    }
   end
 
   def run
@@ -56,6 +62,11 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
 
     org 0x00010000
     label :start
+
+    j :bottom
+    nop
+
+    label :top
     block(:combinator => 'product', :compositor => 'random') {
       iterate {
         add t0, t1, t2 do situation('normal') end
@@ -67,6 +78,16 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
         sequence { sub t3, t4, t5 do situation('IntegerOverflow') end; nop }
       }
     }.run
+    j :end
+    nop
+
+    org 0x00020000
+    label :bottom
+    j :top
+    nop
+
+    label :end
+    nop
   end
 
 end
