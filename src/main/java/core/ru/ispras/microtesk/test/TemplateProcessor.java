@@ -261,8 +261,14 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
-    Logger.debugHeader("Preparing %s", sequenceId);
+    final Executor.Status status = executorStatuses.get(engineContext.getModel().getActivePE());
 
+    if (!isEndOfTestSequence(status, previous)) {
+      Logger.warning("%s will not be created because execution does not reach them.", sequenceId);
+      return previous;
+    }
+
+    Logger.debugHeader("Preparing %s", sequenceId);
     final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
     sequence.setTitle(sequenceId);
 
