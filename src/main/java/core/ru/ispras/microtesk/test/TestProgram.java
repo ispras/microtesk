@@ -90,6 +90,11 @@ final class TestProgram {
     entries.add(sequence);
   }
 
+  public void addEntryAfter(final TestSequence previous, final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequence);
+    entries.addAfter(previous, sequence);
+  }
+
   public void addPostponedEntry(final Block block) {
     InvariantChecks.checkNotNull(block);
     final TestSequence sequence = new TestSequence.Builder().build();
