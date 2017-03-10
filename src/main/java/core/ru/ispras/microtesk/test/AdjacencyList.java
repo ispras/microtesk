@@ -145,6 +145,8 @@ final class AdjacencyList<T> implements Iterable<T>{
 
     if (null != previousEntry.next) {
       previousEntry.next.previous = entry;
+    } else {
+      tail = entry;
     }
 
     previousEntry.next = entry;
