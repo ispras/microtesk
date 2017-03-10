@@ -49,7 +49,7 @@ public final class FilterHitAndTagReplacedEx
       final BufferUnitedHazard hazard = entry.getValue();
 
       if (!hazard.getRelation(BufferHazard.Type.TAG_REPLACED).isEmpty()) {
-        for (final MmuBufferAccess otherAccess : path.getBufferAccesses()) {
+        for (final MmuBufferAccess otherAccess : path.getBufferReads()) {
           if (otherAccess.getBuffer().isReplaceable()
               && otherAccess.getAddress().equals(bufferAccess.getAddress()) &&
               path.getEvent(otherAccess) == BufferAccessEvent.HIT)

@@ -157,6 +157,7 @@ public final class MmuBufferAccess {
 
     return buffer.equals(r.buffer)
         && id == r.id
+        && kind == r.kind
         && (address != null && address.equals(r.address) || address == null && r.address == null);
   }
 
@@ -165,6 +166,7 @@ public final class MmuBufferAccess {
     int hashCode = buffer.hashCode();
 
     hashCode = 31 * hashCode + id;
+    hashCode = 31 * hashCode + kind.hashCode();
     hashCode = 31 * hashCode + (address != null ? address.hashCode() : 0);
 
     return hashCode;
@@ -172,6 +174,6 @@ public final class MmuBufferAccess {
 
   @Override
   public String toString() {
-    return String.format("%s(%d)[%s]", buffer, id, address);
+    return String.format("%s(%s:%d[%s])", kind, buffer, id, address);
   }
 }

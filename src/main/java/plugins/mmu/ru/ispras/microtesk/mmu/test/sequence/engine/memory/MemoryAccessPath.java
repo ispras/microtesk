@@ -181,7 +181,9 @@ public final class MemoryAccessPath {
     }
 
     private static Collection<MmuBufferAccess> getBufferAccesses(
+        final MmuBufferAccess.Kind kind,
         final Collection<Entry> entries) {
+      InvariantChecks.checkNotNull(kind);
       InvariantChecks.checkNotNull(entries);
 
       final Collection<MmuBufferAccess> result = new LinkedHashSet<>();
@@ -192,19 +194,23 @@ public final class MemoryAccessPath {
 
         for (final MmuTransition transition : program.getTransitions()) {
           final MmuGuard guard = transition.getGuard();
-          final MmuBufferAccess guardBufferAccess =
-              guard != null ? guard.getBufferAccess(context) : null;
 
-          if (guardBufferAccess != null) {
-            result.add(guardBufferAccess);
+          if (guard != null) {
+            final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
+
+            if (bufferAccess != null && bufferAccess.getKind() == kind) {
+              result.add(bufferAccess);
+            }
           }
 
-          for (final MmuAction action
-              : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
-            final MmuBufferAccess actionBufferAccess = action.getBufferAccess(context);
+          final MmuAction source = transition.getSource();
+          final MmuAction target = transition.getTarget();
 
-            if (actionBufferAccess != null) {
-              result.add(actionBufferAccess);
+          for (final MmuAction action : new MmuAction[] { source, target } ) {
+            final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
+
+            if (bufferAccess != null && bufferAccess.getKind() == kind) {
+              result.add(bufferAccess);
             }
           }
         }
@@ -398,7 +404,9 @@ public final class MemoryAccessPath {
           entries,
           getActions(entries),
           getAddressInstances(entries),
-          getBufferAccesses(entries),
+          getBufferAccesses(MmuBufferAccess.Kind.CHECK, entries),
+          getBufferAccesses(MmuBufferAccess.Kind.READ, entries),
+          getBufferAccesses(MmuBufferAccess.Kind.WRITE, entries),
           getSegments(entries),
           getVariables(entries),
           getEvents(entries),
@@ -409,7 +417,9 @@ public final class MemoryAccessPath {
   private final Collection<Entry> entries;
   private final Collection<MmuAction> actions;
   private final Collection<MmuAddressInstance> addressInstances;
-  private final Collection<MmuBufferAccess> bufferAccesses;
+  private final Collection<MmuBufferAccess> bufferChecks;
+  private final Collection<MmuBufferAccess> bufferReads;
+  private final Collection<MmuBufferAccess> bufferWrites;
   private final Collection<MmuBuffer> buffers;
   private final Collection<MmuSegment> segments;
   private final Collection<IntegerVariable> variables;
@@ -425,7 +435,9 @@ public final class MemoryAccessPath {
       final Collection<Entry> entries,
       final Collection<MmuAction> actions,
       final Collection<MmuAddressInstance> addressInstances,
-      final Collection<MmuBufferAccess> bufferAccesses,
+      final Collection<MmuBufferAccess> bufferChecks,
+      final Collection<MmuBufferAccess> bufferReads,
+      final Collection<MmuBufferAccess> bufferWrites,
       final Collection<MmuSegment> segments,
       final Collection<IntegerVariable> variables,
       final Map<MmuBufferAccess, BufferAccessEvent> events,
@@ -434,7 +446,9 @@ public final class MemoryAccessPath {
     InvariantChecks.checkNotEmpty(entries);
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(addressInstances);
-    InvariantChecks.checkNotNull(bufferAccesses);
+    InvariantChecks.checkNotNull(bufferChecks);
+    InvariantChecks.checkNotNull(bufferReads);
+    InvariantChecks.checkNotNull(bufferWrites);
     InvariantChecks.checkNotNull(segments);
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(events);
@@ -443,7 +457,9 @@ public final class MemoryAccessPath {
     this.entries = Collections.unmodifiableCollection(entries);
     this.actions = Collections.unmodifiableCollection(actions);
     this.addressInstances = Collections.unmodifiableCollection(addressInstances);
-    this.bufferAccesses = Collections.unmodifiableCollection(bufferAccesses);
+    this.bufferChecks = Collections.unmodifiableCollection(bufferChecks);
+    this.bufferReads = Collections.unmodifiableCollection(bufferReads);
+    this.bufferWrites = Collections.unmodifiableCollection(bufferWrites);
     this.segments = Collections.unmodifiableCollection(segments);
     this.variables = Collections.unmodifiableCollection(variables);
     this.events = Collections.unmodifiableMap(events);
@@ -451,7 +467,11 @@ public final class MemoryAccessPath {
 
     final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
 
-    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+    for (final MmuBufferAccess bufferAccess : bufferReads) {
+      buffers.add(bufferAccess.getBuffer());
+    }
+
+    for (final MmuBufferAccess bufferAccess : bufferWrites) {
       buffers.add(bufferAccess.getBuffer());
     }
 
@@ -493,8 +513,16 @@ public final class MemoryAccessPath {
     return addressInstances;
   }
 
-  public Collection<MmuBufferAccess> getBufferAccesses() {
-    return bufferAccesses;
+  public Collection<MmuBufferAccess> getBufferChecks() {
+    return bufferChecks;
+  }
+
+  public Collection<MmuBufferAccess> getBufferReads() {
+    return bufferReads;
+  }
+
+  public Collection<MmuBufferAccess> getBufferWrites() {
+    return bufferWrites;
   }
 
   public Collection<MmuBuffer> getBuffers() {
@@ -525,7 +553,17 @@ public final class MemoryAccessPath {
 
   public boolean contains(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
-    return bufferAccesses.contains(bufferAccess);
+
+    switch (bufferAccess.getKind()) {
+      case CHECK:
+        return bufferChecks.contains(bufferAccess);
+      case READ:
+        return bufferReads.contains(bufferAccess);
+      case WRITE:
+        return bufferWrites.contains(bufferAccess);
+      default:
+        return false;
+    }
   }
 
   public boolean contains(final MmuBuffer buffer) {
@@ -548,7 +586,7 @@ public final class MemoryAccessPath {
 
     final Collection<BufferAccessEvent> events = new LinkedHashSet<>();
 
-    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+    for (final MmuBufferAccess bufferAccess : bufferChecks) {
       if (bufferAccess.getBuffer() == buffer) {
         events.add(getEvent(bufferAccess));
       }

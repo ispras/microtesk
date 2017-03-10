@@ -21,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 /**
  * {@link MemoryAccessContext} contains data required for buffer access instantiation.
@@ -32,20 +33,24 @@ public final class MemoryAccessContext {
 
   private final MemoryAccessStack memoryAccessStack;
   private final Map<MmuBuffer, Integer> bufferAccessIds;
+  private final Map<MmuBuffer, MmuBufferAccess.Kind> bufferAccessKinds;
 
   public MemoryAccessContext() {
     this.memoryAccessStack = new MemoryAccessStack();
     this.bufferAccessIds = new HashMap<>();
+    this.bufferAccessKinds = new HashMap<>();
   }
 
   public MemoryAccessContext(final String id) {
     this.memoryAccessStack = new MemoryAccessStack(id);
     this.bufferAccessIds = new HashMap<>();
+    this.bufferAccessKinds = new HashMap<>();
   }
 
   public MemoryAccessContext(final MemoryAccessContext r) {
     this.memoryAccessStack = new MemoryAccessStack(r.memoryAccessStack);
     this.bufferAccessIds = new HashMap<>(r.bufferAccessIds);
+    this.bufferAccessKinds = new HashMap<>(r.bufferAccessKinds);
   }
 
   public boolean isInitial() {
@@ -67,9 +72,18 @@ public final class MemoryAccessContext {
     return memoryAccessStack;
   }
 
-  public void doAccess(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-    bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);
+  public void doAccess(final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(bufferAccess);
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final MmuBufferAccess.Kind nowKind = bufferAccess.getKind();
+    final MmuBufferAccess.Kind preKind = bufferAccessKinds.get(buffer);
+
+    if (nowKind != MmuBufferAccess.Kind.WRITE && (preKind != MmuBufferAccess.Kind.CHECK)) {
+      bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);
+    }
+
+    bufferAccessKinds.put(buffer, nowKind);
   }
 
   public MemoryAccessStack.Frame doCall(final String frameId) {

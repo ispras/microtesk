@@ -21,6 +21,7 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
@@ -59,8 +60,8 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
       final MemoryAccess access1,
       final MemoryAccess access2,
       final Predicate<MemoryAccessStructure> checker) {
-    final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferAccesses();
-    final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferAccesses();
+    final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferReads();
+    final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferReads();
 
     final List<MmuBufferAccess> bufferAccesses =
         new ArrayList<>(bufferAccesses1.size() + bufferAccesses2.size());
@@ -79,12 +80,15 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final MmuBuffer buffer1 = bufferAccess1.getBuffer();
         final MmuBuffer buffer2 = bufferAccess2.getBuffer();
 
-        final boolean isExternal1 = bufferAccess1.getAddress().equals(buffer1.getAddress());
-        final boolean isExternal2 = bufferAccess2.getAddress().equals(buffer2.getAddress());
+        final MemoryAccessContext context1 = bufferAccess1.getContext();
+        final MemoryAccessContext context2 = bufferAccess1.getContext();
 
-        // Different external accesses to the same buffer (recursive accesses are uncontrollable).
-        if (buffer1 == buffer2 && buffer1.getKind() != MmuBuffer.Kind.MEMORY
-            && !buffer1.isFake() && isExternal1 && isExternal2) {
+        // Different accesses to the same buffer with some restrictions.
+        // FIXME: Some of the restrictions are too strong and need to be weakened.
+        if (!buffer1.isFake()
+            && buffer1 == buffer2
+            && buffer1.getKind() != MmuBuffer.Kind.MEMORY
+            && context1.isInitial(buffer1) && context2.isInitial(buffer2)) {
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
           final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 
@@ -107,6 +111,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
       }
     }
 
+    Logger.debug("Possible dependencies: %d", bufferDependencies.size());
     return bufferDependencies.toArray(new BufferDependency[]{});
   }
 

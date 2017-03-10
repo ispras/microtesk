@@ -286,8 +286,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath path = access.getPath();
 
     // TODO:
-    final List<MmuBufferAccess> bufferAccesses = new ArrayList<>(path.getBufferAccesses());
-    Logger.debug("Buffer accesses: %s", bufferAccesses);
+    final List<MmuBufferAccess> bufferAccesses = new ArrayList<>(path.getBufferReads());
+    Logger.debug("Buffer reads: %s", bufferAccesses);
 
     // Scan the buffers of the same address type in reverse order.
     boolean found = false;
@@ -772,8 +772,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final boolean hasRefined = refineAddr(path, addrObject, applyConstraints);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", path));
 
+    Logger.debug("Buffer reads: %s", path.getBufferReads());
+    Logger.debug("Buffer writes: %s", path.getBufferWrites());
+
     // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
-    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       final SolverResult<MemorySolution> result = solveBufferConstraint(j, bufferAccess);
 
       if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -1091,7 +1094,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // Fix the address tags and indices.
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
-    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       Logger.debug("Buffer access: %s", bufferAccess);
 
       final MmuBuffer buffer = bufferAccess.getBuffer();
@@ -1171,7 +1174,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(paType, pa);
 
     // Set the intermediate addresses used along the memory access path.
-    for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())) {
         continue;
       }

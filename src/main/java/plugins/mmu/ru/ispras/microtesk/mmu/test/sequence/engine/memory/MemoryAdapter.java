@@ -175,7 +175,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
       final MemoryAccessContext context = bufferAccess.getContext();
 
-      final String level = context.isInitial()
+      final String level = context.getMemoryAccessStack().isEmpty()
           ? String.format("%d", bufferAccess.getId())
           : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccess.getId());
 

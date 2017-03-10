@@ -36,6 +36,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbol
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -417,6 +418,30 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     return program;
   }
 
+  private void accessBuffer(final MmuProgram program, final MemoryAccessContext context) {
+    for (final MmuTransition transition : program.getTransitions()) {
+      final MmuGuard guard = transition.getGuard();
+
+      if (guard != null) {
+        final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
+
+        if (bufferAccess != null) {
+          context.doAccess(bufferAccess);
+        }
+      }
+    }
+
+    final MmuAction targetAction = program.getTarget();
+
+    if (targetAction != null) {
+      final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
+  
+      if (bufferAccess != null) {
+        context.doAccess(bufferAccess);
+      }
+    }
+  }
+
   private Result getNext() {
     Logger.debug("Searching for a memory access path: %s", trajectory);
 
@@ -458,16 +483,16 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
 
+          // Increment the buffer access identifier.
+          accessBuffer(program, context);
+          // Prolong the memory access path.
+          entries.add(MemoryAccessPath.Entry.NORMAL(program, context));
+
           final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
 
           if (bufferAccess != null) {
             final MmuBuffer buffer = bufferAccess.getBuffer();
             InvariantChecks.checkNotNull(buffer);
-
-            // Increment the buffer access identifier.
-            context.doAccess(buffer);
-            // Prolong the memory access path.
-            entries.add(MemoryAccessPath.Entry.NORMAL(program, context));
 
             // Check whether this is a recursive memory call.
             if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
@@ -518,10 +543,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
               context.doReturn();
               Logger.debug("Memory call stack: %s", context.getMemoryAccessStack());
             }
-          } else {
-            // Prolong the memory access path without accessing the buffer.
-            entries.add(MemoryAccessPath.Entry.NORMAL(program, context));
-          }
+          } // If buffer access is not null.
 
           if (!isCompleted) {
             searchStack.push(new SearchEntry(targetAction, trajectorySuffix, newResult));

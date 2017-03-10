@@ -30,7 +30,9 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemorySymbolicExecutor} represents a result of symbolic execution.
@@ -211,15 +213,26 @@ public final class MemorySymbolicResult {
 
     final MemoryAccessContext context = getContext(pathIndex);
     final MmuProgram program = entry.getProgram();
-
     if (program != null) {
+      for (final MmuTransition transition : program.getTransitions()) {
+        final MmuGuard guard = transition.getGuard();
+
+        if (guard != null) {
+          final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
+
+          if (bufferAccess != null) {
+            context.doAccess(bufferAccess);
+          }
+        }
+      }
+
       final MmuAction targetAction = program.getTarget();
 
       if (targetAction != null) {
         final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
 
         if (bufferAccess != null) {
-          context.doAccess(bufferAccess.getBuffer());
+          context.doAccess(bufferAccess);
         }
       }
     }

@@ -69,7 +69,7 @@ public final class MemorySolution {
 
       this.solution.add(new AddressObject(access));
 
-      for (final MmuBufferAccess bufferAccess : path.getBufferAccesses()) {
+      for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
         if (!this.entries.containsKey(bufferAccess)) {
           this.entries.put(bufferAccess, new LinkedHashMap<Long, EntryObject>());
         }

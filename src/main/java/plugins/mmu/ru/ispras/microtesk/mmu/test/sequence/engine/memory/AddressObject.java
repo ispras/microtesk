@@ -136,7 +136,7 @@ public final class AddressObject {
       builder.append(String.format("%s=0x%x", addrName, addrValue));
       comma = true;
 
-      for (final MmuBufferAccess bufferAccess : access.getPath().getBufferAccesses()) {
+      for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {
         final MmuBuffer buffer = bufferAccess.getBuffer();
 
         if (addrType.equals(bufferAccess.getAddress())) {

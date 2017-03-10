@@ -333,8 +333,8 @@ final class ControlFlowBuilder {
 
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
-    final String writeAccess = selectBufferAccess(MmuBufferAccess.Kind.READ, address, lhs);
-    final String readAccess = selectBufferAccess(MmuBufferAccess.Kind.WRITE, address, rhs);
+    final String writeAccess = selectBufferAccess(MmuBufferAccess.Kind.WRITE, address, lhs);
+    final String readAccess = selectBufferAccess(MmuBufferAccess.Kind.READ, address, rhs);
 
     if (writeAccess != null && readAccess != null) {
       throw new IllegalArgumentException("Both " + left + " and " + right + " access buffers.");
