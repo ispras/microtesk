@@ -105,7 +105,7 @@ public final class LabelManager {
 
     @Override
     public String toString() {
-      return String.format("%s at %d", label, address);
+      return String.format("%s at 0x%016x", label, address);
     }
   }
 
@@ -231,6 +231,7 @@ public final class LabelManager {
     InvariantChecks.checkNotNull(label);
 
     final Target target = new Target(label, address);
+    System.out.println("!!! LABEL DEFINED: " + target);
 
     final List<Target> targets;
     if (table.containsKey(label.getName())) {

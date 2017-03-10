@@ -109,6 +109,7 @@ public final class LabelReference {
   public void setTarget(final LabelManager.Target target) {
     InvariantChecks.checkNotNull(target);
     this.target = target;
+    System.out.println("!!! LABEL PATCHED: " + reference.getLabel() + " <- " + target);
   }
 
   public void resetTarget() {
