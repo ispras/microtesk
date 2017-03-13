@@ -243,9 +243,9 @@ public final class MemorySymbolicResult {
 
     final MemoryAccessContext context = getContext(pathIndex);
 
-    if (entry.isCall()) {
+    if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
       context.doCall(entry.getFrame().getId());
-    } else if (entry.isReturn()) {
+    } else if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
       context.doReturn();
     }
   }

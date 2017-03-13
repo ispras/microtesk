@@ -1095,7 +1095,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
 
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
-      Logger.debug("Buffer access: %s", bufferAccess);
+      Logger.debug("Buffer read: %s", bufferAccess);
 
       final MmuBuffer buffer = bufferAccess.getBuffer();
       final MemoryAccessContext context = bufferAccess.getContext();

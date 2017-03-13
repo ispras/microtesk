@@ -305,4 +305,27 @@ public class MmuBuffer extends MmuStruct {
   public final List<MmuBuffer> getChildren() {
     return children;
   }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof MmuBuffer)) {
+      return false;
+    }
+
+    final MmuBuffer r = (MmuBuffer) o;
+    return name.equals(r.name);
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }

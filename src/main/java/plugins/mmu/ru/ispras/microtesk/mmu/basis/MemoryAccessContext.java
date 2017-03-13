@@ -65,7 +65,7 @@ public final class MemoryAccessContext {
     InvariantChecks.checkNotNull(buffer);
 
     final Integer bufferAccessId = bufferAccessIds.get(buffer);
-    return bufferAccessId != null ? bufferAccessId.intValue() : -1;
+    return bufferAccessId != null ? bufferAccessId.intValue() : 0;
   }
 
   public MemoryAccessStack getMemoryAccessStack() {
@@ -79,8 +79,8 @@ public final class MemoryAccessContext {
     final MmuBufferAccess.Kind nowKind = bufferAccess.getKind();
     final MmuBufferAccess.Kind preKind = bufferAccessKinds.get(buffer);
 
-    if (nowKind != MmuBufferAccess.Kind.WRITE && (preKind != MmuBufferAccess.Kind.CHECK)) {
-      bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);
+    if (nowKind != MmuBufferAccess.Kind.WRITE && preKind != MmuBufferAccess.Kind.CHECK) {
+      bufferAccessIds.put(buffer, preKind != null ? getBufferAccessId(buffer) + 1 : 0);
     }
 
     bufferAccessKinds.put(buffer, nowKind);

@@ -14,7 +14,11 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuTransition} represents a transition, which is a link between two {@link MmuAction}.
@@ -57,6 +61,28 @@ public final class MmuTransition {
     return guard;
   }
 
+  public Collection<MmuBufferAccess> getBufferAccesses(final MemoryAccessContext context) {
+    final Collection<MmuBufferAccess> result = new LinkedHashSet<>();
+
+    if (guard != null) {
+      final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
+
+      if (bufferAccess != null) {
+        result.add(bufferAccess);
+      }
+    }
+
+    if (target != null) {
+      final MmuBufferAccess bufferAccess = target.getBufferAccess(context);
+
+      if (bufferAccess != null) {
+        result.add(bufferAccess);
+      }
+    }
+
+    return result;
+  }
+  
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();

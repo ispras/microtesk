@@ -394,7 +394,7 @@ public final class MemoryEngineUtils {
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       final MmuProgram program = entry.getProgram();
 
-      if (!entry.isReturn()) {
+      if (entry.getKind() != MemoryAccessPath.Entry.Kind.RETURN) {
         builder.append(program.getSource());
       }
 

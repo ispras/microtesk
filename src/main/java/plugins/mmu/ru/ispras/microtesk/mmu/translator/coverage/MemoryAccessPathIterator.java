@@ -36,7 +36,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbol
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -333,14 +332,15 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
       MemoryGraph.Edge currentEdge = edge;
       for (int i = 0; i < PROGRAM_EXTRACTION_DEPTH; i++) {
+        final MmuTransition transition = currentEdge.getTransition();
+
         // Only insignificant transitions can be unified into programs.
-        if (edge.getLabel() != null) {
+        if (currentEdge.getLabel() != null
+            || !transition.getBufferAccesses(MemoryAccessContext.EMPTY).isEmpty()) {
           break;
         }
 
-        final MmuTransition transition = currentEdge.getTransition();
         final MmuAction action = transition.getTarget();
-
         traceActions.add(action);
 
         final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(action);
@@ -420,24 +420,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   private void accessBuffer(final MmuProgram program, final MemoryAccessContext context) {
     for (final MmuTransition transition : program.getTransitions()) {
-      final MmuGuard guard = transition.getGuard();
-
-      if (guard != null) {
-        final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
-
-        if (bufferAccess != null) {
-          context.doAccess(bufferAccess);
-        }
-      }
-    }
-
-    final MmuAction targetAction = program.getTarget();
-
-    if (targetAction != null) {
-      final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
-  
-      if (bufferAccess != null) {
+      for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
+        Logger.debug("accessBuffer (before): %s", context);
         context.doAccess(bufferAccess);
+        Logger.debug("accessBuffer (after): %s", context);
       }
     }
   }

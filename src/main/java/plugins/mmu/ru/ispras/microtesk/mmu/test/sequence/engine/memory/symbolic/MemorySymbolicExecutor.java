@@ -295,7 +295,7 @@ public final class MemorySymbolicExecutor {
 
     final MmuProgram program = entry.getProgram();
 
-    if (entry.isCall()) {
+    if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
       InvariantChecks.checkTrue(program.isAtomic());
 
       final MmuTransition transition = program.getTransition();
@@ -324,7 +324,7 @@ public final class MemorySymbolicExecutor {
 
     result.updateStack(entry, pathIndex);
 
-    if (entry.isNormal()) {
+    if (entry.getKind() == MemoryAccessPath.Entry.Kind.NORMAL) {
       return executeProgram(result, defines, program, pathIndex);
     }
 

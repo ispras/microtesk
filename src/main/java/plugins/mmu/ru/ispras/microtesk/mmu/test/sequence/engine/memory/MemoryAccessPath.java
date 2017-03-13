@@ -92,16 +92,8 @@ public final class MemoryAccessPath {
       this.context = new MemoryAccessContext(context);
     }
 
-    public boolean isNormal() {
-      return kind == Kind.NORMAL;
-    }
-
-    public boolean isCall() {
-      return kind == Kind.CALL;
-    }
-
-    public boolean isReturn() {
-      return kind == Kind.RETURN;
+    public Kind getKind() {
+      return kind;
     }
 
     public MmuProgram getProgram() {
@@ -186,44 +178,29 @@ public final class MemoryAccessPath {
       InvariantChecks.checkNotNull(kind);
       InvariantChecks.checkNotNull(entries);
 
-      final Collection<MmuBufferAccess> result = new LinkedHashSet<>();
+      final Collection<MmuBufferAccess> bufferAccesses = new LinkedHashSet<>();
 
       for (final Entry entry : entries) {
         final MmuProgram program = entry.getProgram();
         final MemoryAccessContext context = entry.getContext();
 
         for (final MmuTransition transition : program.getTransitions()) {
-          final MmuGuard guard = transition.getGuard();
-
-          if (guard != null) {
-            final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
-
-            if (bufferAccess != null && bufferAccess.getKind() == kind) {
-              result.add(bufferAccess);
-            }
-          }
-
-          final MmuAction source = transition.getSource();
-          final MmuAction target = transition.getTarget();
-
-          for (final MmuAction action : new MmuAction[] { source, target } ) {
-            final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
-
-            if (bufferAccess != null && bufferAccess.getKind() == kind) {
-              result.add(bufferAccess);
+          for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
+            if (bufferAccess.getKind() == kind) {
+              bufferAccesses.add(bufferAccess);
             }
           }
         }
       }
 
-      return result;
+      return bufferAccesses;
     }
 
     private static Map<MmuBufferAccess, BufferAccessEvent> getEvents(
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
-      final Map<MmuBufferAccess, BufferAccessEvent> result = new LinkedHashMap<>();
+      final Map<MmuBufferAccess, BufferAccessEvent> bufferEvents = new LinkedHashMap<>();
 
       for (final Entry entry : entries) {
         final MmuProgram program = entry.getProgram();
@@ -236,13 +213,13 @@ public final class MemoryAccessPath {
             final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(context);
 
             if (guardBufferAccess != null) {
-              result.put(guardBufferAccess, guard.getEvent());
+              bufferEvents.put(guardBufferAccess, guard.getEvent());
             }
           }
         }
       }
 
-      return result;
+      return bufferEvents;
     }
 
     private static Collection<IntegerVariable> getVariables(
@@ -617,17 +594,11 @@ public final class MemoryAccessPath {
     for (final Entry entry : entries) {
       final MemoryAccessContext context = entry.getContext();
 
-      if (entry.isCall()) {
+      if (entry.getKind() == Entry.Kind.CALL || entry.getKind() == Entry.Kind.RETURN) {
         if (comma) {
           builder.append(separator);
         }
-        builder.append("CALL");
-        comma = true;
-      } else if (entry.isReturn()) {
-        if (comma) {
-          builder.append(separator);
-        }
-        builder.append("RETURN");
+        builder.append(entry.getKind());
         comma = true;
       } else {
         final MmuProgram program = entry.getProgram();
