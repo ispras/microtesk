@@ -231,7 +231,6 @@ public final class LabelManager {
     InvariantChecks.checkNotNull(label);
 
     final Target target = new Target(label, address);
-    System.out.println("!!! LABEL DEFINED: " + target);
 
     final List<Target> targets;
     if (table.containsKey(label.getName())) {
