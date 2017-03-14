@@ -789,6 +789,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     checkNotNull(value);
 
     final MetaArgument metaArg = getMetaArgument(name);
+    value.setType(metaArg.getDataType());
 
     final Argument arg = new Argument(
         name, Argument.Kind.IMM_UNKNOWN, value, metaArg.getMode(), metaArg.getDataType());

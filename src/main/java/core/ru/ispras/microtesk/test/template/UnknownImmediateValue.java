@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.model.api.data.TypeId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
 
@@ -40,13 +44,12 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
   private final Allocator allocator;
   private final List<Value> retain;
   private final List<Value> exclude;
+  private Type type;
   private BigInteger value;
+  private BigInteger defaultValue;
 
   protected UnknownImmediateValue() {
-    this.allocator = null;
-    this.retain = null;
-    this.exclude = null;
-    this.value = null;
+    this(null, null, null);
   }
 
   protected UnknownImmediateValue(
@@ -56,7 +59,9 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     this.allocator = allocator;
     this.retain = retain;
     this.exclude = exclude;
+    this.type = null;
     this.value = null;
+    this.defaultValue = null;
   }
 
   protected UnknownImmediateValue(final UnknownImmediateValue other) {
@@ -65,7 +70,9 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     this.allocator = other.allocator;
     this.retain = copyValues(other.retain);
     this.exclude = copyValues(other.exclude);
+    this.type = other.type;
     this.value = other.value;
+    this.defaultValue = other.defaultValue;
   }
 
   private static List<Value> copyValues(final List<Value> values) {
@@ -116,10 +123,25 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
 
   @Override
   public BigInteger getValue() {
-    if (!isValueSet()) {
-      throw new IllegalStateException("Value is not set.");
+    if (isValueSet()) {
+      return value;
     }
-    return value;
+
+    if (defaultValue == null) {
+      if (null == type) {
+        throw new IllegalStateException("Cannot create value. Type is unknown.");
+      }
+
+      final BitVector data = BitVector.newEmpty(type.getBitSize());
+      Randomizer.get().fill(data);
+      defaultValue = data.bigIntegerValue(type.getTypeId() == TypeId.INT);
+    }
+
+    return defaultValue;
+  }
+
+  protected void setType(final Type type) {
+    this.type = type;
   }
 
   public void setValue(final BigInteger value) {
@@ -131,6 +153,14 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
 
   @Override
   public String toString() {
-    return null != value ? value.toString() : "UnknownImmediateValue";
+    if (null != value) {
+      return value.toString();
+    }
+
+    if (null != defaultValue) {
+      return defaultValue.toString() + " (random)";
+    }
+
+    return "UnknownImmediateValue";
   }
 }
