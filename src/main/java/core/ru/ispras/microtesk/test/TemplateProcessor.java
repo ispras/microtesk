@@ -64,10 +64,13 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkGreaterThanZero(engineContext.getModel().getPENumber());
 
+    final long baseAddress =
+        engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
+
     this.engineContext = engineContext;
     this.instanceNumber = engineContext.getModel().getPENumber();
     this.testProgram = new TestProgram();
-    this.allocator = new CodeAllocator(engineContext);
+    this.allocator = new CodeAllocator(engineContext.getLabelManager(), baseAddress);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();

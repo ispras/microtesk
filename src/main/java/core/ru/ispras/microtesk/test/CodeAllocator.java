@@ -23,21 +23,22 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
 public final class CodeAllocator {
-  private final EngineContext engineContext;
+  private final LabelManager labelManager;
+  private final long baseAddress;
+
   private Code code;
   private long address;
 
-  public CodeAllocator(final EngineContext engineContext) {
-    InvariantChecks.checkNotNull(engineContext);
+  public CodeAllocator(final LabelManager labelManager, final long baseAddress) {
+    InvariantChecks.checkNotNull(labelManager);
 
-    this.engineContext = engineContext;
+    this.labelManager = labelManager;
+    this.baseAddress = baseAddress;
     this.code = null;
     this.address = 0;
   }
@@ -45,7 +46,7 @@ public final class CodeAllocator {
   public void init() {
     InvariantChecks.checkTrue(null == code);
     code = new Code();
-    address = engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
+    address = baseAddress;
   }
 
   public void reset() {
@@ -163,7 +164,6 @@ public final class CodeAllocator {
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
-    final LabelManager labelManager = engineContext.getLabelManager();
     for (final ConcreteCall call : calls) {
       labelManager.addAllLabels(call.getLabels(), call.getAddress(), sequenceIndex);
     }
@@ -174,7 +174,6 @@ public final class CodeAllocator {
       final int sequenceIndex,
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
-    final LabelManager labelManager = engineContext.getLabelManager();
     for (final ConcreteCall call : calls) {
       // Resolves all label references and patches the instruction call text accordingly.
       for (final LabelReference labelRef : call.getLabelReferences()) {
