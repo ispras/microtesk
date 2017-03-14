@@ -29,7 +29,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
-final class CodeAllocator {
+public final class CodeAllocator {
   private final EngineContext engineContext;
   private Code code;
   private long address;
@@ -69,8 +69,12 @@ final class CodeAllocator {
   }
 
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
-    if (!sequence.isEmpty()) {
-      allocate(sequence.getAll(), sequenceIndex);
+    allocateCalls(sequence.getAll(), sequenceIndex);
+  }
+
+  public void allocateCalls(final List<ConcreteCall> calls, final int sequenceIndex) {
+    if (!calls.isEmpty()) {
+      allocate(calls, sequenceIndex);
       code.addBreakAddress(address);
     }
   }

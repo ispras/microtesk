@@ -40,7 +40,7 @@ import ru.ispras.microtesk.test.template.Output;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class Executor {
+public final class Executor {
   /**
    * The {@link Status} class describes the execution status. It specifies the point
    * where execution was stopped and the reason why it was stopped.
