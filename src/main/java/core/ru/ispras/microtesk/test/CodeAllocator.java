@@ -160,9 +160,51 @@ final class CodeAllocator {
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
     final LabelManager labelManager = engineContext.getLabelManager();
-    for (final ConcreteCall call : calls) {
+    for (int index = 0; index < calls.size(); ++index) {
+      final ConcreteCall call = calls.get(index);
       labelManager.addAllLabels(call.getLabels(), call.getAddress(), sequenceIndex);
+      traceLabels(call.getLabels(), calls, index);
     }
+  }
+
+  private void traceLabels(
+      final List<Label> labels,
+      final List<ConcreteCall> calls,
+      final int callIndex) {
+    boolean isLabelFound = false;
+    for (final Label label : labels) {
+      if ("thread_0_check_watchpoint_Curr_EL_SP_ELx".equals(label.getName()) ||
+          "thread_0_check_breakpoint_Curr_EL_SP_ELx".equals(label.getName())) {
+        isLabelFound = true;
+        break;
+      }
+    }
+
+    if (!isLabelFound) {
+      return;
+    }
+
+    Logger.message(Logger.BAR);
+    for (int index = Math.max(0, callIndex - 4);
+             index < Math.min(callIndex + 4, calls.size());
+             index++) {
+      final ConcreteCall call = calls.get(index);
+
+      if (null != call.getOrigin()) {
+        Logger.message(".org 0x%x", call.getOrigin());
+      }
+
+      if (null != call.getAlignment()) {
+        Logger.message(".align %d", call.getAlignment());
+      }
+
+      for (final Label label : call.getLabels()) {
+        Logger.message(label.getUniqueName() + ":");
+      }
+
+      Logger.message("0x%016x %s", call.getAddress(), call.getText());
+    }
+    Logger.message(Logger.BAR);
   }
 
   private void patchLabels(
