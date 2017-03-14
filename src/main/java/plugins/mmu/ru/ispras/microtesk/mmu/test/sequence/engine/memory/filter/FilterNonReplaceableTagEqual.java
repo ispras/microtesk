@@ -14,12 +14,8 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.TriPredicate;
 
@@ -41,25 +37,13 @@ public final class FilterNonReplaceableTagEqual
       final BufferHazard.Instance hazard) {
 
     if (hazard.getHazardType().getType() == BufferHazard.Type.TAG_EQUAL) {
-      final MmuBufferAccess hazardBufferAccess = hazard.getPrimaryAccess();
-      final List<MmuBufferAccess> bufferAccesses = new ArrayList<>();
+      final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
+      final MmuBufferAccess bufferAccess2 = hazard.getSecondaryAccess();
 
-      if (hazardBufferAccess != null) {
-        bufferAccesses.add(hazardBufferAccess);
-        if (hazardBufferAccess.getBuffer().isView()) {
-          bufferAccesses.add(hazardBufferAccess.getParentAccess());
-        }
-      }
-
-      final MemoryAccessPath path1 = access1.getPath();
-      final MemoryAccessPath path2 = access2.getPath();
-
-      for (final MmuBufferAccess bufferAccess : bufferAccesses) {
-        if (!bufferAccess.getBuffer().isReplaceable()) {
-          if (path1.getEvent(bufferAccess) != path2.getEvent(bufferAccess)) {
-            // Filter off.
-            return false;
-          }
+      if (!bufferAccess1.getBuffer().isReplaceable()) {
+        if (bufferAccess1.getEvent() != bufferAccess2.getEvent()) {
+          // Filter off.
+          return false;
         }
       }
     }

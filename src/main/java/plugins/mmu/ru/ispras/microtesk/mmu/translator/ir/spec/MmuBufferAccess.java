@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
@@ -27,15 +28,9 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuBufferAccess {
-  public static enum Kind {
-    CHECK,
-    READ,
-    WRITE
-  }
-
   private final int id;
   private final MmuBuffer buffer;
-  private final Kind kind;
+  private final BufferAccessEvent event;
   private final MemoryAccessContext context;
   private final MmuAddressInstance address;
   private final MmuStruct entry;
@@ -47,19 +42,19 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
-      final Kind kind,
+      final BufferAccessEvent event,
       final MemoryAccessContext context,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
     InvariantChecks.checkNotNull(buffer);
-    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(event);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(address);
 
     this.id = context.getBufferAccessId(buffer);
     this.buffer = buffer;
-    this.kind = kind;
+    this.event = event;
     this.context = context;
     this.address = address;
     this.entry = entry;
@@ -68,11 +63,11 @@ public final class MmuBufferAccess {
 
   public MmuBufferAccess(
       final MmuBuffer buffer,
-      final Kind kind,
+      final BufferAccessEvent event,
       final MmuAddressInstance address,
       final MmuStruct entry,
       final MmuAddressInstance argument) {
-    this(buffer, kind, MemoryAccessContext.EMPTY, address, entry, argument);
+    this(buffer, event, MemoryAccessContext.EMPTY, address, entry, argument);
   }
 
   public int getId() {
@@ -83,8 +78,8 @@ public final class MmuBufferAccess {
     return buffer;
   }
 
-  public Kind getKind() {
-    return kind;
+  public BufferAccessEvent getEvent() {
+    return event;
   }
 
   public MemoryAccessContext getContext() {
@@ -103,33 +98,46 @@ public final class MmuBufferAccess {
     return argument;
   }
 
-  // TODO:
-  public MmuBufferAccess getInstance(final MemoryAccessContext context) {
+  public final Collection<MmuBinding> getMatchBindings() {
+    if (context.isEmptyStack() && id == 0) {
+      return buffer.getMatchBindings();
+    }
+
+    final Collection<MmuBinding> bindingInstances = new ArrayList<>();
+
+    for (final MmuBinding binding : buffer.getMatchBindings()) {
+      bindingInstances.add(binding.getInstance(id, context));
+    }
+
+    return bindingInstances;
+  }
+
+  public MmuBufferAccess getInstance(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isInitial(buffer)) {
+    if (context.isEmptyStack() && instanceId == 0) {
       return this;
     }
 
     return new MmuBufferAccess(
         buffer,
-        kind,
+        event,
         // The memory access context should be copied.
         new MemoryAccessContext(context),
-        address.getInstance(context),
-        entry.getInstance(context),
-        argument != null ? argument.getInstance(context) : null);
+        address.getInstance(instanceId, context),
+        entry.getInstance(instanceId, context),
+        argument != null ? argument.getInstance(instanceId, context) : null);
   }
 
   public MmuBufferAccess getParentAccess() {
-    return new MmuBufferAccess(buffer.getParent(), kind, context, address, entry, argument);
+    return new MmuBufferAccess(buffer.getParent(), event, context, address, entry, argument);
   }
 
   public Collection<MmuBufferAccess> getChildAccesses() {
     final Collection<MmuBufferAccess> childAccesses = new ArrayList<>();
 
     for (final MmuBuffer child : buffer.getChildren()) {
-      childAccesses.add(new MmuBufferAccess(child, kind, context, address, entry, argument));
+      childAccesses.add(new MmuBufferAccess(child, event, context, address, entry, argument));
     }
 
     return childAccesses;
@@ -157,7 +165,7 @@ public final class MmuBufferAccess {
 
     return buffer.equals(r.buffer)
         && id == r.id
-        && kind == r.kind
+        && event == r.event
         && (address != null && address.equals(r.address) || address == null && r.address == null);
   }
 
@@ -166,7 +174,7 @@ public final class MmuBufferAccess {
     int hashCode = buffer.hashCode();
 
     hashCode = 31 * hashCode + id;
-    hashCode = 31 * hashCode + kind.hashCode();
+    hashCode = 31 * hashCode + event.hashCode();
     hashCode = 31 * hashCode + (address != null ? address.hashCode() : 0);
 
     return hashCode;
@@ -174,6 +182,6 @@ public final class MmuBufferAccess {
 
   @Override
   public String toString() {
-    return String.format("%s(%s:%d[%s])", kind, buffer, id, address);
+    return String.format("%s(%s:%d[%s])", event, buffer, id, address);
   }
 }

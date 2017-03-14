@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +39,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
@@ -53,10 +57,6 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
 
 final class ControlFlowBuilder {
   public static final Class<?> BUFFER_EVENT_CLASS =
@@ -333,8 +333,8 @@ final class ControlFlowBuilder {
 
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
-    final String writeAccess = selectBufferAccess(MmuBufferAccess.Kind.WRITE, address, lhs);
-    final String readAccess = selectBufferAccess(MmuBufferAccess.Kind.READ, address, rhs);
+    final String writeAccess = selectBufferAccess(BufferAccessEvent.WRITE, address, lhs);
+    final String readAccess = selectBufferAccess(BufferAccessEvent.READ, address, rhs);
 
     if (writeAccess != null && readAccess != null) {
       throw new IllegalArgumentException("Both " + left + " and " + right + " access buffers.");
@@ -578,14 +578,14 @@ final class ControlFlowBuilder {
   }
 
   private String selectBufferAccess(
-      final MmuBufferAccess.Kind kind,
+      final BufferAccessEvent event,
       final String address,
       final Atom... atoms) {
     for (final Atom atom : atoms) {
       if (atom.getKind().isStruct()) {
         final String name = ((Variable) atom.getObject()).getName();
         if (isBufferAccess(name)) {
-          return defaultBufferAccess(name, kind, address);
+          return defaultBufferAccess(name, event, address);
         }
       }
     }
@@ -594,12 +594,12 @@ final class ControlFlowBuilder {
 
   protected static String defaultBufferAccess(
       final String name,
-      final MmuBufferAccess.Kind kind,
+      final BufferAccessEvent event,
       final String address) {
     return String.format(
-        "new MmuBufferAccess(%s.get(), MmuBufferAccess.Kind.%s, %s.get().getAddress(), %s.get(), %s)",
+        "new MmuBufferAccess(%s.get(), BufferAccessEvent.%s, %s.get().getAddress(), %s.get(), %s)",
         name,
-        kind,
+        event,
         name,
         name,
         address

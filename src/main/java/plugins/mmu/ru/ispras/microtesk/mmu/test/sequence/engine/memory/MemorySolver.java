@@ -303,7 +303,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         continue;
       }
 
-      if (path.getEvent(prevBufferAccess) == BufferAccessEvent.MISS) {
+      if (prevBufferAccess.getEvent() == BufferAccessEvent.MISS) {
         final SolverResult<MemorySolution> result = solveMissConstraint(j, prevBufferAccess);
 
         if (result.getStatus() == SolverResult.Status.UNSAT) {
@@ -671,12 +671,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     handledBufferAccessesForExecution.add(bufferAccess);
 
-    final MemoryAccess access = structure.getAccess(j);
-    final MemoryAccessPath path = access.getPath();
-
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the buffer is a parent of some view and is not in the access. 
-    final BufferAccessEvent realEvent = path.getEvent(bufferAccess);
+    final BufferAccessEvent realEvent = bufferAccess.getEvent();
     final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
@@ -687,7 +684,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     // The parent access event is a hit or null, but not a miss.
-    if (!buffer.isView() || path.getEvent(bufferAccess.getParentAccess()) != BufferAccessEvent.MISS) {
+    if (!buffer.isView() || bufferAccess.getParentAccess().getEvent() != BufferAccessEvent.MISS) {
       SolverResult<MemorySolution> result = null;
 
       if (buffer.isFake()) {
@@ -719,7 +716,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         return result;
       }
     } else {
-      if (path.getEvent(bufferAccess) == BufferAccessEvent.HIT) {
+      if (bufferAccess.getEvent() == BufferAccessEvent.HIT) {
         return new SolverResult<>(String.format("Constraint violation for buffer %s", buffer));
       }
     }
@@ -1097,6 +1094,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       Logger.debug("Buffer read: %s", bufferAccess);
 
+      final int id = bufferAccess.getId();
       final MmuBuffer buffer = bufferAccess.getBuffer();
       final MemoryAccessContext context = bufferAccess.getContext();
       final MmuAddressInstance addrType = bufferAccess.getAddress();
@@ -1122,11 +1120,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
         final MmuExpression tagExpr = buffer.getTagExpression();
         InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
 
-        final MmuExpression tagExprInstance = tagExpr.getInstance(context);
+        final MmuExpression tagExprInstance = tagExpr.getInstance(id, context);
         Logger.debug("Tag expression instance: %s", tagExprInstance);
 
         final BigInteger tag = BigIntegerUtils.valueOfUnsignedLong(buffer.getTag(address));
-
         knownValues.putAll(IntegerField.split(tagExprInstance.getTerms(), tag));
       }
 
@@ -1134,11 +1131,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
         final MmuExpression indexExpr = buffer.getIndexExpression();
         InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
 
-        final MmuExpression indexExprInstance = indexExpr.getInstance(context);
+        final MmuExpression indexExprInstance = indexExpr.getInstance(id, context);
         Logger.debug("Index expression instance: %s", indexExprInstance);
 
         final BigInteger index = BigIntegerUtils.valueOfUnsignedLong(buffer.getIndex(address));
-
         knownValues.putAll(IntegerField.split(indexExprInstance.getTerms(), index));
       }
     }
@@ -1173,6 +1169,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
 
+    Logger.debug("Buffer reads: %s", path.getBufferReads());
+
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())) {
@@ -1181,7 +1179,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       final MmuAddressInstance addrType = bufferAccess.getAddress();
       final IntegerVariable addrVar = addrType.getVariable(); 
+
       final BigInteger addrValue = values.get(addrVar);
+      InvariantChecks.checkNotNull(addrValue,
+          String.format("Cannot obtain the address value for %s\n%s", bufferAccess, values));
 
       Logger.debug("Refine address: %s=0x%x", addrType, addrValue.longValue());
       addrObject.setAddress(addrType, addrValue.longValue());
@@ -1247,9 +1248,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     entry.setAddress(addrObject.getAddress(bufferAccess));
 
     for (final IntegerVariable field : entry.getVariables()) {
-      // If an entry field is not used in the path it remains unchanged.
-      if (values.containsKey(field) && (!entry.isValid(field) || path.contains(field))) {
-        entry.setValue(field, values.get(field), path.contains(field));
+      // If an entry field is not used in the path, it remains unchanged.
+      if (values.containsKey(field) && !entry.isValid(field)) {
+        entry.setValue(field, values.get(field), true);
       }
     }
   }

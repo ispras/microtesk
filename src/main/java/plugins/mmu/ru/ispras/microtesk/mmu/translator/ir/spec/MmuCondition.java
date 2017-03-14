@@ -295,18 +295,17 @@ public final class MmuCondition {
     return atoms;
   }
 
-  // TODO:
-  public MmuCondition getInstance(final MemoryAccessContext context) {
+  public MmuCondition getInstance(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isInitial()) {
+    if (context.isEmptyStack() && instanceId == 0) {
       return this;
     }
 
     final List<MmuConditionAtom> atomInstances = new ArrayList<>();
 
     for (final MmuConditionAtom atom : atoms) {
-      atomInstances.add(atom.getInstance(context));
+      atomInstances.add(atom.getInstance(instanceId, context));
     }
 
     return new MmuCondition(type, atomInstances);

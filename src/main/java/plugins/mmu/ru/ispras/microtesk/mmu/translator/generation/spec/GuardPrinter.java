@@ -35,13 +35,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.StringUtils;
 
 final class GuardPrinter {
@@ -152,15 +152,15 @@ final class GuardPrinter {
 
     if (equalities.isEmpty() && segments.isEmpty() && !buffers.isEmpty()) {
       InvariantChecks.checkTrue(buffers.size() == 1, "One buffer event is allowed.");
-      final Pair<Pair<String, String>, String> bufferEvent = extractBufferEventInfo(buffers.get(0));
+      final Pair<Pair<String, String>, BufferAccessEvent> bufferEvent =
+          extractBufferEventInfo(buffers.get(0));
 
       return String.format(
-          "new MmuGuard(%s, %s)",
+          "new MmuGuard(%s)",
           ControlFlowBuilder.defaultBufferAccess(
               bufferEvent.first.first,
-              MmuBufferAccess.Kind.CHECK,
-              bufferEvent.first.second),
-          bufferEvent.second);
+              bufferEvent.second,
+              bufferEvent.first.second));
     }
 
     throw new UnsupportedOperationException(
@@ -257,14 +257,14 @@ final class GuardPrinter {
     throw new IllegalArgumentException("Illegal segment access expression: " + node);
   }
 
-  private Pair<Pair<String, String>, String> extractBufferEventInfo(final Node node) {
+  private Pair<Pair<String, String>, BufferAccessEvent> extractBufferEventInfo(final Node node) {
     InvariantChecks.checkNotNull(node);
 
     if (node.getKind() == Node.Kind.VARIABLE) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
       final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
-      return new Pair<>(new Pair<>(buffer.getId(), address), "BufferAccessEvent.HIT");
+      return new Pair<>(new Pair<>(buffer.getId(), address), BufferAccessEvent.HIT);
     }
 
     if (node.getKind() == Node.Kind.OPERATION) {
@@ -274,7 +274,7 @@ final class GuardPrinter {
       final AttributeRef attrRef = (AttributeRef) op.getOperand(0).getUserData();
       final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
-      return new Pair<>(new Pair<>(buffer.getId(), address), "BufferAccessEvent.MISS");
+      return new Pair<>(new Pair<>(buffer.getId(), address), BufferAccessEvent.MISS);
     }
 
     throw new IllegalArgumentException("Illegal buffer event expression: " + node);

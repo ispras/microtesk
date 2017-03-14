@@ -15,10 +15,9 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -38,9 +37,7 @@ public final class FilterHitAndTagReplaced
     final MmuBufferAccess bufferAccess = hazard.getBufferAccess();
 
     if (bufferAccess != null) {
-      final MemoryAccessPath path = access.getPath();
-
-      if (path.getEvent(bufferAccess) == BufferAccessEvent.HIT) {
+      if (bufferAccess.getEvent() == BufferAccessEvent.HIT) {
         if (!hazard.getRelation(BufferHazard.Type.TAG_REPLACED).isEmpty()) {
           // Filter off.
           return false;

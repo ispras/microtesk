@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -28,9 +29,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
@@ -213,27 +212,11 @@ public final class MemorySymbolicResult {
 
     final MemoryAccessContext context = getContext(pathIndex);
     final MmuProgram program = entry.getProgram();
-    if (program != null) {
-      for (final MmuTransition transition : program.getTransitions()) {
-        final MmuGuard guard = transition.getGuard();
 
-        if (guard != null) {
-          final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
-
-          if (bufferAccess != null) {
-            context.doAccess(bufferAccess);
-          }
-        }
-      }
-
-      final MmuAction targetAction = program.getTarget();
-
-      if (targetAction != null) {
-        final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
-
-        if (bufferAccess != null) {
-          context.doAccess(bufferAccess);
-        }
+    for (final MmuTransition transition : program.getTransitions()) {
+      for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
+        context.doAccess(bufferAccess);
+        Logger.debug("ACCESS BUFFER:%s\nspec=%s,\nimpl=%s", bufferAccess, entry.getContext(), context);
       }
     }
   }

@@ -82,23 +82,20 @@ public final class MmuTransition {
 
     return result;
   }
-  
+
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
 
-    builder.append("[");
-    builder.append(source);
-    builder.append("]");
+    builder.append(String.format("[%s]", source));
     builder.append(" -> ");
+
     if (guard != null) {
-      builder.append("[");
-      builder.append(guard);
-      builder.append("] -> ");
+      builder.append(String.format("[%s]", guard));
+      builder.append(" -> ");
     }
-    builder.append("[");
-    builder.append(target);
-    builder.append("]");
+
+    builder.append(String.format("[%s]", target));
 
     return builder.toString();
   }

@@ -34,6 +34,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
@@ -221,8 +222,8 @@ public final class MemorySymbolicExecutor {
       final MmuExpression expression = atom.getLhsExpr();
 
       for (final IntegerField term : expression.getTerms()) {
-        final IntegerField term1 = context1.getInstance(term);
-        final IntegerField term2 = context2.getInstance(term);
+        final IntegerField term1 = context1.getInstance(0, term);
+        final IntegerField term2 = context2.getInstance(0, term);
 
         final IntegerField field1 = result.getVersion(term1, pathIndex1);
         final IntegerField field2 = result.getVersion(term2, pathIndex2);
@@ -294,14 +295,19 @@ public final class MemorySymbolicExecutor {
     result.accessBuffer(entry, pathIndex);
 
     final MmuProgram program = entry.getProgram();
+    final MemoryAccessContext context = result.getContext(pathIndex);
 
-    if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
+    switch(entry.getKind()) {
+    case NORMAL:
+      return executeProgram(result, defines, program, pathIndex);
+
+    case CALL:
       InvariantChecks.checkTrue(program.isAtomic());
 
       final MmuTransition transition = program.getTransition();
       final MmuAction action = transition.getTarget();
 
-      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(result.getContext(pathIndex));
+      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
       final MmuAddressInstance actualArg = oldBufferAccess.getArgument();
 
       // Restrict the memory-mapped buffer address.
@@ -315,20 +321,19 @@ public final class MemorySymbolicExecutor {
 
       result.updateStack(entry, pathIndex);
 
-      final MmuBufferAccess newBufferAccess = action.getBufferAccess(result.getContext(pathIndex));
+      final MmuBufferAccess newBufferAccess = action.getBufferAccess(context);
       final MmuAddressInstance formalArg = newBufferAccess.getAddress();
 
       final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
       return executeBindings(result, defines, bindings, pathIndex);
+
+    case RETURN:
+      result.updateStack(entry, pathIndex);
+      return Boolean.TRUE;
+
+    default:
+      return Boolean.TRUE;
     }
-
-    result.updateStack(entry, pathIndex);
-
-    if (entry.getKind() == MemoryAccessPath.Entry.Kind.NORMAL) {
-      return executeProgram(result, defines, program, pathIndex);
-    }
-
-    return Boolean.TRUE;
   }
 
   private Boolean executeProgram(
@@ -524,12 +529,13 @@ public final class MemorySymbolicExecutor {
 
     final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
     if (bufferAccess != null) {
-      executeBufferAccess(result, defines, bufferAccess, pathIndex);
+      final Collection<MmuBinding> bindings = bufferAccess.getMatchBindings();
+      executeBindings(result, defines, bindings, pathIndex);
     }
 
     final Boolean status;
 
-    final MmuCondition condition = guard.getCondition(context);
+    final MmuCondition condition = guard.getCondition(0, context);
     if (condition != null) {
       status = executeCondition(result, defines, condition, pathIndex);
     } else {
@@ -550,29 +556,24 @@ public final class MemorySymbolicExecutor {
     }
 
     final MemoryAccessContext context = result.getContext(pathIndex);
+    final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
 
-    final Map<IntegerField, MmuBinding> assignments = action.getAction(context);
+    final int lhsInstanceId =
+        bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.WRITE
+          ? bufferAccess.getId() : 0;
+
+    final int rhsInstanceId =
+        bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.READ
+          ? bufferAccess.getId() : 0;
+    
+    final Map<IntegerField, MmuBinding> assignments =
+        action.getAssignments(lhsInstanceId, rhsInstanceId, context);
+
     if (assignments != null) {
       executeBindings(result, defines, assignments.values(), pathIndex);
     }
 
     return Boolean.TRUE;
-  }
-
-  private Boolean executeBufferAccess(
-      final MemorySymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final MmuBufferAccess bufferAccess,
-      final int pathIndex) {
-
-    if (result.hasConflict()) {
-      return Boolean.FALSE;
-    }
-
-    final MemoryAccessContext context = result.getContext(pathIndex);
-    final Collection<MmuBinding> bindings = bufferAccess.getBuffer().getMatchBindings(context);
-
-    return executeBindings(result, defines, bindings, pathIndex);
   }
 
   private Boolean executeCondition(

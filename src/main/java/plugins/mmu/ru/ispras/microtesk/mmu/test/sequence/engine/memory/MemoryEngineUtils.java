@@ -81,7 +81,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MmuCondition condition = guard.getCondition(MemoryAccessContext.EMPTY);
+    final MmuCondition condition = guard.getCondition(0, MemoryAccessContext.EMPTY);
 
     if (condition == null) {
       return false;
@@ -121,16 +121,11 @@ public final class MemoryEngineUtils {
         return true;
       }
 
-      final BufferAccessEvent bufferAccessEvent = guard.getEvent();
-      if (bufferAccessEvent == null) {
-        return true;
-      }
-
       for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
         final MmuBuffer buffer = bufferConstraint.getBuffer();
         final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
 
-        if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccessEvent)) {
+        if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccess.getEvent())) {
           return false;
         }
       }

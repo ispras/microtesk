@@ -26,7 +26,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard.Instance;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.BiPredicate;
@@ -87,8 +86,7 @@ public final class FilterAccessThenMiss
   public boolean test(final MemoryAccess access, BufferUnitedDependency dependency) {
     for (final MmuBufferAccess bufferAccess : dependency.getBufferHazards().keySet()) {
       if (bufferAccess.getBuffer().isReplaceable()) {
-        final MemoryAccessPath accessPath = access.getPath();
-        if (accessPath.getEvent(bufferAccess) == BufferAccessEvent.MISS) {
+        if (bufferAccess.getEvent() == BufferAccessEvent.MISS) {
           if (!test(bufferAccess, dependency)) {
             return false;
           }

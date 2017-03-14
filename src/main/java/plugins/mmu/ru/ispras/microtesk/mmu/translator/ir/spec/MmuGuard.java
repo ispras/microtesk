@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 
@@ -31,8 +30,6 @@ public final class MmuGuard {
   private final MemoryOperation operation;
   /** Buffer access. */
   private final MmuBufferAccess bufferAccess;
-  /** Event: {@code HIT} or {@code MISS}. */
-  private final BufferAccessEvent event;
   /** Logical condition. */
   private final MmuCondition condition;
   /** Admissible memory regions. */
@@ -43,13 +40,11 @@ public final class MmuGuard {
   public MmuGuard(
       final MemoryOperation operation,
       final MmuBufferAccess bufferAccess,
-      final BufferAccessEvent event,
       final MmuCondition condition,
       final Collection<String> regions,
       final Collection<MmuSegment> segments) {
     this.operation = operation;
     this.bufferAccess = bufferAccess;
-    this.event = event;
     this.condition = condition;
     this.regions = regions;
     this.segments = segments;
@@ -57,61 +52,57 @@ public final class MmuGuard {
 
   public MmuGuard(
       final MmuBufferAccess bufferAccess,
-      final BufferAccessEvent event,
       final MmuCondition condition) {
-    this(null, bufferAccess, event, condition, null, null);
+    this(null, bufferAccess, condition, null, null);
   }
 
-  public MmuGuard(final MmuBufferAccess bufferAccess, final BufferAccessEvent event) {
-    this(null, bufferAccess, event, null, null, null);
+  public MmuGuard(final MmuBufferAccess bufferAccess) {
+    this(null, bufferAccess, null, null, null);
   }
 
   public MmuGuard(final MmuCondition condition) {
-    this(null, null, null, condition, null, null);
+    this(null, null, condition, null, null);
   }
 
   public MmuGuard(final MmuConditionAtom condition) {
-    this(null, null, null, new MmuCondition(condition), null, null);
+    this(null, null, new MmuCondition(condition), null, null);
   }
 
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
-    this(operation, null, null, condition, null, null);
+    this(operation, null, condition, null, null);
   }
 
   public MmuGuard(final MemoryOperation operation) {
-    this(operation, null, null, null, null, null);
+    this(operation, null, null, null, null);
   }
 
   public MmuGuard(final Collection<String> regions, final Collection<MmuSegment> segments) {
-    this(null, null, null, null, regions, segments);
+    this(null, null, null, regions, segments);
   }
 
   public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (bufferAccess == null || context.isInitial(bufferAccess.getBuffer())) {
+    if (bufferAccess == null) {
       return bufferAccess;
     }
 
-    return bufferAccess.getInstance(context);
+    final int instanceId = context.getBufferAccessId(bufferAccess.getBuffer());
+    return bufferAccess.getInstance(instanceId, context);
   }
 
-  public MmuCondition getCondition(final MemoryAccessContext context) {
+  public MmuCondition getCondition(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (condition == null || context.isInitial()) {
+    if (condition == null || context.isEmptyStack() && instanceId == 0) {
       return condition;
     }
 
-    return condition.getInstance(context);
+    return condition.getInstance(instanceId, context);
   }
 
   public MemoryOperation getOperation() {
     return operation;
-  }
-
-  public BufferAccessEvent getEvent() {
-    return event;
   }
 
   public Collection<String> getRegions() {
@@ -133,7 +124,7 @@ public final class MmuGuard {
 
     if (bufferAccess != null) {
       builder.append(builder.length() > 0 ? separator : "");
-      builder.append(String.format("%s.Event=%s", bufferAccess, event));
+      builder.append(String.format("%s", bufferAccess));
     }
 
     if (condition != null) {

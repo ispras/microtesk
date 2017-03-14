@@ -17,14 +17,13 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -32,11 +31,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
@@ -153,11 +149,14 @@ public final class MemoryAccessPath {
       // Intermediate addresses.
       for (final Entry entry : entries) {
         final MmuProgram program = entry.getProgram();
+        final MemoryAccessContext context = entry.getContext();
 
         for (final MmuTransition transition : program.getTransitions()) {
-          for (final MmuAction action
-              : new MmuAction[] { transition.getSource(), transition.getTarget() } ) {
-            final MmuBufferAccess bufferAccess = action.getBufferAccess(entry.getContext());
+          final MmuAction source = transition.getSource();
+          final MmuAction target = transition.getTarget();
+
+          for (final MmuAction action : new MmuAction[] { source, target } ) {
+            final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
   
             if (bufferAccess != null) {
               result.add(bufferAccess.getAddress());
@@ -173,9 +172,9 @@ public final class MemoryAccessPath {
     }
 
     private static Collection<MmuBufferAccess> getBufferAccesses(
-        final MmuBufferAccess.Kind kind,
+        final EnumSet<BufferAccessEvent> events,
         final Collection<Entry> entries) {
-      InvariantChecks.checkNotNull(kind);
+      InvariantChecks.checkNotNull(events);
       InvariantChecks.checkNotNull(entries);
 
       final Collection<MmuBufferAccess> bufferAccesses = new LinkedHashSet<>();
@@ -186,7 +185,7 @@ public final class MemoryAccessPath {
 
         for (final MmuTransition transition : program.getTransitions()) {
           for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
-            if (bufferAccess.getKind() == kind) {
+            if (events.contains(bufferAccess.getEvent())) {
               bufferAccesses.add(bufferAccess);
             }
           }
@@ -194,81 +193,6 @@ public final class MemoryAccessPath {
       }
 
       return bufferAccesses;
-    }
-
-    private static Map<MmuBufferAccess, BufferAccessEvent> getEvents(
-        final Collection<Entry> entries) {
-      InvariantChecks.checkNotNull(entries);
-
-      final Map<MmuBufferAccess, BufferAccessEvent> bufferEvents = new LinkedHashMap<>();
-
-      for (final Entry entry : entries) {
-        final MmuProgram program = entry.getProgram();
-        final MemoryAccessContext context = entry.getContext();
-
-        for (final MmuTransition transition : program.getTransitions()) {
-          final MmuGuard guard = transition.getGuard();
-
-          if (guard != null) {
-            final MmuBufferAccess guardBufferAccess = guard.getBufferAccess(context);
-
-            if (guardBufferAccess != null) {
-              bufferEvents.put(guardBufferAccess, guard.getEvent());
-            }
-          }
-        }
-      }
-
-      return bufferEvents;
-    }
-
-    private static Collection<IntegerVariable> getVariables(
-        final Collection<Entry> entries) {
-      InvariantChecks.checkNotNull(entries);
-
-      final Collection<IntegerVariable> result = new LinkedHashSet<>();
-
-      for (final Entry entry : entries) {
-        final MmuProgram program = entry.getProgram();
-        final MemoryAccessContext context = entry.getContext();
-
-        for (final MmuTransition transition : program.getTransitions()) {
-          final MmuGuard guard = transition.getGuard();
-          final MmuCondition condition = guard != null ? guard.getCondition(context) : null;
-
-          // Variables used in the guards.
-          if (condition != null) {
-            for (final MmuConditionAtom atom : condition.getAtoms()) {
-              for (final IntegerField field : atom.getLhsExpr().getTerms()) {
-                result.add(field.getVariable());
-              }
-            }
-          }
-
-          // Variables used/defined in the actions.
-          final MmuAction action = transition.getSource();
-          final Map<IntegerField, MmuBinding> bindings = action.getAction(context);
-
-          if (bindings != null) {
-            for (final Map.Entry<IntegerField, MmuBinding> binding : bindings.entrySet()) {
-              final IntegerField key = binding.getKey();
-              final MmuBinding value = binding.getValue();
-
-              // Variables defined in the actions.
-              if (value.getRhs() != null) {
-                result.add(key.getVariable());
-
-                // Variables used in the actions.
-                for (final IntegerField rhsField : value.getRhs().getTerms()) {
-                  result.add(rhsField.getVariable());
-                }
-              }
-            }
-          }
-        }
-      }
-
-      return result;
     }
 
     private static Collection<MmuSegment> getSegments(
@@ -381,12 +305,10 @@ public final class MemoryAccessPath {
           entries,
           getActions(entries),
           getAddressInstances(entries),
-          getBufferAccesses(MmuBufferAccess.Kind.CHECK, entries),
-          getBufferAccesses(MmuBufferAccess.Kind.READ, entries),
-          getBufferAccesses(MmuBufferAccess.Kind.WRITE, entries),
+          getBufferAccesses(EnumSet.of(BufferAccessEvent.HIT, BufferAccessEvent.MISS), entries),
+          getBufferAccesses(EnumSet.of(BufferAccessEvent.READ), entries),
+          getBufferAccesses(EnumSet.of(BufferAccessEvent.WRITE), entries),
           getSegments(entries),
-          getVariables(entries),
-          getEvents(entries),
           getRegions(entries));
     }
   }
@@ -399,8 +321,6 @@ public final class MemoryAccessPath {
   private final Collection<MmuBufferAccess> bufferWrites;
   private final Collection<MmuBuffer> buffers;
   private final Collection<MmuSegment> segments;
-  private final Collection<IntegerVariable> variables;
-  private final Map<MmuBufferAccess, BufferAccessEvent> events;
   private final Map<RegionSettings, Collection<MmuSegment>> regions;
 
   private final Entry firstEntry;
@@ -416,8 +336,6 @@ public final class MemoryAccessPath {
       final Collection<MmuBufferAccess> bufferReads,
       final Collection<MmuBufferAccess> bufferWrites,
       final Collection<MmuSegment> segments,
-      final Collection<IntegerVariable> variables,
-      final Map<MmuBufferAccess, BufferAccessEvent> events,
       final Map<RegionSettings, Collection<MmuSegment>> regions) {
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkNotEmpty(entries);
@@ -427,8 +345,7 @@ public final class MemoryAccessPath {
     InvariantChecks.checkNotNull(bufferReads);
     InvariantChecks.checkNotNull(bufferWrites);
     InvariantChecks.checkNotNull(segments);
-    InvariantChecks.checkNotNull(variables);
-    InvariantChecks.checkNotNull(events);
+    //InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(regions);
 
     this.entries = Collections.unmodifiableCollection(entries);
@@ -438,8 +355,6 @@ public final class MemoryAccessPath {
     this.bufferReads = Collections.unmodifiableCollection(bufferReads);
     this.bufferWrites = Collections.unmodifiableCollection(bufferWrites);
     this.segments = Collections.unmodifiableCollection(segments);
-    this.variables = Collections.unmodifiableCollection(variables);
-    this.events = Collections.unmodifiableMap(events);
     this.regions = Collections.unmodifiableMap(regions);
 
     final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
@@ -514,10 +429,6 @@ public final class MemoryAccessPath {
     return regions;
   }
 
-  public Collection<IntegerVariable> getVariables() {
-    return variables;
-  }
-
   public boolean contains(final MmuAction action) {
     InvariantChecks.checkNotNull(action);
     return actions.contains(action);
@@ -531,8 +442,9 @@ public final class MemoryAccessPath {
   public boolean contains(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
 
-    switch (bufferAccess.getKind()) {
-      case CHECK:
+    switch (bufferAccess.getEvent()) {
+      case HIT:
+      case MISS:
         return bufferChecks.contains(bufferAccess);
       case READ:
         return bufferReads.contains(bufferAccess);
@@ -548,16 +460,6 @@ public final class MemoryAccessPath {
     return buffers.contains(buffer);
   }
 
-  public boolean contains(final IntegerVariable variable) {
-    InvariantChecks.checkNotNull(variable);
-    return variables.contains(variable);
-  }
-
-  public BufferAccessEvent getEvent(final MmuBufferAccess bufferAccess) {
-    InvariantChecks.checkNotNull(bufferAccess);
-    return events.get(bufferAccess);
-  }
-
   public Collection<BufferAccessEvent> getEvents(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
 
@@ -565,7 +467,7 @@ public final class MemoryAccessPath {
 
     for (final MmuBufferAccess bufferAccess : bufferChecks) {
       if (bufferAccess.getBuffer() == buffer) {
-        events.add(getEvent(bufferAccess));
+        events.add(bufferAccess.getEvent());
       }
     }
 
@@ -637,6 +539,10 @@ public final class MemoryAccessPath {
 
     final MmuProgram lastProgram = lastEntry.getProgram();
     final MmuAction action = lastProgram.getTarget();
+
+    if (comma) {
+      builder.append(separator);
+    }
     builder.append(action.getName());
 
     return builder.toString();

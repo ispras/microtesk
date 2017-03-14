@@ -86,17 +86,21 @@ public final class MmuAction {
   public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (bufferAccess == null || context.isInitial(bufferAccess.getBuffer())) {
+    if (bufferAccess == null) {
       return bufferAccess;
     }
 
-    return bufferAccess.getInstance(context);
+    final int instanceId = context.getBufferAccessId(bufferAccess.getBuffer());
+    return bufferAccess.getInstance(instanceId, context);
   }
 
-  public Map<IntegerField, MmuBinding> getAction(final MemoryAccessContext context) {
+  public Map<IntegerField, MmuBinding> getAssignments(
+      final int lhsInstanceId,
+      final int rhsInstanceId,
+      final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isInitial()) {
+    if (context.isEmptyStack() && lhsInstanceId == 0 && rhsInstanceId == 0) {
       return action;
     }
 
@@ -106,7 +110,9 @@ public final class MmuAction {
       final IntegerField lhs = entry.getKey();
       final MmuBinding rhs = entry.getValue();
 
-      actionInstance.put(context.getInstance(lhs), rhs.getInstance(context));
+      actionInstance.put(
+          context.getInstance(lhsInstanceId, lhs),
+          rhs.getInstance(rhsInstanceId, context));
     }
 
     return actionInstance;

@@ -190,18 +190,17 @@ public final class MmuExpression {
     return hi;
   }
 
-  // TODO:
-  public MmuExpression getInstance(final MemoryAccessContext context) {
+  public MmuExpression getInstance(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isInitial()) {
+    if (context.isEmptyStack() && instanceId == 0) {
       return this;
     }
 
     final List<IntegerField> termInstances = new ArrayList<>();
 
     for (final IntegerField term : terms) {
-      termInstances.add(context.getInstance(term));
+      termInstances.add(context.getInstance(instanceId, term));
     }
 
     return new MmuExpression(termInstances);

@@ -17,11 +17,11 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter;
 import java.util.Map;
 
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.utils.function.BiPredicate;
 
@@ -51,8 +51,8 @@ public final class FilterHitAndTagReplacedEx
       if (!hazard.getRelation(BufferHazard.Type.TAG_REPLACED).isEmpty()) {
         for (final MmuBufferAccess otherAccess : path.getBufferReads()) {
           if (otherAccess.getBuffer().isReplaceable()
-              && otherAccess.getAddress().equals(bufferAccess.getAddress()) &&
-              path.getEvent(otherAccess) == BufferAccessEvent.HIT)
+              && otherAccess.getAddress().equals(bufferAccess.getAddress())
+              && otherAccess.getEvent() == BufferAccessEvent.HIT)
           // Filter off.
           return false;
         }

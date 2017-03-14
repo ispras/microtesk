@@ -66,19 +66,18 @@ public class MmuAddressInstance extends MmuStruct {
     return addrStruct;
   }
 
-  // TODO:
-  public MmuAddressInstance getInstance(final MemoryAccessContext context) {
+  public MmuAddressInstance getInstance(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
     final MmuAddressInstance instance = new MmuAddressInstance(name, addrStruct, address);
 
     for (final IntegerVariable field : fields) {
-      instance.fields.add(context.getInstance(field));
+      instance.fields.add(context.getInstance(instanceId, field));
     }
 
     instance.buffer = buffer;
     instance.bitSize = bitSize;
-    instance.address = context.getInstance(address);
+    instance.address = context.getInstance(instanceId, address);
 
     return instance;
   }

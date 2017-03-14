@@ -20,8 +20,8 @@ package ru.ispras.microtesk.mmu.basis;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public enum BufferAccessEvent {
-  /** Buffer hit. */
   HIT,
-  /** Buffer miss. */
   MISS,
+  READ,
+  WRITE
 }

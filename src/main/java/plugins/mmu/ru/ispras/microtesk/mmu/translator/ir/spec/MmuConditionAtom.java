@@ -289,19 +289,18 @@ public final class MmuConditionAtom {
     return rhsRange.getMin();
   }
 
-  // TODO:
-  public MmuConditionAtom getInstance(final MemoryAccessContext context) {
+  public MmuConditionAtom getInstance(final int instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isInitial()) {
+    if (context.isEmptyStack() && instanceId == 0) {
       return this;
     }
 
     return new MmuConditionAtom(
         type,
         negation,
-        lhsExpr != null ? lhsExpr.getInstance(context) : null,
-        rhsExpr != null ? rhsExpr.getInstance(context) : null,
+        lhsExpr != null ? lhsExpr.getInstance(instanceId, context) : null,
+        rhsExpr != null ? rhsExpr.getInstance(instanceId, context) : null,
         rhsRange);
   }
 

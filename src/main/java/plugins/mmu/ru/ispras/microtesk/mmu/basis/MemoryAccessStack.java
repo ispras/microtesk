@@ -134,7 +134,7 @@ public final class MemoryAccessStack {
     return stack.peek();
   }
 
-  public IntegerVariable getInstance(final IntegerVariable variable) {
+  public IntegerVariable getInstance(IntegerVariable variable) {
     InvariantChecks.checkNotNull(variable);
 
     if (stack.isEmpty()) {
