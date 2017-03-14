@@ -362,9 +362,7 @@ final class Executor {
           return Status.newLabelReference(reference);
         }
 
-        Logger.message("!!! %s <- %s", reference.getReference(), reference.getTarget());
         final long labelAddress = reference.getTarget().getAddress();
-
         logJump(labelAddress, reference.getTarget().getLabel());
         fetcher.jump(labelAddress);
       } else {
