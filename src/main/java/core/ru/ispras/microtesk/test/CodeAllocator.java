@@ -141,7 +141,7 @@ final class CodeAllocator {
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
         startAddress = call.getAlignment() != null ? currentAddress : callAddress;
-        currentAddress = startAddress;
+        currentAddress = callAddress;
       }
 
       currentAddress += call.getByteSize();
