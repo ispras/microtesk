@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.InstructionCall;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;
@@ -42,10 +44,10 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
- * The job of the {@link DefaultEngine2} class is to processes an abstract instruction call
+ * The job of the {@link DefaultEngine} class is to processes an abstract instruction call
  * sequence (uses symbolic values) and to build a concrete instruction call sequence (uses only
  * concrete values and can be simulated and used to generate source code in assembly language).
- * The {@link DefaultEngine2} class performs all necessary data generation and all initializing
+ * The {@link DefaultEngine} class performs all necessary data generation and all initializing
  * calls to the generated instruction sequence.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
@@ -78,11 +80,16 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final boolean isDebug = Logger.isDebug();
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
+
     try {
       final TestSequence testSequence = processSequence(engineContext, abstractSequence);
       return new EngineResult<>(new SingleValueIterator<>(testSequence));
-    } catch (final Exception e) {
+    } catch (final ConfigurationException e) {
       return new EngineResult<>(e.getMessage());
+    } finally {
+      Logger.setDebug(isDebug);
     }
   }
 
@@ -95,15 +102,16 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     final int sequenceIndex =
         engineContext.getStatistics().getSequences();
 
-    final List<ConcreteCall> sequence =
+    final List<ConcreteCall> concreteSequence =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence);
 
     final long baseAddress =
         engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
 
-    final TestSequenceCreator creator = new TestSequenceCreator(abstractSequence, sequence);
-    execute(engineContext, creator, baseAddress, sequence, sequenceIndex);
+    final TestSequenceCreator creator = 
+        new TestSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
+    execute(engineContext, creator, baseAddress, concreteSequence, sequenceIndex);
     return creator.createTestSequence();
   }
 
@@ -116,6 +124,10 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(listener);
     InvariantChecks.checkNotNull(sequence);
+
+    if (sequence.isEmpty()) {
+      return;
+    }
 
     final LabelManager labelManager = new LabelManager(engineContext.getLabelManager());
     allocateData(engineContext, labelManager, sequence, sequenceIndex);
@@ -132,6 +144,8 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
 
     final long startAddress = first.getAddress();
     final long endAddress = last.getAddress() + last.getByteSize();
+
+    listener.setAllocationAddress(endAddress);
     final Code code = codeAllocator.getCode();
 
     long address = startAddress;
@@ -139,11 +153,32 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
       listener.resetLastExecutedCall();
       final Executor.Status status = executor.execute(code, address);
 
-      if (status.isAddress() && code.hasAddress(address)) {
+      final boolean isValidAddress =
+          status.isAddress() &&
+          (code.hasAddress(status.getAddress()) || status.getAddress() == endAddress);
+
+      if (isValidAddress) {
         address = status.getAddress();
       } else {
-        // TODO: continue with the next instruction.
-        throw new GenerationAbortedException("Jump out of sequence: " + status);
+        if (Logger.isDebug()) {
+          Logger.debug(
+              "Jump to %s %s located outside of the sequence.",
+              status.isAddress() ? "address" : "label",
+              status
+              );
+        }
+
+        final ConcreteCall lastExecutedCall = listener.getLastExecutedCall();
+        final long nextAddress = lastExecutedCall.getAddress() + lastExecutedCall.getByteSize();
+
+        if (Logger.isDebug()) {
+          Logger.debug(
+              "Execution will be continued from the next instruction 0x%016x.",
+              nextAddress
+              );
+        }
+
+        address = nextAddress;
       }
     } while (address != endAddress);
   }
@@ -169,6 +204,7 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
 
   private static class ExecutorListener implements Executor.Listener {
     private ConcreteCall lastExecutedCall = null;
+    private long allocationAddress = 0;
 
     @Override
     public void onBeforeExecute(final EngineContext context, final ConcreteCall concreteCall) {
@@ -187,22 +223,35 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     public final void resetLastExecutedCall() {
       lastExecutedCall = null;
     }
+
+    public final long getAllocationAddress() {
+      return allocationAddress;
+    }
+
+    public final void setAllocationAddress(final long value) {
+      allocationAddress = value;
+    }
   }
 
   private static final class TestSequenceCreator extends ExecutorListener {
+    private final int sequenceIndex;
     private final Map<ConcreteCall, Call> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
+    private final ExecutorListener listenerForInitializers;
     private final TestSequence.Builder testSequenceBuilder;
 
     private TestSequenceCreator(
+        final int sequenceIndex,
         final List<Call> abstractSequence,
         final List<ConcreteCall> concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
       InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.size());
 
+      this.sequenceIndex = sequenceIndex;
       this.callMap = new IdentityHashMap<>();
       this.initializedModes = new HashSet<>();
+      this.listenerForInitializers = new ExecutorListener();
 
       for (int index = 0; index < abstractSequence.size(); ++index) {
         final Call abstractCall = abstractSequence.get(index);
@@ -234,11 +283,13 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
         return; // Already processed
       }
 
-      callMap.put(concreteCall, null);
       try {
         processCall(engineContext, abstractCall, concreteCall);
       } catch (final ConfigurationException e) {
-        e.printStackTrace();
+        throw new GenerationAbortedException(
+            "Failed to generate test data for " + concreteCall.getText(), e);
+      } finally {
+        callMap.put(concreteCall, null);
       }
     }
 
@@ -255,7 +306,9 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
         return;
       }
 
-      Logger.debug("Generating test data...");
+      if (Logger.isDebug()) {
+        Logger.debug("%nGenerating test data for %s...", concreteCall.getText());
+      }
 
       final Primitive abstractPrimitive = abstractCall.getRootOperation();
       EngineUtils.checkRootOp(abstractPrimitive);
@@ -300,8 +353,32 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
 
     private void processInitializer(
         final EngineContext engineContext,
-        final List<Call> initializingCalls) {
-      // TODO Auto-generated method stub
+        final List<Call> abstractCalls) throws ConfigurationException {
+      InvariantChecks.checkNotNull(engineContext);
+      InvariantChecks.checkNotNull(abstractCalls);
+
+      final List<ConcreteCall> concreteCalls =
+          EngineUtils.makeConcreteCalls(engineContext, abstractCalls);
+
+      testSequenceBuilder.addToPrologue(concreteCalls);
+
+      final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
+      final BigInteger programCounterValue = programCounter.getValue();
+
+      Logger.debug("Executing initializing code...");
+      try {
+        execute(
+            engineContext,
+            listenerForInitializers,
+            getAllocationAddress(),
+            concreteCalls,
+            sequenceIndex
+            );
+      } finally {
+        programCounter.setValue(programCounterValue);
+        setAllocationAddress(listenerForInitializers.getAllocationAddress());
+        Logger.debug("");
+      }
     }
   }
 }
