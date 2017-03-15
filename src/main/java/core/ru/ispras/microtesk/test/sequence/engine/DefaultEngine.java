@@ -41,6 +41,7 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
@@ -341,14 +342,30 @@ public final class DefaultEngine implements Engine<TestSequence> {
         }
       }
 
-      final List<Call> initializer = EngineUtils.makeInitializer(
+      final List<Call> initializer = makeInitializer(
           engineContext,
           abstractPrimitive,
           abstractPrimitive.getSituation(),
+          concretePrimitive,
           initializedModes
           );
 
       processInitializer(engineContext, initializer);
+    }
+
+    private static List<Call> makeInitializer(
+        final EngineContext engineContext,
+        final Primitive abstractPrimitive,
+        final Situation situation,
+        final IsaPrimitive concretePrimitive,
+        final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      // TODO
+      return EngineUtils.makeInitializer(
+          engineContext,
+          abstractPrimitive,
+          situation,
+          initializedModes
+          );
     }
 
     private void processInitializer(
