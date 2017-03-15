@@ -674,7 +674,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the buffer is a parent of some view and is not in the access. 
     final BufferAccessEvent realEvent = bufferAccess.getEvent();
-    final BufferAccessEvent usedEvent = realEvent == null ? BufferAccessEvent.HIT : realEvent;
+    final BufferAccessEvent usedEvent = realEvent == BufferAccessEvent.READ ? BufferAccessEvent.HIT : realEvent;
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
@@ -769,15 +769,27 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final boolean hasRefined = refineAddr(path, addrObject, applyConstraints);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", path));
 
-    Logger.debug("Buffer reads: %s", path.getBufferReads());
-    Logger.debug("Buffer writes: %s", path.getBufferWrites());
+    // FIXME: Divide solveBufferConstraint into non-replaceable/replaceable parts.
 
-    // Solve the hit and miss constraints for the buffers as well as the replace dependencies.
+    // Solve the entry constraints.
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
-      final SolverResult<MemorySolution> result = solveBufferConstraint(j, bufferAccess);
+      if (!bufferAccess.getBuffer().isReplaceable()) {
+        final SolverResult<MemorySolution> result = solveBufferConstraint(j, bufferAccess);
 
-      if (result.getStatus() == SolverResult.Status.UNSAT) {
-        return result;
+        if (result.getStatus() == SolverResult.Status.UNSAT) {
+          return result;
+        }
+      }
+    }
+
+    // Solve the hit/miss constraints as well as the replace dependencies.
+    for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
+      if (bufferAccess.getBuffer().isReplaceable()) {
+        final SolverResult<MemorySolution> result = solveBufferConstraint(j, bufferAccess);
+
+        if (result.getStatus() == SolverResult.Status.UNSAT) {
+          return result;
+        }
       }
     }
 

@@ -212,7 +212,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(partialResult);
 
     if (program.isAtomic() && !isValidTransition(program.getTransition(), type)) {
-        return false;
+      return false;
     }
 
     final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(program, context);
@@ -375,40 +375,13 @@ public final class MemoryEngineUtils {
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
-      Logger.debug(stringOf(path));
+      Logger.debug("Path: %s", path);
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);
       }
     }
 
     return result;
-  }
-
-  private static String stringOf(final MemoryAccessPath path) {
-    final StringBuilder builder = new StringBuilder();
-    for (final MemoryAccessPath.Entry entry : path.getEntries()) {
-      final MmuProgram program = entry.getProgram();
-
-      if (entry.getKind() != MemoryAccessPath.Entry.Kind.RETURN) {
-        builder.append(program.getSource());
-      }
-
-      if (program.isAtomic()) {
-        final MmuTransition transition = program.getTransition();
-
-        if (transition.getGuard() != null) {
-          builder.append(String.format(" -> [%s]", transition.getGuard()));
-        }
-        builder.append(" -> ");
-      } else {
-        builder.append("...");
-      }
-    }
-
-    final MmuProgram lastProgram = path.getLastEntry().getProgram();
-    builder.append(lastProgram.getTarget());
-
-    return builder.toString();
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(

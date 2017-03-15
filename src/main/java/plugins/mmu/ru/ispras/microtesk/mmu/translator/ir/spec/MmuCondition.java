@@ -310,9 +310,9 @@ public final class MmuCondition {
 
     return new MmuCondition(type, atomInstances);
   }
-  
+
   @Override
   public String toString() {
-    return String.format("%s %s", type, atoms);
+    return atoms.size() < 2 ? atoms.toString() : String.format("%s %s", type, atoms);
   }
 }

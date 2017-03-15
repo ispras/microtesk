@@ -124,14 +124,12 @@ public final class MmuGuard {
 
     if (bufferAccess != null) {
       builder.append(builder.length() > 0 ? separator : "");
-      builder.append(String.format("%s", bufferAccess));
+      builder.append(bufferAccess);
     }
 
     if (condition != null) {
-      for (final MmuConditionAtom equality : condition.getAtoms()) {
-        builder.append(builder.length() > 0 ? separator : "");
-        builder.append(equality);
-      }
+      builder.append(builder.length() > 0 ? separator : "");
+      builder.append(condition);
     }
 
     if (regions != null) {

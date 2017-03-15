@@ -491,48 +491,41 @@ public final class MemoryAccessPath {
     final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
-    boolean comma = false;
-
     for (final Entry entry : entries) {
+      final MmuProgram program = entry.getProgram();
       final MemoryAccessContext context = entry.getContext();
 
-      if (entry.getKind() == Entry.Kind.CALL || entry.getKind() == Entry.Kind.RETURN) {
-        if (comma) {
-          builder.append(separator);
-        }
+      if (builder.length() != 0) {
+        builder.append(separator);
+      }
+
+      if (program == null) {
         builder.append(entry.getKind());
-        comma = true;
       } else {
-        final MmuProgram program = entry.getProgram();
+        builder.append(entry.getKind());
+        builder.append(": ");
 
         if (program.isAtomic()) {
           final MmuTransition transition = program.getTransition();
-          final MmuGuard guard = transition.getGuard();
 
-          if (guard != null && guard.getOperation() == null) {
-            if (comma) {
-              builder.append(separator);
-            }
+          final MmuAction source = transition.getSource();
+          builder.append(source.getName());
+
+          final MmuGuard guard = transition.getGuard();
+          if (guard != null) {
+            builder.append(separator);
             builder.append(guard);
-            comma = true;
           }
 
-          final MmuAction action = program.getSource();
-          final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
+          final MmuAction target = transition.getTarget();
+          final MmuBufferAccess bufferAccess = target.getBufferAccess(context);
 
-          if (bufferAccess != null && (guard == null || guard.getBufferAccess(context) == null)) {
-            if (comma) {
-              builder.append(separator);
-            }
+          if (bufferAccess != null) {
+            builder.append(separator);
             builder.append(bufferAccess);
-            comma = true;
           }
         } else {
-          if (comma) {
-            builder.append(separator);
-          }
           builder.append("...");
-          comma = true;
         }
       }
     }
@@ -540,7 +533,7 @@ public final class MemoryAccessPath {
     final MmuProgram lastProgram = lastEntry.getProgram();
     final MmuAction action = lastProgram.getTarget();
 
-    if (comma) {
+    if (builder.length() != 0) {
       builder.append(separator);
     }
     builder.append(action.getName());

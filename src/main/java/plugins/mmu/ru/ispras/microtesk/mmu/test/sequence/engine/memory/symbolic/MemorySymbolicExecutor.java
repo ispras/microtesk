@@ -24,7 +24,6 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
@@ -72,22 +71,16 @@ public final class MemorySymbolicExecutor {
 
   public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
-
-    Logger.debug("Symbolically execute constraint %s", constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
   public Boolean execute(final MemoryAccessPath.Entry entry) {
     InvariantChecks.checkNotNull(entry);
-
-    Logger.debug("Symbolically execute entry %s", entry);
     return executeEntry(result, null, entry, -1);
   }
 
   public Boolean execute(final MemoryAccessPath path, final boolean finalize) {
     InvariantChecks.checkNotNull(path);
-
-    Logger.debug("Symbolically execute path %s", path);
 
     final Boolean status = executePath(result, null, path, -1);
 
@@ -101,8 +94,6 @@ public final class MemorySymbolicExecutor {
   public Boolean execute(final MemoryAccessStructure structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
-
-    Logger.debug("Symbolically execute structure %s", structure);
 
     final Boolean status = executeStructure(result, null, structure);
 
@@ -304,14 +295,18 @@ public final class MemorySymbolicExecutor {
     case CALL:
       InvariantChecks.checkTrue(program.isAtomic());
 
+      // Execute the action as usual.
+      executeProgram(result, defines, program, pathIndex);
+
+      // Perform recursive memory access.
       final MmuTransition transition = program.getTransition();
       final MmuAction action = transition.getTarget();
 
       final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
-      final MmuAddressInstance actualArg = oldBufferAccess.getArgument();
+      final MmuAddressInstance oldFormalArg = oldBufferAccess.getAddress();
 
       // Restrict the memory-mapped buffer address.
-      final IntegerVariable variable = actualArg.getVariable();
+      final IntegerVariable variable = oldFormalArg.getVariable();
       final IntegerRange range = oldBufferAccess.getAddressRange();
 
       if (range != null) {
@@ -322,9 +317,9 @@ public final class MemorySymbolicExecutor {
       result.updateStack(entry, pathIndex);
 
       final MmuBufferAccess newBufferAccess = action.getBufferAccess(context);
-      final MmuAddressInstance formalArg = newBufferAccess.getAddress();
+      final MmuAddressInstance newFormalArg = newBufferAccess.getAddress();
 
-      final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
+      final Collection<MmuBinding> bindings = newFormalArg.bindings(oldFormalArg);
       return executeBindings(result, defines, bindings, pathIndex);
 
     case RETURN:
@@ -558,6 +553,18 @@ public final class MemorySymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
     final MmuBufferAccess bufferAccess = action.getBufferAccess(context);
 
+    // Buffer(Argument) => (Address == Argument).
+    if (bufferAccess != null) {
+      final MmuAddressInstance formalArg = bufferAccess.getAddress();
+      final MmuAddressInstance actualArg = bufferAccess.getArgument();
+
+      if (formalArg != null && actualArg != null) {
+        final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
+        executeBindings(result, defines, bindings, pathIndex);
+      }
+    }
+
+    // Variable = Buffer(...).Entry => (Variable == Entry).
     final int lhsInstanceId =
         bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.WRITE
           ? bufferAccess.getId() : 0;
@@ -565,7 +572,7 @@ public final class MemorySymbolicExecutor {
     final int rhsInstanceId =
         bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.READ
           ? bufferAccess.getId() : 0;
-    
+
     final Map<IntegerField, MmuBinding> assignments =
         action.getAssignments(lhsInstanceId, rhsInstanceId, context);
 

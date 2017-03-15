@@ -29,6 +29,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -227,7 +229,17 @@ public final class MemorySymbolicResult {
     final MemoryAccessContext context = getContext(pathIndex);
 
     if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
-      context.doCall(entry.getFrame().getId());
+      final MmuProgram program = entry.getProgram();
+      final MmuTransition transition = program.getTransition();
+      final MmuAction sourceAction = transition.getSource();
+      final MmuAction targetAction = transition.getTarget();
+      final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
+      final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
+
+      final String frameId = String.format("%s_%s_%d",
+          sourceAction.getName(), buffer.getName(), context.getBufferAccessId(buffer));
+
+      context.doCall(frameId);
     } else if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
       context.doReturn();
     }
