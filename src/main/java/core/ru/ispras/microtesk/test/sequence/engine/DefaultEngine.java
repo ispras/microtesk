@@ -14,12 +14,9 @@
 
 package ru.ispras.microtesk.test.sequence.engine;
 
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.checkRootOp;
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeConcreteCall;
-import static ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils.makeInitializer;
-
 import java.math.BigInteger;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,16 +24,22 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.ProcessingElement;
+import ru.ispras.microtesk.model.api.InstructionCall;
+import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.api.memory.LocationAccessor;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.test.Code;
+import ru.ispras.microtesk.test.CodeAllocator;
+import ru.ispras.microtesk.test.Executor;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
+import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.Label;
-import ru.ispras.microtesk.test.template.LabelReference;
+import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -50,9 +53,6 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class DefaultEngine implements Engine<TestSequence> {
-  private Set<AddressingModeWrapper> initializedModes;
-  private TestSequence.Builder sequenceBuilder;
-
   @Override
   public Class<TestSequence> getSolutionClass() {
     return TestSequence.class;
@@ -80,125 +80,305 @@ public final class DefaultEngine implements Engine<TestSequence> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final boolean isDebug = Logger.isDebug();
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
+
     try {
-      return new EngineResult<>(new SingleValueIterator<>(process(engineContext, abstractSequence)));
+      final TestSequence testSequence = processSequence(engineContext, abstractSequence);
+      return new EngineResult<>(new SingleValueIterator<>(testSequence));
     } catch (final ConfigurationException e) {
       return new EngineResult<>(e.getMessage());
-    }
-  }
-
-  private TestSequence process(
-      final EngineContext engineContext,
-      final List<Call> abstractSequence) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    initializedModes = new HashSet<>();
-    sequenceBuilder = new TestSequence.Builder();
-
-    try {
-      for (final Call abstractCall : abstractSequence) {
-        processAbstractCall(engineContext, abstractCall);
-      }
-
-      return sequenceBuilder.build();
-    } finally {
-      initializedModes = null;
-      sequenceBuilder = null;
-    }
-  }
-
-  private void processAbstractCall(
-      final EngineContext context,
-      final Call abstractCall) throws ConfigurationException {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(abstractCall);
-
-    final boolean isDebug = Logger.isDebug();
-    Logger.setDebug(context.getOptions().getValueAsBoolean(Option.DEBUG));
-
-    try {
-      // Only executable calls are worth printing.
-      if (abstractCall.isExecutable()) {
-        Logger.debug("%nProcessing %s...", abstractCall);
-
-        final Primitive rootOp = abstractCall.getRootOperation();
-        checkRootOp(rootOp);
-
-        processSituations(context, rootOp);
-      }
-
-      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-      registerCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
     } finally {
       Logger.setDebug(isDebug);
     }
   }
 
-  private void processSituations(
+  private static TestSequence processSequence(
       final EngineContext engineContext,
-      final Primitive primitive) throws ConfigurationException {
+      final List<Call> abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(abstractSequence);
 
-    for (final Argument arg : primitive.getArguments().values()) {
-      if (Argument.Kind.OP == arg.getKind()) {
-        processSituations(engineContext, (Primitive) arg.getValue());
+    final int sequenceIndex =
+        engineContext.getStatistics().getSequences();
+
+    final List<ConcreteCall> concreteSequence =
+        EngineUtils.makeConcreteCalls(engineContext, abstractSequence);
+
+    final long baseAddress =
+        engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
+
+    final TestSequenceCreator creator = 
+        new TestSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
+
+    execute(engineContext, creator, baseAddress, concreteSequence, sequenceIndex);
+    return creator.createTestSequence();
+  }
+
+  private static void execute(
+      final EngineContext engineContext,
+      final ExecutorListener listener,
+      final long allocationAddress,
+      final List<ConcreteCall> sequence,
+      final int sequenceIndex) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(listener);
+    InvariantChecks.checkNotNull(sequence);
+
+    if (sequence.isEmpty()) {
+      return;
+    }
+
+    final LabelManager labelManager = new LabelManager(engineContext.getLabelManager());
+    allocateData(engineContext, labelManager, sequence, sequenceIndex);
+
+    final CodeAllocator codeAllocator = new CodeAllocator(labelManager, allocationAddress);
+    codeAllocator.init();
+    codeAllocator.allocateCalls(sequence, sequenceIndex);
+
+    final Executor executor = new Executor(engineContext);
+    executor.setListener(listener);
+
+    final ConcreteCall first = sequence.get(0);
+    final ConcreteCall last = sequence.get(sequence.size() - 1);
+
+    final long startAddress = first.getAddress();
+    final long endAddress = last.getAddress() + last.getByteSize();
+
+    listener.setAllocationAddress(endAddress);
+    final Code code = codeAllocator.getCode();
+
+    long address = startAddress;
+    do {
+      listener.resetLastExecutedCall();
+      final Executor.Status status = executor.execute(code, address);
+
+      final boolean isValidAddress =
+          status.isAddress() &&
+          (code.hasAddress(status.getAddress()) || status.getAddress() == endAddress);
+
+      if (isValidAddress) {
+        address = status.getAddress();
+      } else {
+        if (Logger.isDebug()) {
+          Logger.debug(
+              "Jump to %s %s located outside of the sequence.",
+              status.isAddress() ? "address" : "label",
+              status
+              );
+        }
+
+        final ConcreteCall lastExecutedCall = listener.getLastExecutedCall();
+        final long nextAddress = lastExecutedCall.getAddress() + lastExecutedCall.getByteSize();
+
+        if (Logger.isDebug()) {
+          Logger.debug(
+              "Execution will be continued from the next instruction 0x%016x.",
+              nextAddress
+              );
+        }
+
+        address = nextAddress;
+      }
+    } while (address != endAddress);
+  }
+
+  private static void allocateData(
+      final EngineContext engineContext,
+      final LabelManager labelManager,
+      final List<ConcreteCall> sequence,
+      final int sequenceIndex) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(labelManager);
+    InvariantChecks.checkNotNull(sequence);
+
+    for (final ConcreteCall call : sequence) {
+      if (call.getData() != null) {
+        final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
+        data.allocate(engineContext.getModel().getMemoryAllocator());
+        data.registerLabels(labelManager);
+      }
+    }
+  }
+
+  private static class ExecutorListener implements Executor.Listener {
+    private ConcreteCall lastExecutedCall = null;
+    private long allocationAddress = 0;
+
+    @Override
+    public void onBeforeExecute(final EngineContext context, final ConcreteCall concreteCall) {
+      // Empty
+    }
+
+    @Override
+    public void onAfterExecute(final EngineContext context, final ConcreteCall concreteCall) {
+      lastExecutedCall = concreteCall;
+    }
+
+    public final ConcreteCall getLastExecutedCall() {
+      return lastExecutedCall;
+    }
+
+    public final void resetLastExecutedCall() {
+      lastExecutedCall = null;
+    }
+
+    public final long getAllocationAddress() {
+      return allocationAddress;
+    }
+
+    public final void setAllocationAddress(final long value) {
+      allocationAddress = value;
+    }
+  }
+
+  private static final class TestSequenceCreator extends ExecutorListener {
+    private final int sequenceIndex;
+    private final Map<ConcreteCall, Call> callMap;
+    private final Set<AddressingModeWrapper> initializedModes;
+    private final ExecutorListener listenerForInitializers;
+    private final TestSequence.Builder testSequenceBuilder;
+
+    private TestSequenceCreator(
+        final int sequenceIndex,
+        final List<Call> abstractSequence,
+        final List<ConcreteCall> concreteSequence) {
+      InvariantChecks.checkNotNull(abstractSequence);
+      InvariantChecks.checkNotNull(concreteSequence);
+      InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.size());
+
+      this.sequenceIndex = sequenceIndex;
+      this.callMap = new IdentityHashMap<>();
+      this.initializedModes = new HashSet<>();
+      this.listenerForInitializers = new ExecutorListener();
+
+      for (int index = 0; index < abstractSequence.size(); ++index) {
+        final Call abstractCall = abstractSequence.get(index);
+        final ConcreteCall concreteCall = concreteSequence.get(index);
+
+        InvariantChecks.checkNotNull(abstractCall);
+        InvariantChecks.checkNotNull(concreteCall);
+
+        callMap.put(concreteCall, abstractCall);
+      }
+
+      this.testSequenceBuilder = new TestSequence.Builder();
+      this.testSequenceBuilder.add(concreteSequence);
+    }
+
+    public TestSequence createTestSequence() {
+      return testSequenceBuilder.build();
+    }
+
+    @Override
+    public void onBeforeExecute(
+        final EngineContext engineContext,
+        final ConcreteCall concreteCall) {
+      InvariantChecks.checkNotNull(concreteCall);
+      InvariantChecks.checkNotNull(engineContext);
+
+      final Call abstractCall = callMap.get(concreteCall);
+      if (null == abstractCall) {
+        return; // Already processed
+      }
+
+      try {
+        processCall(engineContext, abstractCall, concreteCall);
+      } catch (final ConfigurationException e) {
+        throw new GenerationAbortedException(
+            "Failed to generate test data for " + concreteCall.getText(), e);
+      } finally {
+        callMap.put(concreteCall, null);
       }
     }
 
-    final List<Call> initializingCalls = makeInitializer(
-        engineContext, primitive, primitive.getSituation(), initializedModes);
-    addCallsToPrologue(engineContext, initializingCalls);
-  }
+    private void processCall(
+        final EngineContext engineContext,
+        final Call abstractCall,
+        final ConcreteCall concreteCall) throws ConfigurationException {
+      InvariantChecks.checkNotNull(engineContext);
+      InvariantChecks.checkNotNull(abstractCall);
+      InvariantChecks.checkNotNull(concreteCall);
 
-  private void registerCall(
-      final ProcessingElement processingElement,
-      final ConcreteCall call,
-      final LabelManager labelManager) {
-    InvariantChecks.checkNotNull(call);
-
-    patchLabels(call, labelManager);
-    call.execute(processingElement);
-
-    sequenceBuilder.add(call);
-  }
-
-  private void registerPrologueCall(
-      final ProcessingElement processingElement,
-      final ConcreteCall call,
-      final LabelManager labelManager) {
-    InvariantChecks.checkNotNull(call);
-
-    patchLabels(call, labelManager);
-    call.execute(processingElement);
-
-    sequenceBuilder.addToPrologue(call);
-  }
-
-  private static void patchLabels(final ConcreteCall call, final LabelManager labelManager) {
-    for (final LabelReference labelRef : call.getLabelReferences()) {
-      labelRef.resetTarget();
-
-      final Label source = labelRef.getReference();
-      final LabelManager.Target target = labelManager.resolve(source);
-
-      if (null != target) {
-        final long address = target.getAddress();
-        labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+      // Not executable calls do not need test data
+      if (!abstractCall.isExecutable()) {
+        return;
       }
+
+      if (Logger.isDebug()) {
+        Logger.debug("%nGenerating test data for %s...", concreteCall.getText());
+      }
+
+      final Primitive abstractPrimitive = abstractCall.getRootOperation();
+      EngineUtils.checkRootOp(abstractPrimitive);
+
+      final InstructionCall instructionCall = concreteCall.getExecutable();
+      InvariantChecks.checkNotNull(instructionCall);
+
+      final IsaPrimitive concretePrimitive = instructionCall.getRootPrimitive();
+      InvariantChecks.checkNotNull(concretePrimitive);
+
+      processPrimitive(engineContext, abstractPrimitive, concretePrimitive);
     }
-  }
 
-  private void addCallsToPrologue(
-      final EngineContext context,
-      final List<Call> abstractCalls) throws ConfigurationException {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(abstractCalls);
+    private void processPrimitive(
+        final EngineContext engineContext,
+        final Primitive abstractPrimitive,
+        final IsaPrimitive concretePrimitive) throws ConfigurationException {
+      InvariantChecks.checkNotNull(engineContext);
+      InvariantChecks.checkNotNull(abstractPrimitive);
+      InvariantChecks.checkNotNull(concretePrimitive);
 
-    for (final Call abstractCall : abstractCalls) {
-      final ConcreteCall concreteCall = makeConcreteCall(context, abstractCall);
-      registerPrologueCall(context.getModel().getPE(), concreteCall, context.getLabelManager());
+      for (final Argument argument : abstractPrimitive.getArguments().values()) {
+        if (Argument.Kind.OP == argument.getKind()) {
+          final String argumentName = argument.getName();
+
+          final Primitive abstractArgument = (Primitive) argument.getValue();
+          final IsaPrimitive concreteArgument = concretePrimitive.getArguments().get(argumentName);
+
+          processPrimitive(engineContext, abstractArgument, concreteArgument);
+        }
+      }
+
+      final List<Call> initializer = EngineUtils.makeInitializer(
+          engineContext,
+          abstractPrimitive,
+          abstractPrimitive.getSituation(),
+          initializedModes
+          );
+
+      processInitializer(engineContext, initializer);
+    }
+
+    private void processInitializer(
+        final EngineContext engineContext,
+        final List<Call> abstractCalls) throws ConfigurationException {
+      InvariantChecks.checkNotNull(engineContext);
+      InvariantChecks.checkNotNull(abstractCalls);
+
+      final List<ConcreteCall> concreteCalls =
+          EngineUtils.makeConcreteCalls(engineContext, abstractCalls);
+
+      testSequenceBuilder.addToPrologue(concreteCalls);
+
+      final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
+      final BigInteger programCounterValue = programCounter.getValue();
+
+      Logger.debug("Executing initializing code...");
+      try {
+        execute(
+            engineContext,
+            listenerForInitializers,
+            getAllocationAddress(),
+            concreteCalls,
+            sequenceIndex
+            );
+      } finally {
+        programCounter.setValue(programCounterValue);
+        setAllocationAddress(listenerForInitializers.getAllocationAddress());
+        Logger.debug("");
+      }
     }
   }
 }
