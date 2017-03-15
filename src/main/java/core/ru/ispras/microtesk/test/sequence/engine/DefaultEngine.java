@@ -365,7 +365,10 @@ public final class DefaultEngine implements Engine<TestSequence> {
       final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
       final BigInteger programCounterValue = programCounter.getValue();
 
-      Logger.debug("Executing initializing code...");
+      if (!concreteCalls.isEmpty()) {
+        Logger.debug("Executing initializing code...");
+      }
+
       try {
         execute(
             engineContext,
