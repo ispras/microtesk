@@ -134,6 +134,10 @@ public final class ConcreteCall {
     return null != executable;
   }
 
+  public InstructionCall getExecutable() {
+    return executable;
+  }
+
   /**
    * Checks whether the instruction call corresponds to a printable instruction
    * (executable instruction or pseudo instruction). This method is used to
