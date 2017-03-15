@@ -26,8 +26,10 @@ import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.InstructionCall;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;
 import ru.ispras.microtesk.test.Executor;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.sequence.engine.utils.AddressingModeWrapper;
@@ -79,7 +81,7 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     try {
       final TestSequence testSequence = processSequence(engineContext, abstractSequence);
       return new EngineResult<>(new SingleValueIterator<>(testSequence));
-    } catch (final ConfigurationException e) {
+    } catch (final Exception e) {
       return new EngineResult<>(e.getMessage());
     }
   }
@@ -125,8 +127,25 @@ public final class DefaultEngine2 implements Engine<TestSequence> {
     final Executor executor = new Executor(engineContext);
     executor.setListener(listener);
 
-    final long startAddress = sequence.get(0).getAddress();
-    executor.execute(codeAllocator.getCode(), startAddress);
+    final ConcreteCall first = sequence.get(0);
+    final ConcreteCall last = sequence.get(sequence.size() - 1);
+
+    final long startAddress = first.getAddress();
+    final long endAddress = last.getAddress() + last.getByteSize();
+    final Code code = codeAllocator.getCode();
+
+    long address = startAddress;
+    do {
+      listener.resetLastExecutedCall();
+      final Executor.Status status = executor.execute(code, address);
+
+      if (status.isAddress() && code.hasAddress(address)) {
+        address = status.getAddress();
+      } else {
+        // TODO: continue with the next instruction.
+        throw new GenerationAbortedException("Jump out of sequence: " + status);
+      }
+    } while (address != endAddress);
   }
 
   private static void allocateData(

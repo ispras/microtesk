@@ -30,7 +30,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class Code {
+public final class Code {
   private final Map<Long, CodeBlock> blocks;
   private final Map<Long, Pair<CodeBlock, Integer>> addresses;
   private final Map<String, Long> handlerAddresses;
