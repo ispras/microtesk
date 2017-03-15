@@ -52,6 +52,15 @@ public final class InstructionCall {
   }
 
   /**
+   * Returns the root of the primitive tree that describes the instruction.
+   * 
+   * @return Root of the primitive tree that describes the instruction.
+   */
+  public IsaPrimitive getRootPrimitive() {
+    return instruction;
+  }
+
+  /**
    * Runs simulation of a corresponding instruction described within the model.
    */
   public void execute(final ProcessingElement processingElement) {
