@@ -311,12 +311,11 @@ public final class Executor {
     while (fetcher.canFetch() && !fetcher.isBreakReached()) {
       final ConcreteCall call = fetcher.fetch();
       setPC(fetcher.getAddress());
-
-      logCall(call);
       labelTracker.track(call);
 
       // NON-EXECUTABLE
       if (!call.isExecutable()) {
+        logCall(call);
         fetcher.next();
         continue;
       }
@@ -415,10 +414,12 @@ public final class Executor {
     return null;
   }
 
-  private String executeCall(final ConcreteCall call) {
+  private String executeCall(final ConcreteCall call) throws ConfigurationException {
     if (null != listener) {
       listener.onBeforeExecute(context, call);
     }
+
+    logCall(call);
 
     Tarmac.setEnabled(true);
     if (invalidCall != call) {
