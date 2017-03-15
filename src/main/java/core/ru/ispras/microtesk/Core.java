@@ -20,6 +20,7 @@ import java.util.Map;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.sequence.engine.DefaultEngine;
+import ru.ispras.microtesk.test.sequence.engine.DefaultEngine2;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.TrivialEngine;
 import ru.ispras.microtesk.test.sequence.engine.branch.BranchAdapter;
@@ -45,6 +46,7 @@ final class Core implements Plugin {
     final Map<String, Engine<?>> engines = new LinkedHashMap<>();
 
     engines.put("default", new DefaultEngine());
+    engines.put("default2", new DefaultEngine2());
     engines.put("trivial", new TrivialEngine());
     engines.put("branch", new BranchEngine());
 
@@ -57,6 +59,7 @@ final class Core implements Plugin {
     final Adapter<?> defaultAdapter = new DefaultAdapter();
 
     adapters.put("default", defaultAdapter);
+    adapters.put("default2", defaultAdapter);
     adapters.put("trivial", defaultAdapter);
     adapters.put("branch", new BranchAdapter());
 
