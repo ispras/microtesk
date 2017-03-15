@@ -83,7 +83,7 @@ public final class Executor {
 
     @Override
     public String toString() {
-      return isAddress() ? String.format("Address: 0x%016x", getAddress()) : data.toString();
+      return isAddress() ? String.format("0x%016x", getAddress()) : data.toString();
     }
   }
 
