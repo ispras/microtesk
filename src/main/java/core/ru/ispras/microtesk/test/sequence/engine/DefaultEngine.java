@@ -41,7 +41,6 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
@@ -331,41 +330,54 @@ public final class DefaultEngine implements Engine<TestSequence> {
       InvariantChecks.checkNotNull(abstractPrimitive);
       InvariantChecks.checkNotNull(concretePrimitive);
 
+      // Unrolls shortcuts to establish correspondence between abstract and concrete primitives
+      final IsaPrimitive fixedConcretePrimitive =
+          findConcretePrimitive(abstractPrimitive, concretePrimitive);
+
+      InvariantChecks.checkNotNull(
+          fixedConcretePrimitive, abstractPrimitive.getName() + " not found.");
+
       for (final Argument argument : abstractPrimitive.getArguments().values()) {
         if (Argument.Kind.OP == argument.getKind()) {
           final String argumentName = argument.getName();
-
           final Primitive abstractArgument = (Primitive) argument.getValue();
-          final IsaPrimitive concreteArgument = concretePrimitive.getArguments().get(argumentName);
+
+          final IsaPrimitive concreteArgument =
+              fixedConcretePrimitive.getArguments().get(argumentName);
 
           processPrimitive(engineContext, abstractArgument, concreteArgument);
         }
       }
 
-      final List<Call> initializer = makeInitializer(
+      final List<Call> initializer = EngineUtils.makeInitializer(
           engineContext,
           abstractPrimitive,
           abstractPrimitive.getSituation(),
-          concretePrimitive,
-          initializedModes
+          initializedModes,
+          fixedConcretePrimitive
           );
 
       processInitializer(engineContext, initializer);
     }
 
-    private static List<Call> makeInitializer(
-        final EngineContext engineContext,
+    private static IsaPrimitive findConcretePrimitive(
         final Primitive abstractPrimitive,
-        final Situation situation,
-        final IsaPrimitive concretePrimitive,
-        final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
-      // TODO
-      return EngineUtils.makeInitializer(
-          engineContext,
-          abstractPrimitive,
-          situation,
-          initializedModes
-          );
+        final IsaPrimitive concretePrimitive) {
+      InvariantChecks.checkNotNull(abstractPrimitive);
+      InvariantChecks.checkNotNull(concretePrimitive);
+
+      if (abstractPrimitive.getName().equals(concretePrimitive.getName())) {
+        return concretePrimitive;
+      }
+
+      for (final IsaPrimitive concreteArgument : concretePrimitive.getArguments().values()) {
+        final IsaPrimitive result = findConcretePrimitive(abstractPrimitive, concreteArgument);
+        if (null != result) {
+          return result;
+        }
+      }
+
+      return null;
     }
 
     private void processInitializer(
