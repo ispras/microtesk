@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.coverage;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;

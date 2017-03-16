@@ -345,7 +345,6 @@ public final class MemoryAccessPath {
     InvariantChecks.checkNotNull(bufferReads);
     InvariantChecks.checkNotNull(bufferWrites);
     InvariantChecks.checkNotNull(segments);
-    //InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(regions);
 
     this.entries = Collections.unmodifiableCollection(entries);
