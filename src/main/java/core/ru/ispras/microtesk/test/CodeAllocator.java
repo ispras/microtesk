@@ -220,9 +220,13 @@ public final class CodeAllocator {
         call.setText(patchedText);
       }
 
-      // Kill all unused "<label>" markers.
-      if (null != call.getText()) {
-        call.setText(call.getText().replace("<label>", ""));
+      // Clean all unused "<label>" markers.
+      final String text = call.getText();
+      if (null != text) {
+        final String cleanText = text.replace("<label>", "");
+        if (cleanText.length() != text.length()) {
+          call.setText(cleanText);
+        }
       }
     }
   }
