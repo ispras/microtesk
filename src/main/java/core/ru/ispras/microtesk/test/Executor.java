@@ -213,6 +213,7 @@ public final class Executor {
   }
 
   private final EngineContext context;
+  private final boolean isPresimulation;
   private Listener listener;
 
   private final ConcreteCall exceptionCall;
@@ -229,10 +230,11 @@ public final class Executor {
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
-  public Executor(final EngineContext context) {
+  public Executor(final EngineContext context, final boolean isPresimulation) {
     InvariantChecks.checkNotNull(context);
 
     this.context = context;
+    this.isPresimulation = isPresimulation;
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
@@ -241,6 +243,10 @@ public final class Executor {
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
     this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
     this.alignFormat = context.getOptions().getValueAsString(Option.ALIGN_FORMAT);
+  }
+
+  public Executor(final EngineContext context) {
+    this(context, false);
   }
 
   public void setListener(final Listener listener) {
@@ -421,16 +427,21 @@ public final class Executor {
 
     logCall(call);
 
-    Tarmac.setEnabled(true);
-    if (invalidCall != call) {
-      context.getStatistics().incTraceLength();
-      if (Tarmac.isEnabled()) {
-        Tarmac.addRecord(Record.newInstruction(call, context.getModel().getActivePE()));
+    if (!isPresimulation) {
+      Tarmac.setEnabled(true);
+      if (invalidCall != call) {
+        context.getStatistics().incTraceLength();
+        if (Tarmac.isEnabled()) {
+          Tarmac.addRecord(Record.newInstruction(call, context.getModel().getActivePE()));
+        }
       }
     }
 
     final String exception = call.execute(context.getModel().getPE());
-    Tarmac.setEnabled(false);
+
+    if (!isPresimulation) {
+      Tarmac.setEnabled(false);
+    }
 
     if (null != listener) {
       listener.onAfterExecute(context, call);
