@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -218,9 +217,24 @@ public final class MemorySymbolicResult {
     for (final MmuTransition transition : program.getTransitions()) {
       for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
         context.doAccess(bufferAccess);
-        Logger.debug("ACCESS BUFFER:%s\nspec=%s,\nimpl=%s", bufferAccess, entry.getContext(), context);
       }
     }
+  }
+
+  private String getFrameId(final MemoryAccessPath.Entry entry, final int pathIndex) {
+    final MemoryAccessContext context = getContext(pathIndex);
+
+    final MmuProgram program = entry.getProgram();
+    final MmuTransition transition = program.getTransition();
+    final MmuAction sourceAction = transition.getSource();
+    final MmuAction targetAction = transition.getTarget();
+    final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
+    final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
+
+    return String.format("%s_%s_%d",
+        sourceAction.getName(),
+        buffer.getName(),
+        context.getBufferAccessId(buffer));
   }
 
   public void updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
@@ -229,17 +243,7 @@ public final class MemorySymbolicResult {
     final MemoryAccessContext context = getContext(pathIndex);
 
     if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
-      final MmuProgram program = entry.getProgram();
-      final MmuTransition transition = program.getTransition();
-      final MmuAction sourceAction = transition.getSource();
-      final MmuAction targetAction = transition.getTarget();
-      final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
-      final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
-
-      final String frameId = String.format("%s_%s_%d",
-          sourceAction.getName(), buffer.getName(), context.getBufferAccessId(buffer));
-
-      context.doCall(frameId);
+      context.doCall(getFrameId(entry, pathIndex));
     } else if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
       context.doReturn();
     }

@@ -35,6 +35,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -1118,7 +1119,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
         final IntegerRange range = getRegionRange(buffer.getName());
 
         Logger.debug("Range constraint: %s in %s", variable, range);
-        bufferAccess.setAddressRange(range);
+
+        // Restrict the memory-mapped buffer address.
+        if (range != null) {
+          final IntegerRangeConstraint assertion = new IntegerRangeConstraint(variable, range);
+
+          Logger.debug("Range constraint: %s in %s (%s)", variable, range, assertion);
+          constraints.add(assertion);
+        }
       }
 
       if (buffer.isFake() || !addresses.containsKey(addrType)) {
@@ -1257,6 +1265,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Set the entry fields.
     entry.setValid(true);
+    Logger.debug("Entry address: %s=0x%x", bufferAccess, addrObject.getAddress(bufferAccess));
     entry.setAddress(addrObject.getAddress(bufferAccess));
 
     for (final IntegerVariable field : entry.getVariables()) {

@@ -77,7 +77,7 @@ public final class MemoryAccessContext {
 
     if ((nowEvent == BufferAccessEvent.HIT || nowEvent == BufferAccessEvent.READ)
         && (preEvent != BufferAccessEvent.HIT)) {
-      bufferAccessIds.put(buffer, preEvent != null ? getBufferAccessId(buffer) + 1 : 0);
+      bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);
     }
 
     bufferAccessKinds.put(buffer, nowEvent);

@@ -304,6 +304,8 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
+    Logger.debug("Solve path constraints");
+
     if (!path.hasSymbolicResult()) {
       final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
 

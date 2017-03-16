@@ -510,9 +510,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
                 memory, graph, getType(program), constraints, result);
 
-            if (innerIterator.hasNext()) {
+            while (innerIterator.hasNext()) {
               final Result innerResult = innerIterator.next();
               final MemoryAccessPath innerPath = innerResult.getPath();
+
+              // Access to a memory-mapped buffer should reach the memory.
+              if (!innerPath.contains(memory.getTargetBuffer())) {
+                continue;
+              }
 
               // Append a random inner path.
               entries.addAll(innerPath.getEntries());
@@ -520,10 +525,11 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
               // Update the symbolic result.
               newResult = innerResult.getResult();
-            } else {
-              // Recursive memory call is infeasible.
-              isCompletedPath = true;
+              break;
             }
+
+            // Recursive memory call is infeasible.
+            isCompletedPath = !innerIterator.hasNext();
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);

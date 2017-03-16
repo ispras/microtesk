@@ -29,35 +29,44 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerRangeConstraintTestCase {
-  public static final int N = 1000;
+  private void runTest(final IntegerVariable x, final BigInteger a, final BigInteger b) {
+    final IntegerRange range = new IntegerRange(a, b);
+    System.out.format("Range: %s\n", range);
+
+    final IntegerRangeConstraint constraint = new IntegerRangeConstraint(x, range);
+    System.out.format("Formula: %s\n", constraint);
+
+    final IntegerFieldFormulaSolverSat4j solver = new IntegerFieldFormulaSolverSat4j(
+        constraint.getFormula(), IntegerVariableInitializer.RANDOM);
+
+    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
+    Assert.assertTrue(result.getErrors().toString(),
+        result.getStatus() == SolverResult.Status.SAT);
+
+    final Map<IntegerVariable, BigInteger> values = result.getResult();
+    Assert.assertTrue(values != null);
+
+    final BigInteger value = values.get(x);
+    System.out.format("Value: %s\n", value);
+
+    Assert.assertTrue(range.contains(value));
+  }
 
   @Test
-  public void runTest() {
-    final IntegerVariable variable = new IntegerVariable("x", 64);
+  public void runTest1() {
+    final IntegerVariable x = new IntegerVariable("x", 64);
+
+    runTest(x, BigInteger.valueOf(0x00000L), BigInteger.valueOf(0x0ffffL));
+    runTest(x, BigInteger.valueOf(0x10000L), BigInteger.valueOf(0x1ffffL));
+  }
+
+  @Test
+  public void runTest2() {
+    final int N = 1000;
+    final IntegerVariable x = new IntegerVariable("x", 64);
 
     for (int i = 0; i < N; i++) {
-      final IntegerRange range = new IntegerRange(
-          BigInteger.valueOf(i),
-          BigInteger.valueOf(0xffff0000L + 2*i));
-      System.out.format("Range: %s\n", range);
-
-      final IntegerRangeConstraint constraint = new IntegerRangeConstraint(variable, range);
-      System.out.format("Formula: %s\n", constraint);
-
-      final IntegerFieldFormulaSolverSat4j solver = new IntegerFieldFormulaSolverSat4j(
-          constraint.getFormula(), IntegerVariableInitializer.RANDOM);
-
-      final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
-      Assert.assertTrue(result.getErrors().toString(),
-          result.getStatus() == SolverResult.Status.SAT);
-
-      final Map<IntegerVariable, BigInteger> values = result.getResult();
-      Assert.assertTrue(values != null);
-
-      final BigInteger value = values.get(variable);
-      System.out.format("Value: %s\n", value);
-
-      Assert.assertTrue(range.contains(value));
+      runTest(x, BigInteger.valueOf(i), BigInteger.valueOf(0xffff0000L + 2*i));
     }
   }
 }

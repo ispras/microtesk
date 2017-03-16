@@ -30,8 +30,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -242,18 +240,6 @@ public final class MemorySymbolicExecutor {
           new IntegerClause.Builder<>(clause.getType());
 
       for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
-        final IntegerVariable variable = equation.lhs.getVariable();
-
-        // Do not add the assertion if there are no corresponding variables.
-        if (!result.containsOriginalVariable(result.getOriginal(variable, pathIndex))) {
-          if (clause.getType() == IntegerClause.Type.OR) {
-            clauseBuilder.clear();
-            break;
-          } else {
-            continue;
-          }
-        }
-
         if (equation.val == null) {
           clauseBuilder.addEquation(
               result.getVersion(equation.lhs, pathIndex),
@@ -304,15 +290,6 @@ public final class MemorySymbolicExecutor {
 
       final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
       final MmuAddressInstance oldFormalArg = oldBufferAccess.getAddress();
-
-      // Restrict the memory-mapped buffer address.
-      final IntegerVariable variable = oldFormalArg.getVariable();
-      final IntegerRange range = oldBufferAccess.getAddressRange();
-
-      if (range != null) {
-        final IntegerRangeConstraint assertion = new IntegerRangeConstraint(variable, range);
-        executeFormula(result, defines, assertion.getFormula(), pathIndex);
-      }
 
       result.updateStack(entry, pathIndex);
 
