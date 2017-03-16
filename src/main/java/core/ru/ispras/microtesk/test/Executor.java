@@ -374,6 +374,11 @@ public final class Executor {
         // If no label references are found within the delay slot we try to use PC to jump
         logJump(address, null);
         fetcher.jump(address);
+
+        // For presimulation, a break point is set on a jump to an unallocated address
+        if (isPresimulation && !fetcher.code.hasAddress(address)) {
+          fetcher.code.addBreakAddress(address);
+        }
       }
     }
 
