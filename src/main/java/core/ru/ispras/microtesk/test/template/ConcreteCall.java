@@ -174,6 +174,10 @@ public final class ConcreteCall {
     return executionCount;
   }
 
+  public void resetExecutionCount() {
+    executionCount = 0;
+  }
+
   public String getText() {
     if (null == text) {
       return isExecutable() ? executable.getText() : null;

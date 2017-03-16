@@ -128,6 +128,7 @@ public final class CodeAllocator {
     long currentAddress = startAddress;
 
     for (final ConcreteCall call : calls) {
+      call.resetExecutionCount();
       call.setAddress(currentAddress);
       final long callAddress = call.getAddress();
 
