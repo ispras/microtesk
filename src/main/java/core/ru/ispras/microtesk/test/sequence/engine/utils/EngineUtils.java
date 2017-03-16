@@ -41,6 +41,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.api.ArgumentMode;
+import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.InstructionCall;
@@ -127,10 +128,20 @@ public final class EngineUtils {
       final Primitive primitive,
       final Situation situation,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+    return makeInitializer(engineContext, primitive, situation, initializedModes, null);
+  }
+
+  public static List<Call> makeInitializer(
+      final EngineContext engineContext,
+      final Primitive primitive,
+      final Situation situation,
+      final Set<AddressingModeWrapper> initializedModes,
+      final IsaPrimitive concretePrimitive) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(primitive);
     checkNotNull(initializedModes);
     // Parameter {@code situation} can be null.
+    // Parameter {@code concretePrimitive} can be null.
 
     final List<Call> prologue = new ArrayList<>();
 
@@ -140,7 +151,11 @@ public final class EngineUtils {
     final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
 
-    setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
+    setUnknownImmValues(
+        queryCreator.getUnknownImmValues(),
+        testData,
+        null != concretePrimitive ? concretePrimitive.getArguments() : null
+        );
 
     // Set model state using preparators that create initializing
     // sequences based on addressing modes.
@@ -262,34 +277,59 @@ public final class EngineUtils {
     return dataProvider.next();
   }
 
-  public static void setUnknownImmValue(final Argument arg, final Node value) {
-    checkNotNull(arg);
+  public static void setUnknownImmValue(
+      final Argument argument,
+      final Node value,
+      final Immediate argumentToPatch) {
+    checkNotNull(argument);
     checkNotNull(value);
     checkTrue(value.getKind() == Node.Kind.VALUE);
 
-    final UnknownImmediateValue target = (UnknownImmediateValue) arg.getValue();
     final Data data = ((NodeValue) value).getData();
+    final BigInteger dataValue;
 
     if (data.isType(DataTypeId.LOGIC_INTEGER)) {
-      target.setValue(data.getInteger());
+      dataValue = data.getInteger();
     } else if (data.isType(DataTypeId.BIT_VECTOR)) {
-      target.setValue(data.getBitVector().bigIntegerValue());
+      dataValue = data.getBitVector().bigIntegerValue();
     } else {
       throw new IllegalStateException(String.format("%s cannot be converted to integer", value));
+    }
+
+    final UnknownImmediateValue target = (UnknownImmediateValue) argument.getValue();
+    target.setValue(dataValue);
+
+    if (null != argumentToPatch) {
+      argumentToPatch.access().setValue(dataValue);
     }
   }
 
   public static void setUnknownImmValues(
-      final Map<String, Argument> unknownImmValues, final TestData testData) {
+      final Map<String, Argument> unknownImmValues,
+      final TestData testData) {
+    setUnknownImmValues(unknownImmValues, testData, null);
+  }
+
+  public static void setUnknownImmValues(
+      final Map<String, Argument> unknownImmValues,
+      final TestData testData,
+      final Map<String, IsaPrimitive> argumentsToPatch) {
     checkNotNull(unknownImmValues);
     checkNotNull(testData);
 
     for (final Map.Entry<String, Argument> e : unknownImmValues.entrySet()) {
-      final String name = e.getKey();
-      final Argument arg = e.getValue();
-      final Node value = testData.getBindings().get(name);
+      final Argument argument = e.getValue();
+      final Node value = testData.getBindings().get(e.getKey());
 
-      setUnknownImmValue(arg, value);
+      final Immediate argumentToPatch;
+      if (null != argumentsToPatch) {
+        argumentToPatch = (Immediate) argumentsToPatch.get(argument.getName());
+        checkNotNull(argumentToPatch);
+      } else {
+        argumentToPatch = null;
+      }
+
+      setUnknownImmValue(argument, value, argumentToPatch);
     }
   }
 
