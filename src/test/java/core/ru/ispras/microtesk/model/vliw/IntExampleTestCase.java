@@ -29,4 +29,9 @@ public class IntExampleTestCase extends VliwTest {
     Assert.assertEquals(1, statistics.getSequences());
     Assert.assertEquals(11, statistics.getInstructions());
   }
+
+  protected boolean isExpectedError(final String message) {
+    return super.isExpectedError(message) || message.contains(
+        "Error: Exception handler for IntegerOverflow is not found.");
+  }
 }
