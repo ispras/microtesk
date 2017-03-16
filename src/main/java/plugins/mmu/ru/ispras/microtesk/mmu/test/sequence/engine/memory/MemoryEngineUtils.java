@@ -105,7 +105,6 @@ public final class MemoryEngineUtils {
 
   private static boolean checkBufferConstraints(
       final MemoryAccessPath.Entry entry,
-      final MemoryAccessContext context,
       final Collection<BufferEventConstraint> bufferConstraints) {
 
     final MmuProgram program = entry.getProgram();
@@ -116,7 +115,8 @@ public final class MemoryEngineUtils {
         return true;
       }
 
-      final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
+      // Empty context is enough for checking buffer constraints.
+      final MmuBufferAccess bufferAccess = guard.getBufferAccess(MemoryAccessContext.EMPTY);
       if (bufferAccess == null) {
         return true;
       }
@@ -136,16 +136,21 @@ public final class MemoryEngineUtils {
 
   public static boolean isFeasibleEntry(
       final MemoryAccessPath.Entry entry,
-      final MemoryAccessContext context,
+      final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final MemorySymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
-    InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
 
+    final MmuProgram program = entry.getProgram();
+
+    if (program.isAtomic() && !isValidTransition(program.getTransition(), type)) {
+      return false;
+    }
+
     final Collection<BufferEventConstraint> bufferConstraints = constraints.getBufferEvents();
-    if (!checkBufferConstraints(entry, context, bufferConstraints)) {
+    if (!checkBufferConstraints(entry, bufferConstraints)) {
       return false;
     }
 
@@ -165,58 +170,6 @@ public final class MemoryEngineUtils {
         solve(partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
-  }
-
-  public static boolean isFeasibleTransition(
-      final MmuTransition transition,
-      final MemoryAccessContext context,
-      final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult partialResult /* INOUT */) {
-    InvariantChecks.checkNotNull(transition);
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(constraints);
-    InvariantChecks.checkNotNull(partialResult);
-
-    final MemoryAccessPath.Entry entry =
-        MemoryAccessPath.Entry.NORMAL(MmuProgram.ATOMIC(transition), context);
-
-    return isFeasibleEntry(entry, context, constraints, partialResult);
-  }
-
-  public static boolean isFeasibleTransition(
-      final MmuTransition transition,
-      final MemoryAccessType type,
-      final MemoryAccessContext context,
-      final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult partialResult /* INOUT */) {
-    InvariantChecks.checkNotNull(transition);
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(constraints);
-    InvariantChecks.checkNotNull(partialResult);
-
-    return isValidTransition(transition, type)
-        && isFeasibleTransition(transition, context, constraints, partialResult);
-  }
-
-  public static boolean isFeasibleProgram(
-      final MmuProgram program,
-      final MemoryAccessType type,
-      final MemoryAccessContext context,
-      final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult partialResult /* INOUT */) {
-    InvariantChecks.checkNotNull(program);
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(constraints);
-    InvariantChecks.checkNotNull(partialResult);
-
-    if (program.isAtomic() && !isValidTransition(program.getTransition(), type)) {
-      return false;
-    }
-
-    final MemoryAccessPath.Entry entry = MemoryAccessPath.Entry.NORMAL(program, context);
-    return isFeasibleEntry(entry, context, constraints, partialResult);
   }
 
   public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {

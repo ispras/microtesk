@@ -25,6 +25,8 @@ import java.util.Stack;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -45,13 +47,15 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPathIterator.Result> {
+
+  /**
+   * {@link Result} represents an item returned by {@link MemoryAccessPathIterator}.
+   */
   public static final class Result {
     private final MemoryAccessPath path;
     private final MemorySymbolicResult result;
 
-    public Result(
-        final MemoryAccessPath path,
-        final MemorySymbolicResult result) {
+    public Result(final MemoryAccessPath path, final MemorySymbolicResult result) {
       InvariantChecks.checkNotNull(path);
       InvariantChecks.checkNotNull(result);
 
@@ -68,34 +72,29 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     }
   }
 
-  private static final class EdgeIterator implements Iterator<MemoryGraph.Edge> {
+  /**
+   * {@link OutgoingEdgeIterator} implements a random-order iterator of outgoing edges.
+   */
+  private static final class OutgoingEdgeIterator implements Iterator<MemoryGraph.Edge> {
     final ArrayList<MemoryGraph.Edge> edges;
 
-    int index;
-    int order[];
+    private final Integer order[];
+    private int index;
 
-    EdgeIterator(final ArrayList<MemoryGraph.Edge> edges) {
+    public OutgoingEdgeIterator(final ArrayList<MemoryGraph.Edge> edges) {
       InvariantChecks.checkNotNull(edges);
 
       this.edges = edges;
 
+      this.order = new Integer[edges.size()];
       this.index = 0;
-      this.order = new int[edges.size()];
 
       for (int i = 0; i < order.length; i++) {
         order[i] = i;
       }
 
       // Randomize order of traversal.
-      for (int i = 0; i < order.length; i++) {
-        final int j = Randomizer.get().nextIntRange(0, order.length - 1);
-        final int k = Randomizer.get().nextIntRange(0, order.length - 1);
-
-        final int temp = order[j];
-
-        order[j] = order[k];
-        order[k] = temp;
-      }
+      Randomizer.get().permute(order);
     }
 
     public boolean isFirst() {
@@ -123,54 +122,60 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     }
   }
 
-  private final class SearchEntry {
-    static final int LOOKUP_DEPTH = 4;
+  /**
+   * {@link SearchStackEntry} represents a DFS stack entry.
+   */
+  private final class SearchStackEntry {
+    public static final int LOOKUP_DEPTH = 4;
 
-    final MmuAction action;
-    final List<Object> trajectorySuffix;
-    final List<MemoryGraph.Edge> edges;
+    public final int rollbackCount;
+    public final MmuAction action;
+    public final List<Object> trajectorySuffix;
+    public final List<MemoryGraph.Edge> outgoingEdges;
 
-    EdgeIterator iterator;
-    MemorySymbolicResult result;
+    private OutgoingEdgeIterator iterator;
+    private MemorySymbolicResult result;
 
-    SearchEntry(
+    public SearchStackEntry(
+        final int rollbackCount,
         final MmuAction action,
         final List<Object> trajectorySuffix,
         final MemorySymbolicResult result) {
       InvariantChecks.checkNotNull(action);
-      InvariantChecks.checkNotNull(result);
       // Parameter trajectorySuffix can be null.
+      InvariantChecks.checkNotNull(result);
 
-      final ArrayList<MemoryGraph.Edge> edges = new ArrayList<MemoryGraph.Edge>();
+      final ArrayList<MemoryGraph.Edge> outgoingEdges = new ArrayList<MemoryGraph.Edge>();
       final ArrayList<MemoryGraph.Edge> allEdges = graph.getEdges(action);
 
       if (allEdges != null) {
         // Ignore trajectories.
         if (trajectorySuffix == null) {
-          edges.addAll(allEdges);
+          outgoingEdges.addAll(allEdges);
         } else {
           for (final MemoryGraph.Edge edge : allEdges) {
             if (lookup(edge, trajectorySuffix, LOOKUP_DEPTH)) {
-              edges.add(edge);
+              outgoingEdges.add(edge);
             }
           }
         }
       }
 
+      this.rollbackCount = rollbackCount;
       this.action = action;
       this.trajectorySuffix = trajectorySuffix;
-      this.edges = edges;
-      this.iterator = new EdgeIterator(edges);
+      this.outgoingEdges = outgoingEdges;
+      this.iterator = new OutgoingEdgeIterator(outgoingEdges);
       this.result = result;
     }
 
     /**
-     * Evaluates whether the given edge can start the given trajectory suffix.
+     * Estimates whether the given edge can start the given trajectory suffix.
      * 
-     * @param edge the edge.
+     * @param edge the edge to be checked.
      * @param trajectory the trajectory suffix.
      * @param depth the depth of the analysis.
-     * @return true iff the given trajectory is reachable via the given edge;
+     * @return {@code true} iff the given trajectory is reachable via the given edge.
      */
     private boolean lookup(
         final MemoryGraph.Edge edge,
@@ -228,7 +233,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   /** Constraints for selecting memory access paths. */
   private final MemoryAccessConstraints constraints;
 
-  private final Stack<SearchEntry> searchStack = new Stack<>();
+  private final Stack<SearchStackEntry> searchStack = new Stack<>();
   private final List<MemoryAccessPath.Entry> currentPath = new ArrayList<>();
 
   private Result result;
@@ -268,10 +273,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryAccessConstraints constraints,
       final MemorySymbolicResult result) {
     InvariantChecks.checkNotNull(memory);
+    // Parameter trajectory can be null (in this case, the trajectory is ignored).
     InvariantChecks.checkNotNull(graph);
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(constraints);
-    // Parameter trajectory can be null.
 
     this.memory = memory;
     this.trajectory = trajectory;
@@ -280,11 +285,11 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     this.constraints = constraints;
 
     final MmuAction startAction = memory.getStartAction();
-    final SearchEntry searchEntry = new SearchEntry(startAction, trajectory, result);
+    final SearchStackEntry searchEntry = new SearchStackEntry(0, startAction, trajectory, result);
 
     this.searchStack.push(searchEntry);
 
-    // Do not assign the result here: it can decrease performance.
+    // Do not perform result = getNext() here (this will decrease the initialization time).
     this.result = null;
     this.hasResult = false;
   }
@@ -311,8 +316,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
   private static final int PROGRAM_EXTRACTION_DEPTH = 10;
 
+  /**
+   * Returns a program, i.e. a hammock of transitions, outgoing from the given source.
+   * 
+   * @param source the source action.
+   * @return the next program.
+   */
   private MmuProgram getNextProgram(final MmuAction source) {
-    // Actions that can be used as sinks.
+    // Actions that can serve as hammock sinks.
     Set<MmuAction> targetActions = null;
 
     // Check whether the transitions can be unified.
@@ -325,15 +336,20 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       for (int i = 0; i < PROGRAM_EXTRACTION_DEPTH; i++) {
         final MmuTransition transition = currentEdge.getTransition();
 
-        // Only insignificant transitions can be unified into programs.
-        if (currentEdge.getLabel() != null
-            || !transition.getBufferAccesses(MemoryAccessContext.EMPTY).isEmpty()) {
+        final Collection<MmuBufferAccess> bufferAccesses =
+            transition.getBufferAccesses(MemoryAccessContext.EMPTY);
+
+        // Only insignificant transitions can be unified into hammocks.
+        // Transition is significant if it has a non-null label or accesses a buffer.
+        if (currentEdge.getLabel() != null || !bufferAccesses.isEmpty()) {
           break;
         }
 
         final MmuAction action = transition.getTarget();
         traceActions.add(action);
 
+        // Only hammocks of the following kind are derived (this can be improved further):
+        // sets of linear paths that start in the same source and end in the same sink.
         final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(action);
         if (currentEdges == null || currentEdges.size() != 1) {
           break;
@@ -374,7 +390,6 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         }
 
         final Collection<MemoryGraph.Edge> currentEdges = graph.getEdges(action);
-
         currentEdge = currentEdges.iterator().next();
       }
 
@@ -386,11 +401,12 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     return builder.build();
   }
 
-  private MmuProgram getNextProgram(final SearchEntry searchEntry) {
+  private MmuProgram getNextProgram(final SearchStackEntry searchEntry) {
+    // This should be done before calling the next() method.
     final boolean isFirstEdge = searchEntry.iterator.isFirst();
 
     final MemoryGraph.Edge currentEdge = searchEntry.iterator.next();
-    final List<MemoryGraph.Edge> edges = searchEntry.edges;
+    final List<MemoryGraph.Edge> edges = searchEntry.outgoingEdges;
 
     // If the current edge is the first edge in the list.
     if (edges.size() > 1 && isFirstEdge) {
@@ -405,84 +421,94 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final MmuProgram program = MmuProgram.ATOMIC(currentEdge.getTransition());
     program.setLabel(currentEdge.getLabel());
 
-    Logger.debug("Single transition: %s", program);
     return program;
   }
 
-  private void accessBuffer(final MmuProgram program, final MemoryAccessContext context) {
+  private static void accessBuffer(final MmuProgram program, final MemoryAccessContext context) {
     for (final MmuTransition transition : program.getTransitions()) {
       for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
-        Logger.debug("accessBuffer (before): %s", context);
         context.doAccess(bufferAccess);
-        Logger.debug("accessBuffer (after): %s", context);
       }
     }
+  }
+
+  private static List<Object> getTrajectorySuffix(final List<Object> trajectory, final Object label) {
+    if (trajectory == null || label == null) {
+      return trajectory;
+    }
+
+    return trajectory.subList(1, trajectory.size());
+  }
+
+  private static MemoryAccessPath.Entry getEntry(
+      final MmuProgram program,
+      final MemoryAccessContext context) {
+    final MemoryAccessContext copyContext = new MemoryAccessContext(context);
+
+    // Increment the buffer access identifier.
+    accessBuffer(program, copyContext);
+
+    final MmuAction targetAction = program.getTarget();
+    final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(MemoryAccessContext.EMPTY);
+    final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
+
+    // Context should contain updated buffer access identifiers.
+    return (buffer == null || buffer.getKind() != MmuBuffer.Kind.MEMORY)
+        ? MemoryAccessPath.Entry.NORMAL(program, copyContext)
+        : MemoryAccessPath.Entry.CALL(program, copyContext);
+  }
+
+  private static MemoryAccessType getType(final MmuProgram program) {
+    final MmuAction targetAction = program.getTarget();
+
+    final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(MemoryAccessContext.EMPTY);
+    InvariantChecks.checkNotNull(bufferAccess);
+
+    final DataType dataType = DataType.type(bufferAccess.getBuffer().getBitSize() >> 3);
+
+    return bufferAccess.getEvent() == BufferAccessEvent.READ
+        ? MemoryAccessType.LOAD(dataType)
+        : MemoryAccessType.STORE(dataType);
   }
 
   private Result getNext() {
     Logger.debug("Searching for a memory access path: %s", trajectory);
 
     while (!searchStack.isEmpty()) {
-      final SearchEntry searchEntry = searchStack.peek();
+      final SearchStackEntry searchEntry = searchStack.peek();
 
-      boolean isCompleted = true;
+      boolean isCompletedPath = true;
 
       while (searchEntry.iterator.hasNext()) {
         final List<Object> trajectory = searchEntry.trajectorySuffix;
-
         final MmuProgram program = getNextProgram(searchEntry);
-
-        final MmuAction sourceAction = program.getSource();
-        final MmuAction targetAction = program.getTarget();
-
-        final Object label = program.getLabel();
-        final List<Object> trajectorySuffix = (label != null)
-            ? (trajectory != null ? trajectory.subList(1, trajectory.size()) : null)
-            : trajectory;
 
         // Go on with the current context.
         MemorySymbolicResult result = searchEntry.result;
-        MemorySymbolicResult newResult = result;
 
-        // Save the current context in the current entry.
-        // There should be enough information to reconstruct the saved context.
-        if (program.isAtomic() && searchEntry.edges.size() != 1) {
+        // If there are several outgoing edges, save the current context in the entry.
+        if (program.isAtomic() && searchEntry.outgoingEdges.size() != 1) {
           searchEntry.result = new MemorySymbolicResult(searchEntry.result);
         }
 
-        // Increment the buffer access identifier.
-        final MemoryAccessContext tempContext = new MemoryAccessContext(result.getContext());
-        accessBuffer(program, tempContext);
+        final MemoryAccessPath.Entry entry = getEntry(program, result.getContext());
 
-        final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(tempContext);
-        final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
-        final boolean isRecursion = (buffer != null && buffer.getKind() == MmuBuffer.Kind.MEMORY);
-
-        final MemoryAccessPath.Entry entry;
-
-        if (!isRecursion) {
-          entry = MemoryAccessPath.Entry.NORMAL(program, tempContext);
-        } else {
-          entry = MemoryAccessPath.Entry.CALL(program, tempContext);
-        }
-
-        if ((!program.isAtomic() || MemoryEngineUtils.isValidTransition(program.getTransition(), type)) &&
-            MemoryEngineUtils.isFeasibleEntry(entry, result.getContext(), constraints, result /* INOUT */)) {
-          isCompleted = false;
-
-          Logger.debug("Call stack: %s", result.getContext());
-          Logger.debug("DFS search: %s", searchStack.size());
-          Logger.debug("Transition: %s -> %s", sourceAction, targetAction);
+        if (MemoryEngineUtils.isFeasibleEntry(entry, type, constraints, result /* INOUT */)) {
+          isCompletedPath = false;
 
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
           entries.add(entry);
 
-          if (isRecursion) {
+          MemorySymbolicResult newResult;
+
+          if (entry.getKind() == MemoryAccessPath.Entry.Kind.NORMAL) {
+            newResult = result;
+          } else /* MemoryAccessPath.Entry.Kind.CALL */ {
             newResult = new MemorySymbolicResult(result);
 
-            final MemoryAccessPathIterator innerIterator =
-                new MemoryAccessPathIterator(memory, graph, type, constraints, result);
+            final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
+                memory, graph, getType(program), constraints, result);
 
             if (innerIterator.hasNext()) {
               final Result innerResult = innerIterator.next();
@@ -495,27 +521,28 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
               // Update the symbolic result.
               newResult = innerResult.getResult();
             } else {
-              Logger.debug("Recursive memory call is infeasible");
-              isCompleted = true;
+              // Recursive memory call is infeasible.
+              isCompletedPath = true;
             }
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);
             returnExecutor.execute(MemoryAccessPath.Entry.RETURN(newResult.getContext()));
-          } // If this is a recursive memory call.
+          }
 
-          if (!isCompleted) {
-            searchStack.push(new SearchEntry(targetAction, trajectorySuffix, newResult));
+          if (!isCompletedPath) {
+            final MmuAction target = program.getTarget();
+            final List<Object> suffix = getTrajectorySuffix(trajectory, program.getLabel());
+
+            searchStack.push(new SearchStackEntry(entries.size(), target, suffix, newResult));
             currentPath.addAll(entries);
+
             break;
           }
-        } else {
-          // If feasible transition.
-          Logger.debug("Infeasible: %s -> %s", sourceAction, targetAction);
-        }
+        } // If the entry is feasible.
       } // For each outgoing edge.
 
-      if (isCompleted) {
+      if (isCompletedPath) {
         final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();
         final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
@@ -523,9 +550,9 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           builder.addAll(currentPath);
         }
 
-        final SearchEntry top = searchStack.pop();
+        final SearchStackEntry topEntry = searchStack.pop();
 
-        if (!currentPath.isEmpty()) {
+        for (int i = 0; i < topEntry.rollbackCount; i++) {
           currentPath.remove(currentPath.size() - 1);
         }
 
@@ -533,10 +560,10 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           final MemoryAccessPath path = builder.build();
 
           Logger.debug("Memory access %s of length %d for trajectory %s",
-              top.result.getContext().getMemoryAccessStack().isEmpty() ? "path" : "fragment",
+              topEntry.result.getContext().getMemoryAccessStack().isEmpty() ? "path" : "fragment",
               path.size(), trajectory);
 
-          return new Result(path, top.result);
+          return new Result(path, topEntry.result);
         }
       }
     } // While stack is not empty.
