@@ -269,16 +269,17 @@ public final class TestBase {
     return bindings;
   }
 
-  private PathConstraintBuilder constraintBuilder(TestBaseQuery query) {
+  private PathConstraintBuilder constraintBuilder(final TestBaseQuery query) {
     final Map<String, String> context = query.getContext();
     final String model = context.get(TestBaseContext.PROCESSOR);
     final String instr = context.get(TestBaseContext.INSTRUCTION);
-    final SsaAssembler assembler =
-        new SsaAssembler(getStorage(model), context, instr);
-    return new PathConstraintBuilder(assembler.assemble(instr));
+    final SsaAssembler assembler = new SsaAssembler(getStorage(model));
+    final Node formula = assembler.assemble(context, instr);
+
+    return new PathConstraintBuilder(formula);
   }
 
-  private Map<String, SsaForm> getStorage(String model) {
+  public Map<String, SsaForm> getStorage(final String model) {
     if (storage.containsKey(model)) {
       return storage.get(model);
     }

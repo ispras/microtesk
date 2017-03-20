@@ -129,8 +129,7 @@ final class Closure {
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;
-  final Map<String, String> buildingContext;
-  final String contextEntry;
+  Map<String, String> buildingContext;
 
   SsaScope scope;
   int numTemps;
@@ -142,17 +141,19 @@ public final class SsaAssembler {
   Deque<Changes> changesStack;
   Changes changes;
 
-  public SsaAssembler(Map<String, SsaForm> buildingBlocks, Map<String, String> buildingContext, String prefix) {
+  public SsaAssembler(Map<String, SsaForm> buildingBlocks) {
     this.buildingBlocks = buildingBlocks;
-    this.buildingContext = new HashMap<>(buildingContext);
 
     this.scope = SsaScopeFactory.createScope();
     this.numTemps = 0;
-
-    this.contextEntry = prefix;
   }
 
-  public Node assemble(final String tag) {
+  public Node assemble(final Map<String, String> context, final String entry) {
+    return assemble(context, entry, entry);
+  }
+
+  public Node assemble(final Map<String, String> context, final String entry, final String tag) {
+    this.buildingContext = context;
     this.contextEnum = new HashMap<>();
     this.statements = new ArrayList<>();
     this.batchSize = new ArrayDeque<>();
@@ -163,7 +164,7 @@ public final class SsaAssembler {
     this.changes = new Changes(changesStore, changesStore);
 
     newBatch();
-    step(new Prefix(contextEntry, tag), "action");
+    step(new Prefix(entry, tag), "action");
     
     return endBatch();
   }
