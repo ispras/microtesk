@@ -158,7 +158,7 @@ final class SsaBuilder {
   }
 
   private NodeVariable createTemporary(Data data) {
-    return newUniqueTmp(String.format("__tmp_%d", numTemps++), data);
+    return newUniqueTmp(String.format("%s.tmp_%d", extendedPrefix, numTemps++), data);
   }
 
   private NodeVariable newUniqueTmp(final String name, final DataType type) {
