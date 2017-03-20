@@ -224,11 +224,6 @@ public final class AddressAllocationTable {
     }
   }
 
-  public Collection<Long> getFreeAddresses(final Range<Long> region) {
-    final AllocationTable<Long, ?> allocTable = getAllocTable(region);
-    return allocTable.getFreeObjects();
-  }
-
   public Collection<Long> getUsedAddresses(final Range<Long> region) {
     final AllocationTable<Long, ?> allocTable = getAllocTable(region);
     return allocTable.getUsedObjects();

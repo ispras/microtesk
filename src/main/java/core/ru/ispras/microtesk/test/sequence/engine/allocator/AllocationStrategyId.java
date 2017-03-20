@@ -16,13 +16,14 @@ package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.randomizer.VariateBiased;
-import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategyId} defines some resource allocation strategies.
@@ -35,13 +36,53 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
-        final Collection<T> free,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      InvariantChecks.checkTrue(!free.isEmpty(),
-          String.format("No free objects: free=%s, used=%s", free, used));
+      final Collection<T> free = new LinkedHashSet<>(domain);
+      free.removeAll(used);
 
-      return Randomizer.get().choose(free);
+      return !free.isEmpty() ? Randomizer.get().choose(free) : null;
+    }
+
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final int N = 5;
+
+      for (int i = 0; i < N; i++) {
+        final T object = supplier.get();
+
+        if (object == null) {
+          return null;
+        }
+
+        if (!used.contains(object)) {
+          return object;
+        }
+      }
+
+      return null;
+    }
+  },
+
+  /** Always returns a used object (throws an exception if there are no object are in use). */
+  USED() {
+    @Override
+    public <T> T next(
+        final Collection<T> domain,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      return !used.isEmpty() ? Randomizer.get().choose(used) : null;
+    }
+
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      return USED.next(Collections.emptyList(), used, attributes);
     }
   },
 
@@ -50,13 +91,19 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
-        final Collection<T> free,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty(),
-          String.format("No free objects: free=%s, used=%s", free, used));
+      final T object = FREE.next(domain, used, attributes);
+      return object != null ? object : Randomizer.get().choose(used);
+    }
 
-      return !free.isEmpty() ? Randomizer.get().choose(free) : Randomizer.get().choose(used);
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final T object = FREE.next(supplier, used, attributes);
+      return object != null ? object : Randomizer.get().choose(used);
     }
   },
 
@@ -65,39 +112,48 @@ public enum AllocationStrategyId implements AllocationStrategy {
     private static final String ATTR_FREE_BIAS = "free-bias";
     private static final String ATTR_USED_BIAS = "used-bias";
 
-    @Override
-    public <T> T next(
-        final Collection<T> domain,
-        final Collection<T> free,
+    private final <T> AllocationStrategy getAllocationStrategy(
         final Collection<T> used,
         final Map<String, String> attributes) {
-      InvariantChecks.checkTrue(!free.isEmpty() || !used.isEmpty(),
-          String.format("No free objects: free=%s, used=%s", free, used));
 
-      if (free.isEmpty() || used.isEmpty()) {
-        final Collection<T> nonEmptySet = free.isEmpty() ? used : free;
-        return Randomizer.get().choose(nonEmptySet);
+      if (used.isEmpty()) {
+        return FREE;
       }
 
       if (attributes != null
           && attributes.containsKey(ATTR_FREE_BIAS)
           && attributes.containsKey(ATTR_USED_BIAS)) {
-        final List<Collection<T>> values = new ArrayList<>();
-        values.add(free);
-        values.add(used);
+        final List<AllocationStrategy> values = new ArrayList<>();
+        values.add(TRY_FREE);
+        values.add(USED);
 
         final List<Integer> biases = new ArrayList<>();
         biases.add(Integer.parseInt(attributes.get(ATTR_FREE_BIAS)));
         biases.add(Integer.parseInt(attributes.get(ATTR_USED_BIAS)));
 
-        final VariateBiased<Collection<T>> variate = new VariateBiased<>(values, biases);
-        return Randomizer.get().choose(variate.value());
+        final VariateBiased<AllocationStrategy> variate = new VariateBiased<>(values, biases);
+        return variate.value();
       }
 
-      final Collection<T> allObjects = new LinkedHashSet<>(free);
-      allObjects.addAll(used);
+      return TRY_FREE;
+    }
 
-      return Randomizer.get().choose(allObjects);
+    @Override
+    public <T> T next(
+        final Collection<T> domain,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
+      return strategy.next(domain, used, attributes);
+    }
+
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
+      return strategy.next(supplier, used, attributes);
     }
   };
 }

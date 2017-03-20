@@ -42,8 +42,7 @@ public final class Allocator {
 
   public <T> T next(
       final Collection<T> domain,
-      final Collection<T> free,
       final Collection<T> used) {
-    return strategy.next(domain, free, used, attributes);
+    return strategy.next(domain, used, attributes);
   }
 }

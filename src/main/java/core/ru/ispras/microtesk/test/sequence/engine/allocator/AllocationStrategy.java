@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
+
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategy} defines an interface of resource allocation strategies.
@@ -28,14 +30,25 @@ public interface AllocationStrategy {
    * Chooses an object.
    * 
    * @param <T> type of objects.
-   * @param domain all available objects. 
-   * @param free free objects.
-   * @param used used objects.
-   * @param attributes the parameters.
+   * @param domain the set of all available objects. 
+   * @param used the of used objects.
+   * @param attributes the allocation parameters.
    * @return the chosen object or {@code null}.
    */
   <T> T next(final Collection<T> domain,
-             final Collection<T> free,
+             final Collection<T> used,
+             final Map<String, String> attributes);
+
+  /**
+   * Generates an object.
+   * 
+   * @param <T> type of objects.
+   * @param supplier the object generator. 
+   * @param used the set of used objects.
+   * @param attributes the allocation parameters parameters.
+   * @return the chosen object or {@code null}.
+   */
+  <T> T next(final Supplier<T> supplier,
              final Collection<T> used,
              final Map<String, String> attributes);
 }

@@ -262,8 +262,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
     }
 
-    this.addressAllocator = new AddressAllocator(memory, addressToRegions);
-    this.entryIdAllocator = new EntryIdAllocator(memory);
+    this.addressAllocator = new AddressAllocator(addressToRegions);
+    this.entryIdAllocator = new EntryIdAllocator();
 
     final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
 

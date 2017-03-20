@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -37,8 +38,12 @@ import ru.ispras.microtesk.utils.Range;
 public final class AddressAllocatorTestCase {
   public static final boolean PRINT_ADDRESSES = false;
 
+  static {
+    MmuPlugin.setSpecification(MmuUnderTest.get().mmu);
+  }
+
   private final AddressAllocator addressAllocator = new AddressAllocator(
-      MmuUnderTest.get().mmu, new HashMap<MmuAddressInstance, Collection<? extends Range<Long>>>());
+      new HashMap<MmuAddressInstance, Collection<? extends Range<Long>>>());
 
   private final Collection<Long> allAddresses =
       addressAllocator.getAllAddresses(MmuUnderTest.get().paAddr, null);

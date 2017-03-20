@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
@@ -40,11 +41,10 @@ public final class AddressAllocator {
   private final Map<MmuAddressInstance, Long> masks = new LinkedHashMap<>();
 
   public AddressAllocator(
-      final MmuSubsystem memory,
       final Map<MmuAddressInstance, Collection<? extends Range<Long>>> regions) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(regions);
 
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
     final Map<MmuAddressInstance, Collection<MmuExpression>> expressions = new LinkedHashMap<>();
 
     for (final MmuAddressInstance addressType : memory.getAddresses()) {

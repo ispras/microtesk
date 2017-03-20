@@ -39,9 +39,6 @@ public final class AllocationTable<T, V> {
   /** The set of all available objects. */
   private final Set<T> objects;
 
-  /** The set of free objects. */
-  private final Set<T> free = new LinkedHashSet<>();
-
   /** The set of used objects. */
   private final Set<T> used = new LinkedHashSet<>();
   /** The set of values for some of the objects in use. */
@@ -113,11 +110,8 @@ public final class AllocationTable<T, V> {
    * Resets the resource allocation table.
    */
   public void reset() {
-    free.clear();
     used.clear();
     init.clear();
-
-    free.addAll(objects);
   }
 
   /**
@@ -127,15 +121,6 @@ public final class AllocationTable<T, V> {
    */
   public int size() {
     return objects.size();
-  }
-
-  /**
-   * Returns the number of free objects.
-   * 
-   * @return the number of free objects.
-   */
-  public int countFreeObjects() {
-    return free.size();
   }
 
   /**
@@ -179,7 +164,7 @@ public final class AllocationTable<T, V> {
   public boolean isFree(final T object) {
     checkObject(object);
 
-    return free.contains(object);
+    return !used.contains(object);
   }
 
   /**
@@ -236,7 +221,6 @@ public final class AllocationTable<T, V> {
 
     used.remove(object);
     init.remove(object);
-    free.add(object);
   }
 
   /**
@@ -249,7 +233,6 @@ public final class AllocationTable<T, V> {
   public void use(final T object) {
     checkObject(object);
 
-    free.remove(object);
     used.add(object);
   }
 
@@ -277,7 +260,7 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
-    final T object = allocator.next(objects, free, used);
+    final T object = allocator.next(objects, used);
 
     if (object == null) {
       throw new IllegalStateException("Cannot peek an object");
@@ -300,10 +283,7 @@ public final class AllocationTable<T, V> {
     final Set<T> domain = new HashSet<>(objects);
     domain.removeAll(exclude);
 
-    final Set<T> freeDomain = new HashSet<>(free);
-    freeDomain.removeAll(exclude);
-
-    final T object = allocator.next(domain, freeDomain, used);
+    final T object = allocator.next(domain, used);
 
     if (object == null) {
       throw new IllegalStateException(
@@ -377,15 +357,6 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Returns the set of free objects.
-   * 
-   * @return the set of free objects.
-   */
-  public Set<T> getFreeObjects() {
-    return free;
-  }
-
-  /**
    * Returns the set of used objects.
    * 
    * @return the set of used objects.
@@ -413,6 +384,6 @@ public final class AllocationTable<T, V> {
 
   @Override
   public String toString() {
-    return free.toString();
+    return String.format("used=%s", used);
   }
 }

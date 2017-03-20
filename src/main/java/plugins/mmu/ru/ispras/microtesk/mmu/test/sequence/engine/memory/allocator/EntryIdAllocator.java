@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,21 +20,23 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
 
 /**
- * {@link EntryIdAllocator} implements an  allocator of entry identifiers (indices).
+ * {@link EntryIdAllocator} implements an allocator of entry identifiers (indices)
+ * for non-replaceable (non-transparent) buffers.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryIdAllocator {
   private final Map<MmuBuffer, AllocationTable<Long, ?>> allocators = new LinkedHashMap<>();
 
-  public EntryIdAllocator(final MmuSubsystem memory) {
-    InvariantChecks.checkNotNull(memory);
+  public EntryIdAllocator() {
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuBuffer buffer : memory.getBuffers()) {
       if (buffer.isReplaceable()) {
@@ -50,6 +52,7 @@ public final class EntryIdAllocator {
       // Construct the allocation table.
       final AllocationTable<Long, ?> allocator = new AllocationTable<>(
           entryIds.size() > 1 ? AllocationStrategyId.FREE : AllocationStrategyId.RANDOM, entryIds);
+
       allocators.put(buffer, allocator);
     }
   }
@@ -60,7 +63,7 @@ public final class EntryIdAllocator {
       final Set<Long> exclude) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkTrue(!buffer.isReplaceable());
-    // Parameter {@code exclude} can be null.
+    // Parameter exclude can be null.
 
     final AllocationTable<Long, ?> allocator = allocators.get(buffer);
     return peek ?
