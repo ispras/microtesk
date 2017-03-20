@@ -35,34 +35,25 @@ import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class PathConstraintBuilder {
-  final Map<String, NodeVariable> variables;
-  final ConstraintBuilder builder;
-  final Formulas ssa;
-  final List<NodeVariable> specialMarks;
+  final Map<String, NodeVariable> variables = new HashMap<>();
+  final ConstraintBuilder builder = new ConstraintBuilder();
+  final List<Node> ssa;
+  final List<NodeVariable> specialMarks = new ArrayList<>();
   final Node conditionExpr;
 
-  public PathConstraintBuilder(Node ssa) {
-    InvariantChecks.checkNotNull(ssa);
+  public PathConstraintBuilder(final Node node) {
+    this(ExprUtils.isOperation(node, StandardOperation.AND)
+      ? ((NodeOperation) node).getOperands()
+      : Collections.singleton(node));
+  }
 
-    this.variables = new HashMap<>();
-    this.builder = new ConstraintBuilder();
-    this.ssa = new Formulas();
-    this.specialMarks = new ArrayList<>();
-
-    final Node instance = Utility.transform(ssa, setUpTransformer());
-
-    this.conditionExpr = PathFilter.filter(instance);
-
-    if (ExprUtils.isOperation(instance, StandardOperation.AND)) {
-      for (Node node : ((NodeOperation) instance).getOperands()) {
-        this.ssa.add(node);
-      }
-    } else {
-      this.ssa.add(instance);
-    }
+  public PathConstraintBuilder(final Collection<? extends Node> formulas) {
+    InvariantChecks.checkNotNull(formulas);
+    this.ssa = Utility.transform(formulas, setUpTransformer());
     for (NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
     }
+    this.conditionExpr = PathFilter.filter(Expression.AND(this.ssa));
   }
 
   public Map<String, NodeVariable> getVariables() {
@@ -81,15 +72,18 @@ public final class PathConstraintBuilder {
     return Collections.unmodifiableList(specialMarks);
   }
 
+  public Constraint build() {
+    return build(Collections.<Node>emptyList());
+  }
+
   public Constraint build(Node condition) {
     return build(Collections.singleton(condition));
   }
 
   public Constraint build(Collection<? extends Node> conditions) {
-    final Formulas formulas = new Formulas(this.ssa);
-    for (Node node : conditions) {
-      formulas.add(node);
-    }
+    final Formulas formulas = new Formulas();
+    formulas.addAll(this.ssa);
+    formulas.addAll(conditions);
 
     this.builder.setInnerRep(formulas);
     return this.builder.build();
