@@ -15,7 +15,14 @@
 package ru.ispras.microtesk.symexec;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintUtils;
+import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
+import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -50,8 +57,24 @@ public final class SymbolicExecutor {
 
     // TODO: Build SSA form for the instructions
 
+    final List<Node> ssa =
+      FormulaBuilder.buildFormulas(modelName, instructions);
+    writeSmt(fileName + ".smt2", ssa);
+
     Logger.error("Symbolic execution is not currently supported.");
     return false;
+  }
+
+  private static void writeSmt(
+    final String fileName,
+    final Collection<? extends Node> formulas) {
+    final Cvc4Solver solver = new Cvc4Solver();
+
+    try {
+      SmtTextBuilder.saveToFile(fileName, formulas, solver.getOperations());
+    } catch (final java.io.IOException e) {
+      Logger.error(e.getMessage());
+    }
   }
 
   private final static class DisassemblerOutput implements Disassembler.Output {
