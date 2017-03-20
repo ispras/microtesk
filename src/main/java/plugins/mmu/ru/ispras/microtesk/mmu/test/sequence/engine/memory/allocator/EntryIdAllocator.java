@@ -14,17 +14,23 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator;
 
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link EntryIdAllocator} implements an allocator of entry identifiers (indices)
@@ -33,9 +39,13 @@ import ru.ispras.microtesk.test.sequence.engine.allocator.AllocationTable;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryIdAllocator {
+  private static final int MAX_EXPLICIT_DOMAIN = 1024;
+
   private final Map<MmuBuffer, AllocationTable<Long, ?>> allocators = new LinkedHashMap<>();
 
-  public EntryIdAllocator() {
+  public EntryIdAllocator(final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(settings);
+
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     for (final MmuBuffer buffer : memory.getBuffers()) {
@@ -43,15 +53,47 @@ public final class EntryIdAllocator {
         continue;
       }
 
-      // Construct the set of possible entry identifiers.
-      final Set<Long> entryIds = new LinkedHashSet<>();
-      for (long i = 0; i < buffer.getWays(); i++) {
-        entryIds.add(i);
+      final BigInteger min;
+      final BigInteger max;
+
+      if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
+        final RegionSettings region = settings.getMemory().getRegion(buffer.getName());
+        InvariantChecks.checkNotNull(region);
+
+        min = BigIntegerUtils.valueOfUnsignedLong(region.getStartAddress());
+        max = BigIntegerUtils.valueOfUnsignedLong(region.getEndAddress());
+      } else {
+        min = BigInteger.ZERO;
+        max = BigInteger.valueOf(buffer.getSets() * buffer.getWays() - 1);
       }
 
-      // Construct the allocation table.
-      final AllocationTable<Long, ?> allocator = new AllocationTable<>(
-          entryIds.size() > 1 ? AllocationStrategyId.FREE : AllocationStrategyId.RANDOM, entryIds);
+      final BigInteger size = max.subtract(min).add(BigInteger.ONE);
+
+      final AllocationTable<Long, ?> allocator;
+
+      if (size.compareTo(BigInteger.valueOf(MAX_EXPLICIT_DOMAIN)) < 0) {
+        // Construct the set of possible entry identifiers.
+        final Set<Long> entryIds = new LinkedHashSet<>();
+
+        for (long i = 0; i < size.longValue(); i++) {
+          final BigInteger value = min.add(BigInteger.valueOf(i));
+          entryIds.add(value.longValue());
+        }
+  
+        // Construct the allocation table.
+        allocator = new AllocationTable<>(
+            AllocationStrategyId.TRY_FREE,
+            entryIds);
+      } else {
+        allocator = new AllocationTable<>(
+            AllocationStrategyId.TRY_FREE,
+            new Supplier<Long>() {
+              @Override
+              public Long get() {
+                return Randomizer.get().nextBigIntegerRange(min, max).longValue();
+              }
+            });
+      }
 
       allocators.put(buffer, allocator);
     }

@@ -31,24 +31,30 @@ public interface AllocationStrategy {
    * 
    * @param <T> type of objects.
    * @param domain the set of all available objects. 
+   * @param exclude the set of objects to be excluded. 
    * @param used the of used objects.
    * @param attributes the allocation parameters.
    * @return the chosen object or {@code null}.
    */
-  <T> T next(final Collection<T> domain,
-             final Collection<T> used,
-             final Map<String, String> attributes);
+  <T> T next(
+      final Collection<T> domain,
+      final Collection<T> exclude,
+      final Collection<T> used,
+      final Map<String, String> attributes);
 
   /**
    * Generates an object.
    * 
    * @param <T> type of objects.
    * @param supplier the object generator. 
+   * @param exclude the set of objects to be excluded. 
    * @param used the set of used objects.
    * @param attributes the allocation parameters parameters.
    * @return the chosen object or {@code null}.
    */
-  <T> T next(final Supplier<T> supplier,
-             final Collection<T> used,
-             final Map<String, String> attributes);
+  <T> T next(
+      final Supplier<T> supplier,
+      final Collection<T> exclude,
+      final Collection<T> used,
+      final Map<String, String> attributes);
 }

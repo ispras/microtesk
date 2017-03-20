@@ -15,13 +15,14 @@
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
@@ -38,6 +39,8 @@ public final class AllocationTable<T, V> {
 
   /** The set of all available objects. */
   private final Set<T> objects;
+  /** The object generator (alternative to {@code objects}). */
+  private final Supplier<T> supplier;
 
   /** The set of used objects. */
   private final Set<T> used = new LinkedHashSet<>();
@@ -56,13 +59,12 @@ public final class AllocationTable<T, V> {
       final Map<String, String> attributes,
       final Collection<T> objects) {
     InvariantChecks.checkNotNull(strategy);
-    InvariantChecks.checkNotNull(objects);
+    InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotEmpty(objects);
 
     this.allocator = new Allocator(strategy, attributes);
     this.objects = new LinkedHashSet<>(objects);
-
-    reset();
+    this.supplier = null;
   }
 
   /**
@@ -76,13 +78,33 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Constructs a resource allocation table with the default allocation strategy
-   * ({@code GET_FREE_OBJECT}).
+   * Constructs a resource allocation table.
    * 
-   * @param objects the collection of available objects.
+   * @param strategy the allocation strategy.
+   * @param attributes the strategy parameters or {@code null}.
+   * @param supplier the object generator.
    */
-  public AllocationTable(final Collection<T> objects) {
-    this(AllocationStrategyId.FREE, objects);
+  public AllocationTable(
+      final AllocationStrategy strategy,
+      final Map<String, String> attributes,
+      final Supplier<T> supplier) {
+    InvariantChecks.checkNotNull(strategy);
+    InvariantChecks.checkNotNull(attributes);
+    InvariantChecks.checkNotNull(supplier);
+
+    this.allocator = new Allocator(strategy, attributes);
+    this.objects = null;
+    this.supplier = supplier;
+  }
+
+  /**
+   * Constructs a resource allocation table.
+   * 
+   * @param strategy the allocation strategy.
+   * @param supplier the object generator.
+   */
+  public AllocationTable(final AllocationStrategy strategy, final Supplier<T> supplier) {
+    this(strategy, null, supplier);
   }
 
   /**
@@ -260,13 +282,7 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
-    final T object = allocator.next(objects, used);
-
-    if (object == null) {
-      throw new IllegalStateException("Cannot peek an object");
-    }
-
-    return object;
+    return peek(Collections.<T>emptySet());
   }
 
   /**
@@ -280,15 +296,8 @@ public final class AllocationTable<T, V> {
   public T peek(final Set<T> exclude) {
     InvariantChecks.checkNotNull(exclude);
 
-    final Set<T> domain = new HashSet<>(objects);
-    domain.removeAll(exclude);
-
-    final T object = allocator.next(domain, used);
-
-    if (object == null) {
-      throw new IllegalStateException(
-          String.format("Cannot peek an object: free=%s, used=%s", domain, used));
-    }
+    final T object = allocator.next(objects, exclude, used);
+    InvariantChecks.checkNotNull(object, String.format("Cannot peek an object: used=%s", used));
 
     return object;
   }
@@ -374,10 +383,19 @@ public final class AllocationTable<T, V> {
     return objects;
   }
 
+  /**
+   * Returns the object generator.
+   * 
+   * @return the object generator.
+   */
+  public Supplier<T> getSupplier() {
+    return supplier;
+  }
+
   private void checkObject(final T object) {
     InvariantChecks.checkNotNull(object);
 
-    if (!objects.contains(object)) {
+    if (objects != null && !objects.contains(object)) {
       throw new IllegalArgumentException(String.format("Unknown object: %s", object));
     }
   }

@@ -36,9 +36,12 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
       final Collection<T> free = new LinkedHashSet<>(domain);
+
+      free.removeAll(exclude);
       free.removeAll(used);
 
       return !free.isEmpty() ? Randomizer.get().choose(free) : null;
@@ -47,6 +50,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Supplier<T> supplier,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
       final int N = 5;
@@ -58,7 +62,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
           return null;
         }
 
-        if (!used.contains(object)) {
+        if (!exclude.contains(object) && !used.contains(object)) {
           return object;
         }
       }
@@ -72,6 +76,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
       return !used.isEmpty() ? Randomizer.get().choose(used) : null;
@@ -80,9 +85,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Supplier<T> supplier,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      return USED.next(Collections.emptyList(), used, attributes);
+      return USED.next(Collections.<T>emptyList(), exclude, used, attributes);
     }
   },
 
@@ -91,19 +97,21 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      final T object = FREE.next(domain, used, attributes);
-      return object != null ? object : Randomizer.get().choose(used);
+      final T object = FREE.next(domain, exclude, used, attributes);
+      return object != null ? object : USED.next(domain, exclude, used, attributes);
     }
 
     @Override
     public <T> T next(
         final Supplier<T> supplier,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      final T object = FREE.next(supplier, used, attributes);
-      return object != null ? object : Randomizer.get().choose(used);
+      final T object = FREE.next(supplier, exclude, used, attributes);
+      return object != null ? object : USED.next(supplier, exclude, used, attributes);
     }
   },
 
@@ -141,19 +149,21 @@ public enum AllocationStrategyId implements AllocationStrategy {
     @Override
     public <T> T next(
         final Collection<T> domain,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
       final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
-      return strategy.next(domain, used, attributes);
+      return strategy.next(domain, exclude, used, attributes);
     }
 
     @Override
     public <T> T next(
         final Supplier<T> supplier,
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
       final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
-      return strategy.next(supplier, used, attributes);
+      return strategy.next(supplier, exclude, used, attributes);
     }
   };
 }

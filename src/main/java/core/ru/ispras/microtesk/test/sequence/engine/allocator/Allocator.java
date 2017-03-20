@@ -14,10 +14,11 @@
 
 package ru.ispras.microtesk.test.sequence.engine.allocator;
 
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * Allocates resources using a specific strategy with specific attributes.
@@ -42,7 +43,15 @@ public final class Allocator {
 
   public <T> T next(
       final Collection<T> domain,
+      final Collection<T> exclude,
       final Collection<T> used) {
-    return strategy.next(domain, used, attributes);
+    return strategy.next(domain, exclude, used, attributes);
+  }
+
+  public <T> T next(
+      final Supplier<T> supplier,
+      final Collection<T> exclude,
+      final Collection<T> used) {
+    return strategy.next(supplier, exclude, used, attributes);
   }
 }
