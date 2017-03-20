@@ -19,6 +19,9 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
 
+import java.util.Collection;
+import java.util.List;
+
 public final class Utility {
   public static String prettyString(Node node) {
     return prettyString(node, 0);
@@ -84,6 +87,17 @@ public final class Utility {
     for (int i = 0; i < n; ++i) {
       builder.append(c);
     }
+  }
+
+  static List<Node> transform(
+    final Collection<? extends Node> input,
+    final NodeTransformer xform) {
+
+    xform.walk(input);
+    final List<Node> result = xform.getResult();
+    xform.reset();
+
+    return result;
   }
 
   static Node transform(Node node, NodeTransformer xform) {
