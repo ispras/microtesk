@@ -59,7 +59,7 @@ public final class AllocationTable<T, V> {
       final Map<String, String> attributes,
       final Collection<T> objects) {
     InvariantChecks.checkNotNull(strategy);
-    InvariantChecks.checkNotNull(attributes);
+    // Parameter attributes can be null.
     InvariantChecks.checkNotEmpty(objects);
 
     this.allocator = new Allocator(strategy, attributes);
@@ -89,7 +89,7 @@ public final class AllocationTable<T, V> {
       final Map<String, String> attributes,
       final Supplier<T> supplier) {
     InvariantChecks.checkNotNull(strategy);
-    InvariantChecks.checkNotNull(attributes);
+    // Parameter attributes can be null.
     InvariantChecks.checkNotNull(supplier);
 
     this.allocator = new Allocator(strategy, attributes);
@@ -296,7 +296,10 @@ public final class AllocationTable<T, V> {
   public T peek(final Set<T> exclude) {
     InvariantChecks.checkNotNull(exclude);
 
-    final T object = allocator.next(objects, exclude, used);
+    final T object = objects != null
+        ? allocator.next(objects, exclude, used)
+        : allocator.next(supplier, exclude, used);
+
     InvariantChecks.checkNotNull(object, String.format("Cannot peek an object: used=%s", used));
 
     return object;
