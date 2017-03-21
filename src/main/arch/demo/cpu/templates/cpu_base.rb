@@ -36,7 +36,7 @@ class CpuBaseTemplate < Template
   # the test program.
   #
   def pre
-    # Physical memory is modelled by array "M:.
+    # Physical memory is modelled by array M.
     data_config(:target => 'M') {
       # Data type definitions must be placed here.
     }
