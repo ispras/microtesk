@@ -20,9 +20,9 @@
 let REG_INDEX_SIZE = 5 // in bits
 let INSTRUCTION_WORD_SIZE = 4 // in bytes
 
-// Informs that CIA is a program counter. This information 
+// Informs that CIA is a program counter. This information
 // is needed to handle control transfer instructions.
-let PC = "CIA" 
+let PC = "CIA"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Types
@@ -69,7 +69,7 @@ var temp[card(33)]
 
 mode R (i : INDEX) = GPR[i] 
   syntax = format("%d", i)
-  image  = format("%5b", i)
+  image  = format("%5s", i)
   action = {
     if i == 0 then
       GPR[i] = coerce(WORD, 0);
@@ -78,7 +78,7 @@ mode R (i : INDEX) = GPR[i]
 
 mode F (i : INDEX) = FPR[i]
   syntax = format("%d", i)
-  image  = format("%5b", i)
+  image  = format("%5s", i)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Special-Purpose Instructions
@@ -93,7 +93,7 @@ pseudo op NOP()
 
 op ADD (rd : R, rs : R, rt : R)
   syntax = format("ADD %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100000", rs.image, rt.image, rd.image)
   action = {
     temp = rs<31>::rs + rt<31>::rt;
     if temp<32> != temp<31> then
@@ -117,7 +117,7 @@ op ADDI (rt : R, rs : R, imm : SHORT)
 
 op SUB (rd : R, rs : R, rt : R)
   syntax = format("SUB %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100010", rs.image, rt.image, rd.image)
   action = {
     temp = rs<31>::rs - rt<31>::rt;
     if temp<32> != temp<31> then
@@ -153,7 +153,7 @@ op SRL (rd : R, rt : R, sa : INDEX)
 
 op MOVN (rd : R, rs : R, rt : R)
   syntax = format("MOVN %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000001011", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000001011", rs.image, rt.image, rd.image)
   action = {
     if (rt != 0) then
       rd = rs;
@@ -162,7 +162,7 @@ op MOVN (rd : R, rs : R, rt : R)
 
 op MOVZ (rd : R, rs : R, rt : R)
   syntax = format("MOVZ %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000001010", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000001010", rs.image, rt.image, rd.image)
   action = {
     if (rt == 0) then
       rd = rs;
@@ -181,21 +181,21 @@ op MOVE (rd : R, rs : R)
 
 op AND (rd : R, rs : R, rt : R)
   syntax = format("AND %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100100", rs.image, rt.image, rd.image)
   action = {
     rd = rs & rt;
   }
 
 op OR (rd : R, rs : R, rt : R)
   syntax = format("OR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100101", rs.image, rt.image, rd.image)
   action = {
     rd = rs | rt;
   }
 
 op XOR (rd : R, rs : R, rt : R)
   syntax = format("XOR %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%s00000100110", rs.image, rt.image, rd.image)
   action = {
     rd = rs ^ rt;
   }
@@ -205,7 +205,7 @@ op XOR (rd : R, rs : R, rt : R)
 
 op SLT (rd : R, rs : R, rt : R)
   syntax = format("SLT %s, %s, %s", rd.syntax, rs.syntax, rt.syntax)
-  image  = format("000000%s%s%5b00000101010", rs.image, rt.image, rd.image) 
+  image  = format("000000%s%s%5s00000101010", rs.image, rt.image, rd.image)
   action = {
     rd = if rs < rt then 1 else 0 endif;
   }
@@ -325,7 +325,7 @@ op ABS_S (fd : F, fs : F)
 
 op C_EQ_S (ft : F, fs : F, cc : COND_CODE)
   syntax = format("C_EQ_S %d, %s, %s", cc, fs.syntax, ft.syntax)
-  image  = format("01000110000%s%s%s00110010", ft.image, fs.image, cc) 
+  image  = format("01000110000%s%s%s00110010", ft.image, fs.image, cc)
   action = {
     if (fs == ft) then
       FCCR<cc> = 1; 
@@ -336,12 +336,12 @@ op C_EQ_S (ft : F, fs : F, cc : COND_CODE)
 
 op C_LT_S (ft : F, fs : F, cc : COND_CODE)
   syntax = format("C_LT_S %d, %s, %s", cc, fs.syntax, ft.syntax)
-  image  = format("01000110000%s%s%s00111100", ft.image, fs.image, cc) 
+  image  = format("01000110000%s%s%s00111100", ft.image, fs.image, cc)
   action = {
     if (fs < ft) then
-      FCCR<cc> = 1; 
+      FCCR<cc> = 1;
     else
-      FCCR<cc> = 0; 
+      FCCR<cc> = 0;
     endif;
   }
 
@@ -350,9 +350,9 @@ op C_LE_S (ft : F, fs : F, cc : COND_CODE)
   image  = format("01000110000%s%s%s00111110", ft.image, fs.image, cc)
   action = {
      if (fs <= ft) then
-       FCCR<cc> = 1; 
+       FCCR<cc> = 1;
      else
-       FCCR<cc> = 0; 
+       FCCR<cc> = 0;
      endif;
   }
 
@@ -361,31 +361,31 @@ op C_LE_S (ft : F, fs : F, cc : COND_CODE)
 
 op MOV_S (fd : F, fs : F)
   syntax = format("MOV_S %s, %s", fd.syntax, fs.syntax)
-  image  = format("0100011000000000%s%s000110", fs.image, fd.image) 
+  image  = format("0100011000000000%s%s000110", fs.image, fd.image)
   action = {
     fd = fs;
   }
 
 op MTF (rt : R, fs : F)
   syntax = format("MTF %s, %s", rt.syntax, fs.syntax)
-  image  = format("01000100100%s%s00000000000", rt.image, fs.image) 
+  image  = format("01000100100%s%s00000000000", rt.image, fs.image)
   action = {
-    fs = rt;    
+    fs = rt;
   }
 
 op MFF (rt : R, fs : F)
   syntax = format("MFF %s, %s", rt.syntax, fs.syntax)
-  image  = format("01000100000%s%s00000000000", rt.image, fs.image) 
+  image  = format("01000100000%s%s00000000000", rt.image, fs.image)
   action = {
     rt = fs;
   }
   
 op MOVT_S (fd : F, fs : F, cc : COND_CODE)
   syntax = format("MOVT_S %s, %s", fd.syntax, fs.syntax)
-  image  = format("01000110000%s01%s%s010001", cc, fs.image, fd.image) 
+  image  = format("01000110000%s01%s%s010001", cc, fs.image, fd.image)
   action = {
     if (FCCR<cc> == 1) then
-      fd = fs;    
+      fd = fs;
     endif;
   }
 
@@ -394,13 +394,13 @@ op MOVF_S (fd : F, fs : F, cc : COND_CODE)
   image  = format("01000110000%s00%s%s010001", cc, fs.image, fd.image)
   action = {
     if (FCCR<cc> == 0) then
-      fd = fs;    
+      fd = fs;
     endif;
   }
 
 op MOVN_S (fd : F, fs : F, rt : R)
   syntax = format("MOVN_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
-  image  = format("01000110000%s%s%s010011", rt.image, fs.image, fd.image) 
+  image  = format("01000110000%s%s%s010011", rt.image, fs.image, fd.image)
   action = {
     if (rt != 0) then
       fd = fs;
@@ -409,10 +409,10 @@ op MOVN_S (fd : F, fs : F, rt : R)
 
 op MOVZ_S (fd : F, fs : F, rt : R)
   syntax = format("MOVZ_S %s, %s, %s", fd.syntax, fs.syntax, rt.syntax)
-  image  = format("01000110000%s%s%s010010", rt.image, fs.image, fd.image) 
+  image  = format("01000110000%s%s%s010010", rt.image, fs.image, fd.image)
   action = {
     if (rt == 0) then
-      fd = fs;    
+      fd = fs;
     endif;
   }
 
