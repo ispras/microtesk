@@ -31,6 +31,10 @@ require_relative 'minimips_base'
 class IntExceptionTemplate < MiniMipsBaseTemplate
 
   def pre
+    data_config(:target => 'M') {
+      # Nothing
+    }
+
     preparator(:target => 'RCOP0') {
       # Nothing
     }
