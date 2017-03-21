@@ -27,6 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
+import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.api.tarmac.Tarmac;
 import ru.ispras.microtesk.options.Option;
@@ -64,13 +65,16 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkGreaterThanZero(engineContext.getModel().getPENumber());
 
+    final Model model = engineContext.getModel();
+    final LabelManager labelManager = engineContext.getLabelManager();
+
     final long baseAddress =
         engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
 
     this.engineContext = engineContext;
-    this.instanceNumber = engineContext.getModel().getPENumber();
+    this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
-    this.allocator = new CodeAllocator(engineContext.getLabelManager(), baseAddress);
+    this.allocator = new CodeAllocator(model, labelManager, baseAddress);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();

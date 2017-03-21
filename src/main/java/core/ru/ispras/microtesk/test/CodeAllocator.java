@@ -20,23 +20,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.model.api.memory.AddressTranslator;
+import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
 public final class CodeAllocator {
+  private final Model model;
   private final LabelManager labelManager;
   private final long baseAddress;
 
   private Code code;
   private long address;
 
-  public CodeAllocator(final LabelManager labelManager, final long baseAddress) {
+  public CodeAllocator(
+      final Model model,
+      final LabelManager labelManager,
+      final long baseAddress) {
+    InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
 
+    this.model = model;
     this.labelManager = labelManager;
     this.baseAddress = baseAddress;
     this.code = null;
@@ -137,6 +147,7 @@ public final class CodeAllocator {
           final CodeBlock block = new CodeBlock(
               calls.subList(startIndex, currentIndex), startAddress, currentAddress);
 
+          allocateBlock(block);
           getCode().registerBlock(block);
           startIndex = currentIndex;
         }
@@ -160,8 +171,48 @@ public final class CodeAllocator {
         currentAddress
         );
 
+    allocateBlock(block);
     getCode().registerBlock(block);
+
     address = currentAddress;
+  }
+
+  private void allocateBlock(final CodeBlock block) {
+    final int blockByteSize = (int)(block.getEndAddress() - block.getStartAddress());
+    if (0 == blockByteSize) {
+      return;
+    }
+
+    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
+    InvariantChecks.checkNotNull(memoryAllocator);
+    final BitVector blockData = BitVector.newEmpty(blockByteSize * BitVector.BITS_IN_BYTE);
+
+    for (final ConcreteCall call : block.getCalls()) {
+      if (!call.isExecutable()) {
+        continue;
+      }
+
+      final long address = call.getAddress();
+      final int offset = (int)(address - block.getStartAddress()) * BitVector.BITS_IN_BYTE;
+
+      final BitVector image = BitVector.valueOf(call.getImage());
+      final BitVector mapping = BitVector.newMapping(blockData, offset, image.getBitSize());
+
+      mapping.assign(image);
+    }
+
+    final BigInteger oldAllocatorAddress =
+        memoryAllocator.getCurrentAddress();
+
+    final BigInteger newAllocatorAddress =
+        AddressTranslator.get().virtualToPhysical(BigInteger.valueOf(block.getStartAddress()));
+
+    try {
+      memoryAllocator.setCurrentAddress(newAllocatorAddress);
+      memoryAllocator.allocate(blockData);
+    } finally {
+      memoryAllocator.setCurrentAddress(oldAllocatorAddress);
+    }
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
