@@ -15,6 +15,6 @@
   <setting name="reserve-explicit" value="true"/>
   <setting
     name="arch-dirs"
-    value="armv8=arch/armv8/settings.xml:mips64=arch/mips64/settings.xml:cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
+    value="cpu=arch/demo/cpu/settings.xml:vliw=arch/demo/vliw/settings.xml:minimips=arch/minimips/settings.xml"
   />
 </settings>
