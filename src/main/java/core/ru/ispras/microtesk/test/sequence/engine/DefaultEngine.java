@@ -127,6 +127,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     InvariantChecks.checkNotNull(sequence);
 
     if (sequence.isEmpty()) {
+      listener.setAllocationAddress(allocationAddress);
       return;
     }
 
