@@ -188,11 +188,11 @@ public final class CodeAllocator {
           continue;
         }
 
-        final long address = call.getAddress();
+        final BitVector address = BitVector.valueOf(call.getAddress(), 64);
         final BitVector image = BitVector.valueOf(call.getImage());
 
         final BigInteger allocatorAddress =
-            AddressTranslator.get().virtualToPhysical(BigInteger.valueOf(address));
+            AddressTranslator.get().virtualToPhysical(address.bigIntegerValue(false));
 
         memoryAllocator.setCurrentAddress(allocatorAddress);
         memoryAllocator.allocate(image);
