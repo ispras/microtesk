@@ -66,7 +66,7 @@ public final class MemoryAccessPathChooser {
         continue;
       }
 
-      Logger.debug("Target trajectory: %s", trajectory);
+      Logger.debug("Add iterator for the trajectory: %s", trajectory);
       iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
     }
   }

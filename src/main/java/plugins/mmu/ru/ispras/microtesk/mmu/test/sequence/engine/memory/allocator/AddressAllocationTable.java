@@ -134,7 +134,9 @@ public final class AddressAllocationTable {
   }
 
   private static long allocate(
-      final AllocationTable<Long, ?> allocTable, final boolean peek, final Set<Long> exclude) {
+      final AllocationTable<Long, ?> allocTable,
+      final boolean peek,
+      final Set<Long> exclude) {
     InvariantChecks.checkNotNull(allocTable);
 
     return peek ?
@@ -168,7 +170,7 @@ public final class AddressAllocationTable {
     final boolean isInsignificant = ((mask << lower) | addressMask) != addressMask;
 
     final AllocationStrategyId strategy =
-        isInsignificant ? AllocationStrategyId.RANDOM : AllocationStrategyId.FREE;
+        isInsignificant ? AllocationStrategyId.RANDOM : AllocationStrategyId.TRY_FREE;
 
     if (isInsignificant) {
       globalValues.addAll(Collections.singleton(0L));

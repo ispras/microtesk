@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
@@ -48,6 +49,20 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
   },
 
   BUFFER_ACCESS {
+    private MmuBuffer getBuffer(final MmuBufferAccess access) {
+      if (access == null) {
+        return null;
+      }
+
+      final MmuBuffer buffer = access.getBuffer();
+
+      if (buffer.isFake()) {
+        return null;
+      }
+
+      return buffer;
+    }
+
     @Override
     public Object apply(final MmuSubsystem memory, final MmuTransition transition) {
       InvariantChecks.checkNotNull(transition);
@@ -56,21 +71,13 @@ public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransi
 
       if (guard != null) {
         // When classifying the memory access paths, recursive calls are not taken into account.
-        final MmuBufferAccess access = guard.getBufferAccess(MemoryAccessContext.EMPTY);
-
-        if (access != null) {
-          return access.getBuffer();
-        }
+        return getBuffer(guard.getBufferAccess(MemoryAccessContext.EMPTY));
       }
 
       final MmuAction action = transition.getTarget();
 
       if (action != null) {
-        final MmuBufferAccess access = action.getBufferAccess(MemoryAccessContext.EMPTY);
-
-        if (access != null) {
-          return access.getBuffer();
-        }
+        return getBuffer(action.getBufferAccess(MemoryAccessContext.EMPTY));
       }
 
       return null;
