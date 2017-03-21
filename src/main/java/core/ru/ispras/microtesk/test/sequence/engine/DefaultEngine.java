@@ -27,7 +27,6 @@ import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.InstructionCall;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;
