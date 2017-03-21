@@ -178,38 +178,25 @@ public final class CodeAllocator {
   }
 
   private void allocateBlock(final CodeBlock block) {
-    final int blockByteSize = (int)(block.getEndAddress() - block.getStartAddress());
-    if (0 == blockByteSize) {
-      return;
-    }
-
     final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
     InvariantChecks.checkNotNull(memoryAllocator);
-    final BitVector blockData = BitVector.newEmpty(blockByteSize * BitVector.BITS_IN_BYTE);
 
-    for (final ConcreteCall call : block.getCalls()) {
-      if (!call.isExecutable()) {
-        continue;
-      }
-
-      final long address = call.getAddress();
-      final int offset = (int)(address - block.getStartAddress()) * BitVector.BITS_IN_BYTE;
-
-      final BitVector image = BitVector.valueOf(call.getImage());
-      final BitVector mapping = BitVector.newMapping(blockData, offset, image.getBitSize());
-
-      mapping.assign(image);
-    }
-
-    final BigInteger oldAllocatorAddress =
-        memoryAllocator.getCurrentAddress();
-
-    final BigInteger newAllocatorAddress =
-        AddressTranslator.get().virtualToPhysical(BigInteger.valueOf(block.getStartAddress()));
-
+    final BigInteger oldAllocatorAddress = memoryAllocator.getCurrentAddress();
     try {
-      memoryAllocator.setCurrentAddress(newAllocatorAddress);
-      memoryAllocator.allocate(blockData);
+      for (final ConcreteCall call : block.getCalls()) {
+        if (!call.isExecutable()) {
+          continue;
+        }
+
+        final long address = call.getAddress();
+        final BitVector image = BitVector.valueOf(call.getImage());
+
+        final BigInteger allocatorAddress =
+            AddressTranslator.get().virtualToPhysical(BigInteger.valueOf(address));
+
+        memoryAllocator.setCurrentAddress(allocatorAddress);
+        memoryAllocator.allocate(image);
+      }
     } finally {
       memoryAllocator.setCurrentAddress(oldAllocatorAddress);
     }
