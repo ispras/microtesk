@@ -29,6 +29,7 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
@@ -47,6 +48,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPathIterator.Result> {
+  public static final int MAX_RECURSIVE_CALLS_NUMBER = 1;
 
   /**
    * {@link Result} represents an item returned by {@link MemoryAccessPathIterator}.
@@ -505,31 +507,38 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           if (entry.getKind() == MemoryAccessPath.Entry.Kind.NORMAL) {
             newResult = result;
           } else /* MemoryAccessPath.Entry.Kind.CALL */ {
-            newResult = new MemorySymbolicResult(result);
+            final MemoryAccessStack stack = result.getContext().getMemoryAccessStack();
 
-            final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
-                memory, graph, getType(program), constraints, result);
+            if (stack.size() > MAX_RECURSIVE_CALLS_NUMBER) {
+              newResult = result;
+              isCompletedPath = true;
+            } else {
+              newResult = new MemorySymbolicResult(result);
 
-            while (innerIterator.hasNext()) {
-              final Result innerResult = innerIterator.next();
-              final MemoryAccessPath innerPath = innerResult.getPath();
+              final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
+                  memory, graph, getType(program), constraints, result);
 
-              // Access to a memory-mapped buffer should reach the memory.
-              if (!innerPath.contains(memory.getTargetBuffer())) {
-                continue;
+              while (innerIterator.hasNext()) {
+                final Result innerResult = innerIterator.next();
+                final MemoryAccessPath innerPath = innerResult.getPath();
+
+                // Access to a memory-mapped buffer should reach the memory.
+                if (!innerPath.contains(memory.getTargetBuffer())) {
+                  continue;
+                }
+
+                // Append a random inner path.
+                entries.addAll(innerPath.getEntries());
+                entries.add(MemoryAccessPath.Entry.RETURN(newResult.getContext()));
+
+                // Update the symbolic result.
+                newResult = innerResult.getResult();
+                break;
               }
 
-              // Append a random inner path.
-              entries.addAll(innerPath.getEntries());
-              entries.add(MemoryAccessPath.Entry.RETURN(newResult.getContext()));
-
-              // Update the symbolic result.
-              newResult = innerResult.getResult();
-              break;
+              // Recursive memory call is infeasible.
+              isCompletedPath = !innerIterator.hasNext();
             }
-
-            // Recursive memory call is infeasible.
-            isCompletedPath = !innerIterator.hasNext();
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);
