@@ -59,6 +59,11 @@ class VliwBaseTemplate < Template
   # Initialization Section
   
   def pre
+    # Physical memory is modelled by array "M:.
+    data_config(:target => 'M') {
+      # Data type definitions must be placed here.
+    }
+
     #
     # Rules for writing preparators of initializing instruction sequences:
     #

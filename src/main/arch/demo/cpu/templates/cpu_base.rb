@@ -30,12 +30,17 @@ class CpuBaseTemplate < Template
   #
   # Initialization section. Contains code to be inserted in the beginning of
   # of a test case. It also contains descriptions of preparators. A preparator
-  # is a rule used by test data generators to creation initialization 
-  # sequences of instructions. This sequences assign the generated values to 
-  # corresponding registers and addresses and are inserted in the beginning of 
-  # the test program.  
+  # is a rule used by test data generators to creation initialization
+  # sequences of instructions. This sequences assign the generated values to
+  # corresponding registers and addresses and are inserted in the beginning of
+  # the test program.
   #
   def pre
+    # Physical memory is modelled by array "M:.
+    data_config(:target => 'M') {
+      # Data type definitions must be placed here.
+    }
+
     #
     # The code below specifies an instruction sequence that writes a value
     # to the specified general-purpose register (GPR) using the REG addressing
