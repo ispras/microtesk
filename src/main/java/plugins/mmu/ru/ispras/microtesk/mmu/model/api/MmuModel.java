@@ -14,7 +14,9 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -28,6 +30,7 @@ import ru.ispras.microtesk.model.api.memory.MemoryDevice;
  */
 public class MmuModel implements ModelStateManager {
   private final Map<String, BufferObserver> buffers;
+  private final List<ModelStateManager> stateManagers;
   private final MemoryDevice device;
   private final Memory<? extends Data, ? extends Address> target;
   private final String targetId;
@@ -41,6 +44,7 @@ public class MmuModel implements ModelStateManager {
     InvariantChecks.checkNotNull(target);
 
     this.buffers = new HashMap<>();
+    this.stateManagers = new ArrayList<>();
     this.device = device;
     this.target = target;
     this.targetId = targetId;
@@ -48,6 +52,9 @@ public class MmuModel implements ModelStateManager {
 
   protected final void addBuffer(final String bufferId, final BufferObserver buffer) {
     buffers.put(bufferId, buffer);
+    if (buffer instanceof ModelStateManager) {
+      stateManagers.add((ModelStateManager) buffer);
+    }
   }
 
   public final BufferObserver getBufferObserver(final String bufferId) {
@@ -67,12 +74,16 @@ public class MmuModel implements ModelStateManager {
   }
 
   @Override
-  public void setUseTempState(boolean value) {
-    // TODO Auto-generated method stub
+  public void setUseTempState(final boolean value) {
+    for (final ModelStateManager stateManager : stateManagers) {
+      stateManager.setUseTempState(value);
+    }
   }
 
   @Override
   public void resetState() {
-    // TODO Auto-generated method stub
+    for (final ModelStateManager stateManager : stateManagers) {
+      stateManager.resetState();
+    }
   }
 }
