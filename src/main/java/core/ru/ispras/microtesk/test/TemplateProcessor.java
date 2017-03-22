@@ -168,6 +168,8 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processPrologue(final Block block) {
+    engineContext.setCodeAllocationAddress(allocator.getAddress());
+
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
@@ -201,6 +203,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     engineContext.getModel().setActivePE(instanceIndex);
+    engineContext.setCodeAllocationAddress(allocator.getAddress());
 
     final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
     sequence.setTitle("External Code");
@@ -232,6 +235,8 @@ final class TemplateProcessor implements Template.Processor {
 
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+      engineContext.setCodeAllocationAddress(allocator.getAddress());
+
       final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
       final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
@@ -492,6 +497,7 @@ final class TemplateProcessor implements Template.Processor {
       processPostponedBlocksNoSimulation();
       TestEngineUtils.notifyProgramEnd();
 
+      engineContext.setCodeAllocationAddress(allocator.getAddress());
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
 
