@@ -35,6 +35,7 @@ public enum Option {
   GENERATE("generate", "Generates test programs", false, null, "task"),
   DISASSEMBLE("disassemble", "Disassembles binary files", false, null, "task"),
   SYMBOLIC_EXECUTE("symbolic-execute", "Performs symbolic execution", false, null, "task"),
+  TRACE_TRANSFORM("trace-transform", "Transforms a trace into the template", false, null, "task"),
   OUTDIR("output-dir", "Directory to place generated files", "./output"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////

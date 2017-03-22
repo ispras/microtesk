@@ -29,6 +29,7 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.transform.TraceTransformer;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -125,6 +126,8 @@ public final class MicroTESK {
       return disassemble(options, arguments);
     } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
       return symbolicExecute(options, arguments);
+    } else if (options.getValueAsBoolean(Option.TRACE_TRANSFORM)) {
+      return traceTransform(options, arguments);
     } else {
       return translate(options, arguments);
     }
@@ -205,6 +208,23 @@ public final class MicroTESK {
     return true;
   }
 
+  private static boolean traceTransform(final Options options, final String[] arguments) {
+    if (!checkThreeArguments(arguments)) {
+      return false;
+    }
+
+    final String modelName = arguments[0];
+    final String templateName = arguments[1];
+    final String traceName = arguments[2];
+
+    if (!TraceTransformer.execute(options, modelName, templateName, traceName)) {
+      Logger.message("Symbolic execution was aborted.");
+      return false;
+    }
+
+    return true;
+  }
+
   private static boolean generate(
       final Options options,
       final String[] arguments,
@@ -230,6 +250,17 @@ public final class MicroTESK {
 
     Logger.error("Wrong number of command-line arguments. Two are required.");
     Logger.message("Argument format: <model name>, <input file>");
+
+    return false;
+  }
+
+  private static boolean checkThreeArguments(final String[] arguments) {
+    if (arguments.length == 3) {
+      return true;
+    }
+
+    Logger.error("Wrong number of command-line arguments. Two are required.");
+    Logger.message("Argument format: <model name>, <input file 1>, <input file 2>");
 
     return false;
   }
