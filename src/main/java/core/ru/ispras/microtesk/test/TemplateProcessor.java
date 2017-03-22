@@ -325,7 +325,8 @@ final class TemplateProcessor implements Template.Processor {
   private boolean processPostponedExternalBlock(final Block block, final TestSequence entry) throws ConfigurationException {
     final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
 
-    int instanceIndex = findInstanceAtEndOfTestSequence(testProgram.getPrevAllocatedEntry(entry));
+    final TestSequence prevAllocatedEntry = testProgram.getPrevAllocatedEntry(entry);
+    int instanceIndex = findInstanceAtEndOfTestSequence(prevAllocatedEntry);
     if (-1 == instanceIndex) {
       instanceIndex = findInstanceJumpIntoSequence(abstractSequence);
     }
@@ -348,6 +349,10 @@ final class TemplateProcessor implements Template.Processor {
 
     engineContext.getModel().setActivePE(instanceIndex);
 
+    final long allocationAddress =
+        null != prevAllocatedEntry ? prevAllocatedEntry.getEndAddress() : allocator.getAddress();
+    engineContext.setCodeAllocationAddress(allocationAddress);
+
     final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
     sequence.setTitle("External Code");
 
@@ -358,9 +363,10 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private boolean processPostponedBlock(
-      final Block block, final TestSequence entry) throws ConfigurationException {
-    final int instanceIndex =
-        findInstanceAtEndOfTestSequence(testProgram.getPrevAllocatedEntry(entry));
+      final Block block,
+      final TestSequence entry) throws ConfigurationException {
+    final TestSequence prevAllocatedEntry = testProgram.getPrevAllocatedEntry(entry);
+    final int instanceIndex = findInstanceAtEndOfTestSequence(prevAllocatedEntry);
 
     if (-1 == instanceIndex) {
       Logger.debug("Processing of block defined at %s is postponed again.", block.getWhere());
@@ -375,9 +381,14 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.getModel().setActivePE(instanceIndex);
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
+    long allocationAddress =
+        null != prevAllocatedEntry ? prevAllocatedEntry.getEndAddress() : allocator.getAddress();
+
     TestSequence previous = entry;
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+      engineContext.setCodeAllocationAddress(allocationAddress);
+
       final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
       final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
@@ -404,6 +415,7 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
+        allocationAddress = previous.getEndAddress();
       } // Concrete sequence iterator
     } // Abstract sequence iterator
 
@@ -430,6 +442,12 @@ final class TemplateProcessor implements Template.Processor {
   private void processPostponedExternalBlockNoSimulation(
       final Block block,
       final TestSequence entry) throws ConfigurationException {
+    final TestSequence prevAllocatedEntry = testProgram.getPrevAllocatedEntry(entry);
+
+    final long allocationAddress =
+        null != prevAllocatedEntry ? prevAllocatedEntry.getEndAddress() : allocator.getAddress();
+    engineContext.setCodeAllocationAddress(allocationAddress);
+
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
@@ -440,10 +458,17 @@ final class TemplateProcessor implements Template.Processor {
   private void processPostponedBlockNoSimulation(
       final Block block,
       final TestSequence entry) throws ConfigurationException {
+    final TestSequence prevAllocatedEntry = testProgram.getPrevAllocatedEntry(entry);
+
+    long allocationAddress =
+        null != prevAllocatedEntry ? prevAllocatedEntry.getEndAddress() : allocator.getAddress();
+
     TestSequence previous = entry;
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+      engineContext.setCodeAllocationAddress(allocationAddress);
+
       final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
       final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
@@ -460,6 +485,8 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         previous = sequence;
+        allocationAddress = previous.getEndAddress();
+
         engineContext.getStatistics().incSequences();
       } // Concrete sequence iterator
     } // Abstract sequence iterator
