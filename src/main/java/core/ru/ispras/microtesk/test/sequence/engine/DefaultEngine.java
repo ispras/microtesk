@@ -116,6 +116,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
         sequenceIndex
         );
 
+    engineContext.setCodeAllocationAddress(creator.getAllocationAddress());
     return creator.createTestSequence();
   }
 
