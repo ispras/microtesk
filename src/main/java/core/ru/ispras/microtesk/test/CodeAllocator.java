@@ -131,6 +131,9 @@ public final class CodeAllocator {
   }
 
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
+    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
+    InvariantChecks.checkNotNull(memoryAllocator);
+
     int startIndex = 0;
     int currentIndex = startIndex;
 
@@ -147,7 +150,6 @@ public final class CodeAllocator {
           final CodeBlock block = new CodeBlock(
               calls.subList(startIndex, currentIndex), startAddress, currentAddress);
 
-          allocateBlock(block);
           getCode().registerBlock(block);
           startIndex = currentIndex;
         }
@@ -163,6 +165,16 @@ public final class CodeAllocator {
 
       currentAddress += call.getByteSize();
       currentIndex++;
+
+      if (call.isExecutable()) {
+        final BitVector image = BitVector.valueOf(call.getImage());
+        final BitVector virtualAddress = BitVector.valueOf(callAddress, 64);
+
+        final BigInteger physicalAddress =
+            AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+
+        memoryAllocator.allocateAt(image, physicalAddress);
+      }
     }
 
     final CodeBlock block = new CodeBlock(
@@ -171,35 +183,8 @@ public final class CodeAllocator {
         currentAddress
         );
 
-    allocateBlock(block);
     getCode().registerBlock(block);
-
     address = currentAddress;
-  }
-
-  private void allocateBlock(final CodeBlock block) {
-    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
-    InvariantChecks.checkNotNull(memoryAllocator);
-
-    final BigInteger oldAllocatorAddress = memoryAllocator.getCurrentAddress();
-    try {
-      for (final ConcreteCall call : block.getCalls()) {
-        if (!call.isExecutable()) {
-          continue;
-        }
-
-        final BitVector address = BitVector.valueOf(call.getAddress(), 64);
-        final BitVector image = BitVector.valueOf(call.getImage());
-
-        final BigInteger allocatorAddress =
-            AddressTranslator.get().virtualToPhysical(address.bigIntegerValue(false));
-
-        memoryAllocator.setCurrentAddress(allocatorAddress);
-        memoryAllocator.allocate(image);
-      }
-    } finally {
-      memoryAllocator.setCurrentAddress(oldAllocatorAddress);
-    }
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
