@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.model.api;
 
 /**
- * The {@links ModelStateManager} interface is to be defines methods
+ * The {@link ModelStateManager} interface is to be defines methods
  * for managing the state of the model.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
