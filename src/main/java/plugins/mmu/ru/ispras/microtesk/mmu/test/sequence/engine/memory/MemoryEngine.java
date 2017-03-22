@@ -275,7 +275,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           final MmuSubsystem memory = MmuPlugin.getSpecification();
 
           for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
-            if (buffer.getAddress().equals(addressType) && buffer != memory.getTargetBuffer()) {
+            if (!buffer.isFake()
+                && buffer.getAddress().equals(addressType)
+                && buffer != memory.getTargetBuffer()) {
               Logger.debug("Hit checker: %s", buffer);
 
               final BufferObserver observer = model.getBufferObserver(buffer.getName());
