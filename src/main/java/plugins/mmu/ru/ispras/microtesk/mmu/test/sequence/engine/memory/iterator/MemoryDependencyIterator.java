@@ -87,7 +87,6 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         // FIXME: Some of the restrictions are too strong and need to be weakened.
         if (!buffer1.isFake()
             && buffer1 == buffer2
-            && buffer1.getKind() != MmuBuffer.Kind.MEMORY
             && context1.isEmptyStack() && context2.isEmptyStack()
             && bufferAccess1.getId() == 0 && bufferAccess2.getId() == 0) {
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);

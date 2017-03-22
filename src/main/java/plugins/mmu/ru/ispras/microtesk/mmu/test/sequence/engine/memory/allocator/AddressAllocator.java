@@ -53,6 +53,10 @@ public final class AddressAllocator {
     }
 
     for (final MmuBuffer buffer : memory.getBuffers()) {
+      if (buffer.isFake()) {
+        continue;
+      }
+
       final MmuAddressInstance addressType = buffer.getAddress();
       final Collection<MmuExpression> addressExpressions = expressions.get(addressType);
 
