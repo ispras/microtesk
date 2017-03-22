@@ -158,5 +158,7 @@ public final class MmuPlugin implements Plugin {
 
     final MemoryDevice storageDevice = model.setMemoryHandler(memoryId, mmuDevice);
     mmuModel.setStorageDevice(storageDevice);
+
+    model.addStateManager(mmuModel);
   }
 }
