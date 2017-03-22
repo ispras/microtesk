@@ -18,6 +18,7 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.api.ModelStateManager;
 import ru.ispras.microtesk.utils.SparseArray;
 
 /**
@@ -36,13 +37,12 @@ import ru.ispras.microtesk.utils.SparseArray;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class Cache<D extends Data, A extends Address>
-    implements Buffer<D, A>, BufferObserver {
+    implements Buffer<D, A>, BufferObserver, ModelStateManager {
   /** The table of associative sets. */
-  private final SparseArray<Set<D, A>> sets;
+  private SparseArray<Set<D, A>> sets;
+  private SparseArray<Set<D, A>> savedSets;
 
-  /** The set indexer. */
   private final Indexer<A> indexer;
-
   private final int associativity;
   private final PolicyId policyId;
   private final Matcher<D, A> matcher;
@@ -88,6 +88,7 @@ public abstract class Cache<D extends Data, A extends Address>
     InvariantChecks.checkNotNull(matcher);
 
     this.sets = new SparseArray<>(length);
+    this.savedSets = null;
     this.indexer = indexer;
 
     this.associativity = associativity;
@@ -144,5 +145,27 @@ public abstract class Cache<D extends Data, A extends Address>
   @Override
   public String toString() {
     return String.format("%s %s", getClass().getSimpleName(), sets);
+  }
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    final boolean isTempStateUsed = savedSets != null;
+    if (value == isTempStateUsed) {
+      return;
+    }
+
+    if (value) {
+      savedSets = sets;
+      sets = new SparseArray<>(sets.length()); // TODO: NEED A FULL COPY HERE
+    } else {
+      sets = savedSets;
+      savedSets = null;
+    }
+  }
+
+  @Override
+  public void resetState() {
+    sets = new SparseArray<>(sets.length());
+    savedSets = null;
   }
 }
