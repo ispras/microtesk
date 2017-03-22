@@ -340,7 +340,7 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    if (testProgram.isPostponedEntry(testProgram.getLastEntry()) &&
+    if (testProgram.isPostponedEntry(testProgram.getPrevEntry(entry)) &&
         !TestEngineUtils.isOriginFixed(abstractSequence)) {
       throw new GenerationAbortedException(String.format(
           "External code defined at %s must have fixed origin.", block.getWhere()));
