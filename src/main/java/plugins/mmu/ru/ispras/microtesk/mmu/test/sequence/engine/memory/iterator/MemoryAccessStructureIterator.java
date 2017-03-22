@@ -149,6 +149,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
       final MemoryAccessConstraints constraints,
+      final int recursionLimit,
       final Mode mode,
       final int countLimit) {
     InvariantChecks.checkNotNull(abstraction);
@@ -173,8 +174,15 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
           constraints, accessConstraints != null ? accessConstraints.get(index) : null);
 
-      final List<MemoryAccessPathChooser> choosers = CoverageExtractor.get().getPathChoosers(
-          MmuPlugin.getSpecification(), abstraction, accessType, currentConstraints, false);
+      final List<MemoryAccessPathChooser> choosers =
+          CoverageExtractor.get().getPathChoosers(
+              MmuPlugin.getSpecification(),
+              abstraction,
+              accessType,
+              currentConstraints,
+              recursionLimit,
+              false
+          );
 
       InvariantChecks.checkTrue(choosers != null && !choosers.isEmpty());
       Logger.debug("Classifying memory access paths: %s %d classes", accessType, choosers.size());

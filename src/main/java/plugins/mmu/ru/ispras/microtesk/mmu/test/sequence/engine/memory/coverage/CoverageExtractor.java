@@ -63,6 +63,7 @@ public final class CoverageExtractor {
       final MemoryGraphAbstraction abstraction,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
+      final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(abstraction);
@@ -76,6 +77,7 @@ public final class CoverageExtractor {
         result.getGraph(),
         type,
         constraints,
+        recursionLimit,
         discardEmptyTrajectories);
   
     return chooser;
@@ -86,6 +88,7 @@ public final class CoverageExtractor {
       final MemoryGraphAbstraction abstraction,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
+      final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(abstraction);
@@ -109,8 +112,15 @@ public final class CoverageExtractor {
         continue;
       }
 
-      choosers.add(new MemoryAccessPathChooser(
-          memory, trajectory, result.getGraph(), type, constraints));
+      choosers.add(
+        new MemoryAccessPathChooser(
+            memory,
+            trajectory,
+            result.getGraph(),
+            type,
+            constraints,
+            recursionLimit)
+      );
     }
 
     if (constraints.isEmpty()) {

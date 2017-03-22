@@ -48,8 +48,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPathIterator.Result> {
-  public static final int MAX_RECURSIVE_CALLS_NUMBER = 1;
-
   /**
    * {@link Result} represents an item returned by {@link MemoryAccessPathIterator}.
    */
@@ -232,11 +230,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private final MemoryGraph graph;
   /** Memory access type. */
   private final MemoryAccessType type;
-  /** Constraints for selecting memory access paths. */
+  /** User-defined constraints for selecting memory access paths. */
   private final MemoryAccessConstraints constraints;
 
   private final Stack<SearchStackEntry> searchStack = new Stack<>();
   private final List<MemoryAccessPath.Entry> currentPath = new ArrayList<>();
+
+  /** Maximum number of recursive memory calls. */
+  private final int recursionLimit;
 
   private Result result;
   private boolean hasResult;
@@ -245,26 +246,15 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MmuSubsystem memory,
       final MemoryGraph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints) {
-    this(memory, graph, type, constraints, MemoryEngineUtils.newSymbolicResult());
-  }
-
-  public MemoryAccessPathIterator(
-      final MmuSubsystem memory,
-      final List<Object> trajectory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
-      final MemoryAccessConstraints constraints) {
-    this(memory, trajectory, graph, type, constraints, MemoryEngineUtils.newSymbolicResult());
-  }
-
-  public MemoryAccessPathIterator(
-      final MmuSubsystem memory,
-      final MemoryGraph graph,
-      final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult result) {
-    this(memory, null, graph, type, constraints, result);
+      final int recursionLimit) {
+    this(
+        memory,
+        graph,
+        type,
+        constraints,
+        MemoryEngineUtils.newSymbolicResult(),
+        recursionLimit);
   }
 
   public MemoryAccessPathIterator(
@@ -273,7 +263,35 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult result) {
+      final int recursionLimit) {
+    this(
+        memory,
+        trajectory,
+        graph,
+        type,
+        constraints,
+        MemoryEngineUtils.newSymbolicResult(),
+        recursionLimit);
+  }
+
+  public MemoryAccessPathIterator(
+      final MmuSubsystem memory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final MemorySymbolicResult result,
+      final int recursionLimit) {
+    this(memory, null, graph, type, constraints, result, recursionLimit);
+  }
+
+  public MemoryAccessPathIterator(
+      final MmuSubsystem memory,
+      final List<Object> trajectory,
+      final MemoryGraph graph,
+      final MemoryAccessType type,
+      final MemoryAccessConstraints constraints,
+      final MemorySymbolicResult result,
+      final int recursionLimit) {
     InvariantChecks.checkNotNull(memory);
     // Parameter trajectory can be null (in this case, the trajectory is ignored).
     InvariantChecks.checkNotNull(graph);
@@ -290,6 +308,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     final SearchStackEntry searchEntry = new SearchStackEntry(0, startAction, trajectory, result);
 
     this.searchStack.push(searchEntry);
+
+    this.recursionLimit = recursionLimit;
 
     // Do not perform result = getNext() here (this will decrease the initialization time).
     this.result = null;
@@ -509,14 +529,14 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           } else /* MemoryAccessPath.Entry.Kind.CALL */ {
             final MemoryAccessStack stack = result.getContext().getMemoryAccessStack();
 
-            if (stack.size() > MAX_RECURSIVE_CALLS_NUMBER) {
+            if (stack.size() > recursionLimit) {
               newResult = result;
               isCompletedPath = true;
             } else {
               newResult = new MemorySymbolicResult(result);
 
               final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
-                  memory, graph, getType(program), constraints, result);
+                  memory, graph, getType(program), constraints, result, recursionLimit - 1);
 
               while (innerIterator.hasNext()) {
                 final Result innerResult = innerIterator.next();

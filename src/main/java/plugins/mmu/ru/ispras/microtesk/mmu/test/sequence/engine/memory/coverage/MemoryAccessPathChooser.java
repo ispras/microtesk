@@ -35,6 +35,7 @@ public final class MemoryAccessPathChooser {
   private final MemoryGraph graph;
   private final MemoryAccessType type;
   private final MemoryAccessConstraints constraints;
+  private final int recursionLimit;
   private final boolean discardEmptyTrajectories;
 
   private final Collection<Iterator<MemoryAccessPathIterator.Result>> iterators = new ArrayList<>();
@@ -46,6 +47,7 @@ public final class MemoryAccessPathChooser {
       final MemoryGraph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
+      final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(trajectories);
@@ -59,6 +61,7 @@ public final class MemoryAccessPathChooser {
     this.graph = graph;
     this.type = type;
     this.constraints = constraints;
+    this.recursionLimit = recursionLimit;
     this.discardEmptyTrajectories = discardEmptyTrajectories;
 
     for (final List<Object> trajectory : trajectories) {
@@ -67,7 +70,9 @@ public final class MemoryAccessPathChooser {
       }
 
       Logger.debug("Add iterator for the trajectory: %s", trajectory);
-      iterators.add(new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints));
+      iterators.add(
+        new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints, recursionLimit)
+      );
     }
   }
 
@@ -76,8 +81,16 @@ public final class MemoryAccessPathChooser {
       final List<Object> trajectory,
       final MemoryGraph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints) {
-    this(memory, Collections.<List<Object>>singleton(trajectory), graph, type, constraints, false);
+      final MemoryAccessConstraints constraints,
+      final int recursionLimit) {
+    this(
+        memory,
+        Collections.<List<Object>>singleton(trajectory),
+        graph,
+        type,
+        constraints,
+        recursionLimit,
+        false);
   }
 
   public MemoryAccessPath get() {
@@ -121,6 +134,7 @@ public final class MemoryAccessPathChooser {
             this.graph,
             this.type,
             MemoryAccessConstraints.compose(strongestConstraints),
+            this.recursionLimit,
             this.discardEmptyTrajectories);
 
     final MemoryAccessPath strongestPath = strongestChooser.get();
@@ -146,6 +160,7 @@ public final class MemoryAccessPathChooser {
             this.graph,
             this.type,
             MemoryAccessConstraints.compose(weakestConstraints),
+            this.recursionLimit,
             this.discardEmptyTrajectories);
 
     return weakestChooser.get();
