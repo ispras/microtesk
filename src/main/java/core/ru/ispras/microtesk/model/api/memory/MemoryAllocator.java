@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.model.api.memory;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEq;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterOrEqZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -26,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
@@ -60,9 +56,8 @@ public final class MemoryAllocator {
       final MemoryDevice memory,
       final int addressableUnitBitSize,
       final BigInteger baseAddress) {
-
-    checkNotNull(memory);
-    checkGreaterThanZero(addressableUnitBitSize);
+    InvariantChecks.checkNotNull(memory);
+    InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
     final int regionBitSize = memory.getDataBitSize();
     if (regionBitSize % addressableUnitBitSize != 0) {
@@ -155,12 +150,23 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public BigInteger allocate(final BitVector data) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
     final int dataBitSize = data.getBitSize();
 
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
     final BigInteger address = alignAddress(currentAddress, sizeInAddressableUnits);
 
+    allocateAt(data, address);
+    currentAddress = address.add(BigInteger.valueOf(sizeInAddressableUnits));
+
+    return address;
+  }
+
+  public void allocateAt(final BitVector data, final BigInteger address) {
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkNotNull(address);
+
+    final int dataBitSize = data.getBitSize();
     BigInteger regionIndex = regionIndexForAddress(address);
     int regionBitOffset = regionBitOffsetForAddress(address);
 
@@ -187,9 +193,6 @@ public final class MemoryAllocator {
       regionIndex = regionIndex.add(BigInteger.ONE);
       regionBitOffset = 0;
     }
-
-    currentAddress = address.add(BigInteger.valueOf(sizeInAddressableUnits));
-    return address;
   }
 
   private int regionBitOffsetForAddress(final BigInteger address) {
@@ -212,8 +215,8 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public BigInteger allocate(final BitVector data, final int count) {
-    checkNotNull(data);
-    checkGreaterThanZero(count);
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkGreaterThanZero(count);
 
     BigInteger address = BigInteger.ZERO;
     for (int index = 0; index < count; ++index) {
@@ -239,7 +242,7 @@ public final class MemoryAllocator {
    * different sizes. 
    */
   public BigInteger allocate(final BitVector... data) {
-    checkGreaterThanZero(data.length);
+    InvariantChecks.checkGreaterThanZero(data.length);
     return allocate(Arrays.asList(data));
   }
 
@@ -256,7 +259,7 @@ public final class MemoryAllocator {
    *         if the list is empty or it list elements have different sizes.
    */
   public BigInteger allocate(final List<BitVector> data) {
-    checkNotNull(data);
+    InvariantChecks.checkNotNull(data);
 
     if (data.isEmpty()) {
       throw new IllegalArgumentException("The list is empty.");
@@ -307,7 +310,7 @@ public final class MemoryAllocator {
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
   public BigInteger allocateAsciiString(final String string, final boolean zeroTerm) {
-    checkNotNull(string);
+    InvariantChecks.checkNotNull(string);
 
     final BitVector data = toAsciiBinary(string, zeroTerm);
 
@@ -342,7 +345,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
    */
   public int bitsToAddressableUnits(final int bitSize) {
-    checkGreaterThanZero(bitSize);
+    InvariantChecks.checkGreaterThanZero(bitSize);
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
   }
 
@@ -356,8 +359,8 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if any of the parameters is negative.
    */
   static BigInteger alignAddress(final BigInteger address, final int alignment) {
-    checkGreaterOrEq(address, BigInteger.ZERO);
-    checkGreaterOrEqZero(alignment);
+    InvariantChecks.checkGreaterOrEq(address, BigInteger.ZERO);
+    InvariantChecks.checkGreaterOrEqZero(alignment);
 
     final BigInteger alignmentLength = BigInteger.valueOf(alignment);
     final BigInteger unaligned = address.mod(alignmentLength);
@@ -384,7 +387,7 @@ public final class MemoryAllocator {
    * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */
   private BitVector toAsciiBinary(final String string, final boolean zeroTerm) {
-    checkNotNull(string);
+    InvariantChecks.checkNotNull(string);
 
     final byte[] stringBytes;
     try {
