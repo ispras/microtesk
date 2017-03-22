@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.Model;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -48,6 +49,7 @@ public final class EngineContext {
   private final TestBase testBase;
   private final Statistics statistics;
   private final int delaySlotSize;
+  private long codeAllocationAddress;
   private DataDirectiveFactory dataDirectiveFactory;
 
   // TODO: temporal solution for extending the context for custom engines.
@@ -77,6 +79,7 @@ public final class EngineContext {
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
+    this.codeAllocationAddress = options.getValueAsBigInteger(Option.BASE_VA).longValue();
     this.dataDirectiveFactory = null;
   }
 
@@ -118,6 +121,14 @@ public final class EngineContext {
 
   public int getDelaySlotSize() {
     return delaySlotSize;
+  }
+
+  public long getCodeAllocationAddress() {
+    return codeAllocationAddress;
+  }
+
+  public void setCodeAllocationAddress(final long value) {
+    this.codeAllocationAddress = value;
   }
 
   public DataDirectiveFactory getDataDirectiveFactory() {

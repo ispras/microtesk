@@ -105,13 +105,17 @@ public final class DefaultEngine implements Engine<TestSequence> {
     final List<ConcreteCall> concreteSequence =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence);
 
-    final long baseAddress =
-        engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
-
     final TestSequenceCreator creator = 
         new TestSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
-    execute(engineContext, creator, baseAddress, concreteSequence, sequenceIndex);
+    execute(
+        engineContext,
+        creator,
+        engineContext.getCodeAllocationAddress(),
+        concreteSequence,
+        sequenceIndex
+        );
+
     return creator.createTestSequence();
   }
 
