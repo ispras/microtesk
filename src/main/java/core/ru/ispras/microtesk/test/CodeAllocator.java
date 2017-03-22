@@ -50,7 +50,7 @@ public final class CodeAllocator {
     this.labelManager = labelManager;
     this.baseAddress = baseAddress;
     this.code = null;
-    this.address = 0;
+    this.address = baseAddress;
   }
 
   public void init() {
@@ -62,7 +62,7 @@ public final class CodeAllocator {
   public void reset() {
     InvariantChecks.checkNotNull(code);
     code = null;
-    address = 0;
+    address = baseAddress;
   }
 
   public Code getCode() {
@@ -71,7 +71,6 @@ public final class CodeAllocator {
   }
 
   public long getAddress() {
-    InvariantChecks.checkNotNull(code);
     return address;
   }
 
