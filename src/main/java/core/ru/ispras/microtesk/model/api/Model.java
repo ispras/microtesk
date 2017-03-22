@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.api;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaOperation;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Model {
+public final class Model implements ModelStateManager {
   private final String name;
   private final MetaModel metaData;
   private final Decoder decoder;
@@ -53,6 +54,7 @@ public final class Model {
 
   private final MemoryDevice memoryCallback;
   private Pair<String, MemoryDevice> memoryHandler;
+  private final List<ModelStateManager> stateManagers;
 
   protected Model(
       final String name,
@@ -84,6 +86,8 @@ public final class Model {
 
     this.memoryCallback = new MemoryCallback();
     this.memoryHandler = null;
+
+    this.stateManagers = new ArrayList<>();
   }
 
   /**
@@ -143,7 +147,12 @@ public final class Model {
     return activeProcElemIndex;
   }
 
+  @Override
   public void setUseTempState(final boolean value) {
+    for(final ModelStateManager stateManager : stateManagers) {
+      stateManager.setUseTempState(value);
+    }
+
     if (value) {
       InvariantChecks.checkNotNull(activeProcElem);
       InvariantChecks.checkTrue(null == activeProcElemTemp);
@@ -156,10 +165,16 @@ public final class Model {
     }
   }
 
+  @Override
   public void resetState() {
+    for(final ModelStateManager stateManager : stateManagers) {
+      stateManager.resetState();
+    }
+
     for (final ProcessingElement procElem : procElems) {
       procElem.resetState();
     }
+
     activeProcElemTemp = null;
   }
 
@@ -173,6 +188,11 @@ public final class Model {
 
     memoryHandler = new Pair<>(id, handler);
     return memoryCallback;
+  }
+
+  public void addStateManager(final ModelStateManager stateManager) {
+    InvariantChecks.checkNotNull(stateManager);
+    stateManagers.add(stateManager);
   }
 
   public void initMemoryAllocator(
