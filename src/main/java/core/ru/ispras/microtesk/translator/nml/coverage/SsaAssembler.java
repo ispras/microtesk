@@ -153,7 +153,7 @@ public final class SsaAssembler {
   }
 
   public Node assemble(final Map<String, String> context, final String entry, final String tag) {
-    this.buildingContext = context;
+    this.buildingContext = new HashMap<>(context);
     this.contextEnum = new HashMap<>();
     this.statements = new ArrayList<>();
     this.batchSize = new ArrayDeque<>();
