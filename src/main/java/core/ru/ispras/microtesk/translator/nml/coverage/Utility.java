@@ -19,6 +19,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.NodeTransformer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public final class Utility {
     final NodeTransformer xform) {
 
     xform.walk(input);
-    final List<Node> result = xform.getResult();
+    final List<Node> result = new ArrayList<>(xform.getResult());
     xform.reset();
 
     return result;
