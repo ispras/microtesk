@@ -42,7 +42,7 @@ public final class FormulaBuilder {
     final List<Node> formulae = new ArrayList<>(sequence.size());
     int n = 0;
     for (final IsaPrimitive p : sequence) {
-      final String tag = String.format("%s:%d", p.getName(), n++);
+      final String tag = String.format("op_%d_%s", n++, p.getName());
       final Node f = assembler.assemble(buildContext(p), p.getName(), tag);
       formulae.add(f);
     }
