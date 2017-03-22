@@ -218,7 +218,7 @@ public final class MicroTESK {
     final String traceName = arguments[2];
 
     if (!TraceTransformer.execute(options, modelName, templateName, traceName)) {
-      Logger.message("Symbolic execution was aborted.");
+      Logger.message("Trace transformation was aborted.");
       return false;
     }
 
