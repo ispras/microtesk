@@ -123,6 +123,10 @@ final class TestProgram {
     return !entries.isEmpty() ? findAllocatedEntry(entries.getLast()) : null;
   }
 
+  public TestSequence getPrevEntry(final TestSequence sequence) {
+    return entries.getPrevious(sequence);
+  }
+
   public TestSequence getPrevAllocatedEntry(final TestSequence sequence) {
     return findAllocatedEntry(entries.getPrevious(sequence));
   }
