@@ -44,6 +44,8 @@ class InsertionSortTemplate < MiniMipsBaseTemplate
       label :end
       space 1
     }
+
+    org 0x00020000
   end
 
   def run
