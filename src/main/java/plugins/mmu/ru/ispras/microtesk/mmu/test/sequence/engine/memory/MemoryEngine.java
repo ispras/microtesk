@@ -88,26 +88,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
   }
 
-  final static class ParamPageMask extends EngineParameter<Long> {
-    ParamPageMask() {
-      super("page_mask");
-    }
-
-    @Override
-    public Long getValue(final Object option) {
-      final Number number = (option instanceof Number)
-          ? (Number) option : Long.parseLong(option.toString(), 16);
-
-      return number.longValue();
-    }
-
-    @Override
-    public Long getDefaultValue() {
-      // 4KB pages.
-      return 0x0fffL;
-    }
-  }
-
   final static class ParamAlign extends EngineParameter<DataType> {
     ParamAlign() {
       super("align");
@@ -168,7 +148,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   static final ParamAbstraction PARAM_ABSTRACTION = new ParamAbstraction();
   static final ParamPreparator PARAM_PREPARATOR = new ParamPreparator();
   static final ParamIterator PARAM_ITERATOR = new ParamIterator();
-  static final ParamPageMask PARAM_PAGE_MASK = new ParamPageMask();
   static final ParamAlign PARAM_ALIGN = new ParamAlign();
   static final ParamRecursionLimit PARAM_RECURSION_LIMIT = new ParamRecursionLimit();
   static final ParamCount PARAM_COUNT = new ParamCount();
@@ -211,7 +190,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
   private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
   private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
-  private long pageMask = PARAM_PAGE_MASK.getDefaultValue();
   private DataType align = PARAM_ALIGN.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
@@ -234,16 +212,14 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     abstraction = PARAM_ABSTRACTION.parse(attributes.get(PARAM_ABSTRACTION.getName()));
     preparator = PARAM_PREPARATOR.parse(attributes.get(PARAM_PREPARATOR.getName()));
     iterator = PARAM_ITERATOR.parse(attributes.get(PARAM_ITERATOR.getName()));
-    pageMask = PARAM_PAGE_MASK.parse(attributes.get(PARAM_PAGE_MASK.getName()));
     align = PARAM_ALIGN.parse(attributes.get(PARAM_ALIGN.getName()));
     recursionLimit = PARAM_RECURSION_LIMIT.parse(attributes.get(PARAM_RECURSION_LIMIT.getName()));
     count = PARAM_COUNT.parse(attributes.get(PARAM_COUNT.getName()));
 
-    Logger.debug("Memory engine configuration: %s=%s, %s=%b, %s=%s, %s=0x%x, %s=%s, %s=%d, %s=%d",
+    Logger.debug("Memory engine configuration: %s=%s, %s=%b, %s=%s, %s=%s, %s=%d, %s=%d",
         PARAM_ABSTRACTION, abstraction,
         PARAM_PREPARATOR, preparator,
         PARAM_ITERATOR, iterator,
-        PARAM_PAGE_MASK, pageMask,
         PARAM_ALIGN, align,
         PARAM_RECURSION_LIMIT, recursionLimit,
         PARAM_COUNT, count);
@@ -407,7 +383,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               entryIdAllocator,
               hitCheckers,
               normalPathChooser,
-              pageMask,
               align,
               engineContext.getSettings());
 

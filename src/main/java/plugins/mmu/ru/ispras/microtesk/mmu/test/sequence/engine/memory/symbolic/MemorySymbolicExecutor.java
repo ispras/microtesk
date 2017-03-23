@@ -24,6 +24,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
@@ -291,6 +292,7 @@ public final class MemorySymbolicExecutor {
       final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
       final MmuAddressInstance oldFormalArg = oldBufferAccess.getAddress();
 
+      // Call.
       result.updateStack(entry, pathIndex);
 
       final MmuBufferAccess newBufferAccess = action.getBufferAccess(context);
@@ -537,6 +539,7 @@ public final class MemorySymbolicExecutor {
 
       if (formalArg != null && actualArg != null) {
         final Collection<MmuBinding> bindings = formalArg.bindings(actualArg);
+        Logger.debug("Bindings: %s", bindings);
         executeBindings(result, defines, bindings, pathIndex);
       }
     }
@@ -723,83 +726,94 @@ public final class MemorySymbolicExecutor {
         defines.add(lhsOriginal);
       }
 
-      if (rhs != null) {
-        final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
-        final List<IntegerField> rhsTerms = new ArrayList<>();
+      if (rhs == null) {
+        continue;
+      }
 
-        // Equation for the prefix part.
-        if (lhs.getLoIndex() > 0) {
-          final IntegerField oldLhsPre = new IntegerField(oldLhsVar, 0, lhs.getLoIndex() - 1);
-          final IntegerField newLhsPre = new IntegerField(newLhsVar, 0, lhs.getLoIndex() - 1);
+      final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
+      final List<IntegerField> rhsTerms = new ArrayList<>();
 
-          clauseBuilder.addEquation(newLhsPre, oldLhsPre, true);
-          rhsTerms.add(oldLhsPre);
+      // Equation for the prefix part.
+      if (lhs.getLoIndex() > 0) {
+        final IntegerField oldLhsPre = new IntegerField(oldLhsVar, 0, lhs.getLoIndex() - 1);
+        final IntegerField newLhsPre = new IntegerField(newLhsVar, 0, lhs.getLoIndex() - 1);
+
+        clauseBuilder.addEquation(newLhsPre, oldLhsPre, true);
+        rhsTerms.add(oldLhsPre);
+      }
+
+      int offset = lhs.getLoIndex();
+
+      // Equations for the middle part.
+      for (final IntegerField term : rhs.getTerms()) {
+        final IntegerField field = result.getVersion(term, pathIndex);
+
+        result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
+
+        final int upper = offset + (field.getWidth() - 1);
+        final int trunc = upper > lhs.getHiIndex() ? lhs.getHiIndex() : upper;
+
+        final IntegerField lhsField = new IntegerField(newLhsVar, offset, trunc);
+        final IntegerField rhsField = trunc == upper
+            ? field
+            : new IntegerField(
+                field.getVariable(),
+                field.getLoIndex(),
+                field.getHiIndex() - (upper - trunc)
+              );
+
+        clauseBuilder.addEquation(lhsField, rhsField, true);
+        rhsTerms.add(rhsField);
+
+        offset += field.getWidth();
+
+        // Truncate the upper bits of the expression.
+        if (offset > lhs.getHiIndex()) {
+          break;
         }
+      } // For each right-hand-side term.
 
-        int offset = lhs.getLoIndex();
+      if (offset <= lhs.getHiIndex()) {
+        final IntegerField lhsZeroField = new IntegerField(newLhsVar, offset, lhs.getHiIndex());
+        clauseBuilder.addEquation(lhsZeroField, BigInteger.ZERO, true);
+      }
 
-        // Equations for the middle part.
-        for (final IntegerField term : rhs.getTerms()) {
-          final IntegerField field = result.getVersion(term, pathIndex);
+      // Equation for the suffix part.
+      if (lhs.getHiIndex() < oldLhsVar.getWidth() - 1) {
+        final IntegerField oldLhsPost =
+            new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, oldLhsVar.getWidth() - 1);
+        final IntegerField newLhsPost =
+            new IntegerField(newLhsVar, lhs.getHiIndex() + 1, newLhsVar.getWidth() - 1);
 
-          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
+        clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
+        rhsTerms.add(oldLhsPost);
+      }
 
-          final int upper = offset + (field.getWidth() - 1);
-          final int trunc = upper > lhs.getHiIndex() ? lhs.getHiIndex() : upper;
+      // Update the version of the left-hand-side variable.
+      result.defineVersion(lhs.getVariable(), pathIndex);
 
-          final IntegerField lhsField = new IntegerField(newLhsVar, offset, trunc);
-          final IntegerField rhsField = trunc == upper ? field : new IntegerField(
-              field.getVariable(), field.getLoIndex(), field.getHiIndex() - (upper - trunc));
+      // Try to propagate constants.
+      final Map<IntegerVariable, BigInteger> constants = result.getConstants();
+      final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);
+      final BigInteger constant = MmuCalculator.eval(rhsExpr,
+          new Function<IntegerVariable, BigInteger>() {
+            @Override
+            public BigInteger apply(final IntegerVariable variable) {
+              return constants.get(variable);
+            }
+          }, false);
 
-          clauseBuilder.addEquation(lhsField, rhsField, true);
-          rhsTerms.add(rhsField);
+      if (constant != null) {
+        // Constant propagation.
+        result.addConstant(newLhsVar, constant);
+      }
+    } // For each binding.
 
-          offset += field.getWidth();
+    if (!clauseBuilder.isEmpty()) {
+      final IntegerClause<IntegerField> clause = clauseBuilder.build();
+      Logger.debug("Bindings formula: %s", clause);
 
-          // Truncate the upper bits of the expression.
-          if (offset > lhs.getHiIndex()) {
-            break;
-          }
-        }
-
-        if (offset <= lhs.getHiIndex()) {
-          final IntegerField lhsZeroField = new IntegerField(newLhsVar, offset, lhs.getHiIndex());
-          clauseBuilder.addEquation(lhsZeroField, BigInteger.ZERO, true);
-        }
-
-        // Equation for the suffix part.
-        if (lhs.getHiIndex() < oldLhsVar.getWidth() - 1) {
-          final IntegerField oldLhsPost =
-              new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, oldLhsVar.getWidth() - 1);
-          final IntegerField newLhsPost =
-              new IntegerField(newLhsVar, lhs.getHiIndex() + 1, newLhsVar.getWidth() - 1);
-
-          clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
-          rhsTerms.add(oldLhsPost);
-        }
-
-        result.defineVersion(lhs.getVariable(), pathIndex);
-
-        // Try to propagate constants.
-        final Map<IntegerVariable, BigInteger> constants = result.getConstants();
-        final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);
-        final BigInteger constant = MmuCalculator.eval(rhsExpr,
-            new Function<IntegerVariable, BigInteger>() {
-              @Override
-              public BigInteger apply(final IntegerVariable variable) {
-                return constants.get(variable);
-              }
-            }, false);
-
-        if (constant != null) {
-          // Constant propagation.
-          result.addConstant(newLhsVar, constant);
-        }
-      } // if right-hand side exists.
-    } // for each binding.
-
-    if (clauseBuilder.size() != 0) {
-      result.addClause(clauseBuilder.build());
+      result.addClause(clause);
     }
 
     return Boolean.TRUE;

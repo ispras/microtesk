@@ -48,22 +48,15 @@ public final class MemoryAccess {
     InvariantChecks.checkNotNull(path);
 
     final Map<RegionSettings, Collection<MmuSegment>> regions = path.getRegions();
+    final Collection<MmuSegment> segments = path.getSegments();
 
-    if (regions.isEmpty()) {
-      final Collection<MmuSegment> segments = path.getSegments();
+    final RegionSettings region = !regions.isEmpty()
+        ? Randomizer.get().choose(regions.keySet()) : null;
 
-      if (!segments.isEmpty()) {
-        final MmuSegment segment = Randomizer.get().choose(segments);
-        return new MemoryAccess(type, path, null, segment);
-      }
-    } else {
-      final RegionSettings region = Randomizer.get().choose(regions.keySet());
-      final MmuSegment segment = Randomizer.get().choose(regions.get(region));
+    final MmuSegment segment = !segments.isEmpty()
+        ? Randomizer.get().choose(segments) : null;
 
       return new MemoryAccess(type, path, region, segment);
-    }
-
-    return null;
   }
 
   public MemoryAccess(
@@ -73,8 +66,7 @@ public final class MemoryAccess {
       final MmuSegment segment) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
-    InvariantChecks.checkNotNull(segment);
-    // Parameter region can be null.
+    // Parameters region and segment can be null.
 
     this.type = type;
     this.path = path;
@@ -100,10 +92,10 @@ public final class MemoryAccess {
 
   @Override
   public String toString() {
-    final String regionAndSegment = region != null
-        ? String.format("%s[%s]", region.getName(), segment.getName())
-        : segment.getName();
-
-    return String.format("%s, %s, %s", type, path, regionAndSegment);
+    return String.format("%s[%s], %s, %s",
+        region != null ? region.getName() : "*",
+        segment != null ? segment.getName() : "*",
+        type,
+        path);
   }
 }

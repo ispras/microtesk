@@ -123,7 +123,7 @@ public final class MmuBufferAccess {
         new MemoryAccessContext(context),
         address.getInstance(instanceId, context),
         entry.getInstance(instanceId, context),
-        argument != null ? argument.getInstance(instanceId, context) : null);
+        argument != null ? argument.getInstance(0 /* Not related to the buffer */, context) : null);
   }
 
   public MmuBufferAccess getParentAccess() {

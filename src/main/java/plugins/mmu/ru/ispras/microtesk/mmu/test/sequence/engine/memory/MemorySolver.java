@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -56,7 +57,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -85,7 +85,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessPathChooser normalPathChooser;
   private final MemoryAccessConstraints constraints;
 
-  private final long pageMask;
   private final DataType alignType;
 
   private final AddressAllocator addressAllocator;
@@ -109,7 +108,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final EntryIdAllocator entryIdAllocator,
       final Map<MmuAddressInstance, Predicate<Long>> hitCheckers,
       final MemoryAccessPathChooser normalPathChooser,
-      final long pageMask,
       final DataType alignType,
       final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(memory);
@@ -121,17 +119,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     InvariantChecks.checkNotNull(settings);
 
     this.structure = structure;
-
     this.addressAllocator = addressAllocator;
     this.entryIdAllocator = entryIdAllocator;
     this.hitCheckers = hitCheckers;
     this.normalPathChooser = normalPathChooser;
-
     this.constraints = MmuSettingsUtils.getConstraints(memory, settings);
-
-    this.pageMask = pageMask;
     this.alignType = alignType;
-
     this.settings = settings;
   }
 
@@ -744,7 +737,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     solution.setAddressObject(j, addrObject);
 
     // Align the addresses.
-    solveAlignConstraint(j, memory.getVirtualAddress());
     solveAlignConstraint(j, memory.getPhysicalAddress());
 
     // Assign the tag, index and offset according to the dependencies.
@@ -767,7 +759,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath path = access.getPath();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    final boolean hasRefined = refineAddr(path, addrObject, applyConstraints);
+    final boolean hasRefined = refineAddr(access, addrObject, applyConstraints);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", path));
 
     // FIXME: Divide solveBufferConstraint into non-replaceable/replaceable parts.
@@ -1026,7 +1018,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final AddressObject normalAddrObject = constructAddr(normalAccess, applyConstraints);
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    final boolean hasRefined = refineAddr(normalPath, normalAddrObject, applyConstraints);
+    final boolean hasRefined = refineAddr(
+        MemoryAccess.create(MemoryAccessType.LOAD(DataType.BYTE /* Not important */), normalPath),
+        normalAddrObject,
+        applyConstraints);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", normalPath));
 
     // Construct the corresponding entry.
@@ -1047,19 +1042,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private AddressObject constructAddr(final MemoryAccess access, final boolean applyConstraints) {
-    final MmuAddressInstance vaType = memory.getVirtualAddress();
     final MmuAddressInstance paType = memory.getPhysicalAddress();
-
     final AddressObject addrObject = new AddressObject(access);
 
-    final RegionSettings region = access.getRegion(); // PA constraint.
-    final MmuSegment segment = access.getSegment();   // VA constraint.
-
-    Logger.debug("Construct address: region=%s, segment=%s", region, segment);
+    // Region-based PA constraint.
+    final RegionSettings region = access.getRegion();
+    Logger.debug("Construct address: region=%s", region);
 
     // Allocate physical and virtual addresses.
     long pa = allocateAddr(paType, region, false);
-    long va = segment.isMapped() ? allocateAddr(vaType, 0, segment, false) : segment.getVa(pa);
 
     // The address should be aligned not to cause the exception.
     pa = addrObject.getType().getDataType().align(pa);
@@ -1069,31 +1060,21 @@ public final class MemorySolver implements Solver<MemorySolution> {
       pa = alignType.align(pa);
     }
 
-    addrObject.setAddress(vaType, va);
     addrObject.setAddress(paType, pa);
-
     return addrObject;
   }
 
   private boolean refineAddr(
-      final MemoryAccessPath path,
+      final MemoryAccess access,
       final AddressObject addrObject,
       final boolean applyConstraints) {
-    correctOffset(addrObject);
-
-    final MmuAddressInstance vaType = memory.getVirtualAddress();
-    InvariantChecks.checkNotNull(vaType, "Virtual address type is null");
+    final MemoryAccessPath path = access.getPath();
 
     final MmuAddressInstance paType = memory.getPhysicalAddress();
-    InvariantChecks.checkNotNull(paType, "Physical address type is null");
+    InvariantChecks.checkNotNull(paType);
 
-    final IntegerVariable vaVar = vaType.getVariable();
-    final IntegerVariable paVar = paType.getVariable();
-
-    long va = addrObject.getAddress(vaType);
-    long pa = addrObject.getAddress(paType);
-
-    Logger.debug("Refine address: VA=%x, PA=%x", va, pa);
+    final long pa = addrObject.getAddress(paType);
+    Logger.debug("Refine address: PA=%x", pa);
 
     final Map<MmuAddressInstance, Long> addresses = addrObject.getAddresses();
 
@@ -1101,23 +1082,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
         ? new ArrayList<>(this.constraints.getIntegers())
         : new ArrayList<IntegerConstraint<IntegerField>>();
 
-    // Fix the address tags and indices.
-    final Map<IntegerField, BigInteger> knownValues = new LinkedHashMap<>();
-
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       Logger.debug("Buffer read: %s", bufferAccess);
 
-      final int id = bufferAccess.getId();
       final MmuBuffer buffer = bufferAccess.getBuffer();
       final MemoryAccessContext context = bufferAccess.getContext();
-      final MmuAddressInstance addrType = bufferAccess.getAddress();
-
       Logger.debug("Memory access context: %s", context);
 
       if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
         final IntegerVariable variable = bufferAccess.getAddress().getVariable();
-        final IntegerRange range = getRegionRange(buffer.getName());
 
+        final IntegerRange range = getRegionRange(buffer.getName());
         Logger.debug("Range constraint: %s in %s", variable, range);
 
         // Restrict the memory-mapped buffer address.
@@ -1128,48 +1103,45 @@ public final class MemorySolver implements Solver<MemorySolution> {
           constraints.add(assertion);
         }
       }
-
-      if (buffer.isFake() || !addresses.containsKey(addrType)) {
-        Logger.debug("Buffer access is skipped");
-        continue;
-      }
-
-      final long address = addrObject.getAddress(addrType);
-
-      if (buffer.getWays() > 1) {
-        final MmuExpression tagExpr = buffer.getTagExpression();
-        InvariantChecks.checkNotNull(tagExpr, "Tag expression is null");
-
-        final MmuExpression tagExprInstance = tagExpr.getInstance(id, context);
-        Logger.debug("Tag expression instance: %s", tagExprInstance);
-
-        final BigInteger tag = BigIntegerUtils.valueOfUnsignedLong(buffer.getTag(address));
-        knownValues.putAll(IntegerField.split(tagExprInstance.getTerms(), tag));
-      }
-
-      if (buffer.getSets() > 1) {
-        final MmuExpression indexExpr = buffer.getIndexExpression();
-        InvariantChecks.checkNotNull(indexExpr, "Index expression is null");
-
-        final MmuExpression indexExprInstance = indexExpr.getInstance(id, context);
-        Logger.debug("Index expression instance: %s", indexExprInstance);
-
-        final BigInteger index = BigIntegerUtils.valueOfUnsignedLong(buffer.getIndex(address));
-        knownValues.putAll(IntegerField.split(indexExprInstance.getTerms(), index));
-      }
     }
 
-    for (final Map.Entry<IntegerField, BigInteger> entry : knownValues.entrySet()) {
-      final IntegerField field = entry.getKey();
-      final BigInteger value = entry.getValue();
+    // Fix known values of the addresses.
+    for (final Map.Entry<MmuAddressInstance, Long> entry : addresses.entrySet()) {
+      final MmuAddressInstance address = entry.getKey();
+      final IntegerVariable variable = address.getVariable();
+      final Long value = entry.getValue();
 
-      constraints.add(new IntegerDomainConstraint<IntegerField>(field, value));
+      constraints.add(
+          new IntegerDomainConstraint<IntegerField>(
+              variable.field(),
+              BigIntegerUtils.valueOfUnsignedLong(value)
+          ));
+    }
+
+    // Segment-based VA constraint.
+    final MmuAddressInstance vaType = memory.getVirtualAddress();
+    InvariantChecks.checkNotNull(vaType);
+
+    final MmuSegment segment = access.getSegment();
+    if (segment != null) {
+      constraints.add(
+          new IntegerRangeConstraint(
+              vaType.getVariable(),
+              new IntegerRange(
+                  BigIntegerUtils.valueOfUnsignedLong(segment.getMin()),
+                  BigIntegerUtils.valueOfUnsignedLong(segment.getMax())
+              )
+          ));
     }
 
     Logger.debug("Constraints for refinement: %s", constraints);
 
-    final Map<IntegerVariable, BigInteger> values = MemoryEngineUtils.generateData(
-        path, constraints, IntegerVariableInitializer.RANDOM);
+    final Map<IntegerVariable, BigInteger> values =
+        MemoryEngineUtils.generateData(
+            path,
+            constraints,
+            IntegerVariableInitializer.RANDOM
+        );
 
     // Cannot correct the address values.
     if (values == null) {
@@ -1177,26 +1149,10 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return false;
     }
 
-    // Correct the address values.
-    final BigInteger vaValue = values.get(vaVar);
-    final BigInteger paValue = values.get(paVar);
-
-    Logger.debug("Refine address (before): VA=0x%x, PA=0x%x", va, pa);
-    va = (vaValue != null ? vaValue.longValue() : va);
-    pa = (paValue != null ? paValue.longValue() : pa);
-    Logger.debug("Refine address (after): VA=0x%x, PA=0x%x", va, pa);
-
-    addrObject.setAddress(vaType, va);
-    addrObject.setAddress(paType, pa);
-
     Logger.debug("Buffer reads: %s", path.getBufferReads());
 
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
-      if (vaType.equals(bufferAccess.getAddress()) || paType.equals(bufferAccess.getAddress())) {
-        continue;
-      }
-
       final MmuAddressInstance addrType = bufferAccess.getAddress();
       final IntegerVariable addrVar = addrType.getVariable(); 
 
@@ -1209,18 +1165,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     return true;
-  }
-
-  private void correctOffset(final AddressObject addrObject) {
-    InvariantChecks.checkNotNull(addrObject);
-
-    final MmuAddressInstance vaType = memory.getVirtualAddress();
-    final MmuAddressInstance paType = memory.getPhysicalAddress();
-
-    final long va = addrObject.getAddress(vaType);
-    final long pa = addrObject.getAddress(paType);
-
-    addrObject.setAddress(vaType, (va & ~pageMask) | (pa & pageMask));
   }
 
   /**
@@ -1255,6 +1199,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       Logger.debug("Fill entry: %s=0x%s", variable, value.toString(16));
       constraints.add(new IntegerDomainConstraint<IntegerField>(variable, value));
     }
+
+    Logger.debug("Constraints: %s", constraints);
 
     // TODO: if there are several buffers, multiple solver invocations are not required.
 

@@ -199,8 +199,7 @@ public final class MemoryAccessPath {
         final Collection<Entry> entries) {
       InvariantChecks.checkNotNull(entries);
 
-      final MmuSubsystem memory = MmuPlugin.getSpecification();
-      final Collection<MmuSegment> segments = new LinkedHashSet<>(memory.getSegments());
+      Collection<MmuSegment> segments = null;
 
       for (final Entry entry : entries) {
         final MmuProgram program = entry.getProgram();
@@ -212,13 +211,17 @@ public final class MemoryAccessPath {
             final Collection<MmuSegment> guardSegments = guard.getSegments();
   
             if (guardSegments != null) {
-              segments.retainAll(guardSegments);
+              if (segments == null) {
+                segments = new LinkedHashSet<>(guardSegments);
+              } else {
+                segments.retainAll(guardSegments);
+              }
             }
           }
         }
       }
 
-      return segments;
+      return segments != null ? segments : Collections.<MmuSegment>emptyList();
     }
 
     private static Map<RegionSettings, Collection<MmuSegment>> getRegions(
