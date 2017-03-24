@@ -38,6 +38,8 @@ public final class MemoryAllocator {
   private final BigInteger baseAddress; // in addressable units
   private BigInteger currentAddress; // in addressable units
 
+  private BigInteger lastRegionIndex;
+
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
 
@@ -72,6 +74,8 @@ public final class MemoryAllocator {
 
     this.baseAddress = baseAddress;
     this.currentAddress = baseAddress;
+
+    this.lastRegionIndex = null;
   }
 
   /**
@@ -174,12 +178,15 @@ public final class MemoryAllocator {
     int bitPos = 0;
     while (bitPos < dataBitSize) {
       final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
-      if (memory.isInitialized(regionAddress)) {
+
+      // lastRegionIndex is used to allow allocating regions by parts (e.g. by bytes).
+      if (memory.isInitialized(regionAddress) && !regionIndex.equals(lastRegionIndex)) {
         throw new GenerationAbortedException(String.format(
             "Failed to allocate memory at physical address 0x%016x. The address is already in use.",
             address
             ));
       }
+      lastRegionIndex = regionIndex;
 
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
