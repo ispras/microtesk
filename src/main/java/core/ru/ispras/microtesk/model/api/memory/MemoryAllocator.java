@@ -22,6 +22,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
@@ -37,7 +38,7 @@ public final class MemoryAllocator {
   private final BigInteger baseAddress; // in addressable units
   private BigInteger currentAddress; // in addressable units
 
-  // private BigInteger lastRegionIndex;
+  private BigInteger lastRegionIndex;
 
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
@@ -74,7 +75,7 @@ public final class MemoryAllocator {
     this.baseAddress = baseAddress;
     this.currentAddress = baseAddress;
 
-    // this.lastRegionIndex = null;
+    this.lastRegionIndex = null;
   }
 
   /**
@@ -178,17 +179,16 @@ public final class MemoryAllocator {
     while (bitPos < dataBitSize) {
       final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
 
-      /*
       // lastRegionIndex is used to allow allocating regions by parts (e.g. by bytes).
-      if (memory.isInitialized(regionAddress) && !regionIndex.equals(lastRegionIndex)) {
-        System.out.println("0x0" + memory.load(regionAddress).toHexString());
-
+      if (memory.isInitialized(regionAddress) && !regionIndex.equals(lastRegionIndex) &&
+          // FIXME: Hack to allocate regions by parts. It can cause some errors to be undetected.
+          regionBitOffset == 0) {
         throw new GenerationAbortedException(String.format(
             "Failed to allocate memory at physical address 0x%016x. The address is already in use.",
             address
             ));
       }
-      lastRegionIndex = regionIndex;*/
+      lastRegionIndex = regionIndex;
 
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
