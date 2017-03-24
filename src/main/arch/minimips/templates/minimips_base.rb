@@ -36,7 +36,7 @@ class MiniMipsBaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:target => 'M') {
+    data_config(:target => 'M', :base_virtual_address => 0x00080000) {
       define_type :id => :byte, :text => '.byte', :type => type('card', 8)
       define_type :id => :half, :text => '.half', :type => type('card', 16)
       define_type :id => :word, :text => '.word', :type => type('card', 32)
