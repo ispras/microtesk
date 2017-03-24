@@ -22,6 +22,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
@@ -173,6 +174,12 @@ public final class MemoryAllocator {
     int bitPos = 0;
     while (bitPos < dataBitSize) {
       final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
+      if (memory.isInitialized(regionAddress)) {
+        throw new GenerationAbortedException(String.format(
+            "Failed to allocate memory at physical address 0x%016x. The address is already in use.",
+            address
+            ));
+      }
 
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);

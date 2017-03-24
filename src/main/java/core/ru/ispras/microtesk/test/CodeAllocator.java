@@ -130,6 +130,8 @@ public final class CodeAllocator {
   }
 
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
+    Logger.debugHeader("Allocating code");
+
     final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
     InvariantChecks.checkNotNull(memoryAllocator);
 
@@ -171,6 +173,10 @@ public final class CodeAllocator {
 
         final BigInteger physicalAddress =
             AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+
+        if (Logger.isDebug()) {
+          Logger.debug("0x%016X: %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
+        }
 
         memoryAllocator.allocateAt(image, physicalAddress);
       }

@@ -140,9 +140,15 @@ public final class DataSection {
       allocator.setCurrentAddress(physicalAddress);
     }
 
+    Logger.debugHeader("Allocating data");
     try {
       for (final DataDirective directive : directives) {
+        final BigInteger address = allocator.getCurrentAddress();
         directive.apply(allocator);
+
+        if (Logger.isDebug()) {
+          Logger.debug("0x%016X: %s", address, directive.getText());
+        }
       }
     } finally {
       allocationEndAddress = allocator.getCurrentAddress();
