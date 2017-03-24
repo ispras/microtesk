@@ -147,7 +147,7 @@ public final class DataSection {
         directive.apply(allocator);
 
         if (Logger.isDebug()) {
-          Logger.debug("0x%016X: %s", address, directive.getText());
+          Logger.debug("0x%016x (PA): %s", address, directive.getText());
         }
       }
     } finally {

@@ -175,7 +175,7 @@ public final class CodeAllocator {
             AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
 
         if (Logger.isDebug()) {
-          Logger.debug("0x%016X: %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
+          Logger.debug("0x%016x (PA): %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
         }
 
         memoryAllocator.allocateAt(image, physicalAddress);
