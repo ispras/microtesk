@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1113,7 +1112,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       constraints.add(
           new IntegerDomainConstraint<IntegerField>(
-              variable.field(),
+              new IntegerField(variable),
+              //variable.field(),
               BigIntegerUtils.valueOfUnsignedLong(value)
           ));
     }
