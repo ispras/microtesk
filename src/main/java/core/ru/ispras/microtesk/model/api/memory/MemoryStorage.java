@@ -150,6 +150,7 @@ final class MemoryStorage implements MemoryDevice {
 
     public void reset() {
       storage.reset();
+      initFlags.reset();
     }
 
     public BitVector read(final int index) {
