@@ -227,9 +227,17 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, String.format("%s is not an AND rule!", name)); 
     }
 
-    final List<InstanceArgument> args = new ArrayList<>(arguments);
     final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
+    if (primitiveAND.getArguments().size() != arguments.size()) {
+      raiseError(where, String.format(
+          "Wrong number of arguments: %s is passed %d arguments while %d is expected.",
+          name,
+          arguments.size(),
+          primitiveAND.getArguments().size()
+          ));
+    }
 
+    final List<InstanceArgument> args = new ArrayList<>(arguments);
     final String[] argNames = 
         primitiveAND.getArguments().keySet().toArray(new String[primitiveAND.getArguments().size()]);
 
