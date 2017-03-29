@@ -108,7 +108,8 @@ reg DF[BIT] alias = FLAGS<10>
 reg OF[BIT] alias = FLAGS<11>
 
 // A memory line
-mem M[MEM_SIZE, BYTE]
+//mem MEM[MEM_SIZE, BYTE]
+shared mem MEM[MEM_SIZE, BYTE]
 
 ////////////////////////////////////////////////////////////////////////////////
 // Temporary Variables
@@ -204,13 +205,15 @@ mode R8(i: INDEX, j: BIT) = if j == 0 then GPR[i]<0..7>
                      endif)
 
 // Immediate operand
-mode IMM8(i: BYTE) = i
+type  IMM8 = card(8)
+/*mode IMM8(i: BYTE) = i
   syntax = format("%d", i)
-  image = format("%s", i)
+  image = format("%s", i)*/
 
-mode IMM16(i: WORD) = i
+type  IMM16 = card(16)
+/*mode IMM16(i: WORD) = i
   syntax = format("%d", i)
-  image = format("%s", i<0..7>::i<8..15>)
+  image = format("%s", i<0..7>::i<8..15>)*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // The Displacement Only Addressing Modes
@@ -500,7 +503,7 @@ op MOV_M8R8 (seg_ovrd: RSEG16, dst: MOFFS, src: R8)
   image = format("001%s11010001000%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base + dst] = src;
+    MEM[base + dst] = src;
     dst.action;
     instr_size = instr_size + 3;  
   }
@@ -510,7 +513,7 @@ op MOV_R8M8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
   image = format("001%s11010001010%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dst = M[base+src];
+    dst = MEM[base+src];
     src.action;
     instr_size = instr_size + 3;
   }
@@ -528,7 +531,7 @@ op MOV_M16R16 (seg_ovrd: RSEG16, dst: MOFFS, src: GPR16)
   image = format("001%s11010001001%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+dst]::M[base+dst+1] = src<0..7>::src<8..15>;
+    MEM[base+dst]::MEM[base+dst+1] = src<0..7>::src<8..15>;
     dst.action;
     instr_size = instr_size + 3;
   }
@@ -546,7 +549,7 @@ op MOV_R16M16 (seg_ovrd: RSEG16, dst: GPR16, src: MOFFS)
   image = format("001%s11010001011%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dst<0..7>::dst<8..15> = M[base+src]::M[base+src+1];
+    dst<0..7>::dst<8..15> = MEM[base+src]::MEM[base+src+1];
     src.action;
     instr_size = instr_size + 3;
   }
@@ -564,7 +567,7 @@ op MOV_M16RSEG (seg_ovrd: RSEG16, dst: MOFFS, src: RSEG16)
   image = format("001%s11010001100%s0%s%s%s", seg_ovrd.image,  mod, src.image, rm, dst.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+dst]::M[base+dst+1] = src<0..7>::src<8..15>;
+    MEM[base+dst]::MEM[base+dst+1] = src<0..7>::src<8..15>;
     dst.action;
     instr_size = instr_size + 3;
   }
@@ -582,43 +585,43 @@ op MOV_RSEGM16 (seg_ovrd: RSEG16, dst: RSEG16, src: MOFFS)
   image = format("001%s11010001110%s0%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dst<0..7>::dst<8..15> = M[base+src]::M[base+src+1];
+    dst<0..7>::dst<8..15> = MEM[base+src]::MEM[base+src+1];
     src.action;
     instr_size = instr_size + 3;
   }
 
 op MOV_R8IMM8 (dst: R8, src: IMM8)
-  syntax = format("MOV %s, %s", dst.syntax, src.syntax)
-  image = format("10110%s11001%s%s", dst.image, dst.image, src.image)
+  syntax = format("MOV %s, %d", dst.syntax, src)
+  image = format("10110%s11001%s%8s", dst.image, dst.image, src)
   action = {
     dst = src;
     instr_size = instr_size + 3;
   }
 
 op MOV_R16IMM16 (dst: GPR16, src: IMM16)
-  syntax = format("MOV %s, %s", dst.syntax, src.syntax)
-  image = format("10111%s11001%s%s", dst.image, dst.image, src.image)
+  syntax = format("MOV %s, %d", dst.syntax, src)
+  image = format("10111%s11001%s%16s", dst.image, dst.image, src)
   action = {
     dst = src;
     instr_size = instr_size + 4;
   }
 
 op MOV_M8IMM8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
-  syntax = format("MOV %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
-  image = format("001%s11011000110%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
+  syntax = format("MOV %s:%s, %d", seg_ovrd.syntax, dst.syntax, src)
+  image = format("001%s11011000110%s001%s%s%8s", seg_ovrd.image, mod, rm, dst.image, src)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+dst] = src;
+    MEM[base+dst] = src;
     dst.action;
     instr_size = instr_size + 4;
   }
 
 op MOV_M16IMM16 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM16)
-  syntax = format("MOV %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
-  image = format("001%s11011000111%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
+  syntax = format("MOV %s:%s, %d", seg_ovrd.syntax, dst.syntax, src)
+  image = format("001%s11011000111%s001%s%s%16s", seg_ovrd.image, mod, rm, dst.image, src)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+dst]::M[base+dst+1] = src<0..7>::src<8..15>;   
+    MEM[base+dst]::MEM[base+dst+1] = src<0..7>::src<8..15>;   
     dst.action;
     instr_size = instr_size + 5;
   }
@@ -647,9 +650,9 @@ op XCHG_R8M8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
   image = format("001%s11010000110%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dst = dst ^ M[src];
-    M[base+src] = M[base+src] ^ dst;
-    dst = dst ^ M[base+src];
+    dst = dst ^ MEM[src];
+    MEM[base+src] = MEM[base+src] ^ dst;
+    dst = dst ^ MEM[base+src];
     src.action;
     instr_size = instr_size + 3;
   } 
@@ -669,9 +672,9 @@ op XCHG_R16M16 (seg_ovrd: RSEG16, dst: GPR16, src: MOFFS)
   image = format("001%s11010000111%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dst<0..7>::dst<8..15> = dst<0..7>::dst<8..15> ^ M[base+src]::M[base+src+1];
-    M[base+src+1]::M[base+src] = M[base+src+1]::M[base+src] ^ dst;
-    dst = dst ^ M[base+src+1]::M[base+src];
+    dst<0..7>::dst<8..15> = dst<0..7>::dst<8..15> ^ MEM[base+src]::MEM[base+src+1];
+    MEM[base+src+1]::MEM[base+src] = MEM[base+src+1]::MEM[base+src] ^ dst;
+    dst = dst ^ MEM[base+src+1]::MEM[base+src];
     src.action;
     instr_size = instr_size + 3;
   }
@@ -691,8 +694,8 @@ op PUSH_RSEG(src : RSEG16)
   action = {
     base = coerce(ADDR, SS) << 4;
     SP = SP - 2;
-    M[base + coerce(ADDR, cast(SWORD, SP))] = src<0..7>;
-    M[base + coerce(ADDR, cast(SWORD, SP + 1))] = src<8..15>;
+    MEM[base + coerce(ADDR, cast(SWORD, SP))] = src<0..7>;
+    MEM[base + coerce(ADDR, cast(SWORD, SP + 1))] = src<8..15>;
     instr_size = instr_size + 1;
   }
 
@@ -702,8 +705,8 @@ op PUSH_R16(src : GPR16)
   action = {
     base = coerce(ADDR, SS) << 4;
     SP = SP - 2;
-    M[base + coerce(ADDR, cast(SWORD, SP))] = src<0..7>;
-    M[base + coerce(ADDR, cast(SWORD, SP + 1))] = src<8..15>;
+    MEM[base + coerce(ADDR, cast(SWORD, SP))] = src<0..7>;
+    MEM[base + coerce(ADDR, cast(SWORD, SP + 1))] = src<8..15>;
     instr_size = instr_size + 1;
   }
 
@@ -713,8 +716,8 @@ op PUSH_M16(seg_ovrd: RSEG16, src : MOFFS)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
     SP = SP - 2;
-    M[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP))] = M[base+src];
-    M[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP + 1))] = M[base+src+1];
+    MEM[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP))] = MEM[base+src];
+    MEM[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP + 1))] = MEM[base+src+1];
     src.action;
     instr_size = instr_size + 3;
   }
@@ -730,22 +733,22 @@ op PUSHA()
   action = { 
     SP = SP - 16;
 
-    M[SS+SP+15] = AH;
-    M[SS+SP+14] = AL;
-    M[SS+SP+13] = CH;
-    M[SS+SP+12] = CL;
-    M[SS+SP+11] = DH;
-    M[SS+SP+10] = DL;
-    M[SS+SP+9]  = BH;
-    M[SS+SP+8]  = BL;
-    M[SS+SP+7]  = SP<8..15>;
-    M[SS+SP+6]  = SP<0..7>;
-    M[SS+SP+5]  = BP<8..15>;
-    M[SS+SP+4]  = BP<0..7>;
-    M[SS+SP+3]  = SI<8..15>;
-    M[SS+SP+2]  = SI<0..7>;
-    M[SS+SP+1]  = DI<8..15>;
-    M[SS+SP+0]  = DI<0..7>;
+    MEM[SS+SP+15] = AH;
+    MEM[SS+SP+14] = AL;
+    MEM[SS+SP+13] = CH;
+    MEM[SS+SP+12] = CL;
+    MEM[SS+SP+11] = DH;
+    MEM[SS+SP+10] = DL;
+    MEM[SS+SP+9]  = BH;
+    MEM[SS+SP+8]  = BL;
+    MEM[SS+SP+7]  = SP<8..15>;
+    MEM[SS+SP+6]  = SP<0..7>;
+    MEM[SS+SP+5]  = BP<8..15>;
+    MEM[SS+SP+4]  = BP<0..7>;
+    MEM[SS+SP+3]  = SI<8..15>;
+    MEM[SS+SP+2]  = SI<0..7>;
+    MEM[SS+SP+1]  = DI<8..15>;
+    MEM[SS+SP+0]  = DI<0..7>;
 
     instr_size = instr_size + 1;
   }
@@ -758,8 +761,8 @@ op POP_RSEG(dst : RSEG16)
   image = format("000%s111", dst.image)
   action = { 
     base = coerce(ADDR, SS) << 4;
-    dst<0..7> = M[base + coerce(ADDR, cast(SWORD, SP))];
-    dst<8..15> = M[base + coerce(ADDR, cast(SWORD, SP + 1))];
+    dst<0..7> = MEM[base + coerce(ADDR, cast(SWORD, SP))];
+    dst<8..15> = MEM[base + coerce(ADDR, cast(SWORD, SP + 1))];
     SP = SP + 2;
     instr_size = instr_size + 1;
   }
@@ -769,8 +772,8 @@ op POP_R16(dst : GPR16)
   image = format("01011%s", dst.image)
   action = {  
     base = coerce(ADDR, SS) << 4;
-    dst<0..7> = M[base + coerce(ADDR, cast(SWORD, SP))];
-    dst<8..15> = M[base + coerce(ADDR, cast(SWORD, SP + 1))];
+    dst<0..7> = MEM[base + coerce(ADDR, cast(SWORD, SP))];
+    dst<8..15> = MEM[base + coerce(ADDR, cast(SWORD, SP + 1))];
     SP = SP + 2;
     instr_size = instr_size + 1;
   }
@@ -780,8 +783,8 @@ op POP_M16(seg_ovrd: RSEG16, dst : MOFFS)
   image = format("001%s11010001111%s000%s%s", seg_ovrd.image, mod, rm, dst.image)
   action = {  
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+dst] = M[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP))];
-    M[base+dst+1] = M[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP + 1))];
+    MEM[base+dst] = MEM[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP))];
+    MEM[base+dst+1] = MEM[(coerce(ADDR, SS) << 4) + coerce(ADDR, cast(SWORD, SP + 1))];
     SP = SP + 2;
     dst.action;
     instr_size = instr_size + 3;
@@ -796,21 +799,21 @@ op POPA()
   syntax = format("POPA")
   image = format("01100001")
   action = {
-    AH = M[SS+SP+15];
-    AL = M[SS+SP+14];
-    CH = M[SS+SP+13];
-    CL = M[SS+SP+12];
-    DH = M[SS+SP+11];
-    DL = M[SS+SP+10];
-    BH = M[SS+SP+9];
-    BL = M[SS+SP+8];
+    AH = MEM[SS+SP+15];
+    AL = MEM[SS+SP+14];
+    CH = MEM[SS+SP+13];
+    CL = MEM[SS+SP+12];
+    DH = MEM[SS+SP+11];
+    DL = MEM[SS+SP+10];
+    BH = MEM[SS+SP+9];
+    BL = MEM[SS+SP+8];
 
-    BP<8..15> = M[SS+SP+5];
-    BP<0..7>  = M[SS+SP+4];
-    SI<8..15> = M[SS+SP+3];
-    SI<0..7>  = M[SS+SP+2];
-    DI<8..15> = M[SS+SP+1];
-    DI<0..7>  = M[SS+SP];
+    BP<8..15> = MEM[SS+SP+5];
+    BP<0..7>  = MEM[SS+SP+4];
+    SI<8..15> = MEM[SS+SP+3];
+    SI<0..7>  = MEM[SS+SP+2];
+    DI<8..15> = MEM[SS+SP+1];
+    DI<0..7>  = MEM[SS+SP];
 
     SP = SP + 16;
 
@@ -828,7 +831,8 @@ op add_proc_byte(op1: BYTE, op2: BYTE)
 
     CF = tmpb_res<8>;
 
-    AF = (~op1<4> & ~op2<4> & tmpb_res<4>) | (~op1<4> & op2<4> & ~tmpb_res<4>) | (op1<4> & ~op2<4> & ~tmpb_res<4>) | (op1<4> & op2<4> & tmpb_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpb_res<4>) | (~op1<4> & op2<4> & ~tmpb_res<4>)
+       | (op1<4> & ~op2<4> & ~tmpb_res<4>) | (op1<4> & op2<4> & tmpb_res<4>);
 
     ZF = tmpb_res<0..7> == 0;
 
@@ -843,7 +847,8 @@ op add_proc_word(op1: WORD, op2: WORD)
 
     CF = tmpw_res<16>;
 
-    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>)
+       | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
 
     ZF = tmpw_res<0..15> == 0;
 
@@ -855,8 +860,8 @@ op ADD_M8R8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000000000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(M[base+op1], op2 + 0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    add_proc_byte(MEM[base+op1], op2 + 0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -866,8 +871,8 @@ op ADD_M16R16 (seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000000001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    add_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -886,7 +891,7 @@ op ADD_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000000010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(op1+0, M[base+op2]).action;
+    add_proc_byte(op1+0, MEM[base+op2]).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -906,15 +911,15 @@ op ADD_R16M16 (seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000000011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(op1+0, M[base+op2+1]::M[base+op2]).action;
+    add_proc_word(op1+0, MEM[base+op2+1]::MEM[base+op2]).action;
     op1 = tmpw_res<0..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op ADD_R8IMM8 (op1: R8, op2: IMM8)
-  syntax = format("ADD %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("ADD %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     add_proc_byte(op1+0, op2+0).action;
     op1 = tmpb_res<0..7>;
@@ -922,19 +927,19 @@ op ADD_R8IMM8 (op1: R8, op2: IMM8)
   }
 
 op ADD_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("ADD %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("ADD %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    add_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op ADD_R16IMM16 (op1: GPR16, op2: IMM16)
-  syntax = format("ADD %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("ADD %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     add_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -942,12 +947,12 @@ op ADD_R16IMM16 (op1: GPR16, op2: IMM16)
   }
 
 op ADD_M16IMM16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("ADD %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("ADD %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    add_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -963,8 +968,8 @@ op ADC_M8R8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000010000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(M[base+op1], op2 + coerce(BYTE, CF)).action;
-    M[base+op1] = tmpb_res<0..7>;
+    add_proc_byte(MEM[base+op1], op2 + coerce(BYTE, CF)).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -974,8 +979,8 @@ op ADC_M16R16 (seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000010001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(M[base+op1+1]::M[base+op1], op2+coerce(WORD, CF)).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    add_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+coerce(WORD, CF)).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -994,7 +999,7 @@ op ADC_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000010010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(op1+coerce(BYTE, CF), M[base+op2]).action;
+    add_proc_byte(op1+coerce(BYTE, CF), MEM[base+op2]).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -1014,15 +1019,15 @@ op ADC_R16M16 (seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000010011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(op1+coerce(WORD, CF), M[base+op2+1]::M[base+op2]).action;
+    add_proc_word(op1+coerce(WORD, CF), MEM[base+op2+1]::MEM[base+op2]).action;
     op1 = tmpw_res<0..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op ADC_R8IMM8 (op1: R8, op2: IMM8)
-  syntax = format("ADC %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("ADC %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     add_proc_byte(op1+0, op2+coerce(BYTE, CF)).action;
     op1 = tmpb_res<0..7>;
@@ -1030,19 +1035,19 @@ op ADC_R8IMM8 (op1: R8, op2: IMM8)
   }
 
 op ADC_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("ADC %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("ADC %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_byte(M[base+op1], op2+coerce(BYTE, CF)).action;
-    M[base+op1] = tmpb_res<0..7>;
+    add_proc_byte(MEM[base+op1], op2+coerce(BYTE, CF)).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op ADC_R16IMM16 (op1: GPR16, op2: IMM16)
-  syntax = format("ADC %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("ADC %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     add_proc_word(op1+0, op2+coerce(WORD, CF)).action;
     op1 = tmpw_res<0..15>;
@@ -1050,12 +1055,12 @@ op ADC_R16IMM16 (op1: GPR16, op2: IMM16)
   }
 
 op ADC_M16IMM16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("ADC %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("ADC %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    add_proc_word(M[base+op1+1]::M[base+op1], op2+coerce(WORD, CF)).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    add_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+coerce(WORD, CF)).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -1074,7 +1079,8 @@ op sub_proc_byte(op1: BYTE, op2: BYTE)
 
     CF = tmpb_res<8>;
 
-    AF = (~op1<4> & ~op2<4> & tmpb_res<4>) | (~op1<4> & op2<4> & ~tmpb_res<4>) | (op1<4> & ~op2<4> & ~tmpb_res<4>) | (op1<4> & op2<4> & tmpb_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpb_res<4>) | (~op1<4> & op2<4> & ~tmpb_res<4>)
+    | (op1<4> & ~op2<4> & ~tmpb_res<4>) | (op1<4> & op2<4> & tmpb_res<4>);
 
     ZF = tmpb_res<0..7> == 0;
 
@@ -1089,7 +1095,8 @@ op sub_proc_word(op1: WORD, op2: WORD)
 
     CF = tmpw_res<16>;
 
-    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>)
+    | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
 
     ZF = tmpw_res<0..15> == 0;
 
@@ -1101,8 +1108,8 @@ op SUB_M8R8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000101000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2 + 0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    sub_proc_byte(MEM[base+op1], op2 + 0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1112,8 +1119,8 @@ op SUB_M16R16 (seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000101001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1132,7 +1139,7 @@ op SUB_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000101010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(op1+0, M[base+op2]).action;
+    sub_proc_byte(op1+0, MEM[base+op2]).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -1152,15 +1159,15 @@ op SUB_R16M16 (seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000101011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(op1+0, M[base+op2+1]::M[base+op2]).action;
+    sub_proc_word(op1+0, MEM[base+op2+1]::MEM[base+op2]).action;
     op1 = tmpw_res<0..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op SUB_R8IMM8 (op1: R8, op2: IMM8)
-  syntax = format("SUB %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("SUB %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     sub_proc_byte(op1+0, op2+0).action;
     op1 = tmpb_res<0..7>;
@@ -1168,19 +1175,19 @@ op SUB_R8IMM8 (op1: R8, op2: IMM8)
   }
 
 op SUB_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("SUB %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("SUB %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    sub_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op SUB_R16IMM16 (op1: GPR16, op2: IMM16)
-  syntax = format("SUB %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("SUB %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     sub_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1188,12 +1195,12 @@ op SUB_R16IMM16 (op1: GPR16, op2: IMM16)
   }
 
 op SUB_M16IMM16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("SUB %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("SUB %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -1209,8 +1216,8 @@ op SBB_M8R8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000011000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2-coerce(BYTE, CF)).action;
-    M[base+op1] = tmpb_res<0..7>;
+    sub_proc_byte(MEM[base+op1], op2-coerce(BYTE, CF)).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1220,8 +1227,8 @@ op SBB_M16R16 (seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000011001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2-coerce(WORD, CF)).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2-coerce(WORD, CF)).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1240,7 +1247,7 @@ op SBB_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000011010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(op1-coerce(BYTE, CF), M[base+op2]).action;
+    sub_proc_byte(op1-coerce(BYTE, CF), MEM[base+op2]).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -1260,15 +1267,15 @@ op SBB_R16M16 (seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000011011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(op1-coerce(WORD, CF), M[base+op2+1]::M[base+op2]).action;
+    sub_proc_word(op1-coerce(WORD, CF), MEM[base+op2+1]::MEM[base+op2]).action;
     op1 = tmpw_res<0..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op SBB_R8IMM8 (op1: R8, op2: IMM8)
-  syntax = format("SBB %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("SBB %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     sub_proc_byte(op1+0, op2-coerce(BYTE, CF)).action;
     op1 = tmpb_res<0..7>;
@@ -1276,19 +1283,19 @@ op SBB_R8IMM8 (op1: R8, op2: IMM8)
   }
 
 op SBB_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("SBB %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("SBB %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2-coerce(BYTE, CF)).action;
-    M[base+op1] = tmpb_res<0..7>;
+    sub_proc_byte(MEM[base+op1], op2-coerce(BYTE, CF)).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op SBB_R16IMM16 (op1: GPR16, op2: IMM16)
-  syntax = format("SBB %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("SBB %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     sub_proc_word(op1+0, op2-coerce(WORD, CF)).action;
     op1 = tmpw_res<0..15>;
@@ -1296,12 +1303,12 @@ op SBB_R16IMM16 (op1: GPR16, op2: IMM16)
   }
 
 op SBB_M16IMM16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("SBB %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("SBB %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2-coerce(WORD, CF)).action;
-    M[base+op1]::M[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2-coerce(WORD, CF)).action;
+    MEM[base+op1]::MEM[base+op1+1] = tmpw_res<0..7>::tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -1348,8 +1355,8 @@ op INC_M8 (seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011111110%s001%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    inc_proc_byte(M[base+op1]).action;
-    M[base+op1] = tmpb_res<0..7>;
+    inc_proc_byte(MEM[base+op1]).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1368,9 +1375,9 @@ op INC_M16 (seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011111111%s001%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    inc_proc_word(M[base+op1+1]::M[base+op1]).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    inc_proc_word(MEM[base+op1+1]::MEM[base+op1]).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1416,8 +1423,8 @@ op DEC_M8 (seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011111110%s001%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dec_proc_byte(M[base+op1]).action;
-    M[base+op1] = tmpb_res<0..7>;
+    dec_proc_byte(MEM[base+op1]).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1436,9 +1443,9 @@ op DEC_M16 (seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011111111%s001%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    dec_proc_word(M[base+op1+1]::M[base+op1]).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    dec_proc_word(MEM[base+op1+1]::MEM[base+op1]).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1468,7 +1475,7 @@ op MUL_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    AX = coerce(WORD, AL) * coerce(WORD, M[base+op1]); 
+    AX = coerce(WORD, AL) * coerce(WORD, MEM[base+op1]); 
     instr_size = instr_size + 3;
     op1.action;
     if AH != 0 then 
@@ -1502,7 +1509,7 @@ op MUL_M16(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110111%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    tmpdw_op1 = coerce(DWORD, AX) * coerce(DWORD, (M[base+op1+1]::M[base+op1])); 
+    tmpdw_op1 = coerce(DWORD, AX) * coerce(DWORD, (MEM[base+op1+1]::MEM[base+op1])); 
     instr_size = instr_size + 3;
     op1.action;
     AX = tmpdw_op1<0..15>;
@@ -1541,7 +1548,7 @@ op IMUL_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    AX = coerce(WORD, cast(SBYTE, AL)) * coerce(WORD, cast(SBYTE, M[base+op1])); 
+    AX = coerce(WORD, cast(SBYTE, AL)) * coerce(WORD, cast(SBYTE, MEM[base+op1])); 
     instr_size = instr_size + 3;
     op1.action;
     if AH == 0 || AH == 0xff then 
@@ -1575,7 +1582,7 @@ op IMUL_M16(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110111%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) * coerce(DWORD, cast(SWORD, M[base+op1+1]::M[base+op1]));  
+    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) * coerce(DWORD, cast(SWORD, MEM[base+op1+1]::MEM[base+op1]));  
     instr_size = instr_size + 3;
     op1.action;
     AX = tmpdw_op1<0..15>;
@@ -1611,11 +1618,11 @@ op DIV_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    tmpw_op1 = AX / coerce(WORD, M[base+op1]);
+    tmpw_op1 = AX / coerce(WORD, MEM[base+op1]);
     instr_size = instr_size + 3;
     op1.action;
     if tmpw_op1 <= 0xff then
-      AH = coerce(BYTE, AX % coerce(WORD, M[base+op1]));
+      AH = coerce(BYTE, AX % coerce(WORD, MEM[base+op1]));
       AL = coerce(BYTE, tmpw_op1);
     endif;
   }
@@ -1641,8 +1648,8 @@ op DIV_M16(seg_ovrd: RSEG16, op1: MOFFS)
     base = coerce(ADDR, seg_ovrd) << 4;
     tmpdw_op1<0..15> = AX;
     tmpdw_op1<16..31> = DX;
-    tmpw_op1<0..7> = M[base+op1];
-    tmpw_op1<8..15> = M[base+op1+1];
+    tmpw_op1<0..7> = MEM[base+op1];
+    tmpw_op1<8..15> = MEM[base+op1+1];
     tmpdw_op2 = tmpdw_op1 / coerce(DWORD, tmpw_op1);
     instr_size = instr_size + 3;
     op1.action;
@@ -1674,11 +1681,11 @@ op IDIV_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    tmpw_op1 = cast(SWORD, AX) / coerce(SWORD, cast(SBYTE, M[base+op1]));
+    tmpw_op1 = cast(SWORD, AX) / coerce(SWORD, cast(SBYTE, MEM[base+op1]));
     instr_size = instr_size + 3;
     op1.action;
     if tmpw_op1 <= 0x7f && tmpw_op1 >= 0x80 then
-      AH = coerce(BYTE, AX % coerce(WORD, cast(SBYTE, M[base+op1])));
+      AH = coerce(BYTE, AX % coerce(WORD, cast(SBYTE, MEM[base+op1])));
       AL = coerce(BYTE, tmpw_op1);
     endif;
   }
@@ -1705,8 +1712,8 @@ op IDIV_M16(seg_ovrd: RSEG16, op1: MOFFS)
     base = coerce(ADDR, seg_ovrd) << 4;
     tmpdw_op1<0..15> = AX;
     tmpdw_op1<16..31> = DX;
-    tmpw_op1<0..7> = M[base+op1];
-    tmpw_op1<8..15> = M[base+op1+1];
+    tmpw_op1<0..7> = MEM[base+op1];
+    tmpw_op1<8..15> = MEM[base+op1+1];
     tmpdw_op2 = tmpdw_op1 / coerce(DWORD, cast(SWORD, tmpw_op1));
     instr_size = instr_size + 3;
     op1.action;
@@ -1752,7 +1759,7 @@ op TEST_M8R8(seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11010000100%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_byte(M[base+op1], op2+0).action;
+    test_proc_byte(MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1770,43 +1777,43 @@ op TEST_M16R16(seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11010000101%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
+    test_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 3;
   }
 
 op TEST_R8IMM8(op1: R8, op2: IMM8)
-  syntax = format("TEST %s, %s", op1.syntax, op2.syntax)
-  image = format("1111011011000%s%s", op1.image, op2.image)
+  syntax = format("TEST %s, %d", op1.syntax, op2)
+  image = format("1111011011000%s%8s", op1.image, op2)
   action = {
     test_proc_byte(op1+0, op2+0).action;
     instr_size = instr_size + 3;
   }
 
 op TEST_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("TEST %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11011110110%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("TEST %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11011110110%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_byte(M[base+op1], op2+0).action;
+    test_proc_byte(MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op TEST_R16IMM16(op1: GPR16, op2: IMM16)
-  syntax = format("TEST %s, %s", op1.syntax, op2.syntax)
-  image = format("1111011111000%s%s", op1.image, op2.image)
+  syntax = format("TEST %s, %d", op1.syntax, op2)
+  image = format("1111011111000%s%16s", op1.image, op2)
   action = {
     test_proc_word(op1+0, op2+0).action;
     instr_size = instr_size + 4;
   }
 
 op TEST_M16IMM16(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("TEST %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11011110111%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("TEST %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11011110111%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
+    test_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -1831,8 +1838,8 @@ op AND_M8R8(seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000100000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    test_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1842,7 +1849,7 @@ op AND_R8M8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000100010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_byte(M[base+op2], op1+0).action;
+    test_proc_byte(MEM[base+op2], op1+0).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -1862,9 +1869,9 @@ op AND_M16R16(seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000100001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    test_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1874,16 +1881,16 @@ op AND_R16M16(seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000100011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_word(M[base+op2+1]::M[base+op2], op1+0).action;
-    M[base+op2] = tmpw_res<0..7>;
-    M[base+op2+1] = tmpw_res<8..15>;
+    test_proc_word(MEM[base+op2+1]::MEM[base+op2], op1+0).action;
+    MEM[base+op2] = tmpw_res<0..7>;
+    MEM[base+op2+1] = tmpw_res<8..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op AND_R8IMM8(op1: R8, op2: IMM8)
-  syntax = format("AND %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("AND %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     test_proc_byte(op1+0, op2+0).action;
     op1 = tmpb_res<0..7>;
@@ -1891,19 +1898,19 @@ op AND_R8IMM8(op1: R8, op2: IMM8)
   }
 
 op AND_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("AND %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("AND %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    test_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op AND_R16IMM16(op1: GPR16, op2: IMM16)
-  syntax = format("AND %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("AND %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     test_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1911,13 +1918,13 @@ op AND_R16IMM16(op1: GPR16, op2: IMM16)
   }
 
 op AND_M16IMM16(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("AND %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("AND %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    test_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    test_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -1960,8 +1967,8 @@ op OR_M8R8(seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000001000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    or_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -1971,7 +1978,7 @@ op OR_R8M8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000001010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_byte(M[base+op2], op1+0).action;
+    or_proc_byte(MEM[base+op2], op1+0).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -1991,9 +1998,9 @@ op OR_M16R16(seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000001001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    or_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2003,16 +2010,16 @@ op OR_R16M16(seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000001011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_word(M[base+op2+1]::M[base+op2], op1+0).action;
-    M[base+op2] = tmpw_res<0..7>;
-    M[base+op2+1] = tmpw_res<8..15>;
+    or_proc_word(MEM[base+op2+1]::MEM[base+op2], op1+0).action;
+    MEM[base+op2] = tmpw_res<0..7>;
+    MEM[base+op2+1] = tmpw_res<8..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op OR_R8IMM8(op1: R8, op2: IMM8)
-  syntax = format("OR %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011001%s%s", op1.image, op2.image)
+  syntax = format("OR %s, %d", op1.syntax, op2)
+  image = format("1000000011001%s%8s", op1.image, op2)
   action = {
     or_proc_byte(op1+0, op2+0).action;
     op1 = tmpb_res<0..7>;
@@ -2020,19 +2027,19 @@ op OR_R8IMM8(op1: R8, op2: IMM8)
   }
 
 op OR_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("OR %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s001%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("OR %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s001%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    or_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op OR_R16IMM16(op1: GPR16, op2: IMM16)
-  syntax = format("OR %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111001%s%s", op1.image, op2.image)
+  syntax = format("OR %s, %d", op1.syntax, op2)
+  image = format("1000000111001%s%16s", op1.image, op2)
   action = {
     or_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -2040,13 +2047,13 @@ op OR_R16IMM16(op1: GPR16, op2: IMM16)
   }
 
 op OR_M16IMM16(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("OR %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s001%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("OR %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s001%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    or_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    or_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -2089,8 +2096,8 @@ op XOR_M8R8(seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000110000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    xor_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2100,7 +2107,7 @@ op XOR_R8M8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000110010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_byte(M[base+op2], op1+0).action;
+    xor_proc_byte(MEM[base+op2], op1+0).action;
     op1 = tmpb_res<0..7>;
     op2.action;
     instr_size = instr_size + 3;
@@ -2120,9 +2127,9 @@ op XOR_M16R16(seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000110000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    xor_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2132,16 +2139,16 @@ op XOR_R16M16(seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000110011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_word(M[base+op2+1]::M[base+op2], op1+0).action;
-    M[base+op2] = tmpw_res<0..7>;
-    M[base+op2+1] = tmpw_res<8..15>;
+    xor_proc_word(MEM[base+op2+1]::MEM[base+op2], op1+0).action;
+    MEM[base+op2] = tmpw_res<0..7>;
+    MEM[base+op2+1] = tmpw_res<8..15>;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op XOR_R8IMM8(op1: R8, op2: IMM8)
-  syntax = format("XOR %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("XOR %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     xor_proc_byte(op1+0, op2+0).action;
     op1 = tmpb_res<0..7>;
@@ -2149,19 +2156,19 @@ op XOR_R8IMM8(op1: R8, op2: IMM8)
   }
 
 op XOR_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("XOR %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("XOR %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_byte(M[base+op1], op2+0).action;
-    M[base+op1] = tmpb_res<0..7>;
+    xor_proc_byte(MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op XOR_R16IMM16(op1: GPR16, op2: IMM16)
-  syntax = format("XOR %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("XOR %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     xor_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -2169,13 +2176,13 @@ op XOR_R16IMM16(op1: GPR16, op2: IMM16)
   }
 
 op XOR_M16IMM16(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("XOR %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("XOR %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    xor_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    xor_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -2199,7 +2206,7 @@ op NOT_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+op1] = ~M[base+op1];
+    MEM[base+op1] = ~MEM[base+op1];
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2217,8 +2224,8 @@ op NOT_M16(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110111%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    M[base+op1] = ~M[base+op1];
-    M[base+op1+1] = ~M[base+op1+1];
+    MEM[base+op1] = ~MEM[base+op1];
+    MEM[base+op1+1] = ~MEM[base+op1+1];
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2264,8 +2271,8 @@ op NEG_M8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    neg_proc_byte(M[base+op1]).action;
-    M[base+op1] = tmpb_res<0..7>;
+    neg_proc_byte(MEM[base+op1]).action;
+    MEM[base+op1] = tmpb_res<0..7>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2284,9 +2291,9 @@ op NEG_M16(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110111%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    neg_proc_word(M[base+op1+1]::M[base+op1]).action;
-    M[base+op1] = tmpw_res<0..7>;
-    M[base+op1+1] = tmpw_res<8..15>;
+    neg_proc_word(MEM[base+op1+1]::MEM[base+op1]).action;
+    MEM[base+op1] = tmpw_res<0..7>;
+    MEM[base+op1+1] = tmpw_res<8..15>;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2301,7 +2308,7 @@ op CMP_M8R8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   image = format("001%s11000111000%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2 + 0).action;
+    sub_proc_byte(MEM[base+op1], op2 + 0).action;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2311,7 +2318,7 @@ op CMP_M16R16 (seg_ovrd: RSEG16, op1: MOFFS, op2: GPR16)
   image = format("001%s11000111001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 3;
   }
@@ -2329,7 +2336,7 @@ op CMP_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
   image = format("001%s11000111010%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(op1+0, M[base+op2]).action;
+    sub_proc_byte(op1+0, MEM[base+op2]).action;
     op2.action;
     instr_size = instr_size + 3;
   }
@@ -2347,43 +2354,43 @@ op CMP_R16M16 (seg_ovrd: RSEG16, op1: GPR16, op2: MOFFS)
   image = format("001%s11000111011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(op1+0, M[base+op2+1]::M[base+op2]).action;
+    sub_proc_word(op1+0, MEM[base+op2+1]::MEM[base+op2]).action;
     op2.action;
     instr_size = instr_size + 3;
   }
 
 op CMP_R8IMM8 (op1: R8, op2: IMM8)
-  syntax = format("CMP %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000011000%s%s", op1.image, op2.image)
+  syntax = format("CMP %s, %d", op1.syntax, op2)
+  image = format("1000000011000%s%8s", op1.image, op2)
   action = {
     sub_proc_byte(op1+0, op2+0).action;
     instr_size = instr_size + 3;
   }
 
 op CMP_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
-  syntax = format("CMP %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000000%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("CMP %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000000%s000%s%s%8s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_byte(M[base+op1], op2+0).action;
+    sub_proc_byte(MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 4;
   }
 
 op CMP_R16IMM16 (op1: GPR16, op2: IMM16)
-  syntax = format("CMP %s, %s", op1.syntax, op2.syntax)
-  image = format("1000000111000%s%s", op1.image, op2.image)
+  syntax = format("CMP %s, %d", op1.syntax, op2)
+  image = format("1000000111000%s%16s", op1.image, op2)
   action = {
     sub_proc_word(op1+0, op2+0).action;
     instr_size = instr_size + 4;
   }
 
 op CMP_M16IMM16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("CMP %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
-  image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
+  syntax = format("CMP %s:%s, %d", seg_ovrd.syntax, op1.syntax, op2)
+  image = format("001%s11010000001%s000%s%s%16s", seg_ovrd.image, mod, rm, op1.image, op2)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    sub_proc_word(M[base+op1+1]::M[base+op1], op2+0).action;
+    sub_proc_word(MEM[base+op1+1]::MEM[base+op1], op2+0).action;
     op1.action;
     instr_size = instr_size + 5;
   }
@@ -2423,7 +2430,7 @@ op JMP_M16(seg_ovrd: RSEG16, rel: MOFFS)
   image  = format("001%s11011111111%s000%s%s", seg_ovrd.image, mod, rm, rel.image)
   action = {
     base = coerce(ADDR, seg_ovrd) << 4;
-    IP = IP + M[base+rel+1]::M[base+rel];
+    IP = IP + MEM[base+rel+1]::MEM[base+rel];
     rel.action;
     instr_size = instr_size + 3;
   }
@@ -2733,18 +2740,19 @@ op JNLE(rel: SBYTE)
     instr_size = instr_size + 2;
   }
 
-op operations = MOV | XCHG | ADD | SUB | PUSH | POP | MUL | IMUL | DIV | IDIV | PUSHA | POPA | ADC | SBB | INC | DEC | TEST | AND | OR | NOT | NEG | CMP | JMP | JMP_SHORT | JO | JNO | JC | JNC | JZ | JNZ | JS | JNS | JP | JPE | JNP | JPO | JA | JAE | JB | JBE | JE | JNE | JNA | JNAE | JNB | JNBE | JG | JGE | JL | JLE | JNG | JNGE | JNL | JNLE
+op x86 = MOV | XCHG | ADD | SUB | PUSH | POP | MUL | IMUL | DIV | IDIV | PUSHA | POPA | ADC
+       | SBB | INC | DEC | TEST | AND | OR | NOT | NEG | CMP | JMP | JMP_SHORT | JO | JNO
+       | JC | JNC | JZ | JNZ | JS | JNS | JP | JPE | JNP | JPO | JA | JAE | JB | JBE | JE
+       | JNE | JNA | JNAE | JNB | JNBE | JG | JGE | JL | JLE | JNG | JNGE | JNL | JNLE
 
-op x86 (a: operations)
-  syntax = a.syntax
-  image = a.image
+op instruction (operation: x86)
+  syntax = operation.syntax
+  image = operation.image
   init = {
     instr_size = 0;
   }  
   action = {
-    a.action;
+    operation.action;
     IP = IP + coerce(WORD, instr_size);
     program_counter = (coerce(ADDR, CS) << 4) + coerce(ADDR, IP);
   } 
-
-op instruction = x86
