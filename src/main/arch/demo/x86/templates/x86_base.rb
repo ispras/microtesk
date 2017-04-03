@@ -19,11 +19,14 @@ class X86BaseTemplate < Template
     @setup_cache        = false
     @kseg0_cache_policy = 0
 
+    # Sets the comment token used in test programs
+    set_option_value 'comment-token', ';'
+
     # Sets the indentation token used in test programs
-    set_option_value 'indent-token', "\t"
+    set_option_value 'indent-token', '\t'
 
     # Sets the token used in separator lines printed into test programs
-    set_option_value 'separator-token', "="
+    set_option_value 'separator-token', '='
 
     # set_option_value 'base-virtual-address', 0xa0002000
     # set_option_value 'base-physical-address', 0x00002000
