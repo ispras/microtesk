@@ -16,6 +16,11 @@ package ru.ispras.microtesk.decoder;
 
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 
+/**
+ * {@link DecoderResult} class hods the result of primitive decoding.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class DecoderResult {
   private final IsaPrimitive primitive;
   private final int bitSize;
