@@ -19,6 +19,8 @@ class X86BaseTemplate < Template
     @setup_cache        = false
     @kseg0_cache_policy = 0
 
+    set_option_value 'code-section-keyword', 'section .text'
+
     # Sets the comment token used in test programs
     set_option_value 'comment-token', ';'
 
