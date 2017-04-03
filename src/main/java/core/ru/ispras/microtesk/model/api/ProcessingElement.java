@@ -175,6 +175,15 @@ public abstract class ProcessingElement {
     return device;
   }
 
+  public final MemoryDevice getMemoryDevice() {
+    if (null == memoryAllocatorStorageId) {
+      throw new IllegalStateException(
+          "Cannot access memory storage device. It is not configured.");
+    }
+
+    return getMemoryDevice(memoryAllocatorStorageId);
+  }
+
   private Memory getStorage(final String storageId) throws ConfigurationException {
     final Memory storage = storageMap.get(storageId);
     if (null == storage) {
