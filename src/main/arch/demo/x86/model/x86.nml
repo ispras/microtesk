@@ -19,7 +19,7 @@
 
 let       MEM_SIZE = 2 ** 20 // Memory size
 
-let     GPR_NUMBER = 8 // Number of general-purpose registers
+let     GPR_NUMBER = 16 // Number of general-purpose registers
 let    SREG_NUMBER = 4 // Number of segmet registers
 let REG_INDEX_SIZE = 3 // in bits
 
@@ -152,7 +152,24 @@ var tmpw_res[1, card(17)]
 
 ////////////////////////////////////////////////////////////////////////////////
 // An addressing mode for a register access
-mode GPR32 (i: INDEX) = GPR2[i]
+
+mode reg64name(index: card(4))
+  syntax = format("R%d", index)
+  action = {}
+
+mode reg32name(index: card(4))
+  syntax = format("R%dD", index)
+  action = {}
+
+mode reg16name(index: card(4))
+  syntax = format("R%dW", index)
+  action = {}
+
+mode reg8name(index: card(4))
+  syntax = format("R%dB", index)
+  action = {}
+
+mode GPR32 (i: card(4)) = GPR2[i]
   syntax = format("%s", if i == 0 then "EAX" 
                       elif i == 1 then "ECX" 
                       elif i == 2 then "EDX"
@@ -161,11 +178,10 @@ mode GPR32 (i: INDEX) = GPR2[i]
                       elif i == 5 then "EBP"
                       elif i == 6 then "ESI"
                       elif i == 7 then "EDI"
-                      else "EAX"
-                      endif)
-  image  = format("%3s", i)
+                      else reg32name(i).syntax endif)
+  image  = format("%4s", i)
 
-mode GPR16(i: INDEX) = GPR[i]
+mode GPR16(i: card(4)) = GPR[i]
   syntax = format("%s", if i == 0 then "AX" 
                       elif i == 1 then "CX" 
                       elif i == 2 then "DX"
@@ -174,18 +190,8 @@ mode GPR16(i: INDEX) = GPR[i]
                       elif i == 5 then "BP"
                       elif i == 6 then "SI"
                       elif i == 7 then "DI"
-                      else "AX"
-                      endif)
-  image = format("%s", if i == 0 then "000" 
-                     elif i == 1 then "001" 
-                     elif i == 2 then "010"
-                     elif i == 3 then "011"
-                     elif i == 4 then "100"
-                     elif i == 5 then "101"
-                     elif i == 6 then "110"
-                     elif i == 7 then "111"
-                     else "000"
-                     endif)
+                      else reg16name(i).syntax endif)
+  image = format("%4s", i)
 
 mode RSEG16(i: INDEX) = RSEG[i]
   syntax = format("%s", if i == 0 then "ES" 
@@ -560,7 +566,7 @@ op MOV_M16R16 (seg_ovrd: RSEG16, dst: MOFFS, src: GPR16)
 
 op MOV_R16R16 (dst: GPR16, src: GPR16)
   syntax = format("MOV %s, %s", dst.syntax, src.syntax)
-  image = format("1000101111%s%s", dst.image, src.image)
+  image = format("10001011%s%s", dst.image, src.image)
   action = {
     dst = src;
     instr_size = instr_size + 2;
@@ -622,7 +628,7 @@ op MOV_R8IMM8 (dst: R8, src: IMM8)
 
 op MOV_R16IMM16 (dst: GPR16, src: IMM16)
   syntax = format("MOV %s, %d", dst.syntax, src)
-  image = format("10111%s11001%s%16s", dst.image, dst.image, src)
+  image = format("1011%s1100%s%16s", dst.image, dst.image, src)
   action = {
     dst = src;
     instr_size = instr_size + 4;
@@ -931,7 +937,7 @@ op ADD_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op ADD_R16R16 (op1: GPR16, op2: GPR16)
   syntax = format("ADD %s, %s", op1.syntax, op2.syntax)
-  image = format("0000001111%s%s", op1.image, op2.image)
+  image = format("00000011%s%s", op1.image, op2.image)
   action = {
     add_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -971,7 +977,7 @@ op ADD_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op ADD_R16IMM16 (op1: GPR16, op2: IMM16)
   syntax = format("ADD %s, %d", op1.syntax, op2)
-  image = format("1000000111000%s%16s", op1.image, op2)
+  image = format("100000011100%s%16s", op1.image, op2)
   action = {
     add_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1179,7 +1185,7 @@ op SUB_R8M8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op SUB_R16R16 (op1: GPR16, op2: GPR16)
   syntax = format("SUB %s, %s", op1.syntax, op2.syntax)
-  image = format("0010101111%s%s", op1.image, op2.image)
+  image = format("00101011%s%s", op1.image, op2.image)
   action = {
     sub_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1219,7 +1225,7 @@ op SUB_M8IMM8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op SUB_R16IMM16 (op1: GPR16, op2: IMM16)
   syntax = format("SUB %s, %d", op1.syntax, op2)
-  image = format("1000000111000%s%16s", op1.image, op2)
+  image = format("100000011100%s%16s", op1.image, op2)
   action = {
     sub_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1521,7 +1527,7 @@ op MUL_M8(seg_ovrd: RSEG16, op1: MOFFS)
 
 op MUL_R16(op1: GPR16)
   syntax = format("MUL %s", op1.syntax)
-  image = format("1111011111000%s", op1.image)
+  image = format("111101111100%s", op1.image)
   action = {
     tmpdw_op1 = coerce(DWORD, AX) * coerce(DWORD, op1); 
     instr_size = instr_size + 2;
@@ -1889,7 +1895,7 @@ op AND_R8M8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op AND_R16R16(op1: GPR16, op2: GPR16)
   syntax = format("AND %s, %s", op1.syntax, op2.syntax)
-  image = format("0010001111%s%s", op1.image, op2.image)
+  image = format("00100011%s%s", op1.image, op2.image)
   action = {
     test_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -1942,7 +1948,7 @@ op AND_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op AND_R16IMM16(op1: GPR16, op2: IMM16)
   syntax = format("AND %s, %d", op1.syntax, op2)
-  image = format("1000000111000%s%16s", op1.image, op2)
+  image = format("100000011100%s%16s", op1.image, op2)
   action = {
     test_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -2018,7 +2024,7 @@ op OR_R8M8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op OR_R16R16(op1: GPR16, op2: GPR16)
   syntax = format("OR %s, %s", op1.syntax, op2.syntax)
-  image = format("0000101111%s%s", op1.image, op2.image)
+  image = format("00001011%s%s", op1.image, op2.image)
   action = {
     or_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;
@@ -2071,7 +2077,7 @@ op OR_M8IMM8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op OR_R16IMM16(op1: GPR16, op2: IMM16)
   syntax = format("OR %s, %d", op1.syntax, op2)
-  image = format("1000000111001%s%16s", op1.image, op2)
+  image = format("100000011100%s%16s", op1.image, op2)
   action = {
     or_proc_word(op1+0, op2+0).action;
     op1 = tmpw_res<0..15>;

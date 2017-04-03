@@ -176,6 +176,38 @@ class X86BaseTemplate < Template
     gpr16(7)
   end
 
+  def r8w
+    gpr16(8)
+  end
+
+  def r9w
+    gpr16(9)
+  end
+
+  def r10w
+    gpr16(10)
+  end
+
+  def r11w
+    gpr16(11)
+  end
+
+  def r12w
+    gpr16(12)
+  end
+
+  def r13w
+    gpr16(13)
+  end
+
+  def r14w
+    gpr16(14)
+  end
+
+  def r15w
+    gpr16(15)
+  end
+
   ## REG 32
 
   def eax
