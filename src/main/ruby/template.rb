@@ -1093,11 +1093,11 @@ class DataManager
   end
 
   def text(value)
-    @manager.addText value
+    @builder.addText value
   end
 
   def comment(value)
-    @manager.addComment value
+    @builder.addComment value
   end
 
   def value(*args)
