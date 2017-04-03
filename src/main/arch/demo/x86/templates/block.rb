@@ -19,9 +19,6 @@ require_relative 'x86_base'
 class BlockTemplate < X86BaseTemplate
 
   def run
-    # Adds nop to all test cases as a placeholder to return from an exception
-    epilogue { }
-
     # Produces a single test case that consists of three instructions
     sequence {
       MOV_R16R16 ax, bx
@@ -52,6 +49,7 @@ class BlockTemplate < X86BaseTemplate
       }
 
       iterate {
+        MOV_R16R16 ax, bx
         SUB_R16R16 gpr16(_), gpr16(_)
       }
     }.run
