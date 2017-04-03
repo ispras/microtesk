@@ -29,6 +29,11 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.utils.FileUtils;
 
+/**
+ * {@link Disassembler} is a class responsible for disassembling binary files.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Disassembler {
   public static interface Output {
     void add(final IsaPrimitive primitive);
