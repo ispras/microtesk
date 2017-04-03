@@ -44,6 +44,15 @@ let PC = "program_counter"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
+reg GPR2[GPR_NUMBER, DWORD]
+reg EAX[DWORD] alias = GPR2[0]
+reg ECX[DWORD] alias = GPR2[1]
+reg EDX[DWORD] alias = GPR2[2]
+reg EBX[DWORD] alias = GPR2[3]
+reg ESP[DWORD] alias = GPR2[4]
+reg EBP[DWORD] alias = GPR2[5]
+reg ESI[DWORD] alias = GPR2[6]
+reg EDI[DWORD] alias = GPR2[7]
 
 // General-purpose registers
 reg GPR[GPR_NUMBER, WORD]
@@ -143,6 +152,18 @@ var tmpw_res[1, card(17)]
 
 ////////////////////////////////////////////////////////////////////////////////
 // An addressing mode for a register access
+mode GPR32 (i: INDEX) = GPR2[i]
+  syntax = format("%s", if i == 0 then "EAX" 
+                      elif i == 1 then "ECX" 
+                      elif i == 2 then "EDX"
+                      elif i == 3 then "EBX"
+                      elif i == 4 then "ESP"
+                      elif i == 5 then "EBP"
+                      elif i == 6 then "ESI"
+                      elif i == 7 then "EDI"
+                      else "EAX"
+                      endif)
+  image  = format("%3s", i)
 
 mode GPR16(i: INDEX) = GPR[i]
   syntax = format("%s", if i == 0 then "AX" 
@@ -214,6 +235,7 @@ type  IMM16 = card(16)
 /*mode IMM16(i: WORD) = i
   syntax = format("%d", i)
   image = format("%s", i<0..7>::i<8..15>)*/
+type  IMM32 = card(32)
 
 ////////////////////////////////////////////////////////////////////////////////
 // The Displacement Only Addressing Modes
@@ -606,6 +628,15 @@ op MOV_R16IMM16 (dst: GPR16, src: IMM16)
     instr_size = instr_size + 4;
   }
 
+// mov reg, imm
+op MOV_R32IMM32 (dst: GPR32, src: IMM32)
+  syntax = format("MOV %s, %d", dst.syntax, src)
+  image = format("10111%s11001%s%32s", dst.image, dst.image, src)
+  action = {
+    dst = src;
+    instr_size = instr_size + 6;
+  }
+
 op MOV_M8IMM8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
   syntax = format("MOV %s:%s, %d", seg_ovrd.syntax, dst.syntax, src)
   image = format("001%s11011000110%s001%s%s%8s", seg_ovrd.image, mod, rm, dst.image, src)
@@ -630,7 +661,8 @@ op MOV = MOV_M8R8   | MOV_M16R16  | MOV_M16RSEG
        | MOV_R8R8   | MOV_R16R16  | MOV_RSEGM16
        | MOV_R8M8   | MOV_R16M16  | MOV_R16IMM16
        | MOV_R8IMM8 | MOV_R16RSEG | MOV_M16IMM16
-       | MOV_M8IMM8 | MOV_RSEGR16 
+       | MOV_M8IMM8 | MOV_RSEGR16
+       | MOV_R32IMM32
 
 ////////////////////////////////////////////////////////////////////////////////
 // XCHG ops

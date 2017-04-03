@@ -23,7 +23,7 @@ class X86BaseTemplate < Template
     set_option_value 'comment-token', ';'
 
     # Sets the indentation token used in test programs
-    set_option_value 'indent-token', '\t'
+    set_option_value 'indent-token', "\t"
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', '='
@@ -101,6 +101,18 @@ class X86BaseTemplate < Template
     # Input arguments of all instructions listed below are random words.
     #set_default_situation 'add'   do random_word end
 
+    ################################################################################################
+
+    text "section	.text"
+    text "global _start"
+    newline
+
+    label :_start
+    #j :test
+    #nop
+    #newline
+
+    #label :test
   end
 
   ##################################################################################################
@@ -109,8 +121,22 @@ class X86BaseTemplate < Template
 
 
   ##################################################################################################
+  # Epilogue
+  ##################################################################################################
+
+  def post
+    label :success
+    newline
+
+    label :error
+    newline
+  end
+
+  ##################################################################################################
   # Aliases for GPR Registers
   ##################################################################################################
+
+  ## REG 16
 
   def ax
     gpr16(0)
@@ -142,6 +168,40 @@ class X86BaseTemplate < Template
 
   def di
     gpr16(7)
+  end
+
+  ## REG 32
+
+  def eax
+    GPR32(0)
+  end
+
+  def ecx
+    GPR32(1)
+  end
+
+  def edx
+    GPR32(2)
+  end
+
+  def ebx
+    GPR32(3)
+  end
+
+  def esp
+    GPR32(4)
+  end
+
+  def ebp
+    GPR32(5)
+  end
+
+  def esi
+    GPR32(6)
+  end
+
+  def edi
+    GPR32(7)
   end
 
   ##################################################################################################
