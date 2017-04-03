@@ -105,7 +105,6 @@ class X86BaseTemplate < Template
 
     ################################################################################################
 
-    text "section	.text"
     text "global _start"
     newline
 
