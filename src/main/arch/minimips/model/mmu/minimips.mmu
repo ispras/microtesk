@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -57,7 +57,7 @@ buffer L2 (pa: PA)
 // Main Memory
 //==================================================================================================
 
-// Corresponds to the "mem M" definition in the ISA specification
+// Corresponds to the "mem M" definition in the ISA specification.
 buffer M (pa: PA)
   ways   = 1
   sets   = 1 << (32 - 5)
@@ -66,10 +66,10 @@ buffer M (pa: PA)
   match  = 0
 
 //==================================================================================================
-// Register-Mapped Buffers to Save Values to Registers Defined in nML
+// Register-Mapped Buffers to Access Registers Defined in nML
 //==================================================================================================
 
-// Physical address to be read in nML
+// Physical address to be read in nML.
 register buffer MMU_PA (pa: PA)
   ways = 1
   sets = 1
@@ -97,10 +97,10 @@ mmu pmem (va: VA) = (data: 32)
     // The default cache policy.
     c = 3;
 
-    // Physical address is equal to virtual address
+    // Physical address is equal to virtual address.
     pa.value = va.value;
 
-    // PA is saved into an nML register
+    // Physical address is saved into an nML register.
     MMU_PA(pa) = pa.value;
 
     offset<7..5> = 0;
