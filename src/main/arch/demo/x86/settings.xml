@@ -12,13 +12,13 @@
       </range>
     </mode>
     <mode name="IMM16">
-      <strategy name="random" free-bias="50" used-bias="50"/>
-      <range min="0" max="0xFFFF">
+      <strategy name="random"/>
+      <range min="0" max="65535">
       </range>
     </mode>
     <mode name="IMM8">
-      <strategy name="random" free-bias="50" used-bias="50"/>
-      <range min="0" max="0xFF">
+      <strategy name="random"/>
+      <range min="0" max="255">
       </range>
     </mode>
   </allocation>
