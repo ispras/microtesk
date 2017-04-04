@@ -35,6 +35,7 @@ public final class CodeAllocator {
   private final Model model;
   private final LabelManager labelManager;
   private final long baseAddress;
+  private final boolean placeToMemory;
 
   private Code code;
   private long address;
@@ -42,7 +43,8 @@ public final class CodeAllocator {
   public CodeAllocator(
       final Model model,
       final LabelManager labelManager,
-      final long baseAddress) {
+      final long baseAddress,
+      final boolean placeToMemory) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
 
@@ -51,6 +53,7 @@ public final class CodeAllocator {
     this.baseAddress = baseAddress;
     this.code = null;
     this.address = baseAddress;
+    this.placeToMemory = placeToMemory;
   }
 
   public void init() {
@@ -132,9 +135,6 @@ public final class CodeAllocator {
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
     Logger.debugHeader("Allocating code");
 
-    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
-    InvariantChecks.checkNotNull(memoryAllocator);
-
     int startIndex = 0;
     int currentIndex = startIndex;
 
@@ -167,18 +167,8 @@ public final class CodeAllocator {
       currentAddress += call.getByteSize();
       currentIndex++;
 
-      if (call.isExecutable()) {
-        final BitVector image = BitVector.valueOf(call.getImage());
-        final BitVector virtualAddress = BitVector.valueOf(callAddress, 64);
-
-        final BigInteger physicalAddress =
-            AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
-
-        if (Logger.isDebug()) {
-          Logger.debug("0x%016x (PA): %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
-        }
-
-        memoryAllocator.allocateAt(image, physicalAddress);
+      if (placeToMemory) {
+        allocateMemory(call);
       }
     }
 
@@ -190,6 +180,25 @@ public final class CodeAllocator {
 
     getCode().registerBlock(block);
     address = currentAddress;
+  }
+
+  private void allocateMemory(final ConcreteCall call) {
+    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
+    InvariantChecks.checkNotNull(memoryAllocator);
+
+    if (call.isExecutable()) {
+      final BitVector image = BitVector.valueOf(call.getImage());
+      final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
+
+      final BigInteger physicalAddress =
+          AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+
+      if (Logger.isDebug()) {
+        Logger.debug("0x%016x (PA): %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
+      }
+
+      memoryAllocator.allocateAt(image, physicalAddress);
+    }
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {

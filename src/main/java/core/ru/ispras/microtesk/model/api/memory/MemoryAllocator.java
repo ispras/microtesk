@@ -183,6 +183,13 @@ public final class MemoryAllocator {
       if (memory.isInitialized(regionAddress) && !regionIndex.equals(lastRegionIndex) &&
           // FIXME: Hack to allocate regions by parts. It can cause some errors to be undetected.
           regionBitOffset == 0) {
+
+        System.out.println("ADDRESS BIT SIZE: " +  memory.getAddressBitSize());
+        System.out.println("REGION ADDRESS: 0x" + regionAddress.toHexString());
+        System.out.println(String.format("REGION INDEX: 0x%016x", regionIndex));
+        System.out.println(String.format("REGION BIT OFFSET: %d", regionBitOffset));
+        System.out.println("DATA: 0x" + memory.load(regionAddress).toHexString());
+
         throw new GenerationAbortedException(String.format(
             "Failed to allocate memory at physical address 0x%016x. The address is already in use.",
             address

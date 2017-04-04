@@ -71,10 +71,13 @@ final class TemplateProcessor implements Template.Processor {
     final long baseAddress =
         engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
 
+    final boolean isFetchDecodeEnabled =
+        engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
+
     this.engineContext = engineContext;
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
-    this.allocator = new CodeAllocator(model, labelManager, baseAddress);
+    this.allocator = new CodeAllocator(model, labelManager, baseAddress, isFetchDecodeEnabled);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
