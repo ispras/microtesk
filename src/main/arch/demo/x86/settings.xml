@@ -11,6 +11,16 @@
       <range min="0" max="7">
       </range>
     </mode>
+    <mode name="IMM16">
+      <strategy name="random" free-bias="50" used-bias="50"/>
+      <range min="0" max="0xFFFF">
+      </range>
+    </mode>
+    <mode name="IMM8">
+      <strategy name="random" free-bias="50" used-bias="50"/>
+      <range min="0" max="0xFF">
+      </range>
+    </mode>
   </allocation>
 
   <delaySlot size="1" />
