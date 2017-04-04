@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -80,7 +80,12 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
 
     // If there is a miss, choose a victim.
     if (line == null) {
-      line = lines.get(policy.chooseVictim()); 
+      if (null != policy) {
+        line = lines.get(policy.chooseVictim());
+      } else {
+        InvariantChecks.checkTrue(1 == lines.size());
+        line = lines.get(0);
+      }
     }
 
     return line.setData(address, data);
