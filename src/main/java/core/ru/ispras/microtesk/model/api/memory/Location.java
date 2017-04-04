@@ -253,9 +253,19 @@ public final class Location implements LocationAccessor {
   }
 
   @Override
+  public String toString() {
+    return toBinString();
+  }
+
+  @Override
   public String toBinString() {
     final BitVector rawData = toBitVector();
     return rawData.toBinString();
+  }
+
+  public String toHexString() {
+    final BitVector rawData = toBitVector();
+    return rawData.toHexString();
   }
 
   @Override
