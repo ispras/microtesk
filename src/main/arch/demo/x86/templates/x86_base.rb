@@ -71,11 +71,7 @@ class X86BaseTemplate < Template
     # is applicable.
     #
     preparator(:target => 'GPR16') {
-      MOV_R16IMM16  target, value(0, 15)
-    }
-
-    preparator(:target => 'GPR32') {
-      MOV_R32IMM32  target, value(0, 31)
+      MOV_R16IMM16  target, IMM16(value(0, 15))
     }
 
     ################################################################################################

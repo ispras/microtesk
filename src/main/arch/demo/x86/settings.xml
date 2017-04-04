@@ -3,12 +3,12 @@
   <allocation>
     <mode name="GPR16">
       <strategy name="random" free-bias="50" used-bias="50"/>
-      <range min="8" max="15">
+      <range min="0" max="7">
       </range>
     </mode>
-    <mode name="GPR32">
+    <mode name="R8">
       <strategy name="random" free-bias="50" used-bias="50"/>
-      <range min="8" max="15">
+      <range min="0" max="7">
       </range>
     </mode>
   </allocation>
