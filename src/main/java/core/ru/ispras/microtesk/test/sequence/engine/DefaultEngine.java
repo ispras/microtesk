@@ -138,8 +138,11 @@ public final class DefaultEngine implements Engine<TestSequence> {
     final LabelManager labelManager = new LabelManager(engineContext.getLabelManager());
     allocateData(engineContext, labelManager, sequence, sequenceIndex);
 
-    final CodeAllocator codeAllocator =
-        new CodeAllocator(engineContext.getModel(), labelManager, allocationAddress);
+    final boolean isFetchDecodeEnabled =
+        engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
+
+    final CodeAllocator codeAllocator = new CodeAllocator(
+        engineContext.getModel(), labelManager, allocationAddress, isFetchDecodeEnabled);
 
     codeAllocator.init();
     codeAllocator.allocateCalls(sequence, sequenceIndex);
