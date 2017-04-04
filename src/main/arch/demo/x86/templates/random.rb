@@ -31,7 +31,7 @@ class RandomTemplate < X86BaseTemplate
 
     sequence {
       # ADD instruction with biased operand values.
-      ADD_R16R16 r8w, r9w do situation('random_biased',
+      add_r16r16 ax, dx do situation('random_biased',
         :dist => dist(range(:value=> int16_dist,      :bias => 80),  # Simple
                       range(:value=> [0xBEEF, 0xF0D], :bias => 20))) # Magic
       end

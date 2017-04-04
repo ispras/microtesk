@@ -25,23 +25,23 @@ class RandomRegisterTemplate < X86BaseTemplate
   def run
     # Just random registers.
     sequence(:obfuscator => 'random') {
-      ADD_R16R16 gpr16(_), gpr16(_)
-      SUB_R16R16 gpr16(_), gpr16(_)
-      OR_R16R16  gpr16(_), gpr16(_)
+      add_r16r16 gpr16(_), gpr16(_)
+      sub_r16r16 gpr16(_), gpr16(_)
+      or_r16r16  gpr16(_), gpr16(_)
     }.run 3
 
     # Dependency in form of common register objects.
     sequence(:obfuscator => 'random') {
-      ADD_R16R16 x=gpr16(_),  gpr16(_)
-      SUB_R16R16 gpr16(_),    x
-      OR_R16R16  gpr16(_),    x
+      add_r16r16 x=gpr16(_),  gpr16(_)
+      sub_r16r16 gpr16(_),    x
+      or_r16r16  gpr16(_),    x
     }.run 3
 
     # Dependency in form of common register numbers.
     sequence(:obfuscator => 'random') {
-      ADD_R16R16 gpr16(x=_), gpr16(_)
-      SUB_R16R16 gpr16(_),   gpr16(x)
-      OR_R16R16  gpr16(_),   gpr16(x)
+      add_r16r16 gpr16(x=_), gpr16(_)
+      sub_r16r16 gpr16(_),   gpr16(x)
+      or_r16r16  gpr16(_),   gpr16(x)
     }.run 3
   end
 end

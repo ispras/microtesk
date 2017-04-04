@@ -21,51 +21,51 @@ class BlockTemplate < X86BaseTemplate
   def run
     # Produces a single test case that consists of three instructions
     sequence {
-      MOV_R16R16 ax, bx
-      SUB_R16R16 cx, dx
-      ADD_R16R16 gpr16(_), gpr16(_)
+      mov_r16r16 ax, bx
+      sub_r16r16 cx, dx
+      add_r16r16 gpr16(_), gpr16(_)
     }.run
 
     # Atomic sequence. Works as sequence in this context.
     atomic {
-      MOV_R16R16 ax, bx
-      ADD_R16R16 cx, dx
-      SUB_R16R16 gpr16(_), gpr16(_)
+      mov_r16r16 ax, bx
+      add_r16r16 cx, dx
+      sub_r16r16 gpr16(_), gpr16(_)
     }.run
 
     # Produces three test cases each consisting of one instruction
     iterate {
-      MOV_R16R16 ax, bx
-      SUB_R16R16 cx, dx
-      ADD_R16R16 gpr16(_), gpr16(_)
+      mov_r16r16 ax, bx
+      sub_r16r16 cx, dx
+      add_r16r16 gpr16(_), gpr16(_)
     }.run
 
     # Produces four test cases consisting of two instructions
     # (Cartesian product composed in a random order)
     block(:combinator => 'product', :compositor => 'random') {
       iterate {
-        SUB_R16R16 cx, dx
-        ADD_R16R16 ax, bx
+        sub_r16r16 cx, dx
+        add_r16r16 ax, bx
       }
 
       iterate {
-        MOV_R16R16 ax, bx
-        SUB_R16R16 gpr16(_), gpr16(_)
+        mov_r16r16 ax, bx
+        sub_r16r16 gpr16(_), gpr16(_)
       }
     }.run
 
     # Merges two sequnces in random fashion. Atomic sequences are unmodifiable.
     block(:combinator => 'diagonal', :compositor => 'random', :obfuscator => 'random') {
       sequence {
-        SUB_R16R16 bx, ax
-        OR_R16R16 cx, dx
+        sub_r16r16 bx, ax
+        or_r16r16 cx, dx
       }
 
       atomic {
         prologue { comment 'Atomic starts' }
         epilogue { comment 'Atomic ends' }
 
-        AND_R16R16 gpr16(_), gpr16(_)
+        and_r16r16 gpr16(_), gpr16(_)
       }
     }.run
   end

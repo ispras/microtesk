@@ -16,31 +16,31 @@ require_relative 'x86_base'
 class SimpleTemplate < X86BaseTemplate
   def run
     trace "ax = %x", gpr_observer(0)
-    MOV_R16IMM16 ax, IMM16(11)
-    MOV_R16R16 cx, ax
+    mov_r16i16 ax, IMM16(11)
+    mov_r16r16 ax, ax
     trace "ax = %x", gpr_observer(0)
     trace "cx = %x", gpr_observer(1)
-    MOV_R16IMM16 dx, IMM16(2)
+    mov_r16i16 dx, IMM16(2)
     trace "dx = %x", gpr_observer(2)
-    MUL_R16 ax
+    mul_r16 ax
     trace "ax = %x", gpr_observer(0)
     trace "dx = %x", gpr_observer(2)
-    MOV_R16IMM16 bx, IMM16(7)
-    MOV_R16IMM16 cx, IMM16(3)
-    ADD_R16R16 bx, cx
+    mov_r16i16 bx, IMM16(7)
+    mov_r16i16 cx, IMM16(3)
+    add_r16r16 bx, cx
     trace "cx = %x", gpr_observer(1)
     trace "bx = %x", gpr_observer(3)
-    MOV_R16IMM16 ax, IMM16(2)
-    MOV_R16IMM16 cx, IMM16(5)
-    SUB_R16R16 ax, cx
+    mov_r16i16 ax, IMM16(2)
+    mov_r16i16 cx, IMM16(5)
+    sub_r16r16 ax, cx
     trace "ax = %x", gpr_observer(0)
     trace "cx = %x", gpr_observer(1)
-    AND_R16R16 ax, cx
-    OR_R16R16 dx, bx
-    OR_R16IMM16 ax, IMM16(0xbb)
-    AND_R16IMM16 bx, IMM16(0xcc)
-    ADD_R16IMM16 cx, IMM16(0xdd)
-    SUB_R16IMM16 dx, IMM16(0xee)
+    and_r16r16 ax, cx
+    or_r16r16 dx, bx
+    or_r16i16 ax, IMM16(0xbb)
+    and_r16i16 bx, IMM16(0xcc)
+    add_r16i16 cx, IMM16(0xdd)
+    sub_r16i16 dx, IMM16(0xee)
   end
 
 end
