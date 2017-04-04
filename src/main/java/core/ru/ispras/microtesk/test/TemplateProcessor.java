@@ -580,6 +580,8 @@ final class TemplateProcessor implements Template.Processor {
       final TestSequence previous,
       final TestSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
+    PrinterUtils.printSequenceToConsole(engineContext, sequence);
+
     if (null != previous) {
       allocator.setAddress(previous.getEndAddress());
     }
@@ -588,7 +590,6 @@ final class TemplateProcessor implements Template.Processor {
     allocator.allocateSequence(sequence, sequenceIndex);
 
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
-    PrinterUtils.printSequenceToConsole(engineContext, sequence);
   }
 
   /**
