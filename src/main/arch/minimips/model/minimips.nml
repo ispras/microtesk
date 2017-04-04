@@ -75,7 +75,7 @@ reg JMPADDR[WORD]
 
 // Physical address of the most recent read memory access (needed to cache
 // decoded instructions inside MicroTESK).
-reg PA[WORD]
+reg MMU_PA[WORD]
 
 // Flag that says whether the current instruction is in the delay slot
 var is_delay_slot[BIT]
