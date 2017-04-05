@@ -204,38 +204,20 @@ class X86BaseTemplate < Template
     gpr16(15)
   end
 
-  ## REG 32
-
-  def eax
-    GPR32(0)
+  def es
+    RSEG16(0)
   end
 
-  def ecx
-    GPR32(1)
+  def cs
+    RSEG16(1)
   end
 
-  def edx
-    GPR32(2)
+  def ss
+    RSEG16(2)
   end
 
-  def ebx
-    GPR32(3)
-  end
-
-  def esp
-    GPR32(4)
-  end
-
-  def ebp
-    GPR32(5)
-  end
-
-  def esi
-    GPR32(6)
-  end
-
-  def edi
-    GPR32(7)
+  def ds
+    RSEG16(3)
   end
 
   ##################################################################################################

@@ -41,6 +41,18 @@ class SimpleTemplate < X86BaseTemplate
     and_r16i16 bx, IMM16(0xcc)
     add_r16i16 cx, IMM16(0xdd)
     sub_r16i16 dx, IMM16(0xee)
+
+    mov_r16i16 cx, IMM16(0)
+    trace "cx = %x", gpr_observer(1)
+
+    mov_r16i16 ax, IMM16(200)
+    mov_r16i16 bx, IMM16(8)
+    mov_rsegr16 ds, ax
+    mov_m16r16 ds, RIAM_BX(), ax
+    mov_r16m16 ds, cx, RIAM_BX()
+    trace "ax = %x", gpr_observer(0)
+    trace "bx = %x", gpr_observer(3)
+    trace "cx = %x", gpr_observer(1)
   end
 
 end
