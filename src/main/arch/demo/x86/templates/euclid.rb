@@ -38,34 +38,24 @@ class EuclidTemplate < X86BaseTemplate
 
       prepare ax, val1
       prepare bx, val2
-      #prepare t1, val1
-      #prepare t2, val2
 
       label :cycle
       trace "\nCurrent values: ax=%d, bx=%d\n", gpr_observer(0), gpr_observer(3)
       cmp_r16r16 ax, bx
       je :done
-      #beq t1, t2, :done
+      
+      jl :if_less
 
-      cmp_r16r16 ax, bx
-      jle :if_less
-      #slt t0, t1, t2
-      #bne t0, zero, :if_less
-      #nop
-
-      #subu t1, t1, t2
       sub_r16r16 ax, bx
       jmp_long :cycle
-      #nop
 
       label :if_less
-      #subu t2, t2, t1
       sub_r16r16 bx, ax
+
       jmp_long :cycle
 
       label :done
       mov_r16r16 cx, ax
-      #add t3, t1, zero
 
       trace "\nResult stored in cx: %d", gpr_observer(1)
     }.run

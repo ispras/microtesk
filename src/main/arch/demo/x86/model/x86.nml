@@ -212,6 +212,11 @@ mode IMM16(i: WORD) = i
   syntax = format("%d", i)
   image = format("%s", i<0..7>::i<8..15>)
 
+// Internal flags
+// Branch Processing Variables
+mem BRANCH [BIT]
+mem NEXTPC [WORD]
+
 ////////////////////////////////////////////////////////////////////////////////
 // The Displacement Only Addressing Modes
 
@@ -839,11 +844,11 @@ op add_proc_word(op1: WORD, op2: WORD)
   action = {
     tmpw_res = coerce(card(17), op1) + coerce(card(17), op2);
 
+    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
+
     OF = op1<15> == op2<15> && op1<15> != tmpw_res<15>;
 
     CF = tmpw_res<16>;
-
-    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
 
     ZF = tmpw_res<0..15> == 0;
 
@@ -1081,17 +1086,18 @@ op sub_proc_byte(op1: BYTE, op2: BYTE)
     SF = tmpb_res<7> == 1;
   }
 
+var temp_bit [BIT] // TODO: temp_bit = op2<15> != 1;
 op sub_proc_word(op1: WORD, op2: WORD)
   action = {
     tmpw_res = coerce(card(17), op1) - coerce(card(17), op2);
+    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
 
-    OF = op1<15> == op2<15> && op1<15> != tmpw_res<15>;
+    temp_bit = op2<15> != 1;
+    OF = op1<15> == temp_bit && op1<15> != tmpw_res<15>;
 
     CF = tmpw_res<16>;
 
-    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
-
-    ZF = tmpw_res<0..15> == 0;
+    ZF = tmpw_res<0..16> == 0;
 
     SF = tmpw_res<15> == 1;
   }
@@ -2406,8 +2412,8 @@ op jmp_long(rel: SWORD)
   syntax = format("jmp %<label>d", rel)
   image  = format("11101001%s", rel<0..7>::rel<8..15>)
   action = {
-    IP = IP + cast(WORD, rel);
-    instr_size = instr_size + 3;
+    BRANCH = 1;
+    NEXTPC = coerce(WORD, rel);
   }
 
 op jmp_r16(rel: GPR16)
@@ -2598,9 +2604,11 @@ op je(rel: SBYTE)
   image  = format("01110100%s", rel)
   action = {
     if ZF == 1 then
-      IP = IP + coerce(WORD, rel);
+      BRANCH = 1;
+      NEXTPC = coerce(WORD, rel);
+    else
+      instr_size = instr_size + 2;
     endif;
-    instr_size = instr_size + 2;
   }
 
 op jne(rel: SBYTE)
@@ -2678,9 +2686,11 @@ op jl(rel: SBYTE)
   image  = format("01111100%s", rel)
   action = {
     if SF != OF then
-      IP = IP + coerce(WORD, rel);
+      BRANCH = 1;
+      NEXTPC = coerce(WORD, rel);
+    else
+      instr_size = instr_size + 2;
     endif;
-    instr_size = instr_size + 2;
   }
 
 op jle(rel: SBYTE)
@@ -2688,9 +2698,11 @@ op jle(rel: SBYTE)
   image  = format("01111110%s", rel)
   action = {
     if ZF == 1 || SF != OF then
-      IP = IP + coerce(WORD, rel);
+      BRANCH = 1;
+      NEXTPC = coerce(WORD, rel);
+    else
+      instr_size = instr_size + 2;
     endif;
-    instr_size = instr_size + 2;
   }
 
 op jng(rel: SBYTE)
@@ -2738,6 +2750,8 @@ op x86 = mov | xchg | add | sub | push | pop | mul | imul | div | idiv | pushA |
        | jnz | js | jns | jp | jpe | jnp | jpo | ja | jae | jb | jbe | je | jne | jna | jnae | jnb
        | jnbe | jg | jge | jl | jle | jng | jnge | jnl | jnle
 
+var jump_address  [WORD]
+
 op instruction (operation: x86)
   syntax = operation.syntax
   image = operation.image
@@ -2745,7 +2759,18 @@ op instruction (operation: x86)
     instr_size = 0;
   }  
   action = {
+    BRANCH = 0;
+
     operation.action;
-    IP = IP + coerce(WORD, instr_size);
-    program_counter = (coerce(addR, CS) << 4) + coerce(addR, IP);
+
+    jump_address = NEXTPC;
+    NEXTPC = coerce(WORD, 0);
+
+    if (BRANCH == 1) then
+      program_counter = (coerce(addR, CS) << 4) + coerce(addR, jump_address);
+      IP = jump_address;
+    else
+      IP = IP + coerce(WORD, instr_size);
+      program_counter = (coerce(addR, CS) << 4) + coerce(addR, IP);
+    endif;
   } 
