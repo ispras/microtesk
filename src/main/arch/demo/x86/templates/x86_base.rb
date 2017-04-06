@@ -70,7 +70,7 @@ class X86BaseTemplate < Template
     # Default preparator: It is used when no special case previded below
     # is applicable.
     #
-    preparator(:target => 'GPR16') {
+    preparator(:target => 'R16') {
       mov_r16i16  target, IMM16(value(0, 15))
     }
 
@@ -87,7 +87,7 @@ class X86BaseTemplate < Template
     #
     # Default comparator: It is used when no special case is applicable.
     #
-    comparator(:target => 'GPR16') {
+    comparator(:target => 'R16') {
     }
 
     ################################################################################################
@@ -141,67 +141,35 @@ class X86BaseTemplate < Template
   ## REG 16
 
   def ax
-    gpr16(0)
+    r16(0)
   end
 
   def cx
-    gpr16(1)
+    r16(1)
   end
 
   def dx
-    gpr16(2)
+    r16(2)
   end
 
   def bx
-    gpr16(3)
+    r16(3)
   end
 
   def sp
-    gpr16(4)
+    r16(4)
   end
 
   def bp
-    gpr16(5)
+    r16(5)
   end
 
   def si
-    gpr16(6)
+    r16(6)
   end
 
   def di
-    gpr16(7)
-  end
-
-  def r8w
-    gpr16(8)
-  end
-
-  def r9w
-    gpr16(9)
-  end
-
-  def r10w
-    gpr16(10)
-  end
-
-  def r11w
-    gpr16(11)
-  end
-
-  def r12w
-    gpr16(12)
-  end
-
-  def r13w
-    gpr16(13)
-  end
-
-  def r14w
-    gpr16(14)
-  end
-
-  def r15w
-    gpr16(15)
+    r16(7)
   end
 
   def es
@@ -244,7 +212,7 @@ class X86BaseTemplate < Template
       @free_register_allocator = mode_allocator('FREE')
     end
 
-    gpr16(_ @free_register_allocator, attrs)
+    r16(_ @free_register_allocator, attrs)
   end
 
   ###################################################################################################

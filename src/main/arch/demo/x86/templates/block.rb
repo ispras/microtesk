@@ -28,21 +28,21 @@ class BlockTemplate < X86BaseTemplate
     sequence {
       mov_r16r16 ax, bx
       sub_r16r16 cx, dx
-      add_r16r16 gpr16(_), gpr16(_)
+      add_r16r16 r16(_), r16(_)
     }.run
 
     # Atomic sequence. Works as sequence in this context.
     atomic {
       mov_r16r16 ax, bx
       add_r16r16 cx, dx
-      sub_r16r16 gpr16(_), gpr16(_)
+      sub_r16r16 r16(_), r16(_)
     }.run
 
     # Produces three test cases each consisting of one instruction
     iterate {
       mov_r16r16 ax, bx
       sub_r16r16 cx, dx
-      add_r16r16 gpr16(_), gpr16(_)
+      add_r16r16 r16(_), r16(_)
     }.run
 
     # Produces four test cases consisting of two instructions
@@ -55,7 +55,7 @@ class BlockTemplate < X86BaseTemplate
 
       iterate {
         mov_r16r16 ax, bx
-        sub_r16r16 gpr16(_), gpr16(_)
+        sub_r16r16 r16(_), r16(_)
       }
     }.run
 
@@ -70,7 +70,7 @@ class BlockTemplate < X86BaseTemplate
         prologue { comment 'Atomic starts' }
         epilogue { comment 'Atomic ends' }
 
-        and_r16r16 gpr16(_), gpr16(_)
+        and_r16r16 r16(_), r16(_)
       }
     }.run
   end

@@ -26,14 +26,14 @@ class BlockRandomTemplate < X86BaseTemplate
 
   def run
     instructions = iterate {
-      add_r16r16 gpr16(_), gpr16(_)
-      sub_r16r16 gpr16(_), gpr16(_)
-      or_r16r16  gpr16(_), gpr16(_)
-      xor_r16r16 gpr16(_), gpr16(_)
-      and_r16r16 gpr16(_), gpr16(_)
-      add_r16i16 gpr16(_), imm16(1)
-      sub_r16i16 gpr16(_), imm16(2)
-      xor_r16i16 gpr16(_), imm16(3)
+      add_r16r16 r16(_), r16(_)
+      sub_r16r16 r16(_), r16(_)
+      or_r16r16  r16(_), r16(_)
+      xor_r16r16 r16(_), r16(_)
+      and_r16r16 r16(_), r16(_)
+      add_r16i16 r16(_), imm16(1)
+      sub_r16i16 r16(_), imm16(2)
+      xor_r16i16 r16(_), imm16(3)
     }
 
     #
