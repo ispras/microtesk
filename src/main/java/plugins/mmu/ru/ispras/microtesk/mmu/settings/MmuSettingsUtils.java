@@ -47,24 +47,19 @@ public final class MmuSettingsUtils {
 
   private static MemoryAccessConstraints constraints = null;
 
-  public static MemoryAccessConstraints getConstraints(
-      final MmuSubsystem memory,
-      final GeneratorSettings settings) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(settings);
-
+  public static MemoryAccessConstraints getConstraints() {
     if (constraints == null) {
       constraints = new MemoryAccessConstraints(
-          getIntegerConstraints(settings),
-          getBufferEventConstraints(memory, settings)
-          );
+          getIntegerConstraints(),
+          getBufferEventConstraints()
+      );
     }
 
     return constraints;
   }
 
-  public static List<IntegerConstraint<IntegerField>> getIntegerConstraints(
-      final GeneratorSettings settings) {
+  public static List<IntegerConstraint<IntegerField>> getIntegerConstraints() {
+    final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
     final List<IntegerConstraint<IntegerField>> integerConstraints = new ArrayList<>();
@@ -109,9 +104,8 @@ public final class MmuSettingsUtils {
    */
   public static IntegerConstraint<IntegerField> getIntegerConstraint(
       final IntegerValuesSettings settings) {
-    InvariantChecks.checkNotNull(settings);
-
     final MmuSubsystem memory = MmuPlugin.getSpecification();
+    InvariantChecks.checkNotNull(memory);
 
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
@@ -154,6 +148,7 @@ public final class MmuSettingsUtils {
     InvariantChecks.checkNotNull(settings);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
+    InvariantChecks.checkNotNull(memory);
 
     final IntegerVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
@@ -178,10 +173,11 @@ public final class MmuSettingsUtils {
         values);
   }
 
-  public static  List<BufferEventConstraint> getBufferEventConstraints(
-      final MmuSubsystem memory,
-      final GeneratorSettings settings) {
+  public static  List<BufferEventConstraint> getBufferEventConstraints() {
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
+
+    final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
     final List<BufferEventConstraint> bufferEventConstraints = new ArrayList<>();

@@ -70,7 +70,7 @@ public final class MmuPlugin implements Plugin {
 
     spec = specHolder.getSpecification();
 
-    final GeneratorSettings settings = testEngine.getGeneratorSettings();
+    final GeneratorSettings settings = GeneratorSettings.get();
     if (null != settings) {
       spec.setSettings(settings);
     }

@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
@@ -66,7 +65,7 @@ public final class AddressDataGenerator implements DataGenerator {
     }
 
     if (address == null) {
-      final GeneratorSettings generatorSettings = TestEngine.getInstance().getGeneratorSettings();
+      final GeneratorSettings generatorSettings = GeneratorSettings.get();
       if (generatorSettings == null) {
         return false;
       }
@@ -104,8 +103,7 @@ public final class AddressDataGenerator implements DataGenerator {
     } else {
       InvariantChecks.checkTrue(size instanceof Number, "Size is of incorrect type");
 
-      final GeneratorSettings generatorSettings = TestEngine.getInstance().getGeneratorSettings();
-      final MemorySettings memorySettings = generatorSettings.getMemory();
+      final MemorySettings memorySettings = GeneratorSettings.get().getMemory();
       final RegionSettings regionSettings = memorySettings.getRegion(region.toString());
 
       final BigInteger min = BigIntegerUtils.valueOfUnsignedLong(regionSettings.getStartAddress());

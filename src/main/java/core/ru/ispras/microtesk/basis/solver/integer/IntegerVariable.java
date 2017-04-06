@@ -121,10 +121,19 @@ public class IntegerVariable {
    * 
    * @param lo the lower bit index.
    * @param hi the upper bit index.
-   * @return An integer field.
+   * @return the integer field.
    */
   public final IntegerField field(final int lo, final int hi) {
     return new IntegerField(this, lo, hi);
+  }
+
+  /**
+   * Creates an integer field for the current variable.
+   * 
+   * @return the integer field.
+   */
+  public final IntegerField field() {
+    return new IntegerField(this, 0, width - 1);
   }
 
   @Override

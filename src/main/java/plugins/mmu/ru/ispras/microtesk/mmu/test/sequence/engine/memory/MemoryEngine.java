@@ -237,9 +237,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final Iterator<MemorySolution> solutionIterator =
         getSolutionIterator(engineContext, structureIterator);
 
-    final GeneratorSettings settings = engineContext.getSettings();
     final Map<MmuAddressInstance, Collection<? extends Range<Long>>> addressToRegions = new HashMap<>();
     final Collection<RegionSettings> regions = new ArrayList<>();
+
+    final GeneratorSettings settings = GeneratorSettings.get();
 
     for (final RegionSettings region : settings.getMemory().getRegions()) {
       if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
@@ -346,15 +347,11 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     Logger.debug("Creating memory access iterator: %s", accessTypes);
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
-    final GeneratorSettings settings = engineContext.getSettings();
-    final MemoryAccessConstraints globalConstraints = null != settings ?
-        MmuSettingsUtils.getConstraints(MmuPlugin.getSpecification(), settings) : null;
-
     return new MemoryAccessStructureIterator(
         abstraction,
         accessTypes,
         accessConstraints,
-        globalConstraints,
+        MmuSettingsUtils.getConstraints(),
         recursionLimit,
         iterator,
         count);
@@ -383,8 +380,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               entryIdAllocator,
               hitCheckers,
               normalPathChooser,
-              align,
-              engineContext.getSettings());
+              align);
 
           final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
           InvariantChecks.checkNotNull(result);
