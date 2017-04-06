@@ -236,7 +236,6 @@ public final class TestEngine {
     final EngineContext context = new EngineContext(
         options,
         model,
-        settings,
         statistics
         );
 
