@@ -57,30 +57,28 @@ public final class TestEngine {
   private final Model model;
   private final List<Plugin> plugins;
   private final Statistics statistics;
-  private final GeneratorSettings settings; // Architecture-specific settings
 
   private TestEngine(
       final Model model,
       final Options options,
-      final GeneratorSettings settings,
       final List<Plugin> plugins,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(settings);
     InvariantChecks.checkNotNull(plugins);
     InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
     this.options = options;
-    this.settings = settings;
     this.plugins = plugins;
     this.statistics = statistics;
 
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
 
+    final GeneratorSettings settings = GeneratorSettings.get();
     final AllocationSettings allocation = settings.getAllocation();
+
     if (allocation != null) {
       ModeAllocator.init(allocation);
     }
@@ -100,10 +98,6 @@ public final class TestEngine {
 
   public Statistics getStatistics() {
     return statistics;
-  }
-
-  public GeneratorSettings getGeneratorSettings() {
-    return settings;
   }
 
   public static boolean generate(
@@ -144,7 +138,7 @@ public final class TestEngine {
     setSolver(options.getValueAsString(Option.SOLVER));
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
-    instance = new TestEngine(model, options, settings, plugins, statistics);
+    instance = new TestEngine(model, options, plugins, statistics);
     if  (!instance.processTemplate(templateFile)) {
       return false;
     }
