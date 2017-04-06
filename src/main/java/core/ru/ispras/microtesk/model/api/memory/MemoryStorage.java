@@ -25,7 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.TestEngine;
 
 /**
  * The {@link MemoryStorage} implements a memory storage.
@@ -402,9 +401,7 @@ final class MemoryStorage implements MemoryDevice {
       return;
     }
 
-    final GeneratorSettings settings = null != TestEngine.getInstance() ?
-        TestEngine.getInstance().getGeneratorSettings() : null;
-
+    final GeneratorSettings settings = GeneratorSettings.get();
     if (null == settings) {
       return;
     }
