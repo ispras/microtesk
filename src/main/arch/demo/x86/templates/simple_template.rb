@@ -17,7 +17,7 @@ class SimpleTemplate < X86BaseTemplate
   def run
     trace "ax = %x", gpr_observer(0)
     mov_r16i16 ax, IMM16(11)
-    mov_r16r16 ax, ax
+    mov_r16r16 cx, ax
     trace "ax = %x", gpr_observer(0)
     trace "cx = %x", gpr_observer(1)
     mov_r16i16 dx, IMM16(2)
@@ -36,6 +36,9 @@ class SimpleTemplate < X86BaseTemplate
     trace "ax = %x", gpr_observer(0)
     trace "cx = %x", gpr_observer(1)
     and_r16r16 ax, cx
+    trace "ax = %x", gpr_observer(0)
+    trace "cx = %x", gpr_observer(1)
+    trace "bx = %x", gpr_observer(3)
     or_r16r16 dx, bx
     or_r16i16 ax, IMM16(0xbb)
     and_r16i16 bx, IMM16(0xcc)

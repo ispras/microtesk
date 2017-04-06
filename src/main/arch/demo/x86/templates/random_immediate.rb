@@ -19,7 +19,7 @@ require_relative 'x86_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate random immadiate values.
+# This test template demonstrates how to generate random immediate values.
 #
 class RandomImmediateTemplate < X86BaseTemplate
   def run

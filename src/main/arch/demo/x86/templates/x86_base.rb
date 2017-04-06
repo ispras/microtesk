@@ -111,9 +111,6 @@ class X86BaseTemplate < Template
 
     label :_start
     #j :test
-    #nop
-    #newline
-
     #label :test
   end
 
@@ -128,7 +125,10 @@ class X86BaseTemplate < Template
 
   def post
     label :success
-    newline
+    mov_r16i16 ax, IMM16(1)
+    text ";system call number (sys_exit)"
+    int_ IMM16(128)
+    text ";call kernel"
 
     label :error
     newline
