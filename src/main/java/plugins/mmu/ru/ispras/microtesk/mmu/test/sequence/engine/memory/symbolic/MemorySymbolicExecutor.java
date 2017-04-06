@@ -57,10 +57,23 @@ import ru.ispras.microtesk.utils.function.Function;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemorySymbolicExecutor {
+  private final MemorySymbolicRestrictor restrictor;
   private final MemorySymbolicResult result;
+
+  public MemorySymbolicExecutor(
+      final MemorySymbolicRestrictor restrictor,
+      final MemorySymbolicResult result) {
+    InvariantChecks.checkNotNull(restrictor);
+    InvariantChecks.checkNotNull(result);
+
+    this.restrictor = restrictor;
+    this.result = result;
+  }
 
   public MemorySymbolicExecutor(final MemorySymbolicResult result) {
     InvariantChecks.checkNotNull(result);
+
+    this.restrictor = null;
     this.result = result;
   }
 
@@ -132,6 +145,14 @@ public final class MemorySymbolicExecutor {
       final Set<IntegerVariable> defines,
       final MemoryAccessPath path,
       final int pathIndex) {
+
+    if (restrictor != null) {
+      final Collection<IntegerConstraint<IntegerField>> constraints = restrictor.getConstraints();
+
+      for (final IntegerConstraint<IntegerField> constraint : constraints) {
+        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      }
+    }
 
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       if (result.hasConflict()) {
@@ -274,6 +295,15 @@ public final class MemorySymbolicExecutor {
 
     final MmuProgram program = entry.getProgram();
     final MemoryAccessContext context = result.getContext(pathIndex);
+
+    if (restrictor != null) {
+      final Collection<IntegerConstraint<IntegerField>> constraints =
+          restrictor.getConstraints(program, context);
+
+      for (final IntegerConstraint<IntegerField> constraint : constraints) {
+        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      }
+    }
 
     switch(entry.getKind()) {
     case NORMAL:

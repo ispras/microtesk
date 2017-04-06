@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.basis;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +22,11 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 
 /**
  * The {@link MemoryAccessConstraints} class holds constraints related to memory
@@ -33,6 +38,19 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
  */
 
 public final class MemoryAccessConstraints {
+  public static final MemoryAccessConstraints EMPTY = new MemoryAccessConstraints();
+
+  public static IntegerConstraint<IntegerField> EQ(
+      final MmuAddressInstance address,
+      final BigInteger value) {
+    return new IntegerDomainConstraint<IntegerField>(address.getVariable().field(), value);
+  }
+
+  public static IntegerConstraint<IntegerField> RANGE(
+      final MmuAddressInstance address,
+      final IntegerRange range) {
+    return new IntegerRangeConstraint(address.getVariable(), range);
+  }
 
   public static final MemoryAccessConstraints compose(
       final Collection<MemoryAccessConstraints> collection) {
@@ -43,7 +61,7 @@ public final class MemoryAccessConstraints {
     for (final MemoryAccessConstraints constraints : collection) {
       builder.addConstraints(constraints);
     }
-    
+
     return builder.build();
   }
 
@@ -79,6 +97,11 @@ public final class MemoryAccessConstraints {
 
   private final List<IntegerConstraint<IntegerField>> integerConstraints;
   private final List<BufferEventConstraint> bufferEventConstraints;
+
+  public MemoryAccessConstraints() {
+    this.integerConstraints = Collections.<IntegerConstraint<IntegerField>>emptyList();
+    this.bufferEventConstraints = Collections.<BufferEventConstraint>emptyList();
+  }
 
   public MemoryAccessConstraints(
       final List<IntegerConstraint<IntegerField>> integerConstraints,

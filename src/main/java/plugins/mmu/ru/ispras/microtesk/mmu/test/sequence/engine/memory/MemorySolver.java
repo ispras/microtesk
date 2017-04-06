@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -958,19 +957,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final boolean applyConstraints) {
     final MemoryAccessPath path = access.getPath();
 
-    final MemoryAccessRestrictor restrictor =
-        new MemoryAccessRestrictor(
-            access.getSegment(),
-            access.getRegion(),
-            applyConstraints
-              ? constraints.getIntegers()
-              : Collections.<IntegerConstraint<IntegerField>>emptyList()
-        );
-
-    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
-      restrictor.constrain(bufferAccess);
-    }
-
+    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
     final Map<MmuAddressInstance, Long> addresses = addrObject.getAddresses();
 
     // Fix known values of the addresses.
@@ -978,15 +965,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final MmuAddressInstance address = entry.getKey();
       final Long value = entry.getValue();
 
-      restrictor.constrain(address, BigIntegerUtils.valueOfUnsignedLong(value));
+      constraints.add(
+          MemoryAccessConstraints.EQ(address, BigIntegerUtils.valueOfUnsignedLong(value))
+      );
     }
 
-    Logger.debug("Constraints for refinement: %s", restrictor.getConstraints());
+    Logger.debug("Constraints for refinement: %s", constraints);
 
     final Map<IntegerVariable, BigInteger> values =
         MemoryEngineUtils.generateData(
             path,
-            restrictor.getConstraints(),
+            constraints,
             IntegerVariableInitializer.RANDOM
         );
 

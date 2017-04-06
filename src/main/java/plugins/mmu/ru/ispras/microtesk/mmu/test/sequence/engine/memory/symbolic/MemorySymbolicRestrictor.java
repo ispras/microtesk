@@ -12,76 +12,54 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
+package ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
- * {@link MemoryAccessRestrictor} produces a constraint for a given memory access.
+ * {@link MemorySymbolicRestrictor} produces a constraint for a given memory access.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessRestrictor {
+public final class MemorySymbolicRestrictor {
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
+  private final MmuSegment segment;
   private final RegionSettings region;
-  private final Collection<IntegerConstraint<IntegerField>> constraints;
 
-  public MemoryAccessRestrictor(
-      final MmuSegment segment,
-      final RegionSettings region,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
+  public MemorySymbolicRestrictor(final MmuSegment segment, final RegionSettings region) {
     // Segment and region can be null.
-    InvariantChecks.checkNotNull(constraints);
-
     this.region = region;
-    this.constraints = new ArrayList<>(constraints);
-
-    // Restrict the virtual memory access.
-    if (segment != null) {
-      constrain(memory.getVirtualAddress(), getRange(segment));
-    }
+    this.segment = segment;
   }
 
-  public MemoryAccessRestrictor(
-      final MmuSegment segment,
-      final RegionSettings region) {
-    this(segment, region, Collections.<IntegerConstraint<IntegerField>>emptyList());
+  public Collection<IntegerConstraint<IntegerField>> getConstraints() {
+    return Collections.<IntegerConstraint<IntegerField>>singleton(
+        MemoryAccessConstraints.RANGE(memory.getVirtualAddress(), getRange(segment)));
   }
 
-  public void constrain(final IntegerConstraint<IntegerField> constraint) {
-    constraints.add(constraint);
-  }
-
-  public void constrain(final MmuAddressInstance address, final IntegerRange range) {
-    constrain(new IntegerRangeConstraint(address.getVariable(), range));
-  }
-
-  public void constrain(final MmuAddressInstance address, final BigInteger value) {
-    constrain(new IntegerDomainConstraint<IntegerField>(address.getVariable().field(), value));
-  }
-
-  public void constrain(final MmuBufferAccess bufferAccess) {
+  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final MmuBufferAccess bufferAccess) {
     final MmuAddressInstance physAddrType = memory.getPhysicalAddress();
     final MmuAddressInstance addrType = bufferAccess.getAddress();
     final MmuBuffer buffer = bufferAccess.getBuffer();
@@ -92,21 +70,36 @@ public final class MemoryAccessRestrictor {
     final boolean isPhysAddr = addrType.getName().equals(physAddrType.getName());
 
     if (region != null && isTopLevel && isPhysAddr) {
-      constrain(addrType, getRange(region));
+      return Collections.<IntegerConstraint<IntegerField>>singleton(
+          MemoryAccessConstraints.RANGE(addrType, getRange(region)));
     }
 
     // Restrict the memory-mapped buffer access.
     if (buffer.getKind() == MmuBuffer.Kind.MEMORY) {
       final GeneratorSettings settings = GeneratorSettings.get();
       InvariantChecks.checkNotNull(settings);
+
       final RegionSettings region = settings.getMemory().getRegion(buffer.getName());
       InvariantChecks.checkNotNull(region);
 
-      constrain(bufferAccess.getAddress(), getRange(region));
+      return Collections.<IntegerConstraint<IntegerField>>singleton(
+          MemoryAccessConstraints.RANGE(bufferAccess.getAddress(), getRange(region)));
     }
+
+    return Collections.<IntegerConstraint<IntegerField>>emptyList();
   }
 
-  public final Collection<IntegerConstraint<IntegerField>> getConstraints() {
+  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final MmuProgram program,
+      final MemoryAccessContext context) {
+    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+
+    for (final MmuTransition transition : program.getTransitions()) {
+      for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
+        constraints.addAll(getConstraints(bufferAccess));
+      }
+    }
+
     return constraints;
   }
 
