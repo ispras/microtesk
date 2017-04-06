@@ -28,7 +28,6 @@ public class GeneratorSettings extends AbstractSettings {
   private static GeneratorSettings instance = null;
 
   public static GeneratorSettings get() {
-    InvariantChecks.checkNotNull(instance, "GeneratorSettings are not initialized.");
     return instance;
   }
 
