@@ -152,6 +152,38 @@ public final class MemoryTracker {
     return null;
   }
 
+  /**
+   * Checks whether the specified address is location in one
+   * of regions in use. 
+   *  
+   * @param address Address to be checked.
+   * @return {@code true} if the address is within one of the used
+   *         regions of {@code false} othwerwise.
+   */
+  public boolean isUsed(final BigInteger address) {
+    InvariantChecks.checkNotNull(address);
+
+    // Pre is a region that ends at address or a greater address.
+    final Map.Entry<BigInteger, Region> pre = endAddresses.ceilingEntry(address);
+    if (null == pre) {
+      return false;
+    }
+
+    // Post is a region that starts at address or a lesser address.
+    final Map.Entry<BigInteger, Region> post = startAddresses.floorEntry(address);
+    if (null == post) {
+      return false;
+    }
+
+    // It must be a single region. Otherwise, address does not fall into it.
+    if (pre.getValue() != post.getValue()) {
+      return false;
+    }
+
+    // End address of the region is excluded.
+    return !address.equals(post.getValue().getEndAddress());
+  }
+
   public void reset() {
     startAddresses.clear();
     endAddresses.clear();

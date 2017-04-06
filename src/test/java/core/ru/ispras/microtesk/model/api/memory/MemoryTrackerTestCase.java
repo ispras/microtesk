@@ -25,6 +25,13 @@ public final class MemoryTrackerTestCase {
     final MemoryTracker tracker = new MemoryTracker();
 
     use(tracker, 0x00000100, 0x00000200);
+
+    checkUnused(tracker, 0x000000FF);
+    checkUsed(tracker, 0x00000100);
+    checkUsed(tracker, 0x000001FF);
+    checkUnused(tracker, 0x00000200);
+    checkUnused(tracker, 0x00000201);
+
     use(tracker, 0x00000300, 0x00000388);
     use(tracker, 0x00000000, 0x00000100);
     use(tracker, 0x00000400, 0x00000500);
@@ -43,5 +50,19 @@ public final class MemoryTrackerTestCase {
 
   private static void use(final MemoryTracker tracker, final long start, final long end) {
     tracker.use(BigInteger.valueOf(start), BigInteger.valueOf(end));
+  }
+
+  private static void checkUsed(final MemoryTracker tracker, final long address) {
+    Assert.assertTrue(
+        String.format("0x%016x must be used", address),
+        tracker.isUsed(BigInteger.valueOf(address))
+        );
+  }
+
+  private static void checkUnused(final MemoryTracker tracker, final long address) {
+    Assert.assertFalse(
+        String.format("0x%016x must be unused", address),
+        tracker.isUsed(BigInteger.valueOf(address))
+        );
   }
 }
