@@ -138,6 +138,7 @@ public final class TestEngine {
       reportAborted("Failed to load generation settings for %s.", modelName);
       return false;
     }
+    GeneratorSettings.set(settings);
 
     setRandomSeed(options.getValueAsInteger(Option.RANDOM));
     setSolver(options.getValueAsString(Option.SOLVER));
