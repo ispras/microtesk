@@ -749,7 +749,7 @@ final class TemplateProcessor implements Template.Processor {
 
   private void reallocateGlobalData() {
     final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
-    memoryAllocator.resetCurrentAddress();
+    memoryAllocator.reset();
 
     for (final DataSection data : testProgram.getGlobalData()) {
       data.allocate(memoryAllocator);
