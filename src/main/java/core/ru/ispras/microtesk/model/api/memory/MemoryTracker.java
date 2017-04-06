@@ -152,6 +152,11 @@ public final class MemoryTracker {
     return null;
   }
 
+  public void reset() {
+    startAddresses.clear();
+    endAddresses.clear();
+  }
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();

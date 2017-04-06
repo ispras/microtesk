@@ -134,6 +134,9 @@ final class PhysicalMemory extends Memory {
   @Override
   public void reset() {
     storage.reset();
+    if (null != allocator) {
+      allocator.reset();
+    }
   }
 
   private Location newLocationForRegion(final BitVector index) {

@@ -31,14 +31,13 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  */
 public final class MemoryAllocator {
   private final MemoryDevice memory;
+  private final MemoryTracker memoryTracker;
 
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
   private final BigInteger baseAddress; // in addressable units
   private BigInteger currentAddress; // in addressable units
-
-  private BigInteger lastRegionIndex;
 
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
@@ -69,13 +68,13 @@ public final class MemoryAllocator {
     }
 
     this.memory = memory;
+    this.memoryTracker = new MemoryTracker();
+
     this.addressableUnitBitSize = addressableUnitBitSize;
     this.addressableUnitsInRegion = regionBitSize / addressableUnitBitSize;
 
     this.baseAddress = baseAddress;
     this.currentAddress = baseAddress;
-
-    this.lastRegionIndex = null;
   }
 
   /**
@@ -100,7 +99,8 @@ public final class MemoryAllocator {
     currentAddress = value;
   }
 
-  public void resetCurrentAddress() {
+  public void reset() {
+    memoryTracker.reset();
     setCurrentAddress(getBaseAddress());
   }
 
@@ -171,6 +171,9 @@ public final class MemoryAllocator {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(address);
 
+    // Marks the region as used or raises an exception if it is already in use.
+    trackAllocation(address, address.add(BigInteger.valueOf(data.getByteSize())));
+
     final int dataBitSize = data.getBitSize();
     BigInteger regionIndex = regionIndexForAddress(address);
     int regionBitOffset = regionBitOffsetForAddress(address);
@@ -178,26 +181,6 @@ public final class MemoryAllocator {
     int bitPos = 0;
     while (bitPos < dataBitSize) {
       final BitVector regionAddress = BitVector.valueOf(regionIndex, memory.getAddressBitSize());
-
-      // lastRegionIndex is used to allow allocating regions by parts (e.g. by bytes).
-      if (memory.isInitialized(regionAddress) && !regionIndex.equals(lastRegionIndex) &&
-          // FIXME: Hack to allocate regions by parts. It can cause some errors to be undetected.
-          regionBitOffset == 0) {
-
-        /*
-        System.out.println("ADDRESS BIT SIZE: " +  memory.getAddressBitSize());
-        System.out.println("REGION ADDRESS: 0x" + regionAddress.toHexString());
-        System.out.println(String.format("REGION INDEX: 0x%016x", regionIndex));
-        System.out.println(String.format("REGION BIT OFFSET: %d", regionBitOffset));
-        System.out.println("DATA: 0x" + memory.load(regionAddress).toHexString());
-        */
-
-        throw new GenerationAbortedException(String.format(
-            "Failed to allocate memory at physical address 0x%016x. The address is already in use.",
-            address
-            ));
-      }
-      lastRegionIndex = regionIndex;
 
       final int bitsToWrite = Math.min(dataBitSize - bitPos, getRegionBitSize() - regionBitOffset);
       final BitVector dataItem = BitVector.newMapping(data, bitPos, bitsToWrite);
@@ -217,6 +200,18 @@ public final class MemoryAllocator {
 
       regionIndex = regionIndex.add(BigInteger.ONE);
       regionBitOffset = 0;
+    }
+  }
+
+  private void trackAllocation(final BigInteger startAddress, final BigInteger endAddress) {
+    final MemoryTracker.Region overlapping = memoryTracker.use(startAddress, endAddress);
+    if (null != overlapping) {
+      throw new GenerationAbortedException(String.format(
+          "Failed to allocate memory at physical address 0x%016x. " + 
+          "Address range %s is already in use.",
+          startAddress,
+          overlapping
+          ));
     }
   }
 
