@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.settings;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link GeneratorSettings} represents generator settings.
  * 
@@ -23,6 +25,19 @@ package ru.ispras.microtesk.settings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class GeneratorSettings extends AbstractSettings {
+  private static GeneratorSettings instance = null;
+
+  public static GeneratorSettings get() {
+    InvariantChecks.checkNotNull(instance, "GeneratorSettings are not initialized.");
+    return instance;
+  }
+
+  public static void set(final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(settings);
+    InvariantChecks.checkTrue(null == instance, "GeneratorSettings are already initialized.");
+    instance = settings;
+  }
+
   public static final String TAG = "settings";
 
   public GeneratorSettings() {
