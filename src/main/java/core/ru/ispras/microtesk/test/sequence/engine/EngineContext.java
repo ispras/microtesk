@@ -45,7 +45,6 @@ public final class EngineContext {
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
   private final StreamStore streams;
-  private final GeneratorSettings settings;
   private final TestBase testBase;
   private final Statistics statistics;
   private final int delaySlotSize;
@@ -58,11 +57,9 @@ public final class EngineContext {
   public EngineContext(
       final Options options,
       final Model model,
-      final GeneratorSettings settings,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(model);
-    InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
     InvariantChecks.checkNotNull(statistics);
 
     this.options = options;
@@ -71,7 +68,9 @@ public final class EngineContext {
     this.preparators = new PreparatorStore();
     this.bufferPreparators = new BufferPreparatorStore();
     this.streams = new StreamStore();
-    this.settings = settings;
+
+    final GeneratorSettings settings = GeneratorSettings.get();
+    InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
 
     this.testBase = newTestBase(settings);
     this.statistics = statistics;
@@ -105,10 +104,6 @@ public final class EngineContext {
 
   public StreamStore getStreams() {
     return streams;
-  }
-
-  public GeneratorSettings getSettings() {
-    return settings;
   }
 
   public TestBase getTestBase() {
