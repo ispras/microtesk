@@ -37,6 +37,7 @@ import ru.ispras.microtesk.model.api.metadata.MetaGroup;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 import ru.ispras.microtesk.model.api.metadata.MetaOperation;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -1053,7 +1054,7 @@ public final class Template {
     return new MemoryObjectBuilder(
         size,
         context.getLabelManager(),
-        context.getSettings()
+        GeneratorSettings.get()
         );
   }
 
