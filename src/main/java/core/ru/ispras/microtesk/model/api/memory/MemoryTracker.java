@@ -30,8 +30,11 @@ public final class MemoryTracker {
     private final BigInteger startAddress;
     private final BigInteger endAddress;
 
-    private Region(final BigInteger startAddress, final BigInteger endAddress) {
+    public Region(final BigInteger startAddress, final BigInteger endAddress) {
+      InvariantChecks.checkNotNull(startAddress);
+      InvariantChecks.checkNotNull(endAddress);
       InvariantChecks.checkGreaterOrEq(endAddress, startAddress);
+
       this.startAddress = startAddress;
       this.endAddress = endAddress;
     }
@@ -47,6 +50,26 @@ public final class MemoryTracker {
     @Override
     public String toString() {
       return String.format("[0x%016x..0x%016x)", startAddress, endAddress);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (obj == null || obj.getClass() != getClass()) {
+        return false;
+      }
+
+      final Region other = (Region) obj;
+      return this.startAddress.equals(other.startAddress) && 
+             this.endAddress.equals(other.endAddress);
+    }
+
+    @Override
+    public int hashCode() {
+      return startAddress.hashCode() + 31 * (31 + endAddress.hashCode());
     }
 
     private Region getOverlapping(final BigInteger startAddress, final BigInteger endAddress) {
