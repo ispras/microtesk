@@ -45,7 +45,7 @@ class X86BaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:text => 'section .data', :target => 'MEM', :base_virtual_address => 0x4000) {
+    data_config(:text => 'section .data', :target => 'MEM', :base_virtual_address => 0x700) {
       define_type :id => :byte,  :text => 'db',  :type => type('card', 8)
       define_type :id => :word,  :text => 'dw',  :type => type('card', 16)
 

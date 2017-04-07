@@ -55,8 +55,7 @@ class BubbleSortTemplate < X86BaseTemplate
     sequence {
       #trace_data :data, :end
 
-      mov_r16i16 ax, IMM16(200)
-      #lea_r16label bx, :data # TODO:
+      #lea_r16label bx, :data
 
       mov_r16i16 ax, IMM16(200)
       mov_rsegr16 ds, ax
