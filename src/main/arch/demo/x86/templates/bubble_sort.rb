@@ -129,7 +129,6 @@ class BubbleSortTemplate < X86BaseTemplate
       mov_r16i16 bx, IMM16(8)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
-
     }.run
   end
 
