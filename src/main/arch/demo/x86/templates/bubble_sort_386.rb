@@ -51,6 +51,9 @@ class BubbleSortTemplate < X86BaseTemplate
   end
   def run
     sequence {
+      text "cpu 8086"
+      newline
+
       mov_r16i16 bx, IMM16(0x1000)
       mov_m16i16 ds, RIAM_BX(), IMM16(7)
       add_r16i16 bx, IMM16(2)
