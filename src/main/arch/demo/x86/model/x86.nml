@@ -2814,7 +2814,7 @@ op int_(val: IMM16)
     // TODO:
   }
 
-op lea_r16label(op1: R16, rel: SBYTE)
+op lea_r16label(op1: R16, rel: SWORD)
   syntax = format("lea %s, [%<label>d]", op1.syntax, rel)
   image  = format("10111%s%s", op1.image, rel)
   action = {

@@ -40,37 +40,22 @@ require_relative 'x86_base'
 # end procedure
 #
 class BubbleSortTemplate < X86BaseTemplate
-  def pre
-    super
-
-    data {
-      label :data
-      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
-      label :end
-    }
-  end
-
   def run
-
     sequence {
-      #trace_data :data, :end
-
-      #lea_r16label bx, :data
-
       mov_r16i16 ax, IMM16(200)
       mov_rsegr16 ds, ax
       mov_r16i16 bx, IMM16(0)
       mov_m16i16 ds, RIAM_BX(), IMM16(7)
-      mov_r16i16 bx, IMM16(2)
+      add_r16i16 bx, IMM16(2)
       mov_m16i16 ds, RIAM_BX(), IMM16(3)
-      mov_r16i16 bx, IMM16(4)
+      add_r16i16 bx, IMM16(2)
       mov_m16i16 ds, RIAM_BX(), IMM16(3)
-      mov_r16i16 bx, IMM16(6)
+      add_r16i16 bx, IMM16(2)
       mov_m16i16 ds, RIAM_BX(), IMM16(9)
-      mov_r16i16 bx, IMM16(8)
+      add_r16i16 bx, IMM16(2)
       mov_m16i16 ds, RIAM_BX(), IMM16(1)
 
-      mov_r16i16 dx, IMM16(8)
+      mov_r16r16 dx, bx
       trace "bx = %x", gpr_observer(3)
 
       ########################### Outer loop starts ##############################
@@ -114,19 +99,20 @@ class BubbleSortTemplate < X86BaseTemplate
       jne :repeat
       ############################ Outer loop ends ###############################
 
+      #
       mov_r16i16 bx, IMM16(0)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
-      mov_r16i16 bx, IMM16(2)
+      add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
-      mov_r16i16 bx, IMM16(4)
+      add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
-      mov_r16i16 bx, IMM16(6)
+      add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
-      mov_r16i16 bx, IMM16(8)
+      add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr_observer(0)
     }.run
