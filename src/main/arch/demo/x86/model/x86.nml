@@ -45,7 +45,7 @@ let PC = "program_counter"
 // ==================================================================================
 // Registers and Memory
 
-// General-purpose registers
+// General Purpose Registers
 reg GPR[GPR_NUMBER, WORD]
 
 // Accumulator for operands and results data
@@ -85,9 +85,13 @@ reg DI[WORD] alias = GPR[7]
 // Segment registers
 reg RSEG[SREG_NUMBER, WORD]
 
+// Extra segment: General addressing, destination segment in string ops
 reg ES[WORD] alias = RSEG[0]
+// Code segment: Segment to which IP refers
 reg CS[WORD] alias = RSEG[1]
+// Stack segment: Segment to which SP refers
 reg SS[WORD] alias = RSEG[2]
+// Data segment: General addressing, usually for program's data area
 reg DS[WORD] alias = RSEG[3]
 
 // Current op address
@@ -114,8 +118,8 @@ shared mem MEM[MEM_SIZE, BYTE]
 // Temporary Variables
 
 // Addressing mode byte
-var  rm[1, card(3)]
-var mod[1, card(2)]
+var  rm[card(3)]
+var mod[card(2)]
 
 // Instruction size
 var instruction_image_size[SIZE]
@@ -235,7 +239,7 @@ mode DOAM(disp: WORD) = coerce(addR, disp)
 // The Register Indirect Addressing Modes
 
 mode RIAM_BX() = coerce(addR, cast(SWORD, BX))
-  syntax = format("[BX]")
+  syntax = format("BX")
   image = format("")
   init = {
     mod = 0b00;
@@ -501,7 +505,7 @@ mode MOFFS = RIAM_BX | BIAM_BX_SI | IAM_BX_D8 | BIDAM_BX_SI_D8 | IAM_BX_D16 | BI
 // Move ops
 
 op mov_m8r8 (seg_ovrd: RSEG16, dst: MOFFS, src: R8)
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  syntax = format("mov byte[%s], %s", dst.syntax, src.syntax)
   image = format("001%s11010001000%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -529,7 +533,7 @@ op mov_r8r8 (dst: R8, src: R8)
   }
 
 op mov_m16r16 (seg_ovrd: RSEG16, dst: MOFFS, src: R16)
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  syntax = format("mov word[%s], %s", dst.syntax, src.syntax)
   image = format("001%s11010001001%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -547,7 +551,7 @@ op mov_r16r16 (dst: R16, src: R16)
   }
 
 op mov_r16m16 (seg_ovrd: RSEG16, dst: R16, src: MOFFS)
-  syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
+  syntax = format("mov %s, word[%s]", dst.syntax, src.syntax)
   image = format("001%s11010001011%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -609,7 +613,7 @@ op mov_r16i16 (dst: R16, src: IMM16)
   }
 
 op mov_m8i8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  syntax = format("mov byte[%s:%s], %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11011000110%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -619,7 +623,7 @@ op mov_m8i8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
   }
 
 op mov_m16i16 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM16)
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  syntax = format("mov word[%s], %s", dst.syntax, src.syntax)
   image = format("001%s11011000111%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -2314,7 +2318,7 @@ op cmp_m8r8 (seg_ovrd: RSEG16, op1: MOFFS, op2: R8)
   }
 
 op cmp_m16r16 (seg_ovrd: RSEG16, op1: MOFFS, op2: R16)
-  syntax = format("cmp %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
+  syntax = format("cmp word[%s], %s", op1.syntax, op2.syntax)
   image = format("001%s11000111001%s%s%s%s", seg_ovrd.image, mod, op2.image, rm, op1.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -2350,7 +2354,7 @@ op cmp_r16r16 (op1: R16, op2: R16)
   }
  
 op cmp_r16m16 (seg_ovrd: RSEG16, op1: R16, op2: MOFFS)
-  syntax = format("cmp %s, %s:%s", op1.syntax, seg_ovrd.syntax, op2.syntax)
+  syntax = format("cmp %s, word[%s]", op1.syntax, op2.syntax)
   image = format("001%s11000111011%s%s%s%s", seg_ovrd.image, mod, op1.image, rm, op2.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -2386,7 +2390,7 @@ op cmp_r16i16 (op1: R16, op2: IMM16)
   }
 
 op cmp_m16i16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
-  syntax = format("cmp %s:%s, %s", seg_ovrd.syntax, op1.syntax, op2.syntax)
+  syntax = format("cmp word[%s], %s", op1.syntax, op2.syntax)
   image = format("001%s11010000001%s000%s%s%s", seg_ovrd.image, mod, rm, op1.image, op2.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -2810,12 +2814,22 @@ op int_(val: IMM16)
     // TODO:
   }
 
+op lea_r16label(op1: R16, rel: SBYTE)
+  syntax = format("lea %s, [%<label>d]", op1.syntax, rel)
+  image  = format("10111%s%s", op1.image, rel)
+  action = {
+    op1 = coerce(WORD, rel);
+    instruction_image_size = 3;
+  }
+
+op lea = lea_r16label
+
 // ==================================================================================
 
 op x86 = mov | xchg | add | sub | push | pop | mul | imul | div | idiv | pushA | popA | adc | sbb
        | inc | dec | test | and | xor | or | not | neg | cmp | jmp | jo | jno | jc | jnc | jz
        | jnz | js | jns | jp | jpe | jnp | jpo | ja | jae | jb | jbe | je | jne | jna | jnae | jnb
-       | jnbe | jg | jge | jl | jle | jng | jnge | jnl | jnle | int_
+       | jnbe | jg | jge | jl | jle | jng | jnge | jnl | jnle | int_ | lea
 
 // ==================================================================================
 

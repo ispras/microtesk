@@ -45,9 +45,9 @@ class X86BaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:text => '.data', :target => 'MEM', :base_virtual_address => 0x4000) {
-      define_type :id => :byte,  :text => '.byte',  :type => type('card', 8)
-      define_type :id => :word,  :text => '.word',  :type => type('card', 16)
+    data_config(:text => 'section .data', :target => 'MEM', :base_virtual_address => 0x4000) {
+      define_type :id => :byte,  :text => 'db',  :type => type('card', 8)
+      define_type :id => :word,  :text => 'dw',  :type => type('card', 16)
 
       define_space        :id => :space,  :text => '.space',  :fill_with => 0
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
@@ -127,7 +127,7 @@ class X86BaseTemplate < Template
     label :success
     mov_r16i16 ax, IMM16(1)
     text ";system call number (sys_exit)"
-    int_ IMM16(128)
+    int_ IMM16(0x80)
     text ";call kernel"
 
     label :error
