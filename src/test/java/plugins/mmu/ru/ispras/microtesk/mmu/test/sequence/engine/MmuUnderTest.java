@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.test.sequence.engine;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Collections;
 
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -89,9 +88,6 @@ import ru.ispras.microtesk.utils.function.Predicate;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuUnderTest {
-  public static final String DATA_LO_REGION = "lo";
-  public static final String DATA_HI_REGION = "hi";
-
   public static final boolean REDUCE = true;
 
   public static final int VA_BITS = 64;
@@ -387,12 +383,14 @@ public final class MmuUnderTest {
       new MmuGuard(MemoryOperation.LOAD));
   public final MmuTransition ifWrite = new MmuTransition(root, start,
       new MmuGuard(MemoryOperation.STORE));
-  public final MmuTransition ifUnmappedKseg = new MmuTransition(start, getUpaKseg,
-      new MmuGuard(null, Arrays.asList(new MmuSegment[] {kseg0, kseg1})));
+  public final MmuTransition ifUnmappedKseg0 = new MmuTransition(start, getUpaKseg,
+      new MmuGuard(kseg0));
+  public final MmuTransition ifUnmappedKseg1 = new MmuTransition(start, getUpaKseg,
+      new MmuGuard(kseg1));
   public final MmuTransition ifUnmappedXkphys = new MmuTransition(start, getUpaXkphys,
-      new MmuGuard(null, Collections.singleton(xkphys)));
+      new MmuGuard(xkphys));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
-      new MmuGuard(null, Collections.singleton(xuseg)));
+      new MmuGuard(xuseg));
   public final MmuTransition afterUpaKseg = new MmuTransition(getUpaKseg, checkSegment);
   public final MmuTransition afterUpaXkphys = new MmuTransition(getUpaXkphys, checkSegment);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
@@ -428,18 +426,15 @@ public final class MmuUnderTest {
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
           MmuCondition.eq(d, BigInteger.ONE)));
-  public final MmuTransition ifHiMemory = new MmuTransition(getMpa, checkSegment,
-      new MmuGuard(Collections.singleton(DATA_HI_REGION), null));
-  public final MmuTransition ifLoMemory = new MmuTransition(getMpa, checkSegment,
-      new MmuGuard(Collections.singleton(DATA_LO_REGION), null));
+  public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
   public final MmuTransition ifKseg0 = new MmuTransition(checkSegment, startKseg0,
-      new MmuGuard(null, Collections.singleton(kseg0)));
+      new MmuGuard(kseg0));
   public final MmuTransition ifKseg1 = new MmuTransition(checkSegment, startMem,
-      new MmuGuard(null, Collections.singleton(kseg1)));
+      new MmuGuard(kseg1));
   public final MmuTransition ifXkphys = new MmuTransition(checkSegment, startXkphys,
-      new MmuGuard(null, Collections.singleton(xkphys)));
+      new MmuGuard(xkphys));
   public final MmuTransition ifXuseg = new MmuTransition(checkSegment, startCache,
-      new MmuGuard(null, Collections.singleton(xuseg)));
+      new MmuGuard(xuseg));
   public final MmuTransition afterKseg0 = new MmuTransition(startKseg0, startCache);
   public final MmuTransition afterXkphys = new MmuTransition(startXkphys, startCache);
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
@@ -558,7 +553,8 @@ public final class MmuUnderTest {
 
     if (!REDUCE) {
       builder.registerTransition(ifWrite);
-      builder.registerTransition(ifUnmappedKseg);
+      builder.registerTransition(ifUnmappedKseg0);
+      builder.registerTransition(ifUnmappedKseg1);
       builder.registerTransition(ifUnmappedXkphys);
     }
 
@@ -591,10 +587,7 @@ public final class MmuUnderTest {
       builder.registerTransition(ifDirty);
     }
     builder.registerTransition(ifClean);
-    builder.registerTransition(ifLoMemory);
-    if (!REDUCE) {
-      builder.registerTransition(ifHiMemory);
-    }
+    builder.registerTransition(afterMpa);
     builder.registerTransition(ifKseg0);
     builder.registerTransition(ifKseg1);
     builder.registerTransition(ifXkphys);
