@@ -714,6 +714,7 @@ final class TemplateProcessor implements Template.Processor {
     final BigInteger address = TestEngineUtils.getSequenceAddress(sequence);
     for (int index = 0; index < instanceNumber; index++) {
       final Executor.Status status = executorStatuses.get(index);
+      InvariantChecks.checkNotNull(status);
 
       if (status.isAddress() && null != address && status.getAddress() == address.longValue()) {
         return index;
