@@ -29,7 +29,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -44,18 +43,11 @@ import ru.ispras.microtesk.utils.BigIntegerUtils;
 public final class MemorySymbolicRestrictor {
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
-  private final MmuSegment segment;
   private final RegionSettings region;
 
-  public MemorySymbolicRestrictor(final MmuSegment segment, final RegionSettings region) {
-    // Segment and region can be null.
+  public MemorySymbolicRestrictor(final RegionSettings region) {
+    // Region can be null.
     this.region = region;
-    this.segment = segment;
-  }
-
-  public Collection<IntegerConstraint<IntegerField>> getConstraints() {
-    return Collections.<IntegerConstraint<IntegerField>>singleton(
-        MemoryAccessConstraints.RANGE(memory.getVirtualAddress(), getRange(segment)));
   }
 
   public Collection<IntegerConstraint<IntegerField>> getConstraints(
@@ -101,13 +93,6 @@ public final class MemorySymbolicRestrictor {
     }
 
     return constraints;
-  }
-
-  private static IntegerRange getRange(final MmuSegment segment) {
-    return new IntegerRange(
-        BigIntegerUtils.valueOfUnsignedLong(segment.getMin()),
-        BigIntegerUtils.valueOfUnsignedLong(segment.getMax())
-    );
   }
 
   private static IntegerRange getRange(final RegionSettings region) {

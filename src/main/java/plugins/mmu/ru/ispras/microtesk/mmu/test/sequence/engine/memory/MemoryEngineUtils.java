@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicRestrictor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -154,7 +155,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MemorySymbolicExecutor symbolicExecutor = new MemorySymbolicExecutor(partialResult);
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(partialResult);
     final Boolean status = symbolicExecutor.execute(entry);
 
     if (status != null) {
@@ -170,21 +171,6 @@ public final class MemoryEngineUtils {
         solve(partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
-  }
-
-  public static boolean isValidPath(final MmuSubsystem memory, final MemoryAccessPath path) {
-    InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(path);
-
-    if(!memory.getRegions().isEmpty() && path.getRegions().isEmpty()) {
-      return false;
-    }
-
-    if (memory.getRegions().isEmpty() && path.getSegments().isEmpty()) {
-      return false;
-    }
-
-    return true;
   }
 
   private static boolean checkBufferConstraints(
@@ -227,10 +213,6 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(constraints);
-
-    if (!isValidPath(memory, path)) {
-      return false;
-    }
 
     final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
     if (!checkBufferConstraints(path, bufferEventConstraints)) {
@@ -365,8 +347,16 @@ public final class MemoryEngineUtils {
     return new MemorySymbolicResult(newFormulaBuilder());
   }
 
+  public static MemorySymbolicRestrictor newSymbolicRestrictor() {
+    return new MemorySymbolicRestrictor(null);
+  }
+
   public static MemorySymbolicExecutor newSymbolicExecutor() {
-    return new MemorySymbolicExecutor(newSymbolicResult());
+    return new MemorySymbolicExecutor(newSymbolicRestrictor(), newSymbolicResult());
+  }
+
+  public static MemorySymbolicExecutor newSymbolicExecutor(final MemorySymbolicResult result) {
+    return new MemorySymbolicExecutor(newSymbolicRestrictor(), result);
   }
 
   public static Solver<Map<IntegerVariable, BigInteger>> newSolver(

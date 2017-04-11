@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +55,7 @@ import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
  * {@link MemoryAdapter} implements adapter of {@link MemorySolution}.
@@ -67,7 +67,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
-  private final Map<MmuBuffer, Set<Long>> allocatedEntries = new HashMap<>();
+  private final Set<Long> entriesInDataSection = new HashSet<>();
 
   @Override
   public Class<MemorySolution> getSolutionClass() {
@@ -107,12 +107,12 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   @Override
   public void onStartProgram() {
-    allocatedEntries.clear();
+    entriesInDataSection.clear();
   }
 
   @Override
   public void onEndProgram() {
-    Logger.debug("Allocated entries: %s", allocatedEntries);
+    Logger.debug("Allocated entries: %s", entriesInDataSection);
   }
 
   private List<ConcreteCall> prepareEntries(
@@ -126,7 +126,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     for (final Map.Entry<MmuBufferAccess, Map<Long, EntryObject>> entry : entries.entrySet()) {
       final MmuBufferAccess bufferAccess = entry.getKey();
-      sequence.addAll(prepareEntries(bufferAccess, engineContext, solution));
+      sequence.addAll(prepareEntries(bufferAccess, engineContext, solution, entriesInDataSection));
     }
 
     return sequence;
@@ -135,10 +135,12 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   private List<ConcreteCall> prepareEntries(
       final MmuBufferAccess bufferAccess,
       final EngineContext engineContext,
-      final MemorySolution solution) {
+      final MemorySolution solution,
+      final Set<Long> entriesInDataSection) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(solution);
+    InvariantChecks.checkNotNull(entriesInDataSection);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuBuffer buffer = bufferAccess.getBuffer();
@@ -170,7 +172,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY
           || buffer == memory.getTargetBuffer();
 
-      final Set<Long> entriesInDataSection = getAllocatedEntries(buffer);
       final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
       final MemoryAccessContext context = bufferAccess.getContext();
@@ -179,7 +180,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
           ? String.format("%d", bufferAccess.getId())
           : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccess.getId());
 
-      final String comment = String.format("%s(%s)[%d]=%s", buffer.getName(), level, index, data);
+      final String comment = String.format("%s(%s)[0x%x]=%s", buffer.getName(), level, index, data);
 
       if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
         // Static buffer initialization.
@@ -188,7 +189,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
             blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
 
-        dataSectionBuilder.setOrigin(BigInteger.valueOf(bufferAccessAddress));
+        dataSectionBuilder.setOrigin(BigIntegerUtils.valueOfUnsignedLong(bufferAccessAddress));
         dataSectionBuilder.addComment(comment);
 
         final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
@@ -355,7 +356,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
 
     final List<ConcreteCall> preparation = new ArrayList<>();
-    final Set<AddressingModeWrapper> initializedModes = new LinkedHashSet<>();
+    final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
 
     int i = 0;
 
@@ -424,16 +425,5 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;
     }
-  }
-
-  private Set<Long> getAllocatedEntries(final MmuBuffer buffer) {
-    InvariantChecks.checkNotNull(buffer);
-
-    Set<Long> entries = allocatedEntries.get(buffer);
-    if (entries == null) {
-      allocatedEntries.put(buffer, entries = new HashSet<>());
-    }
-
-    return entries;
   }
 }

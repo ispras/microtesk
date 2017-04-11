@@ -14,14 +14,8 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
-import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link MemoryAccess} describes an execution path of a memory access instruction.
@@ -31,47 +25,15 @@ import ru.ispras.microtesk.settings.RegionSettings;
 public final class MemoryAccess {
   private final MemoryAccessType type;
   private final MemoryAccessPath path;
-  private final RegionSettings region;
-  private final MmuSegment segment;
 
-  /**
-   * Constructs a memory access.
-   * 
-   * @param type the memory access type.
-   * @param path the memory access path.
-   * @return a memory access or {@code null} if it cannot be constructed
-   */
-  public static MemoryAccess create(
+  public MemoryAccess(
       final MemoryAccessType type,
       final MemoryAccessPath path) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
 
-    final Map<RegionSettings, Collection<MmuSegment>> regions = path.getRegions();
-    final Collection<MmuSegment> segments = path.getSegments();
-
-    final RegionSettings region = !regions.isEmpty()
-        ? Randomizer.get().choose(regions.keySet()) : null;
-
-    final MmuSegment segment = !segments.isEmpty()
-        ? Randomizer.get().choose(segments) : null;
-
-      return new MemoryAccess(type, path, region, segment);
-  }
-
-  public MemoryAccess(
-      final MemoryAccessType type,
-      final MemoryAccessPath path,
-      final RegionSettings region,
-      final MmuSegment segment) {
-    InvariantChecks.checkNotNull(type);
-    InvariantChecks.checkNotNull(path);
-    // Parameters region and segment can be null.
-
     this.type = type;
     this.path = path;
-    this.region = region;
-    this.segment = segment;
   }
 
   public MemoryAccessType getType() {
@@ -82,20 +44,8 @@ public final class MemoryAccess {
     return path;
   }
 
-  public RegionSettings getRegion() {
-    return region;
-  }
-
-  public MmuSegment getSegment() {
-    return segment;
-  }
-
   @Override
   public String toString() {
-    return String.format("%s[%s], %s, %s",
-        region != null ? region.getName() : "*",
-        segment != null ? segment.getName() : "*",
-        type,
-        path);
+    return String.format("%s, %s", type, path);
   }
 }

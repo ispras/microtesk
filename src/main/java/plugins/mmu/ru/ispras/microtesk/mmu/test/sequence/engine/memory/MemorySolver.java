@@ -43,7 +43,6 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
@@ -82,7 +81,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   private final DataType alignType;
 
-  private final AddressAllocator addressAllocator;
   private final EntryIdAllocator entryIdAllocator;
 
   /** Given a buffer, maps indices to sets of tags to be explicitly loaded into the buffer. */
@@ -97,20 +95,17 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
   public MemorySolver(
       final MemoryAccessStructure structure,
-      final AddressAllocator addressAllocator,
       final EntryIdAllocator entryIdAllocator,
       final Map<MmuAddressInstance, Predicate<Long>> hitCheckers,
       final MemoryAccessPathChooser normalPathChooser,
       final DataType alignType) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
-    InvariantChecks.checkNotNull(addressAllocator);
     InvariantChecks.checkNotNull(entryIdAllocator);
     InvariantChecks.checkNotNull(hitCheckers);
     InvariantChecks.checkNotNull(normalPathChooser);
 
     this.structure = structure;
-    this.addressAllocator = addressAllocator;
     this.entryIdAllocator = entryIdAllocator;
     this.hitCheckers = hitCheckers;
     this.normalPathChooser = normalPathChooser;
@@ -244,7 +239,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
         continue;
       }
 
-      if (prevBufferAccess.getAddress() != buffer.getAddress()) {
+      if (prevBufferAccess.getBuffer().getAddress() != buffer.getAddress()) {
         continue;
       }
 
@@ -281,7 +276,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     }
 
     final AddressObject addrObject = solution.getAddressObject(j);
-    final MmuAddressInstance addrType = buffer.getAddress();
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
 
     final long address = addrObject.getAddress(addrType);
     final long tag = buffer.getTag(address);
@@ -301,7 +296,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // It is enough to use one replacing sequence for all test case instructions.
     if (!replacedIndices.contains(index)
-        && (mayBeHit(j, buffer) || !tagReplacedRelation.isEmpty())) {
+        && (mayBeHit(j, bufferAccess) || !tagReplacedRelation.isEmpty())) {
       final List<AddressAndEntry> sequence = new ArrayList<>();
 
       for (int i = 0; i < buffer.getWays(); i++) {
@@ -619,7 +614,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
     // If the buffer access event is null, the situation is considered to be a hit.
     // The event is null, if the buffer is a parent of some view and is not in the access. 
     final BufferAccessEvent realEvent = bufferAccess.getEvent();
-    final BufferAccessEvent usedEvent = realEvent == BufferAccessEvent.READ ? BufferAccessEvent.HIT : realEvent;
+    final BufferAccessEvent usedEvent = realEvent == BufferAccessEvent.READ
+        ? BufferAccessEvent.HIT
+        : realEvent;
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
@@ -800,11 +797,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * Checks whether a hit into the given buffer is possible for the given access.
    * 
    * @param j the memory access index.
-   * @param buffer the memory buffer being accessed.
+   * @param bufferAccess the buffer access.
    * @return {@code false} if a hit is infeasible; {@code true} if a hit is possible.
    */
-  private boolean mayBeHit(final int j, final MmuBuffer buffer) {
-    final MmuAddressInstance addrType = buffer.getAddress();
+  private boolean mayBeHit(final int j, final MmuBufferAccess bufferAccess) {
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final MmuAddressInstance addrType = bufferAccess.getAddress();
 
     // TODO: This check can be optimized.
     final MemoryAccess access = structure.getAccess(j);
@@ -884,8 +882,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Predicate<Long> hitChecker = hitCheckers.get(buffer.getAddress());
 
     while (true) {
-      final long address = addressAllocator.allocateTag(
-          buffer, partialAddress, region, peek, null);
+      // TODO:
+      final long address = Randomizer.get().nextLong();
 
       if (hitChecker == null || !hitChecker.test(address)) {
         return address;
@@ -921,7 +919,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MemoryAccessPath normalPath =
         normalPathChooser.get(BiasedConstraints.<MemoryAccessConstraints>SOFT(constraints));
 
-    final MemoryAccess normalAccess = MemoryAccess.create(normalType, normalPath);
+    final MemoryAccess normalAccess = new MemoryAccess(normalType, normalPath);
     InvariantChecks.checkNotNull(normalAccess);
 
     // Construct a valid address object.
@@ -929,7 +927,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     // Refine the addresses (in particular, assign the intermediate addresses).
     final boolean hasRefined = refineAddr(
-        MemoryAccess.create(MemoryAccessType.LOAD(DataType.BYTE /* Not important */), normalPath),
+        new MemoryAccess(MemoryAccessType.LOAD(DataType.BYTE /* Not important */), normalPath),
         normalAddrObject,
         false /* Do not apply constraints */);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", normalPath));
@@ -985,10 +983,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return false;
     }
 
-    Logger.debug("Buffer reads: %s", path.getBufferReads());
+    final Collection<MmuBufferAccess> bufferAccesses = new ArrayList<>();
+    bufferAccesses.addAll(path.getBufferChecks());
+    bufferAccesses.addAll(path.getBufferReads());
+
+    Logger.debug("Buffer checks and reads: %s", bufferAccesses);
 
     // Set the intermediate addresses used along the memory access path.
-    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
       final MmuAddressInstance addrType = bufferAccess.getAddress();
       final IntegerVariable addrVar = addrType.getVariable(); 
 
@@ -999,6 +1001,16 @@ public final class MemorySolver implements Solver<MemorySolution> {
       Logger.debug("Refine address: %s=0x%x", addrType, addrValue.longValue());
       addrObject.setAddress(addrType, addrValue.longValue());
     }
+
+    // Get the virtual address value.
+    final MmuAddressInstance addrType = memory.getVirtualAddress();
+    final IntegerVariable addrVar = addrType.getVariable(); 
+
+    final BigInteger addrValue = values.get(addrVar);
+    InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
+
+    Logger.debug("Refine address: %s=0x%x", addrType, addrValue.longValue());
+    addrObject.setAddress(addrType, addrValue.longValue());
 
     return true;
   }

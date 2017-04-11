@@ -35,7 +35,6 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.AddressAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
@@ -194,7 +193,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
 
-  private AddressAllocator addressAllocator;
   private EntryIdAllocator entryIdAllocator;
 
   private Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
@@ -262,7 +260,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
     }
 
-    this.addressAllocator = new AddressAllocator(addressToRegions);
     this.entryIdAllocator = new EntryIdAllocator(settings);
 
     final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
@@ -304,14 +301,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         true /* discard empty trajectories */);
 
     return new EngineResult<MemorySolution>(solutionIterator);
-  }
-
-  public Collection<Long> getAllAddresses(
-      final MmuAddressInstance addressType, final RegionSettings region) {
-    InvariantChecks.checkNotNull(addressType);
-    InvariantChecks.checkNotNull(region);
-
-    return addressAllocator.getAllAddresses(addressType, region);
   }
 
   private Iterator<MemoryAccessStructure> getStructureIterator(
@@ -371,12 +360,10 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           final MemoryAccessStructure structure = structureIterator.value();
 
           // Reset the allocation tables before solving the constraint.
-          addressAllocator.reset();
           entryIdAllocator.reset();
 
           final MemorySolver solver = new MemorySolver(
               structure,
-              addressAllocator,
               entryIdAllocator,
               hitCheckers,
               normalPathChooser,

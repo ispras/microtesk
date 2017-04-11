@@ -19,9 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -35,11 +33,8 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.settings.AccessSettings;
-import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link MemoryAccessPath} represents the execution path of a memory access instruction.
@@ -195,102 +190,6 @@ public final class MemoryAccessPath {
       return bufferAccesses;
     }
 
-    private static Collection<MmuSegment> getSegments(
-        final Collection<Entry> entries) {
-      InvariantChecks.checkNotNull(entries);
-
-      Collection<MmuSegment> segments = null;
-
-      for (final Entry entry : entries) {
-        final MmuProgram program = entry.getProgram();
-
-        for (final MmuTransition transition : program.getTransitions()) {
-          final MmuGuard guard = transition.getGuard();
-
-          if (guard != null) {
-            final Collection<MmuSegment> guardSegments = guard.getSegments();
-  
-            if (guardSegments != null) {
-              if (segments == null) {
-                segments = new LinkedHashSet<>(guardSegments);
-              } else {
-                segments.retainAll(guardSegments);
-              }
-            }
-          }
-        }
-      }
-
-      return segments != null ? segments : Collections.<MmuSegment>emptyList();
-    }
-
-    private static Map<RegionSettings, Collection<MmuSegment>> getRegions(
-        final Collection<Entry> entries) {
-      InvariantChecks.checkNotNull(entries);
-
-      final MmuSubsystem memory = MmuPlugin.getSpecification();
-      final Map<RegionSettings, Collection<MmuSegment>> regions = new LinkedHashMap<>();
-
-      // Compose all regions and the corresponding segments.
-      for (final RegionSettings region : memory.getRegions()) {
-        final Collection<MmuSegment> regionSegments = new LinkedHashSet<>();
-
-        for (final AccessSettings regionAccess: region.getAccesses()) {
-          regionSegments.add(memory.getSegment(regionAccess.getSegment()));
-        }
-
-        if (!regionSegments.isEmpty()) {
-          regions.put(region, regionSegments);
-        }
-      }
-
-      // Strike out irrelevant regions and segments.
-      for (final Entry entry : entries) {
-        final MmuProgram program = entry.getProgram();
-
-        for (final MmuTransition transition : program.getTransitions()) {
-          final MmuGuard guard = transition.getGuard();
-
-          if (guard != null) {
-            // Regions.
-            final Collection<String> guardRegionNames = guard.getRegions();
-
-            if (guardRegionNames != null) {
-              final Collection<RegionSettings> guardRegions = new ArrayList<RegionSettings>();
-
-              for (final String regionName : guardRegionNames) {
-                guardRegions.add(memory.getRegion(regionName));
-              }
-
-              regions.keySet().retainAll(guardRegions);
-            }
-
-            // Segments.
-            final Collection<MmuSegment> guardSegments = guard.getSegments();
-
-            if (guardSegments != null) {
-              final Collection<RegionSettings> remove = new ArrayList<>();
-
-              for (final Map.Entry<RegionSettings, Collection<MmuSegment>> region : regions.entrySet()) {
-                final RegionSettings key = region.getKey();
-                final Collection<MmuSegment> value = region.getValue();
-
-                value.retainAll(guardSegments);
-
-                if (value.isEmpty()) {
-                  remove.add(key);
-                }
-              }
-
-              regions.keySet().removeAll(remove);
-            }
-          }
-        }
-      }
-
-      return regions;
-    }
-
     private final Collection<Entry> entries = new ArrayList<>();
 
     public void add(final Entry entry) {
@@ -310,9 +209,7 @@ public final class MemoryAccessPath {
           getAddressInstances(entries),
           getBufferAccesses(EnumSet.of(BufferAccessEvent.HIT, BufferAccessEvent.MISS), entries),
           getBufferAccesses(EnumSet.of(BufferAccessEvent.READ), entries),
-          getBufferAccesses(EnumSet.of(BufferAccessEvent.WRITE), entries),
-          getSegments(entries),
-          getRegions(entries));
+          getBufferAccesses(EnumSet.of(BufferAccessEvent.WRITE), entries));
     }
   }
 
@@ -323,8 +220,6 @@ public final class MemoryAccessPath {
   private final Collection<MmuBufferAccess> bufferReads;
   private final Collection<MmuBufferAccess> bufferWrites;
   private final Collection<MmuBuffer> buffers;
-  private final Collection<MmuSegment> segments;
-  private final Map<RegionSettings, Collection<MmuSegment>> regions;
 
   private final Entry firstEntry;
   private final Entry lastEntry;
@@ -337,9 +232,7 @@ public final class MemoryAccessPath {
       final Collection<MmuAddressInstance> addressInstances,
       final Collection<MmuBufferAccess> bufferChecks,
       final Collection<MmuBufferAccess> bufferReads,
-      final Collection<MmuBufferAccess> bufferWrites,
-      final Collection<MmuSegment> segments,
-      final Map<RegionSettings, Collection<MmuSegment>> regions) {
+      final Collection<MmuBufferAccess> bufferWrites) {
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkNotEmpty(entries);
     InvariantChecks.checkNotNull(actions);
@@ -347,8 +240,6 @@ public final class MemoryAccessPath {
     InvariantChecks.checkNotNull(bufferChecks);
     InvariantChecks.checkNotNull(bufferReads);
     InvariantChecks.checkNotNull(bufferWrites);
-    InvariantChecks.checkNotNull(segments);
-    InvariantChecks.checkNotNull(regions);
 
     this.entries = Collections.unmodifiableCollection(entries);
     this.actions = Collections.unmodifiableCollection(actions);
@@ -356,8 +247,6 @@ public final class MemoryAccessPath {
     this.bufferChecks = Collections.unmodifiableCollection(bufferChecks);
     this.bufferReads = Collections.unmodifiableCollection(bufferReads);
     this.bufferWrites = Collections.unmodifiableCollection(bufferWrites);
-    this.segments = Collections.unmodifiableCollection(segments);
-    this.regions = Collections.unmodifiableMap(regions);
 
     final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
 
@@ -421,14 +310,6 @@ public final class MemoryAccessPath {
 
   public Collection<MmuBuffer> getBuffers() {
     return buffers;
-  }
-
-  public Collection<MmuSegment> getSegments() {
-    return segments;
-  }
-
-  public Map<RegionSettings, Collection<MmuSegment>> getRegions() {
-    return regions;
   }
 
   public boolean contains(final MmuAction action) {

@@ -31,6 +31,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -48,7 +50,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -145,14 +149,6 @@ public final class MemorySymbolicExecutor {
       final Set<IntegerVariable> defines,
       final MemoryAccessPath path,
       final int pathIndex) {
-
-    if (restrictor != null) {
-      final Collection<IntegerConstraint<IntegerField>> constraints = restrictor.getConstraints();
-
-      for (final IntegerConstraint<IntegerField> constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
-      }
-    }
 
     for (final MemoryAccessPath.Entry entry : path.getEntries()) {
       if (result.hasConflict()) {
@@ -529,21 +525,41 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
+    Boolean status = Boolean.TRUE;
+
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
     if (bufferAccess != null) {
       final Collection<MmuBinding> bindings = bufferAccess.getMatchBindings();
-      executeBindings(result, defines, bindings, pathIndex);
+      status = executeBindings(result, defines, bindings, pathIndex);
     }
 
-    final Boolean status;
+    if (status == Boolean.FALSE) {
+      return status;
+    }
+
+    final MmuSegment segment = guard.getSegment();
+    if (segment != null) {
+      final MmuAddressInstance address = segment.getVaType().getInstance(0, context);
+
+      final IntegerRangeConstraint constraint =
+          new IntegerRangeConstraint(address.getVariable(),
+          new IntegerRange(
+              BigIntegerUtils.valueOfUnsignedLong(segment.getMin()),
+              BigIntegerUtils.valueOfUnsignedLong(segment.getMax())
+          ));
+
+      status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
+    }
+
+    if (status == Boolean.FALSE) {
+      return status;
+    }
 
     final MmuCondition condition = guard.getCondition(0, context);
     if (condition != null) {
       status = executeCondition(result, defines, condition, pathIndex);
-    } else {
-      status = Boolean.TRUE;
     }
 
     return status;

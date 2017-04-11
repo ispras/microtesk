@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.util.Collection;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -32,52 +30,48 @@ public final class MmuGuard {
   private final MmuBufferAccess bufferAccess;
   /** Logical condition. */
   private final MmuCondition condition;
-  /** Admissible memory regions. */
-  private final Collection<String> regions;
-  /** Admissible memory segments. */
-  private final Collection<MmuSegment> segments;
+  /** Admissible memory segment. */
+  private final MmuSegment segment;
   
   public MmuGuard(
       final MemoryOperation operation,
       final MmuBufferAccess bufferAccess,
       final MmuCondition condition,
-      final Collection<String> regions,
-      final Collection<MmuSegment> segments) {
+      final MmuSegment segment) {
     this.operation = operation;
     this.bufferAccess = bufferAccess;
     this.condition = condition;
-    this.regions = regions;
-    this.segments = segments;
+    this.segment = segment;
   }
 
   public MmuGuard(
       final MmuBufferAccess bufferAccess,
       final MmuCondition condition) {
-    this(null, bufferAccess, condition, null, null);
+    this(null, bufferAccess, condition, null);
   }
 
   public MmuGuard(final MmuBufferAccess bufferAccess) {
-    this(null, bufferAccess, null, null, null);
+    this(null, bufferAccess, null, null);
   }
 
   public MmuGuard(final MmuCondition condition) {
-    this(null, null, condition, null, null);
+    this(null, null, condition, null);
   }
 
   public MmuGuard(final MmuConditionAtom condition) {
-    this(null, null, new MmuCondition(condition), null, null);
+    this(null, null, new MmuCondition(condition), null);
   }
 
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
-    this(operation, null, condition, null, null);
+    this(operation, null, condition, null);
   }
 
   public MmuGuard(final MemoryOperation operation) {
-    this(operation, null, null, null, null);
+    this(operation, null, null, null);
   }
 
-  public MmuGuard(final Collection<String> regions, final Collection<MmuSegment> segments) {
-    this(null, null, null, regions, segments);
+  public MmuGuard(final MmuSegment segment) {
+    this(null, null, null, segment);
   }
 
   public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
@@ -105,12 +99,8 @@ public final class MmuGuard {
     return operation;
   }
 
-  public Collection<String> getRegions() {
-    return regions;
-  }
-
-  public Collection<MmuSegment> getSegments() {
-    return segments;
+  public MmuSegment getSegment() {
+    return segment;
   }
 
   @Override
@@ -132,14 +122,9 @@ public final class MmuGuard {
       builder.append(condition);
     }
 
-    if (regions != null) {
+    if (segment != null) {
       builder.append(builder.length() > 0 ? separator : "");
-      builder.append(regions);
-    }
-
-    if (segments != null) {
-      builder.append(builder.length() > 0 ? separator : "");
-      builder.append(segments);
+      builder.append(segment);
     }
 
     return builder.toString();

@@ -56,7 +56,7 @@ public abstract class MemoryAccessIterator implements Iterator<List<MemoryAccess
       final MemoryAccessType accessType = accessTypes.get(i);
       final MemoryAccessPath accessPath = accessPaths.get(i);
 
-      result.add(MemoryAccess.create(accessType, accessPath));
+      result.add(new MemoryAccess(accessType, accessPath));
     }
 
     return result;
