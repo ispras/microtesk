@@ -39,7 +39,10 @@ require_relative 'x86_base'
 #   until not swapped
 # end procedure
 #
-class BubbleSortTemplate < X86BaseTemplate
+
+# The test program can be executed in the https://www.tutorialspoint.com/compile_assembly_online.php
+# Use: nasm -f elf *.asm; ld -m elf_i386 -s -o demo *.o -Tdata 0x1000
+class BubbleSortTemplatei386 < X86BaseTemplate
   def pre
     super
 

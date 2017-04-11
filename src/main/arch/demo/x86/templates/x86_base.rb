@@ -17,6 +17,9 @@
 require ENV['TEMPLATE']
 
 class X86BaseTemplate < Template
+  def i386_assembler
+    true
+  end
   def initialize
     super
     # Initialize settings here 
@@ -24,8 +27,13 @@ class X86BaseTemplate < Template
     @setup_cache        = false
     @kseg0_cache_policy = 0
 
-    set_option_value 'code-section-keyword', 'section .text'
-    set_option_value 'data-section-keyword', 'section .data'
+    if i386_assembler == true then
+      set_option_value 'code-section-keyword', 'section .text'
+      set_option_value 'data-section-keyword', 'section .data'
+    else
+      set_option_value 'code-section-keyword', ''
+      set_option_value 'data-section-keyword', ''
+    end
 
     # Sets the comment token used in test programs
     set_option_value 'comment-token', ';'
@@ -113,10 +121,14 @@ class X86BaseTemplate < Template
 
     ################################################################################################
 
-    text "global _start"
-    newline
+    if i386_assembler == true then
+      text "global _start"
+      newline
+      label :_start
+    else
+      text "org 100h ; directive make tiny com file."
+    end
 
-    label :_start
     #j :test
     #label :test
   end
@@ -131,11 +143,18 @@ class X86BaseTemplate < Template
   ##################################################################################################
 
   def post
-    label :success
-    mov_r16i16 ax, IMM16(1)
-    text ";system call number (sys_exit)"
-    int_ IMM16(0x80)
-    text ";call kernel"
+    if i386_assembler == true then
+      label :success
+      mov_r16i16 ax, IMM16(1)
+      text ";system call number (sys_exit)"
+      int_ IMM16(0x80)
+      text ";call kernel"
+    else
+      label :success
+      mov_r16i16 ax, IMM16(0)
+      int_ IMM16(16)
+      text "ret"
+    end
 
     label :error
     newline
