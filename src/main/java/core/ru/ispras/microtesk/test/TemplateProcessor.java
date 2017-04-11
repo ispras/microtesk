@@ -715,7 +715,7 @@ final class TemplateProcessor implements Template.Processor {
     for (int index = 0; index < instanceNumber; index++) {
       final Executor.Status status = executorStatuses.get(index);
 
-      if (!status.isLabelReference() && status.getAddress() == address.longValue()) {
+      if (status.isAddress() && null != address && status.getAddress() == address.longValue()) {
         return index;
       }
 
