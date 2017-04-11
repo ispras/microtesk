@@ -29,7 +29,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Code2 {
-  private final Map<Long, Entry> addresses;
+  private final Map<Long, Entry> addressEntries;
   private final Map<String, Long> handlerAddresses;
   private final Set<Long> breakAddresses;
 
@@ -66,7 +66,7 @@ public final class Code2 {
   }
 
   public Code2() {
-    this.addresses = new HashMap<>();
+    this.addressEntries = new HashMap<>();
     this.handlerAddresses = new HashMap<>();
     this.breakAddresses = new HashSet<>();
   }
@@ -74,21 +74,21 @@ public final class Code2 {
   public void addCall(final ConcreteCall call, final long address) {
     InvariantChecks.checkNotNull(call);
 
-    Entry entry = addresses.get(address);
+    Entry entry = addressEntries.get(address);
     if (null == entry) {
       entry = new Entry();
-      addresses.put(address, entry);
+      addressEntries.put(address, entry);
     }
 
     entry.addCall(call);
   }
 
   public boolean hasAddress(final long address) {
-    return addresses.containsKey(address);
+    return addressEntries.containsKey(address);
   }
 
   public Entry getEntry(final long address) {
-    return addresses.get(address);
+    return addressEntries.get(address);
   }
 
   public void addHandlerAddress(final String id, final long address) {
