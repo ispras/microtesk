@@ -29,6 +29,7 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
 import ru.ispras.microtesk.transform.TraceTransformer;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorContext;
@@ -122,6 +123,8 @@ public final class MicroTESK {
       final List<Plugin> plugins) throws Throwable {
     if (options.getValueAsBoolean(Option.GENERATE)) {
       return generate(options, arguments, plugins);
+    } else if (options.getValueAsBoolean(Option.GENERATE_TEMPLATE)) {
+      return generateTemplate(options, arguments);
     } else if (options.getValueAsBoolean(Option.DISASSEMBLE)) {
       return disassemble(options, arguments);
     } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
@@ -171,6 +174,22 @@ public final class MicroTESK {
         Logger.error("Failed to copy %s to %s", extensionDir, outDir);
         return false;
       }
+    }
+
+    return true;
+  }
+
+  private static boolean generateTemplate(final Options options, final String[] arguments) {
+    if (arguments.length != 1) {
+      Logger.error("Wrong number of command-line arguments. One argument is required.");
+      Logger.message("Argument format: <model name>");
+      return false;
+    }
+
+    final String modelName = arguments[0];
+    if (!TemplateGenerator.generate(options, modelName)) {
+      Logger.message("Template generation was aborted.");
+      return false;
     }
 
     return true;
