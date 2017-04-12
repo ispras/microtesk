@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.symexec;
+package ru.ispras.microtesk.tools.symexec;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,12 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.Formulas;
-import ru.ispras.microtesk.model.api.Immediate;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
 import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;

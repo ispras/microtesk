@@ -12,15 +12,13 @@
  * the License.
  */
 
-package ru.ispras.microtesk.symexec;
+package ru.ispras.microtesk.tools.symexec;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.ConstraintUtils;
 import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 
