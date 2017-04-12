@@ -30,7 +30,7 @@ import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
-import ru.ispras.microtesk.transform.TraceTransformer;
+import ru.ispras.microtesk.tools.transform.TraceTransformer;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.utils.FileUtils;
