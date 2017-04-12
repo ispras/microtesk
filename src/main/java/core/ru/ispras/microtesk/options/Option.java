@@ -31,12 +31,17 @@ public enum Option {
 
   HELP("help", "Shows help message", false),
   VERBOSE("verbose", "Enables printing diagnostic messages", false),
+  OUTDIR("output-dir", "Directory to place generated files", "./output"),
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tasks
+
   TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
   GENERATE("generate", "Generates test programs", false, null, "task"),
+  GENERATE_TEMPLATE("generate-template", "Generates test templates", false, null, "task"),
   DISASSEMBLE("disassemble", "Disassembles binary files", false, null, "task"),
   SYMBOLIC_EXECUTE("symbolic-execute", "Performs symbolic execution", false, null, "task"),
-  TRACE_TRANSFORM("trace-transform", "Transforms a trace into the template", false, null, "task"),
-  OUTDIR("output-dir", "Directory to place generated files", "./output"),
+  TRANSFORM_TRACE("transform-trace", "Transforms traces into templates", false, null, "task"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options

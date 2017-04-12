@@ -126,8 +126,8 @@ public final class MicroTESK {
       return disassemble(options, arguments);
     } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
       return symbolicExecute(options, arguments);
-    } else if (options.getValueAsBoolean(Option.TRACE_TRANSFORM)) {
-      return traceTransform(options, arguments);
+    } else if (options.getValueAsBoolean(Option.TRANSFORM_TRACE)) {
+      return transformTrace(options, arguments);
     } else {
       return translate(options, arguments);
     }
@@ -208,7 +208,7 @@ public final class MicroTESK {
     return true;
   }
 
-  private static boolean traceTransform(final Options options, final String[] arguments) {
+  private static boolean transformTrace(final Options options, final String[] arguments) {
     if (!checkThreeArguments(arguments)) {
       return false;
     }
