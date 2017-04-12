@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.decoder;
+package ru.ispras.microtesk.tools;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,9 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.decoder.BinaryReader;
+import ru.ispras.microtesk.decoder.Decoder;
+import ru.ispras.microtesk.decoder.DecoderResult;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.TemporaryVariables;

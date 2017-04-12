@@ -24,8 +24,8 @@ import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.decoder.Disassembler;
-import ru.ispras.microtesk.decoder.Disassembler.Output;
+import ru.ispras.microtesk.tools.Disassembler;
+import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.TemporaryVariables;

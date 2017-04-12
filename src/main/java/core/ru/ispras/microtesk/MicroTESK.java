@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.decoder.Disassembler;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
@@ -28,6 +27,7 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.engine.Adapter;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.symexec.SymbolicExecutor;
 import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
 import ru.ispras.microtesk.tools.transform.TraceTransformer;
