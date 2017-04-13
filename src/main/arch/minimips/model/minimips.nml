@@ -555,6 +555,16 @@ op mips_break ()
   }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Pseudoinstruction NOP
+
+pseudo op nop()
+  syntax = "nop"
+  image = format("%s", sll(REG(0), REG(0), 0).image)
+  action = {
+    sll(REG(0), REG(0), 0).action;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
 // Instruction Groups (must have compatible parameter sets)
 
 op arithm   = add  | addu | sub | subu
@@ -627,6 +637,8 @@ op Operations =  add
                 |syscall
                 |xor
                 |xori
+
+                | nop
 
 ////////////////////////////////////////////////////////////////////////////////
 // Entry Point

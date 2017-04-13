@@ -262,11 +262,6 @@ class MiniMipsBaseTemplate < Template
     nop
   end
 
-  # Alias for the NOP instruction (MIPS idiom)
-  def nop
-    sll zero, zero, 0
-  end
-
   # Aliases for accessing General-Purpose Registers
   #   Name    Number Usage                Preserved?
   #   $zero      0   Constant zero
