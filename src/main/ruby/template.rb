@@ -789,13 +789,13 @@ class Template
 
   def org(origin)
     if origin.is_a?(Integer)
-      @template.setOrigin origin
+      @template.setOrigin origin, get_caller_location
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
         raise MTRubyError, "delta (#{delta}) must be an Integer."
       end
-      @template.setRelativeOrigin delta
+      @template.setRelativeOrigin delta, get_caller_location
     else
       raise MTRubyError, "origin (#{origin}) must be an Integer or a Hash."
     end
@@ -803,7 +803,7 @@ class Template
 
   def align(value)
     value_in_bytes = alignment_in_bytes(value)
-    @template.setAlignment value, value_in_bytes
+    @template.setAlignment value, value_in_bytes, get_caller_location
   end
 
   #

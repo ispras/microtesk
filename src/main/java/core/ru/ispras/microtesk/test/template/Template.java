@@ -981,7 +981,7 @@ public final class Template {
     processor.process(data);
   }
 
-  public void setOrigin(final BigInteger origin) {
+  public void setOrigin(final BigInteger origin, final Where where) {
     // .org directives in external code split it into parts (only for main section)
     if (isMainSection && blockBuilders.peek().isExternal()) {
       processExternalCode();
@@ -989,16 +989,19 @@ public final class Template {
 
     debug("Set Origin to 0x%x", origin);
     callBuilder.setOrigin(origin, false);
+    callBuilder.setWhere(where);
   }
 
-  public void setRelativeOrigin(final BigInteger delta) {
+  public void setRelativeOrigin(final BigInteger delta, final Where where) {
     debug("Set Relative Origin to 0x%x", delta);
     callBuilder.setOrigin(delta, true);
+    callBuilder.setWhere(where);
   }
 
-  public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
+  public void setAlignment(final BigInteger value, final BigInteger valueInBytes, final Where where) {
     debug("Align %d (%d bytes)", value, valueInBytes);
     callBuilder.setAlignment(value, valueInBytes);
+    callBuilder.setWhere(where);
   }
 
   public void beginPrologue() {
