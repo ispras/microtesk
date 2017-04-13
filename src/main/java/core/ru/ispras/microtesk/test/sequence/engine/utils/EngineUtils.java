@@ -151,11 +151,13 @@ public final class EngineUtils {
     final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
 
-    setUnknownImmValues(
-        queryCreator.getUnknownImmValues(),
-        testData,
-        null != concretePrimitive ? concretePrimitive.getArguments() : null
-        );
+    if (testData != NO_TEST_DATA) {
+      setUnknownImmValues(
+          queryCreator.getUnknownImmValues(),
+          testData,
+          null != concretePrimitive ? concretePrimitive.getArguments() : null
+          );
+    }
 
     // Set model state using preparators that create initializing
     // sequences based on addressing modes.
