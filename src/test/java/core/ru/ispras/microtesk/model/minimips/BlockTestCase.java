@@ -27,6 +27,6 @@ public class BlockTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(10, statistics.getSequences());
-    Assert.assertEquals(120, statistics.getInstructions());
+    Assert.assertEquals(124, statistics.getInstructions());
   }
 }
