@@ -82,7 +82,11 @@ public final class CodeAllocator {
   }
 
   public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
-    allocateCalls(sequence.getAll(), sequenceIndex);
+    final List<ConcreteCall> calls = sequence.getAll();
+    allocateCalls(calls, sequenceIndex);
+
+    sequence.setAllocationAddresses(
+        !calls.isEmpty() ? calls.get(0).getAddress() : address, address);
   }
 
   public void allocateCalls(final List<ConcreteCall> calls, final int sequenceIndex) {
