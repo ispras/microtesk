@@ -81,6 +81,10 @@ final class STBOperation extends STBPrimitiveBase {
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
     t.add("base", IsaPrimitive.class.getSimpleName());
+
+    if (op.getModifier() == Primitive.Modifier.PSEUDO) {
+      importModeDependencies(t);
+    }
   }
 
   private void buildArguments(final STGroup group, final ST t) {
