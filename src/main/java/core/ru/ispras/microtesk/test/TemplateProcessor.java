@@ -176,7 +176,7 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
-    sequence.setTitle("Prologue");
+    sequence.setTitle(String.format("Prologue (%s)", block.getWhere()));
     testProgram.setPrologue(sequence);
   }
 
@@ -209,7 +209,7 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.setCodeAllocationAddress(allocator.getAddress());
 
     final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
-    sequence.setTitle("External Code");
+    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
 
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
     executeTestSequence(sequence);
@@ -357,7 +357,7 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.setCodeAllocationAddress(allocationAddress);
 
     final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
-    sequence.setTitle("External Code");
+    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
 
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
     executeTestSequence(sequence);
@@ -454,7 +454,7 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence sequence =
         TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
 
-    sequence.setTitle("External Code");
+    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -531,7 +531,7 @@ final class TemplateProcessor implements Template.Processor {
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
           engineContext, testProgram.getEpilogue());
 
-      sequence.setTitle("Epilogue");
+      sequence.setTitle(String.format("Epilogue (%s)", testProgram.getEpilogue().getWhere()));
 
       allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
       executeTestSequence(sequence);
