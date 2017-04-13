@@ -190,6 +190,10 @@ public final class BlockBuilder {
   public void addCall(final Call call) {
     InvariantChecks.checkNotNull(call);
 
+    if (null == where && call.getWhere() != null) {
+      where = call.getWhere();
+    }
+
     if (call.isEmpty()) {
       return;
     }

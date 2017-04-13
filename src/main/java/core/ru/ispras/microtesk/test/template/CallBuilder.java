@@ -23,6 +23,7 @@ import java.util.List;
 public final class CallBuilder {
   private final BlockId blockId;
 
+  private Where where;
   private String text;
   private Primitive rootOperation;
 
@@ -41,6 +42,7 @@ public final class CallBuilder {
     checkNotNull(blockId);
 
     this.blockId = blockId;
+    this.where = null;
     this.text = null;
     this.rootOperation = null;
     this.labels = new ArrayList<>();
@@ -54,6 +56,11 @@ public final class CallBuilder {
 
   public BlockId getBlockId() {
     return blockId;
+  }
+
+  public void setWhere(final Where where) {
+    checkNotNull(where);
+    this.where = where;
   }
 
   public void setText(final String text) {
@@ -109,6 +116,7 @@ public final class CallBuilder {
 
   public Call build() {
     return new Call(
+        where,
         text,
         rootOperation,
         labels,

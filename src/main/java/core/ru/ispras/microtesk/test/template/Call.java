@@ -23,6 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Call {
+  private final Where where;
   private final String text;
   private final Primitive rootOperation;
 
@@ -55,6 +56,7 @@ public final class Call {
     return new Call(
         null,
         null,
+        null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
@@ -75,6 +77,7 @@ public final class Call {
     InvariantChecks.checkNotNull(text);
 
     return new Call(
+        null,
         text,
         null,
         Collections.<Label>emptyList(),
@@ -102,6 +105,7 @@ public final class Call {
     return new Call(
         null,
         null,
+        null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
@@ -123,6 +127,7 @@ public final class Call {
     return new Call(
         null,
         null,
+        null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
@@ -142,6 +147,7 @@ public final class Call {
     InvariantChecks.checkNotNull(sequence);
 
     return new Call(
+        null,
         null,
         null,
         Collections.<Label>emptyList(),
@@ -181,6 +187,7 @@ public final class Call {
     return new Call(
         null,
         null,
+        null,
         Collections.<Label>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
@@ -197,6 +204,7 @@ public final class Call {
   }
 
   public Call(
+      final Where where,
       final String text,
       final Primitive rootOperation,
       final List<Label> labels,
@@ -221,6 +229,7 @@ public final class Call {
     // Both cannot be not null. A call cannot be both an instruction and a preparator invocation.
     InvariantChecks.checkTrue((null == rootOperation) || (null == preparatorReference));
 
+    this.where = where;
     this.text = text;
     this.rootOperation = rootOperation;
     this.labels = Collections.unmodifiableList(labels);
@@ -258,6 +267,7 @@ public final class Call {
   public Call(final Call other) {
     InvariantChecks.checkNotNull(other);
 
+    this.where = other.where;
     this.text = other.text;
     this.rootOperation = null != other.rootOperation ? 
         other.rootOperation.newCopy() : null;
@@ -329,6 +339,10 @@ public final class Call {
            outputs.isEmpty()   &&
            null == origin      &&
            null == alignment;
+  }
+
+  public Where getWhere() {
+    return where;
   }
 
   public String getText() {

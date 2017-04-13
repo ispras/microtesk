@@ -376,7 +376,8 @@ public final class Template {
     callBuilder.setText(text);
   }
 
-  public void setRootOperation(final Primitive rootOperation) {
+  public void setRootOperation(final Primitive rootOperation, final Where where) {
+    callBuilder.setWhere(where);
     callBuilder.setRootOperation(rootOperation);
   }
 
