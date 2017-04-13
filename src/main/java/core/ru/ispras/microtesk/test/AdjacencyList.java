@@ -93,13 +93,11 @@ final class AdjacencyList<T> implements Iterable<T>{
   }
 
   public T getFirst() {
-    InvariantChecks.checkNotNull(head);
-    return head.value;
+    return null != head ? head.value : null;
   }
 
   public T getLast() {
-    InvariantChecks.checkNotNull(tail);
-    return tail.value;
+    return null != tail ? tail.value : null;
   }
 
   public T getPrevious(final T obj) {
