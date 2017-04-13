@@ -33,7 +33,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
  * {@link MemorySymbolicRestrictor} produces a constraint for a given memory access.
@@ -63,7 +62,10 @@ public final class MemorySymbolicRestrictor {
 
     if (region != null && isTopLevel && isPhysAddr) {
       return Collections.<IntegerConstraint<IntegerField>>singleton(
-          MemoryAccessConstraints.RANGE(addrType, getRange(region)));
+          MemoryAccessConstraints.RANGE(
+              addrType,
+              new IntegerRange(region.getMin(), region.getMax())
+          ));
     }
 
     // Restrict the memory-mapped buffer access.
@@ -75,7 +77,10 @@ public final class MemorySymbolicRestrictor {
       InvariantChecks.checkNotNull(region);
 
       return Collections.<IntegerConstraint<IntegerField>>singleton(
-          MemoryAccessConstraints.RANGE(bufferAccess.getAddress(), getRange(region)));
+          MemoryAccessConstraints.RANGE(
+              bufferAccess.getAddress(),
+              new IntegerRange(region.getMin(), region.getMax())
+          ));
     }
 
     return Collections.<IntegerConstraint<IntegerField>>emptyList();
@@ -93,12 +98,5 @@ public final class MemorySymbolicRestrictor {
     }
 
     return constraints;
-  }
-
-  private static IntegerRange getRange(final RegionSettings region) {
-    return new IntegerRange(
-        BigIntegerUtils.valueOfUnsignedLong(region.getMin()),
-        BigIntegerUtils.valueOfUnsignedLong(region.getMax())
-    );
   }
 }

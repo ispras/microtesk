@@ -34,15 +34,7 @@ import ru.ispras.microtesk.utils.function.Function;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuAddressViewBuilder {
-  /**
-   * Creates an address calculation function (concatenation of fields).
-   * 
-   * @param addressVariable the address variable.
-   * @param variables the list of field variables.
-   * @param expressions the list of field expressions.
-   * @return the address calculation function.
-   * @throws IllegalArgumentException if the function cannot be reconstructed.
-   */
+
   private static MmuExpression createAddressExpression(
       final IntegerVariable addressVariable,
       final List<IntegerVariable> variables,
@@ -120,7 +112,7 @@ public final class MmuAddressViewBuilder {
     }
   }
 
-  public AddressView<Long> build() {
+  public AddressView<BigInteger> build() {
     final int addressWidth = addressType.getWidth();
     final IntegerVariable addressVariable = addressType.getVariable();
 
@@ -137,53 +129,58 @@ public final class MmuAddressViewBuilder {
     final MmuExpression addressExpression =
         createAddressExpression(addressVariable, variables, expressions);
 
-    final AddressView<Long> addressView = new AddressView<Long>(new Function<Long, List<Long>>() {
-      @Override
-      public List<Long> apply(final Long address) {
-        InvariantChecks.checkNotNull(address);
+    final AddressView<BigInteger> addressView = new AddressView<BigInteger>(
+        new Function<BigInteger, List<BigInteger>>() {
+          @Override
+          public List<BigInteger> apply(final BigInteger addressValue) {
+            InvariantChecks.checkNotNull(addressValue);
 
-        final List<Long> fields = new ArrayList<Long>();
-        final BigInteger addressValue = BigInteger.valueOf(address);
+            final List<BigInteger> fields = new ArrayList<BigInteger>();
 
-        for (final MmuExpression expression : expressions) {
-          final BigInteger value = MmuCalculator.eval(
-              expression,
-              new Function<IntegerVariable, BigInteger>() {
-                @Override
-                public BigInteger apply(final IntegerVariable variable) {
-                  return addressValue;
-                }
-              },
-              true);
+            for (final MmuExpression expression : expressions) {
+              final BigInteger value =
+                  MmuCalculator.eval(
+                      expression,
+                      new Function<IntegerVariable, BigInteger>() {
+                        @Override
+                        public BigInteger apply(final IntegerVariable variable) {
+                          return addressValue;
+                        }
+                      },
+                      true);
 
-          fields.add(value.longValue());
-        }
+              fields.add(value);
+            }
 
-        return fields;
-      }
-    }, new Function<List<Long>, Long>() {
-      @Override
-      public Long apply(final List<Long> fields) {
-        InvariantChecks.checkNotNull(fields);
+            return fields;
+          }
+        },
+        new Function<List<BigInteger>, BigInteger>() {
+          @Override
+          public BigInteger apply(final List<BigInteger> fields) {
+            InvariantChecks.checkNotNull(fields);
 
-        final Map<IntegerVariable, BigInteger> values = new LinkedHashMap<>();
+            final Map<IntegerVariable, BigInteger> values = new LinkedHashMap<>();
 
-        for (int i = 0; i < variables.size(); i++) {
-          final IntegerVariable variable = variables.get(i);
-          values.put(variable, BigInteger.valueOf(fields.get(i)));
-        }
+            for (int i = 0; i < variables.size(); i++) {
+              final IntegerVariable variable = variables.get(i);
+              values.put(variable, fields.get(i));
+            }
 
-        final BigInteger addressValue = MmuCalculator.eval(addressExpression,
-            new Function<IntegerVariable, BigInteger>() {
-              @Override
-              public BigInteger apply(final IntegerVariable variable) {
-                return values.get(variable);
-              }
-            }, true);
+            final BigInteger addressValue =
+                MmuCalculator.eval(
+                    addressExpression,
+                    new Function<IntegerVariable, BigInteger>() {
+                      @Override
+                      public BigInteger apply(final IntegerVariable variable) {
+                        return values.get(variable);
+                      }
+                    },
+                    true);
 
-        return addressValue.longValue();
-      }
-    });
+            return addressValue;
+          }
+        });
 
     return addressView;
   }

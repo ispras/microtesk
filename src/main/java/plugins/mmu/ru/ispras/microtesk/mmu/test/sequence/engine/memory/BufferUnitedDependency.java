@@ -24,8 +24,12 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 /**
- * {@link BufferUnitedDependency} represents a united dependency, which combines information on
- * dependencies of a single execution from other ones.
+ * {@link BufferUnitedDependency} represents a united dependency.
+ * 
+ * <p>
+ * Given a memory access, the united dependency combines information on all dependencies of that
+ * memory access from the previous ones. It can be viewed as a set of united hazards.
+ * </p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -82,7 +86,10 @@ public final class BufferUnitedDependency {
       final MmuBufferAccess bufferAccess,
       final BufferHazard.Type hazardType) {
     final BufferUnitedHazard hazard = getHazard(bufferAccess);
-    return hazard != null ? hazard.getRelation(hazardType) : new LinkedHashSet<Pair<Integer, BufferHazard.Instance>>();
+
+    return hazard != null
+        ? hazard.getRelation(hazardType)
+        : new LinkedHashSet<Pair<Integer, BufferHazard.Instance>>();
   }
 
   @Override
@@ -118,6 +125,11 @@ public final class BufferUnitedDependency {
     return builder.toString();
   }
 
+  public Set<Pair<Integer, BufferHazard.Instance>> getIndexNotEqualRelation(
+      final MmuBufferAccess bufferAccess) {
+    return getRelation(bufferAccess, BufferHazard.Type.INDEX_NOT_EQUAL);
+  }
+
   public Set<Pair<Integer, BufferHazard.Instance>> getIndexEqualRelation(
       final MmuBufferAccess bufferAccess) {
     final Set<Pair<Integer, BufferHazard.Instance>> relation = new LinkedHashSet<>();
@@ -126,6 +138,19 @@ public final class BufferUnitedDependency {
     relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_EQUAL));
     relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_REPLACED));
     relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_REPLACED));
+
+    return relation;
+  }
+
+  public Set<Pair<Integer, BufferHazard.Instance>> getTagNotEqualRelation(
+      final MmuBufferAccess bufferAccess) {
+    final Set<Pair<Integer, BufferHazard.Instance>> relation = new LinkedHashSet<>();
+
+    relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_EQUAL));
+
+    for (final MmuBufferAccess childAccess : bufferAccess.getChildAccesses()) {
+      relation.addAll(getRelation(childAccess, BufferHazard.Type.TAG_NOT_EQUAL));
+    }
 
     return relation;
   }
@@ -141,6 +166,11 @@ public final class BufferUnitedDependency {
     }
 
     return relation;
+  }
+
+  public Set<Pair<Integer, BufferHazard.Instance>> getTagNotReplacedRelation(
+      final MmuBufferAccess bufferAccess) {
+    return getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_REPLACED);
   }
 
   public Set<Pair<Integer, BufferHazard.Instance>> getTagReplacedRelation(

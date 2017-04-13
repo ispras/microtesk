@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -124,26 +125,27 @@ public class MmuBufferTestCase {
     DTLB.addField(PFN1);
   }
 
-  public static final AddressView<Long> DTLB_ADDR_VIEW = new AddressView<Long>(
-      new Function<Long, List<Long>>() {
+  public static final AddressView<BigInteger> DTLB_ADDR_VIEW = new AddressView<BigInteger>(
+      new Function<BigInteger, List<BigInteger>>() {
         @Override
-        public List<Long> apply(final Long address) {
-          final List<Long> fields = new ArrayList<>();
+        public List<BigInteger> apply(final BigInteger address) {
+          final List<BigInteger> fields = new ArrayList<>();
           // Tag = VPN2.
-          fields.add((address >>> 13) & 0x7FFffffL);
+          fields.add(BigInteger.valueOf((address.longValue() >>> 13) & 0x7FFffffL));
           // Index = 0.
-          fields.add(0L);
+          fields.add(BigInteger.ZERO);
           // Offset = Select | Offset.
-          fields.add(address & 0x1fffL);
+          fields.add(BigInteger.valueOf(address.longValue() & 0x1fffL));
           return fields;
         }
-      }, new Function<List<Long>, Long>() {
+      },
+      new Function<List<BigInteger>, BigInteger>() {
         @Override
-        public Long apply(final List<Long> fields) {
-          final long tag = fields.get(0) & 0x7FFffffL;
-          final long offset = fields.get(2) & 0x1fffL;
+        public BigInteger apply(final List<BigInteger> fields) {
+          final long tag = fields.get(0).longValue() & 0x7FFffffL;
+          final long offset = fields.get(2).longValue() & 0x1fffL;
 
-          return (tag << 13) | offset;
+          return BigInteger.valueOf((tag << 13) | offset);
         }
       });
 
@@ -162,24 +164,25 @@ public class MmuBufferTestCase {
     L1.addField(L1_DATA);
   }
 
-  public static final AddressView<Long> L1_ADDR_VIEW = new AddressView<Long>(
-      new Function<Long, List<Long>>() {
+  public static final AddressView<BigInteger> L1_ADDR_VIEW = new AddressView<BigInteger>(
+      new Function<BigInteger, List<BigInteger>>() {
         @Override
-        public List<Long> apply(final Long address) {
-          final List<Long> fields = new ArrayList<Long>();
-          fields.add(((address >>> 12) & 0xFFffffL));
-          fields.add((address >>> 5) & 0x7fL);
-          fields.add(address & 0x1fL);
+        public List<BigInteger> apply(final BigInteger address) {
+          final List<BigInteger> fields = new ArrayList<>();
+          fields.add(BigInteger.valueOf(((address.longValue() >>> 12) & 0xFFffffL)));
+          fields.add(BigInteger.valueOf((address.longValue() >>> 5) & 0x7fL));
+          fields.add(BigInteger.valueOf(address.longValue() & 0x1fL));
           return fields;
         }
-      }, new Function<List<Long>, Long>() {
+      },
+      new Function<List<BigInteger>, BigInteger>() {
         @Override
-        public Long apply(final List<Long> fields) {
-          final long tag = fields.get(0) & 0xFFffffL;
-          final long index = fields.get(1) & 0x7fL;
-          final long offset = fields.get(2) & 0x1fL;
+        public BigInteger apply(final List<BigInteger> fields) {
+          final long tag = fields.get(0).longValue() & 0xFFffffL;
+          final long index = fields.get(1).longValue() & 0x7fL;
+          final long offset = fields.get(2).longValue() & 0x1fL;
 
-          return (tag << 12) | (index << 5) | offset;
+          return BigInteger.valueOf((tag << 12) | (index << 5) | offset);
         }
       });
 
@@ -199,24 +202,25 @@ public class MmuBufferTestCase {
     L2.addField(L2_DATA);
   }
 
-  public static final AddressView<Long> L2_ADDR_VIEW = new AddressView<Long>(
-      new Function<Long, List<Long>>() {
+  public static final AddressView<BigInteger> L2_ADDR_VIEW = new AddressView<BigInteger>(
+      new Function<BigInteger, List<BigInteger>>() {
         @Override
-        public List<Long> apply(final Long address) {
-          final List<Long> fields = new ArrayList<Long>();
-          fields.add((address >>> 17) & 0x7ffffL);
-          fields.add((address >>> 5) & 0xfffL);
-          fields.add(address & 0x1fL);
+        public List<BigInteger> apply(final BigInteger address) {
+          final List<BigInteger> fields = new ArrayList<BigInteger>();
+          fields.add(BigInteger.valueOf((address.longValue() >>> 17) & 0x7ffffL));
+          fields.add(BigInteger.valueOf((address.longValue() >>> 5) & 0xfffL));
+          fields.add(BigInteger.valueOf(address.longValue() & 0x1fL));
           return fields;
         }
-      }, new Function<List<Long>, Long>() {
+      },
+      new Function<List<BigInteger>, BigInteger>() {
         @Override
-        public Long apply(final List<Long> fields) {
-          final long tag = fields.get(0) & 0x7ffffL;
-          final long index = fields.get(1) & 0xfffL;
-          final long offset = fields.get(2) & 0x1fL;
+        public BigInteger apply(final List<BigInteger> fields) {
+          final long tag = fields.get(0).longValue() & 0x7ffffL;
+          final long index = fields.get(1).longValue() & 0xfffL;
+          final long offset = fields.get(2).longValue() & 0x1fL;
 
-          return (tag << 17) | (index << 5) | offset;
+          return BigInteger.valueOf((tag << 17) | (index << 5) | offset);
         }
       });
 
@@ -234,40 +238,40 @@ public class MmuBufferTestCase {
   }
 
   private void runTest(
-      final MmuBuffer device, final AddressView<Long> addressView, final long address) {
+      final MmuBuffer device, final AddressView<BigInteger> addressView, final BigInteger address) {
     System.out.format("Test: %s, %x\n", device.getName(), address);
 
-    final long tagA = addressView.getTag(address);
-    final long indexA = addressView.getIndex(address);
-    final long offsetA = addressView.getOffset(address);
+    final BigInteger tagA = addressView.getTag(address);
+    final BigInteger indexA = addressView.getIndex(address);
+    final BigInteger offsetA = addressView.getOffset(address);
 
-    final long tagD = device.getTag(address);
-    final long indexD = device.getIndex(address);
-    final long offsetD = device.getOffset(address);
+    final BigInteger tagD = device.getTag(address);
+    final BigInteger indexD = device.getIndex(address);
+    final BigInteger offsetD = device.getOffset(address);
 
     System.out.format("Spec: tag=%x, index=%x, offset=%x%n", tagA, indexA, offsetA);
     System.out.format("Impl: tag=%x, index=%x, offset=%x%n", tagD, indexD, offsetD);
 
-    Assert.assertEquals(Long.toHexString(tagA), Long.toHexString(tagD));
-    Assert.assertEquals(Long.toHexString(indexA), Long.toHexString(indexD));
-    Assert.assertEquals(Long.toHexString(offsetA), Long.toHexString(offsetD));
+    Assert.assertEquals(tagA.toString(16), tagD.toString(16));
+    Assert.assertEquals(indexA.toString(16), indexD.toString(16));
+    Assert.assertEquals(offsetA.toString(16), offsetD.toString(16));
 
-    final long addressA = addressView.getAddress(tagA, indexA, offsetA);
-    final long addressD = device.getAddress(tagD, indexD, offsetD);
+    final BigInteger addressA = addressView.getAddress(tagA, indexA, offsetA);
+    final BigInteger addressD = device.getAddress(tagD, indexD, offsetD);
 
     System.out.format("Spec: address=%x%n", addressA);
     System.out.format("Impl: address=%x%n", addressD);
 
-    Assert.assertEquals(Long.toHexString(addressA), Long.toHexString(addressD));
+    Assert.assertEquals(addressA.toString(16), addressD.toString(16));
   }
 
   @Test
   public void runTest() {
     final int testCount = 1000;
     for (int i = 0; i < testCount; i++) {
-      runTest(DTLB, DTLB_ADDR_VIEW, Randomizer.get().nextLong());
-      runTest(L1, L1_ADDR_VIEW, Randomizer.get().nextLong());
-      runTest(L2, L2_ADDR_VIEW, Randomizer.get().nextLong());
+      runTest(DTLB, DTLB_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
+      runTest(L1, L1_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
+      runTest(L2, L2_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
     }
   }
 }

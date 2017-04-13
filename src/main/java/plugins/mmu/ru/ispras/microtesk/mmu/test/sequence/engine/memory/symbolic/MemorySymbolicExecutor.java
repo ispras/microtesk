@@ -43,6 +43,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
@@ -52,7 +53,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -88,6 +88,11 @@ public final class MemorySymbolicExecutor {
   public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
+  }
+
+  public Boolean execute(final MmuCondition condition) {
+    InvariantChecks.checkNotNull(condition);
+    return executeCondition(result, null, condition, -1);
   }
 
   public Boolean execute(final MemoryAccessPath.Entry entry) {
@@ -192,57 +197,43 @@ public final class MemorySymbolicExecutor {
       return Boolean.FALSE;
     }
 
+    final MmuBuffer buffer = hazard.getPrimaryAccess().getBuffer();
     final MmuCondition condition = hazard.getCondition();
+
     if (condition != null) {
-      executeCondition(result, defines, condition, pathIndex1, pathIndex2);
-    }
+      final MemoryAccessContext context1 = result.getContext(pathIndex1);
+      final MemoryAccessContext context2 = result.getContext(pathIndex2);
 
-    return result.hasConflict() ? Boolean.FALSE : null;
-  }
+      final IntegerClause.Type clauseType = (condition.getType() == MmuCondition.Type.AND)
+          ? IntegerClause.Type.AND
+          : IntegerClause.Type.OR;
 
-  private Boolean executeCondition(
-      final MemorySymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final MmuCondition condition,
-      final int pathIndex1,
-      final int pathIndex2) {
+      final IntegerClause.Builder<IntegerField> clauseBuilder =
+          new IntegerClause.Builder<>(clauseType);
 
-    if (result.hasConflict()) {
-      return Boolean.FALSE;
-    }
+      for (final MmuConditionAtom atom : condition.getAtoms()) {
+        if (atom.getType() != MmuConditionAtom.Type.EQ_SAME_EXPR) {
+          continue;
+        }
 
-    final MemoryAccessContext context1 = result.getContext(pathIndex1);
-    final MemoryAccessContext context2 = result.getContext(pathIndex2);
+        final MmuExpression expression = atom.getLhsExpr();
 
-    final IntegerClause.Type clauseType = (condition.getType() == MmuCondition.Type.AND)
-        ? IntegerClause.Type.AND
-        : IntegerClause.Type.OR;
+        for (final IntegerField term : expression.getTerms()) {
+          final IntegerField term1 = context1.getInstance(context1.getBufferAccessId(buffer), term);
+          final IntegerField term2 = context2.getInstance(context2.getBufferAccessId(buffer), term);
 
-    final IntegerClause.Builder<IntegerField> clauseBuilder =
-        new IntegerClause.Builder<>(clauseType);
+          final IntegerField field1 = result.getVersion(term1, pathIndex1);
+          final IntegerField field2 = result.getVersion(term2, pathIndex2);
 
-    for (final MmuConditionAtom atom : condition.getAtoms()) {
-      if (atom.getType() != MmuConditionAtom.Type.EQ_SAME_EXPR) {
-        continue;
+          clauseBuilder.addEquation(field1, field2, !atom.isNegated());
+
+          result.addOriginalVariable(result.getOriginal(term1.getVariable(), pathIndex1));
+          result.addOriginalVariable(result.getOriginal(term2.getVariable(), pathIndex2));
+        }
       }
 
-      final MmuExpression expression = atom.getLhsExpr();
-
-      for (final IntegerField term : expression.getTerms()) {
-        final IntegerField term1 = context1.getInstance(0, term);
-        final IntegerField term2 = context2.getInstance(0, term);
-
-        final IntegerField field1 = result.getVersion(term1, pathIndex1);
-        final IntegerField field2 = result.getVersion(term2, pathIndex2);
-
-        clauseBuilder.addEquation(field1, field2, !atom.isNegated());
-
-        result.addOriginalVariable(result.getOriginal(term1.getVariable(), pathIndex1));
-        result.addOriginalVariable(result.getOriginal(term2.getVariable(), pathIndex2));
-      }
+      result.addClause(clauseBuilder.build());
     }
-
-    result.addClause(clauseBuilder.build());
 
     return result.hasConflict() ? Boolean.FALSE : null;
   }
@@ -545,10 +536,7 @@ public final class MemorySymbolicExecutor {
 
       final IntegerRangeConstraint constraint =
           new IntegerRangeConstraint(address.getVariable(),
-          new IntegerRange(
-              BigIntegerUtils.valueOfUnsignedLong(segment.getMin()),
-              BigIntegerUtils.valueOfUnsignedLong(segment.getMax())
-          ));
+          new IntegerRange(segment.getMin(), segment.getMax()));
 
       status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
     }

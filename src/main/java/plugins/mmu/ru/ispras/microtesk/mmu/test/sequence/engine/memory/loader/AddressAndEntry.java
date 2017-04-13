@@ -14,18 +14,20 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
+
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.EntryObject;
 
 public final class AddressAndEntry {
-  public long address;
+  public BigInteger address;
   public EntryObject entry;
 
-  public AddressAndEntry(final long address, final EntryObject entry) {
+  public AddressAndEntry(final BigInteger address, final EntryObject entry) {
     this.address = address;
     this.entry = entry;
   }
 
-  public AddressAndEntry(final long address) {
+  public AddressAndEntry(final BigInteger address) {
     this(address, null);
   }
 };

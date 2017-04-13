@@ -49,11 +49,8 @@ public final class BufferStateTracker<A extends Number> {
    */
   public BufferStateTracker(final long sets, final long ways, final AddressView<A> addressView) {
     InvariantChecks.checkNotNull(addressView);
-
-    if (sets <= 0 || ways <= 0) {
-      throw new IllegalArgumentException(
-          String.format("Illegal parameters: sets=%d, ways=%d", sets, ways));
-    }
+    InvariantChecks.checkTrue(sets > 0 && ways > 0,
+        String.format("Illegal parameters: sets=%d, ways=%d", sets, ways));
 
     this.sets = sets;
     this.ways = ways;

@@ -39,6 +39,9 @@ final class STBSegment implements STBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
+  public static final Class<?> BIG_INTEGER_UTILS_CLASS =
+      ru.ispras.microtesk.utils.BigIntegerUtils.class;
+
   private final String packageName;
   private final Ir ir;
   private final Segment segment;
@@ -71,6 +74,7 @@ final class STBSegment implements STBuilder {
     st.add("ext", SEGMENT_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
+    st.add("imps", BIG_INTEGER_UTILS_CLASS.getName());
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
@@ -82,24 +86,6 @@ final class STBSegment implements STBuilder {
         segment.getAddress().getId(), getVariableName(segment.getAddressArg().getName())));
     st.add("members", String.format("public final %s %s;",
         segment.getDataArgAddress().getId(), getVariableName(segment.getDataArg().getName())));
-    /*
-    STBStruct.buildFieldAlias(
-        segment.getId(),
-        segment.getAddressArg(),
-        segment.getAddress(),
-        true,
-        st,
-        group
-        );
-
-    STBStruct.buildFieldAlias(
-        segment.getId(),
-        segment.getDataArg(),
-        segment.getDataArgAddress(),
-        true,
-        st,
-        group
-        );*/
   }
 
   private void buildConstructor(final ST st, final STGroup group) {
@@ -108,8 +94,12 @@ final class STBSegment implements STBuilder {
     stConstructor.add("name", segment.getId());
     stConstructor.add("va", segment.getAddress().getId());
     stConstructor.add("pa", segment.getDataArgAddress().getId());
-    stConstructor.add("start", String.format("0x%xL", segment.getMin()));
-    stConstructor.add("end", String.format("0x%xL", segment.getMax()));
+
+    // FIXME:
+    stConstructor.add("start",
+        String.format("BigIntegerUtils.valueOfUnsignedLong(0x%xL)", segment.getMin().longValue()));
+    stConstructor.add("end",
+        String.format("BigIntegerUtils.valueOfUnsignedLong(0x%xL)", segment.getMax().longValue()));
 
     final SegmentControlFlowExplorer explorer =
         new SegmentControlFlowExplorer(segment);

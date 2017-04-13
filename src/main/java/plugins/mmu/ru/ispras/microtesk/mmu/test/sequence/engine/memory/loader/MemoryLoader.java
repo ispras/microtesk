@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,9 +52,12 @@ public final class MemoryLoader implements Loader {
   }
 
   public boolean contains(
-      final MmuBuffer buffer, final BufferAccessEvent targetEvent, final long targetAddress) {
+      final MmuBuffer buffer,
+      final BufferAccessEvent targetEvent,
+      final BigInteger targetAddress) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(targetAddress);
 
     final BufferLoader bufferLoader = getLoader(buffer);
     return bufferLoader.contains(targetEvent, targetAddress);
@@ -62,10 +66,11 @@ public final class MemoryLoader implements Loader {
   public void addAddresses(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
-      final List<Long> addresses) {
+      final BigInteger targetAddress,
+      final List<BigInteger> addresses) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(targetAddress);
     InvariantChecks.checkNotNull(addresses);
 
     final BufferLoader bufferLoader = getLoader(buffer);
@@ -75,10 +80,11 @@ public final class MemoryLoader implements Loader {
   public void addAddressesAndEntries(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
+      final BigInteger targetAddress,
       final List<AddressAndEntry> addressesAndEntries) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(targetAddress);
     InvariantChecks.checkNotNull(addressesAndEntries);
 
     final BufferLoader bufferLoader = getLoader(buffer);

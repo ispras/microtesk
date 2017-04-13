@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +76,7 @@ public class MmuBuffer extends MmuStruct {
   private final List<MmuBuffer> children = new ArrayList<>();
 
   /** The address view. */
-  private final AddressView<Long> addressView;
+  private final AddressView<BigInteger> addressView;
 
   public MmuBuffer(
       final String name,
@@ -119,8 +120,11 @@ public class MmuBuffer extends MmuStruct {
       parent.children.add(this);
     }
 
-    this.addressView = new MmuAddressViewBuilder(address,
-        tagExpression, indexExpression, offsetExpression).build();
+    this.addressView = new MmuAddressViewBuilder(
+        address,
+        tagExpression,
+        indexExpression,
+        offsetExpression).build();
   }
 
   /**
@@ -200,7 +204,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the address view.
    */
-  public final AddressView<Long> getAddressView() {
+  public final AddressView<BigInteger> getAddressView() {
     return addressView;
   }
 
@@ -210,7 +214,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the tag.
    */
-  public final long getTag(long address) {
+  public final BigInteger getTag(final BigInteger address) {
     return addressView.getTag(address);
   }
 
@@ -220,7 +224,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the index.
    */
-  public final long getIndex(long address) {
+  public final BigInteger getIndex(final BigInteger address) {
     return addressView.getIndex(address);
   }
 
@@ -230,7 +234,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the offset.
    */
-  public final long getOffset(long address) {
+  public final BigInteger getOffset(final BigInteger address) {
     return addressView.getOffset(address);
   }
 
@@ -242,20 +246,23 @@ public class MmuBuffer extends MmuStruct {
    * @param offset the offset.
    * @return the value of the address.
    */
-  public final long getAddress(long tag, long index, long offset) {
+  public final BigInteger getAddress(
+      final BigInteger tag,
+      final BigInteger index,
+      final BigInteger offset) {
     return addressView.getAddress(tag, index, offset);
   }
 
-  public final long getTagMask() {
-    return getAddress(getTag(-1L), 0, 0);
+  public final BigInteger getTagMask() {
+    return getAddress(getTag(BigInteger.valueOf(-1L)), BigInteger.ZERO, BigInteger.ZERO);
   }
 
-  public final long getIndexMask() {
-    return getAddress(0, getIndex(-1L), 0);
+  public final BigInteger getIndexMask() {
+    return getAddress(BigInteger.ZERO, getIndex(BigInteger.valueOf(-1L)), BigInteger.ZERO);
   }
 
-  public final long getOffsetMask() {
-    return getAddress(0, 0, getOffset(-1L));
+  public final BigInteger getOffsetMask() {
+    return getAddress(BigInteger.ZERO, BigInteger.ZERO, getOffset(BigInteger.valueOf(-1L)));
   }
 
   public final boolean isFake() {

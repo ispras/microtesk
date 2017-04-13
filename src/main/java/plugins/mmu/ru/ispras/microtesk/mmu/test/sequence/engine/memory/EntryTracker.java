@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,17 +26,20 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryTracker {
-  private final long bufferBaseAddress;
+  private final BigInteger bufferBaseAddress;
 
-  private final Map<Long, EntryObject> entries = new LinkedHashMap<>();
+  private final Map<BigInteger, EntryObject> entries = new LinkedHashMap<>();
 
-  public EntryTracker(final long bufferBaseAddress) {
+  public EntryTracker(final BigInteger bufferBaseAddress) {
     this.bufferBaseAddress = bufferBaseAddress;
   }
 
-  public long getEntryAddress(final EntryObject entry) {
+  public BigInteger getEntryAddress(final EntryObject entry) {
     InvariantChecks.checkNotNull(entry);
-    return bufferBaseAddress + entry.getId() * (entry.getEntry().getSizeInBits() >>> 3);
+
+    return bufferBaseAddress.add(
+        entry.getId().multiply(
+            BigInteger.valueOf(entry.getEntry().getSizeInBits() >>> 3)));
   }
 
   public boolean contains(final long id) {
@@ -51,7 +55,7 @@ public final class EntryTracker {
     return entries.size();
   }
 
-  public Map<Long, EntryObject> getEntries() {
+  public Map<BigInteger, EntryObject> getEntries() {
     return entries;
   }
 }

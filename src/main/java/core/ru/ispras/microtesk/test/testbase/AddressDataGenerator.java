@@ -106,8 +106,8 @@ public final class AddressDataGenerator implements DataGenerator {
       final MemorySettings memorySettings = GeneratorSettings.get().getMemory();
       final RegionSettings regionSettings = memorySettings.getRegion(region.toString());
 
-      final BigInteger min = BigIntegerUtils.valueOfUnsignedLong(regionSettings.getStartAddress());
-      final BigInteger max = BigIntegerUtils.valueOfUnsignedLong(regionSettings.getEndAddress());
+      final BigInteger min = regionSettings.getStartAddress();
+      final BigInteger max = regionSettings.getEndAddress();
 
       final BigInteger mask = BigInteger.valueOf(((Number) size).longValue() - 1);
       final BigInteger random = Randomizer.get().nextBigIntegerRange(min, max);

@@ -21,7 +21,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.mmu.basis.AddressView;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.Range;
 
 /**
@@ -29,24 +28,24 @@ import ru.ispras.microtesk.utils.Range;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuSegment implements Range<Long> {
+public class MmuSegment implements Range<BigInteger> {
   private final String name;
   private final MmuAddressInstance vaType;
   private final MmuAddressInstance paType;
-  private final long startAddress;
-  private final long endAddress;
+  private final BigInteger startAddress;
+  private final BigInteger endAddress;
   private final boolean isMapped;
   private final MmuExpression paExpression;
   private final MmuExpression restExpression;
-  private final AddressView<Long> addressView;
+  private final AddressView<BigInteger> addressView;
   private final IntegerRange range;
 
   public MmuSegment(
       final String name,
       final MmuAddressInstance vaType,
       final MmuAddressInstance paType,
-      final long startAddress,
-      final long endAddress,
+      final BigInteger startAddress,
+      final BigInteger endAddress,
       final boolean isMapped,
       final MmuExpression paExpression,
       final MmuExpression restExpression) {
@@ -66,10 +65,7 @@ public class MmuSegment implements Range<Long> {
     this.addressView =
         isMapped ? null : new MmuAddressViewBuilder(vaType, paExpression, restExpression).build();
 
-    final BigInteger min = BigIntegerUtils.valueOfUnsignedLong(startAddress);
-    final BigInteger max = BigIntegerUtils.valueOfUnsignedLong(endAddress);
-
-    this.range = new IntegerRange(min, max);
+    this.range = new IntegerRange(startAddress, endAddress);
   }
 
   public final String getName() {
@@ -84,11 +80,11 @@ public class MmuSegment implements Range<Long> {
     return paType;
   }
 
-  public final long getStartAddress() {
+  public final BigInteger getStartAddress() {
     return startAddress;
   }
 
-  public final long getEndAddress() {
+  public final BigInteger getEndAddress() {
     return endAddress;
   }
 
@@ -104,20 +100,20 @@ public class MmuSegment implements Range<Long> {
     return restExpression;
   }
 
-  public final boolean checkVa(final long va) {
-    return range.contains(BigIntegerUtils.valueOfUnsignedLong(va));
+  public final boolean checkVa(final BigInteger va) {
+    return range.contains(va);
   }
 
-  public final long getPa(long address) {
+  public final BigInteger getPa(final BigInteger address) {
     return addressView.getField(address, 0);
   }
 
-  public final long getRest(long address) {
+  public final BigInteger getRest(final BigInteger address) {
     return addressView.getField(address, 1);
   }
 
-  public final long getVa(final long pa, final long rest) {
-    final List<Long> fields = new ArrayList<>();
+  public final BigInteger getVa(final BigInteger pa, final BigInteger rest) {
+    final List<BigInteger> fields = new ArrayList<>();
 
     fields.add(pa);
     fields.add(rest);
@@ -125,19 +121,19 @@ public class MmuSegment implements Range<Long> {
     return addressView.getAddress(fields);
   }
 
-  public final long getVa(final long pa) {
-    final long startAddressRest = getRest(startAddress);
+  public final BigInteger getVa(final BigInteger pa) {
+    final BigInteger startAddressRest = getRest(startAddress);
 
     return getVa(pa, startAddressRest);
   }
 
   @Override
-  public final Long getMin() {
+  public final BigInteger getMin() {
     return startAddress;
   }
 
   @Override
-  public final Long getMax() {
+  public final BigInteger getMax() {
     return endAddress;
   }
 

@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.Range;
 
 /**
@@ -28,7 +27,7 @@ import ru.ispras.microtesk.utils.Range;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class RegionSettings extends AbstractSettings implements Range<Long> {
+public final class RegionSettings extends AbstractSettings implements Range<BigInteger> {
   public static final String TAG = "region";
 
   public static enum Type {
@@ -39,8 +38,8 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
 
   private final String name;
   private final Type type;
-  private final long startAddress;
-  private final long endAddress;
+  private final BigInteger startAddress;
+  private final BigInteger endAddress;
   private final MemoryAccessMode mode;
   private final MemoryAccessMode others;
 
@@ -49,14 +48,16 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
   public RegionSettings(
       final String name,
       final Type type,
-      final long startAddress,
-      final long endAddress,
+      final BigInteger startAddress,
+      final BigInteger endAddress,
       final MemoryAccessMode mode,
       final MemoryAccessMode others) {
     super(TAG);
 
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(startAddress);
+    InvariantChecks.checkNotNull(endAddress);
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(others);
 
@@ -76,11 +77,11 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
     return type;
   }
 
-  public long getStartAddress() {
+  public BigInteger getStartAddress() {
     return startAddress;
   }
 
-  public long getEndAddress() {
+  public BigInteger getEndAddress() {
     return endAddress;
   }
 
@@ -104,12 +105,8 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
     return others.w;
   }
 
-  public boolean checkAddress(final long address) {
-    final BigInteger addr = BigIntegerUtils.valueOfUnsignedLong(address);
-    final BigInteger startAddr = BigIntegerUtils.valueOfUnsignedLong(startAddress);
-    final BigInteger endAddr = BigIntegerUtils.valueOfUnsignedLong(endAddress);
-
-    return (startAddr.compareTo(addr) <= 0 && endAddr.compareTo(addr) >= 0);
+  public boolean checkAddress(final BigInteger address) {
+    return (startAddress.compareTo(address) <= 0 && endAddress.compareTo(address) >= 0);
   }
 
   public Collection<AccessSettings> getAccesses() {
@@ -117,12 +114,12 @@ public final class RegionSettings extends AbstractSettings implements Range<Long
   }
 
   @Override
-  public Long getMin() {
+  public BigInteger getMin() {
     return startAddress;
   }
 
   @Override
-  public Long getMax() {
+  public BigInteger getMax() {
     return endAddress;
   }
 

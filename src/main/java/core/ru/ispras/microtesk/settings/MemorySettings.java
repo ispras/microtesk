@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,15 +48,15 @@ public final class MemorySettings extends AbstractSettings {
     return region.isEnabled();
   }
 
-  public boolean checkTextAddress(final long address) {
+  public boolean checkTextAddress(final BigInteger address) {
     return checkAddress(RegionSettings.Type.TEXT, address);
   }
 
-  public boolean checkDataAddress(final long address) {
+  public boolean checkDataAddress(final BigInteger address) {
     return checkAddress(RegionSettings.Type.DATA, address);
   }
 
-  private boolean checkAddress(final RegionSettings.Type type, final long address) {
+  private boolean checkAddress(final RegionSettings.Type type, final BigInteger address) {
     for (final RegionSettings region : getRegions()) {
       if (region.getType() == type && region.checkAddress(address)) {
         return true;

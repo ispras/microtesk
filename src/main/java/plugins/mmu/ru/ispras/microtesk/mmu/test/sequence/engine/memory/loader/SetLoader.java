@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -32,9 +33,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class SetLoader implements Loader {
   private final MmuBuffer buffer;
-  private final long index;
+  private final BigInteger index;
 
-  private final EnumMap<BufferAccessEvent, Map<Long, EventLoader>> eventLoaders =
+  private final EnumMap<BufferAccessEvent, Map<BigInteger, EventLoader>> eventLoaders =
       new EnumMap<>(BufferAccessEvent.class);
 
   /**
@@ -43,7 +44,7 @@ public final class SetLoader implements Loader {
    * @param buffer the target memory buffer.
    * @param index the index of the set.
    */
-  public SetLoader(final MmuBuffer buffer, final long index) {
+  public SetLoader(final MmuBuffer buffer, final BigInteger index) {
     InvariantChecks.checkNotNull(buffer);
 
     this.buffer = buffer;
@@ -54,33 +55,33 @@ public final class SetLoader implements Loader {
     return buffer;
   }
   
-  public long getIndex() {
+  public BigInteger getIndex() {
     return index;
   }
 
-  public boolean contains(final BufferAccessEvent targetEvent, final long targetAddress) {
-    final Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+  public boolean contains(final BufferAccessEvent targetEvent, final BigInteger targetAddress) {
+    final Map<BigInteger, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
     if (tagLoaders == null) {
       return false;
     }
 
-    final long tag = buffer.getTag(targetAddress);
+    final BigInteger tag = buffer.getTag(targetAddress);
     return tagLoaders.containsKey(tag);
   }
 
   public void addAddresses(
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
-      final List<Long> addresses) {
+      final BigInteger targetAddress,
+      final List<BigInteger> addresses) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addresses);
 
-    Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+    Map<BigInteger, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
     if (tagLoaders == null) {
       eventLoaders.put(targetEvent, tagLoaders = new LinkedHashMap<>());
     }
 
-    final long tag = buffer.getTag(targetAddress);
+    final BigInteger tag = buffer.getTag(targetAddress);
 
     EventLoader eventLoader = tagLoaders.get(tag);
     if (eventLoader == null) {
@@ -92,17 +93,17 @@ public final class SetLoader implements Loader {
 
   public void addAddressesAndEntries(
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
+      final BigInteger targetAddress,
       final List<AddressAndEntry> addressesAndEntries) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addressesAndEntries);
 
-    Map<Long, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
+    Map<BigInteger, EventLoader> tagLoaders = eventLoaders.get(targetEvent);
     if (tagLoaders == null) {
       eventLoaders.put(targetEvent, tagLoaders = new LinkedHashMap<>());
     }
 
-    final long tag = buffer.getTag(targetAddress);
+    final BigInteger tag = buffer.getTag(targetAddress);
 
     EventLoader eventLoader = tagLoaders.get(tag);
     if (eventLoader == null) {
@@ -138,13 +139,13 @@ public final class SetLoader implements Loader {
     final List<Load> sequence = new ArrayList<>();
 
     // Evict data.
-    final Map<Long, EventLoader> missLoaders = eventLoaders.get(BufferAccessEvent.MISS);
+    final Map<BigInteger, EventLoader> missLoaders = eventLoaders.get(BufferAccessEvent.MISS);
     if (missLoaders != null) {
       sequence.addAll(prepareLoads(missLoaders.values()));
     }
 
     // Load data.
-    final Map<Long, EventLoader> hitLoaders = eventLoaders.get(BufferAccessEvent.HIT);
+    final Map<BigInteger, EventLoader> hitLoaders = eventLoaders.get(BufferAccessEvent.HIT);
     if (hitLoaders != null) {
       sequence.addAll(prepareLoads(hitLoaders.values()));
     }

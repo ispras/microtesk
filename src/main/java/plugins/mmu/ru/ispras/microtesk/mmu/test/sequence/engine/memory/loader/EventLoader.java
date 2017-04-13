@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public final class EventLoader implements Loader {
   private final MmuBuffer buffer;
 
   private final BufferAccessEvent targetEvent;
-  private final long targetAddress;
+  private final BigInteger targetAddress;
 
   private final List<Load> loads = new ArrayList<>();
 
@@ -44,9 +45,10 @@ public final class EventLoader implements Loader {
   public EventLoader(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
-      final long targetAddress) {
+      final BigInteger targetAddress) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(targetAddress);
 
     this.buffer = buffer;
 
@@ -62,7 +64,7 @@ public final class EventLoader implements Loader {
     return targetEvent;
   }
 
-  public long getTargetAddress() {
+  public BigInteger getTargetAddress() {
     return targetAddress;
   }
 
@@ -72,10 +74,10 @@ public final class EventLoader implements Loader {
    * 
    * @param addresses the addresses to be accessed.
    */
-  public void addAddresses(final List<Long> addresses) {
+  public void addAddresses(final List<BigInteger> addresses) {
     InvariantChecks.checkNotNull(addresses);
 
-    for (final long address : addresses) {
+    for (final BigInteger address : addresses) {
       loads.add(new Load(buffer, targetEvent, targetAddress, address, /* Entry */ null));
     }
   }
@@ -90,8 +92,13 @@ public final class EventLoader implements Loader {
     InvariantChecks.checkNotNull(addressesAndEntries);
 
     for (final AddressAndEntry addressAndEntry : addressesAndEntries) {
-      loads.add(new Load(
-          buffer, targetEvent, targetAddress, addressAndEntry.address, addressAndEntry.entry));
+      loads.add(
+          new Load(
+              buffer,
+              targetEvent,
+              targetAddress,
+              addressAndEntry.address,
+              addressAndEntry.entry));
     }
   }
 

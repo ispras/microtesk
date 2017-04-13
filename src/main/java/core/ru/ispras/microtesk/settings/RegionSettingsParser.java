@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -42,8 +43,8 @@ public final class RegionSettingsParser extends AbstractSettingsParser<RegionSet
     final String name = AbstractSettingsParser.getString(attributes.get(ATTR_NAME));
     final RegionSettings.Type type =
         AbstractSettingsParser.getEnum(RegionSettings.Type.class, attributes.get(ATTR_TYPE));
-    final long startAddress = AbstractSettingsParser.getHexLong(attributes.get(ATTR_START));
-    final long endAddress = AbstractSettingsParser.getHexLong(attributes.get(ATTR_END));
+    final BigInteger startAddress = AbstractSettingsParser.getHexBigInteger(attributes.get(ATTR_START));
+    final BigInteger endAddress = AbstractSettingsParser.getHexBigInteger(attributes.get(ATTR_END));
     final String mode = AbstractSettingsParser.getString(attributes.get(ATTR_MODE));
 
     InvariantChecks.checkTrue(mode != null && mode.length() == 6);

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -201,7 +202,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(constraints);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(path, Collections.<MmuCondition>emptyList(), constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -229,6 +230,7 @@ public final class MemoryEngineUtils {
 
   public static Map<IntegerVariable, BigInteger> generateData(
       final MemoryAccessPath path,
+      final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer) {
     InvariantChecks.checkNotNull(path);
@@ -236,7 +238,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, constraints, initializer, Solver.Mode.MAP);
+        solve(path, conditions, constraints, initializer, Solver.Mode.MAP);
 
     // Solution contains only such variables that are used in the path.
     return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
@@ -278,10 +280,12 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
       final MemoryAccessPath path,
+      final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(conditions);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
@@ -296,6 +300,11 @@ public final class MemoryEngineUtils {
     }
 
     final MemorySymbolicResult symbolicResult = path.getSymbolicResult();
+
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(symbolicResult);
+    for (final MmuCondition condition : conditions) {
+      symbolicExecutor.execute(condition);
+    }
 
     if (symbolicResult.hasConflict()) {
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");

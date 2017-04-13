@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -195,7 +196,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   private EntryIdAllocator entryIdAllocator;
 
-  private Map<MmuAddressInstance, Predicate<Long>> hitCheckers;
+  private Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers;
   private MemoryAccessPathChooser normalPathChooser;
 
   @Override
@@ -235,7 +236,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final Iterator<MemorySolution> solutionIterator =
         getSolutionIterator(engineContext, structureIterator);
 
-    final Map<MmuAddressInstance, Collection<? extends Range<Long>>> addressToRegions = new HashMap<>();
+    final Map<MmuAddressInstance, Collection<? extends Range<BigInteger>>> addressToRegions = new HashMap<>();
     final Collection<RegionSettings> regions = new ArrayList<>();
 
     final GeneratorSettings settings = GeneratorSettings.get();
@@ -262,12 +263,12 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     this.entryIdAllocator = new EntryIdAllocator(settings);
 
-    final Map<MmuAddressInstance, Predicate<Long>> hitCheckers = new LinkedHashMap<>();
+    final Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers = new LinkedHashMap<>();
 
     for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
-      hitCheckers.put(addressType, new Predicate<Long>() {
+      hitCheckers.put(addressType, new Predicate<BigInteger>() {
         @Override
-        public boolean test(final Long address) {
+        public boolean test(final BigInteger address) {
           final MmuModel model = MmuPlugin.getMmuModel();
           final MmuSubsystem memory = MmuPlugin.getSpecification();
 

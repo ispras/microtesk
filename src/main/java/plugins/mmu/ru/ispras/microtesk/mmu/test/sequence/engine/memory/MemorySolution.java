@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,7 +50,7 @@ public final class MemorySolution {
    * <p>This map unites the analogous maps of the test data of the executions stored in
    * {@link MemorySolution#solution}.</p>
    */
-  private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
+  private final Map<MmuBufferAccess, Map<BigInteger, EntryObject>> entries = new LinkedHashMap<>();
 
   /**
    * Constructs an uninitialized solution for the given memory access structure.
@@ -71,7 +72,7 @@ public final class MemorySolution {
 
       for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
         if (!this.entries.containsKey(bufferAccess)) {
-          this.entries.put(bufferAccess, new LinkedHashMap<Long, EntryObject>());
+          this.entries.put(bufferAccess, new LinkedHashMap<BigInteger, EntryObject>());
         }
       }
     }
@@ -141,7 +142,7 @@ public final class MemorySolution {
    * 
    * @return the entries.
    */
-  public Map<MmuBufferAccess, Map<Long, EntryObject>> getEntries() {
+  public Map<MmuBufferAccess, Map<BigInteger, EntryObject>> getEntries() {
     return entries;
   }
 
@@ -152,7 +153,7 @@ public final class MemorySolution {
    * @return the index-to-entry map.
    * @throws IllegalArgumentException if {@code device} is null.
    */
-  public Map<Long, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
+  public Map<BigInteger, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
     return entries.get(bufferAccess);
   }
@@ -164,7 +165,9 @@ public final class MemorySolution {
    * @param entries the entries to be written.
    * @throws IllegalArgumentException if some parameters are null.
    */
-  public void setEntries(final MmuBufferAccess bufferAccess, final Map<Long, EntryObject> entries) {
+  public void setEntries(
+      final MmuBufferAccess bufferAccess,
+      final Map<BigInteger, EntryObject> entries) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entries);
 

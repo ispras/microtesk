@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,15 +31,15 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
  */
 public final class BufferLoader implements Loader {
   private final MmuBuffer buffer;
-  private final Map<Long, SetLoader> setLoaders = new LinkedHashMap<>();
+  private final Map<BigInteger, SetLoader> setLoaders = new LinkedHashMap<>();
 
   public BufferLoader(final MmuBuffer buffer) {
     InvariantChecks.checkNotNull(buffer);
     this.buffer = buffer;
   }
 
-  private SetLoader getSetLoader(final long address) {
-    final long index = buffer.getIndex(address);
+  private SetLoader getSetLoader(final BigInteger address) {
+    final BigInteger index = buffer.getIndex(address);
 
     SetLoader setLoader = setLoaders.get(index);
     if (setLoader == null) {
@@ -48,7 +49,7 @@ public final class BufferLoader implements Loader {
     return setLoader;
   }
 
-  public boolean contains(final BufferAccessEvent targetEvent, final long targetAddress) {
+  public boolean contains(final BufferAccessEvent targetEvent, final BigInteger targetAddress) {
     InvariantChecks.checkNotNull(targetEvent);
 
     final SetLoader setLoader = getSetLoader(targetAddress);
@@ -56,7 +57,9 @@ public final class BufferLoader implements Loader {
   }
 
   public void addAddresses(
-      final BufferAccessEvent targetEvent, final long targetAddress, final List<Long> addresses) {
+      final BufferAccessEvent targetEvent,
+      final BigInteger targetAddress,
+      final List<BigInteger> addresses) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addresses);
 
@@ -66,7 +69,7 @@ public final class BufferLoader implements Loader {
 
   public void addAddressesAndEntries(
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
+      final BigInteger targetAddress,
       final List<AddressAndEntry> addressesAndEntries) {
     InvariantChecks.checkNotNull(targetEvent);
     InvariantChecks.checkNotNull(addressesAndEntries);

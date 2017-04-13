@@ -38,6 +38,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -164,18 +165,43 @@ public final class MmuUnderTest {
   // Segments
   // ===============================================================================================
 
-  public final MmuSegment xuseg = new MmuSegment("XUSEG", vaAddr, paAddr,
-      0x0000000080000000L, 0x000000ffFFFFffffL, true, null, null);
-  public final MmuSegment kseg0 = new MmuSegment("KSEG0", vaAddr, paAddr,
-      0xffffFFFF80000000L, 0xffffFFFF9fffFFFFL, false,
+  public final MmuSegment xuseg = new MmuSegment(
+      "XUSEG",
+      vaAddr,
+      paAddr,
+      BigIntegerUtils.valueOfUnsignedLong(0x0000000080000000L),
+      BigIntegerUtils.valueOfUnsignedLong(0x000000ffFFFFffffL),
+      true,
+      null,
+      null);
+
+  public final MmuSegment kseg0 = new MmuSegment(
+      "KSEG0",
+      vaAddr,
+      paAddr,
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF80000000L),
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF9fffFFFFL),
+      false,
       MmuExpression.var(va, 0, 28), 
       MmuExpression.var(va, 29, 63));
-  public final MmuSegment kseg1 = new MmuSegment("KSEG1", vaAddr, paAddr,
-      0xffffFFFFa0000000L, 0xffffFFFFbfffFFFFL, false,
+
+  public final MmuSegment kseg1 = new MmuSegment(
+      "KSEG1",
+      vaAddr,
+      paAddr,
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFa0000000L),
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFbfffFFFFL),
+      false,
       MmuExpression.var(va, 0, 28), 
       MmuExpression.var(va, 29, 63));
-  public final MmuSegment xkphys = new MmuSegment("XKPHYS", vaAddr, paAddr,
-      0x8000000000000000L, 0xbfffFFFFffffFFFFL, false,
+
+  public final MmuSegment xkphys = new MmuSegment(
+      "XKPHYS",
+      vaAddr,
+      paAddr,
+      BigIntegerUtils.valueOfUnsignedLong(0x8000000000000000L),
+      BigIntegerUtils.valueOfUnsignedLong(0xbfffFFFFffffFFFFL),
+      false,
       MmuExpression.var(va, 0, 35), 
       MmuExpression.var(va, 36, 63));
 

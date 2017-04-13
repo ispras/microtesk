@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.EntryObject;
@@ -28,9 +30,9 @@ public final class Load {
   private final MmuBuffer buffer;
 
   private final BufferAccessEvent targetEvent;
-  private final long targetAddress;
+  private final BigInteger targetAddress;
 
-  private final long address;
+  private final BigInteger address;
   private final EntryObject entry;
 
   /**
@@ -45,11 +47,13 @@ public final class Load {
   public Load(
       final MmuBuffer buffer,
       final BufferAccessEvent targetEvent,
-      final long targetAddress,
-      final long address,
+      final BigInteger targetAddress,
+      final BigInteger address,
       final EntryObject entry) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkNotNull(targetEvent);
+    InvariantChecks.checkNotNull(targetAddress);
+    InvariantChecks.checkNotNull(address);
     // Parameter {@code entry} can be null.
 
     this.buffer = buffer;
@@ -73,11 +77,11 @@ public final class Load {
     return targetEvent;
   }
 
-  public long getTargetAddress() {
+  public BigInteger getTargetAddress() {
     return targetAddress;
   }
 
-  public Long getAddress() {
+  public BigInteger getAddress() {
     return address;
   }
 

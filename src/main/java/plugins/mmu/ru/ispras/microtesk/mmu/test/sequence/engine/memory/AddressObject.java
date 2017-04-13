@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,28 +27,29 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 /**
  * {@link AddressObject} represents test data for an individual {@link MemoryAccess}.
  * 
- * <p>Test data include addresses (virtual and physical ones), auxiliary attributes (cache policy,
- * control bits, etc.), sequences of addresses to be accessed to prepare hit/miss situations and
- * sets of entries to be written into the buffers.</p>
+ * <p>
+ * Test data include addresses (virtual, physical and intermediate ones), auxiliary attributes
+ * (cache policy, control bits, etc.), sequences of addresses to be accessed to prepare hit/miss
+ * situations, and sets of entries to be written into the buffers.
+ * </p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressObject {
-  /** Contains values of the virtual, physical and intermediate addresses. */
-  private final Map<MmuAddressInstance, Long> addresses = new LinkedHashMap<>();
+  private final MemoryAccess access;
+
+  /*** Contains the address values of the given memory access. */
+  private final Map<MmuAddressInstance, BigInteger> addresses = new LinkedHashMap<>();
 
   /**
-   * Contains entries to be written into the buffers.
+   * Contains entries to be written into non-transparent buffers.
    * 
    * <p>
-   * Typically, a single memory access affects one entry per buffer.
-   * Thus, each map usually contains one entry.
+   * Typically, a single memory access uses one entry per buffer (one entry of a page table,
+   * one entry of a TLB, etc.). Thus, each value is a singleton.
    * </p>
    */
-  private final Map<MmuBufferAccess, Map<Long, EntryObject>> entries = new LinkedHashMap<>();
-
-  /** Refers to the memory access. */
-  private final MemoryAccess access;
+  private final Map<MmuBufferAccess, Map<BigInteger, EntryObject>> entries = new LinkedHashMap<>();
 
   public AddressObject(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
@@ -62,43 +64,44 @@ public final class AddressObject {
     return access.getPath();
   }
 
-  public long getAddress(final MmuAddressInstance addressType) {
-    InvariantChecks.checkNotNull(addressType);
-    return addresses.get(addressType); 
+  public Map<MmuAddressInstance, BigInteger> getAddresses() {
+    return addresses; 
   }
 
-  public long getAddress(final MmuBufferAccess bufferAccess) {
+  public BigInteger getAddress(final MmuAddressInstance addrType) {
+    InvariantChecks.checkNotNull(addrType);
+    return addresses.get(addrType); 
+  }
+
+  public void setAddress(final MmuAddressInstance addrType, final BigInteger addrValue) {
+    InvariantChecks.checkNotNull(addrType);
+    addresses.put(addrType, addrValue);
+  }
+
+  public BigInteger getAddress(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
     return addresses.get(bufferAccess.getAddress()); 
   }
 
-  public Map<MmuAddressInstance, Long> getAddresses() {
-    return addresses; 
-  }
-
-  public void setAddress(final MmuAddressInstance addressType, final long value) {
-    InvariantChecks.checkNotNull(addressType);
-    addresses.put(addressType, value);
-  }
-
-  public void setAddress(final MmuBufferAccess bufferAccess, final long value) {
+  public void setAddress(final MmuBufferAccess bufferAccess, final BigInteger addrValue) {
     InvariantChecks.checkNotNull(bufferAccess);
-    addresses.put(bufferAccess.getAddress(), value);
+    addresses.put(bufferAccess.getAddress(), addrValue);
   }
 
-  public Map<MmuBufferAccess, Map<Long, EntryObject>> getEntries() {
+  public Map<MmuBufferAccess, Map<BigInteger, EntryObject>> getEntries() {
     return entries;
   }
 
-  public Map<Long, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
+  public Map<BigInteger, EntryObject> getEntries(final MmuBufferAccess bufferAccess) {
     InvariantChecks.checkNotNull(bufferAccess);
     return entries.get(bufferAccess);
   }
 
-  public void setEntries(final MmuBufferAccess bufferAccess, final Map<Long, EntryObject> entries) {
+  public void setEntries(
+      final MmuBufferAccess bufferAccess,
+      final Map<BigInteger, EntryObject> entries) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entries);
-    InvariantChecks.checkTrue(entries.size() == 1);
 
     for (final EntryObject entry : entries.values()) {
       entry.addAddrObject(this);
@@ -111,7 +114,7 @@ public final class AddressObject {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(entry);
 
-    Map<Long, EntryObject> bufferEntries = entries.get(bufferAccess);
+    Map<BigInteger, EntryObject> bufferEntries = entries.get(bufferAccess);
     if (bufferEntries == null) {
       entries.put(bufferAccess, bufferEntries = new LinkedHashMap<>());
     }
@@ -127,13 +130,13 @@ public final class AddressObject {
 
     boolean comma = false;
 
-    for (final Map.Entry<MmuAddressInstance, Long> addrEntry : addresses.entrySet()) {
+    for (final Map.Entry<MmuAddressInstance, BigInteger> addrEntry : addresses.entrySet()) {
       final MmuAddressInstance addrType = addrEntry.getKey();
       final String addrName = addrType.getVariable().getName();
-      final long addrValue = addrEntry.getValue();
+      final BigInteger addrValue = addrEntry.getValue();
 
       builder.append(comma ? separator : "");
-      builder.append(String.format("%s=0x%x", addrName, addrValue));
+      builder.append(String.format("%s=0x%s", addrName, addrValue.toString(16)));
       comma = true;
 
       for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {

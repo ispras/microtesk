@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
@@ -27,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryObject {
-  private final long id;
+  private final BigInteger id;
   private final MmuEntry entry;
 
   /** Address objects that use this entry. */
@@ -36,14 +37,14 @@ public final class EntryObject {
   /** Auxiliary loads that use this entry. */
   private final Collection<Load> loads = new LinkedHashSet<>();
 
-  public EntryObject(final long id, final MmuEntry entry) {
+  public EntryObject(final BigInteger id, final MmuEntry entry) {
     InvariantChecks.checkNotNull(entry);
 
     this.id = id;
     this.entry = entry;
   }
 
-  public long getId() {
+  public BigInteger getId() {
     return id;
   }
 

@@ -121,8 +121,8 @@ public final class MemoryObjectBuilder {
           "Settings for memory region '%s' are not defined.", regionName));
     }
 
-    final BigInteger startAddress = BigInteger.valueOf(region.getStartAddress());
-    final BigInteger endAddress = BigInteger.valueOf(region.getEndAddress());
+    final BigInteger startAddress = region.getStartAddress();
+    final BigInteger endAddress = region.getEndAddress();
 
     setPa(startAddress, endAddress);
   }

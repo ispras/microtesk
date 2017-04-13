@@ -66,6 +66,16 @@ public final class BufferUnitedHazard {
     return bufferAccess;
   }
 
+  public Set<Pair<Integer, BufferHazard.Instance>> getRelation() {
+    final Set<Pair<Integer, BufferHazard.Instance>> result = new LinkedHashSet<>();
+
+    for (final Set<Pair<Integer, BufferHazard.Instance>> hazards : relation.values()) {
+      result.addAll(hazards);
+    }
+
+    return result;
+  }
+
   public Set<Pair<Integer, BufferHazard.Instance>> getRelation(final BufferHazard.Type hazardType) {
     InvariantChecks.checkNotNull(hazardType);
     return relation.get(hazardType);
