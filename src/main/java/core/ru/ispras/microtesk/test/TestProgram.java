@@ -119,29 +119,12 @@ final class TestProgram {
     return entries.getLast();
   }
 
-  public TestSequence getLastAllocatedEntry() {
-    return !entries.isEmpty() ? findAllocatedEntry(entries.getLast()) : null;
-  }
-
   public TestSequence getPrevEntry(final TestSequence sequence) {
     return entries.getPrevious(sequence);
   }
 
-  public TestSequence getPrevAllocatedEntry(final TestSequence sequence) {
-    return findAllocatedEntry(entries.getPrevious(sequence));
-  }
-
   public void replaceEntryWith(final TestSequence previous, final TestSequence current) {
     entries.replaceWith(previous, current);
-  }
-
-  private TestSequence findAllocatedEntry(final TestSequence sequence) {
-    TestSequence entry = sequence;
-    while (null != entry && entry.isEmpty()) {
-      entry = entries.getPrevious(entry);
-    }
-
-    return entry;
   }
 
   public void addData(final DataSection data) {
