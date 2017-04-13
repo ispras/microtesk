@@ -83,8 +83,13 @@ public final class TestSequence {
   private final List<ConcreteCall> all;
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
+
   private final int instructionCount;
   private String title;
+
+  private boolean allocated;
+  private long startAddress;
+  private long endAddress;
 
   private TestSequence(
       final List<ConcreteCall> prologue,
@@ -108,6 +113,10 @@ public final class TestSequence {
 
     this.instructionCount = instructionCount;
     this.title = "";
+
+    this.allocated = false;
+    this.startAddress = 0;
+    this.endAddress = 0;
   }
 
   private static <T> List<T> merge(final List<T> first, final List<T> second) {
@@ -156,14 +165,23 @@ public final class TestSequence {
     this.title = value;
   }
 
+  protected boolean isAllocated() {
+    return allocated;
+  }
+
+  protected void setAllocationAddresses(final long start, final long end) {
+    this.allocated = true;
+    this.startAddress = start;
+    this.endAddress = end;
+  }
+
   protected long getStartAddress() {
-    InvariantChecks.checkFalse(isEmpty());
-    return all.get(0).getAddress();
+    InvariantChecks.checkTrue(allocated, "Sequence is not allocated!");
+    return startAddress;
   }
 
   protected long getEndAddress() {
-    InvariantChecks.checkFalse(isEmpty());
-    final ConcreteCall last = all.get(all.size() - 1);
-    return last.getAddress() + last.getByteSize();
+    InvariantChecks.checkTrue(allocated, "Sequence is not allocated!");
+    return endAddress;
   }
 }
