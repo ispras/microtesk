@@ -74,11 +74,11 @@ final class STBSegment implements STBuilder {
     st.add("ext", SEGMENT_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
-    st.add("imps", BIG_INTEGER_UTILS_CLASS.getName());
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
+    st.add("imps", BIG_INTEGER_UTILS_CLASS.getName());
   }
 
   private void buildArguments(final ST st, final STGroup group) {

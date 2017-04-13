@@ -85,6 +85,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MemoryAccessPathChooser normalPathChooser;
   private final MemoryAccessConstraints constraints;
 
+  // FIXME: Take into account the alignment option.
   private final DataType alignType;
 
   private final EntryIdAllocator entryIdAllocator;

@@ -158,6 +158,9 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       final MmuEntry data = entry.getValue().getEntry();
       final BigInteger bufferAccessAddress = data.getAddress();
 
+      Logger.debug("Entry preparation: index=0x%s, address=0x%s",
+          index.toString(16), bufferAccessAddress.toString(16));
+
       final BitVector addressValue = BitVector.valueOf(index, Long.SIZE);
       final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
 
