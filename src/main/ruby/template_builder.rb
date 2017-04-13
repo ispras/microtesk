@@ -91,12 +91,12 @@ def define_operation(op)
     end
 
     if is_root
-      @template.setRootOperation builder.build
+      @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
     elsif root_shortcuts
       # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it. 
       builder.setContext "#root"
-      @template.setRootOperation builder.build
+      @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
     else
       builder
@@ -137,12 +137,12 @@ def define_operation_group(group_name)
     end
 
     if is_root
-      @template.setRootOperation builder.build
+      @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
     elsif root_shortcuts
       # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it.
       builder.setContext "#root"
-      @template.setRootOperation builder.build
+      @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
     else
       builder
