@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,6 +42,7 @@ public final class SymbolicExecutor {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
 
+    Logger.message("Analyzing file: %s...", fileName);
     final DisassemblerOutputFactory outputFactory = new DisassemblerOutputFactory();
     if (!Disassembler.disassemble(options, modelName, fileName, outputFactory)) {
       Logger.error("Failed to disassemble " + fileName);
@@ -53,14 +54,13 @@ public final class SymbolicExecutor {
     final List<IsaPrimitive> instructions = output.getInstructions();
     InvariantChecks.checkNotNull(instructions);
 
-    // TODO: Build SSA form for the instructions
+    final List<Node> ssa = FormulaBuilder.buildFormulas(modelName, instructions);
 
-    final List<Node> ssa =
-      FormulaBuilder.buildFormulas(modelName, instructions);
-    writeSmt(fileName + ".smt2", ssa);
+    final String smtFileName = fileName + ".smt2";
+    writeSmt(smtFileName, ssa);
 
-    Logger.error("Symbolic execution is not currently supported.");
-    return false;
+    Logger.message("Created file: %s", smtFileName);
+    return true;
   }
 
   private static void writeSmt(
