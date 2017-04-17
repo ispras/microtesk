@@ -69,6 +69,15 @@ class Template
     @template.where File.basename(caller_info[0]), caller_info[1]
   end
 
+  def define_method(method_name, &method_body)
+    method_name = method_name.downcase
+    if !Template.method_defined?(method_name)
+      Template.send(:define_method, method_name, &method_body)
+    else
+      puts "Error: Failed to define the #{method_name} method."
+    end
+  end
+
   # ------------------------------------------------------------------------- #
   # Main template writing methods                                             #
   # ------------------------------------------------------------------------- #
