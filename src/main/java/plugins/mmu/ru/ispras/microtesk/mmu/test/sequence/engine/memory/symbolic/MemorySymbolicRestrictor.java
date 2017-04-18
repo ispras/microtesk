@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
@@ -61,11 +62,7 @@ public final class MemorySymbolicRestrictor {
     final boolean isPhysAddr = addrType.getName().equals(physAddrType.getName());
 
     if (region != null && isTopLevel && isPhysAddr) {
-      return Collections.<IntegerConstraint<IntegerField>>singleton(
-          MemoryAccessConstraints.RANGE(
-              addrType,
-              new IntegerRange(region.getMin(), region.getMax())
-          ));
+      return getConstraints(addrType, region);
     }
 
     // Restrict the memory-mapped buffer access.
@@ -73,23 +70,45 @@ public final class MemorySymbolicRestrictor {
       final GeneratorSettings settings = GeneratorSettings.get();
       InvariantChecks.checkNotNull(settings);
 
-      final RegionSettings region = settings.getMemory().getRegion(buffer.getName());
-      InvariantChecks.checkNotNull(region);
-
-      return Collections.<IntegerConstraint<IntegerField>>singleton(
-          MemoryAccessConstraints.RANGE(
-              bufferAccess.getAddress(),
-              new IntegerRange(region.getMin(), region.getMax())
-          ));
+      return getConstraints(
+          bufferAccess.getAddress(),
+          settings.getMemory().getRegion(buffer.getName()));
     }
 
     return Collections.<IntegerConstraint<IntegerField>>emptyList();
   }
 
+  public Collection<IntegerConstraint<IntegerField>> getConstraints() {
+    final GeneratorSettings settings = GeneratorSettings.get();
+    InvariantChecks.checkNotNull(settings);
+
+    return getConstraints(
+        memory.getVirtualAddress(),
+        settings.getMemory().getRegion(memory.getName()));
+  }
+
+  private Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final MmuAddressInstance addrType,
+      final RegionSettings region) {
+    InvariantChecks.checkNotNull(addrType);
+    InvariantChecks.checkNotNull(region);
+
+    final IntegerRange range = new IntegerRange(region.getMin(), region.getMax());
+    Logger.debug("Range constraint: %s in %s", addrType, range);
+
+    return Collections.<IntegerConstraint<IntegerField>>singleton(
+        MemoryAccessConstraints.RANGE(addrType, range));
+  }
+
   public Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final boolean isStart,
       final MmuProgram program,
       final MemoryAccessContext context) {
     final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+
+    if (isStart) {
+      constraints.addAll(getConstraints());
+    }
 
     for (final MmuTransition transition : program.getTransitions()) {
       for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {

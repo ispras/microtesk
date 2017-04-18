@@ -29,6 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessContext {
+  public static final int BUFFER_ACCESS_INITIAL_ID = 1;
   public static final MemoryAccessContext EMPTY = new MemoryAccessContext();
 
   private final MemoryAccessStack memoryAccessStack;
@@ -61,7 +62,7 @@ public final class MemoryAccessContext {
     InvariantChecks.checkNotNull(buffer);
 
     final Integer bufferAccessId = bufferAccessIds.get(buffer);
-    return bufferAccessId != null ? bufferAccessId.intValue() : 0;
+    return bufferAccessId != null ? bufferAccessId.intValue() : (BUFFER_ACCESS_INITIAL_ID - 1);
   }
 
   public MemoryAccessStack getMemoryAccessStack() {

@@ -83,12 +83,17 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final MemoryAccessContext context1 = bufferAccess1.getContext();
         final MemoryAccessContext context2 = bufferAccess1.getContext();
 
-        // Different accesses to the same buffer with some restrictions.
-        // FIXME: Some of the restrictions are too strong and need to be weakened.
+        Logger.debug("Checking dependencies between %s and %s", bufferAccess1, bufferAccess2);
+
+        // FIXME: Some restrictions need to be weakened.
         if (!buffer1.isFake()
             && buffer1 == buffer2
-            && context1.isEmptyStack() && context2.isEmptyStack()
-            && bufferAccess1.getId() == 0 && bufferAccess2.getId() == 0) {
+            && context1.isEmptyStack()
+            && context2.isEmptyStack()
+            && bufferAccess1.getId() == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID
+            && bufferAccess2.getId() == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID) {
+          Logger.debug("Enumerating dependencies between %s and %s", bufferAccess1, bufferAccess2);
+
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
           final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
 

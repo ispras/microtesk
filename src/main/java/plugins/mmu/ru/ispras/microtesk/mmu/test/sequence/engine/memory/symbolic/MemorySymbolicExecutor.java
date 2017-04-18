@@ -27,6 +27,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
@@ -34,10 +35,13 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -100,10 +104,10 @@ public final class MemorySymbolicExecutor {
     return executeEntry(result, null, entry, -1);
   }
 
-  public Boolean execute(final MemoryAccessPath path, final boolean finalize) {
-    InvariantChecks.checkNotNull(path);
+  public Boolean execute(final MemoryAccess access, final boolean finalize) {
+    InvariantChecks.checkNotNull(access);
 
-    final Boolean status = executePath(result, null, path, -1);
+    final Boolean status = executeAccess(result, null, access, -1);
 
     if (finalize) {
       result.includeOriginalVariables();
@@ -131,22 +135,32 @@ public final class MemorySymbolicExecutor {
       final MemoryAccessStructure structure) {
 
     for (int j = 0; j < structure.size(); j++) {
-      final MemoryAccessPath path2 = structure.getAccess(j).getPath();
+      final MemoryAccess access2 = structure.getAccess(j);
 
       for (int i = 0; i < j; i++) {
-        final MemoryAccessPath path1 = structure.getAccess(i).getPath();
+        final MemoryAccess access1 = structure.getAccess(i);
         final BufferDependency dependency = structure.getDependency(i, j);
 
         if (dependency != null) {
           // It does not execute the paths (only the dependency).
-          executeDependency(result, defines, path1, i, path2, j, dependency);
+          executeDependency(result, defines, access1, i, access2, j, dependency);
         }
       }
 
-      executePath(result, defines, path2, j);
+      executeAccess(result, defines, access2, j);
     }
 
     return result.hasConflict() ? Boolean.FALSE : null;
+  }
+
+  private Boolean executeAccess(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final MemoryAccess access,
+      final int pathIndex) {
+
+    executeAlignment(result, defines, access.getType().getDataType(), pathIndex);
+    return executePath(result, defines, access.getPath(), pathIndex);
   }
 
   private Boolean executePath(
@@ -166,12 +180,27 @@ public final class MemorySymbolicExecutor {
     return result.hasConflict() ? Boolean.FALSE : null;
   }
 
+  private Boolean executeAlignment(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final DataType dataType,
+      final int pathIndex) {
+
+    final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
+    final IntegerField field = addrType.getVariable().field(0, dataType.getLowerAddressBit());
+
+    final IntegerConstraint<IntegerField> constraint =
+        new IntegerDomainConstraint<>(field, BigInteger.ZERO);
+
+    return executeFormula(result, defines, constraint.getFormula(), pathIndex);
+  }
+
   private Boolean executeDependency(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccessPath path1,
+      final MemoryAccess access1,
       final int pathIndex1,
-      final MemoryAccessPath path2,
+      final MemoryAccess access2,
       final int pathIndex2,
       final BufferDependency dependency) {
 
@@ -268,6 +297,24 @@ public final class MemorySymbolicExecutor {
     return result.hasConflict() ? Boolean.FALSE : null;
   }
 
+  private void restrictProgram(
+      final MemorySymbolicResult result,
+      final Set<IntegerVariable> defines,
+      final boolean isStart,
+      final MmuProgram program,
+      final int pathIndex) {
+    final MemoryAccessContext context = result.getContext(pathIndex);
+
+    if (restrictor != null) {
+      final Collection<IntegerConstraint<IntegerField>> constraints =
+          restrictor.getConstraints(isStart, program, context);
+
+      for (final IntegerConstraint<IntegerField> constraint : constraints) {
+        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      }
+    }
+  }
+
   private Boolean executeEntry(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
@@ -280,27 +327,25 @@ public final class MemorySymbolicExecutor {
 
     result.accessBuffer(entry, pathIndex);
 
+    final boolean isStart = entry.isStart();
     final MmuProgram program = entry.getProgram();
     final MemoryAccessContext context = result.getContext(pathIndex);
 
-    if (restrictor != null) {
-      final Collection<IntegerConstraint<IntegerField>> constraints =
-          restrictor.getConstraints(program, context);
-
-      for (final IntegerConstraint<IntegerField> constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
-      }
-    }
+    Boolean status = Boolean.TRUE;
 
     switch(entry.getKind()) {
     case NORMAL:
-      return executeProgram(result, defines, program, pathIndex);
+      status = executeProgram(result, defines, program, pathIndex);
+      restrictProgram(result, defines, isStart, program, pathIndex);
+
+      return status;
 
     case CALL:
       InvariantChecks.checkTrue(program.isAtomic());
 
       // Execute the action as usual.
-      executeProgram(result, defines, program, pathIndex);
+      status = executeProgram(result, defines, program, pathIndex);
+      restrictProgram(result, defines, isStart, program, pathIndex);
 
       // Perform recursive memory access.
       final MmuTransition transition = program.getTransition();
@@ -316,14 +361,16 @@ public final class MemorySymbolicExecutor {
       final MmuAddressInstance newFormalArg = newBufferAccess.getAddress();
 
       final Collection<MmuBinding> bindings = newFormalArg.bindings(oldFormalArg);
-      return executeBindings(result, defines, bindings, pathIndex);
+      executeBindings(result, defines, bindings, pathIndex);
+
+      return status;
 
     case RETURN:
       result.updateStack(entry, pathIndex);
-      return Boolean.TRUE;
+      return status;
 
     default:
-      return Boolean.TRUE;
+      return status;
     }
   }
 

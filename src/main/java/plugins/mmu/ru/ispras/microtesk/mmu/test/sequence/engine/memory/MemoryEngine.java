@@ -88,25 +88,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
   }
 
-  final static class ParamAlign extends EngineParameter<DataType> {
-    ParamAlign() {
-      super("align");
-    }
-
-    @Override
-    public DataType getValue(final Object option) {
-      final Number number = (option instanceof Number)
-          ? (Number) option : Integer.parseInt(option.toString(), 10);
-
-      return DataType.type(number.intValue());
-    }
-
-    @Override
-    public DataType getDefaultValue() {
-      return null;
-    }
-  }
-
   final static class ParamRecursionLimit extends EngineParameter<Integer> {
     ParamRecursionLimit() {
       super("recursion-limit");
@@ -148,7 +129,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   static final ParamAbstraction PARAM_ABSTRACTION = new ParamAbstraction();
   static final ParamPreparator PARAM_PREPARATOR = new ParamPreparator();
   static final ParamIterator PARAM_ITERATOR = new ParamIterator();
-  static final ParamAlign PARAM_ALIGN = new ParamAlign();
   static final ParamRecursionLimit PARAM_RECURSION_LIMIT = new ParamRecursionLimit();
   static final ParamCount PARAM_COUNT = new ParamCount();
 
@@ -190,7 +170,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
   private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
   private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
-  private DataType align = PARAM_ALIGN.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
 
@@ -211,15 +190,13 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     abstraction = PARAM_ABSTRACTION.parse(attributes.get(PARAM_ABSTRACTION.getName()));
     preparator = PARAM_PREPARATOR.parse(attributes.get(PARAM_PREPARATOR.getName()));
     iterator = PARAM_ITERATOR.parse(attributes.get(PARAM_ITERATOR.getName()));
-    align = PARAM_ALIGN.parse(attributes.get(PARAM_ALIGN.getName()));
     recursionLimit = PARAM_RECURSION_LIMIT.parse(attributes.get(PARAM_RECURSION_LIMIT.getName()));
     count = PARAM_COUNT.parse(attributes.get(PARAM_COUNT.getName()));
 
-    Logger.debug("Memory engine configuration: %s=%s, %s=%b, %s=%s, %s=%s, %s=%d, %s=%d",
+    Logger.debug("Memory engine configuration: %s=%s, %s=%b, %s=%s, %s=%d, %s=%d",
         PARAM_ABSTRACTION, abstraction,
         PARAM_PREPARATOR, preparator,
         PARAM_ITERATOR, iterator,
-        PARAM_ALIGN, align,
         PARAM_RECURSION_LIMIT, recursionLimit,
         PARAM_COUNT, count);
   }
@@ -367,8 +344,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
               structure,
               entryIdAllocator,
               hitCheckers,
-              normalPathChooser,
-              align);
+              normalPathChooser);
 
           final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
           InvariantChecks.checkNotNull(result);

@@ -50,27 +50,37 @@ public final class MemoryAccessPath {
       RETURN
     }
 
-    public static Entry NORMAL(final MmuProgram program, final MemoryAccessContext context) {
+    public static Entry NORMAL(
+        final boolean isStart,
+        final MmuProgram program,
+        final MemoryAccessContext context) {
       InvariantChecks.checkNotNull(program);
-      return new Entry(Kind.NORMAL, program, context);
+      return new Entry(isStart, Kind.NORMAL, program, context);
     }
 
-    public static Entry CALL(final MmuProgram program, final MemoryAccessContext context) {
+    public static Entry CALL(
+        final boolean isStart,
+        final MmuProgram program,
+        final MemoryAccessContext context) {
       InvariantChecks.checkNotNull(program);
       InvariantChecks.checkNotNull(context);
 
-      return new Entry(Kind.CALL, program, context);
+      return new Entry(isStart, Kind.CALL, program, context);
     }
 
-    public static Entry RETURN(final MemoryAccessContext context) {
-      return new Entry(Kind.RETURN, MmuProgram.EMPTY, context);
+    public static Entry RETURN(
+        final boolean isStart,
+        final MemoryAccessContext context) {
+      return new Entry(isStart, Kind.RETURN, MmuProgram.EMPTY, context);
     }
 
+    private final boolean isStart;
     private final Kind kind;
     private final MmuProgram program;
     private final MemoryAccessContext context;
 
     private Entry(
+        final boolean isStart,
         final Kind kind,
         final MmuProgram program,
         final MemoryAccessContext context) {
@@ -78,9 +88,14 @@ public final class MemoryAccessPath {
       InvariantChecks.checkNotNull(program);
       InvariantChecks.checkNotNull(context);
 
+      this.isStart = isStart;
       this.kind = kind;
       this.program = program;
       this.context = new MemoryAccessContext(context);
+    }
+
+    public boolean isStart() {
+      return isStart;
     }
 
     public Kind getKind() {
@@ -209,7 +224,8 @@ public final class MemoryAccessPath {
           getAddressInstances(entries),
           getBufferAccesses(EnumSet.of(BufferAccessEvent.HIT, BufferAccessEvent.MISS), entries),
           getBufferAccesses(EnumSet.of(BufferAccessEvent.READ), entries),
-          getBufferAccesses(EnumSet.of(BufferAccessEvent.WRITE), entries));
+          getBufferAccesses(EnumSet.of(BufferAccessEvent.WRITE), entries),
+          getBufferAccesses(EnumSet.allOf(BufferAccessEvent.class), entries));
     }
   }
 
@@ -219,6 +235,7 @@ public final class MemoryAccessPath {
   private final Collection<MmuBufferAccess> bufferChecks;
   private final Collection<MmuBufferAccess> bufferReads;
   private final Collection<MmuBufferAccess> bufferWrites;
+  private final Collection<MmuBufferAccess> bufferAccesses;
   private final Collection<MmuBuffer> buffers;
 
   private final Entry firstEntry;
@@ -232,7 +249,8 @@ public final class MemoryAccessPath {
       final Collection<MmuAddressInstance> addressInstances,
       final Collection<MmuBufferAccess> bufferChecks,
       final Collection<MmuBufferAccess> bufferReads,
-      final Collection<MmuBufferAccess> bufferWrites) {
+      final Collection<MmuBufferAccess> bufferWrites,
+      final Collection<MmuBufferAccess> bufferAccesses) {
     InvariantChecks.checkNotNull(entries);
     InvariantChecks.checkNotEmpty(entries);
     InvariantChecks.checkNotNull(actions);
@@ -240,6 +258,7 @@ public final class MemoryAccessPath {
     InvariantChecks.checkNotNull(bufferChecks);
     InvariantChecks.checkNotNull(bufferReads);
     InvariantChecks.checkNotNull(bufferWrites);
+    InvariantChecks.checkNotNull(bufferAccesses);
 
     this.entries = Collections.unmodifiableCollection(entries);
     this.actions = Collections.unmodifiableCollection(actions);
@@ -247,14 +266,11 @@ public final class MemoryAccessPath {
     this.bufferChecks = Collections.unmodifiableCollection(bufferChecks);
     this.bufferReads = Collections.unmodifiableCollection(bufferReads);
     this.bufferWrites = Collections.unmodifiableCollection(bufferWrites);
+    this.bufferAccesses = Collections.unmodifiableCollection(bufferAccesses);
 
     final Collection<MmuBuffer> buffers = new LinkedHashSet<>();
 
-    for (final MmuBufferAccess bufferAccess : bufferReads) {
-      buffers.add(bufferAccess.getBuffer());
-    }
-
-    for (final MmuBufferAccess bufferAccess : bufferWrites) {
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
       buffers.add(bufferAccess.getBuffer());
     }
 
@@ -306,6 +322,10 @@ public final class MemoryAccessPath {
 
   public Collection<MmuBufferAccess> getBufferWrites() {
     return bufferWrites;
+  }
+
+  public Collection<MmuBufferAccess> getBufferAccesses() {
+    return bufferAccesses;
   }
 
   public Collection<MmuBuffer> getBuffers() {

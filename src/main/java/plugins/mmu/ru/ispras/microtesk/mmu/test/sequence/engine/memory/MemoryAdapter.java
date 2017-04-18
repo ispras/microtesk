@@ -141,7 +141,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
     InvariantChecks.checkNotNull(entriesInDataSection);
 
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     final BlockId blockId = new BlockId();
@@ -171,9 +170,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
       }
 
-      final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY
-          || buffer == memory.getTargetBuffer();
-
+      final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY;
       final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
       final MemoryAccessContext context = bufferAccess.getContext();
@@ -182,20 +179,15 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
           ? String.format("%d", bufferAccess.getId())
           : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccess.getId());
 
-      final String comment = String.format("%s(%s)[0x%s]=%s",
-          buffer.getName(),
-          level,
-          index.toString(16),
-          data);
+      final String comment = String.format("%s(%s)=%s", buffer.getName(), level, data);
 
       if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
-        // Static buffer initialization.
-        entriesInDataSection.add(bufferAccessAddress);
+        Logger.debug("Entries in data section: %s", entriesInDataSection);
 
         final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
             blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
 
-        dataSectionBuilder.setOrigin(bufferAccessAddress);
+        dataSectionBuilder.setVirtualAddress(bufferAccessAddress);
         dataSectionBuilder.addComment(comment);
 
         final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
@@ -220,6 +212,9 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
         for (int i = 0; i < sizeInBits; i += itemSizeInBits) {
           final BitVector item = entryValue.field(i, i + itemSizeInBits - 1);
           dataValueBuilder.add(item.bigIntegerValue());
+
+          // Static buffer initialization.
+          entriesInDataSection.add(bufferAccessAddress.add(BigInteger.valueOf(i >>> 3)));
         }
 
         dataValueBuilder.build();

@@ -56,12 +56,8 @@ public final class AddressObject {
     this.access = access;
   }
 
-  public MemoryAccessType getType() {
-    return access.getType();
-  }
-
-  public MemoryAccessPath getPath() {
-    return access.getPath();
+  public MemoryAccess getAccess() {
+    return access;
   }
 
   public Map<MmuAddressInstance, BigInteger> getAddresses() {

@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.basis;
 
+import java.math.BigInteger;
+
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -54,6 +56,8 @@ public enum DataType {
 
   /** The size in bytes. */
   private final int sizeInBytes;
+  /** The lower significant bit of the address. */
+  private final int lowerAddressBit;
 
   /**
    * Constructs a data type for the given size.
@@ -62,6 +66,14 @@ public enum DataType {
    */
   private DataType(final int size) {
     this.sizeInBytes = size;
+
+    int i = 0;
+
+    while ((sizeInBytes & (1 << i)) == 0) {
+      i++;
+    }
+
+    this.lowerAddressBit = i;
   }
 
   /**
@@ -74,13 +86,22 @@ public enum DataType {
   }
 
   /**
+   * Returns the lower significant bit of the address.
+   * 
+   * @return the lower significant bit.
+   */
+  public int getLowerAddressBit() {
+    return lowerAddressBit;
+  }
+
+  /**
    * Checks whether the address is aligned (contains a sufficient number of zero bits at the end).
    * 
    * @param address the address to be checked.
    * @return {@code true} if the address is aligned; {@code false} otherwise.
    */
-  public boolean isAligned(final long address) {
-    return (address & (sizeInBytes - 1)) == 0;
+  public boolean isAligned(final BigInteger address) {
+    return address.and(BigInteger.valueOf(sizeInBytes - 1)).equals(BigInteger.ZERO);
   }
 
   /**
@@ -89,7 +110,7 @@ public enum DataType {
    * @param address the address to be aligned.
    * @return the aligned address.
    */
-  public long align(final long address) {
-    return address & ~(sizeInBytes - 1);
+  public BigInteger align(final BigInteger address) {
+    return address.andNot(BigInteger.valueOf(sizeInBytes - 1));
   }
 }

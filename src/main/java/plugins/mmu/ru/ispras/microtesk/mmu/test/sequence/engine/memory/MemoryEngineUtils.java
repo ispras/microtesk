@@ -175,10 +175,12 @@ public final class MemoryEngineUtils {
   }
 
   private static boolean checkBufferConstraints(
-      final MemoryAccessPath path,
+      final MemoryAccess access,
       final Collection<BufferEventConstraint> bufferConstraints) {
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(bufferConstraints);
+
+    final MemoryAccessPath path = access.getPath();
 
     for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
       final MmuBuffer buffer = bufferConstraint.getBuffer();
@@ -195,33 +197,33 @@ public final class MemoryEngineUtils {
     return true;
   }
 
-  public static boolean isFeasiblePath(
-      final MemoryAccessPath path,
+  public static boolean isFeasibleAccess(
+      final MemoryAccess access,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, Collections.<MmuCondition>emptyList(), constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(access, Collections.<MmuCondition>emptyList(), constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  public static boolean isFeasiblePath(
+  public static boolean isFeasibleAccess(
       final MmuSubsystem memory,
-      final MemoryAccessPath path,
+      final MemoryAccess access,
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(memory);
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
 
     final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
-    if (!checkBufferConstraints(path, bufferEventConstraints)) {
+    if (!checkBufferConstraints(access, bufferEventConstraints)) {
       return false;
     }
 
     final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
-    if (!isFeasiblePath(path, integerConstraints)) {
+    if (!isFeasibleAccess(access, integerConstraints)) {
       return false;
     }
 
@@ -229,16 +231,20 @@ public final class MemoryEngineUtils {
   }
 
   public static Map<IntegerVariable, BigInteger> generateData(
-      final MemoryAccessPath path,
+      final MemoryAccess access,
       final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer) {
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
 
+    Logger.debug("Start generating data");
+
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(path, conditions, constraints, initializer, Solver.Mode.MAP);
+        solve(access, conditions, constraints, initializer, Solver.Mode.MAP);
+
+    Logger.debug("Stop generating data: %s", result.getResult());
 
     // Solution contains only such variables that are used in the path.
     return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
@@ -279,34 +285,36 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MemoryAccessPath path,
+      final MemoryAccess access,
       final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
-    InvariantChecks.checkNotNull(path);
+    InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    Logger.debug("Solve path constraints");
+    Logger.debug("Solving path constraints");
 
-    if (!path.hasSymbolicResult()) {
+    // FIXME: Move from access.getPath() to access.
+    if (!access.getPath().hasSymbolicResult()) {
       final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
 
-      symbolicExecutor.execute(path, true);
-      path.setSymbolicResult(symbolicExecutor.getResult());
+      symbolicExecutor.execute(access, true);
+      access.getPath().setSymbolicResult(symbolicExecutor.getResult());
     }
 
-    final MemorySymbolicResult symbolicResult = path.getSymbolicResult();
-
+    final MemorySymbolicResult symbolicResult = access.getPath().getSymbolicResult();
     final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(symbolicResult);
+
     for (final MmuCondition condition : conditions) {
       symbolicExecutor.execute(condition);
     }
 
     if (symbolicResult.hasConflict()) {
+      Logger.debug("Conflict in symbolic execution");
       return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
     }
 
@@ -318,15 +326,16 @@ public final class MemoryEngineUtils {
     }
 
     final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
-
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
-      Logger.debug("Path: %s", path);
+      Logger.debug("Access: %s", access);
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);
       }
     }
 
+    Logger.debug("Solving result: %s", result.getResult());
     return result;
   }
 

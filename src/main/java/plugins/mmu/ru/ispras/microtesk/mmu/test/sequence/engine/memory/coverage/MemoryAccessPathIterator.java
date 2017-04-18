@@ -463,6 +463,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   }
 
   private static MemoryAccessPath.Entry getEntry(
+      final boolean isStart,
       final MmuProgram program,
       final MemoryAccessContext context) {
     final MemoryAccessContext copyContext = new MemoryAccessContext(context);
@@ -476,8 +477,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
     // Context should contain updated buffer access identifiers.
     return (buffer == null || buffer.getKind() != MmuBuffer.Kind.MEMORY)
-        ? MemoryAccessPath.Entry.NORMAL(program, copyContext)
-        : MemoryAccessPath.Entry.CALL(program, copyContext);
+        ? MemoryAccessPath.Entry.NORMAL(isStart, program, copyContext)
+        : MemoryAccessPath.Entry.CALL(isStart, program, copyContext);
   }
 
   private static MemoryAccessType getType(final MmuProgram program) {
@@ -513,7 +514,8 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
           searchEntry.result = new MemorySymbolicResult(searchEntry.result);
         }
 
-        final MemoryAccessPath.Entry entry = getEntry(program, result.getContext());
+        final boolean isStart = searchStack.size() == 1;
+        final MemoryAccessPath.Entry entry = getEntry(isStart, program, result.getContext());
 
         if (MemoryEngineUtils.isFeasibleEntry(entry, type, constraints, result /* INOUT */)) {
           isCompletedPath = false;
@@ -549,7 +551,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
                 // Append a random inner path.
                 entries.addAll(innerPath.getEntries());
-                entries.add(MemoryAccessPath.Entry.RETURN(newResult.getContext()));
+                entries.add(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
 
                 // Update the symbolic result.
                 newResult = innerResult.getResult();
@@ -562,7 +564,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);
-            returnExecutor.execute(MemoryAccessPath.Entry.RETURN(newResult.getContext()));
+            returnExecutor.execute(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
           }
 
           if (!isCompletedPath) {
