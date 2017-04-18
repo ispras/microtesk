@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,16 +42,7 @@ public final class Reader {
   public static Value<BitVector> fromMemory(
       final String name,
       final BigInteger index) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(index);
-
-    final LocationAccessor location;
-    try {
-      location = model.getPE().accessLocation(name, index);
-    } catch (final ConfigurationException e) {
-      throw new IllegalArgumentException(e);
-    }
-    return new LocationValue(location);
+    return new LocationValue(name, index);
   }
 
   public static Value<BitVector> fromMemory(final String name) {
@@ -86,15 +77,30 @@ public final class Reader {
   }
 
   private static final class LocationValue implements Value<BitVector> {
-    private final LocationAccessor location;
+    private final String name;
+    private final BigInteger index;
 
-    private LocationValue(final LocationAccessor location) {
-      InvariantChecks.checkNotNull(location);
-      this.location = location;
+    private LocationValue(final String name, final BigInteger index) {
+      InvariantChecks.checkNotNull(name);
+      InvariantChecks.checkNotNull(index);
+
+      this.name = name;
+      this.index = index;
+    }
+
+    private LocationAccessor getLocation() {
+      InvariantChecks.checkNotNull(model, "Model is not initialized!");
+
+      try {
+        return model.getPE().accessLocation(name, index);
+      } catch (final ConfigurationException e) {
+        throw new IllegalArgumentException(e);
+      }
     }
 
     @Override
     public BitVector value() {
+      final LocationAccessor location = getLocation();
       return BitVector.unmodifiable(
           BitVector.valueOf(location.getValue(), location.getBitSize()));
     }
@@ -111,7 +117,7 @@ public final class Reader {
     @Override
     public BitVector value() {
       final Location location = mode.access(model.getPE(), model.getTempVars());
-      return new LocationValue(location).value();
+      return location.toBitVector();
     }
   }
 }
