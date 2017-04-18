@@ -141,7 +141,6 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
-    directiveFactory.resetLabels();
     return new DataSection(
         labelValues, directives, physicalAddress, global, separateFile);
   }

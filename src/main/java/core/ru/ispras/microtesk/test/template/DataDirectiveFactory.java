@@ -16,13 +16,11 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
@@ -49,8 +47,6 @@ public final class DataDirectiveFactory {
   private final String ztermStrText;
   private final String nztermStrText;
 
-  private List<LabelValue> preceedingLabels;
-
   private DataDirectiveFactory(
       final Options options,
       final Map<String, TypeInfo> types,
@@ -69,8 +65,6 @@ public final class DataDirectiveFactory {
     this.spaceData = spaceData;
     this.ztermStrText = ztermStrText;
     this.nztermStrText = nztermStrText;
-
-    this.preceedingLabels = Collections.emptyList();
   }
 
   public static final class Builder {
@@ -258,7 +252,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      // Nothing
+      linkLabelToAddress(label, allocator.getCurrentAddress());
     }
 
     @Override
@@ -294,7 +288,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      // Nothing
+      linkLabelToAddress(label, allocator.getCurrentAddress());
     }
 
     @Override
@@ -435,14 +429,10 @@ public final class DataDirectiveFactory {
 
   private final class Space implements DataDirective {
     private final int length;
-    private final List<LabelValue> labels;
 
-    private Space(final int length, final List<LabelValue> labels) {
+    private Space(final int length) {
       InvariantChecks.checkGreaterThanZero(length);
-      InvariantChecks.checkNotNull(labels);
-
       this.length = length;
-      this.labels = labels;
     }
 
     @Override
@@ -457,13 +447,12 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      final BigInteger address = allocator.allocate(spaceData, length);
-      linkLabelsToAddress(labels, address);
+      allocator.allocate(spaceData, length);
     }
 
     @Override
     public DataDirective copy() {
-      return new Space(length, LabelValue.sharedCopyAll(labels));
+      return this;
     }
 
     @Override
@@ -475,18 +464,14 @@ public final class DataDirectiveFactory {
   private final class AsciiStrings implements DataDirective {
     private final boolean zeroTerm;
     private final String[] strings;
-    private final List<LabelValue> labels;
 
     private AsciiStrings(
         final boolean zeroTerm,
-        final String[] strings,
-        final List<LabelValue> labels) {
+        final String[] strings) {
       InvariantChecks.checkNotEmpty(strings);
-      InvariantChecks.checkNotNull(labels);
 
       this.zeroTerm = zeroTerm;
       this.strings = strings;
-      this.labels = labels;
     }
 
     @Override
@@ -509,18 +494,13 @@ public final class DataDirectiveFactory {
     @Override
     public void apply(final MemoryAllocator allocator) {
       for (int index = 0; index < strings.length; index++) {
-        final BigInteger address =
-            allocator.allocateAsciiString(strings[index], zeroTerm);
-
-        if (0 == index) {
-          linkLabelsToAddress(labels, address);
-        }
+        allocator.allocateAsciiString(strings[index], zeroTerm);
       }
     }
 
     @Override
     public DataDirective copy() {
-      return new AsciiStrings(zeroTerm, strings, LabelValue.sharedCopyAll(labels));
+      return this;
     }
 
     @Override
@@ -532,19 +512,15 @@ public final class DataDirectiveFactory {
   private static final class Data implements DataDirective {
     private final String typeText;
     private final List<BitVector> values;
-    private final List<LabelValue> labels;
 
     private Data(
         final String typeText,
-        final List<BitVector> values,
-        final List<LabelValue> labels) {
+        final List<BitVector> values) {
       InvariantChecks.checkNotNull(typeText);
       InvariantChecks.checkNotEmpty(values);
-      InvariantChecks.checkNotNull(labels);
 
       this.typeText = typeText;
       this.values = values;
-      this.labels = labels;
     }
 
     @Override
@@ -573,19 +549,14 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      boolean isFirst = true;
       for (final BitVector value : values) {
-        final BigInteger address = allocator.allocate(value);
-        if (isFirst) {
-          linkLabelsToAddress(labels, address);
-          isFirst = false;
-        }
+        allocator.allocate(value);
       }
     }
 
     @Override
     public DataDirective copy() {
-      return new Data(typeText, values, LabelValue.sharedCopyAll(labels));
+      return this;
     }
 
     @Override
@@ -597,19 +568,15 @@ public final class DataDirectiveFactory {
   private static final class DataValue implements DataDirective {
     private final TypeInfo typeInfo;
     private final List<Value> values;
-    private final List<LabelValue> labels;
 
     private DataValue(
         final TypeInfo typeInfo,
-        final List<Value> values,
-        final List<LabelValue> labels) {
+        final List<Value> values) {
       InvariantChecks.checkNotNull(typeInfo);
       InvariantChecks.checkNotEmpty(values);
-      InvariantChecks.checkNotNull(labels);
 
       this.typeInfo = typeInfo;
       this.values = values;
-      this.labels = labels;
     }
 
     private BitVector toBitVector(final Value value) {
@@ -642,14 +609,8 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      boolean isFirst = true;
       for (final Value value : values) {
-        final BigInteger address = allocator.allocate(toBitVector(value));
-
-        if (isFirst) {
-          linkLabelsToAddress(labels, address);
-          isFirst = false;
-        }
+        allocator.allocate(toBitVector(value));
       }
     }
 
@@ -659,20 +620,12 @@ public final class DataDirectiveFactory {
       for (final Value value : values) {
         newValues.add(value.copy());
       }
-      return new DataValue(typeInfo, newValues, LabelValue.sharedCopyAll(labels));
+      return new DataValue(typeInfo, newValues);
     }
 
     @Override
     public String toString() {
-      final StringBuilder sb = new StringBuilder(getText());
-
-      if (!labels.isEmpty()) {
-        sb.append("(labels=");
-        sb.append(labels.toString());
-        sb.append(")");
-      }
-
-      return sb.toString();
+      return getText();
     }
   }
 
@@ -685,8 +638,6 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newLabel(final LabelValue label) {
-    InvariantChecks.checkNotNull(label);
-    preceedingLabels = CollectionUtils.appendToList(preceedingLabels, label);
     return new Label(label);
   }
 
@@ -710,20 +661,12 @@ public final class DataDirectiveFactory {
   public DataDirective newSpace(final int length) {
     InvariantChecks.checkNotNull(spaceText);
     InvariantChecks.checkNotNull(spaceData);
-
-    final DataDirective result = new Space(length, preceedingLabels);
-    preceedingLabels = Collections.emptyList();
-
-    return result;
+    return new Space(length);
   }
 
   public DataDirective newAsciiStrings(final boolean zeroTerm, final String[] strings) {
     InvariantChecks.checkTrue(zeroTerm ? ztermStrText != null : nztermStrText != null);
-
-    final DataDirective result = new AsciiStrings(zeroTerm, strings, preceedingLabels);
-    preceedingLabels = Collections.emptyList();
-
-    return result;
+    return new AsciiStrings(zeroTerm, strings);
   }
 
   public DataDirective newData(final String typeName, final BigInteger[] values) {
@@ -741,10 +684,7 @@ public final class DataDirectiveFactory {
       valueList.add(data);
     }
 
-    final DataDirective result = new Data(typeInfo.text, valueList, preceedingLabels);
-    preceedingLabels = Collections.emptyList();
-
-    return result;
+    return new Data(typeInfo.text, valueList);
   }
 
   public DataDirective newData(
@@ -764,10 +704,7 @@ public final class DataDirectiveFactory {
       values.add(generator.nextData());
     }
 
-    final DataDirective result = new Data(typeInfo.text, values, preceedingLabels);
-    preceedingLabels = Collections.emptyList();
-
-    return result;
+    return new Data(typeInfo.text, values);
   }
 
   public DataDirective newDataValues(final String typeName, final List<Value> values) {
@@ -776,17 +713,7 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newDataValues(final TypeInfo typeInfo, final List<Value> values) {
-    InvariantChecks.checkNotNull(typeInfo);
-    InvariantChecks.checkNotEmpty(values);
-
-    final DataDirective result = new DataValue(typeInfo, values, preceedingLabels);
-    preceedingLabels = Collections.emptyList();
-
-    return result;
-  }
-
-  public void resetLabels() {
-    preceedingLabels = Collections.emptyList();
+    return new DataValue(typeInfo, values);
   }
 
   public int getMaxTypeBitSize() {
@@ -818,12 +745,10 @@ public final class DataDirectiveFactory {
         String.format("No %d-bit type is defined.", typeSizeInBits));
   }
 
-  private static void linkLabelsToAddress(
-      final List<LabelValue> labels,
+  private static void linkLabelToAddress(
+      final LabelValue label,
       final BigInteger physicalAddress) {
-    for (final LabelValue label : labels) {
-      final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
-      label.setAddress(virtuaAddress);
-    }
+    final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
+    label.setAddress(virtuaAddress);
   }
 }
