@@ -36,8 +36,10 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MmuSubsystem {
+  /** Name of MMU */
+  private final String name;
+
   /** Stores available variables. */
   private final Map<String, IntegerVariable> variables;
 
@@ -83,8 +85,8 @@ public final class MmuSubsystem {
   /**
    * Constructs an instance of {@code MmuSubsystem}.
    */
-
   private MmuSubsystem(
+      final String name,
       final Map<String, IntegerVariable> variables,
       final Map<String, MmuAddressInstance> addresses,
       final List<MmuAddressInstance> sortedAddresses,
@@ -97,6 +99,7 @@ public final class MmuSubsystem {
       final MmuBuffer targetBuffer,
       final Map<MmuAction, List<MmuTransition>> actions,
       final MmuAction startAction) {
+    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(addresses);
     InvariantChecks.checkNotNull(sortedAddresses);
@@ -112,6 +115,7 @@ public final class MmuSubsystem {
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(startAction);
 
+    this.name = name;
     this.variables = Collections.unmodifiableMap(variables);
     this.addresses = Collections.unmodifiableMap(addresses);
     this.sortedAddresses = Collections.unmodifiableList(sortedAddresses);
@@ -127,6 +131,10 @@ public final class MmuSubsystem {
 
     this.actions = Collections.unmodifiableMap(actions);
     this.startAction = startAction;
+  }
+
+  public final String getName() {
+    return name;
   }
 
   public void setSettings(final GeneratorSettings settings) {
@@ -355,6 +363,9 @@ public final class MmuSubsystem {
   }
 
   public static final class Builder {
+    /** Name of the MMU */
+    private String name = null;
+
     /** Stores available address types. */
     private Map<String, IntegerVariable> variables = new LinkedHashMap<>();
 
@@ -396,6 +407,7 @@ public final class MmuSubsystem {
 
     public MmuSubsystem build() {
       return new MmuSubsystem(
+          name,
           variables,
           addresses,
           sortedAddresses,
@@ -409,6 +421,11 @@ public final class MmuSubsystem {
           actions,
           startAction
           );
+    }
+
+    public void setName(final String name) {
+      InvariantChecks.checkNotNull(name);
+      this.name = name;
     }
 
     public void registerVariable(final IntegerVariable variable) {
