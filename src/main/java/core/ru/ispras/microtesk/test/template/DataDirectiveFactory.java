@@ -665,6 +665,7 @@ public final class DataDirectiveFactory {
   }
 
   public DataDirective newOriginForVirtualAddress(final BigInteger address) {
+    InvariantChecks.checkGreaterOrEq(address, BigInteger.ZERO);
     final BigInteger origin = address.subtract(baseVirtualAddress);
     return new Origin(origin);
   }
