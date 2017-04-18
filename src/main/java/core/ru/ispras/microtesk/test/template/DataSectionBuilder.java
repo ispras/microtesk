@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -88,6 +88,15 @@ public final class DataSectionBuilder {
    */
   public void setRelativeOrigin(final BigInteger delta) {
     addDirective(directiveFactory.newOriginRelative(delta));
+  }
+
+  /**
+   * Sets allocation origin that corresponds to the specified virtual address.
+   * The origin value is calculated depending on the context. Inserts the ".org"
+   * directive in the test program.
+   */
+  public void setVirtualAddress(final BigInteger address) {
+    addDirective(directiveFactory.newOriginForVirtualAddress(address));
   }
 
   /**

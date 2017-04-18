@@ -40,6 +40,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  */
 public final class DataDirectiveFactory {
   private final Options options;
+  private final BigInteger baseVirtualAddress;
   private final Map<String, TypeInfo> types;
   private final int maxTypeBitSize;
   private final String spaceText;
@@ -49,6 +50,7 @@ public final class DataDirectiveFactory {
 
   private DataDirectiveFactory(
       final Options options,
+      final BigInteger baseVirtualAddress,
       final Map<String, TypeInfo> types,
       final int maxTypeBitSize,
       final String spaceText,
@@ -56,9 +58,11 @@ public final class DataDirectiveFactory {
       final String ztermStrText,
       final String nztermStrText) {
     InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(baseVirtualAddress);
     InvariantChecks.checkNotNull(types);
 
     this.options = options;
+    this.baseVirtualAddress = baseVirtualAddress;
     this.types = types;
     this.maxTypeBitSize = maxTypeBitSize;
     this.spaceText = spaceText;
@@ -69,6 +73,7 @@ public final class DataDirectiveFactory {
 
   public static final class Builder {
     private final Options options;
+    private final BigInteger baseVirtualAddress;
     private final boolean isDebugPrinting;
     private final int addressableUnitBitSize;
 
@@ -81,11 +86,14 @@ public final class DataDirectiveFactory {
 
     protected Builder(
         final Options options,
+        final BigInteger baseVirtualAddress,
         final int addressableUnitBitSize) {
       InvariantChecks.checkNotNull(options);
+      InvariantChecks.checkNotNull(baseVirtualAddress);
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
       this.options = options;
+      this.baseVirtualAddress = baseVirtualAddress;
       this.isDebugPrinting = options.getValueAsBoolean(Option.DEBUG);
       this.addressableUnitBitSize = addressableUnitBitSize;
 
@@ -148,6 +156,7 @@ public final class DataDirectiveFactory {
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
           options,
+          baseVirtualAddress,
           types,
           maxTypeBitSize,
           spaceText,
@@ -307,6 +316,7 @@ public final class DataDirectiveFactory {
 
     private Origin(final BigInteger origin) {
       InvariantChecks.checkNotNull(origin);
+      InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
       this.origin = origin;
     }
 
@@ -652,6 +662,11 @@ public final class DataDirectiveFactory {
 
   public DataDirective newOriginRelative(final BigInteger delta) {
     return new OriginRelative(delta);
+  }
+
+  public DataDirective newOriginForVirtualAddress(final BigInteger address) {
+    final BigInteger origin = address.subtract(baseVirtualAddress);
+    return new Origin(origin);
   }
 
   public DataDirective newAlign(final BigInteger alignment, final BigInteger alignmentInBytes) {

@@ -62,7 +62,7 @@ public final class DataManager {
         AddressTranslator.get().virtualToPhysical(baseVA);
 
     model.initMemoryAllocator(target, addressableUnitBitSize, basePA);
-    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
+    factoryBuilder = new DataDirectiveFactory.Builder(options, baseVA, addressableUnitBitSize);
 
     return factoryBuilder;
   }
