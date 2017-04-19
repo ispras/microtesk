@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.model.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
@@ -89,6 +91,12 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
     }
 
     return line.setData(address, data);
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    final Buffer<D, A> line = lines.get(way.intValue());
+    return line != null ? line.seeData(index, way) : null;
   }
 
   /**
