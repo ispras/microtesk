@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.Pair;
+
 /**
  * This is a generic interface of a buffer (i.e., a component that stores addressable data).
  * 
@@ -48,4 +51,13 @@ public interface Buffer<D, A> {
    * @return the old data if they exist; {@code null} otherwise.
    */
   D setData(final A address, final D data);
+
+  /**
+   * Returns data and associated address without changing the state.
+   * 
+   * @param index Set index.
+   * @param way Line index.
+   * @return Pair<Address, Data> or {@code null} if it is not found.
+   */
+  Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way);
 }
