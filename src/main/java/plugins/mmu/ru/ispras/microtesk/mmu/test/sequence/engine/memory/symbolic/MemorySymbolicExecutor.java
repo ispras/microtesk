@@ -89,6 +89,11 @@ public final class MemorySymbolicExecutor {
     return result;
   }
 
+  public Boolean execute(final DataType dataType) {
+    InvariantChecks.checkNotNull(dataType);
+    return executeAlignment(result, null, dataType, -1);
+  }
+
   public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
     InvariantChecks.checkNotNull(constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
@@ -186,12 +191,20 @@ public final class MemorySymbolicExecutor {
       final DataType dataType,
       final int pathIndex) {
 
+    final int lowerZeroBit = 0;
+    final int upperZeroBit = dataType.getLowerAddressBit() - 1;
+
+    if (upperZeroBit < 0) {
+      return null;
+    }
+
     final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
-    final IntegerField field = addrType.getVariable().field(0, dataType.getLowerAddressBit());
+    final IntegerField field = addrType.getVariable().field(lowerZeroBit, upperZeroBit);
 
     final IntegerConstraint<IntegerField> constraint =
         new IntegerDomainConstraint<>(field, BigInteger.ZERO);
 
+    Logger.debug("Alignment: %s", constraint);
     return executeFormula(result, defines, constraint.getFormula(), pathIndex);
   }
 

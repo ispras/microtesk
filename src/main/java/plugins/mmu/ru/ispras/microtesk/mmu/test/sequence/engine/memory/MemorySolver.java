@@ -530,7 +530,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       if (buffer.isFake()) {
         return new SolverResult<MemorySolution>(solution);
-      } else if (buffer.isReplaceable()) {
+      }
+
+      if (buffer.isReplaceable()) {
         // Construct a sequence of addresses to be accessed.
         if (usedEvent == BufferAccessEvent.HIT) {
           result = solveHitConstraint(j, bufferAccess);
