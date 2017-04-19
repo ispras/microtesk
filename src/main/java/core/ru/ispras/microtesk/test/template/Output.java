@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -144,10 +143,10 @@ public final class Output {
    */
   final static class ArgumentLocation implements Argument {
     private final String name;
-    private final BigInteger index;
+    private final Value index;
     private final boolean isBinaryText;
 
-    ArgumentLocation(final String name, final BigInteger index, final boolean isBinaryText) {
+    ArgumentLocation(final String name, final Value index, final boolean isBinaryText) {
       this.name = name;
       this.index = index;
       this.isBinaryText = isBinaryText;
@@ -156,18 +155,22 @@ public final class Output {
     @Override
     public Object evaluate(
         final ProcessingElement processingElement) throws ConfigurationException {
-      final LocationAccessor accessor = processingElement.accessLocation(name, index);
+      final LocationAccessor accessor = processingElement.accessLocation(name, index.getValue());
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
 
     @Override
     public String toString() {
-      return String.format("%s[%d]", name, index);
+      return index instanceof FixedValue ?
+          String.format("%s[%d]", name, index.getValue()) :
+          String.format("%s[%s]", name, index.getClass().getSimpleName());
     }
 
     @Override
     public Argument copy() {
-      return this;
+      return index instanceof SharedObject ?
+          new ArgumentLocation(
+              name, (Value)((SharedObject<?>) index).getCopy(), isBinaryText) : this;
     }
   }
 

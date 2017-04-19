@@ -118,7 +118,7 @@ public final class OutputBuilder {
    * 
    * @throws IllegalArgumentException if the name parameter equals {@code null}.
    */
-  public OutputBuilder addArgument(final String name, final BigInteger index) {
+  public OutputBuilder addArgument(final String name, final Value index) {
     checkNotNull(name);
 
     final FormatMarker marker = getMarker(getArgumentCount());
@@ -127,6 +127,10 @@ public final class OutputBuilder {
 
     addArgument(new ArgumentLocation(name, index, isBinaryText));
     return this;
+  }
+
+  public OutputBuilder addArgument(final String name, final BigInteger index) {
+    return addArgument(name, new FixedValue(index));
   }
 
   /**
