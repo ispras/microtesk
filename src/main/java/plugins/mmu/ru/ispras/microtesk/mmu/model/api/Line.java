@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.Pair;
+
 /**
  * This is an abstract representation of a cache line.
  * 
@@ -21,10 +24,14 @@ package ru.ispras.microtesk.mmu.model.api;
  * @param <A> the address type.
  * 
  * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
   /** The stored data. */
   private D data;
+
+  /** Address of the data */
+  private A address;
 
   /** The data-address matcher. */
   private final Matcher<D, A> matcher;
@@ -36,6 +43,7 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
    */
   public Line(final Matcher<D, A> matcher) {
     this.data = null;
+    this.address = null;
     this.matcher = matcher;
   }
 
@@ -57,12 +65,22 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
   public D setData(final A address, final D newData) {
     final D oldData = data;
 
-    data = newData;
+    this.data = newData;
+    this.address = address;
+
     return oldData;
   }
 
   @Override
   public String toString() {
     return String.format("Line [data=%s]", data);
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    return null != address && null != data ?
+        new Pair<>(address.getValue(), data.asBitVector()) :
+        null
+        ;
   }
 }
