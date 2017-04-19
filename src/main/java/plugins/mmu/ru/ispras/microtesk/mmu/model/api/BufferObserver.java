@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * The role of {@code BufferObserver} interface is to provide information
@@ -30,4 +31,13 @@ public interface BufferObserver {
    * @return {@code true} if the address causes a hit; {@code false} otherwise.
    */
   boolean isHit(BitVector address);
+
+  /**
+   * Returns data and associated address without changing the state.
+   * 
+   * @param index Set index.
+   * @param way Line index.
+   * @return Pair<Address, Data> or {@code null} if it is not found.
+   */
+  Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way);
 }
