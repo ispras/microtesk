@@ -57,7 +57,7 @@ public interface Buffer<D, A> {
    * 
    * @param index Set index.
    * @param way Line index.
-   * @return Pair\<Address, Data\> or {@code null} if it is not found.
+   * @return Pair(Address, Data) or {@code null} if it is not found.
    */
   Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way);
 }
