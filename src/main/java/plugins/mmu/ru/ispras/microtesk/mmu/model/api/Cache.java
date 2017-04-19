@@ -18,6 +18,7 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.ModelStateManager;
 import ru.ispras.microtesk.utils.SparseArray;
 
@@ -133,6 +134,12 @@ public abstract class Cache<D extends Data, A extends Address>
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
     return set.setData(address, data);
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    final Set<D, A> set = sets.get(index);
+    return null != set ? set.seeData(index, way) : null;
   }
 
   public final Proxy setData(final A address) {

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.api.memory.MemoryDevice;
 
 public abstract class Mmu <A extends Address & Data>
@@ -45,6 +46,12 @@ public abstract class Mmu <A extends Address & Data>
     InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize(), "Data size mismatch");
 
     setData(toAddress(address), data);
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+    // NOT SUPPORTED
+    throw new UnsupportedOperationException();
   }
 
   private A toAddress(final BitVector value) {

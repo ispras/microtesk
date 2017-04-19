@@ -18,6 +18,7 @@ import java.math.BigInteger;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link MmuMapping} class describes a buffer mapped to memory.
@@ -93,6 +94,12 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
     InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
     getMmu().setData(address, value);
     return null;
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+    // NOT SUPPORTED
+    throw new UnsupportedOperationException();
   }
 
   protected abstract Mmu<A> getMmu();

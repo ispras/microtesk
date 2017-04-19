@@ -200,6 +200,12 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     return set.setData(address, data);
   }
 
+  @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+    // NOT SUPPORTED
+    throw new UnsupportedOperationException();
+  }
+
   public final Proxy setData(final A address) {
     return new Proxy(address);
   }

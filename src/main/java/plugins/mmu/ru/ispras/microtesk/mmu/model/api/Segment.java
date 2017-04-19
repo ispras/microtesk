@@ -16,10 +16,10 @@ package ru.ispras.microtesk.mmu.model.api;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 public abstract class Segment<D, A extends Address>
     implements Buffer<D, A>, BufferObserver {
-
   private final BitVector start;
   private final BitVector end;
 
@@ -51,6 +51,12 @@ public abstract class Segment<D, A extends Address>
 
   @Override
   public D setData(final A address, final D data) {
+    // NOT SUPPORTED
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
     // NOT SUPPORTED
     throw new UnsupportedOperationException();
   }
