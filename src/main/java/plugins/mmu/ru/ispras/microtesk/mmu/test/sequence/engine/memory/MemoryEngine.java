@@ -19,11 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -33,8 +31,6 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.model.api.BufferObserver;
-import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.CoverageExtractor;
@@ -42,7 +38,6 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccess
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator.MemoryAccessStructureIterator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
@@ -54,7 +49,6 @@ import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.Range;
-import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -175,7 +169,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   private EntryIdAllocator entryIdAllocator;
 
-  private Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers;
   private MemoryAccessPathChooser normalPathChooser;
 
   @Override
@@ -239,36 +232,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     this.entryIdAllocator = new EntryIdAllocator(settings);
-
-    final Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers = new LinkedHashMap<>();
-
-    for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
-      hitCheckers.put(addressType, new Predicate<BigInteger>() {
-        @Override
-        public boolean test(final BigInteger address) {
-          final MmuModel model = MmuPlugin.getMmuModel();
-          final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-          for (final MmuBuffer buffer : memory.getSortedListOfBuffers()) {
-            if (!buffer.isFake()
-                && buffer.getAddress().equals(addressType)
-                && buffer != memory.getTargetBuffer()) {
-              Logger.debug("Hit checker: %s", buffer);
-
-              final BufferObserver observer = model.getBufferObserver(buffer.getName());
-
-              if (observer.isHit(BitVector.valueOf(address, addressType.getWidth()))) {
-                return true;
-              }
-            }
-          }
-
-          return false;
-        }
-      });
-    }
-
-    this.hitCheckers = hitCheckers;
 
     this.normalPathChooser = CoverageExtractor.get().getPathChooser(
         memory,
@@ -343,7 +306,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           final MemorySolver solver = new MemorySolver(
               structure,
               entryIdAllocator,
-              hitCheckers,
               normalPathChooser);
 
           final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);

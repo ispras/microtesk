@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -61,9 +60,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.utils.Range;
 import ru.ispras.microtesk.utils.function.Function;
-import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
  * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.)
@@ -81,7 +78,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Memory access structure being processed. */
   private final MemoryAccessStructure structure;
 
-  private final Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers;
   private final MemoryAccessPathChooser normalPathChooser;
   private final MemoryAccessConstraints constraints;
 
@@ -100,17 +96,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
   public MemorySolver(
       final MemoryAccessStructure structure,
       final EntryIdAllocator entryIdAllocator,
-      final Map<MmuAddressInstance, Predicate<BigInteger>> hitCheckers,
       final MemoryAccessPathChooser normalPathChooser) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(entryIdAllocator);
-    InvariantChecks.checkNotNull(hitCheckers);
     InvariantChecks.checkNotNull(normalPathChooser);
 
     this.structure = structure;
     this.entryIdAllocator = entryIdAllocator;
-    this.hitCheckers = hitCheckers;
     this.normalPathChooser = normalPathChooser;
     this.constraints = MmuSettingsUtils.getConstraints();
   }
@@ -143,20 +136,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     Logger.debug("Solve: SAT");
     return result;
-  }
-
- 
-  private RegionSettings chooseRegion() {
-    final Set<RegionSettings> regions = new HashSet<>();
-    final GeneratorSettings settings = GeneratorSettings.get();
-
-    for (final RegionSettings region : settings.getMemory().getRegions()) {
-      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
-        regions.add(region);
-      }
-    }
-
-    return Randomizer.get().choose(regions);
   }
 
   /**
@@ -303,7 +282,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
       for (int i = 0; i < buffer.getWays(); i++) {
         final AddressAndEntry evictingAddressAndEntry =
-            allocateAddrMissTagAndParentEntry(bufferAccess, address, chooseRegion(), false);
+            allocateAddrMissTagAndParentEntry(bufferAccess, address);
 
         sequence.add(evictingAddressAndEntry);
       }
@@ -691,7 +670,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final Collection<MmuCondition> conditions = getHazardConditions(j);
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    final boolean hasRefined = refineAddr(access, conditions, addrObject, true /* Apply constraints */);
+    final boolean hasRefined = refineAddr(addrObject, conditions, true /* Apply constraints */);
     InvariantChecks.checkTrue(hasRefined, String.format("Infeasible access=%s", access));
 
     // FIXME: Divide solveBufferConstraint into non-replaceable/replaceable parts.
@@ -856,81 +835,54 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return replacedTags;
   }
 
-  /**
-   * Allocates a tag for a replaceable buffer (e.g., a cache unit).
-   * 
-   * <p>It takes an address (a partial address with initialized index) and returns a tag such that
-   * it does not belong to the buffer set (the set is determined by the index defined in the
-   * address) and was not returned previously for that set.</p>
-   */
-  private BigInteger allocateAddrMissTag(
-      final MmuBufferAccess bufferAccess,
-      final BigInteger partialAddress, // Index and offset
-      final Range<BigInteger> region,
-      final boolean peek) {
-    final MmuBuffer buffer = bufferAccess.getBuffer();
-    final Predicate<BigInteger> hitChecker = hitCheckers.get(buffer.getAddress());
+  private AddressObject getNormalAddrObject() {
+    final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
 
-    while (true) {
-      // TODO:
-      final BigInteger address = BigInteger.valueOf(Randomizer.get().nextLong());
+    final MemoryAccessPath normalPath =
+        normalPathChooser.get(BiasedConstraints.<MemoryAccessConstraints>SOFT(constraints));
 
-      if (hitChecker == null || !hitChecker.test(address)) {
-        return address;
-      }
-    }
+    final MemoryAccess normalAccess = new MemoryAccess(normalType, normalPath);
+    final AddressObject normalAddrObject = new AddressObject(normalAccess);
+
+    return normalAddrObject;
   }
 
   private AddressAndEntry allocateAddrMissTagAndParentEntry(
       final MmuBufferAccess bufferAccess,
-      final BigInteger partialAddress, // Index and offset
-      final Range<BigInteger> region,
-      final boolean peek) {
+      final BigInteger addressWithoutTag) {
     final MmuBuffer buffer = bufferAccess.getBuffer();
-
-    // The buffer is not a view of another buffer.
-    if (!buffer.isView()) {
-      return new AddressAndEntry(allocateAddrMissTag(bufferAccess, partialAddress, region, peek));
-    }
 
     // The buffer is a view of a non-replaceable buffer.
     final MmuBuffer parent = buffer.getParent();
     InvariantChecks.checkTrue(parent != null && !parent.isReplaceable());
 
     // Allocate a unique entry in the parent buffer.
-    final BigInteger id = allocateEntryId(parent, false);
-    InvariantChecks.checkNotNull(id);
-
-    final MemoryAccessType normalType = MemoryAccessType.LOAD(DataType.BYTE);
-
-    Logger.debug("Getting normal paths: target=%s, buffer=%s",
-        memory.getTargetBuffer(), parent);
-
-    final MemoryAccessPath normalPath =
-        normalPathChooser.get(BiasedConstraints.<MemoryAccessConstraints>SOFT(constraints));
-
-    final MemoryAccess normalAccess = new MemoryAccess(normalType, normalPath);
-    InvariantChecks.checkNotNull(normalAccess);
-
-    // Construct a valid address object.
-    final AddressObject normalAddrObject = new AddressObject(normalAccess);
+    final BigInteger entryId = allocateEntryId(parent, false);
+    final AddressObject normalAddrObject = getNormalAddrObject();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
     final boolean hasRefined = refineAddr(
-        new MemoryAccess(MemoryAccessType.LOAD(DataType.BYTE /* Not important */), normalPath),
-        Collections.<MmuCondition>emptyList(),
         normalAddrObject,
+        Collections.<MmuCondition>emptyList(), // FIXME: constraints != tag[1] ... tag[n]
         false /* Do not apply constraints */);
-    InvariantChecks.checkTrue(hasRefined, String.format("Infeasible path=%s", normalPath));
 
-    // Construct the corresponding entry.
-    final MmuEntry entry = new MmuEntry(parent.getFields());
-    fillEntry(bufferAccess.getParentAccess(), normalAddrObject, entry);
+    InvariantChecks.checkTrue(hasRefined,
+        String.format("Infeasible access=%s", normalAddrObject.getAccess()));
 
-    final EntryObject entryObject = new EntryObject(id, entry);
-    solution.addEntry(bufferAccess.getParentAccess(), entryObject);
+    final BigInteger bufferAccessAddress = normalAddrObject.getAddress(bufferAccess.getAddress());
 
-    return new AddressAndEntry(normalAddrObject.getAddress(bufferAccess.getAddress()), entryObject);
+    // The buffer is a view of another buffer.
+    if (buffer.isView()) {
+      final MmuEntry entry = new MmuEntry(parent.getFields());
+      fillEntry(bufferAccess.getParentAccess(), normalAddrObject, entry);
+
+      final EntryObject entryObject = new EntryObject(entryId, entry);
+      solution.addEntry(bufferAccess.getParentAccess(), entryObject);
+
+      return new AddressAndEntry(bufferAccessAddress, entryObject);
+    }
+
+    return new AddressAndEntry(bufferAccessAddress);
   }
 
   private BigInteger allocateEntryId(final MmuBuffer buffer, final boolean peek) {
@@ -941,9 +893,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private boolean refineAddr(
-      final MemoryAccess access,
-      final Collection<MmuCondition> conditions,
       final AddressObject addrObject,
+      final Collection<MmuCondition> conditions,
       final boolean applyConstraints) {
 
     final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
@@ -961,7 +912,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     final Map<IntegerVariable, BigInteger> values =
         MemoryEngineUtils.generateData(
-            access,
+            addrObject.getAccess(),
             conditions,
             constraints,
             IntegerVariableInitializer.RANDOM
@@ -973,7 +924,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       return false;
     }
 
-    final MemoryAccessPath path = access.getPath();
+    final MemoryAccessPath path = addrObject.getAccess().getPath();
     final Collection<MmuBufferAccess> bufferAccesses = new ArrayList<>();
     bufferAccesses.addAll(path.getBufferChecks());
     bufferAccesses.addAll(path.getBufferReads());
