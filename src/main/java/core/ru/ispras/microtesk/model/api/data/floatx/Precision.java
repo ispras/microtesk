@@ -17,6 +17,11 @@ package ru.ispras.microtesk.model.api.data.floatx;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.softfloat.JSoftFloat;
 
+/**
+ * {@link Precision} describes supported precisions of floating-point numbers.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public enum Precision {
   FLOAT16 (10, 5) {
     @Override public Operations getOperations() {

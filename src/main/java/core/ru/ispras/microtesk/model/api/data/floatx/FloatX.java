@@ -17,6 +17,11 @@ package ru.ispras.microtesk.model.api.data.floatx;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * {@link FloatX} stores floating-point numbers of the specified precision.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class FloatX extends Number implements Comparable<FloatX> {
   private static final long serialVersionUID = 2006185347947148830L;
 

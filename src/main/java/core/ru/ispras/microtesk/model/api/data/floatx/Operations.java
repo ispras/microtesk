@@ -16,6 +16,12 @@ package ru.ispras.microtesk.model.api.data.floatx;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
+/**
+ * The {@link Operations} interface defines operations to be supported
+ * for all floating-point types.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 interface Operations {
   FloatX add(final FloatX lhs, final FloatX rhs);
   FloatX sub(final FloatX lhs, final FloatX rhs);

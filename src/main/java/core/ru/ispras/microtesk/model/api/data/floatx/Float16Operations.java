@@ -19,6 +19,12 @@ import ru.ispras.softfloat.Float128;
 import ru.ispras.softfloat.Float16;
 import ru.ispras.softfloat.Float16Functions;
 
+/**
+ * {@link Float128Operations} implements floating-point operations
+ * for 16-bit types.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 final class Float16Operations implements Operations {
   private static Operations instance = null;
 
