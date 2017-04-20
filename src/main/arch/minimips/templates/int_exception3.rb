@@ -55,7 +55,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
     j :start
     nop
 
-    org 0x580
+    org 0x380
     sequence {
       trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
       mfc0 ra, rcop0(14)
