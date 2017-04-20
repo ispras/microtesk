@@ -522,6 +522,7 @@ public final class Executor {
     final StringBuilder sb = new StringBuilder("Jump to ");
 
     if (null != label) {
+      sb.append("label ");
       sb.append(label.getUniqueName());
       sb.append(" at ");
     }
@@ -532,10 +533,12 @@ public final class Executor {
 
   private void logJumpUndefinedLabel(final Label label) {
     if(!isLoggingEnabled) {
-      Logger.debug(
-          "Jump to %s (undefined label). Simulation is paused until it is allocated.",
-          label.getName()
-          );
+      return;
     }
+
+    Logger.debug(
+        "Jump to undefined label %s. Simulation is paused until it is allocated.",
+        label.getName()
+        );
   }
 }
