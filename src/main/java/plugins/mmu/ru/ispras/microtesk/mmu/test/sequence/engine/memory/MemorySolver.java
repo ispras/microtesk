@@ -158,14 +158,20 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final AddressObject addrObject = solution.getAddressObject(j);
     final MmuEntry entry = entryObject.getEntry();
 
+    final int bufferAccessId = bufferAccess.getId();
+    final MemoryAccessContext context = bufferAccess.getContext();
+
     // Set the entry fields.
     entry.setValid(true);
     entry.setAddress(addrObject.getAddress(bufferAccess));
 
     for (final IntegerVariable field : entry.getVariables()) {
+      final IntegerVariable fieldInstance = context.getInstance(bufferAccessId, field);
+
       // If an entry field is not used in the path, it remains unchanged.
-      if (values.containsKey(field) && !entry.isValid(field)) {
-        entry.setValue(field, values.get(field), true);
+      if (values.containsKey(fieldInstance) && !entry.isValid(field)) {
+        final BigInteger fieldValue = values.get(fieldInstance);
+        entry.setValue(field, fieldValue, true);
       }
     }
   }
