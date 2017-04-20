@@ -159,6 +159,12 @@ final class TemplateProcessor implements Template.Processor {
             "Instance %d is still waiting for label %s that has never been allocated.",
             index, status.getLabelReference().getReference().getName()));
       }
+
+      if (!isEndOfTestSequence(status, testProgram.getLastEntry())) {
+        throw new GenerationAbortedException(String.format(
+            "Instance %d is at address 0x%016x and it cannot reach the end of the program.",
+            index, status.getAddress()));
+      }
     }
  
     try {
