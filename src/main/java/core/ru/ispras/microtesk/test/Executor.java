@@ -326,21 +326,6 @@ public final class Executor {
         continue;
       }
 
-      /////////////////////////////////////////////////////////
-      /*
-      final MemoryDevice memory = context.getModel().getPE().getMemoryDevice();
-      final BitVector data = memory.load(BitVector.valueOf(call.getAddress() >> 2, memory.getAddressBitSize()));
-      System.out.println("!!! 0x" + data.toHexString());
-
-      final DecoderResult result = context.getModel().getDecoder().decode(data);
-      final IsaPrimitive decoded = result.getPrimitive();
-      System.out.println("!!! " + decoded.syntax(context.getModel().getTempVars()));
-
-      final LocationAccessor pa = getStateObserver().accessLocation("MMU_PA");
-      System.out.println(String.format("!!! VA=0x%016x, PA=0x%016x", call.getAddress(), pa.getValue()));
-      */
-      /////////////////////////////////////////////////////////
-
       final String exception = executeCall(call);
 
       // EXCEPTION
@@ -547,3 +532,18 @@ public final class Executor {
         "Address 0x%016x is unallocated. Simulation is paused until it is allocated.", address);
   }
 }
+
+/////////////////////////////////////////////////////////
+/*
+final MemoryDevice memory = context.getModel().getPE().getMemoryDevice();
+final BitVector data = memory.load(BitVector.valueOf(call.getAddress() >> 2, memory.getAddressBitSize()));
+System.out.println("!!! 0x" + data.toHexString());
+
+final DecoderResult result = context.getModel().getDecoder().decode(data);
+final IsaPrimitive decoded = result.getPrimitive();
+System.out.println("!!! " + decoded.syntax(context.getModel().getTempVars()));
+
+final LocationAccessor pa = getStateObserver().accessLocation("MMU_PA");
+System.out.println(String.format("!!! VA=0x%016x, PA=0x%016x", call.getAddress(), pa.getValue()));
+*/
+/////////////////////////////////////////////////////////
