@@ -349,7 +349,7 @@ public final class Executor {
         if (null != handlerAddress) {
           labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
 
-          logJump(handlerAddress, null);
+          logJumpExceptionHandler(exception, handlerAddress);
           fetcher.jump(handlerAddress);
 
           if (!fetcher.code.hasAddress(handlerAddress)) {
@@ -540,5 +540,13 @@ public final class Executor {
         "Jump to undefined label %s. Simulation is paused until it is allocated.",
         label.getName()
         );
+  }
+
+  private void logJumpExceptionHandler(final String exception, final long address) {
+    if(!isLoggingEnabled) {
+      return;
+    }
+
+    Logger.debug("Jump to handler of %s at 0x%016x.", exception, address);
   }
 }
