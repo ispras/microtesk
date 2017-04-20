@@ -432,9 +432,15 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processPostponedBlocksNoSimulation() throws ConfigurationException {
+    boolean isFirst = true;
     for (final TestSequence entry : testProgram.getEntries()) {
       if (!testProgram.isPostponedEntry(entry)) {
         continue;
+      }
+
+      if (isFirst) {
+        Logger.debugHeader("Processing All Postponed Blocks Without Simulation");
+        isFirst = false;
       }
 
       final Block block = testProgram.getPostponedEntry(entry);
