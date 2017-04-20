@@ -22,16 +22,13 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
@@ -44,19 +41,6 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
  */
 public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
-
-  private static MemoryAccessConstraints constraints = null;
-
-  public static MemoryAccessConstraints getConstraints() {
-    if (constraints == null) {
-      constraints = new MemoryAccessConstraints(
-          getIntegerConstraints(),
-          getBufferEventConstraints()
-      );
-    }
-
-    return constraints;
-  }
 
   public static List<IntegerConstraint<IntegerField>> getIntegerConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();

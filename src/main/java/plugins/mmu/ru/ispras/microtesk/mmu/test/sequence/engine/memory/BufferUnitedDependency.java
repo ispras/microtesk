@@ -105,9 +105,7 @@ public final class BufferUnitedDependency {
 
       final BufferHazard.Type[] hazardTypes = new BufferHazard.Type[] {
           BufferHazard.Type.TAG_EQUAL,
-          BufferHazard.Type.TAG_NOT_EQUAL,
-          BufferHazard.Type.TAG_REPLACED,
-          BufferHazard.Type.TAG_NOT_REPLACED
+          BufferHazard.Type.TAG_NOT_EQUAL
       };
 
       for (final BufferHazard.Type hazardType : hazardTypes) {
@@ -136,8 +134,6 @@ public final class BufferUnitedDependency {
 
     relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_EQUAL));
     relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_EQUAL));
-    relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_REPLACED));
-    relation.addAll(getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_REPLACED));
 
     return relation;
   }
@@ -166,15 +162,5 @@ public final class BufferUnitedDependency {
     }
 
     return relation;
-  }
-
-  public Set<Pair<Integer, BufferHazard.Instance>> getTagNotReplacedRelation(
-      final MmuBufferAccess bufferAccess) {
-    return getRelation(bufferAccess, BufferHazard.Type.TAG_NOT_REPLACED);
-  }
-
-  public Set<Pair<Integer, BufferHazard.Instance>> getTagReplacedRelation(
-      final MmuBufferAccess bufferAccess) {
-    return getRelation(bufferAccess, BufferHazard.Type.TAG_REPLACED);
   }
 }

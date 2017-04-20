@@ -23,28 +23,13 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryGraphAbstraction;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedDependency;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferUnitedHazard;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterAccessThenMiss;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterBuilder;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplaced;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterHitAndTagReplacedEx;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterMultipleTagReplaced;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterMultipleTagReplacedEx;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterNonReplaceableTagEqual;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterParentMissChildHitOrReplace;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterTagEqualTagReplaced;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.filter.FilterUnclosedEqualRelations;
-import ru.ispras.microtesk.utils.function.BiPredicate;
-import ru.ispras.microtesk.utils.function.Predicate;
-import ru.ispras.microtesk.utils.function.TriPredicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -68,9 +53,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       @Override
       public MemoryDependencyIterator getDependencyIterator(
           final MemoryAccess access1,
-          final MemoryAccess access2,
-          final Predicate<MemoryAccessStructure> checker) {
-        return new MemoryDependencyIteratorRandom(access1, access2, checker);
+          final MemoryAccess access2) {
+        return new MemoryDependencyIteratorRandom(access1, access2);
       }
     },
 
@@ -85,9 +69,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       @Override
       public MemoryDependencyIterator getDependencyIterator(
           final MemoryAccess access1,
-          final MemoryAccess access2,
-          final Predicate<MemoryAccessStructure> checker) {
-        return new MemoryDependencyIteratorExhaustive(access1, access2, checker);
+          final MemoryAccess access2) {
+        return new MemoryDependencyIteratorExhaustive(access1, access2);
       }
     };
 
@@ -97,42 +80,14 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     public abstract MemoryDependencyIterator getDependencyIterator(
         final MemoryAccess access1,
-        final MemoryAccess access2,
-        final Predicate<MemoryAccessStructure> checker);
+        final MemoryAccess access2);
   }
-
-  /** Checks the consistency of memory access pairs (template parts) and whole templates. */
-  private final FilterBuilder basicFilters = new FilterBuilder();
-  {
-    basicFilters.addHazardFilter(new FilterNonReplaceableTagEqual());
-    basicFilters.addUnitedHazardFilter(new FilterHitAndTagReplaced());
-    basicFilters.addUnitedHazardFilter(new FilterTagEqualTagReplaced());
-    basicFilters.addUnitedHazardFilter(new FilterMultipleTagReplaced());
-    basicFilters.addUnitedHazardFilter(new FilterParentMissChildHitOrReplace());
-    basicFilters.addUnitedDependencyFilter(new FilterHitAndTagReplacedEx());
-    basicFilters.addUnitedDependencyFilter(new FilterMultipleTagReplacedEx());
-    basicFilters.addStructureFilter(new FilterUnclosedEqualRelations());
-  }
-
-  /** Checks the consistency of whole templates (not applicable to template parts). */
-  private final FilterBuilder advancedFilters = new FilterBuilder();
-  {
-    advancedFilters.addUnitedDependencyFilter(new FilterAccessThenMiss());
-  }
-
-  /** Contains the basic filters as well as user-defined ones. */
-  private final FilterBuilder filterBuilder = new FilterBuilder(basicFilters);
 
   /** Memory access types (descriptors). */
   private final List<MemoryAccessType> accessTypes;
 
   private final MemoryAccessIterator accessIterator;
   private final MemoryDependencyIterator[][] dependencyIterators;
-
-  /** Checks the consistency of execution path pairs. */
-  private Predicate<MemoryAccessStructure> accessPairChecker;
-  /** Checks the consistency of whole test templates. */
-  private Predicate<MemoryAccessStructure> structureChecker;
 
   private final Mode mode;
   private final int countLimit;
@@ -199,17 +154,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   @Override
   public void init() {
-    // Initialize the filter for checking memory access pairs.
-    final Predicate<MemoryAccessStructure> accessPairFilter = filterBuilder.build();
-    this.accessPairChecker = new MemoryAccessStructureChecker(accessPairFilter);
-
-    // Initialize the filter for checking whole memory access structures.
-    final FilterBuilder structureFilterBuilder = new FilterBuilder(filterBuilder);
-    structureFilterBuilder.addFilterBuilder(advancedFilters);
-
-    final Predicate<MemoryAccessStructure> structureFilter = structureFilterBuilder.build();
-    this.structureChecker = new MemoryAccessStructureChecker(structureFilter);
-
     hasValue = initAccesses();
 
     while (hasValue && !checkStructure()) {
@@ -253,7 +197,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   private boolean checkStructure() {
     final MemoryAccessStructure structure = new MemoryAccessStructure(accesses, dependencies);
-    return structureChecker.test(structure);
+    return MemoryEngineUtils.isFeasibleStructure(structure);
   }
 
   private boolean nextStructure() {
@@ -278,7 +222,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       for (int j = i + 1; j < size; j++) {
         final MemoryAccess access2 = accesses.get(j);
 
-        dependencyIterators[i][j] = mode.getDependencyIterator(access1, access2, accessPairChecker);
+        dependencyIterators[i][j] = mode.getDependencyIterator(access1, access2);
         dependencyIterators[i][j].init();
 
         if (!dependencyIterators[i][j].hasValue()) {
@@ -366,44 +310,5 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     } while (true);
 
     return false;
-  }
-
-  //------------------------------------------------------------------------------------------------
-  // Filter Registration
-  //------------------------------------------------------------------------------------------------
-
-  public void addHazardFilter(
-      final TriPredicate<MemoryAccess, MemoryAccess, BufferHazard.Instance> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addHazardFilter(filter);
-  }
-
-  public void addDependencyFilter(
-      final TriPredicate<MemoryAccess, MemoryAccess, BufferDependency> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addDependencyFilter(filter);
-  }
-
-  public void addUnitedHazardFilter(
-      final BiPredicate<MemoryAccess, BufferUnitedHazard> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addUnitedHazardFilter(filter);
-  }
-
-  public void addUnitedDependencyFilter(
-      final BiPredicate<MemoryAccess, BufferUnitedDependency> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addUnitedDependencyFilter(filter);
-  }
-
-  public void addStructureFilter(
-      final Predicate<MemoryAccessStructure> filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addStructureFilter(filter);
-  }
-
-  public void addFilterBuilder(final FilterBuilder filter) {
-    InvariantChecks.checkNotNull(filter);
-    filterBuilder.addFilterBuilder(filter);
   }
 }

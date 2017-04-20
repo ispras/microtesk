@@ -95,6 +95,18 @@ public final class MmuBufferAccess {
     return argument;
   }
 
+  public MmuExpression getTagExpression() {
+    return buffer.getTagExpression().getInstance(id, context);
+  }
+
+  public MmuExpression getIndexExpression() {
+    return buffer.getIndexExpression().getInstance(id, context);
+  }
+
+  public MmuExpression getOffsetExpression() {
+    return buffer.getOffsetExpression().getInstance(id, context);
+  }
+
   public final Collection<MmuBinding> getMatchBindings() {
     if (context.isEmptyStack() && id == 0) {
       return buffer.getMatchBindings();

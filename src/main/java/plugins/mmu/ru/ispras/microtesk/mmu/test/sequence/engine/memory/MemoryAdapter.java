@@ -29,10 +29,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
@@ -92,8 +89,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     // Write entries into the non-replaceable buffers.
     builder.addToPrologue(prepareEntries(engineContext, solution));
-    // Load data into the replaceable buffers.
-    builder.addToPrologue(prepareData(engineContext, solution));
     // Load addresses and data into the registers.
     builder.addToPrologue(prepareAddresses(engineContext, abstractSequence, solution));
 
@@ -235,72 +230,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
           preparation.addAll(initializer);
         }
-      }
-    }
-
-    return preparation;
-  }
-
-  private List<ConcreteCall> prepareData(
-      final EngineContext engineContext,
-      final MemorySolution solution) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(solution);
-
-    final List<ConcreteCall> preparation = new ArrayList<>(); 
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-    for (final MmuAddressInstance addressType : memory.getSortedListOfAddresses()) {
-      preparation.addAll(prepareData(addressType, engineContext, solution));
-    }
-
-    return preparation;
-  }
-
-  private List<ConcreteCall> prepareData(
-      final MmuAddressInstance addressType,
-      final EngineContext engineContext,
-      final MemorySolution solution) {
-    InvariantChecks.checkNotNull(addressType);
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(solution);
-
-    final List<ConcreteCall> preparation = new ArrayList<>();
-
-    final List<Load> loads = solution.getLoader().prepareLoads(addressType);
-    InvariantChecks.checkNotNull(loads);
-
-    // Load data into the buffers.
-    for (final Load load : loads) {
-      final MmuBuffer buffer = load.getBuffer();
-      final BufferAccessEvent targetEvent = load.getTargetEvent();
-
-      final BigInteger targetAddress = load.getTargetAddress();
-      final BigInteger targetIndex = buffer.getIndex(targetAddress);
-      final BigInteger targetTag = buffer.getTag(targetAddress);
-
-      final BigInteger currentAddress = load.getAddress();
-      final BigInteger currentTag = buffer.getTag(currentAddress);
-
-      final BitVector address = BitVector.valueOf(currentAddress, addressType.getWidth());
-
-      final List<ConcreteCall> initializer = prepareBuffer(
-          buffer, engineContext, address, Collections.<String, BitVector>emptyMap());
-      InvariantChecks.checkNotNull(initializer);
-
-      if (!initializer.isEmpty()) {
-        preparation.add(ConcreteCall.newLine());
-        preparation.add(ConcreteCall.newComment(String.format(
-            "Initializing %s: Goal=%s[0x%s] (Index=0x%s, Tag=0x%s), Address=0x%s (Tag=0x%s)",
-            buffer.getName(),
-            targetEvent,
-            targetAddress.toString(16),
-            targetIndex.toString(16),
-            targetTag.toString(16),
-            currentAddress.toString(16),
-            currentTag.toString(16))));
-
-        preparation.addAll(initializer);
       }
     }
 

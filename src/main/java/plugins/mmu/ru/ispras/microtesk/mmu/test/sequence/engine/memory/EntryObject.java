@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.Load;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 
 /**
@@ -33,9 +32,6 @@ public final class EntryObject {
 
   /** Address objects that use this entry. */
   private final Collection<AddressObject> addrObjects = new LinkedHashSet<>();
-
-  /** Auxiliary loads that use this entry. */
-  private final Collection<Load> loads = new LinkedHashSet<>();
 
   public EntryObject(final BigInteger id, final MmuEntry entry) {
     InvariantChecks.checkNotNull(entry);
@@ -56,18 +52,9 @@ public final class EntryObject {
     return addrObjects;
   }
 
-  public Collection<Load> getLoads() {
-    return loads;
-  }
-
   public void addAddrObject(final AddressObject addrObject) {
     InvariantChecks.checkNotNull(addrObject);
     addrObjects.add(addrObject);
-  }
-
-  public void addLoad(final Load load) {
-    InvariantChecks.checkNotNull(load);
-    loads.add(load);
   }
 
   public boolean isAuxiliary() {

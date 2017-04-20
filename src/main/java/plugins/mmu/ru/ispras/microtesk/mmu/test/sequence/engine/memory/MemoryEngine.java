@@ -14,11 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,21 +22,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.settings.MmuSettingsUtils;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator.MemoryAccessStructureIterator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.settings.GeneratorSettings;
-import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.sequence.engine.Engine;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.EngineParameter;
@@ -48,7 +35,6 @@ import ru.ispras.microtesk.test.sequence.engine.EngineResult;
 import ru.ispras.microtesk.test.template.Call;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.utils.Range;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -142,7 +128,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   public static MemoryAccessConstraints getMemoryAccessConstraints(final Call abstractCall) {
     if (!isMemoryAccessWithSituation(abstractCall)) {
-      return null;
+      return MemoryAccessConstraints.EMPTY;
     }
 
     final Primitive primitive = abstractCall.getRootOperation();
@@ -150,7 +136,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
     final Object attribute = situation.getAttribute("path");
     if (null == attribute) {
-      return null;
+      return MemoryAccessConstraints.EMPTY;
     }
 
     if (attribute instanceof MemoryAccessConstraints) {
@@ -158,7 +144,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     }
 
     Logger.warning("Unexpected format of the path attribute of a test situation: %s", attribute);
-    return null;
+    return MemoryAccessConstraints.EMPTY;
   }
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
@@ -166,10 +152,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
-
-  private EntryIdAllocator entryIdAllocator;
-
-  private MemoryAccessPathChooser normalPathChooser;
 
   @Override
   public Class<MemorySolution> getSolutionClass() {
@@ -200,70 +182,20 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final Iterator<MemoryAccessStructure> structureIterator =
-        getStructureIterator(engineContext, abstractSequence);
-
-    final Iterator<MemorySolution> solutionIterator =
-        getSolutionIterator(engineContext, structureIterator);
-
-    final Map<MmuAddressInstance, Collection<? extends Range<BigInteger>>> addressToRegions = new HashMap<>();
-    final Collection<RegionSettings> regions = new ArrayList<>();
-
-    final GeneratorSettings settings = GeneratorSettings.get();
-
-    for (final RegionSettings region : settings.getMemory().getRegions()) {
-      if (region.isEnabled() && region.getType() == RegionSettings.Type.DATA) {
-        regions.add(region);
-      }
-    }
-
-    Logger.debug("Memory engine: regions=%s", regions);
-
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-    for (final MmuAddressInstance addrType : memory.getSortedListOfAddresses()) {
-      if (addrType.equals(memory.getVirtualAddress())) {
-        addressToRegions.put(addrType, memory.getSegments());
-      } else if (addrType.equals(memory.getPhysicalAddress())) {
-        addressToRegions.put(addrType, regions);
-      } else {
-        addressToRegions.put(addrType, Collections.<RegionSettings>emptyList());
-      }
-    }
-
-    this.entryIdAllocator = new EntryIdAllocator(settings);
-
-    this.normalPathChooser = CoverageExtractor.get().getPathChooser(
-        memory,
-        MemoryGraphAbstraction.TARGET_BUFFER_ACCESS,
-        MemoryAccessType.LOAD(DataType.BYTE),
-        new MemoryAccessConstraints.Builder().build(),
-        recursionLimit,
-        true /* discard empty trajectories */);
-
-    return new EngineResult<MemorySolution>(solutionIterator);
-  }
-
-  private Iterator<MemoryAccessStructure> getStructureIterator(
-      final EngineContext engineContext,
-      final List<Call> abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
+    final MemoryAccessConstraints globalConstraints = MemoryAccessConstraints.EMPTY;
+    Logger.debug("Global memory constraints: %s", globalConstraints);
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
     for (final Call abstractCall : abstractSequence) {
       if(!isMemoryAccessWithSituation(abstractCall)) {
-        // Skip non memory access instructions and memory accesses instructions without situations.
+        // Skip non-memory-access instructions and memory-accesses instructions without situations.
         continue;
       }
 
       final MemoryOperation operation =
           abstractCall.isLoad() ? MemoryOperation.LOAD : MemoryOperation.STORE;
-
-      final MemoryAccessConstraints constraints =
-          getMemoryAccessConstraints(abstractCall);
 
       final int blockSizeInBits = abstractCall.getBlockSize();
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
@@ -271,89 +203,83 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       final int blockSizeInBytes = blockSizeInBits >>> 3;
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
 
+      final MemoryAccessConstraints constraints = getMemoryAccessConstraints(abstractCall);
       accessConstraints.add(constraints);
     }
 
     Logger.debug("Creating memory access iterator: %s", accessTypes);
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
-    return new MemoryAccessStructureIterator(
-        abstraction,
-        accessTypes,
-        accessConstraints,
-        MmuSettingsUtils.getConstraints(),
-        recursionLimit,
-        iterator,
-        count);
-  }
+    final Iterator<MemoryAccessStructure> structureIterator =
+        new MemoryAccessStructureIterator(
+            abstraction,
+            accessTypes,
+            accessConstraints,
+            globalConstraints,
+            recursionLimit,
+            iterator,
+            count);
 
-  private Iterator<MemorySolution> getSolutionIterator(
-      final EngineContext engineContext,
-      final Iterator<MemoryAccessStructure> structureIterator) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(structureIterator);
+    final Iterator<MemorySolution> solutionIterator =
+        new Iterator<MemorySolution>() {
+          private MemorySolution solution = null;
 
-    return new Iterator<MemorySolution>() {
-      private MemorySolution solution = null;
+          private MemorySolution getSolution() {
+            while (structureIterator.hasValue()) {
+              final MemoryAccessStructure structure = structureIterator.value();
+              final MemorySolver solver = new MemorySolver(
+                  structure,
+                  accessConstraints,
+                  globalConstraints
+              );
+              final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
+              InvariantChecks.checkNotNull(result);
 
-      private MemorySolution getSolution() {
-        while (structureIterator.hasValue()) {
-          final MemoryAccessStructure structure = structureIterator.value();
+              if (result.getStatus() == SolverResult.Status.SAT) {
+                solution = result.getResult();
+                break;
+              }
 
-          // Reset the allocation tables before solving the constraint.
-          entryIdAllocator.reset();
+              structureIterator.next();
+            }
 
-          final MemorySolver solver = new MemorySolver(
-              structure,
-              entryIdAllocator,
-              normalPathChooser);
-
-          final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
-          InvariantChecks.checkNotNull(result);
-
-          if (result.getStatus() == SolverResult.Status.SAT) {
-            solution = result.getResult();
-            break;
+            return structureIterator.hasValue() ? solution : null;
           }
 
-          structureIterator.next();
-        }
+          @Override
+          public void init() {
+            structureIterator.init();
+            solution = getSolution();
+          }
 
-        return structureIterator.hasValue() ? solution : null;
-      }
+          @Override
+          public boolean hasValue() {
+            return solution != null;
+          }
 
-      @Override
-      public void init() {
-        structureIterator.init();
-        solution = getSolution();
-      }
+          @Override
+          public MemorySolution value() {
+            return solution;
+          }
 
-      @Override
-      public boolean hasValue() {
-        return solution != null;
-      }
+          @Override
+          public void next() {
+            structureIterator.next();
+            solution = getSolution();
+          }
 
-      @Override
-      public MemorySolution value() {
-        return solution;
-      }
+          @Override
+          public void stop() {
+            solution = null;
+          }
 
-      @Override
-      public void next() {
-        structureIterator.next();
-        solution = getSolution();
-      }
+          @Override
+          public Iterator<MemorySolution> clone() {
+            throw new UnsupportedOperationException();
+          }
+      };
 
-      @Override
-      public void stop() {
-        solution = null;
-      }
-
-      @Override
-      public Iterator<MemorySolution> clone() {
-        throw new UnsupportedOperationException();
-      }
-    };
+    return new EngineResult<MemorySolution>(solutionIterator);
   }
 
   @Override

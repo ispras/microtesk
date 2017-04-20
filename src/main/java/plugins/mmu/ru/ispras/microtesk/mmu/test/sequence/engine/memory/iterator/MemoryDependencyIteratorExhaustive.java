@@ -14,10 +14,8 @@
 
 package ru.ispras.microtesk.mmu.test.sequence.engine.memory.iterator;
 
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
-import ru.ispras.microtesk.utils.function.Predicate;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 
 /**
  * {@link MemoryDependencyIteratorExhaustive} implements an exhaustive iterator of dependencies
@@ -31,9 +29,8 @@ public final class MemoryDependencyIteratorExhaustive extends MemoryDependencyIt
 
   public MemoryDependencyIteratorExhaustive(
       final MemoryAccess access1,
-      final MemoryAccess access2,
-      final Predicate<MemoryAccessStructure> checker) {
-    super(access1, access2, checker);
+      final MemoryAccess access2) {
+    super(access1, access2);
   }
 
   @Override

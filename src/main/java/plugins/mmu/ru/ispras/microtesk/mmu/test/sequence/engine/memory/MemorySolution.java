@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.loader.MemoryLoader;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 /**
@@ -41,9 +40,6 @@ public final class MemorySolution {
   /** Contains test data for individual executions. */
   private final List<AddressObject> solution;
 
-  /** Contains addresses to be accessed to prepare hit/miss situations. */
-  private final MemoryLoader loader;
-
   /**
    * Contains entries to be written into the buffers to prepare hit/miss situations.
    * 
@@ -62,7 +58,6 @@ public final class MemorySolution {
 
     this.structure = structure;
     this.solution = new ArrayList<>(structure.size());
-    this.loader = new MemoryLoader();
 
     for (int i = 0; i < structure.size(); i++) {
       final MemoryAccess access = structure.getAccess(i);
@@ -126,15 +121,6 @@ public final class MemorySolution {
     InvariantChecks.checkNotNull(testData);
 
     solution.set(i, testData);
-  }
-
-  /**
-   * Returns the memory loader.
-   * 
-   * @return the memory loader.
-   */
-  public MemoryLoader getLoader() {
-    return loader;
   }
 
   /**

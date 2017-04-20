@@ -36,9 +36,7 @@ public final class MmuConditionAtom {
     /** Constraint: {@code lhsExpr == rhsConst}. */
     EQ_EXPR_CONST,
     /** Constraint: {@code lhsVar in rhsRange}. */
-    IN_EXPR_RANGE,
-    /** Constraint: {@code expression == replacedTag}. */
-    EQ_REPLACED
+    IN_EXPR_RANGE
   }
 
   //------------------------------------------------------------------------------------------------
@@ -103,18 +101,6 @@ public final class MmuConditionAtom {
   public static MmuConditionAtom range(
       final IntegerVariable lhsVar, final BigInteger rhsMin, final BigInteger rhsMax) {
     return range(MmuExpression.var(lhsVar), rhsMin, rhsMax);
-  }
-
-  public static MmuConditionAtom eqReplaced(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQ_REPLACED, false, expression);
-  }
-
-  public static MmuConditionAtom eqReplaced(final IntegerField field) {
-    return eqReplaced(MmuExpression.field(field));
-  }
-
-  public static MmuConditionAtom eqReplaced(final IntegerVariable variable) {
-    return eqReplaced(MmuExpression.var(variable));
   }
 
   //------------------------------------------------------------------------------------------------
@@ -184,18 +170,6 @@ public final class MmuConditionAtom {
   public static MmuConditionAtom nrange(
       final IntegerVariable lhsVar, final BigInteger rhsMin, final BigInteger rhsMax) {
     return nrange(MmuExpression.var(lhsVar), rhsMin, rhsMax);
-  }
-
-  public static MmuConditionAtom neqReplaced(final MmuExpression expression) {
-    return new MmuConditionAtom(Type.EQ_REPLACED, true, expression);
-  }
-
-  public static MmuConditionAtom neqReplaced(final IntegerField field) {
-    return neqReplaced(MmuExpression.field(field));
-  }
-
-  public static MmuConditionAtom neqReplaced(final IntegerVariable variable) {
-    return neqReplaced(MmuExpression.var(variable));
   }
 
   //------------------------------------------------------------------------------------------------

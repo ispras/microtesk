@@ -17,8 +17,9 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -38,13 +39,19 @@ public final class MmuCondition {
     OR
   }
 
+  public static MmuCondition TRUE =
+      new MmuCondition(Type.AND, Collections.<MmuConditionAtom>emptyList());
+
+  public static MmuCondition FALSE =
+      new MmuCondition(Type.OR, Collections.<MmuConditionAtom>emptyList());
+
   //------------------------------------------------------------------------------------------------
   // Composed Conditions
   //------------------------------------------------------------------------------------------------
 
   public static MmuCondition not(final MmuCondition condition) {
     final Type negatedType = (condition.getType() == Type.AND ? Type.OR : Type.AND);
-    final List<MmuConditionAtom> negatedAtoms = condition.getAtoms();
+    final Collection<MmuConditionAtom> negatedAtoms = condition.getAtoms();
 
     for (final MmuConditionAtom atom : condition.getAtoms()) {
       negatedAtoms.add(MmuConditionAtom.not(atom));
@@ -53,11 +60,11 @@ public final class MmuCondition {
     return new MmuCondition(negatedType, negatedAtoms);
   }
 
-  public static MmuCondition and(final List<MmuConditionAtom> equalities) {
+  public static MmuCondition and(final Collection<MmuConditionAtom> equalities) {
     return new MmuCondition(Type.AND, equalities);
   }
 
-  public static MmuCondition or(final List<MmuConditionAtom> equalities) {
+  public static MmuCondition or(final Collection<MmuConditionAtom> equalities) {
     return new MmuCondition(Type.OR, equalities);
   }
 
@@ -76,7 +83,7 @@ public final class MmuCondition {
   public static MmuCondition eq(final MmuStruct struct) {
     InvariantChecks.checkNotNull(struct);
 
-    final List<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
+    final Collection<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
     for (final IntegerVariable field : struct.getFields()) {
       atoms.add(MmuConditionAtom.eq(field));
     }
@@ -115,7 +122,7 @@ public final class MmuCondition {
     InvariantChecks.checkTrue(lhsStruct.getBitSize() == rhsStruct.getBitSize());
     InvariantChecks.checkTrue(lhsStruct.getFieldCount() == rhsStruct.getFieldCount());
 
-    final List<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
+    final Collection<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
 
     final Iterator<IntegerVariable> leftIt = lhsStruct.getFields().iterator();
     final Iterator<IntegerVariable> rightIt = rhsStruct.getFields().iterator();
@@ -151,18 +158,6 @@ public final class MmuCondition {
     return range(MmuExpression.var(variable), min, max);
   }
 
-  public static MmuCondition eqReplaced(final MmuExpression expression) {
-    return new MmuCondition(MmuConditionAtom.eqReplaced(expression));
-  }
-
-  public static MmuCondition eqReplaced(final IntegerField field) {
-    return eqReplaced(MmuExpression.field(field));
-  }
-
-  public static MmuCondition eqReplaced(final IntegerVariable variable) {
-    return eqReplaced(MmuExpression.var(variable));
-  }
-
   //------------------------------------------------------------------------------------------------
   // Negated Atomic Conditions
   //------------------------------------------------------------------------------------------------
@@ -170,7 +165,7 @@ public final class MmuCondition {
   public static MmuCondition neq(final MmuStruct struct) {
     InvariantChecks.checkNotNull(struct);
 
-    final List<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
+    final Collection<MmuConditionAtom> atoms = new ArrayList<>(struct.getFieldCount());
     for (final IntegerVariable field : struct.getFields()) {
       atoms.add(MmuConditionAtom.neq(field));
     }
@@ -209,7 +204,7 @@ public final class MmuCondition {
     InvariantChecks.checkTrue(lhsStruct.getBitSize() == rhsStruct.getBitSize());
     InvariantChecks.checkTrue(lhsStruct.getFieldCount() == rhsStruct.getFieldCount());
 
-    final List<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
+    final Collection<MmuConditionAtom> atoms = new ArrayList<>(lhsStruct.getFieldCount());
 
     final Iterator<IntegerVariable> leftIt = lhsStruct.getFields().iterator();
     final Iterator<IntegerVariable> rightIt = rhsStruct.getFields().iterator();
@@ -245,27 +240,15 @@ public final class MmuCondition {
     return nrange(MmuExpression.var(variable), min, max);
   }
 
-  public static MmuCondition neqReplaced(final MmuExpression expression) {
-    return new MmuCondition(MmuConditionAtom.neqReplaced(expression));
-  }
-
-  public static MmuCondition neqReplaced(final IntegerField field) {
-    return neqReplaced(MmuExpression.field(field));
-  }
-
-  public static MmuCondition neqReplaced(final IntegerVariable variable) {
-    return neqReplaced(MmuExpression.var(variable));
-  }
-
   //------------------------------------------------------------------------------------------------
   // Internals
   //------------------------------------------------------------------------------------------------
 
   private final Type type;
 
-  private final List<MmuConditionAtom> atoms = new ArrayList<>();
+  private final Collection<MmuConditionAtom> atoms = new ArrayList<>();
 
-  protected MmuCondition(final Type type, final List<MmuConditionAtom> atoms) {
+  protected MmuCondition(final Type type, final Collection<MmuConditionAtom> atoms) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(atoms);
 
@@ -291,7 +274,7 @@ public final class MmuCondition {
     return type;
   }
 
-  public List<MmuConditionAtom> getAtoms() {
+  public Collection<MmuConditionAtom> getAtoms() {
     return atoms;
   }
 
@@ -302,7 +285,7 @@ public final class MmuCondition {
       return this;
     }
 
-    final List<MmuConditionAtom> atomInstances = new ArrayList<>();
+    final Collection<MmuConditionAtom> atomInstances = new ArrayList<>();
 
     for (final MmuConditionAtom atom : atoms) {
       atomInstances.add(atom.getInstance(instanceId, context));

@@ -64,48 +64,6 @@ public final class BufferHazard {
       }
     },
 
-    /** The conflict of the kind {@code Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2}. */
-    TAG_NOT_REPLACED("TagNotReplaced", false) {
-      @Override
-      public MmuCondition getCondition(
-          final MmuBufferAccess bufferAccess1,
-          final MmuBufferAccess bufferAccess2) {
-        final MmuBuffer buffer = bufferAccess1.getBuffer();
-        final List<MmuConditionAtom> atoms = new ArrayList<>();
-
-        if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
-        }
-
-        atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
-        atoms.add(MmuConditionAtom.neqReplaced(buffer.getTagExpression()));
-
-        // Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2.
-        return MmuCondition.and(atoms); // TODO:
-      }
-    },
-
-    /** The conflict of the kind {@code Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2}. */
-    TAG_REPLACED("TagReplaced", true) {
-      @Override
-      public MmuCondition getCondition(
-          final MmuBufferAccess bufferAccess1,
-          final MmuBufferAccess bufferAccess2) {
-        final MmuBuffer buffer = bufferAccess1.getBuffer();
-        final List<MmuConditionAtom> atoms = new ArrayList<>();
-
-        if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
-        }
-
-        atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
-        atoms.add(MmuConditionAtom.eqReplaced(buffer.getTagExpression()));
-
-        // Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2.
-        return MmuCondition.and(atoms); // TODO:
-      }
-    },
-
     /** The conflict of the kind {@code Index1 == Index2 && Tag1 == Tag2}. */
     TAG_EQUAL("TagEqual", true) {
       @Override
@@ -168,16 +126,8 @@ public final class BufferHazard {
     }
 
     if (buffer.getTagExpression() != null) {
-      if (!buffer.isReplaceable()) {
-        // Index1 == Index2 && Tag1 != Tag2.
-        hazards.add(new BufferHazard(Type.TAG_NOT_EQUAL, buffer));
-      } else {
-        // Index1 == Index2 && Tag1 != Tag2 && Tag1 != Replaced2.
-        hazards.add(new BufferHazard(Type.TAG_NOT_REPLACED, buffer));
-        // Index1 == Index2 && Tag1 != Tag2 && Tag1 == Replaced2.
-        hazards.add(new BufferHazard(Type.TAG_REPLACED, buffer));
-      }
-
+      // Index1 == Index2 && Tag1 != Tag2.
+      hazards.add(new BufferHazard(Type.TAG_NOT_EQUAL, buffer));
       // Index1 == Index2 && Tag1 == Tag2.
       hazards.add(new BufferHazard(Type.TAG_EQUAL, buffer));
     }

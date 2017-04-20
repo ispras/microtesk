@@ -26,9 +26,9 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.utils.function.Predicate;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -42,13 +42,11 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
 
   protected MemoryDependencyIterator(
       final MemoryAccess access1,
-      final MemoryAccess access2,
-      final Predicate<MemoryAccessStructure> checker) {
+      final MemoryAccess access2) {
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
-    InvariantChecks.checkNotNull(checker);
 
-    this.allPossibleDependencies = getAllPossibleDependencies(access1, access2, checker);
+    this.allPossibleDependencies = getAllPossibleDependencies(access1, access2);
   }
 
   @Override
@@ -58,8 +56,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
 
   private static BufferDependency[] getAllPossibleDependencies(
       final MemoryAccess access1,
-      final MemoryAccess access2,
-      final Predicate<MemoryAccessStructure> checker) {
+      final MemoryAccess access2) {
     final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferReads();
     final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferReads();
 
@@ -106,7 +103,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
           }
 
           bufferDependencies = refineDependencies(
-              bufferDependencies, access1, access2, hazardInstances, checker);
+              bufferDependencies, access1, access2, hazardInstances);
 
           if (bufferDependencies.isEmpty()) {
             Logger.debug("Possible dependencies: break");
@@ -124,8 +121,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
       final Collection<BufferDependency> oldDependencies,
       final MemoryAccess access1,
       final MemoryAccess access2,
-      final Collection<BufferHazard.Instance> hazards,
-      final Predicate<MemoryAccessStructure> checker) {
+      final Collection<BufferHazard.Instance> hazards) {
 
     if (hazards.isEmpty()) {
       return oldDependencies;
@@ -142,7 +138,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final MemoryAccessStructure structure =
             new MemoryAccessStructure(access1, access2, newDependency);
 
-        if (checker.test(structure)) {
+        if (MemoryEngineUtils.isFeasibleStructure(structure)) {
           newDependencies.add(newDependency);
         }
       }
