@@ -379,6 +379,7 @@ public final class Executor {
 
       if (null != reference) {
         if (null == reference.getTarget()) {
+          logJumpUndefinedLabel(reference.getReference());
           return Status.newLabelReference(reference);
         }
 
@@ -527,5 +528,16 @@ public final class Executor {
 
     sb.append(addressText);
     Logger.debug(sb.toString());
+  }
+
+  private void logJumpUndefinedLabel(final Label label) {
+    if(!isLoggingEnabled) {
+      return;
+    }
+
+    Logger.debug(
+        "Jump to %s (undefined label). Simulation is paused intil it is allocated.",
+        label.getName()
+        );
   }
 }
