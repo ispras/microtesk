@@ -353,6 +353,7 @@ public final class Executor {
           fetcher.jump(handlerAddress);
 
           if (!fetcher.code.hasAddress(handlerAddress)) {
+            logUnallocatedAddress(handlerAddress);
             fetcher.code.addBreakAddress(handlerAddress);
           }
         } else {
@@ -532,21 +533,17 @@ public final class Executor {
   }
 
   private void logJumpUndefinedLabel(final Label label) {
-    if(!isLoggingEnabled) {
-      return;
-    }
-
     Logger.debug(
-        "Jump to undefined label %s. Simulation is paused until it is allocated.",
-        label.getName()
-        );
+        "Jump to undefined label %s. Simulation is paused until it is allocated.", label.getName());
   }
 
   private void logJumpExceptionHandler(final String exception, final long address) {
-    if(!isLoggingEnabled) {
-      return;
-    }
+    Logger.debug(
+        "Jump to handler of %s at 0x%016x.", exception, address);
+  }
 
-    Logger.debug("Jump to handler of %s at 0x%016x.", exception, address);
+  private void logUnallocatedAddress(final long address) {
+    Logger.debug(
+        "Address 0x%016x is unallocated. Simulation is paused until it is allocated.", address);
   }
 }
