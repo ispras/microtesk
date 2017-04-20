@@ -532,12 +532,10 @@ public final class Executor {
 
   private void logJumpUndefinedLabel(final Label label) {
     if(!isLoggingEnabled) {
-      return;
+      Logger.debug(
+          "Jump to %s (undefined label). Simulation is paused until it is allocated.",
+          label.getName()
+          );
     }
-
-    Logger.debug(
-        "Jump to %s (undefined label). Simulation is paused intil it is allocated.",
-        label.getName()
-        );
   }
 }
