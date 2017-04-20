@@ -151,14 +151,16 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void finish() {
-    for (final Executor.Status status : executorStatuses) {
+    for (int index = 0; index < executorStatuses.size(); index++) {
+      final Executor.Status status = executorStatuses.get(index);
+
       if (status.isLabelReference()) {
-      throw new GenerationAbortedException(String.format(
-          "Label '%s' is undefined or unavailable in the current execution scope.",
-          status.getLabelReference().getReference().getName()));
+        throw new GenerationAbortedException(String.format(
+            "Instance %d is still waiting for label %s that has never been allocated.",
+            index, status.getLabelReference().getReference().getName()));
       }
     }
-
+ 
     try {
       finishProgram();
       Logger.debugHeader("Ended Processing Template");

@@ -339,7 +339,7 @@ public final class Executor {
 
           if (!fetcher.code.hasAddress(handlerAddress)) {
             logUnallocatedAddress(handlerAddress);
-            fetcher.code.addBreakAddress(handlerAddress);
+            return Status.newAddress(handlerAddress);
           }
         } else {
           Logger.error("Exception handler for %s is not found.", exception);
