@@ -203,8 +203,12 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     if (-1 == instanceIndex) {
-      Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
-      testProgram.addPostponedEntry(block);
+      if (TestEngineUtils.isOriginFixed(abstractSequence)) {
+        processExternalBlockNoSimulation(block);
+      } else {
+        Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
+        testProgram.addPostponedEntry(block);
+      }
       return;
     }
 
@@ -228,6 +232,21 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     processPostponedBlocks();
+  }
+
+  private void processExternalBlockNoSimulation(final Block block) throws ConfigurationException {
+    final TestSequence prevEntry = testProgram.getLastEntry();
+
+    final long allocationAddress = null != prevEntry && prevEntry.isAllocated() ?
+        prevEntry.getEndAddress() : allocator.getAddress();
+
+    engineContext.setCodeAllocationAddress(allocationAddress);
+
+    final TestSequence sequence =
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+
+    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
+    allocateTestSequenceAfter(prevEntry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
   private void processBlock(final Block block) throws ConfigurationException, IOException {
