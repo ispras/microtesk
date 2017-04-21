@@ -132,8 +132,11 @@ public final class CodeAllocator {
     InvariantChecks.checkNotEmpty(calls);
 
     allocateCodeBlocks(calls);
+
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
+
+    allocateMemory(calls);
   }
 
   private void allocateCodeBlocks(final List<ConcreteCall> calls) {
@@ -170,10 +173,6 @@ public final class CodeAllocator {
 
       currentAddress += call.getByteSize();
       currentIndex++;
-
-      if (placeToMemory) {
-        allocateMemory(call);
-      }
     }
 
     final CodeBlock block = new CodeBlock(
@@ -186,22 +185,29 @@ public final class CodeAllocator {
     address = currentAddress;
   }
 
-  private void allocateMemory(final ConcreteCall call) {
+  private void allocateMemory(final List<ConcreteCall> calls) {
+    if (!placeToMemory) {
+      return;
+    }
+
     final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
     InvariantChecks.checkNotNull(memoryAllocator);
 
-    if (call.isExecutable()) {
-      final BitVector image = BitVector.valueOf(call.getImage());
-      final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
+    for (final ConcreteCall call : calls) {
+      if (call.isExecutable()) {
+        final BitVector image = BitVector.valueOf(call.getImage());
+        final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
 
-      final BigInteger physicalAddress =
-          AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+        final BigInteger physicalAddress =
+            AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
 
-      if (Logger.isDebug()) {
-        Logger.debug("0x%016x (PA): %s (0x%s)", physicalAddress, call.getText(), image.toHexString());
+        if (Logger.isDebug()) {
+          Logger.debug("0x%016x (PA): %s (0x%s)",
+              physicalAddress, call.getText(), image.toHexString());
+        }
+
+        memoryAllocator.allocateAt(image, physicalAddress);
       }
-
-      memoryAllocator.allocateAt(image, physicalAddress);
     }
   }
 
