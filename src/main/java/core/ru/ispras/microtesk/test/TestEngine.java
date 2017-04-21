@@ -185,8 +185,9 @@ public final class TestEngine {
     final String scriptsPath = String.format(
         "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
 
-    // Number of threads used by JRuby is limited to 64.
-    org.jruby.util.cli.Options.THREADPOOL_MAX.force("64");
+    // Number of threads used by JRuby can be limited to prevent hitting OS limit.
+    org.jruby.util.cli.Options.THREADPOOL_MAX.force(
+        options.getValue(Option.JRUBY_THREAD_POOL_MAX).toString());
 
     final ScriptingContainer container = new ScriptingContainer();
     container.setArgv(new String[] {templateFile});

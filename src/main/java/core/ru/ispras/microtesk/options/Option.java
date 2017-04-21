@@ -101,7 +101,10 @@ public enum Option {
   BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
   BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE),
 
-  INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE);
+  INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE),
+
+  JRUBY_THREAD_POOL_MAX("jruby-thread-pool-max",
+      "JRuby: the maximum number of threads to allow in the pool.", Integer.MAX_VALUE, GENERATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
