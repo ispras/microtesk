@@ -300,6 +300,11 @@ public final class Model implements ModelStateManager {
     }
 
     @Override
+    public void store(final BitVector address, final int offset, final BitVector data) {
+      getMemory().store(address, offset, data);
+    }
+
+    @Override
     public boolean isInitialized(final BitVector address) {
       return getMemory().isInitialized(address);
     }

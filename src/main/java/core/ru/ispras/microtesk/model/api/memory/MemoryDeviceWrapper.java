@@ -60,6 +60,13 @@ public final class MemoryDeviceWrapper implements MemoryDevice {
   }
 
   @Override
+  public void store(final BitVector address, final int offset, final BitVector data) {
+    final Location location = memory.access(address.bigIntegerValue(false));
+    final Location bitfield = location.bitField(offset, offset + data.getBitSize() - 1);
+    bitfield.store(new Data(data, memory.getType().resize(data.getBitSize())));
+  }
+
+  @Override
   public boolean isInitialized(final BitVector address) {
     final Location location = memory.access(address.bigIntegerValue(false));
     return location.isInitialized();

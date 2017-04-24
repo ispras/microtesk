@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -54,6 +54,15 @@ public interface MemoryDevice {
    * @param data Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
   void store(final BitVector address, final BitVector data);
+
+  /**
+   * Stores the specified data at the given address.
+   * 
+   * @param address Store address.
+   * @param offset Data offset in bits.
+   * @param data Data of size equal to {@link MemoryDevice#getDataBitSize()} - {@code offset}.
+   */
+  void store(final BitVector address, final int offset, final BitVector data);
 
   /**
    * Checks whether the specified address location has been initialized.

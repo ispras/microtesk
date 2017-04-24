@@ -41,6 +41,13 @@ public abstract class Mmu <A extends Address & Data>
   }
 
   @Override
+  public void store(final BitVector address, final int offset, final BitVector data) {
+    // FIXME: NEED PROPER IMPLEMENTATION
+    InvariantChecks.checkTrue(offset == 0);
+    store(address, data);
+  }
+
+  @Override
   public void store(final BitVector address, final BitVector data) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize(), "Data size mismatch");

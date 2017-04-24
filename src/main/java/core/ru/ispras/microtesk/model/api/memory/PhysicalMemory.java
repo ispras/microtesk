@@ -225,16 +225,7 @@ final class PhysicalMemory extends Memory {
         targetAddress = BitVector.valueOf(virtualAddress, handler.getAddressBitSize());
       }
 
-      final BitVector region;
-      if (getBitFieldSize() == targetDevice.getDataBitSize()) {
-        region = data;
-      } else {
-        region = targetDevice.load(targetAddress).copy();
-        final BitVector mapping = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
-        mapping.assign(data);
-      }
-
-      targetDevice.store(targetAddress, region);
+      targetDevice.store(targetAddress, getBitFieldStart(), data);
 
       if (Tarmac.isEnabled()) {
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
@@ -317,17 +308,7 @@ final class PhysicalMemory extends Memory {
     @Override
     public void store(final BitVector data, final boolean callHandler) {
       InvariantChecks.checkNotNull(data);
-
-      final BitVector region;
-      if (getBitFieldSize() == storage.getDataBitSize()) {
-        region = data;
-      } else {
-        region = storage.load(getIndex()).copy();
-        final BitVector mapping = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
-        mapping.assign(data);
-      }
-
-      storage.store(getIndex(), region);
+      storage.store(getIndex(), getBitFieldStart(), data);
     }
 
     @Override

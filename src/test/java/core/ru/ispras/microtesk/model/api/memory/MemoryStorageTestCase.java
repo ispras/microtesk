@@ -49,6 +49,20 @@ public final class MemoryStorageTestCase {
   }
 
   @Test
+  public void testOffset() {
+    final MemoryStorage ms = new MemoryStorage(1024, 64);
+
+    ms.write(256, BitVector.valueOf(0xDEADBEEFBAADF00DL, 64));
+    assertEquals(BitVector.valueOf(0xDEADBEEFBAADF00DL, 64), ms.read(256));
+
+    ms.write(256, BitVector.valueOf(0, 32));
+    assertEquals(BitVector.valueOf(0xDEADBEEF00000000L, 64), ms.read(256));
+
+    ms.write(256, 32, BitVector.valueOf(-1, 32));
+    assertEquals(BitVector.valueOf(0xFFFFFFFF00000000L, 64), ms.read(256));
+  }
+
+  @Test
   public void testAddressSizeMismatch() {
     final BigInteger regionCount = BigInteger.valueOf(2).pow(61);
     final int regionBitSize = 64;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -157,9 +157,11 @@ final class MemoryStorage implements MemoryDevice {
       return BitVector.unmodifiable(mapping);
     }
 
-    public void write(final int index, final BitVector data) {
+    public void write(final int index, final int offset, final BitVector data) {
       final BitVector mapping = getRegionMapping(index);
-      mapping.assign(data);
+
+      final BitVector field = mapping.field(offset, offset + data.getBitSize() - 1);
+      field.assign(data);
 
       initFlags.setBit(index, true);
     }
@@ -231,6 +233,11 @@ final class MemoryStorage implements MemoryDevice {
   @Override
   public void store(final BitVector address, final BitVector data) {
     write(address, data);
+  }
+
+  @Override
+  public void store(final BitVector address, final int offset, final BitVector data) {
+    write(address, offset, data);
   }
 
   public static int calculateAddressSize(final BigInteger regionCount) {
@@ -311,10 +318,6 @@ final class MemoryStorage implements MemoryDevice {
     return block.isInitialized(index.region);
   }
 
-  public BitVector read(final int address) {
-    return read(BitVector.valueOf(address, addressBitSize));
-  }
-
   public BitVector read(final long address) {
     return read(BitVector.valueOf(address, addressBitSize));
   }
@@ -341,10 +344,6 @@ final class MemoryStorage implements MemoryDevice {
     return block.read(index.region);
   }
 
-  public void write(final int address, final BitVector data) {
-    write(BitVector.valueOf(address, addressBitSize), data);
-  }
-
   public void write(final long address, final BitVector data) {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
@@ -353,7 +352,19 @@ final class MemoryStorage implements MemoryDevice {
     write(BitVector.valueOf(address, addressBitSize), data);
   }
 
+  public void write(final long address, final int offset, final BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), offset, data);
+  }
+
+  public void write(final BigInteger address, final int offset, final BitVector data) {
+    write(BitVector.valueOf(address, addressBitSize), offset, data);
+  }
+
   public void write(final BitVector address, final BitVector data) {
+    write(address, 0, data);
+  }
+
+  public void write(final BitVector address, final int offset, final BitVector data) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkNotNull(data);
 
@@ -380,7 +391,7 @@ final class MemoryStorage implements MemoryDevice {
       area.put(index.block, block);
     }
 
-    block.write(index.region, data);
+    block.write(index.region, offset, data);
   }
 
   public void reset() {
