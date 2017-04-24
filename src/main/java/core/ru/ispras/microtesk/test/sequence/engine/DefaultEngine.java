@@ -147,7 +147,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     codeAllocator.init();
     codeAllocator.allocateCalls(sequence, sequenceIndex);
 
-    final Executor executor = new Executor(engineContext, true);
+    final Executor executor = new Executor(engineContext, labelManager, true);
     executor.setListener(listener);
 
     final ConcreteCall first = sequence.get(0);

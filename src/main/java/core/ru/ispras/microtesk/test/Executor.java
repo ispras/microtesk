@@ -213,6 +213,7 @@ public final class Executor {
   }
 
   private final EngineContext context;
+  private final LabelManager labelManager;
   private final boolean isPresimulation;
   private Listener listener;
 
@@ -230,10 +231,15 @@ public final class Executor {
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
-  public Executor(final EngineContext context, final boolean isPresimulation) {
+  public Executor(
+      final EngineContext context,
+      final LabelManager labelManager,
+      final boolean isPresimulation) {
     InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(labelManager);
 
     this.context = context;
+    this.labelManager = labelManager;
     this.isPresimulation = isPresimulation;
     this.listener = null;
 
@@ -246,7 +252,7 @@ public final class Executor {
   }
 
   public Executor(final EngineContext context) {
-    this(context, false);
+    this(context, context.getLabelManager(), false);
   }
 
   public void setListener(final Listener listener) {
@@ -364,13 +370,23 @@ public final class Executor {
       labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
 
       if (null != reference) {
-        if (null == reference.getTarget()) {
-          logJumpUndefinedLabel(reference.getReference());
+        final Label label = reference.getReference();
+
+        LabelManager.Target target = reference.getTarget();
+        if (null == target) {
+          target = labelManager.resolve(label);
+          if (null != target) {
+            reference.setTarget(target);
+          }
+        }
+
+        if (null == target) {
+          logJumpUndefinedLabel(label);
           return Status.newLabelReference(reference);
         }
 
-        final long labelAddress = reference.getTarget().getAddress();
-        logJump(labelAddress, reference.getTarget().getLabel());
+        final long labelAddress = target.getAddress();
+        logJump(labelAddress, target.getLabel());
         fetcher.jump(labelAddress);
       } else {
         // If no label references are found within the delay slot we try to use PC to jump
