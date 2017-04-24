@@ -165,8 +165,11 @@ public final class MemorySolver implements Solver<MemorySolution> {
     entry.setValid(true);
     entry.setAddress(addrObject.getAddress(bufferAccess));
 
+    Logger.debug("Fill entry: values=%s", values);
+
     for (final IntegerVariable field : entry.getVariables()) {
       final IntegerVariable fieldInstance = context.getInstance(bufferAccessId, field);
+      Logger.debug("Fill entry: fieldInstance=%s", fieldInstance);
 
       // If an entry field is not used in the path, it remains unchanged.
       if (values.containsKey(fieldInstance) && !entry.isValid(field)) {

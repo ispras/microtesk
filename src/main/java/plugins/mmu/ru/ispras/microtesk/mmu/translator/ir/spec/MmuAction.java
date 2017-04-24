@@ -112,7 +112,7 @@ public final class MmuAction {
 
       actionInstance.put(
           context.getInstance(lhsInstanceId, lhs),
-          rhs.getInstance(rhsInstanceId, context));
+          rhs.getInstance(lhsInstanceId, rhsInstanceId, context));
     }
 
     return actionInstance;

@@ -115,7 +115,7 @@ public final class MmuBufferAccess {
     final Collection<MmuBinding> bindingInstances = new ArrayList<>();
 
     for (final MmuBinding binding : buffer.getMatchBindings()) {
-      bindingInstances.add(binding.getInstance(id, context));
+      bindingInstances.add(binding.getInstance(id, id, context));
     }
 
     return bindingInstances;

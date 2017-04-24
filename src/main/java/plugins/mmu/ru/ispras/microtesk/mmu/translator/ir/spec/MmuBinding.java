@@ -98,12 +98,15 @@ public final class MmuBinding {
     return rhs;
   }
 
-  public MmuBinding getInstance(final int instanceId, final MemoryAccessContext context) {
+  public MmuBinding getInstance(
+      final int lhsInstanceId,
+      final int rhsInstanceId,
+      final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
     return new MmuBinding(
-        context.getInstance(instanceId, lhs),
-        rhs != null ? rhs.getInstance(instanceId, context) : null);
+        context.getInstance(lhsInstanceId, lhs),
+        rhs != null ? rhs.getInstance(rhsInstanceId, context) : null);
   }
 
   @Override
