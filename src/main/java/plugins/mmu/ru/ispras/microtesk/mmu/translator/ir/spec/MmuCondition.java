@@ -278,10 +278,10 @@ public final class MmuCondition {
     return atoms;
   }
 
-  public MmuCondition getInstance(final int instanceId, final MemoryAccessContext context) {
+  public MmuCondition getInstance(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isEmptyStack() && instanceId == 0) {
+    if (context.isEmptyStack() && instanceId == null) {
       return this;
     }
 

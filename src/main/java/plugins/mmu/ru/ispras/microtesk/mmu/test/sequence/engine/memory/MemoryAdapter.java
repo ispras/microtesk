@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
+import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
@@ -169,10 +173,11 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
       final MemoryAccessContext context = bufferAccess.getContext();
+      final int bufferAccessId = context.getBufferAccessId(buffer);
 
       final String level = context.getMemoryAccessStack().isEmpty()
-          ? String.format("%d", bufferAccess.getId())
-          : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccess.getId());
+          ? String.format("%d", bufferAccessId)
+          : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccessId);
 
       final String comment = String.format("%s(%s)=%s", buffer.getName(), level, data);
 
@@ -310,8 +315,11 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
       if (!initializer.isEmpty()) {
         preparation.add(ConcreteCall.newLine());
-        preparation.add(ConcreteCall.newComment(String.format(
-            "Initializing Instruction %d: %s", i, addressObject)));
+        preparation.add(ConcreteCall.newComment(String.format("Initializing Instruction %d:", i)));
+
+        for (final String comment : getComments(addressObject)) {
+          preparation.add(ConcreteCall.newComment(comment));
+        }
 
         preparation.addAll(initializer);
       }
@@ -360,5 +368,62 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;
     }
+  }
+
+  private String getMemoryAccessComment(final AddressObject addressObject) {
+    InvariantChecks.checkNotNull(addressObject);
+
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
+    final MmuAddressInstance virtualAddressType = memory.getVirtualAddress();
+    final BigInteger virtualAddressValue = addressObject.getAddress(virtualAddressType);
+
+    return String.format("%s[0x%s]", memory.getName(), virtualAddressValue.toString(16));
+  }
+
+  private String getBufferAccessComment(
+      final AddressObject addressObject,
+      final MmuBufferAccess bufferAccess) {
+    InvariantChecks.checkNotNull(addressObject);
+    InvariantChecks.checkNotNull(bufferAccess);
+
+    final StringBuilder builder = new StringBuilder();
+
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+    final BufferAccessEvent event = bufferAccess.getEvent();
+
+    final MemoryAccessContext context = bufferAccess.getContext();
+    final MemoryAccessStack stack = context.getMemoryAccessStack();
+
+    final MmuAddressInstance addressType = bufferAccess.getAddress();
+    final BigInteger addressValue = addressObject.getAddress(addressType);
+
+    for (int i = 0; i <= stack.size(); i++) {
+      builder.append("  ");
+    }
+
+    // The address may be undefined for buffer writes.
+    builder.append(String.format("%-5s %s[%s]", event, buffer.getName(),
+        addressValue != null ? String.format("0x%s", addressValue.toString(16)) : "<unknown>"));
+
+    final EntryObject entryObject = addressObject.getEntry(bufferAccess);
+
+    if (entryObject != null) {
+      builder.append(String.format("=%s", entryObject.getEntry()));
+    }
+
+    return builder.toString();
+  }
+
+  private Collection<String> getComments(final AddressObject addressObject) {
+    InvariantChecks.checkNotNull(addressObject);
+
+    final Collection<String> comments = new ArrayList<>();
+    comments.add(getMemoryAccessComment(addressObject));
+
+    for (final MmuBufferAccess bufferAccess : addressObject.getAccess().getPath().getBufferAccesses()) {
+      comments.add(getBufferAccessComment(addressObject, bufferAccess));
+    }
+
+    return comments;
   }
 }

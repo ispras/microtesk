@@ -190,10 +190,10 @@ public final class MmuExpression {
     return hi;
   }
 
-  public MmuExpression getInstance(final int instanceId, final MemoryAccessContext context) {
+  public MmuExpression getInstance(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isEmptyStack() && instanceId == 0) {
+    if (context.isEmptyStack() && instanceId == null) {
       return this;
     }
 

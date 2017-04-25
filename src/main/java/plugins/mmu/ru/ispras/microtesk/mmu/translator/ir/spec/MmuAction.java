@@ -90,17 +90,17 @@ public final class MmuAction {
       return bufferAccess;
     }
 
-    final int instanceId = context.getBufferAccessId(bufferAccess.getBuffer());
+    final String instanceId = MmuBufferAccess.getId(bufferAccess.getBuffer(), context);
     return bufferAccess.getInstance(instanceId, context);
   }
 
   public Map<IntegerField, MmuBinding> getAssignments(
-      final int lhsInstanceId,
-      final int rhsInstanceId,
+      final String lhsInstanceId,
+      final String rhsInstanceId,
       final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (context.isEmptyStack() && lhsInstanceId == 0 && rhsInstanceId == 0) {
+    if (context.isEmptyStack() && lhsInstanceId == null && rhsInstanceId == null) {
       return action;
     }
 

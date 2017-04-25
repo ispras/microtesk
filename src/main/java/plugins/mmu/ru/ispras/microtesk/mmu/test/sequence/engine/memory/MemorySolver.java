@@ -158,7 +158,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final AddressObject addrObject = solution.getAddressObject(j);
     final MmuEntry entry = entryObject.getEntry();
 
-    final int bufferAccessId = bufferAccess.getId();
+    final String bufferAccessId = bufferAccess.getId();
     final MemoryAccessContext context = bufferAccess.getContext();
 
     // Set the entry fields.
@@ -200,7 +200,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final AddressObject addrObject1 = solution.getAddressObject(i);
     final BigInteger addrValue1 = addrObject1.getAddress(bufferAccess1);
 
-    final int instanceId2 = bufferAccess2.getId();
+    final String instanceId2 = bufferAccess2.getId();
     final MemoryAccessContext context2 = bufferAccess2.getContext();
 
     final MmuExpression lhs = expression.getInstance(instanceId2, context2);

@@ -83,7 +83,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MmuCondition condition = guard.getCondition(0, MemoryAccessContext.EMPTY);
+    final MmuCondition condition = guard.getCondition(null, MemoryAccessContext.EMPTY);
 
     if (condition == null) {
       return false;

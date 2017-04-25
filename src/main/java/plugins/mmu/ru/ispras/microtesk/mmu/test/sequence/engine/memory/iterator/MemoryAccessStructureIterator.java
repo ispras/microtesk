@@ -40,7 +40,8 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessStructureIterator implements Iterator<MemoryAccessStructure> {
- 
+  private static final boolean CHECK_STRUCTURE = false;
+
   public enum Mode {
     RANDOM() {
       @Override
@@ -196,8 +197,12 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   private boolean checkStructure() {
-    final MemoryAccessStructure structure = new MemoryAccessStructure(accesses, dependencies);
-    return MemoryEngineUtils.isFeasibleStructure(structure);
+    if (CHECK_STRUCTURE) {
+      final MemoryAccessStructure structure = new MemoryAccessStructure(accesses, dependencies);
+      return MemoryEngineUtils.isFeasibleStructure(structure);
+    }
+
+    return true;
   }
 
   private boolean nextStructure() {

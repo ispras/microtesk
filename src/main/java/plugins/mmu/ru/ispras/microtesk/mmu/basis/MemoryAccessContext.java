@@ -34,24 +34,24 @@ public final class MemoryAccessContext {
 
   private final MemoryAccessStack memoryAccessStack;
   private final Map<MmuBuffer, Integer> bufferAccessIds;
-  private final Map<MmuBuffer, BufferAccessEvent> bufferAccessKinds;
+  private final Map<MmuBuffer, BufferAccessEvent> bufferAccessEvents;
 
   public MemoryAccessContext() {
     this.memoryAccessStack = new MemoryAccessStack();
     this.bufferAccessIds = new HashMap<>();
-    this.bufferAccessKinds = new HashMap<>();
+    this.bufferAccessEvents = new HashMap<>();
   }
 
   public MemoryAccessContext(final String id) {
     this.memoryAccessStack = new MemoryAccessStack(id);
     this.bufferAccessIds = new HashMap<>();
-    this.bufferAccessKinds = new HashMap<>();
+    this.bufferAccessEvents = new HashMap<>();
   }
 
   public MemoryAccessContext(final MemoryAccessContext r) {
     this.memoryAccessStack = new MemoryAccessStack(r.memoryAccessStack);
     this.bufferAccessIds = new HashMap<>(r.bufferAccessIds);
-    this.bufferAccessKinds = new HashMap<>(r.bufferAccessKinds);
+    this.bufferAccessEvents = new HashMap<>(r.bufferAccessEvents);
   }
 
   public boolean isEmptyStack() {
@@ -74,7 +74,7 @@ public final class MemoryAccessContext {
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
     final BufferAccessEvent nowEvent = bufferAccess.getEvent();
-    final BufferAccessEvent preEvent = bufferAccessKinds.get(buffer);
+    final BufferAccessEvent preEvent = bufferAccessEvents.get(buffer);
 
     final boolean nowCheck =
         nowEvent == BufferAccessEvent.HIT || nowEvent == BufferAccessEvent.MISS; 
@@ -85,7 +85,7 @@ public final class MemoryAccessContext {
       bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);
     }
 
-    bufferAccessKinds.put(buffer, nowEvent);
+    bufferAccessEvents.put(buffer, nowEvent);
   }
 
   public MemoryAccessStack.Frame doCall(final String frameId) {
@@ -96,27 +96,29 @@ public final class MemoryAccessContext {
     return memoryAccessStack.ret();
   }
 
-  public IntegerVariable getInstance(final int instanceId, final IntegerVariable variable) {
+  public IntegerVariable getInstance(final String instanceId, final IntegerVariable variable) {
     final IntegerVariable instance = getVariable(instanceId, variable);
     return memoryAccessStack.getInstance(instance);
   }
 
-  public IntegerField getInstance(final int instanceId, final IntegerField field) {
+  public IntegerField getInstance(final String instanceId, final IntegerField field) {
     final IntegerField instance = getField(instanceId, field);
     return memoryAccessStack.getInstance(instance);
   }
 
-  private static IntegerVariable getVariable(final int instanceId, final IntegerVariable variable) {
-    if (instanceId == 0) {
+  private static IntegerVariable getVariable(
+      final String instanceId,
+      final IntegerVariable variable) {
+    if (instanceId == null) {
       return variable;
     }
 
-    final String instanceName = String.format("%s_%d", variable.getName(), instanceId);
+    final String instanceName = String.format("%s_%s", variable.getName(), instanceId);
     return new IntegerVariable(instanceName, variable.getWidth());
   }
 
-  private static IntegerField getField(final int instanceId, final IntegerField field) {
-    if (instanceId == 0) {
+  private static IntegerField getField(final String instanceId, final IntegerField field) {
+    if (instanceId == null) {
       return field;
     }
 

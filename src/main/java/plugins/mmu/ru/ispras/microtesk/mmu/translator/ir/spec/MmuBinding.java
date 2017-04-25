@@ -99,8 +99,8 @@ public final class MmuBinding {
   }
 
   public MmuBinding getInstance(
-      final int lhsInstanceId,
-      final int rhsInstanceId,
+      final String lhsInstanceId,
+      final String rhsInstanceId,
       final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 

@@ -172,7 +172,7 @@ public class MmuStruct {
     return result;
   }
 
-  public MmuStruct getInstance(final int instanceId, final MemoryAccessContext context) {
+  public MmuStruct getInstance(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
     final IntegerVariable[] fieldInstances = new IntegerVariable[fields.size()];

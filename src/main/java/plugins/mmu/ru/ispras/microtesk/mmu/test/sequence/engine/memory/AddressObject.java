@@ -19,9 +19,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link AddressObject} represents test data for an individual {@link MemoryAccess}.
@@ -97,33 +99,23 @@ public final class AddressObject {
     final String separator = ", ";
     final StringBuilder builder = new StringBuilder();
 
-    boolean comma = false;
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
+    final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
+    final BigInteger virtAddrValue = addresses.get(virtAddrType);
 
-    for (final Map.Entry<MmuAddressInstance, BigInteger> addrEntry : addresses.entrySet()) {
-      final MmuAddressInstance addrType = addrEntry.getKey();
-      final String addrName = addrType.getVariable().getName();
-      final BigInteger addrValue = addrEntry.getValue();
+    builder.append(String.format("%s[0x%s]", memory.getName(), virtAddrValue.toString(16)));
 
-      builder.append(comma ? separator : "");
-      builder.append(String.format("%s=0x%s", addrName, addrValue.toString(16)));
-      comma = true;
+    for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {
+      final MmuBuffer buffer = bufferAccess.getBuffer();
+      final MmuAddressInstance addrType = bufferAccess.getAddress();
+      final BigInteger addrValue = addresses.get(addrType);
 
-      for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {
-        final MmuBuffer buffer = bufferAccess.getBuffer();
+      builder.append(separator);
+      builder.append(String.format("%s[0x%s]", buffer.getName(), addrValue.toString(16)));
 
-        if (addrType.equals(bufferAccess.getAddress())) {
-          if (buffer.isReplaceable()) {
-            builder.append(comma ? separator : "");
-            builder.append(String.format("%s.tag=0x%x", buffer, buffer.getTag(addrValue)));
-            comma = true;
-          }
-
-          if (buffer.getSets() > 1) {
-            builder.append(comma ? separator : "");
-            builder.append(String.format("%s.index=0x%x", buffer, buffer.getIndex(addrValue)));
-            comma = true;
-          }
-        }
+      if (!buffer.isReplaceable()) {
+        final EntryObject entryObject = getEntry(bufferAccess);
+        builder.append(String.format("=%s", entryObject.getEntry()));
       }
     }
 

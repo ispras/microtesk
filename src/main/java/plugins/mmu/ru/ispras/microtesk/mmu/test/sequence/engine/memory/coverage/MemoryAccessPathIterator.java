@@ -564,7 +564,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);
-            returnExecutor.execute(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
+            returnExecutor.execute(MemoryAccessPath.Entry.RETURN( false, newResult.getContext()));
           }
 
           if (!isCompletedPath) {

@@ -81,14 +81,14 @@ public final class MmuGuard {
       return bufferAccess;
     }
 
-    final int instanceId = context.getBufferAccessId(bufferAccess.getBuffer());
+    final String instanceId = MmuBufferAccess.getId(bufferAccess.getBuffer(), context);
     return bufferAccess.getInstance(instanceId, context);
   }
 
-  public MmuCondition getCondition(final int instanceId, final MemoryAccessContext context) {
+  public MmuCondition getCondition(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (condition == null || context.isEmptyStack() && instanceId == 0) {
+    if (condition == null || context.isEmptyStack() && instanceId == null) {
       return condition;
     }
 
