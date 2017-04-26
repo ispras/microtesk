@@ -102,6 +102,23 @@ public final class MemorySymbolicRestrictor {
 
   public Collection<IntegerConstraint<IntegerField>> getConstraints(
       final boolean isStart,
+      final MmuTransition transition,
+      final MemoryAccessContext context) {
+    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+
+    if (isStart) {
+      constraints.addAll(getConstraints());
+    }
+
+    for (final MmuBufferAccess bufferAccess : transition.getBufferAccesses(context)) {
+      constraints.addAll(getConstraints(bufferAccess));
+    }
+
+    return constraints;
+  }
+
+  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+      final boolean isStart,
       final MmuProgram program,
       final MemoryAccessContext context) {
     final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();

@@ -375,14 +375,37 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final BigInteger virtAddrValue = getVirtualAddress(dataType);
     addrObject.setAddress(virtAddrType, virtAddrValue);
 
-    // Assign the tag, index and offset according to the dependencies.
     final Collection<MmuCondition> conditions = new ArrayList<>();
-    conditions.addAll(getHazardConditions(j));
 
     // Refine the addresses (in particular, assign the intermediate addresses).
     Map<IntegerVariable, BigInteger> values =
         refineAddr(addrObject, conditions, getAccessConstraints(j));
-    InvariantChecks.checkNotNull(values, String.format("Infeasible access=%s", access));
+
+    if (values == null) {
+      final String warning = String.format("Infeasible path: %s", access);
+
+      Logger.debug(warning);
+      return new SolverResult<>(warning);
+    }
+
+    // Assign the tag, index and offset according to the dependencies.
+    conditions.addAll(getHazardConditions(j));
+
+    // Try to refine the address object.
+    if (!conditions.isEmpty()) {
+      final AddressObject refinedAddrObject = new AddressObject(access);
+      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
+
+      final Map<IntegerVariable, BigInteger> refinedValues =
+          refineAddr(refinedAddrObject, conditions, getAccessConstraints(j));
+
+      if (refinedValues != null) {
+        solution.setAddressObject(j, refinedAddrObject);
+
+        addrObject = refinedAddrObject;
+        values = refinedValues;
+      }
+    }
 
     final MemoryAccessPath path = access.getPath();
 

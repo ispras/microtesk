@@ -27,6 +27,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -221,38 +222,40 @@ public final class MemorySymbolicResult {
     }
   }
 
-  private String getFrameId(final MemoryAccessPath.Entry entry, final int pathIndex) {
-    final MemoryAccessContext context = getContext(pathIndex);
-
-    final MmuProgram program = entry.getProgram();
-    final MmuTransition transition = program.getTransition();
-    final MmuAction sourceAction = transition.getSource();
-    final MmuAction targetAction = transition.getTarget();
-    final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
-    final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
-
-    return String.format("%s_%s_%d",
-        sourceAction.getName(),
-        buffer.getName(),
-        context.getBufferAccessId(buffer));
-  }
-
-  public void updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
+  public MemoryAccessStack.Frame updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
     InvariantChecks.checkNotNull(entry);
 
     final MemoryAccessContext context = getContext(pathIndex);
 
     if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
-      context.doCall(getFrameId(entry, pathIndex));
-    } else if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
-      context.doReturn();
+      final MmuProgram program = entry.getProgram();
+      final MmuTransition transition = program.getTransition();
+      final MmuAction sourceAction = transition.getSource();
+      final MmuAction targetAction = transition.getTarget();
+      final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(context);
+      final MmuBuffer buffer = bufferAccess != null ? bufferAccess.getBuffer() : null;
+
+      final String frameId = String.format("%s_%s_%d",
+          sourceAction.getName(),
+          buffer.getName(),
+          context.getBufferAccessId(buffer));
+
+      return context.doCall(frameId, transition);
     }
+
+    if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
+      return context.doReturn();
+    }
+
+    return null;
   }
 
   public void includeOriginalVariables() {
     // Add the constraints of the kind V = V(n), where n is the last version number of V.
     for (final IntegerVariable original : originals) {
       final IntegerVariable version = getVersion(original.getName());
+      InvariantChecks.checkNotNull(version,
+          String.format("Version of %s has not been found", original.getName()));
 
       final IntegerField lhs = new IntegerField(original);
       final IntegerField rhs = new IntegerField(version);
@@ -335,6 +338,15 @@ public final class MemorySymbolicResult {
   public void setVersionNumber(final IntegerVariable originalVariable, final int versionNumber) {
     final String originalName = originalVariable.getName();
     versions.put(originalName, versionNumber);
+
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    if (!cache.containsKey(versionName)) {
+      final int width = originalVariable.getWidth();
+      final BigInteger value = originalVariable.getValue();
+
+      cache.put(versionName, new IntegerVariable(versionName, width, value));
+    }
   }
 
   private static String getOriginalName(final IntegerVariable variable, final int pathIndex) {

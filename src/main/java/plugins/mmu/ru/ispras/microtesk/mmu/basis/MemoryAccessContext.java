@@ -22,6 +22,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemoryAccessContext} contains data required for buffer access instantiation.
@@ -88,8 +89,8 @@ public final class MemoryAccessContext {
     bufferAccessEvents.put(buffer, nowEvent);
   }
 
-  public MemoryAccessStack.Frame doCall(final String frameId) {
-    return memoryAccessStack.call(frameId);
+  public MemoryAccessStack.Frame doCall(final String frameId, final MmuTransition transition) {
+    return memoryAccessStack.call(frameId, transition);
   }
 
   public MemoryAccessStack.Frame doReturn() {

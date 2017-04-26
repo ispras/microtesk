@@ -21,6 +21,7 @@ import java.util.Stack;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemoryAccessStack} represents a memory access stack.
@@ -35,15 +36,22 @@ public final class MemoryAccessStack {
    */
   public  static final class Frame {
     private final String id;
+    private final MmuTransition transition;
     private final Map<IntegerVariable, IntegerVariable> frame = new HashMap<>();
 
-    private Frame(final String id) {
+    private Frame(final String id, final MmuTransition transition) {
       InvariantChecks.checkNotNull(id);
+
       this.id = id;
+      this.transition = transition;
     }
 
     public String getId() {
       return id;
+    }
+
+    public MmuTransition getTransition() {
+      return transition;
     }
 
     public IntegerVariable getInstance(final IntegerVariable variable) {
@@ -109,10 +117,10 @@ public final class MemoryAccessStack {
     return stack.size();
   }
 
-  public Frame call(final String id) {
+  public Frame call(final String id, final MmuTransition transition) {
     InvariantChecks.checkNotNull(id);
 
-    final Frame frame = new Frame(getFullId(id));
+    final Frame frame = new Frame(getFullId(id), transition);
     return call(frame);
   }
   
