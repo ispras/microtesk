@@ -43,6 +43,9 @@ public final class MmuSubsystem {
   /** Stores available variables. */
   private final Map<String, IntegerVariable> variables;
 
+  /** Refers to the data variable type of the MMU. */
+  private final IntegerVariable dataVariable;
+
   /**
    * Stores available address types.
    * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
@@ -88,6 +91,7 @@ public final class MmuSubsystem {
   private MmuSubsystem(
       final String name,
       final Map<String, IntegerVariable> variables,
+      final IntegerVariable dataVariable,
       final Map<String, MmuAddressInstance> addresses,
       final List<MmuAddressInstance> sortedAddresses,
       final MmuAddressInstance virtualAddress,
@@ -101,6 +105,7 @@ public final class MmuSubsystem {
       final MmuAction startAction) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(variables);
+    InvariantChecks.checkNotNull(dataVariable);
     InvariantChecks.checkNotNull(addresses);
     InvariantChecks.checkNotNull(sortedAddresses);
     // InvariantChecks.checkNotNull(virtualAddress);
@@ -117,6 +122,7 @@ public final class MmuSubsystem {
 
     this.name = name;
     this.variables = Collections.unmodifiableMap(variables);
+    this.dataVariable = dataVariable;
     this.addresses = Collections.unmodifiableMap(addresses);
     this.sortedAddresses = Collections.unmodifiableList(sortedAddresses);
     this.virtualAddress = virtualAddress;
@@ -150,6 +156,10 @@ public final class MmuSubsystem {
 
   public IntegerVariable getVariable(final String name) {
     return variables.get(name);
+  }
+
+  public IntegerVariable getDataVariable() {
+    return dataVariable;
   }
 
   /**
@@ -369,6 +379,8 @@ public final class MmuSubsystem {
     /** Stores available address types. */
     private Map<String, IntegerVariable> variables = new LinkedHashMap<>();
 
+    private IntegerVariable dataVariable = null;
+
     /**
      * Stores available address types.
      * <p>Typically, includes two types: Virtual Address and Physical Address.</p>
@@ -409,6 +421,7 @@ public final class MmuSubsystem {
       return new MmuSubsystem(
           name,
           variables,
+          dataVariable,
           addresses,
           sortedAddresses,
           virtualAddress,
@@ -438,6 +451,11 @@ public final class MmuSubsystem {
       for (final IntegerVariable variable : struct.getFields()) {
         registerVariable(variable);
       }
+    }
+
+    public void setDataVariable(final IntegerVariable variable) {
+      InvariantChecks.checkNotNull(variable);
+      dataVariable = variable;
     }
 
     /**

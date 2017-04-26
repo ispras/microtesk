@@ -133,7 +133,6 @@ final class STBSpecification implements STBuilder {
     for(final Memory memory : ir.getMemories().values()) {
       final String id = memory.getId();
       st.add("stmts", String.format("final %s %s = new %s(builder);", id, id, id));
-      st.add("stmts", String.format("builder.setName(\"%s\");", id));
     }
   }
 

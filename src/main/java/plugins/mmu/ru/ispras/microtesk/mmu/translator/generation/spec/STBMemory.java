@@ -108,14 +108,16 @@ final class STBMemory implements STBuilder {
     final ST stConstructor = group.getInstanceOf("constructor_memory");
     stConstructor.add("name", memory.getId());
 
+    final String dataVariableName = getVariableName(memory.getDataArg().getName());
     STBStruct.buildFieldDecl(
-        getVariableName(memory.getDataArg().getName()),
+        dataVariableName,
         memory.getDataArg().getType(),
         true,
         st,
         stConstructor,
         group
         );
+    stConstructor.add("stmts", String.format("builder.setDataVariable(%s);%n", dataVariableName));
 
     for (final Variable variable : memory.getVariables()) {
       final Type type = variable.getType();
