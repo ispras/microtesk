@@ -234,6 +234,7 @@ final class TemplateProcessor implements Template.Processor {
       finishProgram();
     }
 
+    resumeExecution();
     processPostponedBlocks();
   }
 
