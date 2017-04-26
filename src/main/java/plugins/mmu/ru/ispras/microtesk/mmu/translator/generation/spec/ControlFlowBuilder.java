@@ -45,7 +45,6 @@ import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
-import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssert;
@@ -305,11 +304,6 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);
 
-    // Assignments that use the "data" MMU variable are ignored.
-    if (isDataVariable(left) || isDataVariable(right)) {
-      return source;
-    }
-
     // Reading from a segment (address translation) is performed
     // by connecting to a control flow graph of a corresponding segment.
     if (isSegmentAccess(right)) {
@@ -556,25 +550,6 @@ final class ControlFlowBuilder {
     }
 
     stDef.add("stmts", stTrans);
-  }
-
-  private boolean isDataVariable(final Node expr) {
-    InvariantChecks.checkNotNull(expr);
-
-    final Memory memory = ir.getMemories().get(context);
-    if (null == memory) {
-      return false;
-    }
-
-    if (expr.getKind() != Node.Kind.VARIABLE) {
-      return false;
-    }
-
-    if (!(expr.getUserData() instanceof Variable)) {
-      return false;
-    }
-
-    return memory.getDataArg().equals(expr.getUserData());
   }
 
   private String selectBufferAccess(
