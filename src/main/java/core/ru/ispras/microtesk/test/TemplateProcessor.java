@@ -42,6 +42,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -340,7 +341,7 @@ final class TemplateProcessor implements Template.Processor {
 
     for (int index = 0; index < instanceNumber; index++) {
       final Executor.Status status = executorStatuses.get(index);
-      if (status.isAddress() && !allocator.getCode().isBreakAddress(status.getAddress())) {
+      if (status.isAddress() && allocator.getCode().hasAddress(status.getAddress())) {
         Logger.debugHeader("Trying to Resume Execution (Instance %d)", index);
         Logger.debug("Execution status: %s%n", status);
 
@@ -696,10 +697,13 @@ final class TemplateProcessor implements Template.Processor {
       Logger.debug("Execution status: %s%n", oldStatus);
 
       if (oldStatus.isLabelReference()) {
-        final Label label = oldStatus.getLabelReference().getReference();
+        final LabelReference reference = oldStatus.getLabelReference();
+        final Label label = reference.getReference();
+
         final LabelManager.Target target = engineContext.getLabelManager().resolve(label);
         if (null != target) {
-          oldStatus.getLabelReference().setTarget(target);
+          reference.setTarget(target);
+          reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
         }
       }
 
