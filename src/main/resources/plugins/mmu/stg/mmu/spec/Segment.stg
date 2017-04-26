@@ -38,6 +38,7 @@ protected <name>(final MmuSubsystem.Builder builder) {
   this(builder, "<name>");
 }<\n>
 private <name>(final MmuSubsystem.Builder builder, final String name) {
+  builder.setName("<name>");<\n>
   <stmts; separator="\n">
 }
 >>
