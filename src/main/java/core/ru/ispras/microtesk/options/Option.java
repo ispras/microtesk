@@ -66,7 +66,7 @@ public enum Option {
   FETCH_DECODE_ENABLED("fetch-decode-enabled",
       "Enables allocation, fetching and decoding of instructions", false, GENERATE),
   ASSERTS_ENABLED("asserts-enabled", "Enables assertion checks during simulation", false, GENERATE),
-  TARMAC_LOG("tarmac-log", "Enables generation of Tarmac logs for simulation", false, GENERATE),
+  TRACER_LOG("tracer-log", "Enables generation of Tracer logs for simulation", false, GENERATE),
   SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
   DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data", false, GENERATE),
   NO_SIMULATION("no-simulation", "Disables simulation of generated code", false, GENERATE),

@@ -20,8 +20,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.api.data.Data;
 import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.tarmac.Record;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
+import ru.ispras.microtesk.model.api.tracer.Record;
+import ru.ispras.microtesk.model.api.tracer.Tracer;
 
 final class PhysicalMemory extends Memory {
   private final MemoryStorage storage;
@@ -194,14 +194,14 @@ final class PhysicalMemory extends Memory {
       final BitVector region = targetDevice.load(targetAddress);
       final BitVector data = BitVector.newMapping(region, getBitFieldStart(), getBitFieldSize());
 
-      if (Tarmac.isEnabled()) {
+      if (Tracer.isEnabled()) {
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
         final Record record = Record.newMemoryAccess(
             virtualAddress.longValue(),
             data,
             false
             );
-        Tarmac.addRecord(record);
+        Tracer.addRecord(record);
       }
 
       return data;
@@ -227,14 +227,14 @@ final class PhysicalMemory extends Memory {
 
       targetDevice.store(targetAddress, getBitFieldStart(), data);
 
-      if (Tarmac.isEnabled()) {
+      if (Tracer.isEnabled()) {
         final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
         final Record record = Record.newMemoryAccess(
             virtualAddress.longValue(),
             data,
             true
             );
-        Tarmac.addRecord(record);
+        Tracer.addRecord(record);
       }
     }
 

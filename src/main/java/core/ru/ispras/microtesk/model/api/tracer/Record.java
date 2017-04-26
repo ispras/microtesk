@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.tarmac;
+package ru.ispras.microtesk.model.api.tracer;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -20,7 +20,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
- * The {@link Record} class describes Tarmac log records.
+ * The {@link Record} class describes Tracer log records.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
   */

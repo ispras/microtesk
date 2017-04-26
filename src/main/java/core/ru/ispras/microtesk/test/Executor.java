@@ -22,8 +22,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
-import ru.ispras.microtesk.model.api.tarmac.Record;
+import ru.ispras.microtesk.model.api.tracer.Tracer;
+import ru.ispras.microtesk.model.api.tracer.Record;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;
@@ -488,11 +488,11 @@ public final class Executor {
     logCall(call);
 
     if (!isPresimulation) {
-      Tarmac.setEnabled(true);
+      Tracer.setEnabled(true);
       if (invalidCall != call) {
         context.getStatistics().incTraceLength();
-        if (Tarmac.isEnabled()) {
-          Tarmac.addRecord(Record.newInstruction(call, context.getModel().getActivePE()));
+        if (Tracer.isEnabled()) {
+          Tracer.addRecord(Record.newInstruction(call, context.getModel().getActivePE()));
         }
       }
     }
@@ -500,7 +500,7 @@ public final class Executor {
     final String exception = call.execute(context.getModel().getPE());
 
     if (!isPresimulation) {
-      Tarmac.setEnabled(false);
+      Tracer.setEnabled(false);
     }
 
     if (null != listener) {

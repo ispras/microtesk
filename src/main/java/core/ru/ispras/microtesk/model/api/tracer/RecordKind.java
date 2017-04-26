@@ -12,11 +12,11 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.tarmac;
+package ru.ispras.microtesk.model.api.tracer;
 
 /**
  * The {@code RecordKind} enumeration describes types or log records used
- * in the Tarmac trace format. See documentation on the Tarmac format for details.
+ * in the Tracer log format.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

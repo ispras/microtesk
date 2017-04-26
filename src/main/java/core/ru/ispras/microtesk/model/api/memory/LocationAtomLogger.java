@@ -16,8 +16,8 @@ package ru.ispras.microtesk.model.api.memory;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.tarmac.Record;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
+import ru.ispras.microtesk.model.api.tracer.Record;
+import ru.ispras.microtesk.model.api.tracer.Tracer;
 
 /**
  * The {@link LocationAtomLogger} class logs writes to location atoms.
@@ -103,8 +103,8 @@ final class LocationAtomLogger extends LocationAtom {
   public void store(final BitVector data, final boolean callHandler) {
     atom.store(data, callHandler);
 
-    if (Tarmac.isEnabled()) {
-      Tarmac.addRecord(Record.newRegisterWrite(getName(), data));
+    if (Tracer.isEnabled()) {
+      Tracer.addRecord(Record.newRegisterWrite(getName(), data));
     }
   }
 }

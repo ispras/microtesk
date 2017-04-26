@@ -29,7 +29,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.Model;
 import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
-import ru.ispras.microtesk.model.api.tarmac.Tarmac;
+import ru.ispras.microtesk.model.api.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.AdapterResult;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
@@ -83,9 +83,9 @@ final class TemplateProcessor implements Template.Processor {
     this.interruptedSequences = new ArrayDeque<>();
     this.isProgramStarted = false;
 
-    if (engineContext.getOptions().getValueAsBoolean(Option.TARMAC_LOG)) {
+    if (engineContext.getOptions().getValueAsBoolean(Option.TRACER_LOG)) {
       final String outDir = Printer.getOutDir(engineContext.getOptions());
-      Tarmac.initialize(outDir, engineContext.getOptions().getValueAsString(Option.CODE_PRE));
+      Tracer.initialize(outDir, engineContext.getOptions().getValueAsString(Option.CODE_PRE));
     }
   }
 
@@ -565,7 +565,7 @@ final class TemplateProcessor implements Template.Processor {
 
     isProgramStarted = true;
 
-    Tarmac.createFile();
+    Tracer.createFile();
     allocator.init();
 
     if (engineContext.getStatistics().getPrograms() > 0) {
@@ -601,7 +601,7 @@ final class TemplateProcessor implements Template.Processor {
 
       PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
-      Tarmac.closeFile();
+      Tracer.closeFile();
 
       // Clean up all the state
       engineContext.getModel().resetState();

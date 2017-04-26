@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.api.tarmac;
+package ru.ispras.microtesk.model.api.tracer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,12 +22,12 @@ import java.io.PrintWriter;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * The {@link Tarmac} class is responsible for printing Tarmac logs.
+ * The {@link Tracer} class is responsible for printing Tracer logs.
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Tarmac {
-  private static final String FILE_PREFIX = "tarmac";
+public final class Tracer {
+  private static final String FILE_PREFIX = "tracer";
   private static final String FILE_EXTENSION = "log";
 
   private final String filePath;
@@ -37,12 +37,12 @@ public final class Tarmac {
   private int fileCount;
   private PrintWriter fileWritter;
 
-  private static Tarmac instance = null;
+  private static Tracer instance = null;
   private static boolean enabled = false;
 
   public static void initialize(final String filePath, final String filePrefix) {
     InvariantChecks.checkTrue(null == instance);
-    instance = new Tarmac(filePath, null != filePrefix ? filePrefix : FILE_PREFIX);
+    instance = new Tracer(filePath, null != filePrefix ? filePrefix : FILE_PREFIX);
   }
 
   public static void shutdown() {
@@ -76,7 +76,7 @@ public final class Tarmac {
     }
   }
 
-  private Tarmac(final String filePath, final String filePrefix) {
+  private Tracer(final String filePath, final String filePrefix) {
     InvariantChecks.checkNotNull(filePath);
     InvariantChecks.checkNotNull(filePrefix);
 
@@ -117,7 +117,7 @@ public final class Tarmac {
   }
 
   private void print(final Record record) {
-    InvariantChecks.checkNotNull(fileWritter, "Tarmac file is not open.");
+    InvariantChecks.checkNotNull(fileWritter, "Tracer file is not open.");
     fileWritter.println(record.toString());
   }
 }
