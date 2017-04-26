@@ -82,6 +82,25 @@ public final class Executor {
     }
 
     @Override
+    public int hashCode() {
+      return data.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) {
+        return true;
+      }
+
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+
+      final Status other = (Status) obj;
+      return this.data.equals(other.data);
+    }
+
+    @Override
     public String toString() {
       return isAddress() ? String.format("0x%016x", getAddress()) : data.toString();
     }
@@ -215,6 +234,7 @@ public final class Executor {
   private final EngineContext context;
   private final LabelManager labelManager;
   private final boolean isPresimulation;
+  private boolean isPauseOnUndefinedLabel;
   private Listener listener;
 
   private final ConcreteCall exceptionCall;
@@ -241,6 +261,7 @@ public final class Executor {
     this.context = context;
     this.labelManager = labelManager;
     this.isPresimulation = isPresimulation;
+    this.isPauseOnUndefinedLabel = true;
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
@@ -253,6 +274,10 @@ public final class Executor {
 
   public Executor(final EngineContext context) {
     this(context, context.getLabelManager(), false);
+  }
+
+  public void setPauseOnUndefinedLabel(final boolean value) {
+    this.isPauseOnUndefinedLabel = value;
   }
 
   public void setListener(final Listener listener) {
@@ -323,7 +348,6 @@ public final class Executor {
     while (fetcher.canFetch() && !fetcher.isBreakReached()) {
       final ConcreteCall call = fetcher.fetch();
       setPC(fetcher.getAddress());
-      labelTracker.track(call);
 
       // NON-EXECUTABLE
       if (!call.isExecutable()) {
@@ -332,6 +356,27 @@ public final class Executor {
         continue;
       }
 
+      if (isPauseOnUndefinedLabel) {
+        for (final LabelReference reference : call.getLabelReferences()) {
+          final Label label = reference.getReference();
+
+          LabelManager.Target target = reference.getTarget();
+          if (null == target) {
+            target = labelManager.resolve(label);
+            if (null != target) {
+              reference.setTarget(target);
+              reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
+            }
+          }
+
+          if (null == target) {
+            logReferenceUndefinedLabel(call, label);
+            return Status.newAddress(fetcher.getAddress());
+          }
+        }
+      }
+
+      labelTracker.track(call);
       final String exception = executeCall(call);
 
       // EXCEPTION
@@ -370,23 +415,15 @@ public final class Executor {
       labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
 
       if (null != reference) {
-        final Label label = reference.getReference();
-
-        LabelManager.Target target = reference.getTarget();
+        final LabelManager.Target target = reference.getTarget();
         if (null == target) {
-          target = labelManager.resolve(label);
-          if (null != target) {
-            reference.setTarget(target);
-          }
-        }
-
-        if (null == target) {
-          logJumpUndefinedLabel(label);
-          return Status.newLabelReference(reference);
+          throw new GenerationAbortedException(String.format(
+              "Jump to undefined label %s.", reference.getReference().getName()));
         }
 
         final long labelAddress = target.getAddress();
         logJump(labelAddress, target.getLabel());
+
         fetcher.jump(labelAddress);
       } else {
         // If no label references are found within the delay slot we try to use PC to jump
@@ -533,9 +570,12 @@ public final class Executor {
     Logger.debug(sb.toString());
   }
 
-  private void logJumpUndefinedLabel(final Label label) {
-    Logger.debug(
-        "Jump to undefined label %s. Simulation is paused until it is allocated.", label.getName());
+  private void logReferenceUndefinedLabel(
+      final ConcreteCall call,
+      final Label label) throws ConfigurationException {
+    Logger.debug("Reference to undefined label %s:", label.getName());
+    logCall(call);
+    Logger.debug("Call is not executed. Simulation is paused until the label is allocated.");
   }
 
   private void logJumpExceptionHandler(final String exception, final long address) {

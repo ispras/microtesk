@@ -205,6 +205,9 @@ final class TemplateProcessor implements Template.Processor {
     if (-1 == instanceIndex) {
       if (TestEngineUtils.isOriginFixed(abstractSequence)) {
         processExternalBlockNoSimulation(block);
+        if (resumeExecution()) {
+          processPostponedBlocks();
+        }
       } else {
         Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
         testProgram.addPostponedEntry(block);
@@ -320,9 +323,37 @@ final class TemplateProcessor implements Template.Processor {
     sequence.setTitle(sequenceId);
 
     allocateTestSequenceAfter(previous, sequence, testCaseIndex);
-    executeTestSequence(sequence);
+
+    try {
+      executor.setPauseOnUndefinedLabel(false);
+      executeTestSequence(sequence);
+    } finally {
+      executor.setPauseOnUndefinedLabel(true);
+    }
 
     return sequence;
+  }
+
+  private boolean resumeExecution() {
+    boolean isResumed = false;
+
+    for (int index = 0; index < instanceNumber; index++) {
+      final Executor.Status status = executorStatuses.get(index);
+      if (status.isAddress() && !allocator.getCode().isBreakAddress(status.getAddress())) {
+        Logger.debugHeader("Trying to Resume Execution (Instance %d)", index);
+        Logger.debug("Execution status: %s%n", status);
+
+        final long address = status.getAddress();
+        engineContext.getModel().setActivePE(index);
+
+        final Executor.Status newStatus = executor.execute(allocator.getCode(), address);
+        executorStatuses.set(index, newStatus);
+
+        isResumed = isResumed || !status.equals(newStatus);
+      }
+    }
+
+    return isResumed;
   }
 
   private void processPostponedBlocks() throws ConfigurationException {
