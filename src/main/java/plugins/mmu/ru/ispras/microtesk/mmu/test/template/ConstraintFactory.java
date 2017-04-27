@@ -42,7 +42,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class ConstraintFactory {
   private static ConstraintFactory instance = null;
 
