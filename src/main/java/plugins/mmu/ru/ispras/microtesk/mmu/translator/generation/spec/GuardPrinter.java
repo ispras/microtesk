@@ -18,10 +18,7 @@ import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -143,11 +140,8 @@ final class GuardPrinter {
     if (equalities.isEmpty() && !segments.isEmpty() && buffers.isEmpty()) {
       InvariantChecks.checkTrue(segments.size() == 1, "One segment event is allowed.");
 
-      final List<String> segmentIds = extractSegmentIds(segments.get(0));
-      final String segmentIdsText = StringUtils.toString(segmentIds, ".get(), ") + ".get()";
-
-      return String.format(
-          "new MmuGuard(null, Arrays.<MmuSegment>asList(%s))", segmentIdsText);
+      final Pair<String, Boolean> segmentInfo = extractSegmentInfo(segments.get(0));
+      return String.format("new MmuGuard(%s, %b)", segmentInfo.first, segmentInfo.second);
     }
 
     if (equalities.isEmpty() && segments.isEmpty() && !buffers.isEmpty()) {
@@ -232,13 +226,13 @@ final class GuardPrinter {
            isBooleanVariable(op.getOperand(0));
   }
 
-  private List<String> extractSegmentIds(final Node node) {
+  private Pair<String, Boolean> extractSegmentInfo(final Node node) {
     InvariantChecks.checkNotNull(node);
 
     if (node.getKind() == Node.Kind.VARIABLE) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
       final Segment segment = (Segment) attrRef.getTarget();
-      return Collections.singletonList(segment.getId());
+      return new Pair<>(segment.getId(), true);
     }
 
     if (node.getKind() == Node.Kind.OPERATION) {
@@ -247,11 +241,7 @@ final class GuardPrinter {
 
       final AttributeRef attrRef = (AttributeRef) op.getOperand(0).getUserData();
       final Segment segment = (Segment) attrRef.getTarget();
-
-      final Set<String> allSegmentIds = new HashSet<>(ir.getSegments().keySet());
-      allSegmentIds.remove(segment.getId());
-
-      return new ArrayList<>(allSegmentIds);
+      return new Pair<>(segment.getId(), false);
     }
 
     throw new IllegalArgumentException("Illegal segment access expression: " + node);

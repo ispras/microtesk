@@ -70,7 +70,7 @@ public final class MmuGuard {
     this(operation, null, null, null);
   }
 
-  public MmuGuard(final MmuSegment segment) {
+  public MmuGuard(final MmuSegment segment, final boolean isIn) {
     this(null, null, null, segment);
   }
 
