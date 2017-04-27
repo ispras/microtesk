@@ -32,46 +32,50 @@ public final class MmuGuard {
   private final MmuCondition condition;
   /** Admissible memory segment. */
   private final MmuSegment segment;
-  
+  /** Memory segment hit/miss. */
+  private final boolean isHit;
+
   public MmuGuard(
       final MemoryOperation operation,
       final MmuBufferAccess bufferAccess,
       final MmuCondition condition,
-      final MmuSegment segment) {
+      final MmuSegment segment,
+      final boolean isHit) {
     this.operation = operation;
     this.bufferAccess = bufferAccess;
     this.condition = condition;
     this.segment = segment;
+    this.isHit = isHit;
   }
 
   public MmuGuard(
       final MmuBufferAccess bufferAccess,
       final MmuCondition condition) {
-    this(null, bufferAccess, condition, null);
+    this(null, bufferAccess, condition, null, false);
   }
 
   public MmuGuard(final MmuBufferAccess bufferAccess) {
-    this(null, bufferAccess, null, null);
+    this(null, bufferAccess, null, null, false);
   }
 
   public MmuGuard(final MmuCondition condition) {
-    this(null, null, condition, null);
+    this(null, null, condition, null, false);
   }
 
   public MmuGuard(final MmuConditionAtom condition) {
-    this(null, null, new MmuCondition(condition), null);
+    this(null, null, new MmuCondition(condition), null, false);
   }
 
   public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
-    this(operation, null, condition, null);
+    this(operation, null, condition, null, false);
   }
 
   public MmuGuard(final MemoryOperation operation) {
-    this(operation, null, null, null);
+    this(operation, null, null, null, false);
   }
 
-  public MmuGuard(final MmuSegment segment, final boolean isIn) {
-    this(null, null, null, segment);
+  public MmuGuard(final MmuSegment segment, final boolean hit) {
+    this(null, null, null, segment, hit);
   }
 
   public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
@@ -101,6 +105,10 @@ public final class MmuGuard {
 
   public MmuSegment getSegment() {
     return segment;
+  }
+
+  public boolean isHit() {
+    return isHit;
   }
 
   @Override

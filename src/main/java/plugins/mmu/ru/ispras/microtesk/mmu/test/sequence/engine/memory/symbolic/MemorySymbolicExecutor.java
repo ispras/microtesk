@@ -679,13 +679,18 @@ public final class MemorySymbolicExecutor {
 
     final MmuSegment segment = guard.getSegment();
     if (segment != null) {
-      final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
+      if (guard.isHit()) {
+        final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
-      final IntegerRangeConstraint constraint =
-          new IntegerRangeConstraint(address.getVariable(),
-          new IntegerRange(segment.getMin(), segment.getMax()));
+        final IntegerRangeConstraint constraint =
+            new IntegerRangeConstraint(address.getVariable(),
+            new IntegerRange(segment.getMin(), segment.getMax()));
 
-      status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
+        status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      } else {
+        // FIXME: Handle segment miss.
+        InvariantChecks.checkTrue(false);
+      }
     }
 
     if (status == Boolean.FALSE) {
