@@ -402,13 +402,13 @@ public final class MmuUnderTest {
   public final MmuTransition ifWrite = new MmuTransition(root, start,
       new MmuGuard(MemoryOperation.STORE));
   public final MmuTransition ifUnmappedKseg0 = new MmuTransition(start, getUpaKseg,
-      new MmuGuard(kseg0));
+      new MmuGuard(kseg0, true));
   public final MmuTransition ifUnmappedKseg1 = new MmuTransition(start, getUpaKseg,
-      new MmuGuard(kseg1));
+      new MmuGuard(kseg1, true));
   public final MmuTransition ifUnmappedXkphys = new MmuTransition(start, getUpaXkphys,
-      new MmuGuard(xkphys));
+      new MmuGuard(xkphys, true));
   public final MmuTransition ifMapped = new MmuTransition(start, startDtlb,
-      new MmuGuard(xuseg));
+      new MmuGuard(xuseg, true));
   public final MmuTransition afterUpaKseg = new MmuTransition(getUpaKseg, checkSegment);
   public final MmuTransition afterUpaXkphys = new MmuTransition(getUpaXkphys, checkSegment);
   public final MmuTransition ifDtlbMiss = new MmuTransition(startDtlb, startJtlb,
@@ -446,13 +446,13 @@ public final class MmuUnderTest {
           MmuCondition.eq(d, BigInteger.ONE)));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
   public final MmuTransition ifKseg0 = new MmuTransition(checkSegment, startKseg0,
-      new MmuGuard(kseg0));
+      new MmuGuard(kseg0, true));
   public final MmuTransition ifKseg1 = new MmuTransition(checkSegment, startMem,
-      new MmuGuard(kseg1));
+      new MmuGuard(kseg1, true));
   public final MmuTransition ifXkphys = new MmuTransition(checkSegment, startXkphys,
-      new MmuGuard(xkphys));
+      new MmuGuard(xkphys, true));
   public final MmuTransition ifXuseg = new MmuTransition(checkSegment, startCache,
-      new MmuGuard(xuseg));
+      new MmuGuard(xuseg, true));
   public final MmuTransition afterKseg0 = new MmuTransition(startKseg0, startCache);
   public final MmuTransition afterXkphys = new MmuTransition(startXkphys, startCache);
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
