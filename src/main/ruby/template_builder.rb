@@ -82,7 +82,7 @@ def define_operation(op)
     set_arguments builder, arguments
 
     if situations != nil
-      builder.setSituation self.instance_eval &situations
+      builder.setSituation @situation_manager.instance_eval &situations
     else
       default_situation = @template.getDefaultSituation name
       if default_situation != nil
@@ -123,7 +123,7 @@ def define_operation_group(group_name)
     set_arguments builder, arguments
 
     if situations != nil
-      builder.setSituation self.instance_eval &situations
+      builder.setSituation @situation_manager.instance_eval &situations
     else
       default_situation = @template.getDefaultSituation group_name.to_s
 

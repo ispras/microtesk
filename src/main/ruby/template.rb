@@ -21,8 +21,6 @@ require_relative 'mmu_plugin'
 include TemplateBuilder
 
 class Template
-  include MmuPlugin
-
   attr_reader :template
 
   @@template_classes = Hash.new
@@ -208,24 +206,6 @@ class Template
 
   def get_address_of(label)
     @template.getAddressForLabel label.to_s
-  end
-
-  def situation(name, attrs = {})
-    if !attrs.is_a?(Hash)
-      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
-    end
-
-    builder = @template.newSituation name
-    attrs.each_pair do |name, value|
-      attr_value = if value.is_a?(Dist) then value.java_object else value end
-      builder.setAttribute name.to_s, attr_value
-    end
-
-    builder.build
-  end
-
-  def random_situation(dist)
-    dist.java_object
   end
 
   def set_default_situation(names, &situations)
@@ -764,6 +744,8 @@ class Template
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(self, @template.getDataManager)
+    @situation_manager = SituationManager.new(self)
+
     @data_manager.beginConfig target, addressableSize, baseVirtAddr
 
     @data_manager.instance_eval &contents
@@ -970,6 +952,42 @@ class Location
    "#{@name}[#{@index}]"
  end
 end # Location
+
+class SituationManager
+  include MmuPlugin
+
+  def initialize(template)
+    @template = template
+  end
+
+  def situation(name, attrs = {})
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
+    end
+
+    builder = @template.template.newSituation name
+    attrs.each_pair do |name, value|
+      attr_value = if value.is_a?(Dist) then value.java_object else value end
+      builder.setAttribute name.to_s, attr_value
+    end
+
+    builder.build
+  end
+
+  def random_situation(dist)
+    dist.java_object
+  end
+
+  def method_missing(meth, *args, &block)
+    # Redirecting call to the template.
+    if @template.respond_to?(meth)
+      @template.send meth, *args, &block
+    else
+      raise MTRubyError, "Method '#{meth}' is not available in data sections."
+    end
+  end
+
+end # SituationManager
 
 class DataManager
 
