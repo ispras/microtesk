@@ -1567,10 +1567,13 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
     final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
-
     final Where w = this.where(where);
-    final Node distance = DistanceCalculator.get().distance(reducedTo, reducedFrom);
 
+    if (!ExprUtils.isConstant(reducedFrom) || !ExprUtils.isConstant(reducedTo)) {
+      raiseError(w, "Bit field expressions must be statically calculated constants.");
+    }
+
+    final Node distance = DistanceCalculator.get().distance(reducedTo, reducedFrom);
     if (distance.getKind() != Node.Kind.VALUE) {
       raiseError(w, "Unable to calculate bit field size.");
     }
