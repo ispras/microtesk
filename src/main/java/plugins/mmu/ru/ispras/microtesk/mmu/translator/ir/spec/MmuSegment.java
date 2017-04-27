@@ -15,12 +15,9 @@
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.utils.Range;
 
 /**
@@ -34,10 +31,6 @@ public class MmuSegment implements Range<BigInteger> {
   private final MmuAddressInstance paType;
   private final BigInteger startAddress;
   private final BigInteger endAddress;
-  private final boolean isMapped;
-  private final MmuExpression paExpression;
-  private final MmuExpression restExpression;
-  private final AddressView<BigInteger> addressView;
   private final IntegerRange range;
 
   public MmuSegment(
@@ -45,26 +38,14 @@ public class MmuSegment implements Range<BigInteger> {
       final MmuAddressInstance vaType,
       final MmuAddressInstance paType,
       final BigInteger startAddress,
-      final BigInteger endAddress,
-      final boolean isMapped,
-      final MmuExpression paExpression,
-      final MmuExpression restExpression) {
+      final BigInteger endAddress) {
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkTrue(isMapped || paExpression != null && restExpression != null);
 
     this.name = name;
     this.vaType = vaType;
     this.paType = paType;
     this.startAddress = startAddress;
     this.endAddress = endAddress;
-    this.isMapped = isMapped;
-
-    this.paExpression = paExpression;
-    this.restExpression = restExpression;
-
-    this.addressView =
-        isMapped ? null : new MmuAddressViewBuilder(vaType, paExpression, restExpression).build();
-
     this.range = new IntegerRange(startAddress, endAddress);
   }
 
@@ -88,43 +69,8 @@ public class MmuSegment implements Range<BigInteger> {
     return endAddress;
   }
 
-  public boolean isMapped() {
-    return isMapped;
-  }
-
-  public final MmuExpression getPaExpression() {
-    return paExpression;
-  }
-
-  public final MmuExpression getRestExpression() {
-    return restExpression;
-  }
-
   public final boolean checkVa(final BigInteger va) {
     return range.contains(va);
-  }
-
-  public final BigInteger getPa(final BigInteger address) {
-    return addressView.getField(address, 0);
-  }
-
-  public final BigInteger getRest(final BigInteger address) {
-    return addressView.getField(address, 1);
-  }
-
-  public final BigInteger getVa(final BigInteger pa, final BigInteger rest) {
-    final List<BigInteger> fields = new ArrayList<>();
-
-    fields.add(pa);
-    fields.add(rest);
-
-    return addressView.getAddress(fields);
-  }
-
-  public final BigInteger getVa(final BigInteger pa) {
-    final BigInteger startAddressRest = getRest(startAddress);
-
-    return getVa(pa, startAddressRest);
   }
 
   @Override

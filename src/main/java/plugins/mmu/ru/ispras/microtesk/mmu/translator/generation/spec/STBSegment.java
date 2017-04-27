@@ -101,13 +101,6 @@ final class STBSegment implements STBuilder {
     stConstructor.add("end",
         String.format("BigIntegerUtils.valueOfUnsignedLong(0x%xL)", segment.getMax().longValue()));
 
-    final SegmentControlFlowExplorer explorer =
-        new SegmentControlFlowExplorer(segment);
-
-    stConstructor.add("mapped", Boolean.toString(explorer.isMapped()));
-    stConstructor.add("va_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getPaExpr()));
-    stConstructor.add("pa_expr", Utils.toMmuExpressionText(segment.getId(), explorer.getRestExpr()));
-
     st.add("members", "");
     st.add("members", stConstructor);
   }

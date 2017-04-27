@@ -170,40 +170,32 @@ public final class MmuUnderTest {
       vaAddr,
       paAddr,
       BigIntegerUtils.valueOfUnsignedLong(0x0000000080000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0x000000ffFFFFffffL),
-      true,
-      null,
-      null);
+      BigIntegerUtils.valueOfUnsignedLong(0x000000ffFFFFffffL)
+      );
 
   public final MmuSegment kseg0 = new MmuSegment(
       "KSEG0",
       vaAddr,
       paAddr,
       BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF80000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF9fffFFFFL),
-      false,
-      MmuExpression.var(va, 0, 28), 
-      MmuExpression.var(va, 29, 63));
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF9fffFFFFL)
+      );
 
   public final MmuSegment kseg1 = new MmuSegment(
       "KSEG1",
       vaAddr,
       paAddr,
       BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFa0000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFbfffFFFFL),
-      false,
-      MmuExpression.var(va, 0, 28), 
-      MmuExpression.var(va, 29, 63));
+      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFbfffFFFFL)
+      );
 
   public final MmuSegment xkphys = new MmuSegment(
       "XKPHYS",
       vaAddr,
       paAddr,
       BigIntegerUtils.valueOfUnsignedLong(0x8000000000000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xbfffFFFFffffFFFFL),
-      false,
-      MmuExpression.var(va, 0, 35), 
-      MmuExpression.var(va, 36, 63));
+      BigIntegerUtils.valueOfUnsignedLong(0xbfffFFFFffffFFFFL)
+      );
 
   // ===============================================================================================
   // Buffers
