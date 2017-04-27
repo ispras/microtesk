@@ -118,16 +118,16 @@ public final class MmuEntry {
 
     builder.append("[");
 
-    boolean comma = false; 
+    boolean comma = false;
     for (final Map.Entry<IntegerVariable, BigInteger> entry : fields.entrySet()) {
-      if (comma) {
-        builder.append(separator);
-      }
+      final String name = getShortName(entry.getKey());
+      final String value = entry.getValue().toString(16);
 
-      builder.append(getShortName(entry.getKey()));
+      builder.append(comma ? separator : "");
+      builder.append(name);
       builder.append("=");
-      builder.append(entry.getValue().toString(16));
-
+      builder.append(value.length() != 1 ? "0x" : "");
+      builder.append(value);
       comma = true;
     }
 

@@ -97,7 +97,7 @@ public final class MemorySymbolicRestrictor {
     Logger.debug("Range constraint: %s in %s", addrType, range);
 
     return Collections.<IntegerConstraint<IntegerField>>singleton(
-        MemoryAccessConstraints.RANGE(addrType, range));
+        MemoryAccessConstraints.RANGE(addrType.getVariable(), range));
   }
 
   public Collection<IntegerConstraint<IntegerField>> getConstraints(

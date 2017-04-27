@@ -26,7 +26,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
+import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
  * The {@link MemoryAccessConstraints} class holds constraints related to memory
@@ -41,15 +41,15 @@ public final class MemoryAccessConstraints {
   public static final MemoryAccessConstraints EMPTY = new MemoryAccessConstraints();
 
   public static IntegerConstraint<IntegerField> EQ(
-      final MmuAddressInstance address,
+      final IntegerVariable variable,
       final BigInteger value) {
-    return new IntegerDomainConstraint<IntegerField>(address.getVariable().field(), value);
+    return new IntegerDomainConstraint<IntegerField>(variable.field(), value);
   }
 
   public static IntegerConstraint<IntegerField> RANGE(
-      final MmuAddressInstance address,
+      final IntegerVariable variable,
       final IntegerRange range) {
-    return new IntegerRangeConstraint(address.getVariable(), range);
+    return new IntegerRangeConstraint(variable, range);
   }
 
   public static final MemoryAccessConstraints compose(

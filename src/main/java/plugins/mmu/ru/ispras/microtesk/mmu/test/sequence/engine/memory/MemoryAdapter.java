@@ -140,6 +140,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(solution);
     InvariantChecks.checkNotNull(entriesInDataSection);
 
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     final BlockId blockId = new BlockId();
@@ -224,9 +225,13 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
         preparation.add(concreteCall);
       } else {
+        // For memory-mapped buffers, the usual preparator is used.
+        final MmuBuffer targetBuffer = buffer.getKind() == MmuBuffer.Kind.MEMORY
+            ? memory.getTargetBuffer() : buffer;
+
         // Dynamic buffer initialization.
         final List<ConcreteCall> initializer = prepareBuffer(
-            buffer, engineContext, addressValue, entryFieldValues);
+            targetBuffer, engineContext, addressValue, entryFieldValues);
         InvariantChecks.checkNotNull(initializer);
 
         if (!initializer.isEmpty()) {
@@ -374,10 +379,15 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(addressObject);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
+
     final MmuAddressInstance virtualAddressType = memory.getVirtualAddress();
     final BigInteger virtualAddressValue = addressObject.getAddress(virtualAddressType);
 
-    return String.format("%s[0x%s]", memory.getName(), virtualAddressValue.toString(16));
+    final IntegerVariable dataVariable = memory.getDataVariable();
+    final BigInteger dataValue = addressObject.getData(dataVariable);
+
+    return String.format("%s[0x%s]=[0x%s]",
+        memory.getName(), virtualAddressValue.toString(16), dataValue.toString(16));
   }
 
   private String getBufferAccessComment(

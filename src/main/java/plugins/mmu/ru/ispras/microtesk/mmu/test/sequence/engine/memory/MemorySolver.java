@@ -342,14 +342,18 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return getMissCondition(bufferAccess, addressWithoutTag);
   }
 
-  private BigInteger getVirtualAddress(final DataType dataType) {
+  private BigInteger getRandomAddress(final DataType dataType) {
     final GeneratorSettings settings = GeneratorSettings.get();
     final RegionSettings region = settings.getMemory().getRegion(memory.getName());
 
-    final BigInteger virtualAddress =
+    final BigInteger address =
         Randomizer.get().nextBigIntegerRange(region.getMin(), region.getMax());
 
-    return dataType.align(virtualAddress);
+    return dataType.align(address);
+  }
+
+  private BigInteger getRandomValue(final IntegerVariable variable) {
+    return Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
   }
 
   /**
@@ -372,8 +376,12 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final DataType dataType = accessType.getDataType();
 
     final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BigInteger virtAddrValue = getVirtualAddress(dataType);
+    final BigInteger virtAddrValue = getRandomAddress(dataType);
     addrObject.setAddress(virtAddrType, virtAddrValue);
+
+    final IntegerVariable dataVariable = memory.getDataVariable();
+    final BigInteger dataValue = getRandomValue(dataVariable);
+    addrObject.setData(dataVariable, dataValue);
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
 
@@ -395,6 +403,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     if (!conditions.isEmpty()) {
       final AddressObject refinedAddrObject = new AddressObject(access);
       refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
+      refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<IntegerVariable, BigInteger> refinedValues =
           refineAddr(refinedAddrObject, conditions, getAccessConstraints(j));
@@ -455,6 +464,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     if (conditions.size() > numberOfConditions) {
       final AddressObject refinedAddrObject = new AddressObject(access);
       refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
+      refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<IntegerVariable, BigInteger> refinedValues =
           refineAddr(refinedAddrObject, conditions, getAccessConstraints(j));
@@ -495,14 +505,23 @@ public final class MemorySolver implements Solver<MemorySolution> {
     Logger.debug("Refine address: conditions=%s", conditions);
 
     final Collection<IntegerConstraint<IntegerField>> allConstraints = new ArrayList<>(constraints);
-    final Map<MmuAddressInstance, BigInteger> addresses = addrObject.getAddresses();
 
+    // Fix known values of the data.
+    final Map<IntegerVariable, BigInteger> data = addrObject.getData();
+    for (final Map.Entry<IntegerVariable, BigInteger> entry : data.entrySet()) {
+      final IntegerVariable variable = entry.getKey();
+      final BigInteger value = entry.getValue();
+
+      allConstraints.add(MemoryAccessConstraints.EQ(variable, value));
+    }
+    
     // Fix known values of the addresses.
+    final Map<MmuAddressInstance, BigInteger> addresses = addrObject.getAddresses();
     for (final Map.Entry<MmuAddressInstance, BigInteger> entry : addresses.entrySet()) {
       final MmuAddressInstance address = entry.getKey();
       final BigInteger value = entry.getValue();
 
-      allConstraints.add(MemoryAccessConstraints.EQ(address, value));
+      allConstraints.add(MemoryAccessConstraints.EQ(address.getVariable(), value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
