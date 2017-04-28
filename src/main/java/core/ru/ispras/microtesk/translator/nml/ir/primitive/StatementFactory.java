@@ -251,6 +251,13 @@ public final class StatementFactory extends WalkerFactoryBase {
       final FormatMarker marker = markers.get(index);
       final Node argument = args.get(index);
 
+      if (argument.isType(DataTypeId.LOGIC_STRING) &&
+          !marker.isKind(FormatMarker.Kind.STR) &&
+          !marker.isKind(FormatMarker.Kind.BIN)) {
+        raiseError(where, String.format(
+            "String %s cannot be converted to the %%%s format.", argument, marker.getKind().getLetter()));
+      }
+
       if (marker.isKind(FormatMarker.Kind.BIN) || marker.isKind(FormatMarker.Kind.STR)) {
         if (argument.isType(DataTypeId.LOGIC_INTEGER)) {
           raiseError(where, String.format("%s must be explicitly typed.", argument));

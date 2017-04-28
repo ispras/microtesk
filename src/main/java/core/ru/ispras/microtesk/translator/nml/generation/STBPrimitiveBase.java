@@ -265,12 +265,9 @@ final class StatementBuilder {
     }
 
     if (argument.isType(DataTypeId.LOGIC_STRING)) {
-      final String text = ExprPrinter.toString(new Expr(argument));
-      if (!marker.isKind(FormatMarker.Kind.STR) || !marker.isKind(FormatMarker.Kind.BIN)) {
-        InvariantChecks.checkTrue(false, String.format(
-            "String %s cannot be converted to the %%%s format", text, marker.getKind().getLetter()));
-      }
-      return text;
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR) ||
+                                marker.isKind(FormatMarker.Kind.BIN));
+      return ExprPrinter.toString(new Expr(argument));
     }
 
     throw new IllegalArgumentException("Illegal data type: " + argument);
