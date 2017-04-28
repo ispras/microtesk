@@ -209,6 +209,24 @@ class Template
     @template.getAddressForLabel label.to_s
   end
 
+  def situation(name, attrs = {})
+    if !attrs.is_a?(Hash)
+      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
+    end
+
+    builder = @template.newSituation name
+    attrs.each_pair do |name, value|
+      attr_value = if value.is_a?(Dist) then value.java_object else value end
+      builder.setAttribute name.to_s, attr_value
+    end
+
+    builder.build
+  end
+
+  def random_situation(dist)
+    dist.java_object
+  end
+
   def set_default_situation(names, &situations)
     if !names.is_a?(String) and !names.is_a?(Array)
       raise MTRubyError, "#{names} must be String or Array."
@@ -957,24 +975,6 @@ class SituationManager
 
   def initialize(template)
     @template = template
-  end
-
-  def situation(name, attrs = {})
-    if !attrs.is_a?(Hash)
-      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
-    end
-
-    builder = @template.template.newSituation name
-    attrs.each_pair do |name, value|
-      attr_value = if value.is_a?(Dist) then value.java_object else value end
-      builder.setAttribute name.to_s, attr_value
-    end
-
-    builder.build
-  end
-
-  def random_situation(dist)
-    dist.java_object
   end
 
   def method_missing(meth, *args, &block)
