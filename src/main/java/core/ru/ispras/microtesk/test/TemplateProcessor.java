@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +41,6 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
-import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.Section;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -155,16 +153,10 @@ final class TemplateProcessor implements Template.Processor {
     for (int index = 0; index < executorStatuses.size(); index++) {
       final Executor.Status status = executorStatuses.get(index);
 
-      if (status.isLabelReference()) {
-        throw new GenerationAbortedException(String.format(
-            "Instance %d is still waiting for label %s that has never been allocated.",
-            index, status.getLabelReference().getReference().getName()));
-      }
-
       if (!isEndOfTestSequence(status, testProgram.getLastEntry())) {
         throw new GenerationAbortedException(String.format(
-            "Instance %d is at address 0x%016x and it cannot reach the end of the program.",
-            index, status.getAddress()));
+            "Instance %d is at address %s and it cannot reach the end of the program.",
+            index, status));
       }
     }
  
@@ -183,9 +175,8 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.setCodeAllocationAddress(allocator.getAddress());
 
     final TestSequence sequence =
-        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, "Prologue");
 
-    sequence.setTitle(String.format("Prologue (%s)", block.getWhere()));
     testProgram.setPrologue(sequence);
   }
 
@@ -195,63 +186,36 @@ final class TemplateProcessor implements Template.Processor {
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
     startProgram();
+
     final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
-
     final TestSequence prevEntry = testProgram.getLastEntry();
-    int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
-    if (-1 == instanceIndex) {
-      instanceIndex = findInstanceJumpIntoSequence(prevEntry, abstractSequence);
-    }
 
-    if (-1 == instanceIndex) {
-      if (TestEngineUtils.isOriginFixed(abstractSequence)) {
-        processExternalBlockNoSimulation(block);
-        if (resumeExecution()) {
-          processPostponedBlocks();
-        }
-      } else {
-        Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
-        testProgram.addPostponedEntry(block);
-      }
+    final boolean canBeAllocated =
+        null == prevEntry || prevEntry.isAllocated() || TestEngineUtils.isOriginFixed(abstractSequence);
+
+    if (!canBeAllocated) {
+      Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
+      testProgram.addPostponedEntry(block);
       return;
     }
 
-    if (testProgram.isPostponedEntry(testProgram.getLastEntry()) &&
-        !TestEngineUtils.isOriginFixed(abstractSequence)) {
-      throw new GenerationAbortedException(String.format(
-          "External code defined at %s must have fixed origin.", block.getWhere()));
+    final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
+    if (-1 != instanceIndex) {
+      engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    engineContext.getModel().setActivePE(instanceIndex);
-    engineContext.setCodeAllocationAddress(allocator.getAddress());
-
-    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
-    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
-
+    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
+    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
+        engineContext, block, "External Code");
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
-    executeTestSequence(sequence);
+
+    if (runExecution(sequence)) {
+      processPostponedBlocks();
+    }
 
     if (engineContext.getStatistics().isFileLengthLimitExceeded()) {
       finishProgram();
     }
-
-    resumeExecution();
-    processPostponedBlocks();
-  }
-
-  private void processExternalBlockNoSimulation(final Block block) throws ConfigurationException {
-    final TestSequence prevEntry = testProgram.getLastEntry();
-
-    final long allocationAddress = null != prevEntry && prevEntry.isAllocated() ?
-        prevEntry.getEndAddress() : allocator.getAddress();
-
-    engineContext.setCodeAllocationAddress(allocationAddress);
-
-    final TestSequence sequence =
-        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
-
-    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
-    allocateTestSequenceAfter(prevEntry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
   private void processBlock(final Block block) throws ConfigurationException, IOException {
@@ -283,8 +247,10 @@ final class TemplateProcessor implements Template.Processor {
 
         allocateTestSequence(sequence, sequenceIndex);
         engineContext.getStatistics().incSequences();
-        executeTestSequence(sequence);
+        runExecution(sequence);
 
+        // Needed to resolve external control transfers. In particular,
+        // to allocate unallocated exception handler.
         if (!isEndOfTestSequence(executorStatuses.get(instanceIndex), sequence)) {
           interruptedSequences.push(sequence);
           processPostponedBlocks();
@@ -328,34 +294,12 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       executor.setPauseOnUndefinedLabel(false);
-      executeTestSequence(sequence);
+      runExecution(sequence);
     } finally {
       executor.setPauseOnUndefinedLabel(true);
     }
 
     return sequence;
-  }
-
-  private boolean resumeExecution() {
-    boolean isResumed = false;
-
-    for (int index = 0; index < instanceNumber; index++) {
-      final Executor.Status status = executorStatuses.get(index);
-      if (status.isAddress() && allocator.getCode().hasAddress(status.getAddress())) {
-        Logger.debugHeader("Trying to Resume Execution (Instance %d)", index);
-        Logger.debug("Execution status: %s%n", status);
-
-        final long address = status.getAddress();
-        engineContext.getModel().setActivePE(index);
-
-        final Executor.Status newStatus = executor.execute(allocator.getCode(), address);
-        executorStatuses.set(index, newStatus);
-
-        isResumed = isResumed || !status.equals(newStatus);
-      }
-    }
-
-    return isResumed;
   }
 
   private void processPostponedBlocks() throws ConfigurationException {
@@ -386,40 +330,36 @@ final class TemplateProcessor implements Template.Processor {
 
   private boolean processPostponedExternalBlock(final Block block, final TestSequence entry) throws ConfigurationException {
     final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
-
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-    int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
-    if (-1 == instanceIndex) {
-      instanceIndex = findInstanceJumpIntoSequence(prevEntry, abstractSequence);
-    }
 
-    if (-1 == instanceIndex) {
+    final boolean canBeAllocated =
+        null == prevEntry || prevEntry.isAllocated() || TestEngineUtils.isOriginFixed(abstractSequence);
+
+    if (!canBeAllocated) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
       return false;
     }
 
-    if (isEndOfTestSequence(executorStatuses.get(instanceIndex), interruptedSequences)) {
-      Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
-      return false;
+    // This is needed to prevent allocation of postponed sequences in middle
+    // of sequences constructed by a block (interrupting a block).
+    for (final Executor.Status status: executorStatuses) { 
+      if (isEndOfTestSequence(status, interruptedSequences)) {
+        Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
+        return false;
+      }
     }
 
-    if (testProgram.isPostponedEntry(testProgram.getPrevEntry(entry)) &&
-        !TestEngineUtils.isOriginFixed(abstractSequence)) {
-      throw new GenerationAbortedException(String.format(
-          "External code defined at %s must have fixed origin.", block.getWhere()));
+    final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
+    if (-1 != instanceIndex) {
+      engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    engineContext.getModel().setActivePE(instanceIndex);
-
-    final long allocationAddress = null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
-    engineContext.setCodeAllocationAddress(allocationAddress);
-
-    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
-    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
-
+    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
+    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
+        engineContext, block, "External Code");
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
-    executeTestSequence(sequence);
 
+    runExecution(sequence);
     return true;
   }
 
@@ -429,6 +369,8 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
     final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
 
+    // This is needed to prevent allocation of postponed sequences in middle
+    // of sequences constructed by a block (interrupting a block).
     if (-1 == instanceIndex) {
       Logger.debug("Processing of block defined at %s is postponed again.", block.getWhere());
       return false;
@@ -465,7 +407,7 @@ final class TemplateProcessor implements Template.Processor {
         }
 
         engineContext.getStatistics().incSequences();
-        executeTestSequence(sequence);
+        runExecution(sequence);
 
         final Executor.Status status = executorStatuses.get(instanceIndex);
         if (!isEndOfTestSequence(status, sequence) &&
@@ -510,15 +452,11 @@ final class TemplateProcessor implements Template.Processor {
       final Block block,
       final TestSequence entry) throws ConfigurationException {
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-
-    final long allocationAddress =
-        null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
-    engineContext.setCodeAllocationAddress(allocationAddress);
+    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
 
     final TestSequence sequence =
-        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block);
+        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, "External Code");
 
-    sequence.setTitle(String.format("External Code (%s)", block.getWhere()));
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -579,7 +517,7 @@ final class TemplateProcessor implements Template.Processor {
     final TestSequence prologue = testProgram.getPrologue();
 
     allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
-    executeTestSequence(prologue);
+    runExecution(prologue);
 
     TestEngineUtils.notifyProgramStart();
   }
@@ -593,12 +531,10 @@ final class TemplateProcessor implements Template.Processor {
 
       engineContext.setCodeAllocationAddress(allocator.getAddress());
       final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
-          engineContext, testProgram.getEpilogue());
-
-      sequence.setTitle(String.format("Epilogue (%s)", testProgram.getEpilogue().getWhere()));
+          engineContext, testProgram.getEpilogue(), "Epilogue");
 
       allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
-      executeTestSequence(sequence);
+      runExecution(sequence);
 
       PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
@@ -613,6 +549,12 @@ final class TemplateProcessor implements Template.Processor {
 
       isProgramStarted = false;
     }
+  }
+
+  private long getAllocationAddress(final TestSequence prevEntry) {
+    return null != prevEntry && prevEntry.isAllocated() ?
+        prevEntry.getEndAddress() :
+        allocator.getAddress();
   }
 
   private void allocateTestSequenceWithReplace(
@@ -666,68 +608,56 @@ final class TemplateProcessor implements Template.Processor {
    * <p>Threads are executed until they reach the end of allocated code or a jump to an undefined
    * label.
    * 
-   * @param currentSequence The most recently allocated sequence which is expected to be executed
+   * @param sequence The most recently allocated sequence which is expected to be executed
    *                        by some of the threads.
    */
-  private void executeTestSequence(final TestSequence currentSequence) {
-    Logger.debugHeader("Executing %s", currentSequence.getTitle());
+  private boolean runExecution(final TestSequence sequence) {
+    InvariantChecks.checkNotNull(sequence);
+    Logger.debugHeader("Running Execution");
+
     if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
-      return;
+      return false;
     }
 
     // Nothing to execute (no new code was allocated).
-    if (currentSequence.isEmpty()) {
-      return;
+    if (sequence.isEmpty()) {
+      return false;
     }
 
     final boolean isNoStatuses = executorStatuses.isEmpty();
-    final long currentStartAddress = currentSequence.getStartAddress();
-    final TestSequence previousSequence = testProgram.getPrevEntry(currentSequence);
+    final Code code = allocator.getCode();
 
+    boolean isExecuted = false;
     for (int index = 0; index < instanceNumber; index++) {
-      Logger.debugHeader("Instance %d", index);
-
       // Sets initial statuses (address of first sequence in a program).
       if (isNoStatuses) {
-        executorStatuses.add(Executor.Status.newAddress(currentStartAddress));
+        executorStatuses.add(Executor.Status.newAddress(sequence.getStartAddress()));
       }
 
-      final Executor.Status oldStatus = executorStatuses.get(index);
-      Logger.debug("Execution status: %s%n", oldStatus);
+      final Executor.Status status = executorStatuses.get(index);
+      final long address = status.getAddress();
 
-      if (oldStatus.isLabelReference()) {
-        final LabelReference reference = oldStatus.getLabelReference();
-        final Label label = reference.getReference();
+      Logger.debugHeader("Instance %d", index);
+      Logger.debug("Execution status: %s%n", status);
 
-        final LabelManager.Target target = engineContext.getLabelManager().resolve(label);
-        if (null != target) {
-          reference.setTarget(target);
-          reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
-        }
-      }
+      final boolean isUndefinedLabel =
+          status.isLabelReference() &&
+          engineContext.getLabelManager().resolve(
+              status.getLabelReference().getReference()) == null;
 
-      if (!isAllocatedTarget(oldStatus) && !isEndOfTestSequence(oldStatus, previousSequence)) {
-        Logger.debug("Execution cannot be run at the current stage.");
+      if (!code.hasAddress(address) || isUndefinedLabel) {
+        Logger.debug("Execution cannot continue at the current stage.");
         continue;
       }
 
-      final long address = oldStatus.isAddress() ?
-          oldStatus.getAddress() :
-          oldStatus.getLabelReference().getTarget().getAddress();
-
       engineContext.getModel().setActivePE(index);
-      final Executor.Status newStatus = executor.execute(allocator.getCode(), address);
+      final Executor.Status newStatus = executor.execute(code, address);
       executorStatuses.set(index, newStatus);
-    }
-  }
-
-  private boolean isAllocatedTarget(final Executor.Status status) {
-    if (status.isLabelReference()) {
-      return status.getLabelReference().getTarget() != null;
+      isExecuted = true;
     }
 
-    return allocator.getCode().hasAddress(status.getAddress());
+    return isExecuted;
   }
 
   private static boolean isEndOfTestSequence(
@@ -737,20 +667,12 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    if (!status.isAddress()) {
-      return false;
-    }
-
     return sequence.getEndAddress() == status.getAddress();
   }
 
   private static boolean isEndOfTestSequence(
       final Executor.Status status,
       final Collection<TestSequence> sequences) {
-    if (!status.isAddress()) {
-      return false;
-    }
-
     for (final TestSequence sequence : sequences) {
       return isEndOfTestSequence(status, sequence);
     }
@@ -774,45 +696,6 @@ final class TemplateProcessor implements Template.Processor {
 
     // Nothing is found.
     return -1;
-  }
-
-  private int findInstanceJumpIntoSequence(
-      final TestSequence prevEntry,
-      final List<Call> sequence) {
-    if (executorStatuses.isEmpty()) {
-      // No instances started execution yet - none jumps to a label
-      return -1;
-    }
-
-    BigInteger address = TestEngineUtils.getSequenceAddress(sequence);
-    if (null == address && prevEntry.isAllocated()) {
-      address = BigInteger.valueOf(prevEntry.getEndAddress());
-    }
-
-    for (int index = 0; index < instanceNumber; index++) {
-      final Executor.Status status = executorStatuses.get(index);
-      InvariantChecks.checkNotNull(status);
-
-      if (status.isAddress() && null != address && status.getAddress() == address.longValue()) {
-        return index;
-      }
-
-      if (isJumpIntoSequence(status, sequence)) {
-        // Found it!
-        return index;
-      }
-    }
-
-    // Nothing is found.
-    return -1;
-  }
-
-  private static boolean isJumpIntoSequence(
-      final Executor.Status status, final List<Call> sequence) {
-    if (!status.isLabelReference()) {
-      return false;
-    }
-    return TestEngineUtils.isLabelDefined(sequence, status.getLabelReference().getReference());
   }
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {

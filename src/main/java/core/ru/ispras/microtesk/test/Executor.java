@@ -48,61 +48,43 @@ public final class Executor {
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static final class Status {
-    private final Object data;
+    private final long address;
+    private final LabelReference labelReference;
+
+    private Status(final long address, final LabelReference labelReference) {
+      this.address = address;
+      this.labelReference = labelReference;
+    }
 
     public static Status newAddress(final long address) {
-      return new Status(address);
+      return new Status(address, null);
     }
 
-    public static Status newLabelReference(final LabelReference labelReference) {
-      return new Status(labelReference);
-    }
-
-    private Status(final Object data) {
-      InvariantChecks.checkTrue(data instanceof Long || data instanceof LabelReference);
-      this.data = data;
-    }
-
-    public boolean isAddress() {
-      return data instanceof Long;
-    }
-
-    public boolean isLabelReference() {
-      return data instanceof LabelReference;
+    public static Status newUndefinedLabel(final long address, final LabelReference labelReference) {
+      InvariantChecks.checkNotNull(labelReference);
+      return new Status(address, labelReference);
     }
 
     public final long getAddress() {
-      InvariantChecks.checkTrue(data instanceof Long);
-      return (Long) data;
+      return address;
+    }
+
+    public boolean isLabelReference() {
+      return null != labelReference;
     }
 
     public LabelReference getLabelReference() {
-      InvariantChecks.checkTrue(data instanceof LabelReference);
-      return (LabelReference) data;
-    }
-
-    @Override
-    public int hashCode() {
-      return data.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (this == obj) {
-        return true;
-      }
-
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-
-      final Status other = (Status) obj;
-      return this.data.equals(other.data);
+      return labelReference;
     }
 
     @Override
     public String toString() {
-      return isAddress() ? String.format("0x%016x", getAddress()) : data.toString();
+      final StringBuilder sb = new StringBuilder(String.format("0x%016x", getAddress()));
+      if (isLabelReference()) {
+        sb.append(String.format(
+            " (waiting for label %s)", labelReference.getReference().getName()));
+      }
+      return sb.toString();
     }
   }
 
@@ -311,7 +293,7 @@ public final class Executor {
         previousAddress = address;
 
         status = executeToBreak(code, address);
-        if (!status.isAddress()) {
+        if (status.isLabelReference()) {
           return status;
         }
 
@@ -371,7 +353,7 @@ public final class Executor {
 
           if (null == target) {
             logReferenceUndefinedLabel(call, label);
-            return Status.newAddress(fetcher.getAddress());
+            return Status.newUndefinedLabel(fetcher.getAddress(), reference);
           }
         }
       }

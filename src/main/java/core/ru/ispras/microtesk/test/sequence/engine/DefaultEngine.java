@@ -165,18 +165,14 @@ public final class DefaultEngine implements Engine<TestSequence> {
       final Executor.Status status = executor.execute(code, address);
 
       final boolean isValidAddress =
-          status.isAddress() &&
-          (code.hasAddress(status.getAddress()) || status.getAddress() == endAddress);
+          code.hasAddress(status.getAddress()) || status.getAddress() == endAddress;
 
       if (isValidAddress) {
         address = status.getAddress();
       } else {
         if (Logger.isDebug()) {
           Logger.debug(
-              "Jump to %s %s located outside of the sequence.",
-              status.isAddress() ? "address" : "label",
-              status
-              );
+              "Jump to address %s located outside of the sequence.", status);
         }
 
         final ConcreteCall lastExecutedCall = listener.getLastExecutedCall();
@@ -184,9 +180,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
         if (Logger.isDebug()) {
           Logger.debug(
-              "Execution will be continued from the next instruction 0x%016x.",
-              nextAddress
-              );
+              "Execution will be continued from the next instruction 0x%016x.", nextAddress );
         }
 
         address = nextAddress;

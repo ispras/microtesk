@@ -130,7 +130,8 @@ final class TestEngineUtils {
 
   public static TestSequence makeTestSequenceForExternalBlock(
       final EngineContext engineContext,
-      final Block block) {
+      final Block block,
+      final String title) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(block);
     InvariantChecks.checkTrue(block.isExternal());
@@ -141,7 +142,10 @@ final class TestEngineUtils {
     final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
     final Iterator<AdapterResult> iterator = engineResult.getResult();
 
-    return getSingleTestSequence(iterator);
+    final TestSequence sequence = getSingleTestSequence(iterator);
+    sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
+
+    return sequence;
   }
 
   public static TestSequence makeTestSequenceForExceptionHandler(
