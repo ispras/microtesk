@@ -6,6 +6,9 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/04/28 MicroTESK 2.4.20 beta
+ - Bug fixes and general improvements
+
 2017/04/21 MicroTESK 2.4.19 beta
 
  - Option 'jruby-thread-pool-max' to limit the number of threads JRuby can create
