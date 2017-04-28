@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2017 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ class Template
 
   def initialize
     super
+    @situation_manager = SituationManager.new(self)
   end
 
   def self.template_classes
@@ -213,7 +214,7 @@ class Template
       raise MTRubyError, "#{names} must be String or Array."
     end
 
-    default_situation = self.instance_eval &situations
+    default_situation = @situation_manager.instance_eval &situations
     if names.is_a?(Array)
       names.each do |name|
         @template.setDefaultSituation name, default_situation
@@ -247,21 +248,6 @@ class Template
       @template.newRandom from, to
     else
       raise MTRubyError, "Wrong argument count: #{args.count}. Must be 1 or 2."
-    end
-  end
-
-  #
-  # Describes the probability distribution for random generation.
-  # This is a wrapper around the corresponding java object.
-  #
-  class Dist
-    attr_reader :java_object
-    def initialize(java_object)
-      @java_object = java_object
-    end
-
-    def next_value
-      @java_object.value
     end
   end
 
@@ -314,17 +300,6 @@ class Template
     end
 
     Dist.new builder.build
-  end
-
-  #
-  # Describes a value range with corresponding biase used in random generation.
-  #
-  class ValueRange
-    attr_reader :value, :bias
-    def initialize(value, bias)
-      @value = value
-      @bias = bias
-    end
   end
 
   #
@@ -744,8 +719,6 @@ class Template
     baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(self, @template.getDataManager)
-    @situation_manager = SituationManager.new(self)
-
     @data_manager.beginConfig target, addressableSize, baseVirtAddr
 
     @data_manager.instance_eval &contents
@@ -933,6 +906,32 @@ class Template
   end
 
 end # Template
+
+#
+# Describes a value range with corresponding biase used in random generation.
+#
+class ValueRange
+  attr_reader :value, :bias
+  def initialize(value, bias)
+    @value = value
+    @bias = bias
+  end
+end
+
+#
+# Describes the probability distribution for random generation.
+# This is a wrapper around the corresponding java object.
+#
+class Dist
+  attr_reader :java_object
+  def initialize(java_object)
+    @java_object = java_object
+  end
+
+  def next_value
+    @java_object.value
+  end
+end
 
 #
 # Description:
