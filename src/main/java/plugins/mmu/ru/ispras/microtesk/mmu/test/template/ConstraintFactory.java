@@ -61,10 +61,7 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(value);
 
     final IntegerField variable = getVariable(variableName);
-    final IntegerConstraint<IntegerField> constraint =
-        new IntegerDomainConstraint<>(variable, value);
-
-    return constraint;
+    return new IntegerDomainConstraint<>(variable, value);
   }
 
   public IntegerConstraint<IntegerField> newEqRange(
@@ -84,10 +81,7 @@ public final class ConstraintFactory {
     }
 
     final IntegerField variable = getVariable(variableName);
-    final IntegerConstraint<IntegerField> constraint =
-        new IntegerDomainConstraint<>(variable, null, values);
-
-    return constraint;
+    return new IntegerDomainConstraint<>(variable, null, values);
   }
 
   public IntegerConstraint<IntegerField> newEqArray(
@@ -97,10 +91,7 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(values);
 
     final IntegerField variable = getVariable(variableName);
-    final IntegerConstraint<IntegerField> constraint =
-        new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
-
-    return constraint;
+    return new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
   }
 
   public IntegerConstraint<IntegerField> newEqDist(
@@ -112,30 +103,27 @@ public final class ConstraintFactory {
     final IntegerField variable = getVariable(variableName);
     final Set<BigInteger> values = extractValues(distribution);
 
-    final IntegerConstraint<IntegerField> constraint =
-        new IntegerDomainConstraint<>(variable, null, values);
-
-    return constraint;
+    return new IntegerDomainConstraint<>(variable, null, values);
   }
 
   public BufferEventConstraint newHit(final String bufferName) {
-    InvariantChecks.checkNotNull(bufferName);
-
     final MmuBuffer buffer = getBuffer(bufferName);
-    final BufferEventConstraint constraint =
-        new BufferEventConstraint(buffer, BufferAccessEvent.HIT);
-
-    return constraint;
+    return new BufferEventConstraint(buffer, BufferAccessEvent.HIT);
   }
 
   public BufferEventConstraint newMiss(final String bufferName) {
-    InvariantChecks.checkNotNull(bufferName);
-
     final MmuBuffer buffer = getBuffer(bufferName);
-    final BufferEventConstraint constraint =
-        new BufferEventConstraint(buffer, BufferAccessEvent.MISS);
+    return new BufferEventConstraint(buffer, BufferAccessEvent.MISS);
+  }
 
-    return constraint;
+  public BufferEventConstraint newRead(final String bufferName) {
+    final MmuBuffer buffer = getBuffer(bufferName);
+    return new BufferEventConstraint(buffer, BufferAccessEvent.READ);
+  }
+
+  public BufferEventConstraint newWrite(final String bufferName) {
+    final MmuBuffer buffer = getBuffer(bufferName);
+    return new BufferEventConstraint(buffer, BufferAccessEvent.WRITE);
   }
 
   public BufferEventConstraint newEvent(
@@ -202,6 +190,8 @@ public final class ConstraintFactory {
   }
 
   private MmuBuffer getBuffer(final String name) {
+    InvariantChecks.checkNotNull(name);
+
     final MmuSubsystem spec = getSpecification();
     final MmuBuffer buffer = spec.getBuffer(name);
     if (null == buffer) {
