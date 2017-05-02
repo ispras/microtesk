@@ -57,7 +57,6 @@ public final class ConstraintFactory {
   public IntegerConstraint<IntegerField> newEqValue(
       final String variableName,
       final BigInteger value) {
-    InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(value);
 
     final IntegerField variable = getVariable(variableName);
@@ -68,7 +67,6 @@ public final class ConstraintFactory {
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
-    InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(min);
     InvariantChecks.checkNotNull(max);
     InvariantChecks.checkGreaterOrEq(max, min);
@@ -87,7 +85,6 @@ public final class ConstraintFactory {
   public IntegerConstraint<IntegerField> newEqArray(
       final String variableName,
       final BigInteger[] values) {
-    InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(values);
 
     final IntegerField variable = getVariable(variableName);
@@ -97,7 +94,6 @@ public final class ConstraintFactory {
   public IntegerConstraint<IntegerField> newEqDist(
       final String variableName,
       final Variate<?> distribution) {
-    InvariantChecks.checkNotNull(variableName);
     InvariantChecks.checkNotNull(distribution);
 
     final IntegerField variable = getVariable(variableName);
@@ -179,6 +175,8 @@ public final class ConstraintFactory {
   }
 
   private IntegerField getVariable(final String name) {
+    InvariantChecks.checkNotNull(name);
+
     final MmuSubsystem spec = getSpecification();
     final IntegerVariable variable = spec.getVariable(name);
     if (null == variable) {
