@@ -751,6 +751,17 @@ public final class MemorySymbolicExecutor {
 
       if (assignments != null) {
         executeBindings(result, defines, assignments.values(), pathIndex);
+
+        if (bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.READ) {
+          final MmuBuffer lhs = bufferAccess.getBuffer();
+          final MmuStruct rhs = bufferAccess.getEntry();
+
+          Logger.debug("Additional bindings: %s", lhs.bindings(rhs));
+
+          // Add special bindings: Buffer.Field = BufferAccess.Field.
+          // This introduces variables {Buffer.Field} to be used from test templates.
+          executeBindings(result, defines, lhs.bindings(rhs), pathIndex);
+        }
       }
     }
 

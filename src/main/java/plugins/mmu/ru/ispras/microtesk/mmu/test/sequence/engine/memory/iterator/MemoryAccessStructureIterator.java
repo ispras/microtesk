@@ -127,8 +127,13 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
-      final MemoryAccessConstraints currentConstraints = MemoryAccessConstraints.merge(
-          constraints, accessConstraints != null ? accessConstraints.get(index) : null);
+      final MemoryAccessConstraints currentConstraints =
+          MemoryAccessConstraints.merge(
+              constraints,
+              accessConstraints != null
+                  ? accessConstraints.get(index)
+                  : MemoryAccessConstraints.EMPTY
+          );
 
       final List<MemoryAccessPathChooser> choosers =
           CoverageExtractor.get().getPathChoosers(

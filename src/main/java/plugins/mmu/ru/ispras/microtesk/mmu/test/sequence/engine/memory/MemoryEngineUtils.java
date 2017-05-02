@@ -110,25 +110,30 @@ public final class MemoryEngineUtils {
       final Collection<BufferEventConstraint> bufferConstraints) {
 
     final MmuProgram program = entry.getProgram();
+    final MemoryAccessContext context = entry.getContext();
+
+    // Recursive memory accesses are ignored.
+    if (!context.getMemoryAccessStack().isEmpty()) {
+      return true;
+    }
 
     for (final MmuTransition transition : program.getTransitions()) {
-      final MmuGuard guard = transition.getGuard();
-      if (guard == null) {
-        return true;
+      // Empty context is enough for checking buffer access constraints.
+      final Collection<MmuBufferAccess> bufferAccesses =
+          transition.getBufferAccesses(MemoryAccessContext.EMPTY);
+
+      if (bufferAccesses.isEmpty()) {
+        continue;
       }
 
-      // Empty context is enough for checking buffer constraints.
-      final MmuBufferAccess bufferAccess = guard.getBufferAccess(MemoryAccessContext.EMPTY);
-      if (bufferAccess == null) {
-        return true;
-      }
+      for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+        for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
+          final MmuBuffer buffer = bufferConstraint.getBuffer();
+          final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
 
-      for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
-        final MmuBuffer buffer = bufferConstraint.getBuffer();
-        final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
-
-        if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccess.getEvent())) {
-          return false;
+          if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccess.getEvent())) {
+            return false;
+          }
         }
       }
     }
