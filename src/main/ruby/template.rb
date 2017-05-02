@@ -974,6 +974,7 @@ class SituationManager
   include MmuPlugin
 
   def initialize(template)
+    super()
     @template = template
   end
 
