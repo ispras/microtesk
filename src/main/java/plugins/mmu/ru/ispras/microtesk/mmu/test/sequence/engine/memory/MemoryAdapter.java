@@ -31,6 +31,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
+import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -53,6 +54,8 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
 import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
+import ru.ispras.microtesk.test.template.MemoryPreparator;
+import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
@@ -154,7 +157,8 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     for (final Map.Entry<BigInteger, EntryObject> entry : entries.entrySet()) {
       final BigInteger index = entry.getKey();
-      final MmuEntry data = entry.getValue().getEntry();
+      final EntryObject entryObject = entry.getValue();
+      final MmuEntry data = entryObject.getEntry();
       final BigInteger bufferAccessAddress = data.getAddress();
 
       Logger.debug("Entry preparation: index=0x%s, address=0x%s",
@@ -173,14 +177,17 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY;
       final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
-      final MemoryAccessContext context = bufferAccess.getContext();
-      final int bufferAccessId = context.getBufferAccessId(buffer);
+      final String comment = String.format("%s[0x%s]=%s",
+          buffer.getName(), bufferAccessAddress.toString(16), data);
 
-      final String level = context.getMemoryAccessStack().isEmpty()
-          ? String.format("%d", bufferAccessId)
-          : String.format("%d.%d", context.getMemoryAccessStack().size(), bufferAccessId);
+      final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
+      Collections.reverse(fieldValues);
 
-      final String comment = String.format("%s(%s)=%s", buffer.getName(), level, data);
+      final BitVector entryValue =
+          BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
+
+      final int sizeInBits = entryValue.getBitSize();
+      InvariantChecks.checkTrue((sizeInBits & 0x3) == 0);
 
       if (isMemoryMapped && isStaticPreparator && !isEntryInDataSection) {
         Logger.debug("Entries in data section: %s", entriesInDataSection);
@@ -190,15 +197,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
         dataSectionBuilder.setVirtualAddress(bufferAccessAddress);
         dataSectionBuilder.addComment(comment);
-
-        final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
-        Collections.reverse(fieldValues);
-
-        final BitVector entryValue =
-            BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
-
-        final int sizeInBits = entryValue.getBitSize();
-        InvariantChecks.checkTrue((sizeInBits & 0x3) == 0);
 
         final int maxItemSizeInBits = dataDirectiveFactory.getMaxTypeBitSize();
 
@@ -225,13 +223,33 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
         preparation.add(concreteCall);
       } else {
-        // For memory-mapped buffers, the usual preparator is used.
-        final MmuBuffer targetBuffer = buffer.getKind() == MmuBuffer.Kind.MEMORY
-            ? memory.getTargetBuffer() : buffer;
+        final List<ConcreteCall> initializer;
 
-        // Dynamic buffer initialization.
-        final List<ConcreteCall> initializer = prepareBuffer(
-            targetBuffer, engineContext, addressValue, entryFieldValues);
+        if (isMemoryMapped) {
+          // Memory-mapped buffer.
+          initializer = prepareMemory(engineContext, addressValue, entryValue, sizeInBits);
+        } else if (buffer == memory.getTargetBuffer()) {
+          final MemoryAccessStack stack = bufferAccess.getContext().getMemoryAccessStack();
+
+          if (stack.isEmpty()) {
+            final Collection<AddressObject> addressObjects = entryObject.getAddrObjects();
+            final AddressObject addressObject = addressObjects.iterator().next();
+
+            final MemoryAccess access = addressObject.getAccess();
+            final DataType dataType = access.getType().getDataType();
+            final int dataSizeInBits = dataType.getSizeInBytes() << 3;
+
+            // Main memory.
+            initializer = prepareMemory(engineContext, addressValue, entryValue, dataSizeInBits);
+          } else {
+            // Shadow of the memory-mapped buffer access.
+            initializer = Collections.<ConcreteCall>emptyList();
+          }
+        } else {
+          // Buffer.
+          initializer = prepareBuffer(buffer, engineContext, addressValue, entryFieldValues);
+        }
+
         InvariantChecks.checkNotNull(initializer);
 
         if (!initializer.isEmpty()) {
@@ -264,6 +282,36 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     final List<Call> abstractInitializer =
         preparator.makeInitializer(engineContext.getPreparators(), address, entry);
+    InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
+
+    final List<ConcreteCall> concreteCalls =
+        prepareSequence(engineContext, abstractInitializer);
+
+    Logger.debug("Code:");
+    for (final ConcreteCall concreteCall : concreteCalls) {
+      Logger.debug(concreteCall.getText());
+    }
+    Logger.debug("");
+
+    return concreteCalls;
+  }
+
+  private List<ConcreteCall> prepareMemory(
+      final EngineContext engineContext,
+      final BitVector address,
+      final BitVector data,
+      final int sizeInBits) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(address);
+
+    final MemoryPreparatorStore preparators = engineContext.getMemoryPreparators();
+    InvariantChecks.checkNotNull(preparators, "Preparator store is null");
+
+    final MemoryPreparator preparator = preparators.getPreparatorFor(sizeInBits);
+    InvariantChecks.checkNotNull(preparator, "Missing preparator for " + sizeInBits);
+
+    final List<Call> abstractInitializer =
+        preparator.makeInitializer(engineContext.getPreparators(), address, data);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
     final List<ConcreteCall> concreteCalls =
