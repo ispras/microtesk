@@ -145,7 +145,8 @@ public final class ConstraintFactory {
 
   public BufferEventConstraint newMiss(final String bufferName) {
     final MmuBuffer buffer = getBuffer(bufferName);
-    return new BufferEventConstraint(buffer, BufferAccessEvent.MISS);
+    return new BufferEventConstraint(buffer,
+        EnumSet.of(BufferAccessEvent.WRITE, BufferAccessEvent.MISS));
   }
 
   public BufferEventConstraint newRead(final String bufferName) {
@@ -156,7 +157,8 @@ public final class ConstraintFactory {
 
   public BufferEventConstraint newWrite(final String bufferName) {
     final MmuBuffer buffer = getBuffer(bufferName);
-    return new BufferEventConstraint(buffer, BufferAccessEvent.WRITE);
+    return new BufferEventConstraint(buffer,
+        EnumSet.of(BufferAccessEvent.WRITE, BufferAccessEvent.MISS));
   }
 
   public BufferEventConstraint newEvent(
