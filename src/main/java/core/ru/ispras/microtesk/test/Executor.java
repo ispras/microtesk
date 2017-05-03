@@ -338,22 +338,27 @@ public final class Executor {
         continue;
       }
 
-      if (isPauseOnUndefinedLabel) {
-        for (final LabelReference reference : call.getLabelReferences()) {
-          final Label label = reference.getReference();
+      for (final LabelReference reference : call.getLabelReferences()) {
+        final Label label = reference.getReference();
 
-          LabelManager.Target target = reference.getTarget();
-          if (null == target) {
-            target = labelManager.resolve(label);
-            if (null != target) {
-              reference.setTarget(target);
-              reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
-            }
+        LabelManager.Target target = reference.getTarget();
+        if (null == target) {
+          target = labelManager.resolve(label);
+          if (null != target) {
+            reference.setTarget(target);
+            reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
           }
+        }
 
-          if (null == target) {
+        if (null == target) {
+          if (isPauseOnUndefinedLabel) {
             logReferenceUndefinedLabel(call, label);
             return Status.newUndefinedLabel(fetcher.getAddress(), reference);
+          } else {
+            throw new GenerationAbortedException(String.format(
+                "Label %s is undefined or unavailable in the current context.",
+                reference.getReference().getName())
+                );
           }
         }
       }
@@ -398,10 +403,7 @@ public final class Executor {
 
       if (null != reference) {
         final LabelManager.Target target = reference.getTarget();
-        if (null == target) {
-          throw new GenerationAbortedException(String.format(
-              "Jump to undefined label %s.", reference.getReference().getName()));
-        }
+        InvariantChecks.checkNotNull(target);
 
         final long labelAddress = target.getAddress();
         logJump(labelAddress, target.getLabel());
