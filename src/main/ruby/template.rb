@@ -604,6 +604,18 @@ class Template
   end
 
   # -------------------------------------------------------------------------- #
+  # Creating Memory Preparators                                                #
+  # -------------------------------------------------------------------------- #
+
+  # uses address and data
+  def memory_preparator(attrs, &contents)
+    size = get_attribute attrs, :size
+    builder = @template.beginMemoryPreparator size
+    self.instance_eval &contents
+    @template.endMemoryPreparator
+  end
+
+  # -------------------------------------------------------------------------- #
   # Creating Stream Preparators                                                #
   # -------------------------------------------------------------------------- #
 

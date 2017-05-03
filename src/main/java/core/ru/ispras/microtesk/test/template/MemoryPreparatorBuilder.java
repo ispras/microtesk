@@ -32,12 +32,16 @@ public final class MemoryPreparatorBuilder {
   private final List<Call> calls;
 
   protected MemoryPreparatorBuilder(final int dataSize) {
-    InvariantChecks.checkGreaterOrEqZero(dataSize);
+    InvariantChecks.checkGreaterThanZero(dataSize);
 
     this.dataSize = dataSize;
     this.address = new LazyData();
     this.data = new LazyData();
     this.calls = new ArrayList<>();
+  }
+
+  public int getDataSize() {
+    return dataSize;
   }
 
   public LazyValue newDataReference() {

@@ -74,6 +74,7 @@ public final class Template {
   private final DataManager dataManager;
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
+  private final MemoryPreparatorStore memoryPreparators;
   private final StreamStore streams;
   private final Processor processor;
 
@@ -85,6 +86,7 @@ public final class Template {
 
   private PreparatorBuilder preparatorBuilder;
   private BufferPreparatorBuilder bufferPreparatorBuilder;
+  private MemoryPreparatorBuilder memoryPreparatorBuilder;
   private StreamPreparatorBuilder streamPreparatorBuilder;
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
   private final Set<String> definedExceptionHandlers;
@@ -111,11 +113,13 @@ public final class Template {
     this.dataManager = new DataManager(context);
     this.preparators = context.getPreparators();
     this.bufferPreparators = context.getBufferPreparators();
+    this.memoryPreparators = context.getMemoryPreparators();
     this.streams = context.getStreams();
     this.processor = processor;
 
     this.preparatorBuilder = null;
     this.bufferPreparatorBuilder = null;
+    this.memoryPreparatorBuilder = null;
     this.streamPreparatorBuilder = null;
     this.exceptionHandlerBuilder = null;
     this.definedExceptionHandlers = new LinkedHashSet<>();
@@ -398,6 +402,8 @@ public final class Template {
         preparatorBuilder.addCall(call);
       } else if (null != bufferPreparatorBuilder) {
         bufferPreparatorBuilder.addCall(call);
+      } else if (null != memoryPreparatorBuilder) {
+        memoryPreparatorBuilder.addCall(call);
       } else if (null != streamPreparatorBuilder) {
         streamPreparatorBuilder.addCall(call);
       } else if (null != exceptionHandlerBuilder) {
@@ -540,6 +546,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
@@ -584,13 +591,27 @@ public final class Template {
   }
 
   public LazyValue newLazy() {
-    checkPreparatorBlock();
-    return preparatorBuilder.newValue();
+    if (null != preparatorBuilder) {
+      return preparatorBuilder.newValue();
+    }
+
+    if (null != memoryPreparatorBuilder) {
+      return memoryPreparatorBuilder.newDataReference();
+    }
+
+    throw new IllegalStateException("The construct cannot be used outside a preparator block.");
   }
 
-  public LazyValue newLazy(int start, int end) {
-    checkPreparatorBlock();
-    return preparatorBuilder.newValue(start, end);
+  public LazyValue newLazy(final int start, final int end) {
+    if (null != preparatorBuilder) {
+      return preparatorBuilder.newValue(start, end);
+    }
+
+    if (null != memoryPreparatorBuilder) {
+      return memoryPreparatorBuilder.newDataReference(start, end);
+    }
+
+    throw new IllegalStateException("The construct cannot be used outside a preparator block.");
   }
 
   public Primitive getPreparatorTarget() {
@@ -623,10 +644,12 @@ public final class Template {
 
     if (value instanceof LazyValue &&
         null == preparatorBuilder &&
-        null == bufferPreparatorBuilder) {
+        null == bufferPreparatorBuilder && 
+        null == memoryPreparatorBuilder) {
       throw new IllegalStateException(
-          "A preparator with a lazy value can be invoked only inside " + 
-          "a preparator or buffer_preparator block.");
+          "A preparator with a lazy value can be invoked only inside " +
+          "a preparator, buffer_preparator or memory_preparator block."
+          );
     }
 
     endBuildingCall();
@@ -657,6 +680,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
@@ -784,6 +808,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
@@ -797,18 +822,56 @@ public final class Template {
 
     final BufferPreparator bufferPreparator = bufferPreparatorBuilder.build();
     bufferPreparators.addPreparator(bufferPreparator);
-
     bufferPreparatorBuilder = null;
   }
 
+  public MemoryPreparatorBuilder beginMemoryPreparator(final int dataSize) {
+    endBuildingCall();
+    debug("Begin memory preparator (size: %d)", dataSize);
+
+    InvariantChecks.checkTrue(null == preparatorBuilder);
+    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
+    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
+    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
+
+    memoryPreparatorBuilder = new MemoryPreparatorBuilder(dataSize);
+    return memoryPreparatorBuilder;
+  }
+
+  public void endMemoryPreparator() {
+    endBuildingCall();
+    debug("End memory preparator (size: %d)", memoryPreparatorBuilder.getDataSize());
+
+    final MemoryPreparator memoryPreparator = memoryPreparatorBuilder.build();
+    memoryPreparators.addPreparator(memoryPreparator);
+    memoryPreparatorBuilder = null;
+  }
+
   public LazyValue newAddressReference(final int level) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newAddressReference(level);
+    if (null != bufferPreparatorBuilder) {
+      return bufferPreparatorBuilder.newAddressReference(level);
+    }
+
+    if (null != memoryPreparatorBuilder) {
+      return memoryPreparatorBuilder.newAddressReference();
+    }
+
+    throw new IllegalStateException(
+        "The construct cannot be used outside a buffer_preparator or memory_preparator block.");
   }
 
   public LazyValue newAddressReference(final int level, final int start, final int end) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newAddressReference(level, start, end);
+    if (null != bufferPreparatorBuilder) {
+      return bufferPreparatorBuilder.newAddressReference(level, start, end);
+    }
+
+    if (null != memoryPreparatorBuilder) {
+      return memoryPreparatorBuilder.newAddressReference(start, end);
+    }
+
+    throw new IllegalStateException(
+        "The construct cannot be used outside a buffer_preparator or memory_preparator block.");
   }
 
   public LazyValue newEntryReference(final int level) {
@@ -924,6 +987,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
@@ -949,6 +1013,7 @@ public final class Template {
         blockBuilders.peek().isExternal() &&
         preparatorBuilder == null &&
         bufferPreparatorBuilder == null &&
+        memoryPreparatorBuilder == null &&
         streamPreparatorBuilder == null &&
         exceptionHandlerBuilder == null;
 
@@ -1010,6 +1075,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
@@ -1035,6 +1101,7 @@ public final class Template {
 
     InvariantChecks.checkTrue(null == preparatorBuilder);
     InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
+    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 

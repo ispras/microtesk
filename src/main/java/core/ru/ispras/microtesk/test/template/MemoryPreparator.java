@@ -38,7 +38,7 @@ public final class MemoryPreparator {
       final LazyData addressHolder,
       final LazyData dataHolder,
       final List<Call> calls) {
-    InvariantChecks.checkGreaterOrEqZero(dataSize);
+    InvariantChecks.checkGreaterThanZero(dataSize);
     InvariantChecks.checkNotNull(addressHolder);
     InvariantChecks.checkNotNull(dataHolder);
     InvariantChecks.checkNotNull(calls);
