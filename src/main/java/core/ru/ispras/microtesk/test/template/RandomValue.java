@@ -25,14 +25,14 @@ public final class RandomValue extends SharedObject<RandomValue> implements Valu
   private final Variate<?> variate;
   private BigInteger value;
 
-  protected RandomValue(final Variate<?> variate) {
+  public RandomValue(final Variate<?> variate) {
     InvariantChecks.checkNotNull(variate);
 
     this.variate = variate;
     this.value = null;
   }
 
-  protected RandomValue(final BigInteger min, final BigInteger max) {
+  public RandomValue(final BigInteger min, final BigInteger max) {
     this(new VariateInterval<>(min, max));
   }
 

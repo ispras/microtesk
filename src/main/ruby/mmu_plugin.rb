@@ -45,6 +45,20 @@ module MmuPlugin
     end
   end
 
+  def belongs(variable_name, value)
+    if value.is_a?(Integer)
+      @constraint_factory.newEqValue variable_name, value
+    elsif value.is_a?(Array)
+      @constraint_factory.newBelongsArray variable_name, value
+    elsif value.is_a?(Range)
+      @constraint_factory.newBelongsRange variable_name, value.min, value.max
+    elsif value.is_a?(Template::Dist)
+      @constraint_factory.newBelongsDist variable_name, value.java_object
+    else
+      raise MTRubyError, "#{value} must be Integer, Array, Range or Dist."
+    end
+  end
+
   def hit(buffer_name)
     @constraint_factory.newHit buffer_name
   end

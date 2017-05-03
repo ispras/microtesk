@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -35,6 +37,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.template.FixedValue;
+import ru.ispras.microtesk.test.template.RandomValue;
 
 /**
  * The {@link ConstraintFactory} class is used by test templates to
@@ -60,10 +64,41 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(value);
 
     final IntegerField variable = getVariable(variableName);
-    return new IntegerDomainConstraint<>(variable, value);
+    return new IntegerEqualConstraint<>(variable, new FixedValue(value));
   }
 
   public IntegerConstraint<IntegerField> newEqRange(
+      final String variableName,
+      final BigInteger min,
+      final BigInteger max) {
+    InvariantChecks.checkNotNull(min);
+    InvariantChecks.checkNotNull(max);
+    InvariantChecks.checkGreaterOrEq(max, min);
+
+    final IntegerField variable = getVariable(variableName);
+    return new IntegerEqualConstraint<>(variable, new RandomValue(min, max));
+  }
+
+  public IntegerConstraint<IntegerField> newEqArray(
+      final String variableName,
+      final BigInteger[] values) {
+    InvariantChecks.checkNotNull(values);
+
+    final IntegerField variable = getVariable(variableName);
+    final Variate<BigInteger> variate = new VariateCollection<>(values);
+    return new IntegerEqualConstraint<>(variable, new RandomValue(variate));
+  }
+
+  public IntegerConstraint<IntegerField> newEqDist(
+      final String variableName,
+      final Variate<?> distribution) {
+    InvariantChecks.checkNotNull(distribution);
+
+    final IntegerField variable = getVariable(variableName);
+    return new IntegerEqualConstraint<>(variable, new RandomValue(distribution));
+  }
+
+  public IntegerConstraint<IntegerField> newBelongsRange(
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
@@ -82,7 +117,7 @@ public final class ConstraintFactory {
     return new IntegerDomainConstraint<>(variable, null, values);
   }
 
-  public IntegerConstraint<IntegerField> newEqArray(
+  public IntegerConstraint<IntegerField> newBelongsArray(
       final String variableName,
       final BigInteger[] values) {
     InvariantChecks.checkNotNull(values);
@@ -91,7 +126,7 @@ public final class ConstraintFactory {
     return new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
   }
 
-  public IntegerConstraint<IntegerField> newEqDist(
+  public IntegerConstraint<IntegerField> newBelongsDist(
       final String variableName,
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(distribution);
