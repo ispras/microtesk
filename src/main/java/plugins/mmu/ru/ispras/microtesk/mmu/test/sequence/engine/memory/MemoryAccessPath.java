@@ -368,8 +368,11 @@ public final class MemoryAccessPath {
 
     final Collection<BufferAccessEvent> events = new LinkedHashSet<>();
 
-    for (final MmuBufferAccess bufferAccess : bufferChecks) {
-      if (bufferAccess.getBuffer() == buffer) {
+    for (final MmuBufferAccess bufferAccess : bufferAccesses) {
+      final MemoryAccessStack stack = bufferAccess.getContext().getMemoryAccessStack();
+
+      // Recursive accesses are not taken into account.
+      if (bufferAccess.getBuffer() == buffer && stack.isEmpty()) {
         events.add(bufferAccess.getEvent());
       }
     }
