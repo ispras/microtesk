@@ -174,6 +174,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
         PARAM_ITERATOR, iterator,
         PARAM_RECURSION_LIMIT, recursionLimit,
         PARAM_COUNT, count);
+
+    InvariantChecks.checkTrue(count == -1 || count >= 0);
   }
 
   @Override
@@ -217,11 +219,11 @@ public final class MemoryEngine implements Engine<MemorySolution> {
             accessConstraints,
             globalConstraints,
             recursionLimit,
-            iterator,
-            count);
+            iterator);
 
     final Iterator<MemorySolution> solutionIterator =
         new Iterator<MemorySolution>() {
+          private int i = 0;
           private MemorySolution solution = null;
 
           private MemorySolution getSolution() {
@@ -254,7 +256,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
           @Override
           public boolean hasValue() {
-            return solution != null;
+            return solution != null && (count == -1 || i < count);
           }
 
           @Override
@@ -266,6 +268,15 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           public void next() {
             structureIterator.next();
             solution = getSolution();
+
+            if (solution == null && count != -1 && i < count) {
+              structureIterator.init();
+              solution = getSolution();
+            }
+
+            if (solution != null) {
+              i++;
+            }
           }
 
           @Override

@@ -596,12 +596,22 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
 
         if (isFullPath) {
           final MemoryAccessPath path = builder.build();
+          final MemoryAccess access = new MemoryAccess(type, path);
+          final MemoryAccessStack stack = topEntry.result.getContext().getMemoryAccessStack();
 
-          Logger.debug("Memory access %s of length %d for trajectory %s",
-              topEntry.result.getContext().getMemoryAccessStack().isEmpty() ? "path" : "fragment",
-              path.size(), trajectory);
+          // This check is essential for checking user-defined constraints.
+          Logger.debug("Checking feasibility of the memory access");
 
-          return new Result(new MemoryAccess(type, path), topEntry.result);
+          // User-defined constraints are checked on entire paths, not fragments.
+          if (!stack.isEmpty() || MemoryEngineUtils.isFeasibleAccess(access, constraints)) {
+            Logger.debug("Memory access %s of length %d for trajectory %s",
+                (stack.isEmpty() ? "path" : "fragment"), path.size(), trajectory);
+
+            Logger.debug("Success");
+            return new Result(access, topEntry.result);
+          }
+
+          Logger.debug("Failure");
         }
       }
     } // While stack is not empty.

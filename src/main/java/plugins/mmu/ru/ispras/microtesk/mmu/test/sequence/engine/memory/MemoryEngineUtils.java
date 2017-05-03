@@ -46,7 +46,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.Function;
 
@@ -168,10 +167,8 @@ public final class MemoryEngineUtils {
       return status.booleanValue();
     }
 
-    final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
-    for (final IntegerConstraint<IntegerField> integerConstraint : integerConstraints) {
-      symbolicExecutor.execute(integerConstraint);
-    }
+    // Integer constraints are not applied, because they are relevant only for
+    // latest assignments and latest buffer accesses.
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
         solve(partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
@@ -189,18 +186,17 @@ public final class MemoryEngineUtils {
 
     for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
       final MmuBuffer buffer = bufferConstraint.getBuffer();
-      InvariantChecks.checkNotNull(buffer);
-
       final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
-      InvariantChecks.checkNotNull(events);
 
       // If there is a constraint on a buffer, the buffer should be accessed.
       if (!path.contains(buffer)) {
+        Logger.debug("Path does not contain %s (%s)", buffer, path.getBuffers());
         return false;
       }
 
       // There should not be events of other types than ones specified in the constraint.
       if (!events.containsAll(path.getEvents(buffer))) {
+        Logger.debug("Event mismatch: path=%s, constraints=%s", path.getEvents(buffer), events);
         return false;
       }
     }
@@ -227,20 +223,20 @@ public final class MemoryEngineUtils {
   }
 
   public static boolean isFeasibleAccess(
-      final MmuSubsystem memory,
       final MemoryAccess access,
       final MemoryAccessConstraints constraints) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
 
     final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
     if (!checkBufferConstraints(access, bufferEventConstraints)) {
+      Logger.debug("Checking buffer constraints failed");
       return false;
     }
 
     final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
     if (!isFeasibleAccess(access, integerConstraints)) {
+      Logger.debug("Checking integer constraints failed");
       return false;
     }
 

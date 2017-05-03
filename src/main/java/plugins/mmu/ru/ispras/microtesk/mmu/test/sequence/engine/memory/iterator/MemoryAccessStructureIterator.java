@@ -88,10 +88,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private final MemoryDependencyIterator[][] dependencyIterators;
 
   private final Mode mode;
-  private final int countLimit;
 
   private boolean hasValue;
-  private int count;
   private boolean enoughDependencies;
 
   private List<MemoryAccess> accesses;
@@ -103,22 +101,19 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       final List<MemoryAccessConstraints> accessConstraints,
       final MemoryAccessConstraints constraints,
       final int recursionLimit,
-      final Mode mode,
-      final int countLimit) {
+      final Mode mode) {
     InvariantChecks.checkNotNull(abstraction);
     InvariantChecks.checkNotNull(accessTypes);
     InvariantChecks.checkTrue(
         accessConstraints == null || accessTypes.size() == accessConstraints.size());
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotEmpty(accessTypes);
-    InvariantChecks.checkTrue(countLimit == -1 || countLimit >= 0);
     InvariantChecks.checkNotNull(mode);
 
     final int size = accessTypes.size();
 
     this.accessTypes = accessTypes;
     this.mode = mode;
-    this.countLimit = countLimit;
 
     final List<Collection<MemoryAccessChooser>> accessChoosers = new ArrayList<>(size);
 
@@ -163,13 +158,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       Logger.debug("Inconsistent memory access structure");
       hasValue = nextStructure();
     }
-
-    count = 0;
   }
 
   @Override
   public boolean hasValue() {
-    return hasValue && (countLimit == -1 || count < countLimit);
+    return hasValue;
   }
 
   @Override
@@ -181,7 +174,6 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   public void next() {
     while (nextStructure()) {
       if (checkStructure()) {
-        count++;
         enoughDependencies = (mode == Mode.RANDOM);
         break;
       }
@@ -298,24 +290,15 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   private boolean nextAccesses() {
     accessIterator.next();
 
-    do {
-      if (accessIterator.hasValue()) {
-        accesses = accessIterator.value();
+    while (accessIterator.hasValue()) {
+      accesses = accessIterator.value();
 
-        if (initDependencies()) {
-          return true;
-        }
-
-        accessIterator.next();
-      } else {
-        // The iterator has exhausted.
-        if (countLimit == -1) {
-          break;
-        }
-
-        accessIterator.init();
+      if (initDependencies()) {
+        return true;
       }
-    } while (true);
+
+      accessIterator.next();
+    }
 
     return false;
   }
