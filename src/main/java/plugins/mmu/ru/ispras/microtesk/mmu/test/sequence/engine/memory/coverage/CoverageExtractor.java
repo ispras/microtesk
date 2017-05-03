@@ -37,7 +37,7 @@ public final class CoverageExtractor {
   }
 
   private final Map<MemoryAccessType, MemoryTrajectoryExtractor.Result> trajectories = new HashMap<>(); 
-  private final Map<MemoryAccessType, List<MemoryAccessPathChooser>> pathChoosers = new HashMap<>();
+  private final Map<MemoryAccessType, List<MemoryAccessChooser>> pathChoosers = new HashMap<>();
 
   private MemoryTrajectoryExtractor.Result getTrajectories(
       final MmuSubsystem memory,
@@ -58,7 +58,7 @@ public final class CoverageExtractor {
     return result;
   }
 
-  public MemoryAccessPathChooser getPathChooser(
+  public MemoryAccessChooser getPathChooser(
       final MmuSubsystem memory,
       final MemoryGraphAbstraction abstraction,
       final MemoryAccessType type,
@@ -71,7 +71,7 @@ public final class CoverageExtractor {
     InvariantChecks.checkNotNull(constraints);
 
     final MemoryTrajectoryExtractor.Result result = getTrajectories(memory, abstraction, type);
-    final MemoryAccessPathChooser chooser = new MemoryAccessPathChooser(
+    final MemoryAccessChooser chooser = new MemoryAccessChooser(
         memory,
         result.getTrajectories(),
         result.getGraph(),
@@ -83,7 +83,7 @@ public final class CoverageExtractor {
     return chooser;
   }
 
-  public List<MemoryAccessPathChooser> getPathChoosers(
+  public List<MemoryAccessChooser> getPathChoosers(
       final MmuSubsystem memory,
       final MemoryGraphAbstraction abstraction,
       final MemoryAccessType type,
@@ -97,7 +97,7 @@ public final class CoverageExtractor {
 
     // Only unconstrained path choosers are cached.
     if (constraints.isEmpty()) {
-      final List<MemoryAccessPathChooser> cachedChoosers = pathChoosers.get(type);
+      final List<MemoryAccessChooser> cachedChoosers = pathChoosers.get(type);
 
       if (cachedChoosers != null) {
         return cachedChoosers;
@@ -105,7 +105,7 @@ public final class CoverageExtractor {
     }
 
     final MemoryTrajectoryExtractor.Result result = getTrajectories(memory, abstraction, type);
-    final List<MemoryAccessPathChooser> choosers = new ArrayList<>();
+    final List<MemoryAccessChooser> choosers = new ArrayList<>();
 
     for (final List<Object> trajectory : result.getTrajectories()) {
       if (discardEmptyTrajectories && trajectory.isEmpty()) {
@@ -113,7 +113,7 @@ public final class CoverageExtractor {
       }
 
       choosers.add(
-        new MemoryAccessPathChooser(
+        new MemoryAccessChooser(
             memory,
             trajectory,
             result.getGraph(),

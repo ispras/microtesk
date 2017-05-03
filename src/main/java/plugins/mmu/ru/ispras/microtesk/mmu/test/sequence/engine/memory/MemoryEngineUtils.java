@@ -194,7 +194,13 @@ public final class MemoryEngineUtils {
       final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
       InvariantChecks.checkNotNull(events);
 
-      if (path.contains(buffer) && !events.containsAll(path.getEvents(buffer))) {
+      // If there is a constraint on a buffer, the buffer should be accessed.
+      if (!path.contains(buffer)) {
+        return false;
+      }
+
+      // There should not be events of other types than ones specified in the constraint.
+      if (!events.containsAll(path.getEvents(buffer))) {
         return false;
       }
     }
@@ -209,7 +215,13 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(constraints);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(access, Collections.<MmuCondition>emptyList(), constraints, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(
+            access,
+            Collections.<MmuCondition>emptyList(),
+            constraints,
+            IntegerVariableInitializer.ZEROS,
+            Solver.Mode.SAT
+        );
 
     return result.getStatus() == SolverResult.Status.SAT;
   }

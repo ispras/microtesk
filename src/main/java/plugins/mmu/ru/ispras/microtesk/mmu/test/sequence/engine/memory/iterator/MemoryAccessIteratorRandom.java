@@ -19,9 +19,10 @@ import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessChooser;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link MemoryAccessIteratorRandom} implements a random iterator of memory access skeletons,
@@ -29,13 +30,14 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccess
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorRandom extends MemoryAccessIterator {
-  private List<MemoryAccessPath> paths = null;
+public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAccess>> {
+  final private List<Collection<MemoryAccessChooser>> accessChoosers;
 
-  public MemoryAccessIteratorRandom(
-      final List<MemoryAccessType> accessTypes,
-      final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
-    super(accessTypes, accessPathChoosers);
+  private List<MemoryAccess> accesses = null;
+
+  public MemoryAccessIteratorRandom(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+    InvariantChecks.checkNotNull(accessChoosers);
+    this.accessChoosers = accessChoosers;
   }
 
   @Override
@@ -45,42 +47,47 @@ public final class MemoryAccessIteratorRandom extends MemoryAccessIterator {
 
   @Override
   public boolean hasValue() {
-    return paths != null;
+    return accesses != null;
   }
 
   @Override
-  public List<MemoryAccessPath> getAccessPaths() {
-    return paths;
+  public List<MemoryAccess> value() {
+    return accesses;
   }
 
   @Override
   public void next() {
-    final List<MemoryAccessPath> result = new ArrayList<>(accessPathChoosers.size());
+    final List<MemoryAccess> result = new ArrayList<>(accessChoosers.size());
 
-    for (final Collection<MemoryAccessPathChooser> choosers : accessPathChoosers) {
+    for (final Collection<MemoryAccessChooser> choosers : accessChoosers) {
       while (!choosers.isEmpty()) {
-        final MemoryAccessPathChooser chooser = Randomizer.get().choose(choosers);
-        final MemoryAccessPath path = chooser.get();
+        final MemoryAccessChooser chooser = Randomizer.get().choose(choosers);
+        final MemoryAccess access = chooser.get();
 
-        if (path == null) {
+        if (access == null) {
           choosers.remove(chooser);
         } else {
-          result.add(path);
+          result.add(access);
           break;
         }
       }
 
       if (choosers.isEmpty()) {
-        paths = null;
+        accesses = null;
         return;
       }
     }
 
-    paths = result;
+    accesses = result;
   }
 
   @Override
   public void stop() {
-    paths = null;
+    accesses = null;
+  }
+
+  @Override
+  public MemoryAccessIteratorExhaustive clone() {
+    throw new UnsupportedOperationException();
   }
 }

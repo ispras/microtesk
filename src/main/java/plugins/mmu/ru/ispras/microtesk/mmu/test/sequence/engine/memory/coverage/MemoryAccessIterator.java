@@ -31,6 +31,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
@@ -43,28 +44,28 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemoryAccessPathIterator} implements a DFS-based iterator of memory access paths.
+ * {@link MemoryAccessIterator} implements a DFS-based iterator of memory access paths.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPathIterator.Result> {
+public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator.Result> {
   /**
-   * {@link Result} represents an item returned by {@link MemoryAccessPathIterator}.
+   * {@link Result} represents an item returned by {@link MemoryAccessIterator}.
    */
   public static final class Result {
-    private final MemoryAccessPath path;
+    private final MemoryAccess access;
     private final MemorySymbolicResult result;
 
-    public Result(final MemoryAccessPath path, final MemorySymbolicResult result) {
-      InvariantChecks.checkNotNull(path);
+    public Result(final MemoryAccess access, final MemorySymbolicResult result) {
+      InvariantChecks.checkNotNull(access);
       InvariantChecks.checkNotNull(result);
 
-      this.path = path;
+      this.access = access;
       this.result = result;
     }
 
-    public MemoryAccessPath getPath() {
-      return path;
+    public MemoryAccess getAccess() {
+      return access;
     }
 
     public MemorySymbolicResult getResult() {
@@ -242,7 +243,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
   private Result result;
   private boolean hasResult;
 
-  public MemoryAccessPathIterator(
+  public MemoryAccessIterator(
       final MmuSubsystem memory,
       final MemoryGraph graph,
       final MemoryAccessType type,
@@ -257,7 +258,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         recursionLimit);
   }
 
-  public MemoryAccessPathIterator(
+  public MemoryAccessIterator(
       final MmuSubsystem memory,
       final List<Object> trajectory,
       final MemoryGraph graph,
@@ -274,7 +275,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
         recursionLimit);
   }
 
-  public MemoryAccessPathIterator(
+  public MemoryAccessIterator(
       final MmuSubsystem memory,
       final MemoryGraph graph,
       final MemoryAccessType type,
@@ -284,7 +285,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
     this(memory, null, graph, type, constraints, result, recursionLimit);
   }
 
-  public MemoryAccessPathIterator(
+  public MemoryAccessIterator(
       final MmuSubsystem memory,
       final List<Object> trajectory,
       final MemoryGraph graph,
@@ -537,12 +538,12 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
             } else {
               newResult = new MemorySymbolicResult(result);
 
-              final MemoryAccessPathIterator innerIterator = new MemoryAccessPathIterator(
+              final MemoryAccessIterator innerIterator = new MemoryAccessIterator(
                   memory, graph, getType(program), constraints, result, recursionLimit - 1);
 
               while (innerIterator.hasNext()) {
                 final Result innerResult = innerIterator.next();
-                final MemoryAccessPath innerPath = innerResult.getPath();
+                final MemoryAccessPath innerPath = innerResult.getAccess().getPath();
 
                 // Access to a memory-mapped buffer should reach the memory.
                 if (!innerPath.contains(memory.getTargetBuffer())) {
@@ -600,7 +601,7 @@ public final class MemoryAccessPathIterator implements Iterator<MemoryAccessPath
               topEntry.result.getContext().getMemoryAccessStack().isEmpty() ? "path" : "fragment",
               path.size(), trajectory);
 
-          return new Result(path, topEntry.result);
+          return new Result(new MemoryAccess(type, path), topEntry.result);
         }
       }
     } // While stack is not empty.

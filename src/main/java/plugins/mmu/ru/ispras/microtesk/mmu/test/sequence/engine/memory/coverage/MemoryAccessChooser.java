@@ -26,10 +26,10 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
-public final class MemoryAccessPathChooser {
+public final class MemoryAccessChooser {
   private final MmuSubsystem memory;
   private final Collection<List<Object>> trajectories;
   private final MemoryGraph graph;
@@ -38,10 +38,10 @@ public final class MemoryAccessPathChooser {
   private final int recursionLimit;
   private final boolean discardEmptyTrajectories;
 
-  private final Collection<Iterator<MemoryAccessPathIterator.Result>> iterators = new ArrayList<>();
-  private final Collection<MemoryAccessPath> paths = new ArrayList<>(); 
+  private final Collection<Iterator<MemoryAccessIterator.Result>> iterators = new ArrayList<>();
+  private final Collection<MemoryAccess> accesses = new ArrayList<>(); 
 
-  public MemoryAccessPathChooser(
+  public MemoryAccessChooser(
       final MmuSubsystem memory,
       final Collection<List<Object>> trajectories,
       final MemoryGraph graph,
@@ -71,12 +71,12 @@ public final class MemoryAccessPathChooser {
 
       Logger.debug("Add iterator for the trajectory: %s", trajectory);
       iterators.add(
-        new MemoryAccessPathIterator(memory, trajectory, graph, type, constraints, recursionLimit)
+        new MemoryAccessIterator(memory, trajectory, graph, type, constraints, recursionLimit)
       );
     }
   }
 
-  public MemoryAccessPathChooser(
+  public MemoryAccessChooser(
       final MmuSubsystem memory,
       final List<Object> trajectory,
       final MemoryGraph graph,
@@ -93,29 +93,29 @@ public final class MemoryAccessPathChooser {
         false);
   }
 
-  public MemoryAccessPath get() {
+  public MemoryAccess get() {
     while (!iterators.isEmpty()) {
-      final Iterator<MemoryAccessPathIterator.Result> iterator = Randomizer.get().choose(iterators);
+      final Iterator<MemoryAccessIterator.Result> iterator = Randomizer.get().choose(iterators);
 
       if (iterator.hasNext()) {
-        final MemoryAccessPathIterator.Result result = iterator.next();
-        final MemoryAccessPath path = result.getPath();
+        final MemoryAccessIterator.Result result = iterator.next();
+        final MemoryAccess access = result.getAccess();
 
-        paths.add(path);
-        return path;
+        accesses.add(access);
+        return access;
       }
 
       iterators.remove(iterator);
     }
 
-    if (!paths.isEmpty()) {
-      return Randomizer.get().choose(paths);
+    if (!accesses.isEmpty()) {
+      return Randomizer.get().choose(accesses);
     }
 
     return null;
   }
 
-  public MemoryAccessPath get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
+  public MemoryAccess get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
     InvariantChecks.checkNotNull(constraints);
 
     if (constraints.isEmpty()) {
@@ -127,8 +127,8 @@ public final class MemoryAccessPathChooser {
     // Existing constraints & new hard constraints & new soft constraints.
     strongestConstraints.add(this.constraints);
 
-    final MemoryAccessPathChooser strongestChooser =
-        new MemoryAccessPathChooser(
+    final MemoryAccessChooser strongestChooser =
+        new MemoryAccessChooser(
             this.memory,
             this.trajectories,
             this.graph,
@@ -137,10 +137,10 @@ public final class MemoryAccessPathChooser {
             this.recursionLimit,
             this.discardEmptyTrajectories);
 
-    final MemoryAccessPath strongestPath = strongestChooser.get();
+    final MemoryAccess strongestAccess = strongestChooser.get();
 
-    if (strongestPath != null) {
-      return strongestPath;
+    if (strongestAccess != null) {
+      return strongestAccess;
     }
 
     // New hard constraints.
@@ -153,8 +153,8 @@ public final class MemoryAccessPathChooser {
     // Existing constraints & new hard constraints.
     weakestConstraints.add(this.constraints);
 
-    final MemoryAccessPathChooser weakestChooser =
-        new MemoryAccessPathChooser(
+    final MemoryAccessChooser weakestChooser =
+        new MemoryAccessChooser(
             this.memory,
             this.trajectories,
             this.graph,

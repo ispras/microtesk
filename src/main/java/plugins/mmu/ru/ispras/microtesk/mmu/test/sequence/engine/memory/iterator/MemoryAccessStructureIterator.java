@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessChooser;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryGraphAbstraction;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -45,10 +45,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   public enum Mode {
     RANDOM() {
       @Override
-      public MemoryAccessIterator getAccessIterator(
-          final List<MemoryAccessType> accessTypes,
-          final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
-        return new MemoryAccessIteratorRandom(accessTypes, accessPathChoosers);
+      public Iterator<List<MemoryAccess>> getAccessIterator(
+          final List<Collection<MemoryAccessChooser>> accessChoosers) {
+        return new MemoryAccessIteratorRandom(accessChoosers);
       }
 
       @Override
@@ -61,10 +60,9 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
     EXHAUSTIVE() {
       @Override
-      public MemoryAccessIterator getAccessIterator(
-          final List<MemoryAccessType> accessTypes,
-          final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
-        return new MemoryAccessIteratorExhaustive(accessTypes, accessPathChoosers);
+      public Iterator<List<MemoryAccess>> getAccessIterator(
+          final List<Collection<MemoryAccessChooser>> accessChoosers) {
+        return new MemoryAccessIteratorExhaustive(accessChoosers);
       }
 
       @Override
@@ -75,9 +73,8 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       }
     };
 
-    public abstract MemoryAccessIterator getAccessIterator(
-        final List<MemoryAccessType> accessTypes,
-        final List<Collection<MemoryAccessPathChooser>> accessPathChoosers);
+    public abstract Iterator<List<MemoryAccess>> getAccessIterator(
+        final List<Collection<MemoryAccessChooser>> accessChoosers);
 
     public abstract MemoryDependencyIterator getDependencyIterator(
         final MemoryAccess access1,
@@ -87,7 +84,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   /** Memory access types (descriptors). */
   private final List<MemoryAccessType> accessTypes;
 
-  private final MemoryAccessIterator accessIterator;
+  private final Iterator<List<MemoryAccess>> accessIterator;
   private final MemoryDependencyIterator[][] dependencyIterators;
 
   private final Mode mode;
@@ -123,7 +120,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
     this.mode = mode;
     this.countLimit = countLimit;
 
-    final List<Collection<MemoryAccessPathChooser>> accessPathChoosers = new ArrayList<>(size);
+    final List<Collection<MemoryAccessChooser>> accessChoosers = new ArrayList<>(size);
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
@@ -135,7 +132,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
                   : MemoryAccessConstraints.EMPTY
           );
 
-      final List<MemoryAccessPathChooser> choosers =
+      final List<MemoryAccessChooser> choosers =
           CoverageExtractor.get().getPathChoosers(
               MmuPlugin.getSpecification(),
               abstraction,
@@ -148,11 +145,11 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
       InvariantChecks.checkTrue(choosers != null && !choosers.isEmpty());
       Logger.debug("Classifying memory access paths: %s %d classes", accessType, choosers.size());
 
-      accessPathChoosers.add(choosers);
+      accessChoosers.add(choosers);
       index++;
     }
 
-    this.accessIterator = mode.getAccessIterator(accessTypes, accessPathChoosers);
+    this.accessIterator = mode.getAccessIterator(accessChoosers);
     this.dependencyIterators = new MemoryDependencyIterator[size][size];
 
     this.dependencies = new BufferDependency[size][size];
@@ -311,6 +308,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
         accessIterator.next();
       } else {
+        // The iterator has exhausted.
         if (countLimit == -1) {
           break;
         }

@@ -18,10 +18,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessPathChooser;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.coverage.MemoryAccessChooser;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
@@ -30,17 +31,15 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorExhaustive extends MemoryAccessIterator {
-  private final ProductIterator<MemoryAccessPathChooser> iterator = new ProductIterator<>();
+public final class MemoryAccessIteratorExhaustive implements Iterator<List<MemoryAccess>> {
+  private final ProductIterator<MemoryAccessChooser> iterator = new ProductIterator<>();
 
-  private List<MemoryAccessPath> paths = null;
+  private List<MemoryAccess> accesses = null;
 
-  public MemoryAccessIteratorExhaustive(
-      final List<MemoryAccessType> accessTypes,
-      final List<Collection<MemoryAccessPathChooser>> accessPathChoosers) {
-    super(accessTypes, accessPathChoosers);
+  public MemoryAccessIteratorExhaustive(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+    InvariantChecks.checkNotNull(accessChoosers);
 
-    for (final Collection<MemoryAccessPathChooser> choosers : accessPathChoosers) {
+    for (final Collection<MemoryAccessChooser> choosers : accessChoosers) {
       iterator.registerIterator(new CollectionIterator<>(choosers));
     }
   }
@@ -53,42 +52,47 @@ public final class MemoryAccessIteratorExhaustive extends MemoryAccessIterator {
 
   @Override
   public boolean hasValue() {
-    return paths != null;
+    return accesses != null;
   }
 
   @Override
-  public List<MemoryAccessPath> getAccessPaths() {
-    return paths;
+  public List<MemoryAccess> value() {
+    return accesses;
   }
 
   @Override
   public void next() {
     while (iterator.hasValue()) {
-      final List<MemoryAccessPath> result = new ArrayList<>(iterator.size());
-      final List<MemoryAccessPathChooser> choosers = iterator.value();
+      final List<MemoryAccess> result = new ArrayList<>(iterator.size());
+      final List<MemoryAccessChooser> choosers = iterator.value();
 
-      for (final MemoryAccessPathChooser chooser : choosers) {
-        final MemoryAccessPath path = chooser.get();
+      for (final MemoryAccessChooser chooser : choosers) {
+        final MemoryAccess access = chooser.get();
 
-        if (path == null) {
+        if (access == null) {
           iterator.next();
           break;
         }
 
-        result.add(path);
+        result.add(access);
       }
 
       if (result.size() == iterator.size()) {
-        paths = result;
+        accesses = result;
         return;
       }
     }
 
-    paths = null;
+    accesses = null;
   }
 
   @Override
   public void stop() {
-    paths = null;
+    accesses = null;
+  }
+
+  @Override
+  public MemoryAccessIteratorExhaustive clone() {
+    throw new UnsupportedOperationException();
   }
 }
