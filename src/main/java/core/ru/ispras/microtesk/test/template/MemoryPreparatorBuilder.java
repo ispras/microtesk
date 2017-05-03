@@ -26,21 +26,18 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MemoryPreparatorBuilder {
-  private int dataSize;
+  private final int dataSize;
   private final LazyData address;
   private final LazyData data;
   private final List<Call> calls;
 
-  protected MemoryPreparatorBuilder() {
-    this.dataSize = 0;
+  protected MemoryPreparatorBuilder(final int dataSize) {
+    InvariantChecks.checkGreaterOrEqZero(dataSize);
+
+    this.dataSize = dataSize;
     this.address = new LazyData();
     this.data = new LazyData();
     this.calls = new ArrayList<>();
-  }
-
-  public void setDataSize(final int value) {
-    InvariantChecks.checkGreaterOrEqZero(value);
-    dataSize = value;
   }
 
   public LazyValue newDataReference() {
