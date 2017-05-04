@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.test.LabelManager;
 
 /**

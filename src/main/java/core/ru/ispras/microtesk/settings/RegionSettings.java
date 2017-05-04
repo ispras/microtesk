@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
+import ru.ispras.microtesk.model.memory.MemoryAccessMode;
 import ru.ispras.microtesk.utils.Range;
 
 /**

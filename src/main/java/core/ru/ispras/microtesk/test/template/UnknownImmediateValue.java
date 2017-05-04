@@ -21,8 +21,8 @@ import java.util.List;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.model.data.Type;
+import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
 

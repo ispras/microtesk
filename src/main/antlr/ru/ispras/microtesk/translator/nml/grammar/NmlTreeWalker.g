@@ -79,7 +79,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.NmlTreeWalkerBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.memory.Memory;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.*;

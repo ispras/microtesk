@@ -20,9 +20,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.ArgumentMode;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -57,7 +57,7 @@ final class STBAddressingMode implements STBuilder {
     st.add("imps", ArgumentMode.class.getName());
     st.add("imps", MetaAddressingMode.class.getName());
     st.add("imps", MetaArgument.class.getName());
-    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.data.Type.class.getName());
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
     st.add("instance", "instance");
   }

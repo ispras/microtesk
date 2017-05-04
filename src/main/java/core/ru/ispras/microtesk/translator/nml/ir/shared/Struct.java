@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.model.data.TypeId;
 
 public final class Struct {
   public static final class Field {

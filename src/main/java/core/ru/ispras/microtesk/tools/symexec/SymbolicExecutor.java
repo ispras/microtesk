@@ -26,9 +26,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
-import ru.ispras.microtesk.model.api.IsaPrimitive;
-import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.TemporaryVariables;
+import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 
 public final class SymbolicExecutor {

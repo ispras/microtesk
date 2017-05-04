@@ -17,9 +17,9 @@ package ru.ispras.microtesk.test.template;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.memory.AddressTranslator;
+import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;

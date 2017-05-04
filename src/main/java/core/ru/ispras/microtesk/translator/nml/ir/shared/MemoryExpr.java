@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.memory.Memory;
 
 public final class MemoryExpr {
   private final Memory.Kind kind;

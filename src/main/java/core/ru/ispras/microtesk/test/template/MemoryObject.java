@@ -16,7 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
+import ru.ispras.microtesk.model.memory.MemoryAccessMode;
 
 public final class MemoryObject {
   private final String name;

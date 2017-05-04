@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
+import ru.ispras.microtesk.model.memory.MemoryAccessMode;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;

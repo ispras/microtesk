@@ -84,7 +84,7 @@ abstract class STBCommon {
       ru.ispras.microtesk.mmu.model.api.PolicyId.class;
 
   public static final Class<?> EXECUTION_CLASS =
-      ru.ispras.microtesk.model.api.Execution.class;
+      ru.ispras.microtesk.model.Execution.class;
 
   public static final Class<?> VALUE_CLASS =
       ru.ispras.fortress.util.Value.class;

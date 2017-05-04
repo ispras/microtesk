@@ -17,8 +17,8 @@ package ru.ispras.microtesk.tools.templgen;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.metadata.MetaModel;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.options.Options;
 
 public final class TemplateGenerator {

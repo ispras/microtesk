@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ModelStateManager;
-import ru.ispras.microtesk.model.api.memory.MemoryDevice;
+import ru.ispras.microtesk.model.ModelStateManager;
+import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 /**
  * The {@link MmuModel} class is a base class for all MMU models.

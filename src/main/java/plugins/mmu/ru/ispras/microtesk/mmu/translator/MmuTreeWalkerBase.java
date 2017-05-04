@@ -268,7 +268,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final ExternalSource.Kind sourceKind;
     if (isaIr.getMemory().containsKey(sourceName)) {
       final MemoryExpr memory = isaIr.getMemory().get(sourceName);
-      if (memory.getKind() == ru.ispras.microtesk.model.api.memory.Memory.Kind.VAR) {
+      if (memory.getKind() == ru.ispras.microtesk.model.memory.Memory.Kind.VAR) {
         raiseError(where(id), String.format(
             "External variable cannot be defined as var: %s", sourceName));
       }
@@ -738,7 +738,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           raiseError(where(id), String.format("Register %s is not defined.", id.getText()));
         }
 
-        if (register.getKind() != ru.ispras.microtesk.model.api.memory.Memory.Kind.REG) {
+        if (register.getKind() != ru.ispras.microtesk.model.memory.Memory.Kind.REG) {
           raiseError(where(id), String.format("%s is not a register.", id.getText()));
         }
 

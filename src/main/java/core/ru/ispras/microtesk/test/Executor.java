@@ -19,11 +19,11 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.ProcessingElement;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
-import ru.ispras.microtesk.model.api.tracer.Tracer;
-import ru.ispras.microtesk.model.api.tracer.Record;
+import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
+import ru.ispras.microtesk.model.tracer.Tracer;
+import ru.ispras.microtesk.model.tracer.Record;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.sequence.engine.EngineContext;
 import ru.ispras.microtesk.test.sequence.engine.utils.EngineUtils;

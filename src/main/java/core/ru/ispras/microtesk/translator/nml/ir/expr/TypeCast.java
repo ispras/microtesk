@@ -23,7 +23,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class TypeCast {

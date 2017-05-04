@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.test.LabelManager;
 
 public final class StreamPreparatorBuilder {

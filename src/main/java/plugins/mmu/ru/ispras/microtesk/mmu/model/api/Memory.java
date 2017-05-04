@@ -19,7 +19,7 @@ import java.math.BigInteger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.memory.MemoryDevice;
+import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 public abstract class Memory<D extends Data, A extends Address> 
     implements Buffer<D, A>, BufferObserver {

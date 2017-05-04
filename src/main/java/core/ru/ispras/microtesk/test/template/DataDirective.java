@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
-import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.MemoryAllocator;
 
 /**
  * The {@link DataDirective} is to be supported by all data directives.

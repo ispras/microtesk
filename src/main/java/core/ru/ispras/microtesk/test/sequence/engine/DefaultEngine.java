@@ -23,10 +23,10 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.ConfigurationException;
-import ru.ispras.microtesk.model.api.InstructionCall;
-import ru.ispras.microtesk.model.api.IsaPrimitive;
-import ru.ispras.microtesk.model.api.memory.LocationAccessor;
+import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.InstructionCall;
+import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;

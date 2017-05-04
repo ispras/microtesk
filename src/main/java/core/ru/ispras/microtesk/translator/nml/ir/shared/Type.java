@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import java.util.Arrays;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.model.data.TypeId;
 
 public final class Type {
   public final static Type BOOLEAN = new Type(TypeId.BOOL, 1);
@@ -54,7 +54,7 @@ public final class Type {
   }
 
   private static final Class<?> MODEL_API_CLASS =
-      ru.ispras.microtesk.model.api.data.Type.class;
+      ru.ispras.microtesk.model.data.Type.class;
 
   private final TypeId typeId;
   private final String aliasName;

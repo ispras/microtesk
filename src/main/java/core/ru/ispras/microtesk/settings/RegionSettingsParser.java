@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.memory.MemoryAccessMode;
+import ru.ispras.microtesk.model.memory.MemoryAccessMode;
 
 /**
  * {@link RegionSettingsParser} implements a parser of {@link RegionSettings}.

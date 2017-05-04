@@ -21,8 +21,8 @@ import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.utils.Mask;
 
 public final class PreparatorBuilder {

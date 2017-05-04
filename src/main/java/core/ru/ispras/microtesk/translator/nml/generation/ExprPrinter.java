@@ -34,8 +34,8 @@ import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.model.api.Execution;
-import ru.ispras.microtesk.model.api.data.Data;
+import ru.ispras.microtesk.model.Execution;
+import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;

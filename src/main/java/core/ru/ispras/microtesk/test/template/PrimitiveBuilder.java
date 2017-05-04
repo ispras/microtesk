@@ -28,11 +28,11 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.api.metadata.MetaAddressingMode;
-import ru.ispras.microtesk.model.api.metadata.MetaArgument;
-import ru.ispras.microtesk.model.api.metadata.MetaModel;
-import ru.ispras.microtesk.model.api.metadata.MetaOperation;
-import ru.ispras.microtesk.model.api.metadata.MetaShortcut;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.metadata.MetaArgument;
+import ru.ispras.microtesk.model.metadata.MetaModel;
+import ru.ispras.microtesk.model.metadata.MetaOperation;
+import ru.ispras.microtesk.model.metadata.MetaShortcut;
 import ru.ispras.microtesk.test.template.Primitive.Kind;
 
 public interface PrimitiveBuilder {

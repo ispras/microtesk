@@ -17,9 +17,9 @@ package ru.ispras.microtesk.test.template;
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.model.api.ArgumentMode;
-import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.Immediate;
+import ru.ispras.microtesk.model.ArgumentMode;
+import ru.ispras.microtesk.model.data.Type;
+import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class Argument {

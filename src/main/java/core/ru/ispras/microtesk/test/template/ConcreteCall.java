@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.ExecutionException;
-import ru.ispras.microtesk.model.api.InstructionCall;
-import ru.ispras.microtesk.model.api.ProcessingElement;
-import ru.ispras.microtesk.model.api.memory.AddressTranslator;
+import ru.ispras.microtesk.model.ExecutionException;
+import ru.ispras.microtesk.model.InstructionCall;
+import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.AddressTranslator;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments

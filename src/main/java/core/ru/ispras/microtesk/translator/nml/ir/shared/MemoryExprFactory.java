@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.ir.shared;
 import java.math.BigInteger;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.memory.Memory;
+import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;

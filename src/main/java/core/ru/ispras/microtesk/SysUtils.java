@@ -21,8 +21,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.Model;
-import ru.ispras.microtesk.model.api.ModelBuilder;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.ModelBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 
 /**

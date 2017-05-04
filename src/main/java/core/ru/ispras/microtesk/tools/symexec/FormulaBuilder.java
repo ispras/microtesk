@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.Formulas;
-import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
 import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;

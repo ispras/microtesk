@@ -21,7 +21,7 @@ import java.util.Map;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.TypeId;
+import ru.ispras.microtesk.model.data.TypeId;
 
 public enum Operator {
   OR("||",      2, Kind.BOOLEAN, rule(DataTypeId.LOGIC_BOOLEAN, StandardOperation.OR),

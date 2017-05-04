@@ -24,10 +24,10 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.model.api.data.Data;
-import ru.ispras.microtesk.model.api.IsaPrimitive;
-import ru.ispras.microtesk.model.api.Immediate;
-import ru.ispras.microtesk.model.api.memory.Location;
+import ru.ispras.microtesk.model.data.Data;
+import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.Immediate;
+import ru.ispras.microtesk.model.memory.Location;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -71,8 +71,8 @@ final class STBOperation extends STBPrimitiveBase {
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
-    t.add("imps", ru.ispras.microtesk.model.api.Execution.class.getName());
-    t.add("imps", ru.ispras.microtesk.model.api.ProcessingElement.class.getName());
+    t.add("imps", ru.ispras.microtesk.model.Execution.class.getName());
+    t.add("imps", ru.ispras.microtesk.model.ProcessingElement.class.getName());
     t.add("imps", String.format("%s.*", Data.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", Location.class.getPackage().getName()));
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));

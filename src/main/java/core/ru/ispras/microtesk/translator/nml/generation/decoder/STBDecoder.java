@@ -32,10 +32,10 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.decoder.DecoderItem;
-import ru.ispras.microtesk.model.api.decoder.DecoderResult;
-import ru.ispras.microtesk.model.api.Immediate;
-import ru.ispras.microtesk.model.api.IsaPrimitive;
+import ru.ispras.microtesk.model.decoder.DecoderItem;
+import ru.ispras.microtesk.model.decoder.DecoderResult;
+import ru.ispras.microtesk.model.Immediate;
+import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
@@ -89,7 +89,7 @@ final class STBDecoder implements STBuilder {
     st.add("imps", DecoderItem.class.getName());
     st.add("imps", DecoderResult.class.getName());
     st.add("imps", BitVector.class.getName());
-    st.add("imps", ru.ispras.microtesk.model.api.data.Type.class.getName());
+    st.add("imps", ru.ispras.microtesk.model.data.Type.class.getName());
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
     importPrimitive(st, item);

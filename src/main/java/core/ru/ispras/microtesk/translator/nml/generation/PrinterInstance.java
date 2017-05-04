@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.microtesk.model.api.Immediate;
+import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;

@@ -24,9 +24,9 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.api.data.Type;
-import ru.ispras.microtesk.model.api.memory.AddressTranslator;
-import ru.ispras.microtesk.model.api.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.data.Type;
+import ru.ispras.microtesk.model.memory.AddressTranslator;
+import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 

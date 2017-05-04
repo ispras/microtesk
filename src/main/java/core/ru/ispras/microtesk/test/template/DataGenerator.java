@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.template;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.api.data.Type;
+import ru.ispras.microtesk.model.data.Type;
 
 /**
  * The {@link DataGenerator} class is responsible for generating data values
