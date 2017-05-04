@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,12 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +35,8 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 public final class MmuAction {
   /** Unique name. */
   private final String name;
+  /** Specifies whether the action is raise exception. */
+  private final boolean exception;
   /** Buffer used in the action or {@code null}. */
   private final MmuBufferAccess bufferAccess;
   /** Assignments performed by the action. */
@@ -39,14 +44,16 @@ public final class MmuAction {
   /** Marks associated with the action. */
   private final Set<String> marks = new LinkedHashSet<>();
 
-  public MmuAction(
+  private MmuAction(
       final String name,
+      final boolean exception,
       final MmuBufferAccess bufferAccess,
-      final MmuBinding... assignments) {
+      final List<MmuBinding> assignments) {
     InvariantChecks.checkNotNull(name);
     // The buffer access is allowed to be null.
 
     this.name = name;
+    this.exception = exception;
     this.bufferAccess = bufferAccess;
 
     for (final MmuBinding assignment : assignments) {
@@ -54,33 +61,53 @@ public final class MmuAction {
     }
   }
 
-  public MmuAction(final String name, final MmuBinding... assignments) {
+  public MmuAction(
+      final String name,
+      final boolean exception) {
+    this(name, exception, null, Collections.<MmuBinding>emptyList());
+  }
+
+  public MmuAction(
+      final String name,
+      final MmuBufferAccess bufferAccess,
+      final MmuBinding... assignments) {
+    this(name, false, bufferAccess, Arrays.asList(assignments));
+  }
+
+  public MmuAction(
+      final String name,
+      final MmuBinding... assignments) {
     this(name, null, assignments);
   }
 
-  public MmuAction(final String name,
+  public MmuAction(
+      final String name,
       final MmuBufferAccess bufferAccess,
       final MmuStruct lhs,
       final MmuStruct rhs) {
-    InvariantChecks.checkNotNull(name);
-    // The buffer access is allowed to be null.
+    this(
+        name,
+        false,
+        bufferAccess,
+        null != lhs && null != rhs ? lhs.bindings(rhs) : Collections.<MmuBinding>emptyList()
+        );
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
-
-    this.name = name;
-    this.bufferAccess = bufferAccess;
-
-    for (final MmuBinding assignment : lhs.bindings(rhs)) {
-      action.put(assignment.getLhs(), assignment);
-    }
   }
 
-  public MmuAction(final String name, final MmuStruct lhs, final MmuStruct rhs) {
+  public MmuAction(
+      final String name,
+      final MmuStruct lhs,
+      final MmuStruct rhs) {
     this(name, null, lhs, rhs);
   }
 
   public String getName() {
     return name;
+  }
+
+  public boolean isException() {
+    return exception;
   }
 
   public MmuBufferAccess getBufferAccess(final MemoryAccessContext context) {
