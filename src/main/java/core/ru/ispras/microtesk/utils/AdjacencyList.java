@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.utils;
 
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * @param <T> List item type.
  */
-final class AdjacencyList<T> implements Iterable<T>{
+public final class AdjacencyList<T> implements Iterable<T>{
   private static final class Entry<T> {
     private final T value;
     private Entry<T> previous;

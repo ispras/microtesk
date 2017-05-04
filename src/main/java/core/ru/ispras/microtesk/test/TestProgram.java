@@ -26,6 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.DataSection;
+import ru.ispras.microtesk.utils.AdjacencyList;
 
 /**
  * This structure describes test program being generated.
