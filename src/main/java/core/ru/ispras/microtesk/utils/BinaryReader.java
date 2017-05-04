@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.decoder;
+package ru.ispras.microtesk.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

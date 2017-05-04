@@ -24,7 +24,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.decoder.BinaryWriter;
 import ru.ispras.microtesk.model.api.ConfigurationException;
 import ru.ispras.microtesk.model.api.ProcessingElement;
 import ru.ispras.microtesk.options.Option;
@@ -35,6 +34,7 @@ import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.utils.FileUtils;
+import ru.ispras.microtesk.utils.BinaryWriter;
 
 /**
  * The {@link Printer} class is responsible for printing generated symbolic test programs
