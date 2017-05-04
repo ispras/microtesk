@@ -294,9 +294,11 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       executor.setPauseOnUndefinedLabel(false);
+      executor.setSelfCheckMode(true);
       runExecution(sequence);
     } finally {
       executor.setPauseOnUndefinedLabel(true);
+      executor.setSelfCheckMode(false);
     }
 
     return sequence;

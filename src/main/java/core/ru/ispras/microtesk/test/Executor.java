@@ -217,6 +217,7 @@ public final class Executor {
   private final LabelManager labelManager;
   private final boolean isPresimulation;
   private boolean isPauseOnUndefinedLabel;
+  private boolean isSelfCheckMode;
   private Listener listener;
 
   private final ConcreteCall exceptionCall;
@@ -244,6 +245,7 @@ public final class Executor {
     this.labelManager = labelManager;
     this.isPresimulation = isPresimulation;
     this.isPauseOnUndefinedLabel = true;
+    this.isSelfCheckMode = false; 
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
@@ -260,6 +262,10 @@ public final class Executor {
 
   public void setPauseOnUndefinedLabel(final boolean value) {
     this.isPauseOnUndefinedLabel = value;
+  }
+
+  public void setSelfCheckMode(final boolean value) {
+    this.isSelfCheckMode = value;
   }
 
   public void setListener(final Listener listener) {
@@ -354,7 +360,9 @@ public final class Executor {
           if (isPauseOnUndefinedLabel) {
             logReferenceUndefinedLabel(call, label);
             return Status.newUndefinedLabel(fetcher.getAddress(), reference);
-          } else {
+          }
+
+          if (!isSelfCheckMode) {
             throw new GenerationAbortedException(String.format(
                 "Label %s is undefined or unavailable in the current context.",
                 reference.getReference().getName())
@@ -403,7 +411,10 @@ public final class Executor {
 
       if (null != reference) {
         final LabelManager.Target target = reference.getTarget();
-        InvariantChecks.checkNotNull(target);
+        if (null == target) {
+          throw new GenerationAbortedException(String.format(
+              "Jump to undefined label %s.", reference.getReference().getName()));
+        }
 
         final long labelAddress = target.getAddress();
         logJump(labelAddress, target.getLabel());
