@@ -600,6 +600,7 @@ class Template
       variant_name = variant_name.to_s
     end
 
+    value_object = value_object.java_object if value_object.is_a? WrappedObject
     @template.addPreparatorCall target_mode, value_object, preparator_name, variant_name
   end
 
