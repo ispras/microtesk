@@ -164,7 +164,6 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
       Logger.debug("Entry preparation: index=0x%s, address=0x%s",
           index.toString(16), bufferAccessAddress.toString(16));
 
-      final BitVector addressValue = BitVector.valueOf(index, Long.SIZE);
       final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
 
       for (final IntegerVariable field : data.getVariables()) {
@@ -227,8 +226,10 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
         if (isMemoryMapped) {
           // Memory-mapped buffer.
+          final BitVector addressValue = BitVector.valueOf(bufferAccessAddress, Long.SIZE);
           initializer = prepareMemory(engineContext, addressValue, entryValue, sizeInBits);
         } else if (buffer == memory.getTargetBuffer()) {
+          final BitVector addressValue = BitVector.valueOf(bufferAccessAddress, Long.SIZE);
           final MemoryAccessStack stack = bufferAccess.getContext().getMemoryAccessStack();
 
           if (stack.isEmpty()) {
@@ -236,18 +237,32 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
             final AddressObject addressObject = addressObjects.iterator().next();
 
             final MemoryAccess access = addressObject.getAccess();
+
             final DataType dataType = access.getType().getDataType();
-            final int dataSizeInBits = dataType.getSizeInBytes() << 3;
+            final DataType entryType = DataType.type(entryValue.getByteSize());
+            InvariantChecks.checkTrue(entryType.getSizeInBytes() >= dataType.getSizeInBytes());
 
             // Main memory.
-            initializer = prepareMemory(engineContext, addressValue, entryValue, dataSizeInBits);
+            final int lower = dataType.getLowerAddressBit();
+            final int upper = entryType.getLowerAddressBit() - 1;
+
+            final int offset = lower > upper ? 0 : addressValue.field(lower, upper).intValue();
+
+            final int dataSizeInBits = dataType.getSizeInBytes() << 3;
+
+            final BitVector dataValue =
+                entryValue.field(offset * dataSizeInBits, (offset + 1) * dataSizeInBits - 1);
+
+            Logger.debug("Prepare memory: address=%s, data=%s", addressValue, dataValue);
+            initializer = prepareMemory(engineContext, addressValue, dataValue, dataSizeInBits);
           } else {
             // Shadow of the memory-mapped buffer access.
             initializer = Collections.<ConcreteCall>emptyList();
           }
         } else {
           // Buffer.
-          initializer = prepareBuffer(buffer, engineContext, addressValue, entryFieldValues);
+          final BitVector indexValue = BitVector.valueOf(index, Long.SIZE);
+          initializer = prepareBuffer(buffer, engineContext, indexValue, entryFieldValues);
         }
 
         InvariantChecks.checkNotNull(initializer);

@@ -266,6 +266,14 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
           @Override
           public void next() {
+            // Randomize.
+            /*
+            globalConstraints.randomize();
+            for (final MemoryAccessConstraints constraints : accessConstraints) {
+              constraints.randomize();
+            }
+            */
+
             structureIterator.next();
             solution = getSolution();
 

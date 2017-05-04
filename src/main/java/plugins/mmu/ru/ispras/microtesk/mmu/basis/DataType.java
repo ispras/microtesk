@@ -33,7 +33,9 @@ public enum DataType {
   /** The double-word data type. */
   DWORD(8),
   /** The quad-word data type. */
-  QWORD(16);
+  QWORD(16),
+  /** The octo-word data type. */
+  OWORD(32);
 
   public static DataType type(final int sizeInBytes) {
     switch(sizeInBytes) {
@@ -47,6 +49,8 @@ public enum DataType {
         return DWORD;
       case 16:
         return QWORD;
+      case 32:
+        return OWORD;
       default:
         InvariantChecks.checkTrue(false);
         return null;

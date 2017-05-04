@@ -186,17 +186,18 @@ public final class MemoryEngineUtils {
 
     for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
       final MmuBuffer buffer = bufferConstraint.getBuffer();
-      final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
+      final Collection<BufferAccessEvent> allowedEvents = bufferConstraint.getEvents();
+      final Collection<BufferAccessEvent> inducedEvents = path.getEvents(buffer);
 
       // If there is a constraint on a buffer, the buffer should be accessed.
-      if (!path.contains(buffer)) {
-        Logger.debug("Path does not contain %s (%s)", buffer, path.getBuffers());
+      if (inducedEvents.isEmpty()) {
+        Logger.debug("Path does not contain %s", buffer);
         return false;
       }
 
       // There should not be events of other types than ones specified in the constraint.
-      if (!events.containsAll(path.getEvents(buffer))) {
-        Logger.debug("Event mismatch: path=%s, constraints=%s", path.getEvents(buffer), events);
+      if (!allowedEvents.containsAll(inducedEvents)) {
+        Logger.debug("Event mismatch: induced=%s, allowed=%s", inducedEvents, allowedEvents);
         return false;
       }
     }

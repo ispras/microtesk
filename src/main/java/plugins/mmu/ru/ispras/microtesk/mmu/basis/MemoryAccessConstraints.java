@@ -114,22 +114,27 @@ public final class MemoryAccessConstraints {
   }
 
   public static MemoryAccessConstraints merge(
-      final MemoryAccessConstraints first,
-      final MemoryAccessConstraints second) {
+      final MemoryAccessConstraints lhs,
+      final MemoryAccessConstraints rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
 
-    if (null == first) {
-      return second;
+    if (lhs.isEmpty()) {
+      return rhs;
     }
 
-    if (null == second) {
-      return first;
+    if (rhs.isEmpty()) {
+      return lhs;
     }
 
     final List<IntegerConstraint<IntegerField>> integerConstraints = new ArrayList<>();
     final List<BufferEventConstraint> bufferEventConstraints = new ArrayList<>();
 
-    integerConstraints.addAll(first.integerConstraints);
-    bufferEventConstraints.addAll(second.bufferEventConstraints);
+    integerConstraints.addAll(lhs.integerConstraints);
+    integerConstraints.addAll(rhs.integerConstraints);
+
+    bufferEventConstraints.addAll(lhs.bufferEventConstraints);
+    bufferEventConstraints.addAll(rhs.bufferEventConstraints);
 
     return new MemoryAccessConstraints(integerConstraints, bufferEventConstraints);
   }
@@ -144,6 +149,12 @@ public final class MemoryAccessConstraints {
 
   public List<BufferEventConstraint> getBufferEvents() {
     return bufferEventConstraints;
+  }
+
+  public void randomize() {
+    for (final IntegerConstraint<IntegerField> integerConstraint : integerConstraints) {
+      integerConstraint.randomize();
+    }
   }
 
   @Override

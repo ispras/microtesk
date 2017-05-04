@@ -56,6 +56,8 @@ public final class MemoryAccessChooser {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(constraints);
 
+    Logger.debug("Creating memory access chooser: %s", constraints);
+
     this.memory = memory;
     this.trajectories = trajectories;
     this.graph = graph;

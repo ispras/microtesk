@@ -501,7 +501,7 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
     while (!searchStack.isEmpty()) {
       final SearchStackEntry searchEntry = searchStack.peek();
 
-      boolean isCompletedPath = true;
+      boolean canProlongPath = false;
 
       while (searchEntry.iterator.hasNext()) {
         final List<Object> trajectory = searchEntry.trajectorySuffix;
@@ -519,7 +519,7 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
         final MemoryAccessPath.Entry entry = getEntry(isStart, program, result.getContext());
 
         if (MemoryEngineUtils.isFeasibleEntry(entry, type, constraints, result /* INOUT */)) {
-          isCompletedPath = false;
+          canProlongPath = true;
 
           // Entries to be added to the memory access path.
           final Collection<MemoryAccessPath.Entry> entries = new ArrayList<>();
@@ -527,14 +527,18 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
 
           MemorySymbolicResult newResult;
 
+          // Action to return to.
+          MmuAction newTarget = program.getTarget();
+
           if (entry.getKind() == MemoryAccessPath.Entry.Kind.NORMAL) {
             newResult = result;
           } else /* MemoryAccessPath.Entry.Kind.CALL */ {
             final MemoryAccessStack stack = result.getContext().getMemoryAccessStack();
 
+            canProlongPath = false;
+
             if (stack.size() > recursionLimit) {
               newResult = result;
-              isCompletedPath = true;
             } else {
               newResult = new MemorySymbolicResult(result);
 
@@ -545,34 +549,36 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
                 final Result innerResult = innerIterator.next();
                 final MemoryAccessPath innerPath = innerResult.getAccess().getPath();
 
-                // Access to a memory-mapped buffer should reach the memory.
-                if (!innerPath.contains(memory.getTargetBuffer())) {
-                  continue;
-                }
-
                 // Append a random inner path.
+                final MemoryAccessPath.Entry lastEntry = innerPath.getLastEntry();
+                final MmuProgram lastProgram = lastEntry.getProgram();
+                final MmuAction lastAction = lastProgram.getTarget();
+
                 entries.addAll(innerPath.getEntries());
-                entries.add(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
+
+                if (lastAction.isException()) {
+                  newTarget = lastAction;
+                } else {
+                  entries.add(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
+                }
 
                 // Update the symbolic result.
                 newResult = innerResult.getResult();
-                break;
-              }
+                canProlongPath = true;
 
-              // Recursive memory call is infeasible.
-              isCompletedPath = !innerIterator.hasNext();
-            }
+                break;
+              } // Inner path iterator.
+            } // Recursion limit has not been reached.
 
             // Return.
             final MemorySymbolicExecutor returnExecutor = new MemorySymbolicExecutor(newResult);
-            returnExecutor.execute(MemoryAccessPath.Entry.RETURN( false, newResult.getContext()));
-          }
+            returnExecutor.execute(MemoryAccessPath.Entry.RETURN(false, newResult.getContext()));
+          } // Recursive call.
 
-          if (!isCompletedPath) {
-            final MmuAction target = program.getTarget();
+          if (canProlongPath) {
             final List<Object> suffix = getTrajectorySuffix(trajectory, program.getLabel());
 
-            searchStack.push(new SearchStackEntry(entries.size(), target, suffix, newResult));
+            searchStack.push(new SearchStackEntry(entries.size(), newTarget, suffix, newResult));
             currentPath.addAll(entries);
 
             break;
@@ -580,7 +586,7 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
         } // If the entry is feasible.
       } // For each outgoing edge.
 
-      if (isCompletedPath) {
+      if (!canProlongPath) {
         final boolean isFullPath = memory.getTransitions(searchEntry.action).isEmpty();
         final MemoryAccessPath.Builder builder = new MemoryAccessPath.Builder();
 
@@ -600,7 +606,7 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
           final MemoryAccessStack stack = topEntry.result.getContext().getMemoryAccessStack();
 
           // This check is essential for checking user-defined constraints.
-          Logger.debug("Checking feasibility of the memory access");
+          Logger.debug("Checking feasibility of the memory access: %s", constraints);
 
           // User-defined constraints are checked on entire paths, not fragments.
           if (!stack.isEmpty() || MemoryEngineUtils.isFeasibleAccess(access, constraints)) {
