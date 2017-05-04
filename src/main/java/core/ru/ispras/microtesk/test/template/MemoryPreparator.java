@@ -62,9 +62,11 @@ public final class MemoryPreparator {
     InvariantChecks.checkNotNull(addressValue);
     InvariantChecks.checkNotNull(dataValue);
 
-    Logger.debug("Making a memory preparator");
+    Logger.debug("Making a memory preparator (size: %d)", dataSize);
     Logger.debug("Address: 0x%s", addressValue.toHexString());
     Logger.debug("Data: 0x%s", dataValue.toHexString());
+
+    InvariantChecks.checkTrue(dataSize == dataValue.getBitSize());
 
     addressHolder.setValue(addressValue);
     dataHolder.setValue(dataValue);
