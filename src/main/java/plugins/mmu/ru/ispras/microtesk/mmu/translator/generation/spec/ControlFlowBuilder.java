@@ -460,7 +460,7 @@ final class ControlFlowBuilder {
 
     final String exception = stmt.getMessage();
     if (!exceptions.contains(exception)) {
-      buildAction(exception);
+      buildAction(exception, Boolean.toString(true)); // isException=true
       exceptions.add(exception);
     }
 

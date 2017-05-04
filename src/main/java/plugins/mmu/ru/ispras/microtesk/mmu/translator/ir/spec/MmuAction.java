@@ -67,6 +67,10 @@ public final class MmuAction {
     this(name, exception, null, Collections.<MmuBinding>emptyList());
   }
 
+  public MmuAction(final String name) {
+    this(name, false);
+  }
+
   public MmuAction(
       final String name,
       final MmuBufferAccess bufferAccess,
