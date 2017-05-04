@@ -282,7 +282,7 @@ final class ControlFlowBuilder {
           return null;
 
         case CALL:
-          current = buildStmtCall(start, (StmtCall) stmt);
+          current = buildStmtCall(current, (StmtCall) stmt);
           break;
 
         default:
