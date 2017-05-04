@@ -184,6 +184,11 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
   }
 
   @Override
+  public void randomize() {
+    // Do nothing.
+  }
+
+  @Override
   public String toString() {
     return formula.toString();
   }

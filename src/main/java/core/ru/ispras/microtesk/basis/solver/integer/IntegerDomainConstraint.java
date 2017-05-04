@@ -115,6 +115,11 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
   }
 
   @Override
+  public void randomize() {
+    // Do nothing.
+  }
+
+  @Override
   public String toString() {
     return formula.toString();
   }

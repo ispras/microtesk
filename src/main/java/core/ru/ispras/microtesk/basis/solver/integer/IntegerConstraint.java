@@ -21,4 +21,5 @@ package ru.ispras.microtesk.basis.solver.integer;
  */
 public interface IntegerConstraint<V> {
   IntegerFormula<V> getFormula();
+  void randomize();
 }

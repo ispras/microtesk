@@ -28,6 +28,8 @@ public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
   private final V variable;
   private final Value variate;
 
+  private BigInteger value = null;
+
   public IntegerEqualConstraint(
       final V variable,
       Value variate) {
@@ -36,6 +38,9 @@ public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
 
     this.variable = variable;
     this.variate = variate;
+
+    // Value is randomized.
+    this.value = variate.getValue();
   }
 
   public V getVariable() {
@@ -48,17 +53,20 @@ public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
 
   @Override
   public IntegerFormula<V> getFormula() {
-    // Value is randomized.
-    final BigInteger value = variate.getValue();
-
     final IntegerFormula.Builder<V> builder = new IntegerFormula.Builder<>();
-    builder.addEquation(variable, value, true);
 
+    builder.addEquation(variable, value, true);
     return builder.build();
   }
 
   @Override
+  public void randomize() {
+    // Value is randomized.
+    this.value = variate.getValue();
+  }
+
+  @Override
   public String toString() {
-    return String.format("%s == %s", variable, variate);
+    return String.format("%s == %s (0x%s)", variable, variate, value.toString(16));
   }
 }
