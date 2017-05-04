@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.decoder;
+package ru.ispras.microtesk.model.api.decoder;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;

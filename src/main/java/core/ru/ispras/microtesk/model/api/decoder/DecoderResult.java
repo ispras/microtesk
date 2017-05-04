@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.decoder;
+package ru.ispras.microtesk.model.api.decoder;
 
 import ru.ispras.microtesk.model.api.IsaPrimitive;
 

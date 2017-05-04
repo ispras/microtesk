@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.decoder.Decoder;
+import ru.ispras.microtesk.model.api.decoder.Decoder;
 import ru.ispras.microtesk.model.api.metadata.MetaModel;
 
 public class ModelBuilder {
