@@ -432,8 +432,8 @@ task translateMiniMips(type: JavaExec) {
   main = mainClassName
   args = [
     '-t',
-    'src/main/arch/minimips/model/minimips.nml',
-    'src/main/arch/minimips/model/mmu/minimips.mmu',
+    'src/main/arch/demo/minimips/model/minimips.nml',
+    'src/main/arch/demo/minimips/model/mmu/minimips.mmu',
     '-od',
     'build/generated-src/models'
   ]
