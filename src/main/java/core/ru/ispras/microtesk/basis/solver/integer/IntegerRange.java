@@ -421,6 +421,6 @@ public final class IntegerRange {
   
   @Override
   public String toString() {
-    return String.format("[%s, %s]", min, max);
+    return String.format("[0x%s, 0x%s]", min.toString(16), max.toString(16));
   }
 }

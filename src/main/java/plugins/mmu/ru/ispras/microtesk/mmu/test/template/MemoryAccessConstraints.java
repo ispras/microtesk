@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
@@ -154,9 +155,12 @@ public final class MemoryAccessConstraints {
       final IntegerVariable variable = variableConstraint.getVariable();
       final Set<BigInteger> values = variableConstraint.getValues();
 
-      generalConstraints.add(new IntegerDomainConstraint<IntegerField>(variable.field(), values));
+      if ((1 << variable.getWidth()) != values.size()) {
+        generalConstraints.add(new IntegerDomainConstraint<IntegerField>(variable.field(), values));
+      }
     }
 
+    Logger.debug("General constraints: %s", generalConstraints);
     return generalConstraints;
   }
 
@@ -174,6 +178,7 @@ public final class MemoryAccessConstraints {
       variateConstraints.add(new IntegerEqualConstraint<IntegerField>(variable.field(), value));
     }
 
+    Logger.debug("Variate constraints: %s", variateConstraints);
     return variateConstraints;
   }
 
