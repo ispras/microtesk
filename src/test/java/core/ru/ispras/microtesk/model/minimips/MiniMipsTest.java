@@ -23,7 +23,7 @@ public class MiniMipsTest extends TemplateTest {
   public MiniMipsTest() {
     super(
         "minimips",
-        "src/main/arch/minimips/templates"
+        "src/main/arch/demo/minimips/templates"
         );
   }
 
