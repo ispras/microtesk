@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.template;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,20 +26,15 @@ import java.util.Set;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.RandomValue;
+import ru.ispras.microtesk.test.template.Value;
 
 /**
  * The {@link ConstraintFactory} class is used by test templates to
@@ -58,16 +54,19 @@ public final class ConstraintFactory {
     return instance;
   }
 
-  public IntegerConstraint<IntegerField> newEqValue(
+  public VariableConstraint newEqValue(
       final String variableName,
       final BigInteger value) {
     InvariantChecks.checkNotNull(value);
 
-    final IntegerField variable = getVariable(variableName);
-    return new IntegerEqualConstraint<>(variable, new FixedValue(value));
+    final IntegerVariable variable = getVariable(variableName);
+    final Value variate = new FixedValue(value);
+    final Set<BigInteger> values = Collections.<BigInteger>singleton(value);
+
+    return new VariableConstraint(variable, variate, values);
   }
 
-  public IntegerConstraint<IntegerField> newEqRange(
+  public VariableConstraint newEqRange(
       final String variableName,
       final BigInteger min,
       final BigInteger max) {
@@ -75,66 +74,39 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(max);
     InvariantChecks.checkGreaterOrEq(max, min);
 
-    final IntegerField variable = getVariable(variableName);
-    return new IntegerEqualConstraint<>(variable, new RandomValue(min, max));
-  }
-
-  public IntegerConstraint<IntegerField> newEqArray(
-      final String variableName,
-      final BigInteger[] values) {
-    InvariantChecks.checkNotNull(values);
-
-    final IntegerField variable = getVariable(variableName);
-    final Variate<BigInteger> variate = new VariateCollection<>(values);
-    return new IntegerEqualConstraint<>(variable, new RandomValue(variate));
-  }
-
-  public IntegerConstraint<IntegerField> newEqDist(
-      final String variableName,
-      final Variate<?> distribution) {
-    InvariantChecks.checkNotNull(distribution);
-
-    final IntegerField variable = getVariable(variableName);
-    return new IntegerEqualConstraint<>(variable, new RandomValue(distribution));
-  }
-
-  public IntegerConstraint<IntegerField> newBelongsRange(
-      final String variableName,
-      final BigInteger min,
-      final BigInteger max) {
-    InvariantChecks.checkNotNull(min);
-    InvariantChecks.checkNotNull(max);
-    InvariantChecks.checkGreaterOrEq(max, min);
-
+    final IntegerVariable variable = getVariable(variableName);
+    final Value variate = new RandomValue(min, max);
     final Set<BigInteger> values = new LinkedHashSet<>();
-    for (BigInteger value = min;
-         value.compareTo(max) <= 0;
-         value = value.add(BigInteger.ONE)) {
+
+    for (BigInteger value = min; value.compareTo(max) <= 0; value = value.add(BigInteger.ONE)) {
       values.add(value);
     }
 
-    final IntegerField variable = getVariable(variableName);
-    return new IntegerDomainConstraint<>(variable, null, values);
+    return new VariableConstraint(variable, variate, values);
   }
 
-  public IntegerConstraint<IntegerField> newBelongsArray(
+  public VariableConstraint newEqArray(
       final String variableName,
-      final BigInteger[] values) {
-    InvariantChecks.checkNotNull(values);
+      final BigInteger[] array) {
+    InvariantChecks.checkNotNull(array);
 
-    final IntegerField variable = getVariable(variableName);
-    return new IntegerDomainConstraint<>(variable, null, new LinkedHashSet<>(Arrays.asList(values)));
+    final IntegerVariable variable = getVariable(variableName);
+    final Value variate = new RandomValue(new VariateCollection<>(array));
+    final Set<BigInteger> values = new LinkedHashSet<>(Arrays.asList(array));
+
+    return new VariableConstraint(variable, variate, values);
   }
 
-  public IntegerConstraint<IntegerField> newBelongsDist(
+  public VariableConstraint newEqDist(
       final String variableName,
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(distribution);
 
-    final IntegerField variable = getVariable(variableName);
+    final IntegerVariable variable = getVariable(variableName);
+    final Value variate = new RandomValue(distribution);
     final Set<BigInteger> values = extractValues(distribution);
 
-    return new IntegerDomainConstraint<>(variable, null, values);
+    return new VariableConstraint(variable, variate, values);
   }
 
   public BufferEventConstraint newHit(final String bufferName) {
@@ -186,7 +158,6 @@ public final class ConstraintFactory {
     return constraint;
   }
 
-  @SuppressWarnings("unchecked")
   public MemoryAccessConstraints newConstraints(final Object[] constraints) {
     InvariantChecks.checkNotNull(constraints);
 
@@ -196,8 +167,8 @@ public final class ConstraintFactory {
     for (final Object constraint : constraints) {
       InvariantChecks.checkNotNull(constraint); 
 
-      if (constraint instanceof IntegerConstraint<?>) {
-        builder.addConstraint((IntegerConstraint<IntegerField>) constraint);
+      if (constraint instanceof VariableConstraint) {
+        builder.addConstraint((VariableConstraint) constraint);
       } else if (constraint instanceof BufferEventConstraint) {
         builder.addConstraint((BufferEventConstraint) constraint);
       } else {
@@ -213,7 +184,7 @@ public final class ConstraintFactory {
     return MmuPlugin.getSpecification();
   }
 
-  private IntegerField getVariable(final String name) {
+  private IntegerVariable getVariable(final String name) {
     InvariantChecks.checkNotNull(name);
 
     final MmuSubsystem spec = getSpecification();
@@ -223,7 +194,7 @@ public final class ConstraintFactory {
           "Invalid test template: variable %s is not defined in the MMU model.", name));
     }
 
-    return new IntegerField(variable);
+    return variable;
   }
 
   private MmuBuffer getBuffer(final String name) {

@@ -17,7 +17,6 @@ package ru.ispras.microtesk.basis.solver.integer;
 import java.math.BigInteger;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.template.Value;
 
 /**
  * {@link IntegerEqualConstraint} class represents constraints of the kind {@code x == value}.
@@ -26,29 +25,24 @@ import ru.ispras.microtesk.test.template.Value;
  */
 public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
   private final V variable;
-  private final Value variate;
-
-  private BigInteger value = null;
+  private BigInteger value;
 
   public IntegerEqualConstraint(
       final V variable,
-      Value variate) {
+      final BigInteger value) {
     InvariantChecks.checkNotNull(variable);
-    InvariantChecks.checkNotNull(variate);
+    InvariantChecks.checkNotNull(value);
 
     this.variable = variable;
-    this.variate = variate;
-
-    // Value is randomized.
-    this.value = variate.getValue();
+    this.value = value;
   }
 
   public V getVariable() {
     return variable;
   }
 
-  public Value getVariate() {
-    return variate;
+  public BigInteger getValue() {
+    return value;
   }
 
   @Override
@@ -60,13 +54,7 @@ public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
   }
 
   @Override
-  public void randomize() {
-    // Value is randomized.
-    this.value = variate.getValue();
-  }
-
-  @Override
   public String toString() {
-    return String.format("%s == %s (0x%s)", variable, variate, value.toString(16));
+    return String.format("%s == %s", variable, value.toString(16));
   }
 }

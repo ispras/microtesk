@@ -93,8 +93,14 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
 
   public IntegerDomainConstraint(
       final V variable,
+      final Set<BigInteger> values) {
+    this(Type.RETAIN, variable, null, values);
+  }
+
+  public IntegerDomainConstraint(
+      final V variable,
       final BigInteger value) {
-    this(variable, null, Collections.singleton(value));
+    this(variable, Collections.singleton(value));
   }
 
   public Type getType() {
@@ -112,11 +118,6 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
   @Override
   public IntegerFormula<V> getFormula() {
     return formula;
-  }
-
-  @Override
-  public void randomize() {
-    // Do nothing.
   }
 
   @Override

@@ -32,14 +32,14 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicRestrictor;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
+import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
+import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
@@ -155,8 +155,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final Collection<BufferEventConstraint> bufferConstraints = constraints.getBufferEvents();
-    if (!checkBufferConstraints(entry, bufferConstraints)) {
+    if (!checkBufferConstraints(entry, constraints.getBufferEventConstraints())) {
       return false;
     }
 
@@ -229,14 +228,12 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
 
-    final Collection<BufferEventConstraint> bufferEventConstraints = constraints.getBufferEvents();
-    if (!checkBufferConstraints(access, bufferEventConstraints)) {
+    if (!checkBufferConstraints(access, constraints.getBufferEventConstraints())) {
       Logger.debug("Checking buffer constraints failed");
       return false;
     }
 
-    final Collection<IntegerConstraint<IntegerField>> integerConstraints = constraints.getIntegers();
-    if (!isFeasibleAccess(access, integerConstraints)) {
+    if (!isFeasibleAccess(access, constraints.getGeneralConstraints())) {
       Logger.debug("Checking integer constraints failed");
       return false;
     }

@@ -23,8 +23,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -97,7 +97,7 @@ public final class MemorySymbolicRestrictor {
     Logger.debug("Range constraint: %s in %s", addrType, range);
 
     return Collections.<IntegerConstraint<IntegerField>>singleton(
-        MemoryAccessConstraints.RANGE(addrType.getVariable(), range));
+        new IntegerRangeConstraint(addrType.getVariable(), range));
   }
 
   public Collection<IntegerConstraint<IntegerField>> getConstraints(

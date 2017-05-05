@@ -29,17 +29,18 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
+import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.DataType;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
 import ru.ispras.microtesk.mmu.test.sequence.engine.memory.allocator.EntryIdAllocator;
+import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -384,10 +385,15 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setData(dataVariable, dataValue);
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
+    final MemoryAccessConstraints accessConstraints = getAccessConstraints(j);
+
+    accessConstraints.randomize();
+
+    final Collection<IntegerConstraint<IntegerField>> constraints =
+        accessConstraints.getVariateConstraints();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    Map<IntegerVariable, BigInteger> values =
-        refineAddr(addrObject, conditions, getAccessConstraints(j));
+    Map<IntegerVariable, BigInteger> values = refineAddr(addrObject, conditions, constraints);
 
     if (values == null) {
       final String warning = String.format("Infeasible path: %s", access);
@@ -406,7 +412,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<IntegerVariable, BigInteger> refinedValues =
-          refineAddr(refinedAddrObject, conditions, getAccessConstraints(j));
+          refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
         solution.setAddressObject(j, refinedAddrObject);
@@ -467,7 +473,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<IntegerVariable, BigInteger> refinedValues =
-          refineAddr(refinedAddrObject, conditions, getAccessConstraints(j));
+          refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
         solution.setAddressObject(j, refinedAddrObject);
@@ -512,16 +518,16 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final IntegerVariable variable = entry.getKey();
       final BigInteger value = entry.getValue();
 
-      allConstraints.add(MemoryAccessConstraints.EQ(variable, value));
+      allConstraints.add(new IntegerEqualConstraint<IntegerField>(variable.field(), value));
     }
-    
+
     // Fix known values of the addresses.
     final Map<MmuAddressInstance, BigInteger> addresses = addrObject.getAddresses();
     for (final Map.Entry<MmuAddressInstance, BigInteger> entry : addresses.entrySet()) {
-      final MmuAddressInstance address = entry.getKey();
+      final IntegerVariable variable = entry.getKey().getVariable();
       final BigInteger value = entry.getValue();
 
-      allConstraints.add(MemoryAccessConstraints.EQ(address.getVariable(), value));
+      allConstraints.add(new IntegerEqualConstraint<IntegerField>(variable.field(), value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
@@ -569,12 +575,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     return values;
   }
 
-  private Collection<IntegerConstraint<IntegerField>> getAccessConstraints(final int j) {
-    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
-
-    constraints.addAll(globalConstraints.getIntegers());
-    constraints.addAll(accessConstraints.get(j).getIntegers());
-
-    return constraints;
+  private MemoryAccessConstraints getAccessConstraints(final int j) {
+    return MemoryAccessConstraints.merge(globalConstraints, accessConstraints.get(j));
   }
 }
