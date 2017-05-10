@@ -229,11 +229,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           private MemorySolution getSolution() {
             while (structureIterator.hasValue()) {
               final MemoryAccessStructure structure = structureIterator.value();
-              final MemorySolver solver = new MemorySolver(
-                  structure,
-                  accessConstraints,
-                  globalConstraints
-              );
+              final MemorySolver solver = new MemorySolver(structure);
               final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
               InvariantChecks.checkNotNull(result);
 

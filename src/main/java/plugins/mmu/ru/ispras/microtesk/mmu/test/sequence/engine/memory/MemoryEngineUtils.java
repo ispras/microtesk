@@ -204,11 +204,10 @@ public final class MemoryEngineUtils {
     return true;
   }
 
-  public static boolean isFeasibleAccess(
-      final MemoryAccess access,
-      final MemoryAccessConstraints constraints) {
+  public static boolean isFeasibleAccess(final MemoryAccess access) {
     InvariantChecks.checkNotNull(access);
-    InvariantChecks.checkNotNull(constraints);
+
+    final MemoryAccessConstraints constraints = access.getConstraints();
 
     if (!checkBufferConstraints(access, constraints.getBufferEventConstraints())) {
       return false;

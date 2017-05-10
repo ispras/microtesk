@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,26 +73,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
   /** Memory access structure being processed. */
   private final MemoryAccessStructure structure;
 
-  private final List<MemoryAccessConstraints> accessConstraints;
-  private final MemoryAccessConstraints globalConstraints;
-
   private final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
   /** Current solution. */
   private MemorySolution solution;
 
-  public MemorySolver(
-      final MemoryAccessStructure structure,
-      final List<MemoryAccessConstraints> accessConstraints,
-      final MemoryAccessConstraints globalConstraints) {
+  public MemorySolver(final MemoryAccessStructure structure) {
     InvariantChecks.checkNotNull(structure);
-    InvariantChecks.checkNotNull(accessConstraints);
-    InvariantChecks.checkNotNull(globalConstraints);
-    InvariantChecks.checkTrue(structure.size() == accessConstraints.size());
-
     this.structure = structure;
-    this.accessConstraints = accessConstraints;
-    this.globalConstraints = globalConstraints;
   }
 
   @Override
@@ -385,7 +372,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setData(dataVariable, dataValue);
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
-    final MemoryAccessConstraints accessConstraints = getAccessConstraints(j);
+    final MemoryAccessConstraints accessConstraints = access.getConstraints();
 
     accessConstraints.randomize();
 
@@ -573,9 +560,5 @@ public final class MemorySolver implements Solver<MemorySolution> {
     addrObject.setAddress(addrType, addrValue);
 
     return values;
-  }
-
-  private MemoryAccessConstraints getAccessConstraints(final int j) {
-    return MemoryAccessConstraints.merge(globalConstraints, accessConstraints.get(j));
   }
 }
