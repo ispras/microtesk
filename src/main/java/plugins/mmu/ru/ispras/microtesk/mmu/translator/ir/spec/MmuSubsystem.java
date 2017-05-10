@@ -297,6 +297,8 @@ public final class MmuSubsystem {
 
   /**
    * Returns the list of all transitions.
+   * 
+   * @return List of transitions.
    */
   public List<MmuTransition> getTransitions() {
     final List<MmuTransition> transitions = new ArrayList<>();
