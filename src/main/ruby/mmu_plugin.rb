@@ -61,6 +61,10 @@ module MmuPlugin
     @constraint_factory.newWrite buffer_name
   end
 
+  def region(region_name)
+    region_name
+  end
+
   def event(buffer_name, attrs = {})
     hit_bias  = if attrs.has_key?(:hit)  then attrs[:hit]  else 0 end
     miss_bias = if attrs.has_key?(:miss) then attrs[:miss] else 0 end

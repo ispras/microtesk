@@ -171,6 +171,8 @@ public final class ConstraintFactory {
         builder.addConstraint((VariableConstraint) constraint);
       } else if (constraint instanceof BufferEventConstraint) {
         builder.addConstraint((BufferEventConstraint) constraint);
+      } else if (constraint instanceof String) {
+        builder.setRegion((String) constraint);
       } else {
         throw new IllegalArgumentException(
             "Unsupported constraint class: " + constraint.getClass().getName());
