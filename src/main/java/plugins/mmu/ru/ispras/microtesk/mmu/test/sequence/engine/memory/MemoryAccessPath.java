@@ -26,7 +26,6 @@ import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
-import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -241,8 +240,6 @@ public final class MemoryAccessPath {
   private final Entry firstEntry;
   private final Entry lastEntry;
 
-  private MemorySymbolicResult symbolicResult; 
-
   public MemoryAccessPath(
       final Collection<Entry> entries,
       final Collection<MmuAction> actions,
@@ -378,18 +375,6 @@ public final class MemoryAccessPath {
     }
 
     return events;
-  }
-
-  public boolean hasSymbolicResult() {
-    return symbolicResult != null;
-  }
-
-  public MemorySymbolicResult getSymbolicResult() {
-    return symbolicResult;
-  }
-
-  public void setSymbolicResult(final MemorySymbolicResult symbolicResult) {
-    this.symbolicResult = symbolicResult;
   }
 
   @Override

@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.test.sequence.engine.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.test.sequence.engine.memory.symbolic.MemorySymbolicResult;
 
 /**
  * {@link MemoryAccess} describes an execution path of a memory access instruction.
@@ -25,6 +26,9 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 public final class MemoryAccess {
   private final MemoryAccessType type;
   private final MemoryAccessPath path;
+
+  /** Symbolic representation of the memory access. */
+  private MemorySymbolicResult symbolicResult; 
 
   public MemoryAccess(
       final MemoryAccessType type,
@@ -42,6 +46,18 @@ public final class MemoryAccess {
 
   public MemoryAccessPath getPath() {
     return path;
+  }
+
+  public boolean hasSymbolicResult() {
+    return symbolicResult != null;
+  }
+
+  public MemorySymbolicResult getSymbolicResult() {
+    return symbolicResult;
+  }
+
+  public void setSymbolicResult(final MemorySymbolicResult symbolicResult) {
+    this.symbolicResult = symbolicResult;
   }
 
   @Override

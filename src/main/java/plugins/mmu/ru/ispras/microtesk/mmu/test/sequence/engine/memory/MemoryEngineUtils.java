@@ -206,39 +206,24 @@ public final class MemoryEngineUtils {
 
   public static boolean isFeasibleAccess(
       final MemoryAccess access,
-      final Collection<IntegerConstraint<IntegerField>> constraints) {
-    InvariantChecks.checkNotNull(access);
-    InvariantChecks.checkNotNull(constraints);
-
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(
-            access,
-            Collections.<MmuCondition>emptyList(),
-            constraints,
-            IntegerVariableInitializer.ZEROS,
-            Solver.Mode.SAT
-        );
-
-    return result.getStatus() == SolverResult.Status.SAT;
-  }
-
-  public static boolean isFeasibleAccess(
-      final MemoryAccess access,
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
 
     if (!checkBufferConstraints(access, constraints.getBufferEventConstraints())) {
-      Logger.debug("Checking buffer constraints failed");
       return false;
     }
 
-    if (!isFeasibleAccess(access, constraints.getGeneralConstraints())) {
-      Logger.debug("Checking integer constraints failed");
-      return false;
-    }
+    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+        solve(
+            access,
+            Collections.<MmuCondition>emptyList(),
+            constraints.getGeneralConstraints(),
+            IntegerVariableInitializer.ZEROS,
+            Solver.Mode.SAT
+        );
 
-    return true;
+    return result.getStatus() == SolverResult.Status.SAT;
   }
 
   public static Map<IntegerVariable, BigInteger> generateData(
@@ -309,15 +294,14 @@ public final class MemoryEngineUtils {
 
     Logger.debug("Solving path constraints");
 
-    // FIXME: Move from access.getPath() to access.
-    if (!access.getPath().hasSymbolicResult()) {
+    if (!access.hasSymbolicResult()) {
       final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
 
       symbolicExecutor.execute(access, true);
-      access.getPath().setSymbolicResult(symbolicExecutor.getResult());
+      access.setSymbolicResult(symbolicExecutor.getResult());
     }
 
-    final MemorySymbolicResult symbolicResult = access.getPath().getSymbolicResult();
+    final MemorySymbolicResult symbolicResult = access.getSymbolicResult();
     final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(symbolicResult);
 
     for (final MmuCondition condition : conditions) {
