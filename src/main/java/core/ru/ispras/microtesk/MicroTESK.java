@@ -24,9 +24,9 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.TestEngine;
-import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.symexec.SymbolicExecutor;
 import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
@@ -91,7 +91,7 @@ public final class MicroTESK {
       }
 
       // Register the engines.
-      final GeneratorConfig<?> generatorConfig = GeneratorConfig.get();
+      final EngineConfig<?> generatorConfig = EngineConfig.get();
       final Map<String, Engine<?>> engines = plugin.getEngines();
 
       for (final Map.Entry<String, Engine<?>> entry : engines.entrySet()) {

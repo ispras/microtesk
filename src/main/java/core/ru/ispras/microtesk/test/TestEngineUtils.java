@@ -28,7 +28,7 @@ import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.sequence.GeneratorConfig;
+import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
@@ -66,10 +66,10 @@ final class TestEngineUtils {
       adapterName = block.getAttribute("adapter", engineName);
     }
 
-    final Engine<?> engine = GeneratorConfig.get().getEngine(engineName);
+    final Engine<?> engine = EngineConfig.get().getEngine(engineName);
     InvariantChecks.checkNotNull(engine);
 
-    final Adapter<?> adapter = GeneratorConfig.get().getAdapter(adapterName);
+    final Adapter<?> adapter = EngineConfig.get().getAdapter(adapterName);
     InvariantChecks.checkNotNull(adapter);
 
     if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
@@ -279,11 +279,11 @@ final class TestEngineUtils {
    * the start of generating a test program file.
    */
   public static void notifyProgramStart() {
-    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
+    for (final Engine<?> engine : EngineConfig.get().getEngines()) {
       engine.onStartProgram();
     }
 
-    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+    for (final Adapter<?> adapter : EngineConfig.get().getAdapters()) {
       adapter.onStartProgram();
     }
   }
@@ -293,11 +293,11 @@ final class TestEngineUtils {
    * the end of generating a test program file.
    */
   public static void notifyProgramEnd() {
-    for (final Engine<?> engine : GeneratorConfig.get().getEngines()) {
+    for (final Engine<?> engine : EngineConfig.get().getEngines()) {
       engine.onEndProgram();
     }
 
-    for (final Adapter<?> adapter : GeneratorConfig.get().getAdapters()) {
+    for (final Adapter<?> adapter : EngineConfig.get().getAdapters()) {
       adapter.onEndProgram();
     }
   }

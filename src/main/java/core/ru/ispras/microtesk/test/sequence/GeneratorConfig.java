@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.sequence;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +30,6 @@ import ru.ispras.microtesk.test.sequence.compositor.CompositorNesting;
 import ru.ispras.microtesk.test.sequence.compositor.CompositorOverlapping;
 import ru.ispras.microtesk.test.sequence.compositor.CompositorRandom;
 import ru.ispras.microtesk.test.sequence.compositor.CompositorRotation;
-import ru.ispras.microtesk.test.engine.Adapter;
-import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorRandom;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
@@ -42,7 +39,7 @@ import ru.ispras.microtesk.test.sequence.rearranger.RearrangerSample;
 import ru.ispras.microtesk.test.sequence.rearranger.RearrangerTrivial;
 
 /**
- * {@link GeneratorConfig} implements a test generator configuration.
+ * {@link GeneratorConfig} implements a sequence generator configuration.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -51,9 +48,6 @@ public final class GeneratorConfig<T> {
   private final Map<String, Class<?>> compositors = new HashMap<>();
   private final Map<String, Class<?>> permutators = new HashMap<>();
   private final Map<String, Class<?>> rearrangers = new HashMap<>();
-
-  private final Map<String, Engine<?>> engines = new HashMap<>();
-  private final Map<String, Adapter<?>> adapters = new HashMap<>();
 
   private static final GeneratorConfig<?> instance = new GeneratorConfig<>();
 
@@ -169,38 +163,6 @@ public final class GeneratorConfig<T> {
     }
 
     return createInstance((Class<Rearranger<T>>) rearrangerClass);
-  }
-
-  public Engine<?> registerEngine(final String name, final Engine<?> engine) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(engine);
-
-    return engines.put(name.toLowerCase(), engine);
-  }
-
-  public Engine<?> getEngine(final String name) {
-    InvariantChecks.checkNotNull(name);
-    return engines.get(name.toLowerCase());
-  }
-
-  public Collection<Engine<?>> getEngines() {
-    return engines.values();
-  }
-
-  public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(adapter);
-
-    return adapters.put(name.toLowerCase(), adapter);
-  }
-
-  public Adapter<?> getAdapter(final String name) {
-    InvariantChecks.checkNotNull(name);
-    return adapters.get(name.toLowerCase());
-  }
-
-  public Collection<Adapter<?>> getAdapters() {
-    return adapters.values();
   }
 
   /**
