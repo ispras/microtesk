@@ -12,25 +12,26 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test;
+package ru.ispras.microtesk.test.engine;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
+import java.util.List;
+import java.util.Map;
 
-public final class SelfCheck {
-  private final AddressingModeWrapper mode;
+import ru.ispras.microtesk.test.template.Call;
 
-  public SelfCheck(final AddressingModeWrapper mode) {
-    InvariantChecks.checkNotNull(mode);
-    this.mode = mode;
-  }
+/**
+ * {@link Engine} defines an interface of abstract sequence processing engines.
+ * 
+ * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
+ */
+public interface Engine<T> {
+  Class<T> getSolutionClass();
 
-  public AddressingModeWrapper getMode() {
-    return mode;
-  }
+  void configure(Map<String, Object> attributes);
 
-  @Override
-  public String toString() {
-    return String.format("Check: %s", mode);
-  }
+  EngineResult<T> solve(EngineContext engineContext, List<Call> abstractSequence);
+
+  void onStartProgram();
+
+  void onEndProgram();
 }

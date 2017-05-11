@@ -16,8 +16,8 @@ package ru.ispras.microtesk;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.test.sequence.engine.Adapter;
-import ru.ispras.microtesk.test.sequence.engine.Engine;
+import ru.ispras.microtesk.test.engine.Adapter;
+import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.testbase.generator.DataGenerator;
 

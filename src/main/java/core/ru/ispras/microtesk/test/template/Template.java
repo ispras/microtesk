@@ -40,10 +40,10 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
-import ru.ispras.microtesk.test.sequence.engine.EngineContext;
-import ru.ispras.microtesk.test.sequence.engine.allocator.Allocator;
-import ru.ispras.microtesk.test.sequence.engine.allocator.AllocatorBuilder;
-import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.allocator.Allocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
+import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**

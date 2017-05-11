@@ -22,7 +22,7 @@ import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
-import ru.ispras.microtesk.test.sequence.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.EngineContext;
 
 /**
  * The {@link DataManager} class create internal representation of data sections.

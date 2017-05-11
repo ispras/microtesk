@@ -36,8 +36,8 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
-import ru.ispras.microtesk.test.sequence.engine.EngineContext;
-import ru.ispras.microtesk.test.sequence.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
