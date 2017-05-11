@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.sequence.engine.branch;
+package ru.ispras.microtesk.test.engine.branch;
 
 import org.junit.Test;
 
