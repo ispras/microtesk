@@ -28,6 +28,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * The {@link MemoryAccessConstraints} class holds constraints related to memory accesses.
@@ -57,7 +58,7 @@ public final class MemoryAccessConstraints {
   }
 
   public static final class Builder {
-    private String region;
+    private RegionSettings region;
 
     private final List<VariableConstraint> variableConstraints;
     private final List<BufferEventConstraint> bufferEventConstraints;
@@ -67,7 +68,7 @@ public final class MemoryAccessConstraints {
       this.bufferEventConstraints = new ArrayList<>(); 
     }
 
-    public void setRegion(final String region) {
+    public void setRegion(final RegionSettings region) {
       this.region = region;
     }
 
@@ -93,7 +94,7 @@ public final class MemoryAccessConstraints {
     }
   }
 
-  private final String region;
+  private final RegionSettings region;
   private final Collection<VariableConstraint> variableConstraints;
   private final Collection<BufferEventConstraint> bufferEventConstraints;
 
@@ -104,7 +105,7 @@ public final class MemoryAccessConstraints {
   }
 
   public MemoryAccessConstraints(
-      final String region,
+      final RegionSettings region,
       final Collection<VariableConstraint> variableConstraints,
       final Collection<BufferEventConstraint> bufferEventConstraints) {
     // The region parameter can be null.
@@ -130,7 +131,7 @@ public final class MemoryAccessConstraints {
       return lhs;
     }
 
-    final String region = (lhs.region != null ? lhs.region : rhs.region);
+    final RegionSettings region = (lhs.region != null ? lhs.region : rhs.region);
 
     final Collection<VariableConstraint> variableConstraints = new ArrayList<>();
     final Collection<BufferEventConstraint> bufferEventConstraints = new ArrayList<>();
@@ -146,6 +147,10 @@ public final class MemoryAccessConstraints {
 
   public boolean isEmpty() {
     return variableConstraints.isEmpty() && bufferEventConstraints.isEmpty();
+  }
+
+  public RegionSettings getRegion() {
+    return region;
   }
 
   public Collection<VariableConstraint> getVariableConstraints() {

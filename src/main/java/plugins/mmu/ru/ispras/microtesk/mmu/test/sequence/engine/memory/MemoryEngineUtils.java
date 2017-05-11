@@ -47,6 +47,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -159,7 +160,8 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(partialResult);
+    final RegionSettings region = constraints.getRegion();
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, partialResult);
     final Boolean status = symbolicExecutor.execute(entry);
 
     if (status != null) {
@@ -293,15 +295,17 @@ public final class MemoryEngineUtils {
 
     Logger.debug("Solving path constraints");
 
+    final RegionSettings region = access.getConstraints().getRegion();
+
     if (!access.hasSymbolicResult()) {
-      final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
+      final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region);
 
       symbolicExecutor.execute(access, true);
       access.setSymbolicResult(symbolicExecutor.getResult());
     }
 
     final MemorySymbolicResult symbolicResult = access.getSymbolicResult();
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(symbolicResult);
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, symbolicResult);
 
     for (final MmuCondition condition : conditions) {
       symbolicExecutor.execute(condition);
@@ -341,7 +345,7 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor();
+    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(null);
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final MemorySymbolicResult symbolicResult = symbolicExecutor.getResult();
@@ -359,16 +363,21 @@ public final class MemoryEngineUtils {
     return new MemorySymbolicResult(newFormulaBuilder());
   }
 
-  public static MemorySymbolicRestrictor newSymbolicRestrictor() {
-    return new MemorySymbolicRestrictor(null);
+  public static MemorySymbolicRestrictor newSymbolicRestrictor(final RegionSettings region) {
+    // The region parameter can be null.
+    return new MemorySymbolicRestrictor(region);
   }
 
-  public static MemorySymbolicExecutor newSymbolicExecutor() {
-    return new MemorySymbolicExecutor(newSymbolicRestrictor(), newSymbolicResult());
+  public static MemorySymbolicExecutor newSymbolicExecutor(final RegionSettings region) {
+    // The region parameter can be null.
+    return new MemorySymbolicExecutor(newSymbolicRestrictor(region), newSymbolicResult());
   }
 
-  public static MemorySymbolicExecutor newSymbolicExecutor(final MemorySymbolicResult result) {
-    return new MemorySymbolicExecutor(newSymbolicRestrictor(), result);
+  public static MemorySymbolicExecutor newSymbolicExecutor(
+      final RegionSettings region,
+      final MemorySymbolicResult result) {
+    // The region parameter can be null.
+    return new MemorySymbolicExecutor(newSymbolicRestrictor(region), result);
   }
 
   public static Solver<Map<IntegerVariable, BigInteger>> newSolver(

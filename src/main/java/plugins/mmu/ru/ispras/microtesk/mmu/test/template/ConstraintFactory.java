@@ -31,6 +31,9 @@ import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.settings.MemorySettings;
+import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.RandomValue;
@@ -172,7 +175,11 @@ public final class ConstraintFactory {
       } else if (constraint instanceof BufferEventConstraint) {
         builder.addConstraint((BufferEventConstraint) constraint);
       } else if (constraint instanceof String) {
-        builder.setRegion((String) constraint);
+        final GeneratorSettings generatorSettings = GeneratorSettings.get();
+        final MemorySettings memorySettings = generatorSettings.getMemory();
+        final RegionSettings regionSettings = memorySettings.getRegion((String) constraint);
+
+        builder.setRegion(regionSettings);
       } else {
         throw new IllegalArgumentException(
             "Unsupported constraint class: " + constraint.getClass().getName());
