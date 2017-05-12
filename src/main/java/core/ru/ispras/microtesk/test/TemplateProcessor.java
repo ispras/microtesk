@@ -572,6 +572,28 @@ final class TemplateProcessor implements Template.Processor {
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
   }
 
+  private void allocateData(final TestSequence sequence, final int sequenceIndex) {
+    for (final ConcreteCall call : sequence.getAll()) {
+      if (call.getData() != null) {
+        final DataSection data = call.getData();
+        data.setSequenceIndex(sequenceIndex);
+        process(data);
+      }
+    }
+  }
+
+  private void reallocateGlobalData() {
+    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+    memoryAllocator.reset();
+
+    for (final DataSection data : testProgram.getGlobalData()) {
+      data.allocate(memoryAllocator);
+      data.registerLabels(engineContext.getLabelManager());
+    }
+
+    testProgram.readdGlobalData();
+  }
+
   /**
    * Executes all threads that can resume execution after the current sequence was allocated.
    * 
@@ -632,27 +654,5 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     return isExecuted;
-  }
-
-  private void allocateData(final TestSequence sequence, final int sequenceIndex) {
-    for (final ConcreteCall call : sequence.getAll()) {
-      if (call.getData() != null) {
-        final DataSection data = call.getData();
-        data.setSequenceIndex(sequenceIndex);
-        process(data);
-      }
-    }
-  }
-
-  private void reallocateGlobalData() {
-    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
-    memoryAllocator.reset();
-
-    for (final DataSection data : testProgram.getGlobalData()) {
-      data.allocate(memoryAllocator);
-      data.registerLabels(engineContext.getLabelManager());
-    }
-
-    testProgram.readdGlobalData();
   }
 }
