@@ -35,7 +35,7 @@ import ru.ispras.microtesk.utils.AdjacencyList;
  */
 final class TestProgram {
   private TestSequence prologue;
-  private Block epilogue;
+  private TestSequence epilogue;
 
   private final AdjacencyList<TestSequence> entries;
   private final Map<TestSequence, Block> postponedEntries;
@@ -63,11 +63,11 @@ final class TestProgram {
     this.prologue = prologue;
   }
 
-  public Block getEpilogue() {
+  public TestSequence getEpilogue() {
     return epilogue;
   }
 
-  public void setEpilogue(final Block epilogue) {
+  public void setEpilogue(final TestSequence epilogue) {
     InvariantChecks.checkNotNull(epilogue);
     this.epilogue = epilogue;
   }

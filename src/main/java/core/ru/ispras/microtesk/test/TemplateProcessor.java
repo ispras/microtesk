@@ -172,16 +172,13 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processPrologue(final Block block) {
-    engineContext.setCodeAllocationAddress(allocator.getAddress());
-
-    final TestSequence sequence =
-        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, "Prologue");
-
+    final TestSequence sequence = makeExternalTestSequence(block, "Prologue");
     testProgram.setPrologue(sequence);
   }
 
   private void processEpilogue(final Block block) {
-    testProgram.setEpilogue(block);
+    final TestSequence sequence = makeExternalTestSequence(block, "Epilogue");
+    testProgram.setEpilogue(sequence);
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
@@ -204,9 +201,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
-    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
-        engineContext, block, "External Code");
+    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
 
     if (runExecution(sequence)) {
@@ -356,9 +351,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
-    final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
-        engineContext, block, "External Code");
+    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
@@ -453,12 +446,7 @@ final class TemplateProcessor implements Template.Processor {
   private void processPostponedExternalBlockNoSimulation(
       final Block block,
       final TestSequence entry) throws ConfigurationException {
-    final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-    engineContext.setCodeAllocationAddress(getAllocationAddress(prevEntry));
-
-    final TestSequence sequence =
-        TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, "External Code");
-
+    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -517,11 +505,15 @@ final class TemplateProcessor implements Template.Processor {
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
     final TestSequence prologue = testProgram.getPrologue();
-
     allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
     runExecution(prologue);
 
     TestEngineUtils.notifyProgramStart();
+  }
+
+  private TestSequence makeExternalTestSequence(final Block block, final String title) {
+    InvariantChecks.checkTrue(block.isExternal());
+    return TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, title);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
@@ -531,12 +523,9 @@ final class TemplateProcessor implements Template.Processor {
       processPostponedBlocksNoSimulation();
       TestEngineUtils.notifyProgramEnd();
 
-      engineContext.setCodeAllocationAddress(allocator.getAddress());
-      final TestSequence sequence = TestEngineUtils.makeTestSequenceForExternalBlock(
-          engineContext, testProgram.getEpilogue(), "Epilogue");
-
-      allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
-      runExecution(sequence);
+      final TestSequence epilogue = testProgram.getEpilogue();
+      allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
+      runExecution(epilogue);
 
       PrinterUtils.printTestProgram(engineContext, testProgram);
    } finally {
@@ -551,12 +540,6 @@ final class TemplateProcessor implements Template.Processor {
 
       isProgramStarted = false;
     }
-  }
-
-  private long getAllocationAddress(final TestSequence prevEntry) {
-    return null != prevEntry && prevEntry.isAllocated() ?
-        prevEntry.getEndAddress() :
-        allocator.getAddress();
   }
 
   private void allocateTestSequenceWithReplace(
