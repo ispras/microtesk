@@ -648,11 +648,9 @@ final class TemplateProcessor implements Template.Processor {
   private static boolean isEndOfTestSequence(
       final Executor.Status status,
       final TestSequence sequence) {
-    if (null == sequence || !sequence.isAllocated()) {
-      return false;
-    }
-
-    return sequence.getEndAddress() == status.getAddress();
+    return sequence != null &&
+           sequence.isAllocated() &&
+           sequence.getEndAddress() == status.getAddress();
   }
 
   private static boolean isEndOfTestSequence(
