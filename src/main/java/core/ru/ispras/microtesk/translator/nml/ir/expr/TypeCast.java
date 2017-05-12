@@ -203,7 +203,8 @@ public final class TypeCast {
               valueNode.getBitVector().resize(type.getSize(), false));
 
         default:
-          // Nothing
+          // Nothing. Handled below.
+          break;
       }
     }
 

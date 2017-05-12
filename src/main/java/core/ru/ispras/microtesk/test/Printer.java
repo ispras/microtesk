@@ -336,6 +336,10 @@ final class Printer {
         case COMMENT_ML_END:
           text = text + options.getValueAsString(Option.COMMENT_TOKEN_END);
           break;
+
+        default:
+          // Anything else is ignored.
+          break;
       }
 
       if (output.isComment() && !printComment) {
