@@ -269,7 +269,7 @@ final class TestEngineUtils {
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
-  private static boolean isOriginFixed(final List<Call> sequence) {
+  public static boolean isOriginFixed(final List<Call> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
     for (final Call call : sequence) {
