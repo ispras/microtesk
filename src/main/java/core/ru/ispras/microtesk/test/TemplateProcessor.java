@@ -149,8 +149,6 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void finish() {
-    TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastEntry());
- 
     try {
       finishProgram();
       Logger.debugHeader("Ended Processing Template");
@@ -500,6 +498,7 @@ final class TemplateProcessor implements Template.Processor {
   private void finishProgram() throws ConfigurationException, IOException {
     try {
       startProgram();
+      TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastEntry());
 
       processPostponedBlocksNoSimulation();
       TestEngineUtils.notifyProgramEnd();
