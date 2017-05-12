@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +152,7 @@ final class TemplateProcessor implements Template.Processor {
     for (int index = 0; index < executorStatuses.size(); index++) {
       final Executor.Status status = executorStatuses.get(index);
 
-      if (!isAtEndOf(status, testProgram.getLastEntry())) {
+      if (!TestEngineUtils.isAtEndOf(status, testProgram.getLastEntry())) {
         throw new GenerationAbortedException(String.format(
             "Instance %d is at address %s and it cannot reach the end of the program.",
             index, status));
@@ -196,7 +195,7 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
+    final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 != instanceIndex) {
       engineContext.getModel().setActivePE(instanceIndex);
     }
@@ -217,7 +216,7 @@ final class TemplateProcessor implements Template.Processor {
     startProgram();
 
     final TestSequence prevEntry = testProgram.getLastEntry();
-    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
+    final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 == instanceIndex) {
       Logger.debug("Processing of block defined at %s is postponed.", block.getWhere());
       testProgram.addPostponedEntry(block);
@@ -247,7 +246,7 @@ final class TemplateProcessor implements Template.Processor {
 
         // Needed to resolve external control transfers. In particular,
         // to allocate unallocated exception handler.
-        if (!isAtEndOf(executorStatuses.get(instanceIndex), sequence)) {
+        if (!TestEngineUtils.isAtEndOf(executorStatuses.get(instanceIndex), sequence)) {
           interruptedSequences.push(sequence);
           processPostponedBlocks();
           interruptedSequences.pop();
@@ -277,7 +276,7 @@ final class TemplateProcessor implements Template.Processor {
     final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
     final Executor.Status status = executorStatuses.get(engineContext.getModel().getActivePE());
 
-    if (!isAtEndOf(status, previous)) {
+    if (!TestEngineUtils.isAtEndOf(status, previous)) {
       Logger.warning("%s will not be created because execution does not reach them.", sequenceId);
       return previous;
     }
@@ -341,13 +340,13 @@ final class TemplateProcessor implements Template.Processor {
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
     for (final Executor.Status status: executorStatuses) { 
-      if (isAtEndOfAny(status, interruptedSequences)) {
+      if (TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
         Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
         return false;
       }
     }
 
-    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
+    final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 != instanceIndex) {
       engineContext.getModel().setActivePE(instanceIndex);
     }
@@ -363,7 +362,7 @@ final class TemplateProcessor implements Template.Processor {
       final Block block,
       final TestSequence entry) throws ConfigurationException {
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
+    final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
@@ -372,7 +371,7 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    if (isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
+    if (TestEngineUtils.isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
       Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
@@ -406,8 +405,8 @@ final class TemplateProcessor implements Template.Processor {
         runExecution(sequence);
 
         final Executor.Status status = executorStatuses.get(instanceIndex);
-        if (!isAtEndOf(status, sequence) &&
-            !isAtEndOfAny(status, interruptedSequences)) {
+        if (!TestEngineUtils.isAtEndOf(status, sequence) &&
+            !TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
           interruptedSequences.push(sequence);
           processPostponedBlocks();
           interruptedSequences.pop();
@@ -639,43 +638,6 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     return isExecuted;
-  }
-
-  private static boolean isAtEndOf(
-      final Executor.Status status,
-      final TestSequence sequence) {
-    return sequence != null &&
-           sequence.isAllocated() &&
-           sequence.getEndAddress() == status.getAddress();
-  }
-
-  private static boolean isAtEndOfAny(
-      final Executor.Status status,
-      final Collection<TestSequence> sequences) {
-    for (final TestSequence sequence : sequences) {
-      return isAtEndOf(status, sequence);
-    }
-
-    return false;
-  }
-
-  private static int findAtEndOf(
-      final List<Executor.Status> statuses,
-      final TestSequence sequence) {
-    if (statuses.isEmpty()) {
-      // No instances started execution yet - return 0 (can select any)
-      return 0;
-    }
-
-    for (int index = 0; index < statuses.size(); index++) {
-      if (isAtEndOf(statuses.get(index), sequence)) {
-        // Found it!
-        return index;
-      }
-    }
-
-    // Nothing is found.
-    return -1;
   }
 
   private void allocateData(final TestSequence sequence, final int sequenceIndex) {

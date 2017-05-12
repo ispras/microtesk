@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -278,6 +279,43 @@ final class TestEngineUtils {
     } else {
       throw new GenerationAbortedException(e);
     }
+  }
+
+  public static boolean isAtEndOf(
+      final Executor.Status status,
+      final TestSequence sequence) {
+    return sequence != null &&
+           sequence.isAllocated() &&
+           sequence.getEndAddress() == status.getAddress();
+  }
+
+  public static boolean isAtEndOfAny(
+      final Executor.Status status,
+      final Collection<TestSequence> sequences) {
+    for (final TestSequence sequence : sequences) {
+      return isAtEndOf(status, sequence);
+    }
+
+    return false;
+  }
+
+  public static int findAtEndOf(
+      final List<Executor.Status> statuses,
+      final TestSequence sequence) {
+    if (statuses.isEmpty()) {
+      // No instances started execution yet - return 0 (can select any)
+      return 0;
+    }
+
+    for (int index = 0; index < statuses.size(); index++) {
+      if (isAtEndOf(statuses.get(index), sequence)) {
+        // Found it!
+        return index;
+      }
+    }
+
+    // Nothing is found.
+    return -1;
   }
 
   /**
