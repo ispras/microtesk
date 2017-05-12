@@ -149,7 +149,7 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void finish() {
-    checkAllAtEndOf(executorStatuses, testProgram.getLastEntry());
+    TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastEntry());
  
     try {
       finishProgram();
@@ -646,19 +646,5 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     return isExecuted;
-  }
-
-  private static void checkAllAtEndOf(
-      final List<Executor.Status> statuses,
-      final TestSequence sequence) {
-    for (int index = 0; index < statuses.size(); index++) {
-      final Executor.Status status = statuses.get(index);
-      if (!TestEngineUtils.isAtEndOf(status, sequence)) {
-        throw new GenerationAbortedException(String.format(
-            "Instance %d is at address %s and it cannot reach the end of the program.",
-            index, status)
-            );
-      }
-    }
   }
 }

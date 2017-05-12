@@ -322,6 +322,20 @@ final class TestEngineUtils {
     return -1;
   }
 
+  public static void checkAllAtEndOf(
+      final List<Executor.Status> statuses,
+      final TestSequence sequence) {
+    for (int index = 0; index < statuses.size(); index++) {
+      final Executor.Status status = statuses.get(index);
+      if (!isAtEndOf(status, sequence)) {
+        throw new GenerationAbortedException(String.format(
+            "Instance %d is at address %s and it cannot reach the end of the program.",
+            index, status)
+            );
+      }
+    }
+  }
+
   /**
    * Sends notifications to all registered engines and adapters about
    * the start of generating a test program file.
