@@ -201,6 +201,9 @@ public final class TypeCast {
         case BIT_VECTOR:
           return NodeValue.newBitVector(
               valueNode.getBitVector().resize(type.getSize(), false));
+
+        default:
+          // Nothing
       }
     }
 
