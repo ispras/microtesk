@@ -153,7 +153,7 @@ final class TemplateProcessor implements Template.Processor {
     for (int index = 0; index < executorStatuses.size(); index++) {
       final Executor.Status status = executorStatuses.get(index);
 
-      if (!isEndOfTestSequence(status, testProgram.getLastEntry())) {
+      if (!isAtEndOf(status, testProgram.getLastEntry())) {
         throw new GenerationAbortedException(String.format(
             "Instance %d is at address %s and it cannot reach the end of the program.",
             index, status));
@@ -196,7 +196,7 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
+    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
     if (-1 != instanceIndex) {
       engineContext.getModel().setActivePE(instanceIndex);
     }
@@ -216,7 +216,8 @@ final class TemplateProcessor implements Template.Processor {
   private void processBlock(final Block block) throws ConfigurationException, IOException {
     startProgram();
 
-    final int instanceIndex = findInstanceAtEndOfTestSequence(testProgram.getLastEntry());
+    final TestSequence prevEntry = testProgram.getLastEntry();
+    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
     if (-1 == instanceIndex) {
       Logger.debug("Processing of block defined at %s is postponed.", block.getWhere());
       testProgram.addPostponedEntry(block);
@@ -246,7 +247,7 @@ final class TemplateProcessor implements Template.Processor {
 
         // Needed to resolve external control transfers. In particular,
         // to allocate unallocated exception handler.
-        if (!isEndOfTestSequence(executorStatuses.get(instanceIndex), sequence)) {
+        if (!isAtEndOf(executorStatuses.get(instanceIndex), sequence)) {
           interruptedSequences.push(sequence);
           processPostponedBlocks();
           interruptedSequences.pop();
@@ -276,7 +277,7 @@ final class TemplateProcessor implements Template.Processor {
     final String sequenceId = String.format("Self-Checks for Test Case %d", testCaseIndex);
     final Executor.Status status = executorStatuses.get(engineContext.getModel().getActivePE());
 
-    if (!isEndOfTestSequence(status, previous)) {
+    if (!isAtEndOf(status, previous)) {
       Logger.warning("%s will not be created because execution does not reach them.", sequenceId);
       return previous;
     }
@@ -340,13 +341,13 @@ final class TemplateProcessor implements Template.Processor {
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
     for (final Executor.Status status: executorStatuses) { 
-      if (isEndOfTestSequence(status, interruptedSequences)) {
+      if (isAtEndOfAny(status, interruptedSequences)) {
         Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
         return false;
       }
     }
 
-    final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
+    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
     if (-1 != instanceIndex) {
       engineContext.getModel().setActivePE(instanceIndex);
     }
@@ -362,7 +363,7 @@ final class TemplateProcessor implements Template.Processor {
       final Block block,
       final TestSequence entry) throws ConfigurationException {
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-    final int instanceIndex = findInstanceAtEndOfTestSequence(prevEntry);
+    final int instanceIndex = findAtEndOf(executorStatuses, prevEntry);
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
@@ -371,7 +372,7 @@ final class TemplateProcessor implements Template.Processor {
       return false;
     }
 
-    if (isEndOfTestSequence(executorStatuses.get(instanceIndex), interruptedSequences)) {
+    if (isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
       Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
@@ -405,8 +406,8 @@ final class TemplateProcessor implements Template.Processor {
         runExecution(sequence);
 
         final Executor.Status status = executorStatuses.get(instanceIndex);
-        if (!isEndOfTestSequence(status, sequence) &&
-            !isEndOfTestSequence(status, interruptedSequences)) {
+        if (!isAtEndOf(status, sequence) &&
+            !isAtEndOfAny(status, interruptedSequences)) {
           interruptedSequences.push(sequence);
           processPostponedBlocks();
           interruptedSequences.pop();
@@ -640,7 +641,7 @@ final class TemplateProcessor implements Template.Processor {
     return isExecuted;
   }
 
-  private static boolean isEndOfTestSequence(
+  private static boolean isAtEndOf(
       final Executor.Status status,
       final TestSequence sequence) {
     return sequence != null &&
@@ -648,25 +649,26 @@ final class TemplateProcessor implements Template.Processor {
            sequence.getEndAddress() == status.getAddress();
   }
 
-  private static boolean isEndOfTestSequence(
+  private static boolean isAtEndOfAny(
       final Executor.Status status,
       final Collection<TestSequence> sequences) {
     for (final TestSequence sequence : sequences) {
-      return isEndOfTestSequence(status, sequence);
+      return isAtEndOf(status, sequence);
     }
 
     return false;
   }
 
-  private int findInstanceAtEndOfTestSequence(final TestSequence entry) {
-    if (executorStatuses.isEmpty()) {
+  private static int findAtEndOf(
+      final List<Executor.Status> statuses,
+      final TestSequence sequence) {
+    if (statuses.isEmpty()) {
       // No instances started execution yet - return 0 (can select any)
-      return 0; 
+      return 0;
     }
 
-    for (int index = 0; index < instanceNumber; index++) {
-      final Executor.Status status = executorStatuses.get(index);
-      if (isEndOfTestSequence(status, entry)) {
+    for (int index = 0; index < statuses.size(); index++) {
+      if (isAtEndOf(statuses.get(index), sequence)) {
         // Found it!
         return index;
       }
