@@ -172,13 +172,13 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processPrologue(final Block block) {
-    final TestSequence sequence = makeExternalTestSequence(block, "Prologue");
-    testProgram.setPrologue(sequence);
+    testProgram.setPrologue(
+        TestEngineUtils.makeExternalTestSequence(engineContext, block, "Prologue"));
   }
 
   private void processEpilogue(final Block block) {
-    final TestSequence sequence = makeExternalTestSequence(block, "Epilogue");
-    testProgram.setEpilogue(sequence);
+    testProgram.setEpilogue(
+        TestEngineUtils.makeExternalTestSequence(engineContext, block, "Epilogue"));
   }
 
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
@@ -201,7 +201,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
+    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
 
     if (runExecution(sequence)) {
@@ -351,7 +351,7 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
+    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
@@ -446,7 +446,7 @@ final class TemplateProcessor implements Template.Processor {
   private void processPostponedExternalBlockNoSimulation(
       final Block block,
       final TestSequence entry) throws ConfigurationException {
-    final TestSequence sequence = makeExternalTestSequence(block, "External Code");
+    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -509,11 +509,6 @@ final class TemplateProcessor implements Template.Processor {
     runExecution(prologue);
 
     TestEngineUtils.notifyProgramStart();
-  }
-
-  private TestSequence makeExternalTestSequence(final Block block, final String title) {
-    InvariantChecks.checkTrue(block.isExternal());
-    return TestEngineUtils.makeTestSequenceForExternalBlock(engineContext, block, title);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {

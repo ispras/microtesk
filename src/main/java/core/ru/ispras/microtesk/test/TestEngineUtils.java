@@ -128,7 +128,13 @@ final class TestEngineUtils {
     return result;
   }
 
-  public static TestSequence makeTestSequenceForExternalBlock(
+  public static TestSequence makeExternalTestSequence(
+      final EngineContext engineContext,
+      final Block block) {
+    return makeExternalTestSequence(engineContext, block, "External Code");
+  }
+
+  public static TestSequence makeExternalTestSequence(
       final EngineContext engineContext,
       final Block block,
       final String title) {
@@ -146,24 +152,6 @@ final class TestEngineUtils {
     sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
 
     return sequence;
-  }
-
-  public static TestSequence makeTestSequenceForExceptionHandler(
-      final EngineContext engineContext,
-      final ExceptionHandler.Section section) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(section);
-
-    final List<Call> calls = new ArrayList<>();
-    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
-    calls.add(Call.newOrigin(section.getOrigin(), false));
-    calls.addAll(section.getCalls());
-
-    final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
-    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
-    concreteSequenceBuilder.add(concreteCalls);
-
-    return concreteSequenceBuilder.build();
   }
 
   public static Pair<List<TestSequence>, Map<String, TestSequence>> makeExceptionHandler(
@@ -187,6 +175,24 @@ final class TestEngineUtils {
     }
 
     return new Pair<>(sequences, handlers);
+  }
+
+  private static TestSequence makeTestSequenceForExceptionHandler(
+      final EngineContext engineContext,
+      final ExceptionHandler.Section section) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(section);
+
+    final List<Call> calls = new ArrayList<>();
+    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
+    calls.add(Call.newOrigin(section.getOrigin(), false));
+    calls.addAll(section.getCalls());
+
+    final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
+    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+    concreteSequenceBuilder.add(concreteCalls);
+
+    return concreteSequenceBuilder.build();
   }
 
   /**
