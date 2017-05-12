@@ -38,7 +38,7 @@ module MmuPlugin
       @constraint_factory.newEqArray variable_name, value
     elsif value.is_a?(Range)
       @constraint_factory.newEqRange variable_name, value.min, value.max
-    elsif value.is_a?(Template::Dist)
+    elsif value.is_a?(Dist)
       @constraint_factory.newEqDist variable_name, value.java_object
     else
       raise MTRubyError, "#{value} must be Integer, Array, Range or Dist."
