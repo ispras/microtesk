@@ -15,6 +15,7 @@
 package ru.ispras.microtesk;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -110,14 +111,20 @@ public final class SysUtils {
     }
 
     final URL[] urls = new URL[] {url};
-    final ClassLoader cl = new URLClassLoader(urls);
+    final URLClassLoader cl = new URLClassLoader(urls);
 
     final Class<?> cls;
     try {
-      cls = cl.loadClass(className);
+      try {
+        cls = cl.loadClass(className);
+      } finally {
+        cl.close();
+      }
     } catch (final ClassNotFoundException e) {
       throw new IllegalArgumentException(String.format(
           "Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage()));
+    } catch (final IOException e) {
+      throw new IllegalArgumentException("Failed to close URLClassLoader.",e);
     }
 
     final Object instance;
