@@ -186,10 +186,7 @@ final class TemplateProcessor implements Template.Processor {
     final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
     final TestSequence prevEntry = testProgram.getLastEntry();
 
-    final boolean canBeAllocated =
-        null == prevEntry || prevEntry.isAllocated() || TestEngineUtils.isOriginFixed(abstractSequence);
-
-    if (!canBeAllocated) {
+    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, abstractSequence)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
       testProgram.addPostponedEntry(block);
       return;
@@ -329,10 +326,7 @@ final class TemplateProcessor implements Template.Processor {
     final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
 
-    final boolean canBeAllocated =
-        null == prevEntry || prevEntry.isAllocated() || TestEngineUtils.isOriginFixed(abstractSequence);
-
-    if (!canBeAllocated) {
+    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, abstractSequence)) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
       return false;
     }

@@ -196,32 +196,6 @@ final class TestEngineUtils {
     return concreteSequenceBuilder.build();
   }
 
-  /**
-   * Checks whether the specified abstract sequence has a fixed origin.
-   * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
-   * that specifies an absolute origin and comes before any executable calls.
-   * 
-   * @param sequence Abstract sequence to be checked.
-   * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
-   * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
-   */
-  public static boolean isOriginFixed(final List<Call> sequence) {
-    InvariantChecks.checkNotNull(sequence);
-
-    for (final Call call : sequence) {
-      if (null != call.getOrigin()) {
-        return !call.isRelativeOrigin();
-      }
-
-      if (call.isExecutable()) {
-        break;
-      }
-    }
-
-    return false;
-  }
-
   public static BigInteger getSequenceAddress(final List<Call> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
@@ -279,6 +253,36 @@ final class TestEngineUtils {
     } else {
       throw new GenerationAbortedException(e);
     }
+  }
+
+  public static boolean canBeAllocatedAfter(final TestSequence previous, final List<Call> current) {
+    return null == previous || previous.isAllocated() || isOriginFixed(current);
+  }
+
+  /**
+   * Checks whether the specified abstract sequence has a fixed origin.
+   * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
+   * that specifies an absolute origin and comes before any executable calls.
+   * 
+   * @param sequence Abstract sequence to be checked.
+   * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
+   * 
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
+  private static boolean isOriginFixed(final List<Call> sequence) {
+    InvariantChecks.checkNotNull(sequence);
+
+    for (final Call call : sequence) {
+      if (null != call.getOrigin()) {
+        return !call.isRelativeOrigin();
+      }
+
+      if (call.isExecutable()) {
+        break;
+      }
+    }
+
+    return false;
   }
 
   public static boolean isAtEndOf(
