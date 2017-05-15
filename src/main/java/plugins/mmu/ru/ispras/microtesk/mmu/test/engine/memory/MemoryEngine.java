@@ -114,17 +114,20 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   // FIXME:
   private static boolean isLoad(final Call abstractCall) {
-    return abstractCall.getCommands().get(0).isLoad();
+    final List<Primitive> commands = abstractCall.getCommands();
+    return !commands.isEmpty() && commands.get(0).isLoad();
   }
 
   // FIXME:
   private static boolean isStore(final Call abstractCall) {
-    return abstractCall.getCommands().get(0).isStore();
+    final List<Primitive> commands = abstractCall.getCommands();
+    return !commands.isEmpty() && commands.get(0).isStore();
   }
 
   // FIXME:
   private static int getBlockSize(final Call abstractCall) {
-    return abstractCall.getCommands().get(0).getBlockSize();
+    final List<Primitive> commands = abstractCall.getCommands();
+    return !commands.isEmpty() ? commands.get(0).getBlockSize() : 0;
   }
 
   public static boolean isMemoryAccessWithSituation(final Call abstractCall) {
