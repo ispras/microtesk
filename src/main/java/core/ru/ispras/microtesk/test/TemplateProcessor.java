@@ -173,10 +173,8 @@ final class TemplateProcessor implements Template.Processor {
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
     startProgram();
 
-    final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
     final TestSequence prevEntry = testProgram.getLastEntry();
-
-    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, abstractSequence)) {
+    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
       testProgram.addPostponedEntry(block);
       return;
@@ -313,10 +311,8 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private boolean processPostponedExternalBlock(final Block block, final TestSequence entry) throws ConfigurationException {
-    final List<Call> abstractSequence = TestEngineUtils.getSingleSequence(block);
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
-
-    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, abstractSequence)) {
+    if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
       return false;
     }

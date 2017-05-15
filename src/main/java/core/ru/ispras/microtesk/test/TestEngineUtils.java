@@ -255,8 +255,9 @@ final class TestEngineUtils {
     }
   }
 
-  public static boolean canBeAllocatedAfter(final TestSequence previous, final List<Call> current) {
-    return null == previous || previous.isAllocated() || isOriginFixed(current);
+  public static boolean canBeAllocatedAfter(final TestSequence previous, final Block block) {
+    InvariantChecks.checkTrue(block.isExternal());
+    return null == previous || previous.isAllocated() || isOriginFixed(getSingleSequence(block));
   }
 
   /**
