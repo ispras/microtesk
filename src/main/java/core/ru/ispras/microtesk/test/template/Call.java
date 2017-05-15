@@ -353,6 +353,25 @@ public final class Call {
     return rootOperation;
   }
 
+  public List<Primitive> getCommands() {
+    return null != rootOperation ? getCommands(rootOperation) : Collections.<Primitive>emptyList();
+  }
+
+  private static List<Primitive> getCommands(final Primitive primitive) {
+    boolean isCommand = true;
+    final List<Primitive> commands = new ArrayList<>();
+
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (argument.getKind() == Argument.Kind.OP) {
+        final Primitive argumentPrimitive = (Primitive) argument.getValue();
+        commands.addAll(getCommands(argumentPrimitive));
+        isCommand = false;
+      }
+    }
+
+    return isCommand ? Collections.singletonList(primitive) : commands;
+  }
+
   public List<Label> getLabels() {
     return labels;
   }
