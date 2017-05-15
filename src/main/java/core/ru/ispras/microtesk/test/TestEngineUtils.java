@@ -256,21 +256,26 @@ final class TestEngineUtils {
   }
 
   public static boolean canBeAllocatedAfter(final TestSequence previous, final Block block) {
-    InvariantChecks.checkTrue(block.isExternal());
-    return null == previous || previous.isAllocated() || isOriginFixed(getSingleSequence(block));
+    return null == previous || previous.isAllocated() || isOriginFixed(block);
   }
 
   /**
-   * Checks whether the specified abstract sequence has a fixed origin.
+   * Checks whether the specified block has a fixed origin. Applied only to external blocks
+   * that hold a single sequence.
    * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
    * that specifies an absolute origin and comes before any executable calls.
    * 
-   * @param sequence Abstract sequence to be checked.
+   * @param sequence Block to be checked.
    * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
    * 
-   * @throws IllegalArgumentException if the argument is {@code null}.
+   * @throws IllegalArgumentException if the argument is {@code null} or it is not
+   *         an external code block.
    */
-  public static boolean isOriginFixed(final List<Call> sequence) {
+  public static boolean isOriginFixed(final Block block) {
+    InvariantChecks.checkNotNull(block);
+    InvariantChecks.checkTrue(block.isExternal());
+
+    final List<Call> sequence = getSingleSequence(block);
     InvariantChecks.checkNotNull(sequence);
 
     for (final Call call : sequence) {
