@@ -494,15 +494,16 @@ final class TemplateProcessor implements Template.Processor {
   private void finishProgram() throws ConfigurationException, IOException {
     try {
       startProgram();
-      TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastEntry());
-
       processPostponedBlocksNoSimulation();
-      TestEngineUtils.notifyProgramEnd();
 
       final TestSequence epilogue = testProgram.getEpilogue();
       allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
+
+      TestEngineUtils.checkAllAtEndOf(executorStatuses, epilogue);
     } finally {
+      TestEngineUtils.notifyProgramEnd();
+
       PrinterUtils.printTestProgram(engineContext, testProgram);
       Tracer.closeFile();
 
