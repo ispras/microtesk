@@ -31,14 +31,6 @@ public final class Call {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  private final boolean exception;
-  private final boolean branch;
-  private final boolean conditionalBranch;
-
-  private final boolean load;
-  private final boolean store;
-  private final int blockSize;
-
   private final boolean relativeOrigin;
   private final BigInteger origin;
   private final BigInteger alignment;
@@ -236,22 +228,6 @@ public final class Call {
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
 
-    if (null != rootOperation) {
-      this.exception = rootOperation.canThrowException();
-      this.branch = rootOperation.isBranch();
-      this.conditionalBranch = rootOperation.isConditionalBranch();
-      this.load = rootOperation.isLoad();
-      this.store = rootOperation.isStore();
-      this.blockSize = rootOperation.getBlockSize();
-    } else {
-      this.exception = false;
-      this.branch = false;
-      this.conditionalBranch = false;
-      this.load = false;
-      this.store = false;
-      this.blockSize = 0;
-    }
-
     this.relativeOrigin = relativeOrigin;
     this.origin = origin;
     this.alignment = alignment;
@@ -275,14 +251,6 @@ public final class Call {
     this.labels = Label.copyAll(other.labels);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
     this.outputs = Output.copyAll(other.outputs);
-
-    this.exception = other.exception;
-    this.branch = other.branch;
-    this.conditionalBranch = other.conditionalBranch;
-
-    this.load = other.load;
-    this.store = other.store;
-    this.blockSize = other.blockSize;
 
     this.relativeOrigin = other.relativeOrigin;
     this.origin = other.origin;
@@ -354,10 +322,14 @@ public final class Call {
   }
 
   public List<Primitive> getCommands() {
-    return null != rootOperation ? getCommands(rootOperation) : Collections.<Primitive>emptyList();
+    return getCommands(rootOperation);
   }
 
   private static List<Primitive> getCommands(final Primitive primitive) {
+    if (null == primitive) {
+      return Collections.emptyList();
+    }
+
     boolean isCommand = true;
     final List<Primitive> commands = new ArrayList<>();
 
@@ -382,30 +354,6 @@ public final class Call {
 
   public List<Output> getOutputs() {
     return outputs;
-  }
-
-  public boolean isBranch() {
-    return branch;
-  }
-
-  public boolean isConditionalBranch() {
-    return conditionalBranch;
-  }
-
-  public boolean canThrowException() {
-    return exception;
-  }
-
-  public boolean isLoad() {
-    return load;
-  }
-
-  public boolean isStore() {
-    return store;
-  }
-
-  public int getBlockSize() {
-    return blockSize;
   }
 
   public Label getTargetLabel() {
@@ -469,16 +417,10 @@ public final class Call {
   public String toString() {
     return String.format(
         "instruction call %s" + 
-        "(root: %s, branch: %b, cond: %b, exception: %b, load: %b, store: %b, blockSize: %d, " +
+        "(root: %s, " +
         "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
-        isBranch(),
-        isConditionalBranch(),
-        canThrowException(),
-        isLoad(),
-        isStore(),
-        getBlockSize(),
         isPreparatorCall() ? preparatorReference : "null",
         hasData(),
         isAtomicSequence(),
