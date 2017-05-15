@@ -112,10 +112,25 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   static final ParamRecursionLimit PARAM_RECURSION_LIMIT = new ParamRecursionLimit();
   static final ParamCount PARAM_COUNT = new ParamCount();
 
+  // FIXME:
+  private static boolean isLoad(final Call abstractCall) {
+    return abstractCall.getCommands().get(0).isLoad();
+  }
+
+  // FIXME:
+  private static boolean isStore(final Call abstractCall) {
+    return abstractCall.getCommands().get(0).isStore();
+  }
+
+  // FIXME:
+  private static int getBlockSize(final Call abstractCall) {
+    return abstractCall.getCommands().get(0).getBlockSize();
+  }
+
   public static boolean isMemoryAccessWithSituation(final Call abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
-    if (!abstractCall.isLoad() && !abstractCall.isStore()) {
+    if (!isLoad(abstractCall) && !isStore(abstractCall)) {
       return false;
     }
 
@@ -197,9 +212,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
       }
 
       final MemoryOperation operation =
-          abstractCall.isLoad() ? MemoryOperation.LOAD : MemoryOperation.STORE;
+          isLoad(abstractCall) ? MemoryOperation.LOAD : MemoryOperation.STORE;
 
-      final int blockSizeInBits = abstractCall.getBlockSize();
+      final int blockSizeInBits = getBlockSize(abstractCall);
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
       final int blockSizeInBytes = blockSizeInBits >>> 3;

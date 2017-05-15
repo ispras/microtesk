@@ -23,7 +23,6 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
@@ -559,7 +558,6 @@ public final class MemorySymbolicExecutor {
         }
       }
 
-      Logger.debug("Set version number: %s(%d)", originalVariable, maxVersionNumber);
       result.setVersionNumber(originalVariable, maxVersionNumber);
     }
 
@@ -597,8 +595,6 @@ public final class MemorySymbolicExecutor {
         // Case: (PHI == i) -> CASE(i).
         final IntegerFormula<IntegerField> ifThenFormula = getIfThenFormula(phi, i, caseFormula);
         result.addFormula(ifThenFormula);
-
-        Logger.debug("Case formula: %s", ifThenFormula);
       }
     }
 
@@ -713,7 +709,6 @@ public final class MemorySymbolicExecutor {
       final boolean executeCall,
       final boolean executeReturn) {
 
-    Logger.debug("Execute action");
     if (result.hasConflict()) {
       return Boolean.FALSE;
     }
@@ -747,16 +742,12 @@ public final class MemorySymbolicExecutor {
       final Map<IntegerField, MmuBinding> assignments =
           action.getAssignments(lhsInstanceId, rhsInstanceId, context);
 
-      Logger.debug("Buffer access: %s, assignments: %s", bufferAccess, assignments);
-
       if (assignments != null) {
         executeBindings(result, defines, assignments.values(), pathIndex);
 
         if (bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.READ) {
           final MmuBuffer lhs = bufferAccess.getBuffer();
           final MmuStruct rhs = bufferAccess.getEntry();
-
-          Logger.debug("Additional bindings: %s", lhs.bindings(rhs));
 
           // Add special bindings: Buffer.Field = BufferAccess.Field.
           // This introduces variables {Buffer.Field} to be used from test templates.
@@ -914,8 +905,6 @@ public final class MemorySymbolicExecutor {
     if (result.hasConflict()) {
       return Boolean.FALSE;
     }
-
-    Logger.debug("Bindings: %s", bindings);
 
     final IntegerClause.Builder<IntegerField> clauseBuilder =
         new IntegerClause.Builder<>(IntegerClause.Type.AND);
