@@ -116,6 +116,10 @@ final class TestProgram {
     postponedEntries.remove(sequence);
   }
 
+  public TestSequence getFirstEntry() {
+    return entries.getFirst();
+  }
+  
   public TestSequence getLastEntry() {
     return entries.getLast();
   }
