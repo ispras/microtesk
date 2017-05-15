@@ -506,9 +506,8 @@ final class TemplateProcessor implements Template.Processor {
       final TestSequence epilogue = testProgram.getEpilogue();
       allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
-
+    } finally {
       PrinterUtils.printTestProgram(engineContext, testProgram);
-   } finally {
       Tracer.closeFile();
 
       // Clean up all the state
