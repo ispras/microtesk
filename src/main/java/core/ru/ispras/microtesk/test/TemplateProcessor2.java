@@ -58,6 +58,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private final List<Executor.Status> executorStatuses;
   private final Deque<TestSequence> interruptedSequences;
   private boolean isProgramStarted;
+  //private boolean hasDispatchingCode;
 
   public TemplateProcessor2(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
@@ -80,6 +81,7 @@ final class TemplateProcessor2 implements Template.Processor {
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
     this.isProgramStarted = false;
+    //this.hasDispatchingCode = false;
 
     if (engineContext.getOptions().getValueAsBoolean(Option.TRACER_LOG)) {
       final String outDir = Printer.getOutDir(engineContext.getOptions());
@@ -150,6 +152,12 @@ final class TemplateProcessor2 implements Template.Processor {
   @Override
   public void finish() {
     try {
+      startProgram();
+      runExecutionFromStart();
+
+      processPostponedBlocks();
+      processPostponedBlocksNoSimulation();
+
       finishProgram();
       Logger.debugHeader("Ended Processing Template");
     } catch (final Exception e) {
@@ -173,6 +181,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
     startProgram();
 
+    //hasDispatchingCode = true;
     final TestSequence prevEntry = testProgram.getLastEntry();
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
@@ -228,7 +237,7 @@ final class TemplateProcessor2 implements Template.Processor {
     return sequence;
   }
 
-  private void processPostponedBlocks() throws ConfigurationException {
+  private void processPostponedBlocks() throws ConfigurationException, IOException {
     boolean isProcessed = false;
     do {
       isProcessed = false;
@@ -254,7 +263,14 @@ final class TemplateProcessor2 implements Template.Processor {
     } while (isProcessed);
   }
 
-  private boolean processPostponedExternalBlock(final Block block, final TestSequence entry) throws ConfigurationException {
+  private boolean processPostponedExternalBlock(
+      final Block block,
+      final TestSequence entry) throws ConfigurationException, IOException {
+    if (!isProgramStarted) {
+      startProgram();
+      runExecutionFromStart();
+    }
+
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
@@ -284,7 +300,12 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private boolean processPostponedBlock(
       final Block block,
-      final TestSequence entry) throws ConfigurationException {
+      final TestSequence entry) throws ConfigurationException, IOException {
+    if (!isProgramStarted) {
+      startProgram();
+      runExecutionFromStart();
+    }
+
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
 
@@ -310,6 +331,11 @@ final class TemplateProcessor2 implements Template.Processor {
       final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
       for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
+        if (!isProgramStarted) {
+          startProgram();
+          runExecutionFromStart();
+        }
+
         final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
         final int sequenceIndex = engineContext.getStatistics().getSequences();
         sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
@@ -333,6 +359,11 @@ final class TemplateProcessor2 implements Template.Processor {
 
         previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
         allocationAddress = previous.getEndAddress();
+
+        /*
+        if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
+          finishProgram();
+        }*/
       } // Concrete sequence iterator
     } // Abstract sequence iterator
 
@@ -430,24 +461,11 @@ final class TemplateProcessor2 implements Template.Processor {
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
+    if (!isProgramStarted) {
+      return;
+    }
+
     try {
-      startProgram();
-
-      // Run from the first allocated non-empty entry.
-      for (final TestSequence entry : testProgram.getEntries()) {
-        if (!entry.isAllocated()) {
-          break;
-        }
-
-        if (!entry.isEmpty()) {
-          runExecution(entry);
-          break;
-        }
-      }
-
-      processPostponedBlocks();
-      processPostponedBlocksNoSimulation();
-
       final TestSequence epilogue = testProgram.getEpilogue();
       allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
@@ -593,5 +611,20 @@ final class TemplateProcessor2 implements Template.Processor {
     }
 
     return isExecuted;
+  }
+
+  private boolean runExecutionFromStart() {
+    // Run from the first allocated non-empty entry.
+    for (final TestSequence entry : testProgram.getEntries()) {
+      if (!entry.isAllocated()) {
+        break;
+      }
+
+      if (!entry.isEmpty()) {
+        return runExecution(entry);
+      }
+    }
+
+    return false;
   }
 }
