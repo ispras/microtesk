@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.engine.memory.symbolic.MemorySymbolicResult;
@@ -27,7 +30,10 @@ import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 public final class MemoryAccess {
   private final MemoryAccessType type;
   private final MemoryAccessPath path;
+
   private final MemoryAccessConstraints constraints;
+
+  private BufferDependency[] dependencies;
 
   /** Symbolic representation of the memory access. */
   private MemorySymbolicResult symbolicResult; 
@@ -57,6 +63,44 @@ public final class MemoryAccess {
     return constraints;
   }
 
+  /**
+   * Returns the dependency of this memory access from the {@code i}-th memory access.
+   * 
+   * @param i the index of the primary memory access.
+   * @return the dependency.
+   */
+  public BufferDependency getDependency(final int i) {
+    InvariantChecks.checkBounds(i, dependencies.length);
+    return dependencies[i];
+  }
+
+  public BufferDependency[] getDependencies() {
+    return dependencies;
+  }
+
+  public void setDependencies(final BufferDependency[] dependencies) {
+    this.dependencies = dependencies;
+  }
+
+  /**
+   * Returns the united dependency of the {@code j}-th memory access on the previous accesses.
+   * 
+   * @return the united dependency.
+   */
+  public BufferUnitedDependency getUnitedDependency() {
+    final Map<BufferDependency, Integer> result = new LinkedHashMap<>();
+
+    for (int i = 0; i < dependencies.length; i++) {
+      final BufferDependency dependency = dependencies[i];
+
+      if (dependency != null) {
+        result.put(dependency, i);
+      }
+    }
+
+    return new BufferUnitedDependency(result);
+  }
+
   public boolean hasSymbolicResult() {
     return symbolicResult != null;
   }
@@ -71,6 +115,30 @@ public final class MemoryAccess {
 
   @Override
   public String toString() {
-    return String.format("%s, %s", type, path);
+    final String separator = ", ";
+    final StringBuilder builder = new StringBuilder();
+
+    builder.append("[");
+
+    builder.append("Access: ");
+    builder.append(String.format("%s, %s", type, path));
+
+    if (dependencies != null) {
+      builder.append(", ");
+      builder.append("Dependencies: ");
+
+      boolean comma = false;
+      for (int i = 0; i < dependencies.length; i++) {
+        if (comma) {
+          builder.append(separator);
+        }
+        builder.append(String.format("[%d]=%s", i, dependencies[i]));
+        comma = true;
+      }
+    }
+
+    builder.append("]");
+
+    return builder.toString();
   }
 }

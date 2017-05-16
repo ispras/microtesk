@@ -15,13 +15,9 @@
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link MemoryAccessStructure} describes a memory access structure, i.e. a sequence of memory
@@ -31,24 +27,22 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessStructure {
-  /** Memory subsystem specification. */
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
-
   /** Memory accesses (accesses). */
   private final List<MemoryAccess> accesses;
-  /** Dependencies between the memory accesses. */
-  private final BufferDependency[][] dependencies;
-
+  
   public MemoryAccessStructure(
       final List<MemoryAccess> accesses,
       final BufferDependency[][] dependencies) {
-    InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkNotNull(accesses);
     InvariantChecks.checkNotNull(dependencies);
     InvariantChecks.checkTrue(dependencies.length == accesses.size());
 
     this.accesses = accesses;
-    this.dependencies = dependencies;
+
+    for (int j = 0; j < accesses.size(); j++) {
+      final MemoryAccess access = accesses.get(j);
+      access.setDependencies(dependencies[j]);
+    }
   }
 
   public MemoryAccessStructure(
@@ -60,23 +54,11 @@ public final class MemoryAccessStructure {
     InvariantChecks.checkNotNull(dependency);
 
     this.accesses = new ArrayList<>();
+
     this.accesses.add(access1);
     this.accesses.add(access2);
 
-    this.dependencies = new BufferDependency[2][2];
-    this.dependencies[0][0] = null;
-    this.dependencies[1][0] = dependency;
-    this.dependencies[0][1] = null;
-    this.dependencies[1][1] = null;
-  }
-
-  /**
-   * Returns the memory subsystem specification.
-   * 
-   * @return the memory subsystem.
-   */
-  public MmuSubsystem getSubsystem() {
-    return memory;
+    access2.setDependencies(new BufferDependency[] {dependency});
   }
 
   /**
@@ -119,19 +101,9 @@ public final class MemoryAccessStructure {
    */
   public BufferDependency getDependency(final int i, final int j) {
     InvariantChecks.checkTrue(i < j);
-    InvariantChecks.checkBounds(j, dependencies.length);
-    InvariantChecks.checkBounds(i, dependencies[j].length);
+    InvariantChecks.checkBounds(j, accesses.size());
 
-    return dependencies[j][i];
-  }
-
-  /**
-   * Returns the dependencies between all memory accesses.
-   * 
-   * @return the dependencies between all memory accesses.
-   */
-  public BufferDependency[][] getDependencies() {
-    return dependencies;
+    return accesses.get(j).getDependency(i);
   }
 
   /**
@@ -141,46 +113,13 @@ public final class MemoryAccessStructure {
    * @return the united dependency.
    */
   public BufferUnitedDependency getUnitedDependency(final int j) {
-    InvariantChecks.checkBounds(j, dependencies.length);
+    InvariantChecks.checkBounds(j, accesses.size());
 
-    final Map<BufferDependency, Integer> dependencies = new LinkedHashMap<>();
-
-    for (int i = 0; i < j; i++) {
-      final BufferDependency dependency = getDependency(i, j);
-
-      if (dependency != null) {
-        dependencies.put(dependency, i);
-      }
-    }
-
-    return new BufferUnitedDependency(dependencies);
+    return accesses.get(j).getUnitedDependency();
   }
 
   @Override
   public String toString() {
-    final String separator = ", ";
-    final StringBuilder builder = new StringBuilder();
-
-    builder.append("[");
-    builder.append("Accesses: ");
-    builder.append(accesses.toString());
-
-    builder.append(", ");
-    builder.append("Dependencies: ");
-
-    boolean comma = false;
-    for (int i = 0; i < dependencies.length; i++) {
-      for (int j = 0; j < dependencies.length; j++) {
-        if (comma) {
-          builder.append(separator);
-        }
-        builder.append(String.format("[%d][%d]=%s", j, i, dependencies[j][i]));
-        comma = true;
-      }
-    }
-
-    builder.append("]");
-
-    return builder.toString();
+    return accesses.toString();
   }
 }
