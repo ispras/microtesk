@@ -240,7 +240,7 @@ public final class TestEngine {
         statistics
         );
 
-    final TemplateProcessor processor = new TemplateProcessor(context);
+    final TemplateProcessor2 processor = new TemplateProcessor2(context);
     return new Template(context, processor);
   }
 
