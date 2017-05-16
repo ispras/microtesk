@@ -230,7 +230,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     Logger.debug("Creating memory access iterator: %s", accessTypes);
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
-    final Iterator<MemoryAccessStructure> structureIterator =
+    final Iterator<List<MemoryAccess>> structureIterator =
         new MemoryAccessStructureIterator(
             abstraction,
             accessTypes,
@@ -246,7 +246,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
           private MemorySolution getSolution() {
             while (structureIterator.hasValue()) {
-              final MemoryAccessStructure structure = structureIterator.value();
+              final List<MemoryAccess> structure = structureIterator.value();
               final MemorySolver solver = new MemorySolver(structure);
               final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
               InvariantChecks.checkNotNull(result);

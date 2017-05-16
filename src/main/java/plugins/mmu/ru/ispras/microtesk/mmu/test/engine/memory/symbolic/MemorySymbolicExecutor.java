@@ -42,7 +42,6 @@ import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
@@ -122,7 +121,7 @@ public final class MemorySymbolicExecutor {
     return status;
   }
 
-  public Boolean execute(final MemoryAccessStructure structure, final boolean finalize) {
+  public Boolean execute(final List<MemoryAccess> structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
 
@@ -138,14 +137,14 @@ public final class MemorySymbolicExecutor {
   private Boolean executeStructure(
       final MemorySymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccessStructure structure) {
+      final List<MemoryAccess> structure) {
 
     for (int j = 0; j < structure.size(); j++) {
-      final MemoryAccess access2 = structure.getAccess(j);
+      final MemoryAccess access2 = structure.get(j);
 
       for (int i = 0; i < j; i++) {
-        final MemoryAccess access1 = structure.getAccess(i);
-        final BufferDependency dependency = structure.getDependency(i, j);
+        final MemoryAccess access1 = structure.get(i);
+        final BufferDependency dependency = access2.getDependency(i);
 
         if (dependency != null) {
           // It does not execute the paths (only the dependency).

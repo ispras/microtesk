@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -247,7 +248,7 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
   }
 
-  public static boolean isFeasibleStructure(final MemoryAccessStructure structure) {
+  public static boolean isFeasibleStructure(final List<MemoryAccess> structure) {
     InvariantChecks.checkNotNull(structure);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
@@ -338,7 +339,7 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MemoryAccessStructure structure,
+      final List<MemoryAccess> structure,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);

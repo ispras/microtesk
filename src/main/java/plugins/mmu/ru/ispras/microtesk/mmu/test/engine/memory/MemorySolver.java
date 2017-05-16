@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,8 +59,7 @@ import ru.ispras.microtesk.utils.function.Function;
  * specified in a memory access structure.
  * 
  * <p>
- * The input is a memory access structure (an object of {@link MemoryAccessStructure});
- * the output is a solution (an object of {@link MemorySolution}).
+ * The input is a memory access structure; the output is a solution.
  * </p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -71,14 +71,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final MmuModel model = MmuPlugin.getMmuModel();
 
   /** Memory access structure being processed. */
-  private final MemoryAccessStructure structure;
+  private final List<MemoryAccess> structure;
 
   private final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
   /** Current solution. */
   private MemorySolution solution;
 
-  public MemorySolver(final MemoryAccessStructure structure) {
+  public MemorySolver(final List<MemoryAccess> structure) {
     InvariantChecks.checkNotNull(structure);
     this.structure = structure;
   }
@@ -105,7 +105,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final int j,
       final MmuBufferAccess bufferAccess) {
     final AddressObject addrObject = solution.getAddressObject(j);
-    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final MemoryAccess access = structure.get(j);
+    final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     final EntryObject entryObject = addrObject.getEntry(bufferAccess);
 
@@ -211,8 +212,9 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   private Collection<MmuCondition> getHazardConditions(final int j) {
-    final MemoryAccessPath path = structure.getAccess(j).getPath();
-    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final MemoryAccess access = structure.get(j);
+    final MemoryAccessPath path = access.getPath();
+    final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
 
@@ -351,8 +353,8 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @return the partial solution.
    */
   private SolverResult<MemorySolution> solve(final int j) {
-    final MemoryAccess access = structure.getAccess(j);
-    final BufferUnitedDependency dependency = structure.getUnitedDependency(j);
+    final MemoryAccess access = structure.get(j);
+    final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     Logger.debug("Solve[%d]: %s, %s", j, access, dependency);
 

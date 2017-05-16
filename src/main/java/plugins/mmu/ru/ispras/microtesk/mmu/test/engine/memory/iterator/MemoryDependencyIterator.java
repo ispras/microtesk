@@ -25,7 +25,6 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.engine.memory.BufferHazard;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -136,8 +135,12 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final BufferDependency newDependency = new BufferDependency(oldDependency);
         newDependency.addHazard(hazard);
 
-        final MemoryAccessStructure structure =
-            new MemoryAccessStructure(access1, access2, newDependency);
+        final List<MemoryAccess> structure = new ArrayList<>();
+
+        structure.add(access1);
+        structure.add(access2);
+
+        access2.setDependencies(new BufferDependency[] { newDependency });
 
         if (MemoryEngineUtils.isFeasibleStructure(structure)) {
           newDependencies.add(newDependency);

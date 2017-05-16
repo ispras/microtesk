@@ -35,7 +35,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 public final class MemorySolution {
 
   /** Contains the memory access structure. */
-  private final MemoryAccessStructure structure;
+  private final List<MemoryAccess> structure;
   
   /** Contains test data for individual executions. */
   private final List<AddressObject> solution;
@@ -53,14 +53,14 @@ public final class MemorySolution {
    * 
    * @param structure the memory access structure.
    */
-  public MemorySolution(final MemoryAccessStructure structure) {
+  public MemorySolution(final List<MemoryAccess> structure) {
     InvariantChecks.checkNotNull(structure);
 
     this.structure = structure;
     this.solution = new ArrayList<>(structure.size());
 
     for (int i = 0; i < structure.size(); i++) {
-      final MemoryAccess access = structure.getAccess(i);
+      final MemoryAccess access = structure.get(i);
       final MemoryAccessPath path = access.getPath();
 
       this.solution.add(new AddressObject(access));
@@ -83,7 +83,7 @@ public final class MemorySolution {
     return solution.size();
   }
 
-  public MemoryAccessStructure getStructure() {
+  public List<MemoryAccess> getStructure() {
     return structure;
   }
 

@@ -24,7 +24,6 @@ import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessStructure;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.engine.memory.coverage.CoverageExtractor;
 import ru.ispras.microtesk.mmu.test.engine.memory.coverage.MemoryAccessChooser;
@@ -39,7 +38,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class MemoryAccessStructureIterator implements Iterator<MemoryAccessStructure> {
+public final class MemoryAccessStructureIterator implements Iterator<List<MemoryAccess>> {
   private static final boolean CHECK_STRUCTURE = false;
 
   public enum Mode {
@@ -166,8 +165,13 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
   }
 
   @Override
-  public MemoryAccessStructure value() {
-    return new MemoryAccessStructure(accesses, dependencies);
+  public List<MemoryAccess> value() {
+    for (int j = 0; j < accesses.size(); j++) {
+      final MemoryAccess access = accesses.get(j);
+      access.setDependencies(dependencies[j]);
+    }
+
+    return accesses;
   }
 
   @Override
@@ -192,7 +196,7 @@ public final class MemoryAccessStructureIterator implements Iterator<MemoryAcces
 
   private boolean checkStructure() {
     if (CHECK_STRUCTURE) {
-      final MemoryAccessStructure structure = new MemoryAccessStructure(accesses, dependencies);
+      final List<MemoryAccess> structure = value();
       return MemoryEngineUtils.isFeasibleStructure(structure);
     }
 
