@@ -335,8 +335,8 @@ final class TestEngineUtils {
       final Executor.Status status = statuses.get(index);
       if (!isAtEndOf(status, sequence)) {
         throw new GenerationAbortedException(String.format(
-            "Instance %d is at address %s and it cannot reach the end of %s.",
-            index, status, sequence.getTitle())
+            "Instance %d is at address %s and it cannot reach the end of test program.",
+            index, status)
             );
       }
     }
