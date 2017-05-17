@@ -106,8 +106,14 @@ final class TemplateProcessor2 implements Template.Processor {
 
   @Override
   public void process(final Section section, final Block block) {
+    process(section, block, 1);
+  }
+
+  @Override
+  public void process(final Section section, final Block block, final int times) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(block);
+    InvariantChecks.checkTrue(block.isExternal() ? times == 1 : true);
 
     engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
     try {
@@ -118,20 +124,12 @@ final class TemplateProcessor2 implements Template.Processor {
       } else if (block.isExternal()) {
         processExternalBlock(block);
       } else {
-        processBlock(block);
+        processBlock(block, times);
       }
     } catch (final Exception e) {
       TestEngineUtils.rethrowException(e);
     } finally {
       engineContext.getStatistics().popActivity(); // SEQUENCING
-    }
-  }
-
-  @Override
-  public void process(final Section section, final Block block, final int times) {
-    InvariantChecks.checkGreaterThanZero(times);
-    for (int index = 0; index < times; index++) {
-      process(section, block);
     }
   }
 
@@ -201,11 +199,15 @@ final class TemplateProcessor2 implements Template.Processor {
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
   }
 
-  private void processBlock(final Block block) throws ConfigurationException, IOException {
+  private void processBlock(
+      final Block block,
+      final int times) throws ConfigurationException, IOException {
     startProgram();
 
     Logger.debug("Processing of block defined at %s is postponed.", block.getWhere());
-    testProgram.addPostponedEntry(block);
+    for (int index = 0; index < times; index++) {
+      testProgram.addPostponedEntry(block);
+    }
   }
 
 
