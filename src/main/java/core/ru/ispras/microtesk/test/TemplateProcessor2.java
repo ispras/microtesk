@@ -322,6 +322,11 @@ final class TemplateProcessor2 implements Template.Processor {
     long allocationAddress =
         null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
 
+    // The placeholder entry is marked allocated at allocationAddress in case no sequences are
+    // produced. In this situation, the placeholder sequences will be printed as empty.
+    InvariantChecks.checkTrue(entry.isEmpty());
+    entry.setAllocationAddresses(allocationAddress, allocationAddress);
+
     TestSequence previous = entry;
     final Iterator<List<Call>> abstractIt = block.getIterator();
     for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
