@@ -212,7 +212,7 @@ final class TemplateProcessor2 implements Template.Processor {
     final TestSequence prevEntry = testProgram.getLastEntry();
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
-      testProgram.addPostponedEntry(block);
+      postpone(new BlockEntry(block));
       return;
     }
 
@@ -226,7 +226,7 @@ final class TemplateProcessor2 implements Template.Processor {
     startProgram();
 
     Logger.debug("Processing of block defined at %s is postponed.", block.getWhere());
-    testProgram.addPostponedEntry(block, times);
+    postpone(new BlockEntry(block, times));
   }
 
   private TestSequence processSelfChecks(
@@ -275,19 +275,11 @@ final class TemplateProcessor2 implements Template.Processor {
     boolean isProcessed = false;
     do {
       isProcessed = false;
-      for (final TestSequence entry : testProgram.getEntries()) {
-        if (!testProgram.isPostponedEntry(entry)) {
-          continue;
-        }
-
-        final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
-        InvariantChecks.checkNotNull(postponedEntry);
-
-        final Block block = postponedEntry.first;
-        InvariantChecks.checkNotNull(block);
-
-        final int times = postponedEntry.second;
-        InvariantChecks.checkGreaterThanZero(times);
+      for (int index = 0; index < postponedBlocks.size(); index++) {
+        final BlockEntry blockEntry = postponedBlocks.get(index);
+        final TestSequence entry = blockEntry.entry;
+        final Block block = blockEntry.block;
+        final int times = blockEntry.times;
 
         if (block.isExternal()) {
           isProcessed = processPostponedExternalBlock(block, entry);
@@ -296,7 +288,7 @@ final class TemplateProcessor2 implements Template.Processor {
         }
 
         if (isProcessed) {
-          testProgram.removePostponedEntry(entry);
+          postponedBlocks.remove(index);
           break;
         }
       }
@@ -420,24 +412,15 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private void processPostponedBlocksNoSimulation() throws ConfigurationException {
     boolean isFirst = true;
-    for (final TestSequence entry : testProgram.getEntries()) {
-      if (!testProgram.isPostponedEntry(entry)) {
-        continue;
-      }
-
+    for (final BlockEntry blockEntry : postponedBlocks) {
       if (isFirst) {
         Logger.debugHeader("Processing All Postponed Blocks Without Simulation");
         isFirst = false;
       }
 
-      final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
-      InvariantChecks.checkNotNull(postponedEntry);
-
-      final Block block = postponedEntry.first;
-      InvariantChecks.checkNotNull(block);
-
-      final int times = postponedEntry.second;
-      InvariantChecks.checkGreaterThanZero(times);
+      final TestSequence entry = blockEntry.entry;
+      final Block block = blockEntry.block;
+      final int times = blockEntry.times;
 
       if (block.isExternal()) {
         processPostponedExternalBlockNoSimulation(block, entry);
