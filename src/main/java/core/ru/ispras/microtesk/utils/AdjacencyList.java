@@ -86,6 +86,10 @@ public final class AdjacencyList<T> implements Iterable<T>{
     return entries.isEmpty();
   }
 
+  public boolean contains(final T obj) {
+    return entries.containsKey(obj);
+  }
+
   public void clear() {
     entries.clear();
     head = null;
