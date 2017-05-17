@@ -58,7 +58,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private final List<Executor.Status> executorStatuses;
   private final Deque<TestSequence> interruptedSequences;
   private boolean isProgramStarted;
-  //private boolean hasDispatchingCode;
+  private boolean hasDispatchingCode;
 
   public TemplateProcessor2(final EngineContext engineContext) {
     InvariantChecks.checkNotNull(engineContext);
@@ -81,7 +81,7 @@ final class TemplateProcessor2 implements Template.Processor {
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
     this.isProgramStarted = false;
-    //this.hasDispatchingCode = false;
+    this.hasDispatchingCode = false;
 
     if (engineContext.getOptions().getValueAsBoolean(Option.TRACER_LOG)) {
       final String outDir = Printer.getOutDir(engineContext.getOptions());
@@ -187,7 +187,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private void processExternalBlock(final Block block) throws ConfigurationException, IOException {
     startProgram();
 
-    //hasDispatchingCode = true;
+    hasDispatchingCode = true;
     final TestSequence prevEntry = testProgram.getLastEntry();
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
@@ -381,10 +381,9 @@ final class TemplateProcessor2 implements Template.Processor {
           previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
           allocationAddress = previous.getEndAddress();
 
-          /*
           if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
-            finishProgram();
-          }*/
+            // finishProgram();
+          }
         } // Concrete sequence iterator
       } // Abstract sequence iterator
     } // For times
