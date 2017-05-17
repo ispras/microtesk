@@ -38,7 +38,7 @@ final class TestProgram {
   private TestSequence epilogue;
 
   private final AdjacencyList<TestSequence> entries;
-  private final Map<TestSequence, Block> postponedEntries;
+  private final Map<TestSequence, Pair<Block, Integer>> postponedEntries;
   private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
 
   private final Map<BigInteger, DataSection> dataSections;
@@ -97,10 +97,14 @@ final class TestProgram {
   }
 
   public void addPostponedEntry(final Block block) {
+    addPostponedEntry(block, 1);
+  }
+
+  public void addPostponedEntry(final Block block, final int times) {
     InvariantChecks.checkNotNull(block);
     final TestSequence sequence = new TestSequence.Builder().build();
 
-    postponedEntries.put(sequence, block);
+    postponedEntries.put(sequence, new Pair<>(block, times));
     addEntry(sequence);
   }
 
@@ -108,7 +112,7 @@ final class TestProgram {
     return postponedEntries.containsKey(sequence);
   }
 
-  public Block getPostponedEntry(final TestSequence sequence) {
+  public Pair<Block, Integer> getPostponedEntry(final TestSequence sequence) {
     return postponedEntries.get(sequence);
   }
 

@@ -205,11 +205,8 @@ final class TemplateProcessor2 implements Template.Processor {
     startProgram();
 
     Logger.debug("Processing of block defined at %s is postponed.", block.getWhere());
-    for (int index = 0; index < times; index++) {
-      testProgram.addPostponedEntry(block);
-    }
+    testProgram.addPostponedEntry(block, times);
   }
-
 
   private TestSequence processSelfChecks(
       final TestSequence previous,
@@ -256,13 +253,19 @@ final class TemplateProcessor2 implements Template.Processor {
           continue;
         }
 
-        final Block block = testProgram.getPostponedEntry(entry);
+        final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
+        InvariantChecks.checkNotNull(postponedEntry);
+
+        final Block block = postponedEntry.first;
         InvariantChecks.checkNotNull(block);
+
+        final int times = postponedEntry.second;
+        InvariantChecks.checkGreaterThanZero(times);
 
         if (block.isExternal()) {
           isProcessed = processPostponedExternalBlock(block, entry);
         } else {
-          isProcessed = processPostponedBlock(block, entry);
+          isProcessed = processPostponedBlock(block, times, entry);
         }
 
         if (isProcessed) {
@@ -310,6 +313,7 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private boolean processPostponedBlock(
       final Block block,
+      final int times,
       final TestSequence entry) throws ConfigurationException, IOException {
     if (!isProgramStarted) {
       startProgram();
@@ -327,7 +331,6 @@ final class TemplateProcessor2 implements Template.Processor {
     }
 
     engineContext.getModel().setActivePE(instanceIndex);
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
 
     long allocationAddress =
         null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
@@ -337,50 +340,54 @@ final class TemplateProcessor2 implements Template.Processor {
     InvariantChecks.checkTrue(entry.isEmpty());
     entry.setAllocationAddresses(allocationAddress, allocationAddress);
 
+    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     TestSequence previous = entry;
-    final Iterator<List<Call>> abstractIt = block.getIterator();
-    for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-      engineContext.setCodeAllocationAddress(allocationAddress);
 
-      final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
-      final Iterator<AdapterResult> concreteIt = engineResult.getResult();
+    for (int index = 0; index < times; index++) {
+      final Iterator<List<Call>> abstractIt = block.getIterator();
+      for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+        engineContext.setCodeAllocationAddress(allocationAddress);
 
-      for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-        if (!isProgramStarted) {
-          startProgram();
-          runExecutionFromStart();
-        }
+        final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+        final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
-        final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
-        final int sequenceIndex = engineContext.getStatistics().getSequences();
-        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
+        for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
+          if (!isProgramStarted) {
+            startProgram();
+            runExecutionFromStart();
+          }
 
-        if (previous == entry) {
-          allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
-        } else {
-          allocateTestSequenceAfter(previous, sequence, sequenceIndex);
-        }
+          final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+          final int sequenceIndex = engineContext.getStatistics().getSequences();
+          sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-        engineContext.getStatistics().incSequences();
-        runExecution(sequence);
+          if (previous == entry) {
+            allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
+          } else {
+            allocateTestSequenceAfter(previous, sequence, sequenceIndex);
+          }
 
-        final Executor.Status status = executorStatuses.get(instanceIndex);
-        if (!TestEngineUtils.isAtEndOf(status, sequence) &&
-            !TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
-          interruptedSequences.push(sequence);
-          processPostponedBlocks();
-          interruptedSequences.pop();
-        }
+          engineContext.getStatistics().incSequences();
+          runExecution(sequence);
 
-        previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
-        allocationAddress = previous.getEndAddress();
+          final Executor.Status status = executorStatuses.get(instanceIndex);
+          if (!TestEngineUtils.isAtEndOf(status, sequence) &&
+              !TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
+            interruptedSequences.push(sequence);
+            processPostponedBlocks();
+            interruptedSequences.pop();
+          }
 
-        /*
-        if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
-          finishProgram();
-        }*/
-      } // Concrete sequence iterator
-    } // Abstract sequence iterator
+          previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
+          allocationAddress = previous.getEndAddress();
+
+          /*
+          if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
+            finishProgram();
+          }*/
+        } // Concrete sequence iterator
+      } // Abstract sequence iterator
+    } // For times
 
     return true;
   }
@@ -397,13 +404,19 @@ final class TemplateProcessor2 implements Template.Processor {
         isFirst = false;
       }
 
-      final Block block = testProgram.getPostponedEntry(entry);
+      final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
+      InvariantChecks.checkNotNull(postponedEntry);
+
+      final Block block = postponedEntry.first;
       InvariantChecks.checkNotNull(block);
+
+      final int times = postponedEntry.second;
+      InvariantChecks.checkGreaterThanZero(times);
 
       if (block.isExternal()) {
         processPostponedExternalBlockNoSimulation(block, entry);
       } else {
-        processPostponedBlockNoSimulation(block, entry);
+        processPostponedBlockNoSimulation(block, times, entry);
       }
     }
   }
@@ -417,40 +430,43 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private void processPostponedBlockNoSimulation(
       final Block block,
+      final int times,
       final TestSequence entry) throws ConfigurationException {
     final TestSequence prevEntry = testProgram.getPrevEntry(entry);
 
     long allocationAddress =
         null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
 
-    TestSequence previous = entry;
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
+    TestSequence previous = entry;
 
+    for (int index = 0; index < times; index++) {
     final Iterator<List<Call>> abstractIt = block.getIterator();
-    for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
-      engineContext.setCodeAllocationAddress(allocationAddress);
+      for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
+        engineContext.setCodeAllocationAddress(allocationAddress);
 
-      final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
-      final Iterator<AdapterResult> concreteIt = engineResult.getResult();
+        final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+        final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
-      for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-        final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+        for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
+          final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
 
-        final int sequenceIndex = engineContext.getStatistics().getSequences();
-        sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
+          final int sequenceIndex = engineContext.getStatistics().getSequences();
+          sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-        if (previous == entry) {
-          allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
-        } else {
-          allocateTestSequenceAfter(previous, sequence, sequenceIndex);
-        }
+          if (previous == entry) {
+            allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
+          } else {
+            allocateTestSequenceAfter(previous, sequence, sequenceIndex);
+          }
 
-        previous = sequence;
-        allocationAddress = previous.getEndAddress();
+          previous = sequence;
+          allocationAddress = previous.getEndAddress();
 
-        engineContext.getStatistics().incSequences();
-      } // Concrete sequence iterator
-    } // Abstract sequence iterator
+          engineContext.getStatistics().incSequences();
+        } // Concrete sequence iterator
+      } // Abstract sequence iterator
+    } // For times
   }
 
   private void startProgram() throws IOException, ConfigurationException {

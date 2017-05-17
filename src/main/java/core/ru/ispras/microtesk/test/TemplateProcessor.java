@@ -301,7 +301,10 @@ final class TemplateProcessor implements Template.Processor {
           continue;
         }
 
-        final Block block = testProgram.getPostponedEntry(entry);
+        final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
+        InvariantChecks.checkNotNull(postponedEntry);
+
+        final Block block = postponedEntry.first;
         InvariantChecks.checkNotNull(block);
 
         if (block.isExternal()) {
@@ -420,7 +423,10 @@ final class TemplateProcessor implements Template.Processor {
         isFirst = false;
       }
 
-      final Block block = testProgram.getPostponedEntry(entry);
+      final Pair<Block, Integer> postponedEntry = testProgram.getPostponedEntry(entry);
+      InvariantChecks.checkNotNull(postponedEntry);
+
+      final Block block = postponedEntry.first;
       InvariantChecks.checkNotNull(block);
 
       if (block.isExternal()) {
