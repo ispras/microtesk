@@ -86,6 +86,10 @@ final class TestProgram {
     return entries;
   }
 
+  public boolean hasEntry(final TestSequence sequence) {
+    return entries.contains(sequence);
+  }
+
   public void addEntry(final TestSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     entries.add(sequence);
