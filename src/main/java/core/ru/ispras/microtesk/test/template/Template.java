@@ -63,6 +63,7 @@ public final class Template {
   public interface Processor {
     void process(ExceptionHandler handler);
     void process(Section section, Block block);
+    void process(Section section, Block block, int times);
     void process(DataSection data);
     void finish();
   }
@@ -344,8 +345,8 @@ public final class Template {
 
     public BlockHolder run() {
       checkAllowedToRun();
-      processExternalCode();
 
+      processExternalCode();
       processor.process(Section.MAIN, block);
 
       markBlockAsUsed();
@@ -354,11 +355,9 @@ public final class Template {
 
     public BlockHolder run(final int times) {
       checkAllowedToRun();
-      processExternalCode();
 
-      for (int index = 0; index < times; index++) {
-        processor.process(Section.MAIN, block);
-      }
+      processExternalCode();
+      processor.process(Section.MAIN, block, times);
 
       markBlockAsUsed();
       return this;

@@ -128,6 +128,14 @@ final class TemplateProcessor2 implements Template.Processor {
   }
 
   @Override
+  public void process(final Section section, final Block block, final int times) {
+    InvariantChecks.checkGreaterThanZero(times);
+    for (int index = 0; index < times; index++) {
+      process(section, block);
+    }
+  }
+
+  @Override
   public void process(final DataSection data) {
     InvariantChecks.checkNotNull(data);
 
