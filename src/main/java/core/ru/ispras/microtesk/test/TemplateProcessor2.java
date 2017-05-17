@@ -72,6 +72,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private final EngineContext engineContext;
   private final int instanceNumber;
   private final TestProgram testProgram;
+  private final List<BlockEntry> postponedBlocks;
   private final CodeAllocator allocator;
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
@@ -95,6 +96,7 @@ final class TemplateProcessor2 implements Template.Processor {
     this.engineContext = engineContext;
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
+    this.postponedBlocks = new ArrayList<>();
     this.allocator = new CodeAllocator(model, labelManager, baseAddress, isFetchDecodeEnabled);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
@@ -261,6 +263,12 @@ final class TemplateProcessor2 implements Template.Processor {
     }
 
     return sequence;
+  }
+
+  private void postpone(final BlockEntry blockEntry) {
+    InvariantChecks.checkNotNull(blockEntry);
+    testProgram.addEntry(blockEntry.entry);
+    postponedBlocks.add(blockEntry);
   }
 
   private void processPostponedBlocks() throws ConfigurationException, IOException {
