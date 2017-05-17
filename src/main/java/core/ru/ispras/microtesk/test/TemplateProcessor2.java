@@ -50,6 +50,25 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class TemplateProcessor2 implements Template.Processor {
+  private static final class BlockEntry {
+    private final TestSequence entry;
+    private final Block block;
+    private final int times;
+
+    private BlockEntry(final Block block) {
+      this(block, 1);
+    }
+
+    private BlockEntry(final Block block, final int times) {
+      InvariantChecks.checkNotNull(block);
+      InvariantChecks.checkGreaterThanZero(times);
+
+      this.entry = new TestSequence.Builder().build();
+      this.block = block;
+      this.times = times;
+    }
+  }
+
   private final EngineContext engineContext;
   private final int instanceNumber;
   private final TestProgram testProgram;
