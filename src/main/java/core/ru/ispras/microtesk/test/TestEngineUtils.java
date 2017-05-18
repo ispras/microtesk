@@ -27,18 +27,17 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
-import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.ConcreteSequence;
-import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
+import ru.ispras.microtesk.test.engine.TestSequenceEngineResult;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
@@ -67,15 +66,11 @@ final class TestEngineUtils {
       adapterName = block.getAttribute("adapter", engineName);
     }
 
-    final Engine<?> engine = EngineConfig.get().getEngine(engineName);
+    final Engine engine = EngineConfig.get().getEngine(engineName);
     InvariantChecks.checkNotNull(engine);
 
-    final Adapter<?> adapter = EngineConfig.get().getAdapter(adapterName);
+    final Adapter adapter = EngineConfig.get().getAdapter(adapterName);
     InvariantChecks.checkNotNull(adapter);
-
-    if (!adapter.getSolutionClass().isAssignableFrom(engine.getSolutionClass())) {
-      throw new IllegalStateException("Mismatched solver/adapter pair");
-    }
 
     final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
     testSequenceEngine.configure(block.getAttributes());
@@ -146,7 +141,8 @@ final class TestEngineUtils {
     final TestSequenceEngine engine = getEngine(block);
     final List<AbstractCall> abstractSequence = getSingleSequence(block);
 
-    final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
+    final TestSequenceEngineResult engineResult =
+        engine.process(engineContext, new AbstractSequence(abstractSequence));
     final Iterator<AdapterResult> iterator = engineResult.getResult();
 
     final ConcreteSequence sequence = getSingleTestSequence(iterator);
@@ -347,11 +343,11 @@ final class TestEngineUtils {
    * the start of generating a test program file.
    */
   public static void notifyProgramStart() {
-    for (final Engine<?> engine : EngineConfig.get().getEngines()) {
+    for (final Engine engine : EngineConfig.get().getEngines()) {
       engine.onStartProgram();
     }
 
-    for (final Adapter<?> adapter : EngineConfig.get().getAdapters()) {
+    for (final Adapter adapter : EngineConfig.get().getAdapters()) {
       adapter.onStartProgram();
     }
   }
@@ -361,11 +357,11 @@ final class TestEngineUtils {
    * the end of generating a test program file.
    */
   public static void notifyProgramEnd() {
-    for (final Engine<?> engine : EngineConfig.get().getEngines()) {
+    for (final Engine engine : EngineConfig.get().getEngines()) {
       engine.onEndProgram();
     }
 
-    for (final Adapter<?> adapter : EngineConfig.get().getAdapters()) {
+    for (final Adapter adapter : EngineConfig.get().getAdapters()) {
       adapter.onEndProgram();
     }
   }

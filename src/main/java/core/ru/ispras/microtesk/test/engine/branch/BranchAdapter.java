@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2009-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -42,8 +42,9 @@ import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.utils.TestBaseQueryCreator;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -54,13 +55,8 @@ import ru.ispras.testbase.TestData;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchAdapter implements Adapter<BranchSolution> {
+public final class BranchAdapter implements Adapter {
   public static final boolean USE_DELAY_SLOTS = true;
-
-  @Override
-  public Class<BranchSolution> getSolutionClass() {
-    return BranchSolution.class;
-  }
 
   @Override
   public void configure(final Map<String, Object> attributes) {
@@ -70,12 +66,11 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence,
-      final BranchSolution solution) {
+      final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
-    InvariantChecks.checkNotNull(solution);
 
+    final BranchSolution solution = (BranchSolution) abstractSequence.getUserData();
     final BranchStructure branchStructure = solution.getBranchStructure();
     InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
 
@@ -91,7 +86,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     // Construct the control code to enforce the given execution trace.
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final AbstractCall abstractBranchCall = abstractSequence.get(i);
+      final AbstractCall abstractBranchCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       if (!branchEntry.isIfThen()) {
@@ -168,8 +163,8 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Insert the control code into the sequence.
     int correction = 0;
 
-    final List<AbstractCall> modifiedSequence = new ArrayList<AbstractCall>();
-    modifiedSequence.addAll(abstractSequence);
+    final List<AbstractCall> modifiedSequence =
+        new ArrayList<AbstractCall>(abstractSequence.getSequence());
 
     for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
       final int position = entry.getKey();

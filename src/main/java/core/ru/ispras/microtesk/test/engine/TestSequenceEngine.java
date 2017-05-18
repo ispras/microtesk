@@ -29,6 +29,7 @@ import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.utils.StringUtils;
@@ -42,11 +43,11 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class TestSequenceEngine implements Engine<AdapterResult> {
-  private final Engine<?> engine;
-  private final Adapter<?> adapter;
+public final class TestSequenceEngine {
+  private final Engine engine;
+  private final Adapter adapter;
 
-  public TestSequenceEngine(final Engine<?> engine, final Adapter<?> adapter) {
+  public TestSequenceEngine(final Engine engine, final Adapter adapter) {
     InvariantChecks.checkNotNull(engine);
     InvariantChecks.checkNotNull(adapter);
 
@@ -54,8 +55,8 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     this.adapter = adapter;
   }
 
-  public EngineResult<AdapterResult> process(
-      final EngineContext context, final List<AbstractCall> abstractSequence) {
+  public TestSequenceEngineResult process(
+      final EngineContext context, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -65,7 +66,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     context.getModel().setUseTempState(true);
 
     try {
-      final EngineResult<AdapterResult> result = solve(context, abstractSequence);
+      final TestSequenceEngineResult result = solve(context, abstractSequence);
       checkResultStatus(result);
 
       return result;
@@ -75,12 +76,6 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     }
   }
 
-  @Override
-  public Class<AdapterResult> getSolutionClass() {
-    return AdapterResult.class;
-  }
-
-  @Override
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
@@ -88,25 +83,27 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     adapter.configure(attributes);
   }
 
-  @Override
-  public EngineResult<AdapterResult> solve(
-      final EngineContext context, final List<AbstractCall> abstractSequence) {
+  public TestSequenceEngineResult solve(
+      final EngineContext context, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
     // Makes a copy as the abstract sequence can be modified by solver or adapter.
-    List<AbstractCall> sequence = AbstractCall.copyAll(AbstractCall.expandAtomic(abstractSequence));
+    List<AbstractCall> sequence = AbstractCall.copyAll(
+        AbstractCall.expandAtomic(abstractSequence.getSequence()));
 
     allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
     sequence = expandPreparators(context, sequence);
 
-    final EngineResult<?> result = engine.solve(context, sequence);
+    final AbstractSequence newAbstractSequence = new AbstractSequence(sequence);
+
+    final EngineResult result = engine.solve(context, newAbstractSequence);
     if (result.getStatus() != EngineResult.Status.OK) {
-      return new EngineResult<>(result.getStatus(), null, result.getErrors());
+      return new TestSequenceEngineResult(result.getStatus(), null, result.getErrors());
     }
 
-    final EngineResult<AdapterResult> engineResult =
-        adapt(adapter, context, sequence, result.getResult());
+    final TestSequenceEngineResult engineResult =
+        adapt(adapter, context, newAbstractSequence, result.getResult());
 
     // TODO: temporary implementation of self-checks.
     if (context.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
@@ -115,16 +112,6 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     }
 
     return engineResult;
-  }
-
-  @Override
-  public void onStartProgram() {
-    // Empty
-  }
-
-  @Override
-  public void onEndProgram() {
-    // Empty
   }
 
   private static void allocateModes(
@@ -155,12 +142,12 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
-  private static <T> EngineResult<AdapterResult> adapt(
-      final Adapter<T> adapter,
+  private static TestSequenceEngineResult adapt(
+      final Adapter adapter,
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence,
-      final Iterator<?> solutionIterator) {
-    return new EngineResult<>(new Iterator<AdapterResult>() {
+      final AbstractSequence abstractSequence,
+      final Iterator<AbstractSequence> solutionIterator) {
+    return new TestSequenceEngineResult(new Iterator<AdapterResult>() {
       @Override
       public void init() {
         solutionIterator.init();
@@ -173,15 +160,17 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
       @Override
       public AdapterResult value() {
-        final Object solution = solutionIterator.value(); 
-        final Class<T> solutionClass = adapter.getSolutionClass();
+        final AbstractSequence abstractSequence = solutionIterator.value();
 
         // Makes a copy as the adapter may modify the abstract sequence.
-        final List<AbstractCall> abstractSequenceCopy = AbstractCall.copyAll(abstractSequence);
+        // FIXME:
+        final AbstractSequence abstractSequenceCopy =
+            new AbstractSequence(AbstractCall.copyAll(abstractSequence.getSequence()));
+        abstractSequenceCopy.setUserData(abstractSequence.getUserData());
 
         try {
           engineContext.getModel().setUseTempState(true);
-          return adapter.adapt(engineContext, abstractSequenceCopy, solutionClass.cast(solution));
+          return adapter.adapt(engineContext, abstractSequenceCopy);
         } finally {
           engineContext.getModel().setUseTempState(false);
         }
@@ -204,7 +193,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     });
   }
 
-  private static void checkResultStatus(final EngineResult<AdapterResult> result) {
+  private static void checkResultStatus(final TestSequenceEngineResult result) {
     if (EngineResult.Status.OK != result.getStatus()) {
       throw new IllegalStateException(listErrors(
           "Failed to find a solution for an abstract call sequence.", result.getErrors()));

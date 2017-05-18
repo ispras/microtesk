@@ -20,36 +20,31 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.SelfCheck;
-import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link EngineResult} defines result of a {@link Engine}.
+ * {@link TestSequenceEngineResult} defines result of a {@link Engine}.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public final class EngineResult extends Result<EngineResult.Status, Iterator<AbstractSequence>> {
-  public static enum Status {
-    OK,
-    ERROR
-  }
+public final class TestSequenceEngineResult extends Result<EngineResult.Status, Iterator<AdapterResult>> {
 
-  public EngineResult(
+  public TestSequenceEngineResult(
       final EngineResult.Status status,
-      final Iterator<AbstractSequence> result,
+      final Iterator<AdapterResult> result,
       final List<String> errors) {
     super(status, result, errors);
   }
 
-  public EngineResult(final Iterator<AbstractSequence> result) {
-    super(Status.OK, result, Collections.<String>emptyList());
+  public TestSequenceEngineResult(final Iterator<AdapterResult> result) {
+    super(EngineResult.Status.OK, result, Collections.<String>emptyList());
   }
 
-  public EngineResult(final List<String> errors) {
-    super(Status.ERROR, null, errors);
+  public TestSequenceEngineResult(final List<String> errors) {
+    super(EngineResult.Status.ERROR, null, errors);
   }
 
-  public EngineResult(final String error) {
+  public TestSequenceEngineResult(final String error) {
     this(Collections.singletonList(error));
   }
 

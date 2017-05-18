@@ -91,17 +91,17 @@ public final class MicroTESK {
       }
 
       // Register the engines.
-      final EngineConfig<?> generatorConfig = EngineConfig.get();
-      final Map<String, Engine<?>> engines = plugin.getEngines();
+      final EngineConfig generatorConfig = EngineConfig.get();
+      final Map<String, Engine> engines = plugin.getEngines();
 
-      for (final Map.Entry<String, Engine<?>> entry : engines.entrySet()) {
+      for (final Map.Entry<String, Engine> entry : engines.entrySet()) {
         generatorConfig.registerEngine(entry.getKey(), entry.getValue());
       }
 
       // Register the adapters.
-      final Map<String, Adapter<?>> adapters = plugin.getAdapters();
+      final Map<String, Adapter> adapters = plugin.getAdapters();
 
-      for (final Map.Entry<String, Adapter<?>> entry : adapters.entrySet()) {
+      for (final Map.Entry<String, Adapter> entry : adapters.entrySet()) {
         generatorConfig.registerAdapter(entry.getKey(), entry.getValue());
       }
 

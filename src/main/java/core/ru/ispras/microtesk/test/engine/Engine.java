@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,22 +14,19 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 
 /**
  * {@link Engine} defines an interface of abstract sequence processing engines.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public interface Engine<T> {
-  Class<T> getSolutionClass();
-
+public interface Engine {
   void configure(Map<String, Object> attributes);
 
-  EngineResult<T> solve(EngineContext engineContext, List<AbstractCall> abstractSequence);
+  EngineResult solve(EngineContext engineContext, AbstractSequence abstractSequence);
 
   void onStartProgram();
 

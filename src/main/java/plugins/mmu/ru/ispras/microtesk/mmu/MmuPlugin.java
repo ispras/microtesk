@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -119,8 +119,8 @@ public final class MmuPlugin implements Plugin {
   }
 
   @Override
-  public Map<String, Engine<?>> getEngines() {
-    final Map<String, Engine<?>> engines = new LinkedHashMap<>();
+  public Map<String, Engine> getEngines() {
+    final Map<String, Engine> engines = new LinkedHashMap<>();
 
     engines.put("memory", new MemoryEngine());
 
@@ -128,8 +128,8 @@ public final class MmuPlugin implements Plugin {
   }
 
   @Override
-  public Map<String, Adapter<?>> getAdapters() {
-    final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
+  public Map<String, Adapter> getAdapters() {
+    final Map<String, Adapter> adapters = new LinkedHashMap<>();
 
     adapters.put("memory", new MemoryAdapter());
 

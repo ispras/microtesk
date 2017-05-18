@@ -33,11 +33,12 @@ import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
-import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.engine.TestSequenceEngineResult;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
@@ -376,7 +377,8 @@ final class TemplateProcessor2 implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+        final TestSequenceEngineResult engineResult =
+            engine.process(engineContext, new AbstractSequence(abstractIt.value()));
         final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
@@ -463,7 +465,8 @@ final class TemplateProcessor2 implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractIt.value());
+        final TestSequenceEngineResult engineResult =
+            engine.process(engineContext, new AbstractSequence(abstractIt.value()));
         final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {

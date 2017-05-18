@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test.engine.branch;
 import static ru.ispras.microtesk.test.engine.utils.EngineUtils.getSituationName;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -27,6 +26,7 @@ import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
@@ -37,7 +37,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchEngine implements Engine<BranchSolution> {
+public final class BranchEngine implements Engine {
   /** Maximum number of executions of a single branch instruction. */
   public static final String PARAM_BRANCH_LIMIT = "branch_exec_limit";
   public static final int PARAM_BRANCH_LIMIT_DEFAULT = 1;
@@ -90,11 +90,6 @@ public final class BranchEngine implements Engine<BranchSolution> {
   private int maxExecutionTraces = PARAM_TRACE_LIMIT_DEFAULT;
 
   @Override
-  public Class<BranchSolution> getSolutionClass() {
-    return BranchSolution.class;
-  }
-
-  @Override
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
@@ -108,15 +103,15 @@ public final class BranchEngine implements Engine<BranchSolution> {
   }
 
   @Override
-  public EngineResult<BranchSolution> solve(
-      final EngineContext engineContext, final List<AbstractCall> abstractSequence) {
+  public EngineResult solve(
+      final EngineContext engineContext, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
     // Collect information about labels.
     final LabelManager labels = new LabelManager();
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final AbstractCall call = abstractSequence.get(i);
+      final AbstractCall call = abstractSequence.getSequence().get(i);
       for (final Label label : call.getLabels()) {
         labels.addLabel(label, i);
       }
@@ -127,7 +122,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
     int delaySlot = 0;
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final AbstractCall abstractCall = abstractSequence.get(i);
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       final boolean isIfThen = isIfThen(abstractCall);
@@ -163,7 +158,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
     Logger.debug("Branch Structure: %s", branchStructure);
 
-    final Iterator<BranchSolution> iterator = new Iterator<BranchSolution>() {
+    final Iterator<AbstractSequence> iterator = new Iterator<AbstractSequence>() {
       /** Iterator of branch structures. */
       private final Iterator<BranchStructure> branchStructureIterator =
           new SingleValueIterator<BranchStructure>(branchStructure);
@@ -184,11 +179,12 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
 
       @Override
-      public BranchSolution value() {
+      public AbstractSequence value() {
         final BranchSolution branchSolution = new BranchSolution();
         branchSolution.setBranchStructure(branchStructureExecutionIterator.value());
 
-        return branchSolution;
+        abstractSequence.setUserData(branchSolution);
+        return abstractSequence;
       }
 
       @Override
@@ -202,12 +198,12 @@ public final class BranchEngine implements Engine<BranchSolution> {
       }
 
       @Override
-      public Iterator<BranchSolution> clone() {
+      public Iterator<AbstractSequence> clone() {
         throw new UnsupportedOperationException();
       }
     };
 
-    return new EngineResult<>(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
+    return new EngineResult(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
   }
 
   @Override

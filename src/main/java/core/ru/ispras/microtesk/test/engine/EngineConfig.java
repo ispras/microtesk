@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,48 +27,47 @@ import ru.ispras.microtesk.test.engine.Engine;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class EngineConfig<T> {
-  private final Map<String, Engine<?>> engines = new HashMap<>();
-  private final Map<String, Adapter<?>> adapters = new HashMap<>();
+public final class EngineConfig {
+  private final Map<String, Engine> engines = new HashMap<>();
+  private final Map<String, Adapter> adapters = new HashMap<>();
 
-  private static final EngineConfig<?> instance = new EngineConfig<>();
+  private static final EngineConfig instance = new EngineConfig();
 
-  @SuppressWarnings("unchecked")
-  public static <T> EngineConfig<T> get() {
-    return (EngineConfig<T>) instance;
+  public static EngineConfig get() {
+    return (EngineConfig) instance;
   }
 
   private EngineConfig() {}
 
-  public Engine<?> registerEngine(final String name, final Engine<?> engine) {
+  public Engine registerEngine(final String name, final Engine engine) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(engine);
 
     return engines.put(name.toLowerCase(), engine);
   }
 
-  public Engine<?> getEngine(final String name) {
+  public Engine getEngine(final String name) {
     InvariantChecks.checkNotNull(name);
     return engines.get(name.toLowerCase());
   }
 
-  public Collection<Engine<?>> getEngines() {
+  public Collection<Engine> getEngines() {
     return engines.values();
   }
 
-  public Adapter<?> registerAdapter(final String name, final Adapter<?> adapter) {
+  public Adapter registerAdapter(final String name, final Adapter adapter) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(adapter);
 
     return adapters.put(name.toLowerCase(), adapter);
   }
 
-  public Adapter<?> getAdapter(final String name) {
+  public Adapter getAdapter(final String name) {
     InvariantChecks.checkNotNull(name);
     return adapters.get(name.toLowerCase());
   }
 
-  public Collection<Adapter<?>> getAdapters() {
+  public Collection<Adapter> getAdapters() {
     return adapters.values();
   }
 }

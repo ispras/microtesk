@@ -39,14 +39,14 @@ public interface Plugin {
    * 
    * @return the engines.
    */
-  Map<String, Engine<?>> getEngines();
+  Map<String, Engine> getEngines();
 
   /**
    * Returns the plugin's adapters with their names.
    * 
    * @return the adapters.
    */
-  Map<String, Adapter<?>> getAdapters();
+  Map<String, Adapter> getAdapters();
 
   /**
    * Returns the plugin's data generators with their names.

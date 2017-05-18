@@ -21,7 +21,7 @@ import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.engine.DefaultEngine;
 import ru.ispras.microtesk.test.engine.Engine;
-import ru.ispras.microtesk.test.engine.TrivialEngine;
+import ru.ispras.microtesk.test.engine.TrivialAdapter;
 import ru.ispras.microtesk.test.engine.branch.BranchAdapter;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
@@ -41,23 +41,24 @@ final class Core implements Plugin {
   }
 
   @Override
-  public Map<String, Engine<?>> getEngines() {
-    final Map<String, Engine<?>> engines = new LinkedHashMap<>();
+  public Map<String, Engine> getEngines() {
+    final Map<String, Engine> engines = new LinkedHashMap<>();
 
-    engines.put("default", new DefaultEngine());
-    engines.put("trivial", new TrivialEngine());
+    final Engine defaultEngine = new DefaultEngine();
+
+    engines.put("default", defaultEngine);
+    engines.put("trivial", defaultEngine);
     engines.put("branch", new BranchEngine());
 
     return engines;
   }
 
   @Override
-  public Map<String, Adapter<?>> getAdapters() {
-    final Map<String, Adapter<?>> adapters = new LinkedHashMap<>();
-    final Adapter<?> defaultAdapter = new DefaultAdapter();
+  public Map<String, Adapter> getAdapters() {
+    final Map<String, Adapter> adapters = new LinkedHashMap<>();
 
-    adapters.put("default", defaultAdapter);
-    adapters.put("trivial", defaultAdapter);
+    adapters.put("default", new DefaultAdapter());
+    adapters.put("trivial", new TrivialAdapter());
     adapters.put("branch", new BranchAdapter());
 
     return adapters;

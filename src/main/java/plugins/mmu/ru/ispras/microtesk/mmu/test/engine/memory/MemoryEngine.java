@@ -33,6 +33,7 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameter;
 import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -40,7 +41,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryEngine implements Engine<MemorySolution> {
+public final class MemoryEngine implements Engine {
   public static final String ID = "memory";
 
   final static class ParamAbstraction extends EngineParameter<MemoryGraphAbstraction> {
@@ -172,11 +173,6 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   private int count = PARAM_COUNT.getDefaultValue();
 
   @Override
-  public Class<MemorySolution> getSolutionClass() {
-    return MemorySolution.class;
-  }
-
-  @Override
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
@@ -197,8 +193,8 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   }
 
   @Override
-  public EngineResult<MemorySolution> solve(
-      final EngineContext engineContext, final List<AbstractCall> abstractSequence) {
+  public EngineResult solve(
+      final EngineContext engineContext, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -208,7 +204,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
-    for (final AbstractCall abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
       if(!isMemoryAccessWithSituation(abstractCall)) {
         // Skip non-memory-access instructions and memory-accesses instructions without situations.
         continue;
@@ -239,8 +235,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
             recursionLimit,
             iterator);
 
-    final Iterator<MemorySolution> solutionIterator =
-        new Iterator<MemorySolution>() {
+    final Iterator<AbstractSequence> solutionIterator = new Iterator<AbstractSequence>() {
           private int i = 0;
           private MemorySolution solution = null;
 
@@ -274,8 +269,9 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           }
 
           @Override
-          public MemorySolution value() {
-            return solution;
+          public AbstractSequence value() {
+            abstractSequence.setUserData(solution);
+            return abstractSequence;
           }
 
           @Override
@@ -307,12 +303,12 @@ public final class MemoryEngine implements Engine<MemorySolution> {
           }
 
           @Override
-          public Iterator<MemorySolution> clone() {
+          public Iterator<AbstractSequence> clone() {
             throw new UnsupportedOperationException();
           }
       };
 
-    return new EngineResult<MemorySolution>(solutionIterator);
+    return new EngineResult(solutionIterator);
   }
 
   @Override

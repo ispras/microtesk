@@ -50,6 +50,7 @@ import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
@@ -65,17 +66,12 @@ import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAdapter implements Adapter<MemorySolution> {
+public final class MemoryAdapter implements Adapter {
 
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
   private final Set<BigInteger> entriesInDataSection = new HashSet<>();
-
-  @Override
-  public Class<MemorySolution> getSolutionClass() {
-    return MemorySolution.class;
-  }
 
   @Override
   public void configure(final Map<String, Object> attributes) {
@@ -86,13 +82,14 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence,
-      final MemorySolution solution) {
+      final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
-    InvariantChecks.checkNotNull(solution);
 
     final ConcreteSequence.Builder builder = new ConcreteSequence.Builder();
+
+    final MemorySolution solution = (MemorySolution) abstractSequence.getUserData();
+    InvariantChecks.checkNotNull(solution);
 
     // Write entries into the non-replaceable buffers.
     builder.addToPrologue(prepareEntries(engineContext, solution));
@@ -300,7 +297,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
     final List<ConcreteCall> concreteCalls =
-        prepareSequence(engineContext, abstractInitializer);
+        prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
 
     Logger.debug("Code:");
     for (final ConcreteCall concreteCall : concreteCalls) {
@@ -330,7 +327,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
     final List<ConcreteCall> concreteCalls =
-        prepareSequence(engineContext, abstractInitializer);
+        prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
 
     Logger.debug("Code:");
     for (final ConcreteCall concreteCall : concreteCalls) {
@@ -343,12 +340,12 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   private List<ConcreteCall> prepareSequence(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence) {
+      final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
     try {
-      return EngineUtils.makeConcreteCalls(engineContext, abstractSequence);
+      return EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
     } catch (final ConfigurationException e) {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;
@@ -357,7 +354,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   private List<ConcreteCall> prepareAddresses(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence,
+      final AbstractSequence abstractSequence,
       final MemorySolution solution) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -368,7 +365,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     int i = 0;
 
-    for (final AbstractCall abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
       if (!MemoryEngine.isMemoryAccessWithSituation(abstractCall)) {
         continue;
       }
@@ -431,7 +428,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
           engineContext, primitive, newSituation, initializedModes);
       InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
-      return prepareSequence(engineContext, abstractInitializer);
+      return prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
     } catch (final ConfigurationException e) {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;

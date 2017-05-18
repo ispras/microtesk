@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,62 +14,46 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 
 /**
- * The job of the {@link TrivialEngine} class is processing abstract instruction call
- * sequences to build a concrete instruction call sequences (that can be simulated and
- * printed into assembly code). The abstract calls are processed as they are.
- *
- * <p>NOTE: Processing abstract calls as they are means that the engine does perform
- * any presimulation, data generation or creation of initializing calls. Therefore,
- * it requires that abstract sequences NOT USE ANY symbolic forms of values like
- * unknown immediates ("_") and situations. Unknown values will cause exceptions.
- * Situations will be ignored.
- *
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public final class TrivialEngine implements Engine<ConcreteSequence> {
-  @Override
-  public Class<ConcreteSequence> getSolutionClass() {
-    return ConcreteSequence.class;
-  }
-
+public final class TrivialAdapter implements Adapter {
   @Override
   public void configure(final Map<String, Object> attributes) {
     // Do nothing.
   }
 
   @Override
-  public EngineResult<ConcreteSequence> solve(
+  public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence) {
+      final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
     try {
-      return new EngineResult<>(new SingleValueIterator<>(process(engineContext, abstractSequence)));
+      return new AdapterResult(process(engineContext, abstractSequence));
     } catch (final ConfigurationException e) {
-      return new EngineResult<>(e.getMessage());
+      return new AdapterResult(e.getMessage());
     }
   }
 
   private ConcreteSequence process(
       final EngineContext engineContext,
-      final List<AbstractCall> abstractSequence) throws ConfigurationException {
+      final AbstractSequence abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
     final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
-    sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, abstractSequence));
+    sequenceBuilder.add(
+        EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence()));
 
     return sequenceBuilder.build();
   }
