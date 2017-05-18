@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -54,6 +56,7 @@ final class TemplateProcessor2 implements Template.Processor {
     private final TestSequence entry;
     private final Block block;
     private final int times;
+    private boolean beingProcessed;
 
     private BlockEntry(final Block block) {
       this(block, 1);
@@ -66,13 +69,14 @@ final class TemplateProcessor2 implements Template.Processor {
       this.entry = new TestSequence.Builder().build();
       this.block = block;
       this.times = times;
+      this.beingProcessed = false;
     }
   }
 
   private final EngineContext engineContext;
   private final int instanceNumber;
   private final TestProgram testProgram;
-  private final List<BlockEntry> postponedBlocks;
+  private final Set<BlockEntry> postponedBlocks;
   private final CodeAllocator allocator;
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
@@ -96,7 +100,7 @@ final class TemplateProcessor2 implements Template.Processor {
     this.engineContext = engineContext;
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
-    this.postponedBlocks = new ArrayList<>();
+    this.postponedBlocks = new LinkedHashSet<>();
     this.allocator = new CodeAllocator(model, labelManager, baseAddress, isFetchDecodeEnabled);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
@@ -275,20 +279,25 @@ final class TemplateProcessor2 implements Template.Processor {
     boolean isProcessed = false;
     do {
       isProcessed = false;
-      for (int index = 0; index < postponedBlocks.size(); index++) {
-        final BlockEntry blockEntry = postponedBlocks.get(index);
+      for (final BlockEntry blockEntry : postponedBlocks) {
+        if (blockEntry.beingProcessed) {
+          continue;
+        }
+
         final TestSequence entry = blockEntry.entry;
         final Block block = blockEntry.block;
         final int times = blockEntry.times;
 
+        blockEntry.beingProcessed = true;
         if (block.isExternal()) {
           isProcessed = processPostponedExternalBlock(block, entry);
         } else {
           isProcessed = processPostponedBlock(block, times, entry);
         }
+        blockEntry.beingProcessed = false;
 
         if (isProcessed) {
-          postponedBlocks.remove(index);
+          postponedBlocks.remove(blockEntry);
           break;
         }
       }
