@@ -28,7 +28,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
@@ -101,7 +101,7 @@ final class TestEngineUtils {
     return result;
   }
 
-  public static TestSequence getTestSequence(final AdapterResult adapterResult) {
+  public static ConcreteSequence getTestSequence(final AdapterResult adapterResult) {
     InvariantChecks.checkNotNull(adapterResult);
 
     if (adapterResult.getStatus() != AdapterResult.Status.OK) {
@@ -109,19 +109,19 @@ final class TestEngineUtils {
           "Adapter Error: %s", adapterResult.getErrors()));
     }
 
-    final TestSequence result = adapterResult.getResult();
+    final ConcreteSequence result = adapterResult.getResult();
     InvariantChecks.checkNotNull(result);
 
     return result;
   }
 
-  public static TestSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
+  public static ConcreteSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
     InvariantChecks.checkNotNull(iterator);
 
     iterator.init();
     InvariantChecks.checkTrue(iterator.hasValue());
 
-    final TestSequence result = getTestSequence(iterator.value());
+    final ConcreteSequence result = getTestSequence(iterator.value());
 
     iterator.next();
     InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
@@ -129,13 +129,13 @@ final class TestEngineUtils {
     return result;
   }
 
-  public static TestSequence makeExternalTestSequence(
+  public static ConcreteSequence makeExternalTestSequence(
       final EngineContext engineContext,
       final Block block) {
     return makeExternalTestSequence(engineContext, block, "External Code");
   }
 
-  public static TestSequence makeExternalTestSequence(
+  public static ConcreteSequence makeExternalTestSequence(
       final EngineContext engineContext,
       final Block block,
       final String title) {
@@ -149,23 +149,23 @@ final class TestEngineUtils {
     final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
     final Iterator<AdapterResult> iterator = engineResult.getResult();
 
-    final TestSequence sequence = getSingleTestSequence(iterator);
+    final ConcreteSequence sequence = getSingleTestSequence(iterator);
     sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
 
     return sequence;
   }
 
-  public static Pair<List<TestSequence>, Map<String, TestSequence>> makeExceptionHandler(
+  public static Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> makeExceptionHandler(
       final EngineContext engineContext,
       final ExceptionHandler handler) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(handler);
 
-    final List<TestSequence> sequences = new ArrayList<>(handler.getSections().size());
-    final Map<String, TestSequence> handlers = new LinkedHashMap<>(); 
+    final List<ConcreteSequence> sequences = new ArrayList<>(handler.getSections().size());
+    final Map<String, ConcreteSequence> handlers = new LinkedHashMap<>(); 
 
     for (final ExceptionHandler.Section section : handler.getSections()) {
-      final TestSequence sequence = makeTestSequenceForExceptionHandler(engineContext, section);
+      final ConcreteSequence sequence = makeTestSequenceForExceptionHandler(engineContext, section);
       sequences.add(sequence);
 
       for (final String exception : section.getExceptions()) {
@@ -178,7 +178,7 @@ final class TestEngineUtils {
     return new Pair<>(sequences, handlers);
   }
 
-  private static TestSequence makeTestSequenceForExceptionHandler(
+  private static ConcreteSequence makeTestSequenceForExceptionHandler(
       final EngineContext engineContext,
       final ExceptionHandler.Section section) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -190,7 +190,7 @@ final class TestEngineUtils {
     calls.addAll(section.getCalls());
 
     final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
-    final TestSequence.Builder concreteSequenceBuilder = new TestSequence.Builder();
+    final ConcreteSequence.Builder concreteSequenceBuilder = new ConcreteSequence.Builder();
     concreteSequenceBuilder.add(concreteCalls);
 
     return concreteSequenceBuilder.build();
@@ -255,7 +255,7 @@ final class TestEngineUtils {
     }
   }
 
-  public static boolean canBeAllocatedAfter(final TestSequence previous, final Block block) {
+  public static boolean canBeAllocatedAfter(final ConcreteSequence previous, final Block block) {
     return null == previous || previous.isAllocated() || isOriginFixed(block);
   }
 
@@ -293,7 +293,7 @@ final class TestEngineUtils {
 
   public static boolean isAtEndOf(
       final Executor.Status status,
-      final TestSequence sequence) {
+      final ConcreteSequence sequence) {
     return sequence != null &&
            sequence.isAllocated() &&
            sequence.getEndAddress() == status.getAddress();
@@ -301,8 +301,8 @@ final class TestEngineUtils {
 
   public static boolean isAtEndOfAny(
       final Executor.Status status,
-      final Collection<TestSequence> sequences) {
-    for (final TestSequence sequence : sequences) {
+      final Collection<ConcreteSequence> sequences) {
+    for (final ConcreteSequence sequence : sequences) {
       return isAtEndOf(status, sequence);
     }
 
@@ -311,7 +311,7 @@ final class TestEngineUtils {
 
   public static int findAtEndOf(
       final List<Executor.Status> statuses,
-      final TestSequence sequence) {
+      final ConcreteSequence sequence) {
     if (statuses.isEmpty()) {
       // No instances started execution yet - return 0 (can select any)
       return 0;
@@ -330,7 +330,7 @@ final class TestEngineUtils {
 
   public static void checkAllAtEndOf(
       final List<Executor.Status> statuses,
-      final TestSequence sequence) {
+      final ConcreteSequence sequence) {
     for (int index = 0; index < statuses.size(); index++) {
       final Executor.Status status = statuses.get(index);
       if (!isAtEndOf(status, sequence)) {

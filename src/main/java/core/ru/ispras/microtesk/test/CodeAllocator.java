@@ -81,7 +81,7 @@ public final class CodeAllocator {
     this.address = address;
   }
 
-  public void allocateSequence(final TestSequence sequence, final int sequenceIndex) {
+  public void allocateSequence(final ConcreteSequence sequence, final int sequenceIndex) {
     final List<ConcreteCall> calls = sequence.getAll();
     allocateCalls(calls, sequenceIndex);
 
@@ -97,17 +97,17 @@ public final class CodeAllocator {
   }
 
   public void allocateHandlers(
-      final List<Pair<List<TestSequence>, Map<String, TestSequence>>> handlers) {
+      final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> handlers) {
     InvariantChecks.checkNotNull(handlers);
 
     // Saving current address. Exception handler allocation should not modify it.
     final long currentAddress = address;
 
-    for (final Pair<List<TestSequence>, Map<String, TestSequence>> handler: handlers) {
+    for (final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
-      for (final Map.Entry<String, TestSequence> e : handler.second.entrySet()) {
+      for (final Map.Entry<String, ConcreteSequence> e : handler.second.entrySet()) {
         final String handlerName = e.getKey();
-        final TestSequence handlerSequence = e.getValue();
+        final ConcreteSequence handlerSequence = e.getValue();
 
         if (handlerSequence.isEmpty()) {
           Logger.warning("Empty exception handler: %s", handlerName);

@@ -33,7 +33,7 @@ import ru.ispras.microtesk.test.template.DataSection;
 final class PrinterUtils {
   public static void printSequenceToConsole(
       final EngineContext engineContext,
-      final TestSequence sequence) throws ConfigurationException {
+      final ConcreteSequence sequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(sequence);
 
@@ -73,7 +73,7 @@ final class PrinterUtils {
   public static void printExceptionHandler(
       final EngineContext engineContext,
       final String id,
-      final List<TestSequence> sequences) throws IOException, ConfigurationException {
+      final List<ConcreteSequence> sequences) throws IOException, ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(sequences);
@@ -85,7 +85,7 @@ final class PrinterUtils {
     try {
       printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
       Logger.debugHeader("Printing exception handler to %s", printer.getFileName());
-      for (final TestSequence sequence : sequences) {
+      for (final ConcreteSequence sequence : sequences) {
         statistics.incInstructions(sequence.getInstructionCount());
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
@@ -111,7 +111,7 @@ final class PrinterUtils {
       printer = Printer.newCodeFile(engineContext.getOptions(), statistics.getPrograms());
       Logger.debugHeader("Printing test program to %s", printer.getFileName());
 
-      for (final TestSequence sequence : testProgram.getEntries()) {
+      for (final ConcreteSequence sequence : testProgram.getEntries()) {
         printer.printSequence(engineContext.getModel().getPE(), sequence);
       }
 

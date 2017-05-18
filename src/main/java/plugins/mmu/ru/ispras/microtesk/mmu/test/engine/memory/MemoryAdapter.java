@@ -40,7 +40,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -92,7 +92,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     InvariantChecks.checkNotNull(abstractSequence);
     InvariantChecks.checkNotNull(solution);
 
-    final TestSequence.Builder builder = new TestSequence.Builder();
+    final ConcreteSequence.Builder builder = new ConcreteSequence.Builder();
 
     // Write entries into the non-replaceable buffers.
     builder.addToPrologue(prepareEntries(engineContext, solution));
@@ -102,7 +102,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     // Convert the abstract sequence into the concrete one.
     builder.add(prepareSequence(engineContext, abstractSequence));
 
-    final TestSequence sequence = builder.build();
+    final ConcreteSequence sequence = builder.build();
     return new AdapterResult(sequence);
   }
 

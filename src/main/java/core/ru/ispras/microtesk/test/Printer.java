@@ -231,7 +231,7 @@ final class Printer {
    */
   public void printSequence(
       final ProcessingElement observer,
-      final TestSequence sequence) throws ConfigurationException {
+      final ConcreteSequence sequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(observer);
     InvariantChecks.checkNotNull(sequence);
 

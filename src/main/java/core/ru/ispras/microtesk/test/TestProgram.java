@@ -34,12 +34,12 @@ import ru.ispras.microtesk.utils.AdjacencyList;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class TestProgram {
-  private TestSequence prologue;
-  private TestSequence epilogue;
+  private ConcreteSequence prologue;
+  private ConcreteSequence epilogue;
 
-  private final AdjacencyList<TestSequence> entries;
-  private final Map<TestSequence, Pair<Block, Integer>> postponedEntries;
-  private final List<Pair<List<TestSequence>, Map<String, TestSequence>>> exceptionHandlers;
+  private final AdjacencyList<ConcreteSequence> entries;
+  private final Map<ConcreteSequence, Pair<Block, Integer>> postponedEntries;
+  private final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> exceptionHandlers;
 
   private final Map<BigInteger, DataSection> dataSections;
   private final List<DataSection> globalDataSections;
@@ -54,48 +54,48 @@ final class TestProgram {
     this.globalDataSections = new ArrayList<>();
   }
 
-  public TestSequence getPrologue() {
+  public ConcreteSequence getPrologue() {
     return prologue;
   }
 
-  public void setPrologue(final TestSequence prologue) {
+  public void setPrologue(final ConcreteSequence prologue) {
     InvariantChecks.checkNotNull(prologue);
     this.prologue = prologue;
   }
 
-  public TestSequence getEpilogue() {
+  public ConcreteSequence getEpilogue() {
     return epilogue;
   }
 
-  public void setEpilogue(final TestSequence epilogue) {
+  public void setEpilogue(final ConcreteSequence epilogue) {
     InvariantChecks.checkNotNull(epilogue);
     this.epilogue = epilogue;
   }
 
-  public List<Pair<List<TestSequence>, Map<String, TestSequence>>> getExceptionHandlers() {
+  public List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> getExceptionHandlers() {
     return exceptionHandlers;
   }
 
   public void addExceptionHandlers(
-      final Pair<List<TestSequence>, Map<String, TestSequence>> handlers) {
+      final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> handlers) {
     InvariantChecks.checkNotNull(handlers);
     exceptionHandlers.add(handlers);
   }
 
-  public Iterable<TestSequence> getEntries() {
+  public Iterable<ConcreteSequence> getEntries() {
     return entries;
   }
 
-  public boolean hasEntry(final TestSequence sequence) {
+  public boolean hasEntry(final ConcreteSequence sequence) {
     return entries.contains(sequence);
   }
 
-  public void addEntry(final TestSequence sequence) {
+  public void addEntry(final ConcreteSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     entries.add(sequence);
   }
 
-  public void addEntryAfter(final TestSequence previous, final TestSequence sequence) {
+  public void addEntryAfter(final ConcreteSequence previous, final ConcreteSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     entries.addAfter(previous, sequence);
   }
@@ -106,37 +106,37 @@ final class TestProgram {
 
   public void addPostponedEntry(final Block block, final int times) {
     InvariantChecks.checkNotNull(block);
-    final TestSequence sequence = new TestSequence.Builder().build();
+    final ConcreteSequence sequence = new ConcreteSequence.Builder().build();
 
     postponedEntries.put(sequence, new Pair<>(block, times));
     addEntry(sequence);
   }
 
-  public boolean isPostponedEntry(final TestSequence sequence) {
+  public boolean isPostponedEntry(final ConcreteSequence sequence) {
     return postponedEntries.containsKey(sequence);
   }
 
-  public Pair<Block, Integer> getPostponedEntry(final TestSequence sequence) {
+  public Pair<Block, Integer> getPostponedEntry(final ConcreteSequence sequence) {
     return postponedEntries.get(sequence);
   }
 
-  public void removePostponedEntry(final TestSequence sequence) {
+  public void removePostponedEntry(final ConcreteSequence sequence) {
     postponedEntries.remove(sequence);
   }
 
-  public TestSequence getFirstEntry() {
+  public ConcreteSequence getFirstEntry() {
     return entries.getFirst();
   }
   
-  public TestSequence getLastEntry() {
+  public ConcreteSequence getLastEntry() {
     return entries.getLast();
   }
 
-  public TestSequence getPrevEntry(final TestSequence sequence) {
+  public ConcreteSequence getPrevEntry(final ConcreteSequence sequence) {
     return entries.getPrevious(sequence);
   }
 
-  public void replaceEntryWith(final TestSequence previous, final TestSequence current) {
+  public void replaceEntryWith(final ConcreteSequence previous, final ConcreteSequence current) {
     entries.replaceWith(previous, current);
   }
 

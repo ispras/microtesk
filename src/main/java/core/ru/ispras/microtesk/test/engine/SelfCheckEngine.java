@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -36,14 +36,14 @@ import ru.ispras.microtesk.test.template.Primitive;
 public final class SelfCheckEngine {
   private SelfCheckEngine() {}
 
-  public static TestSequence solve(
+  public static ConcreteSequence solve(
       final EngineContext engineContext,
       final List<SelfCheck> checks) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(checks);
 
     try {
-      final TestSequence.Builder sequenceBuilder = new TestSequence.Builder();
+      final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
       for (final SelfCheck check : checks) {
         processCheck(engineContext, sequenceBuilder, check);
       }
@@ -55,7 +55,7 @@ public final class SelfCheckEngine {
 
   private static void processCheck(
       final EngineContext engineContext,
-      final TestSequence.Builder sequenceBuilder,
+      final ConcreteSequence.Builder sequenceBuilder,
       final SelfCheck check) throws ConfigurationException {
     InvariantChecks.checkNotNull(check);
     Logger.debug("Processing %s...", check);

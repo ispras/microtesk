@@ -18,14 +18,14 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.Result;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 
 /**
  * {@link AdapterResult} defines result of an {@link Adapter}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AdapterResult extends Result<AdapterResult.Status, TestSequence> {
+public final class AdapterResult extends Result<AdapterResult.Status, ConcreteSequence> {
   public static enum Status {
     OK,
     ERROR
@@ -33,12 +33,12 @@ public final class AdapterResult extends Result<AdapterResult.Status, TestSequen
 
   public AdapterResult(
       final AdapterResult.Status status,
-      final TestSequence result,
+      final ConcreteSequence result,
       final List<String> errors) {
     super(status, result, errors);
   }
 
-  public AdapterResult(final TestSequence result) {
+  public AdapterResult(final ConcreteSequence result) {
     super(Status.OK, result, Collections.<String>emptyList());
   }
 

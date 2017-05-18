@@ -19,7 +19,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
@@ -37,10 +37,10 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class TrivialEngine implements Engine<TestSequence> {
+public final class TrivialEngine implements Engine<ConcreteSequence> {
   @Override
-  public Class<TestSequence> getSolutionClass() {
-    return TestSequence.class;
+  public Class<ConcreteSequence> getSolutionClass() {
+    return ConcreteSequence.class;
   }
 
   @Override
@@ -49,7 +49,7 @@ public final class TrivialEngine implements Engine<TestSequence> {
   }
 
   @Override
-  public EngineResult<TestSequence> solve(
+  public EngineResult<ConcreteSequence> solve(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
@@ -62,13 +62,13 @@ public final class TrivialEngine implements Engine<TestSequence> {
     }
   }
 
-  private TestSequence process(
+  private ConcreteSequence process(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final TestSequence.Builder sequenceBuilder = new TestSequence.Builder();
+    final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
     sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, abstractSequence));
 
     return sequenceBuilder.build();

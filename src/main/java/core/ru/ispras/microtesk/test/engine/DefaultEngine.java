@@ -33,7 +33,7 @@ import ru.ispras.microtesk.test.CodeAllocator;
 import ru.ispras.microtesk.test.Executor;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
@@ -52,10 +52,10 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class DefaultEngine implements Engine<TestSequence> {
+public final class DefaultEngine implements Engine<ConcreteSequence> {
   @Override
-  public Class<TestSequence> getSolutionClass() {
-    return TestSequence.class;
+  public Class<ConcreteSequence> getSolutionClass() {
+    return ConcreteSequence.class;
   }
 
   @Override
@@ -74,7 +74,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
   }
 
   @Override
-  public EngineResult<TestSequence> solve(
+  public EngineResult<ConcreteSequence> solve(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
@@ -84,7 +84,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
 
     try {
-      final TestSequence testSequence = processSequence(engineContext, abstractSequence);
+      final ConcreteSequence testSequence = processSequence(engineContext, abstractSequence);
       return new EngineResult<>(new SingleValueIterator<>(testSequence));
     } catch (final ConfigurationException e) {
       return new EngineResult<>(e.getMessage());
@@ -93,7 +93,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     }
   }
 
-  private static TestSequence processSequence(
+  private static ConcreteSequence processSequence(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -244,7 +244,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
     private final Map<ConcreteCall, AbstractCall> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
-    private final TestSequence.Builder testSequenceBuilder;
+    private final ConcreteSequence.Builder testSequenceBuilder;
 
     private TestSequenceCreator(
         final int sequenceIndex,
@@ -269,11 +269,11 @@ public final class DefaultEngine implements Engine<TestSequence> {
         callMap.put(concreteCall, abstractCall);
       }
 
-      this.testSequenceBuilder = new TestSequence.Builder();
+      this.testSequenceBuilder = new ConcreteSequence.Builder();
       this.testSequenceBuilder.add(concreteSequence);
     }
 
-    public TestSequence createTestSequence() {
+    public ConcreteSequence createTestSequence() {
       return testSequenceBuilder.build();
     }
 

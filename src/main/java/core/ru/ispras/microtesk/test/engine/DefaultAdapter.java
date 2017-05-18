@@ -17,16 +17,16 @@ package ru.ispras.microtesk.test.engine;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.template.AbstractCall;
 
 /**
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
  */
-public final class DefaultAdapter implements Adapter<TestSequence> {
+public final class DefaultAdapter implements Adapter<ConcreteSequence> {
   @Override
-  public Class<TestSequence> getSolutionClass() {
-    return TestSequence.class;
+  public Class<ConcreteSequence> getSolutionClass() {
+    return ConcreteSequence.class;
   }
 
   @Override
@@ -38,7 +38,7 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
   public AdapterResult adapt(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence,
-      final TestSequence solution) {
+      final ConcreteSequence solution) {
     return new AdapterResult(solution);
   }
 

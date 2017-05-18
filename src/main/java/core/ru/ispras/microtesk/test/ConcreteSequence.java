@@ -22,14 +22,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
- * The {@code TestSequence} class describes a test sequence, a symbolic test program (or a part of a
- * test program) that consists of concrete calls which can be simulated on the microprocessor model
- * or dumped to textual representation (assembler code). The sequence is split into tree parts: (1)
- * prologue that holds the initialization code and (2) body that holds the main code (test case).
+ * The {@link ConcreteSequence} class describes a test sequence, a symbolic test program (or a part
+ * of a test program) that consists of concrete calls which can be simulated on the microprocessor
+ * model or dumped to textual representation (assembler code). The sequence is split into tree
+ * parts: (1) prologue that holds the initialization code and (2) body that holds the main code
+ * (test case).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class TestSequence {
+public final class ConcreteSequence {
 
   public static final class Builder {
     private final List<ConcreteCall> prologue;
@@ -75,8 +76,8 @@ public final class TestSequence {
       addTo(body, calls);
     }
 
-    public TestSequence build() {
-      return new TestSequence(prologue, body, instructionCount);
+    public ConcreteSequence build() {
+      return new ConcreteSequence(prologue, body, instructionCount);
     }
   }
 
@@ -91,7 +92,7 @@ public final class TestSequence {
   private long startAddress;
   private long endAddress;
 
-  private TestSequence(
+  private ConcreteSequence(
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
       final int instructionCount) {

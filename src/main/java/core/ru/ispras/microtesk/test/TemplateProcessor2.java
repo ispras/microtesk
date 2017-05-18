@@ -53,7 +53,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 final class TemplateProcessor2 implements Template.Processor {
   private static final class BlockEntry {
-    private final TestSequence entry;
+    private final ConcreteSequence entry;
     private final Block block;
     private final int times;
     private boolean beingProcessed;
@@ -66,7 +66,7 @@ final class TemplateProcessor2 implements Template.Processor {
       InvariantChecks.checkNotNull(block);
       InvariantChecks.checkGreaterThanZero(times);
 
-      this.entry = new TestSequence.Builder().build();
+      this.entry = new ConcreteSequence.Builder().build();
       this.block = block;
       this.times = times;
       this.beingProcessed = false;
@@ -80,7 +80,7 @@ final class TemplateProcessor2 implements Template.Processor {
   private final CodeAllocator allocator;
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
-  private final Deque<TestSequence> interruptedSequences;
+  private final Deque<ConcreteSequence> interruptedSequences;
   private boolean isProgramStarted;
   private boolean hasDispatchingCode;
 
@@ -119,7 +119,7 @@ final class TemplateProcessor2 implements Template.Processor {
     Logger.debugHeader("Processing Exception Handler");
     InvariantChecks.checkNotNull(handler);
 
-    final Pair<List<TestSequence>, Map<String, TestSequence>> concreteHandler;
+    final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> concreteHandler;
     try {
       concreteHandler = TestEngineUtils.makeExceptionHandler(engineContext, handler);
       testProgram.addExceptionHandlers(concreteHandler);
@@ -213,14 +213,14 @@ final class TemplateProcessor2 implements Template.Processor {
     startProgram();
 
     hasDispatchingCode = true;
-    final TestSequence prevEntry = testProgram.getLastEntry();
+    final ConcreteSequence prevEntry = testProgram.getLastEntry();
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
       postpone(new BlockEntry(block));
       return;
     }
 
-    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -233,8 +233,8 @@ final class TemplateProcessor2 implements Template.Processor {
     postpone(new BlockEntry(block, times));
   }
 
-  private TestSequence processSelfChecks(
-      final TestSequence previous,
+  private ConcreteSequence processSelfChecks(
+      final ConcreteSequence previous,
       final List<SelfCheck> selfChecks,
       final int testCaseIndex) throws ConfigurationException {
     InvariantChecks.checkNotNull(previous);
@@ -252,7 +252,7 @@ final class TemplateProcessor2 implements Template.Processor {
     }
 
     Logger.debugHeader("Preparing %s", sequenceId);
-    final TestSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
+    final ConcreteSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
     sequence.setTitle(sequenceId);
 
     allocateTestSequenceAfter(previous, sequence, testCaseIndex);
@@ -284,7 +284,7 @@ final class TemplateProcessor2 implements Template.Processor {
           continue;
         }
 
-        final TestSequence entry = blockEntry.entry;
+        final ConcreteSequence entry = blockEntry.entry;
         final Block block = blockEntry.block;
         final int times = blockEntry.times;
 
@@ -306,13 +306,13 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private boolean processPostponedExternalBlock(
       final Block block,
-      final TestSequence entry) throws ConfigurationException, IOException {
+      final ConcreteSequence entry) throws ConfigurationException, IOException {
     if (!isProgramStarted) {
       startProgram();
       runExecutionFromStart();
     }
 
-    final TestSequence prevEntry = testProgram.getPrevEntry(entry);
+    final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
       return false;
@@ -332,7 +332,7 @@ final class TemplateProcessor2 implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
@@ -342,13 +342,13 @@ final class TemplateProcessor2 implements Template.Processor {
   private boolean processPostponedBlock(
       final Block block,
       final int times,
-      final TestSequence entry) throws ConfigurationException, IOException {
+      final ConcreteSequence entry) throws ConfigurationException, IOException {
     if (!isProgramStarted) {
       startProgram();
       runExecutionFromStart();
     }
 
-    final TestSequence prevEntry = testProgram.getPrevEntry(entry);
+    final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
 
     // This is needed to prevent allocation of postponed sequences in middle
@@ -369,7 +369,7 @@ final class TemplateProcessor2 implements Template.Processor {
     entry.setAllocationAddresses(allocationAddress, allocationAddress);
 
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    TestSequence previous = entry;
+    ConcreteSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
       final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
@@ -385,7 +385,7 @@ final class TemplateProcessor2 implements Template.Processor {
             runExecutionFromStart();
           }
 
-          final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+          final ConcreteSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
           final int sequenceIndex = engineContext.getStatistics().getSequences();
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
@@ -427,7 +427,7 @@ final class TemplateProcessor2 implements Template.Processor {
         isFirst = false;
       }
 
-      final TestSequence entry = blockEntry.entry;
+      final ConcreteSequence entry = blockEntry.entry;
       final Block block = blockEntry.block;
       final int times = blockEntry.times;
 
@@ -441,22 +441,22 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private void processPostponedExternalBlockNoSimulation(
       final Block block,
-      final TestSequence entry) throws ConfigurationException {
-    final TestSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+      final ConcreteSequence entry) throws ConfigurationException {
+    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
   private void processPostponedBlockNoSimulation(
       final Block block,
       final int times,
-      final TestSequence entry) throws ConfigurationException {
-    final TestSequence prevEntry = testProgram.getPrevEntry(entry);
+      final ConcreteSequence entry) throws ConfigurationException {
+    final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
 
     long allocationAddress =
         null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
 
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-    TestSequence previous = entry;
+    ConcreteSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
     final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
@@ -467,7 +467,7 @@ final class TemplateProcessor2 implements Template.Processor {
         final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-          final TestSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+          final ConcreteSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
 
           final int sequenceIndex = engineContext.getStatistics().getSequences();
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
@@ -505,7 +505,7 @@ final class TemplateProcessor2 implements Template.Processor {
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
-    final TestSequence prologue = testProgram.getPrologue();
+    final ConcreteSequence prologue = testProgram.getPrologue();
     allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -515,7 +515,7 @@ final class TemplateProcessor2 implements Template.Processor {
     }
 
     try {
-      final TestSequence epilogue = testProgram.getEpilogue();
+      final ConcreteSequence epilogue = testProgram.getEpilogue();
       allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
 
@@ -538,33 +538,33 @@ final class TemplateProcessor2 implements Template.Processor {
   }
 
   private void allocateTestSequenceWithReplace(
-      final TestSequence old,
-      final TestSequence sequence,
+      final ConcreteSequence old,
+      final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
-    final TestSequence previous = testProgram.getPrevEntry(old);
+    final ConcreteSequence previous = testProgram.getPrevEntry(old);
     testProgram.replaceEntryWith(old, sequence);
     allocate(previous, sequence, sequenceIndex);
   }
 
   private void allocateTestSequenceAfter(
-      final TestSequence previous,
-      final TestSequence sequence,
+      final ConcreteSequence previous,
+      final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
     testProgram.addEntryAfter(previous, sequence);
     allocate(previous, sequence, sequenceIndex);
   }
 
   private void allocateTestSequence(
-      final TestSequence sequence,
+      final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
-    final TestSequence previous = testProgram.getLastEntry();
+    final ConcreteSequence previous = testProgram.getLastEntry();
     testProgram.addEntry(sequence);
     allocate(previous, sequence, sequenceIndex);
   }
 
   private void allocate(
-      final TestSequence previous,
-      final TestSequence sequence,
+      final ConcreteSequence previous,
+      final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
@@ -578,7 +578,7 @@ final class TemplateProcessor2 implements Template.Processor {
     engineContext.getStatistics().incInstructions(sequence.getInstructionCount());
   }
 
-  private void allocateData(final TestSequence sequence, final int sequenceIndex) {
+  private void allocateData(final ConcreteSequence sequence, final int sequenceIndex) {
     for (final ConcreteCall call : sequence.getAll()) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
@@ -613,7 +613,7 @@ final class TemplateProcessor2 implements Template.Processor {
    * @param sequence The most recently allocated sequence which is expected to be executed
    *                 by some of the threads.
    */
-  private boolean runExecution(final TestSequence sequence) {
+  private boolean runExecution(final ConcreteSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     Logger.debugHeader("Running Execution from " + sequence.getTitle());
 
@@ -664,7 +664,7 @@ final class TemplateProcessor2 implements Template.Processor {
 
   private boolean runExecutionFromStart() {
     // Run from the first allocated non-empty entry.
-    for (final TestSequence entry : testProgram.getEntries()) {
+    for (final ConcreteSequence entry : testProgram.getEntries()) {
       if (!entry.isAllocated()) {
         break;
       }

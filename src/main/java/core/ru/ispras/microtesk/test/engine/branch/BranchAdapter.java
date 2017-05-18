@@ -37,7 +37,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.TestSequence;
+import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -81,7 +81,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
     Logger.debug("Branch structure: %s", branchStructure);
 
-    final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
+    final ConcreteSequence.Builder testSequenceBuilder = new ConcreteSequence.Builder();
 
     // Maps branch indices to control code (the map should be sorted).
     final SortedMap<Integer, List<AbstractCall>> steps = new TreeMap<>();
@@ -195,7 +195,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       return new AdapterResult("Cannot convert the abstract sequence into the concrete one");
     }
 
-    final TestSequence testSequence = testSequenceBuilder.build();
+    final ConcreteSequence testSequence = testSequenceBuilder.build();
     return new AdapterResult(testSequence);
   }
 
@@ -211,7 +211,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updatePrologue(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final AbstractCall abstractCall)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -224,7 +224,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updatePrologue(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final List<AbstractCall> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -238,7 +238,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updatePrologue(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final AbstractCall abstractCall,
       final boolean branchTaken,
       final boolean branchCondition,
@@ -311,7 +311,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updatePrologue(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final AbstractCall abstractBranchCall,
       final BranchEntry branchEntry,
       final boolean controlCodeInBasicBlock)
@@ -403,7 +403,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updateBody(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final AbstractCall abstractCall)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -416,7 +416,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
 
   private void updateBody(
       final EngineContext engineContext,
-      final TestSequence.Builder testSequenceBuilder,
+      final ConcreteSequence.Builder testSequenceBuilder,
       final List<AbstractCall> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
