@@ -29,7 +29,7 @@ public final class BufferPreparatorBuilder {
   private final String bufferId;
   private int levels;
   private final BufferPreparatorAddressEntry addressEntry;
-  private final List<Call> calls;
+  private final List<AbstractCall> calls;
 
   protected BufferPreparatorBuilder(final String bufferId) {
     InvariantChecks.checkNotNull(bufferId);
@@ -81,7 +81,7 @@ public final class BufferPreparatorBuilder {
     return getAddressEntry(level).newEntryFieldReference(fieldId, start, end);
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);
   }

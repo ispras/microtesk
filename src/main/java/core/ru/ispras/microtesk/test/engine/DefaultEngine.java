@@ -37,7 +37,7 @@ import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -76,7 +76,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
   @Override
   public EngineResult<TestSequence> solve(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) {
+      final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -95,7 +95,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
   private static TestSequence processSequence(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) throws ConfigurationException {
+      final List<AbstractCall> abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -241,14 +241,14 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
   private static final class TestSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
-    private final Map<ConcreteCall, Call> callMap;
+    private final Map<ConcreteCall, AbstractCall> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
     private final TestSequence.Builder testSequenceBuilder;
 
     private TestSequenceCreator(
         final int sequenceIndex,
-        final List<Call> abstractSequence,
+        final List<AbstractCall> abstractSequence,
         final List<ConcreteCall> concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
@@ -260,7 +260,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
       this.listenerForInitializers = new ExecutorListener();
 
       for (int index = 0; index < abstractSequence.size(); ++index) {
-        final Call abstractCall = abstractSequence.get(index);
+        final AbstractCall abstractCall = abstractSequence.get(index);
         final ConcreteCall concreteCall = concreteSequence.get(index);
 
         InvariantChecks.checkNotNull(abstractCall);
@@ -284,7 +284,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
       InvariantChecks.checkNotNull(concreteCall);
       InvariantChecks.checkNotNull(engineContext);
 
-      final Call abstractCall = callMap.get(concreteCall);
+      final AbstractCall abstractCall = callMap.get(concreteCall);
       if (null == abstractCall) {
         return; // Already processed
       }
@@ -301,7 +301,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     private void processCall(
         final EngineContext engineContext,
-        final Call abstractCall,
+        final AbstractCall abstractCall,
         final ConcreteCall concreteCall) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(abstractCall);
@@ -355,7 +355,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
         }
       }
 
-      final List<Call> initializer = EngineUtils.makeInitializer(
+      final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
           abstractPrimitive,
           abstractPrimitive.getSituation(),
@@ -388,7 +388,7 @@ public final class DefaultEngine implements Engine<TestSequence> {
 
     private void processInitializer(
         final EngineContext engineContext,
-        final List<Call> abstractCalls) throws ConfigurationException {
+        final List<AbstractCall> abstractCalls) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(abstractCalls);
 

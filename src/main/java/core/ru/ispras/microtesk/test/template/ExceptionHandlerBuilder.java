@@ -40,7 +40,7 @@ public final class ExceptionHandlerBuilder {
 
   private BigInteger origin;
   private Set<String> exceptions; 
-  private List<Call> calls;
+  private List<AbstractCall> calls;
 
   public ExceptionHandlerBuilder(final String id, final boolean isDebugPrinting) {
     InvariantChecks.checkNotNull(id);
@@ -108,7 +108,7 @@ public final class ExceptionHandlerBuilder {
     this.calls = null;
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     this.calls.add(call);
   }

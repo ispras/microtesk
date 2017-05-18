@@ -30,7 +30,7 @@ import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -113,14 +113,14 @@ public final class ModeAllocator {
     }
   }
 
-  public void allocate(final List<Call> sequence, final boolean markExplicitAsUsed) {
+  public void allocate(final List<AbstractCall> sequence, final boolean markExplicitAsUsed) {
     InvariantChecks.checkNotNull(sequence);
 
     reset();
 
     if (markExplicitAsUsed) {
       // Phase 1: mark all explicitly initialized addressing modes as 'used'.
-      for (final Call call : sequence) {
+      for (final AbstractCall call : sequence) {
         if (call.isExecutable()) {
           final Primitive primitive = call.getRootOperation();
           useInitializedModes(primitive);
@@ -132,7 +132,7 @@ public final class ModeAllocator {
     }
 
     // Phase 2: allocate the uninitialized addressing modes.
-    for (final Call call : sequence) {
+    for (final AbstractCall call : sequence) {
       if (call.isModeToFree()) {
         final Primitive primitive = call.getModeToFree();
         freeInitializedMode(primitive, call.isFreeAllModes());

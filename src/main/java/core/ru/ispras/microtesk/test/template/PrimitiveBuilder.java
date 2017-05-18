@@ -66,7 +66,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private Variate<Situation> situation;
   
   private final MetaModel metaModel;
-  private final CallBuilder callBuilder;
+  private final AbstractCallBuilder callBuilder;
 
   private final List<Argument> argumentList;
   private final Map<String, Argument> argumentMap;
@@ -78,7 +78,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   PrimitiveBuilderOperation(
       final String name,
       final MetaModel metaModel,
-      final CallBuilder callBuilder) {
+      final AbstractCallBuilder callBuilder) {
 
     checkNotNull(name);
     checkNotNull(metaModel);
@@ -461,7 +461,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   private final MetaModel metaModel; 
-  private final CallBuilder callBuilder;
+  private final AbstractCallBuilder callBuilder;
 
   private final Strategy strategy;
   private final Kind kind;
@@ -473,7 +473,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   PrimitiveBuilderCommon(
       final MetaModel metaModel,
-      final CallBuilder callBuilder,
+      final AbstractCallBuilder callBuilder,
       final MetaOperation metaData,
       final String contextName) {
     this(
@@ -487,7 +487,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   PrimitiveBuilderCommon(
       final MetaModel metaModel,
-      final CallBuilder callBuilder,
+      final AbstractCallBuilder callBuilder,
       final MetaAddressingMode metaData) {
     this(
         metaModel,
@@ -500,7 +500,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
   private PrimitiveBuilderCommon(
       final MetaModel metaModel,
-      final CallBuilder callBuilder,
+      final AbstractCallBuilder callBuilder,
       final Strategy strategy,
       final Kind kind,
       final String contextName) {

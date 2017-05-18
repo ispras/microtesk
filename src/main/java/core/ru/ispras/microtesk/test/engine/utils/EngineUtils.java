@@ -53,7 +53,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.LabelValue;
@@ -123,7 +123,7 @@ public final class EngineUtils {
     return testBase;
   }
 
-  public static List<Call> makeInitializer(
+  public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final Primitive primitive,
       final Situation situation,
@@ -131,7 +131,7 @@ public final class EngineUtils {
     return makeInitializer(engineContext, primitive, situation, initializedModes, null);
   }
 
-  public static List<Call> makeInitializer(
+  public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final Primitive primitive,
       final Situation situation,
@@ -143,7 +143,7 @@ public final class EngineUtils {
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
-    final List<Call> prologue = new ArrayList<>();
+    final List<AbstractCall> prologue = new ArrayList<>();
 
     final TestBaseQueryCreator queryCreator =
         new TestBaseQueryCreator(engineContext, situation, primitive);
@@ -189,7 +189,7 @@ public final class EngineUtils {
       final BitVector value = FortressUtils.extractBitVector(e.getValue());
 
       Logger.debug("Creating code to assign %s to %s...", value, targetMode);
-      final List<Call> initializingCalls = makeInitializer(engineContext, mode, value);
+      final List<AbstractCall> initializingCalls = makeInitializer(engineContext, mode, value);
 
       prologue.addAll(initializingCalls);
       initializedModes.add(targetMode);
@@ -335,7 +335,7 @@ public final class EngineUtils {
     }
   }
 
-  public static String getSituationName(final Call abstractCall) {
+  public static String getSituationName(final AbstractCall abstractCall) {
     checkNotNull(abstractCall);
 
     final Primitive primitive = abstractCall.getRootOperation();
@@ -355,13 +355,13 @@ public final class EngineUtils {
 
   public static List<ConcreteCall> makeConcreteCalls(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) throws ConfigurationException {
+      final List<AbstractCall> abstractSequence) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractSequence);
 
     final List<ConcreteCall> concreteSequence = new ArrayList<>();
 
-    for (final Call abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence) {
       final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
       concreteSequence.add(concreteCall);
     }
@@ -371,7 +371,7 @@ public final class EngineUtils {
 
   public static ConcreteCall makeConcreteCall(
       final EngineContext engineContext,
-      final Call abstractCall) throws ConfigurationException {
+      final AbstractCall abstractCall) throws ConfigurationException {
     checkNotNull(engineContext);
     checkNotNull(abstractCall);
 
@@ -558,7 +558,7 @@ public final class EngineUtils {
     return builder.build();
   }
 
-  public static List<Call> makeInitializer(
+  public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final Primitive mode,
       final BitVector value) {
@@ -577,7 +577,7 @@ public final class EngineUtils {
         String.format("No suitable preparator is found for %s.", mode.getSignature()));
   }
 
-  public static List<Call> makeStreamInit(
+  public static List<AbstractCall> makeStreamInit(
       final EngineContext engineContext, final String streamId) {
     checkNotNull(engineContext);
     checkNotNull(streamId);
@@ -589,7 +589,7 @@ public final class EngineUtils {
     return stream.getInit();
   }
 
-  public static List<Call> makeStreamRead(
+  public static List<AbstractCall> makeStreamRead(
       final EngineContext engineContext, final String streamId) {
     checkNotNull(engineContext);
     checkNotNull(streamId);
@@ -601,7 +601,7 @@ public final class EngineUtils {
     return stream.getRead();
   }
 
-  public static List<Call> makeStreamWrite(
+  public static List<AbstractCall> makeStreamWrite(
       final EngineContext engineContext, final String streamId) {
     checkNotNull(engineContext);
     checkNotNull(streamId);
@@ -654,11 +654,11 @@ public final class EngineUtils {
     }
   }
 
-  public static Set<AddressingModeWrapper> getOutAddressingModes(final List<Call> calls) {
+  public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {
     checkNotNull(calls);
 
     final Set<AddressingModeWrapper> modes = new LinkedHashSet<>();
-    for (final Call call : calls) {
+    for (final AbstractCall call : calls) {
       if (call.isExecutable()) {
         saveOutAddressingModes(call.getRootOperation(), modes);
       }

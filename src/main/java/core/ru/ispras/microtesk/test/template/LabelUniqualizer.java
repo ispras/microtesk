@@ -78,7 +78,7 @@ public final class LabelUniqualizer {
     labelScopes.pop();
   }
 
-  public void makeLabelsUnique(final Call call) {
+  public void makeLabelsUnique(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
     final int referenceNumber = labelScopes.peek().first;

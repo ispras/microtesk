@@ -30,14 +30,14 @@ public final class MemoryPreparator {
   private final int dataSize;
   private final LazyData addressHolder;
   private final LazyData dataHolder;
-  private final List<Call> calls;
+  private final List<AbstractCall> calls;
   private final LabelUniqualizer.SeriesId labelSeriesId;
 
   protected MemoryPreparator(
       final int dataSize,
       final LazyData addressHolder,
       final LazyData dataHolder,
-      final List<Call> calls) {
+      final List<AbstractCall> calls) {
     InvariantChecks.checkGreaterThanZero(dataSize);
     InvariantChecks.checkNotNull(addressHolder);
     InvariantChecks.checkNotNull(dataHolder);
@@ -54,7 +54,7 @@ public final class MemoryPreparator {
     return dataSize;
   }
 
-  public List<Call> makeInitializer(
+  public List<AbstractCall> makeInitializer(
       final PreparatorStore preparators,
       final BitVector addressValue,
       final BitVector dataValue) {

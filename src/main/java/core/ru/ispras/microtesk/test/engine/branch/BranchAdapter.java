@@ -43,7 +43,7 @@ import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.utils.TestBaseQueryCreator;
 import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -70,7 +70,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<Call> abstractSequence,
+      final List<AbstractCall> abstractSequence,
       final BranchSolution solution) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -84,14 +84,14 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     final TestSequence.Builder testSequenceBuilder = new TestSequence.Builder();
 
     // Maps branch indices to control code (the map should be sorted).
-    final SortedMap<Integer, List<Call>> steps = new TreeMap<>();
+    final SortedMap<Integer, List<AbstractCall>> steps = new TreeMap<>();
 
     // Contains positions of the delay slots.
     final Set<Integer> delaySlots = new HashSet<>();
 
     // Construct the control code to enforce the given execution trace.
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call abstractBranchCall = abstractSequence.get(i);
+      final AbstractCall abstractBranchCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       if (!branchEntry.isIfThen()) {
@@ -102,7 +102,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
       final String testDataStream = getTestDataStream(abstractBranchCall);
-      final List<Call> controlCode = makeStreamRead(engineContext, testDataStream);
+      final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
 
       boolean isEnforced = false;
 
@@ -112,9 +112,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           // Add the control code just after the basic block (the code should follow the label).
           final int codePosition = block + 1;
 
-          List<Call> step = steps.get(codePosition);
+          List<AbstractCall> step = steps.get(codePosition);
           if (step == null) {
-            steps.put(codePosition, step = new ArrayList<Call>());
+            steps.put(codePosition, step = new ArrayList<AbstractCall>());
           }
 
           Logger.debug("Control code of length %d for instruction %d put to block %d",
@@ -135,9 +135,9 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           // Delay slot follows the branch.
           final int slotPosition = i + 1;
 
-          List<Call> step = steps.get(slotPosition);
+          List<AbstractCall> step = steps.get(slotPosition);
           if (step == null) {
-            steps.put(slotPosition, step = new ArrayList<Call>());
+            steps.put(slotPosition, step = new ArrayList<AbstractCall>());
           }
 
           delaySlots.add(slotPosition);
@@ -168,12 +168,12 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     // Insert the control code into the sequence.
     int correction = 0;
 
-    final List<Call> modifiedSequence = new ArrayList<Call>();
+    final List<AbstractCall> modifiedSequence = new ArrayList<AbstractCall>();
     modifiedSequence.addAll(abstractSequence);
 
-    for (final Map.Entry<Integer, List<Call>> entry : steps.entrySet()) {
+    for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
       final int position = entry.getKey();
-      final List<Call> controlCode = entry.getValue();
+      final List<AbstractCall> controlCode = entry.getValue();
 
       modifiedSequence.addAll(position + correction, controlCode);
 
@@ -212,7 +212,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Call abstractCall)
+      final AbstractCall abstractCall)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
@@ -225,13 +225,13 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final List<Call> abstractSequence)
+      final List<AbstractCall> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    for (final Call abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence) {
       updatePrologue(engineContext, testSequenceBuilder, abstractCall);
     }
   }
@@ -239,7 +239,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Call abstractCall,
+      final AbstractCall abstractCall,
       final boolean branchTaken,
       final boolean branchCondition,
       final boolean writeIntoStream)
@@ -293,7 +293,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
         final Primitive mode = (Primitive) arg.getValue();
         final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
 
-        final List<Call> initializingCalls = new ArrayList<>();
+        final List<AbstractCall> initializingCalls = new ArrayList<>();
 
         initializingCalls.addAll(makeInitializer(engineContext, mode, value));
         if (writeIntoStream) {
@@ -312,7 +312,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updatePrologue(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Call abstractBranchCall,
+      final AbstractCall abstractBranchCall,
       final BranchEntry branchEntry,
       final boolean controlCodeInBasicBlock)
         throws ConfigurationException {
@@ -361,7 +361,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
           // Data stream should be initialized before the first write. 
           if (!streamUsed) {
             final String testDataStream = getTestDataStream(abstractBranchCall);
-            final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
+            final List<AbstractCall> initDataStream = makeStreamInit(engineContext, testDataStream);
 
             updatePrologue(engineContext, testSequenceBuilder, initDataStream);
             streamUsed = true;
@@ -380,7 +380,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
       // Initialize the data stream if it was used. 
       if (streamUsed) {
         final String testDataStream = getTestDataStream(abstractBranchCall);
-        final List<Call> initDataStream = makeStreamInit(engineContext, testDataStream);
+        final List<AbstractCall> initDataStream = makeStreamInit(engineContext, testDataStream);
 
         updatePrologue(engineContext, testSequenceBuilder, initDataStream);
       }
@@ -404,7 +404,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updateBody(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final Call abstractCall)
+      final AbstractCall abstractCall)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
@@ -417,13 +417,13 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
   private void updateBody(
       final EngineContext engineContext,
       final TestSequence.Builder testSequenceBuilder,
-      final List<Call> abstractSequence)
+      final List<AbstractCall> abstractSequence)
           throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(testSequenceBuilder);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    for (final Call abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence) {
       updateBody(engineContext, testSequenceBuilder, abstractCall);
     }
   }
@@ -454,7 +454,7 @@ public final class BranchAdapter implements Adapter<BranchSolution> {
     return result;
   }
 
-  private String getTestDataStream(final Call abstractBranchCall) {
+  private String getTestDataStream(final AbstractCall abstractBranchCall) {
     InvariantChecks.checkNotNull(abstractBranchCall);
 
     final Primitive primitive = abstractBranchCall.getRootOperation();

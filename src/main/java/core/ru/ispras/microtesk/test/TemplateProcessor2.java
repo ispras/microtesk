@@ -37,7 +37,7 @@ import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
@@ -372,7 +372,7 @@ final class TemplateProcessor2 implements Template.Processor {
     TestSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
-      final Iterator<List<Call>> abstractIt = block.getIterator();
+      final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
@@ -459,7 +459,7 @@ final class TemplateProcessor2 implements Template.Processor {
     TestSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
-    final Iterator<List<Call>> abstractIt = block.getIterator();
+    final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 

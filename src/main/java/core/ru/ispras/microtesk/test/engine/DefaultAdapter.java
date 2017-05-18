@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.microtesk.test.TestSequence;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 
 /**
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
@@ -37,7 +37,7 @@ public final class DefaultAdapter implements Adapter<TestSequence> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<Call> abstractSequence,
+      final List<AbstractCall> abstractSequence,
       final TestSequence solution) {
     return new AdapterResult(solution);
   }

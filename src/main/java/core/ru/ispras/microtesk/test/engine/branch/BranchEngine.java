@@ -26,7 +26,7 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineResult;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
@@ -49,7 +49,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
-  public static boolean isIfThen(final Call abstractCall) {
+  public static boolean isIfThen(final AbstractCall abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
     // Self check.
@@ -66,7 +66,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
     return flag;
   }
 
-  public static boolean isGoto(final Call abstractCall) {
+  public static boolean isGoto(final AbstractCall abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
     // Self check.
@@ -109,14 +109,14 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
   @Override
   public EngineResult<BranchSolution> solve(
-      final EngineContext engineContext, final List<Call> abstractSequence) {
+      final EngineContext engineContext, final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
     // Collect information about labels.
     final LabelManager labels = new LabelManager();
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call call = abstractSequence.get(i);
+      final AbstractCall call = abstractSequence.get(i);
       for (final Label label : call.getLabels()) {
         labels.addLabel(label, i);
       }
@@ -127,7 +127,7 @@ public final class BranchEngine implements Engine<BranchSolution> {
 
     int delaySlot = 0;
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final Call abstractCall = abstractSequence.get(i);
+      final AbstractCall abstractCall = abstractSequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       final boolean isIfThen = isIfThen(abstractCall);

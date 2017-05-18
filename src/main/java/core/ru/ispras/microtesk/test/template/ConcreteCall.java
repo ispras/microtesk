@@ -49,20 +49,20 @@ public final class ConcreteCall {
   // TODO:
   public static ConcreteCall newText(final String text) {
     InvariantChecks.checkNotNull(text);
-    return new ConcreteCall(Call.newText(text));
+    return new ConcreteCall(AbstractCall.newText(text));
   }
 
   public static ConcreteCall newLine() {
-    return new ConcreteCall(Call.newLine());
+    return new ConcreteCall(AbstractCall.newLine());
   }
 
   public static ConcreteCall newComment(final String comment) {
     InvariantChecks.checkNotNull(comment);
-    return new ConcreteCall(Call.newComment(comment));
+    return new ConcreteCall(AbstractCall.newComment(comment));
   }
 
   public ConcreteCall(
-      final Call abstractCall,
+      final AbstractCall abstractCall,
       final InstructionCall executable) {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(executable);
@@ -80,7 +80,7 @@ public final class ConcreteCall {
   }
 
   public ConcreteCall(
-      final Call abstractCall,
+      final AbstractCall abstractCall,
       final InstructionCall executable,
       final List<LabelReference> labelRefs) {
     InvariantChecks.checkNotNull(abstractCall);
@@ -99,7 +99,7 @@ public final class ConcreteCall {
     this.data = null;
   }
 
-  public ConcreteCall(final Call abstractCall) {
+  public ConcreteCall(final AbstractCall abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
     this.text = abstractCall.getText();

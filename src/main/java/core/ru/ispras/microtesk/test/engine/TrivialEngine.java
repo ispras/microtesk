@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
@@ -51,7 +51,7 @@ public final class TrivialEngine implements Engine<TestSequence> {
   @Override
   public EngineResult<TestSequence> solve(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) {
+      final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -64,7 +64,7 @@ public final class TrivialEngine implements Engine<TestSequence> {
 
   private TestSequence process(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) throws ConfigurationException {
+      final List<AbstractCall> abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 

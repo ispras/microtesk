@@ -27,7 +27,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.TestSequence;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
@@ -77,10 +77,10 @@ public final class SelfCheckEngine {
           String.format("No suitable comparator is found for %s.", check.getMode()));
     }
 
-    final List<Call> abstractCalls =
+    final List<AbstractCall> abstractCalls =
         comparator.makeInitializer(preparators, abstractMode, value, null);
 
-    for (final Call abstractCall : abstractCalls) {
+    for (final AbstractCall abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = EngineUtils.makeConcreteCall(engineContext, abstractCall);
       sequenceBuilder.add(concreteCall);
     }

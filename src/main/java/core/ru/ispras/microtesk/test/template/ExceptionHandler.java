@@ -33,12 +33,12 @@ public final class ExceptionHandler {
   public static final class Section {
     private final BigInteger origin;
     private final Set<String> exceptions;
-    private final List<Call> calls;
+    private final List<AbstractCall> calls;
 
     protected Section(
         final BigInteger origin,
         final Set<String> exceptions,
-        final List<Call> calls) {
+        final List<AbstractCall> calls) {
       InvariantChecks.checkNotNull(exceptions);
       InvariantChecks.checkNotNull(origin);
       InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
@@ -57,7 +57,7 @@ public final class ExceptionHandler {
       return exceptions;
     }
 
-    public List<Call> getCalls() {
+    public List<AbstractCall> getCalls() {
       return calls;
     }
   }

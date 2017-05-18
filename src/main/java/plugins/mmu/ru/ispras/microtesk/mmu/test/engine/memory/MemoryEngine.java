@@ -32,7 +32,7 @@ import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameter;
 import ru.ispras.microtesk.test.engine.EngineResult;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -113,24 +113,24 @@ public final class MemoryEngine implements Engine<MemorySolution> {
   static final ParamCount PARAM_COUNT = new ParamCount();
 
   // FIXME:
-  private static boolean isLoad(final Call abstractCall) {
+  private static boolean isLoad(final AbstractCall abstractCall) {
     final List<Primitive> commands = abstractCall.getCommands();
     return !commands.isEmpty() && commands.get(0).isLoad();
   }
 
   // FIXME:
-  private static boolean isStore(final Call abstractCall) {
+  private static boolean isStore(final AbstractCall abstractCall) {
     final List<Primitive> commands = abstractCall.getCommands();
     return !commands.isEmpty() && commands.get(0).isStore();
   }
 
   // FIXME:
-  private static int getBlockSize(final Call abstractCall) {
+  private static int getBlockSize(final AbstractCall abstractCall) {
     final List<Primitive> commands = abstractCall.getCommands();
     return !commands.isEmpty() ? commands.get(0).getBlockSize() : 0;
   }
 
-  public static boolean isMemoryAccessWithSituation(final Call abstractCall) {
+  public static boolean isMemoryAccessWithSituation(final AbstractCall abstractCall) {
     InvariantChecks.checkNotNull(abstractCall);
 
     if (!isLoad(abstractCall) && !isStore(abstractCall)) {
@@ -144,7 +144,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     return situation != null;
   }
 
-  public static MemoryAccessConstraints getMemoryAccessConstraints(final Call abstractCall) {
+  public static MemoryAccessConstraints getMemoryAccessConstraints(final AbstractCall abstractCall) {
     if (!isMemoryAccessWithSituation(abstractCall)) {
       return MemoryAccessConstraints.EMPTY;
     }
@@ -198,7 +198,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
 
   @Override
   public EngineResult<MemorySolution> solve(
-      final EngineContext engineContext, final List<Call> abstractSequence) {
+      final EngineContext engineContext, final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -208,7 +208,7 @@ public final class MemoryEngine implements Engine<MemorySolution> {
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
-    for (final Call abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence) {
       if(!isMemoryAccessWithSituation(abstractCall)) {
         // Skip non-memory-access instructions and memory-accesses instructions without situations.
         continue;

@@ -29,10 +29,10 @@ public final class StreamPreparatorBuilder {
   private final LazyPrimitive index;
   private final LabelValue startLabel;
 
-  private final List<Call> init;
-  private final List<Call> read;
-  private final List<Call> write;
-  private List<Call> currentMethod;
+  private final List<AbstractCall> init;
+  private final List<AbstractCall> read;
+  private final List<AbstractCall> write;
+  private List<AbstractCall> currentMethod;
 
   protected StreamPreparatorBuilder(
       final LabelManager memoryMap,
@@ -87,7 +87,7 @@ public final class StreamPreparatorBuilder {
     currentMethod = null; 
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     checkNotNull(call);
 
     if (null == currentMethod) {

@@ -49,7 +49,7 @@ import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
@@ -86,7 +86,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
   @Override
   public AdapterResult adapt(
       final EngineContext engineContext,
-      final List<Call> abstractSequence,
+      final List<AbstractCall> abstractSequence,
       final MemorySolution solution) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -217,7 +217,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
         dataValueBuilder.build();
 
-        final Call abstractCall = Call.newData(dataSectionBuilder.build());
+        final AbstractCall abstractCall = AbstractCall.newData(dataSectionBuilder.build());
         final ConcreteCall concreteCall = new ConcreteCall(abstractCall);
 
         preparation.add(concreteCall);
@@ -295,7 +295,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final BufferPreparator preparator = preparators.getPreparatorFor(buffer.getName());
     InvariantChecks.checkNotNull(preparator, "Missing preparator for " + buffer.getName());
 
-    final List<Call> abstractInitializer =
+    final List<AbstractCall> abstractInitializer =
         preparator.makeInitializer(engineContext.getPreparators(), address, entry);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
@@ -325,7 +325,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final MemoryPreparator preparator = preparators.getPreparatorFor(sizeInBits);
     InvariantChecks.checkNotNull(preparator, "Missing preparator for " + sizeInBits);
 
-    final List<Call> abstractInitializer =
+    final List<AbstractCall> abstractInitializer =
         preparator.makeInitializer(engineContext.getPreparators(), address, data);
     InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
@@ -343,7 +343,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   private List<ConcreteCall> prepareSequence(
       final EngineContext engineContext,
-      final List<Call> abstractSequence) {
+      final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -357,7 +357,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   private List<ConcreteCall> prepareAddresses(
       final EngineContext engineContext,
-      final List<Call> abstractSequence,
+      final List<AbstractCall> abstractSequence,
       final MemorySolution solution) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -368,7 +368,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
     int i = 0;
 
-    for (final Call abstractCall : abstractSequence) {
+    for (final AbstractCall abstractCall : abstractSequence) {
       if (!MemoryEngine.isMemoryAccessWithSituation(abstractCall)) {
         continue;
       }
@@ -400,7 +400,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
 
   private List<ConcreteCall> prepareAddress(
       final EngineContext engineContext,
-      final Call abstractCall,
+      final AbstractCall abstractCall,
       final AddressObject addressObject,
       final Set<AddressingModeWrapper> initializedModes) {
     InvariantChecks.checkNotNull(engineContext);
@@ -427,7 +427,7 @@ public final class MemoryAdapter implements Adapter<MemorySolution> {
     final Situation newSituation = new Situation(situation.getName(), newAttributes);
 
     try {
-      final List<Call> abstractInitializer = EngineUtils.makeInitializer(
+      final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
           engineContext, primitive, newSituation, initializedModes);
       InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 

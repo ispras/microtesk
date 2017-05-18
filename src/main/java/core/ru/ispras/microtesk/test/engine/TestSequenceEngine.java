@@ -28,7 +28,7 @@ import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.utils.StringUtils;
@@ -55,7 +55,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   }
 
   public EngineResult<AdapterResult> process(
-      final EngineContext context, final List<Call> abstractSequence) {
+      final EngineContext context, final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
@@ -90,12 +90,12 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
 
   @Override
   public EngineResult<AdapterResult> solve(
-      final EngineContext context, final List<Call> abstractSequence) {
+      final EngineContext context, final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
     // Makes a copy as the abstract sequence can be modified by solver or adapter.
-    List<Call> sequence = Call.copyAll(Call.expandAtomic(abstractSequence));
+    List<AbstractCall> sequence = AbstractCall.copyAll(AbstractCall.expandAtomic(abstractSequence));
 
     allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
     sequence = expandPreparators(context, sequence);
@@ -128,14 +128,14 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   }
 
   private static void allocateModes(
-      final List<Call> abstractSequence, final boolean markExplicitAsUsed) {
+      final List<AbstractCall> abstractSequence, final boolean markExplicitAsUsed) {
     final ModeAllocator modeAllocator = ModeAllocator.get();
     if (null != modeAllocator) {
       modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
     }
   }
 
-  private static List<SelfCheck> createSelfChecks(final List<Call> abstractSequence) {
+  private static List<SelfCheck> createSelfChecks(final List<AbstractCall> abstractSequence) {
     InvariantChecks.checkNotNull(abstractSequence);
 
     final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
@@ -148,8 +148,8 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
     return selfChecks;
   }
 
-  private static List<Call> expandPreparators(
-      final EngineContext context, final List<Call> abstractSequence) {
+  private static List<AbstractCall> expandPreparators(
+      final EngineContext context, final List<AbstractCall> abstractSequence) {
     // Labels in repeated parts of a sequence have to be unique only on sequence level.
     LabelUniqualizer.get().resetNumbers();
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
@@ -158,7 +158,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
   private static <T> EngineResult<AdapterResult> adapt(
       final Adapter<T> adapter,
       final EngineContext engineContext,
-      final List<Call> abstractSequence,
+      final List<AbstractCall> abstractSequence,
       final Iterator<?> solutionIterator) {
     return new EngineResult<>(new Iterator<AdapterResult>() {
       @Override
@@ -177,7 +177,7 @@ public final class TestSequenceEngine implements Engine<AdapterResult> {
         final Class<T> solutionClass = adapter.getSolutionClass();
 
         // Makes a copy as the adapter may modify the abstract sequence.
-        final List<Call> abstractSequenceCopy = Call.copyAll(abstractSequence);
+        final List<AbstractCall> abstractSequenceCopy = AbstractCall.copyAll(abstractSequence);
 
         try {
           engineContext.getModel().setUseTempState(true);

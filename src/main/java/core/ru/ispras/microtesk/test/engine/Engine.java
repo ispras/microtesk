@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 
 /**
  * {@link Engine} defines an interface of abstract sequence processing engines.
@@ -29,7 +29,7 @@ public interface Engine<T> {
 
   void configure(Map<String, Object> attributes);
 
-  EngineResult<T> solve(EngineContext engineContext, List<Call> abstractSequence);
+  EngineResult<T> solve(EngineContext engineContext, List<AbstractCall> abstractSequence);
 
   void onStartProgram();
 

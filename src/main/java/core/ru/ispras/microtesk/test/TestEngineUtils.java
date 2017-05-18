@@ -38,7 +38,7 @@ import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
@@ -83,17 +83,17 @@ final class TestEngineUtils {
     return testSequenceEngine;
   }
 
-  public static List<Call> getSingleSequence(final Block block) {
+  public static List<AbstractCall> getSingleSequence(final Block block) {
     InvariantChecks.checkNotNull(block);
 
-    final Iterator<List<Call>> iterator = block.getIterator();
+    final Iterator<List<AbstractCall>> iterator = block.getIterator();
     iterator.init();
 
     if (!iterator.hasValue()) {
       return Collections.emptyList();
     }
 
-    final List<Call> result = iterator.value();
+    final List<AbstractCall> result = iterator.value();
 
     iterator.next();
     InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
@@ -144,7 +144,7 @@ final class TestEngineUtils {
     InvariantChecks.checkTrue(block.isExternal());
 
     final TestSequenceEngine engine = getEngine(block);
-    final List<Call> abstractSequence = getSingleSequence(block);
+    final List<AbstractCall> abstractSequence = getSingleSequence(block);
 
     final EngineResult<AdapterResult> engineResult = engine.process(engineContext, abstractSequence);
     final Iterator<AdapterResult> iterator = engineResult.getResult();
@@ -184,9 +184,9 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(section);
 
-    final List<Call> calls = new ArrayList<>();
-    calls.add(Call.newComment(String.format("Exceptions: %s", section.getExceptions())));
-    calls.add(Call.newOrigin(section.getOrigin(), false));
+    final List<AbstractCall> calls = new ArrayList<>();
+    calls.add(AbstractCall.newComment(String.format("Exceptions: %s", section.getExceptions())));
+    calls.add(AbstractCall.newOrigin(section.getOrigin(), false));
     calls.addAll(section.getCalls());
 
     final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
@@ -196,10 +196,10 @@ final class TestEngineUtils {
     return concreteSequenceBuilder.build();
   }
 
-  public static BigInteger getSequenceAddress(final List<Call> sequence) {
+  public static BigInteger getSequenceAddress(final List<AbstractCall> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
-    for (final Call call : sequence) {
+    for (final AbstractCall call : sequence) {
       final BigInteger origin = call.getOrigin();
       if (null != origin) {
         return !call.isRelativeOrigin() ?
@@ -224,11 +224,11 @@ final class TestEngineUtils {
    * 
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
-  public static boolean isLabelDefined(final List<Call> sequence, final Label label) {
+  public static boolean isLabelDefined(final List<AbstractCall> sequence, final Label label) {
     InvariantChecks.checkNotNull(sequence);
     InvariantChecks.checkNotNull(label);
 
-    for (final Call call : sequence) {
+    for (final AbstractCall call : sequence) {
       for (final Label currentLabel : call.getLabels()) {
         if (label.getName().equals(currentLabel.getName())) {
           return true;
@@ -275,10 +275,10 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(block);
     InvariantChecks.checkTrue(block.isExternal());
 
-    final List<Call> sequence = getSingleSequence(block);
+    final List<AbstractCall> sequence = getSingleSequence(block);
     InvariantChecks.checkNotNull(sequence);
 
-    for (final Call call : sequence) {
+    for (final AbstractCall call : sequence) {
       if (null != call.getOrigin()) {
         return !call.isRelativeOrigin();
       }

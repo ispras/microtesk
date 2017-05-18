@@ -29,12 +29,12 @@ public final class Block {
   private final boolean isExternal;
   private final Map<String, Object> attributes;
 
-  private final Iterator<List<Call>> iterator;
+  private final Iterator<List<AbstractCall>> iterator;
   private final boolean isEmpty;
 
-  private final List<Call> prologue;
-  private final List<Call> epilogue;
-  private final Iterator<List<Call>> wrappedIterator;
+  private final List<AbstractCall> prologue;
+  private final List<AbstractCall> epilogue;
+  private final Iterator<List<AbstractCall>> wrappedIterator;
 
   // Number of times the block was nested into other blocks.
   private int refCount;
@@ -45,9 +45,9 @@ public final class Block {
       final boolean isAtomic,
       final boolean isExternal,
       final Map<String, Object> attributes,
-      final Iterator<List<Call>> iterator,
-      final List<Call> prologue,
-      final List<Call> epilogue) {
+      final Iterator<List<AbstractCall>> iterator,
+      final List<AbstractCall> prologue,
+      final List<AbstractCall> epilogue) {
     InvariantChecks.checkNotNull(blockId);
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(iterator);
@@ -76,7 +76,7 @@ public final class Block {
     this.epilogue = epilogue;
     this.wrappedIterator = prologue.isEmpty() && epilogue.isEmpty() ?
         iterator :
-        new GeneratorPrologueEpilogue<Call>(iterator, prologue, epilogue);
+        new GeneratorPrologueEpilogue<AbstractCall>(iterator, prologue, epilogue);
 
     this.refCount = 0;
   }
@@ -110,11 +110,11 @@ public final class Block {
     return attributes;
   }
 
-  public Iterator<List<Call>> getIterator() {
+  public Iterator<List<AbstractCall>> getIterator() {
     return getIterator(true);
   }
 
-  public Iterator<List<Call>> getIterator(final boolean isPrologueEpilogue) {
+  public Iterator<List<AbstractCall>> getIterator(final boolean isPrologueEpilogue) {
     return isPrologueEpilogue ? wrappedIterator : iterator;
   }
 
@@ -122,11 +122,11 @@ public final class Block {
     return isEmpty;
   }
 
-  public List<Call> getPrologue() {
+  public List<AbstractCall> getPrologue() {
     return prologue;
   }
 
-  public List<Call> getEpilogue() {
+  public List<AbstractCall> getEpilogue() {
     return epilogue;
   }
 

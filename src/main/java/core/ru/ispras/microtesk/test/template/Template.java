@@ -93,11 +93,11 @@ public final class Template {
   private final Set<String> definedExceptionHandlers;
 
   private final Deque<BlockBuilder> blockBuilders;
-  private CallBuilder callBuilder;
+  private AbstractCallBuilder callBuilder;
 
   private boolean isMainSection;
-  private List<Call> globalPrologue;
-  private List<Call> globalEpilogue;
+  private List<AbstractCall> globalPrologue;
+  private List<AbstractCall> globalEpilogue;
 
   private final Set<Block> unusedBlocks;
 
@@ -217,7 +217,7 @@ public final class Template {
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
 
-    this.callBuilder = new CallBuilder(getCurrentBlockId());
+    this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
   }
 
   private BlockBuilder endCurrentSection() {
@@ -287,7 +287,7 @@ public final class Template {
     newRootBuilder.setSequence(true);
 
     blockBuilders.push(newRootBuilder);
-    callBuilder = new CallBuilder(getCurrentBlockId());
+    callBuilder = new AbstractCallBuilder(getCurrentBlockId());
   }
 
   public final class BlockHolder {
@@ -385,15 +385,15 @@ public final class Template {
   }
 
   public void endBuildingCall() {
-    final Call call = callBuilder.build();
+    final AbstractCall call = callBuilder.build();
     debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
     addCall(call);
-    this.callBuilder = new CallBuilder(getCurrentBlockId());
+    this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
   }
 
-  private void addCall(final Call call) {
+  private void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
     if (!call.isEmpty()) {
@@ -456,7 +456,7 @@ public final class Template {
           mode.getName() + " is not an addressing mode.");
     }
 
-    addCall(Call.newFreeAllocatedMode(mode, freeAll));
+    addCall(AbstractCall.newFreeAllocatedMode(mode, freeAll));
   }
 
   public UnknownImmediateValue newUnknownImmediate(
@@ -1029,7 +1029,7 @@ public final class Template {
       processor.process(data);
     } else {
       endBuildingCall();
-      addCall(Call.newData(data));
+      addCall(AbstractCall.newData(data));
     }
   }
 

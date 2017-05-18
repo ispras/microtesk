@@ -36,8 +36,8 @@ public final class BlockBuilder {
 
   private final Map<String, Object> attributes;
   private final List<Block> nestedBlocks;
-  private final List<Call> prologue;
-  private final List<Call> epilogue;
+  private final List<AbstractCall> prologue;
+  private final List<AbstractCall> epilogue;
 
   private boolean isPrologue; // Flag to show that prologue is being constructed
   private boolean isEpilogue; // Flag to show that epilogue is being constructed
@@ -89,11 +89,11 @@ public final class BlockBuilder {
     return isExternal;
   }
 
-  public List<Call> getPrologue() {
+  public List<AbstractCall> getPrologue() {
     return prologue;
   }
 
-  public List<Call> getEpilogue() {
+  public List<AbstractCall> getEpilogue() {
     return epilogue;
   }
 
@@ -178,8 +178,8 @@ public final class BlockBuilder {
     }
 
     if (block.isAtomic()) {
-      final List<Call> sequence = GeneratorUtils.expand(block.getIterator());
-      addCall(Call.newAtomicSequence(sequence));
+      final List<AbstractCall> sequence = GeneratorUtils.expand(block.getIterator());
+      addCall(AbstractCall.newAtomicSequence(sequence));
     } else {
       nestedBlocks.add(block);
     }
@@ -187,7 +187,7 @@ public final class BlockBuilder {
     block.incRefCount();
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
     if (null == where && call.getWhere() != null) {
@@ -203,7 +203,7 @@ public final class BlockBuilder {
     } else if (isEpilogue) {
       epilogue.add(call);
     } else {
-      final Iterator<List<Call>> iterator =
+      final Iterator<List<AbstractCall>> iterator =
           new SingleValueIterator<>(Collections.singletonList(call));
 
       nestedBlocks.add(new Block(
@@ -212,8 +212,8 @@ public final class BlockBuilder {
           false,
           Collections.<String, Object>emptyMap(),
           iterator,
-          Collections.<Call>emptyList(),
-          Collections.<Call>emptyList()
+          Collections.<AbstractCall>emptyList(),
+          Collections.<AbstractCall>emptyList()
           ));
     }
   }
@@ -231,10 +231,10 @@ public final class BlockBuilder {
   }
 
   public Block build() {
-    return build(Collections.<Call>emptyList(), Collections.<Call>emptyList());
+    return build(Collections.<AbstractCall>emptyList(), Collections.<AbstractCall>emptyList());
   }
 
-  public Block build(final List<Call> globalPrologue, final List<Call> globalEpilogue) {
+  public Block build(final List<AbstractCall> globalPrologue, final List<AbstractCall> globalEpilogue) {
     InvariantChecks.checkNotNull(globalPrologue);
     InvariantChecks.checkNotNull(globalEpilogue);
 
@@ -253,24 +253,24 @@ public final class BlockBuilder {
           );
     }
 
-    final GeneratorBuilder<Call> generatorBuilder = newGeneratorBuilder();
+    final GeneratorBuilder<AbstractCall> generatorBuilder = newGeneratorBuilder();
 
-    final List<Call> resultPrologue = new ArrayList<>();
-    final List<Call> resultEpilogue = new ArrayList<>();
+    final List<AbstractCall> resultPrologue = new ArrayList<>();
+    final List<AbstractCall> resultEpilogue = new ArrayList<>();
 
     // Note: external code blocks have no prologue and epilogue. They can
     // define prologue and epilogue to be added to all test cases, but they must
     // be ignored when these blocks are processed.
 
     resultPrologue.addAll(globalPrologue);
-    resultPrologue.addAll(isExternal ? Collections.<Call>emptyList() : prologue);
+    resultPrologue.addAll(isExternal ? Collections.<AbstractCall>emptyList() : prologue);
 
     for (final Block block : nestedBlocks) {
       resultPrologue.addAll(block.getPrologue());
       resultEpilogue.addAll(block.getEpilogue());
 
       // This iterator does not add prologue and epilogue, which are handled by above lines.
-      final Iterator<List<Call>> iterator = block.getIterator(false);
+      final Iterator<List<AbstractCall>> iterator = block.getIterator(false);
       if (block.getRefCount() > 1) {
         generatorBuilder.addIterator(iterator.clone());
       } else {
@@ -278,13 +278,13 @@ public final class BlockBuilder {
       }
     }
 
-    resultEpilogue.addAll(isExternal ? Collections.<Call>emptyList() : epilogue);
+    resultEpilogue.addAll(isExternal ? Collections.<AbstractCall>emptyList() : epilogue);
     resultEpilogue.addAll(globalEpilogue);
 
     // For an empty sequence block (non-external, explicitly specified),
     // a single empty sequence is inserted.
     if (isEmpty() && !isExternal && (isAtomic || isSequence)) {
-      generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<Call>emptyList()));
+      generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<AbstractCall>emptyList()));
     }
 
     return new Block(
@@ -299,8 +299,8 @@ public final class BlockBuilder {
         );
   }
 
-  private GeneratorBuilder<Call> newGeneratorBuilder() {
-    final GeneratorBuilder<Call> generatorBuilder =
+  private GeneratorBuilder<AbstractCall> newGeneratorBuilder() {
+    final GeneratorBuilder<AbstractCall> generatorBuilder =
         new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
 
     if (null != combinatorName) {

@@ -32,14 +32,14 @@ public final class BufferPreparator {
   private final String bufferId;
   private final int levels;
   private final BufferPreparatorAddressEntry addressEntry;
-  private final List<Call> calls;
+  private final List<AbstractCall> calls;
   private final LabelUniqualizer.SeriesId labelSeriesId;
 
   protected BufferPreparator(
       final String bufferId,
       final int levels,
       final BufferPreparatorAddressEntry addressAndEntry,
-      final List<Call> calls) {
+      final List<AbstractCall> calls) {
     InvariantChecks.checkNotNull(bufferId);
     InvariantChecks.checkGreaterOrEqZero(levels);
     InvariantChecks.checkNotNull(addressAndEntry);
@@ -60,7 +60,7 @@ public final class BufferPreparator {
     return levels;
   }
 
-  public List<Call> makeInitializer(
+  public List<AbstractCall> makeInitializer(
       final PreparatorStore preparators,
       final BitVector addressValue,
       final Map<String, BitVector> entryFieldValues) {

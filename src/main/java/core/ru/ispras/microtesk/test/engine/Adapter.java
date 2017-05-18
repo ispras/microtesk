@@ -17,7 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import java.util.List;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.template.Call;
+import ru.ispras.microtesk.test.template.AbstractCall;
 
 /**
  * {@link Adapter} defines an interface of adapters of abstract call sequence solution provided
@@ -30,7 +30,7 @@ public interface Adapter<T> {
 
   void configure(Map<String, Object> attributes);
 
-  AdapterResult adapt(EngineContext engineContext, List<Call> abstractSequence, T solution);
+  AdapterResult adapt(EngineContext engineContext, List<AbstractCall> abstractSequence, T solution);
 
   void onStartProgram();
 

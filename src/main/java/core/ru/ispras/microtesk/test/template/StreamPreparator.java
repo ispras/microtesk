@@ -26,9 +26,9 @@ import ru.ispras.microtesk.test.LabelManager;
 public final class StreamPreparator {
   private final LabelManager memoryMap;
 
-  private final List<Call> init;
-  private final List<Call> read;
-  private final List<Call> write;
+  private final List<AbstractCall> init;
+  private final List<AbstractCall> read;
+  private final List<AbstractCall> write;
 
   private final LazyPrimitive data;
   private final LazyPrimitive index;
@@ -36,9 +36,9 @@ public final class StreamPreparator {
 
   protected StreamPreparator(
       final LabelManager memoryMap,
-      final List<Call> init,
-      final List<Call> read,
-      final List<Call> write,
+      final List<AbstractCall> init,
+      final List<AbstractCall> read,
+      final List<AbstractCall> write,
       final LazyPrimitive data,
       final LazyPrimitive index,
       final LabelValue startLabel) {
@@ -90,9 +90,9 @@ public final class StreamPreparator {
 
     return new Stream(
         label.getName(),
-        Call.copyAll(init),
-        Call.copyAll(read),
-        Call.copyAll(write),
+        AbstractCall.copyAll(init),
+        AbstractCall.copyAll(read),
+        AbstractCall.copyAll(write),
         length
         );
   }

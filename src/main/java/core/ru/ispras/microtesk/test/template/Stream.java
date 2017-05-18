@@ -22,15 +22,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class Stream {
   private final String startLabelName;
   private final int length;
-  private final List<Call> init;
-  private final List<Call> read;
-  private final List<Call> write;
+  private final List<AbstractCall> init;
+  private final List<AbstractCall> read;
+  private final List<AbstractCall> write;
 
   protected Stream(
       final String startLabelName,
-      final List<Call> init,
-      final List<Call> read,
-      final List<Call> write,
+      final List<AbstractCall> init,
+      final List<AbstractCall> read,
+      final List<AbstractCall> write,
       final int length) {
     InvariantChecks.checkNotNull(startLabelName);
     InvariantChecks.checkNotNull(init);
@@ -54,15 +54,15 @@ public final class Stream {
     return length;
   }
 
-  public List<Call> getInit() {
+  public List<AbstractCall> getInit() {
     return init;
   }
 
-  public List<Call> getRead() {
+  public List<AbstractCall> getRead() {
     return read;
   }
 
-  public List<Call> getWrite() {
+  public List<AbstractCall> getWrite() {
     return write;
   }
 

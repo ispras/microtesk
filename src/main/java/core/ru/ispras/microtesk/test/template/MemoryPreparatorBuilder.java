@@ -29,7 +29,7 @@ public final class MemoryPreparatorBuilder {
   private final int dataSize;
   private final LazyData address;
   private final LazyData data;
-  private final List<Call> calls;
+  private final List<AbstractCall> calls;
 
   protected MemoryPreparatorBuilder(final int dataSize) {
     InvariantChecks.checkGreaterThanZero(dataSize);
@@ -60,7 +60,7 @@ public final class MemoryPreparatorBuilder {
     return new LazyValue(address, start, end);
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);
   }

@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CallBuilder {
+public final class AbstractCallBuilder {
   private final BlockId blockId;
 
   private Where where;
@@ -38,7 +38,7 @@ public final class CallBuilder {
 
   private PreparatorReference preparatorReference;
 
-  protected CallBuilder(final BlockId blockId) {
+  protected AbstractCallBuilder(final BlockId blockId) {
     checkNotNull(blockId);
 
     this.blockId = blockId;
@@ -114,8 +114,8 @@ public final class CallBuilder {
     this.preparatorReference = preparatorReference;
   }
 
-  public Call build() {
-    return new Call(
+  public AbstractCall build() {
+    return new AbstractCall(
         where,
         text,
         rootOperation,

@@ -44,7 +44,7 @@ public final class Preparator {
   private final Mask mask;
   private final List<Argument> arguments;
 
-  private final Variate<List<Call>> calls;
+  private final Variate<List<AbstractCall>> calls;
   private final Map<String, Variant> variants;
 
   private final LabelUniqualizer.SeriesId labelSeriesId;
@@ -57,7 +57,7 @@ public final class Preparator {
       final String name,
       final Mask mask,
       final List<Argument> arguments,
-      final List<Call> calls,
+      final List<AbstractCall> calls,
       final List<Variant> variants) {
     InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(targetHolder);
@@ -78,7 +78,7 @@ public final class Preparator {
     this.arguments = arguments;
 
     if (!variants.isEmpty()) {
-      final VariateBuilder<List<Call>> callBuilder = new VariateBuilder<>();
+      final VariateBuilder<List<AbstractCall>> callBuilder = new VariateBuilder<>();
       final Map<String, Variant> variantMap = new HashMap<>();
 
       for (final Variant variant : variants) {
@@ -149,7 +149,7 @@ public final class Preparator {
     return true;
   }
 
-  public List<Call> makeInitializer(
+  public List<AbstractCall> makeInitializer(
       final PreparatorStore preparators,
       final Primitive target,
       final BitVector data,
@@ -161,14 +161,14 @@ public final class Preparator {
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    final List<Call> chosenCalls = chooseCalls(preferedVariantName);
+    final List<AbstractCall> chosenCalls = chooseCalls(preferedVariantName);
     return expandPreparators(labelSeriesId, preparators, chosenCalls);
   }
 
-  public static List<Call> expandPreparators(
+  public static List<AbstractCall> expandPreparators(
       final LabelUniqualizer.SeriesId labelSeriesId,
       final PreparatorStore preparators,
-      final List<Call> calls) {
+      final List<AbstractCall> calls) {
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(calls);
 
@@ -176,8 +176,8 @@ public final class Preparator {
       LabelUniqualizer.get().pushLabelScope(labelSeriesId);
     }
 
-    final List<Call> expandedCalls = new ArrayList<>();
-    for (final Call call : calls) {
+    final List<AbstractCall> expandedCalls = new ArrayList<>();
+    for (final AbstractCall call : calls) {
       if (call.isPreparatorCall()) {
         final PreparatorReference reference = call.getPreparatorReference();
 
@@ -194,13 +194,13 @@ public final class Preparator {
               "No suitable preparator is found for %s.", target.getSignature()));
         }
 
-        final List<Call> expanded =
+        final List<AbstractCall> expanded =
             preparator.makeInitializer(preparators, target, data, variantName);
 
         expandedCalls.addAll(expanded);
       } else {
         if (null != labelSeriesId) {
-          final Call callCopy = new Call(call);
+          final AbstractCall callCopy = new AbstractCall(call);
           LabelUniqualizer.get().makeLabelsUnique(callCopy);
           expandedCalls.add(callCopy);
         } else {
@@ -219,7 +219,7 @@ public final class Preparator {
     return expandedCalls;
   }
 
-  protected List<Call> chooseCalls(final String preferedVariantName) {
+  protected List<AbstractCall> chooseCalls(final String preferedVariantName) {
     if (null != preferedVariantName) {
       final Variant variant = variants.get(preferedVariantName);
       if (null != variant) {
@@ -299,7 +299,7 @@ public final class Preparator {
     private final String name;
     private final boolean biased;
     private final int bias;
-    private final List<Call> calls;
+    private final List<AbstractCall> calls;
 
     protected Variant(final String name, final int bias) {
       this.name = name;
@@ -327,11 +327,11 @@ public final class Preparator {
       return bias;
     }
 
-    public List<Call> getCalls() {
+    public List<AbstractCall> getCalls() {
       return Collections.unmodifiableList(calls);
     }
 
-    public void addCall(final Call call) {
+    public void addCall(final AbstractCall call) {
       InvariantChecks.checkNotNull(call);
       calls.add(call);
     }

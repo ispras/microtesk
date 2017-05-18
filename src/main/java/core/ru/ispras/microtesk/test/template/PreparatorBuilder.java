@@ -38,7 +38,7 @@ public final class PreparatorBuilder {
   private Mask mask;
   private final List<Preparator.Argument> arguments;
 
-  private final List<Call> calls;
+  private final List<AbstractCall> calls;
   private final List<Preparator.Variant> variants;
   private Preparator.Variant currentVariant;
 
@@ -153,7 +153,7 @@ public final class PreparatorBuilder {
     currentVariant = null;
   }
 
-  public void addCall(final Call call) {
+  public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
     if (null != currentVariant) {
