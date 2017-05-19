@@ -349,7 +349,9 @@ final class TemplateProcessor2 implements Template.Processor {
       runExecutionFromStart();
     }
 
-    final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
+    final ConcreteSequence prevEntry = testProgram.hasEntry(entry) ?
+                                       testProgram.getPrevEntry(entry) :
+                                       testProgram.getLastEntry();
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
 
     // This is needed to prevent allocation of postponed sequences in middle
@@ -391,7 +393,9 @@ final class TemplateProcessor2 implements Template.Processor {
           final int sequenceIndex = engineContext.getStatistics().getSequences();
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
-          if (previous == entry) {
+          if (!testProgram.hasEntry(previous)) {
+            allocateTestSequence(sequence, sequenceIndex);
+          } else if (previous == entry) {
             allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
           } else {
             allocateTestSequenceAfter(previous, sequence, sequenceIndex);
@@ -412,7 +416,7 @@ final class TemplateProcessor2 implements Template.Processor {
           allocationAddress = previous.getEndAddress();
 
           if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
-            // finishProgram();
+            finishProgram();
           }
         } // Concrete sequence iterator
       } // Abstract sequence iterator
