@@ -49,8 +49,7 @@ public final class StringUtils {
       if (sb.length() != 0) {
         sb.append(sep);
       }
-      sb.append(
-          null != converter ? converter.toString(item) : item.toString());
+      sb.append(null != converter ? converter.toString(item) : item.toString());
     }
 
     return sb.toString();
@@ -67,9 +66,7 @@ public final class StringUtils {
   }
 
   private static Pair<String, String> splitOnIndex(final String str, final int index) {
-    if (index < 0) {
-      return new Pair<>("", str);
-    }
-    return new Pair<>(str.substring(0, index), str.substring(index + 1));
+    return index < 0 ? new Pair<>("", str) :
+                       new Pair<>(str.substring(0, index), str.substring(index + 1));
   }
 }
