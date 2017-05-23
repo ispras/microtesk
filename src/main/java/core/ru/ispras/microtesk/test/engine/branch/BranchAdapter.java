@@ -70,12 +70,6 @@ public final class BranchAdapter implements Adapter {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final BranchSolution solution = (BranchSolution) abstractSequence.getUserData();
-    final BranchStructure branchStructure = solution.getBranchStructure();
-    InvariantChecks.checkTrue(abstractSequence.size() == branchStructure.size());
-
-    Logger.debug("Branch structure: %s", branchStructure);
-
     final ConcreteSequence.Builder testSequenceBuilder = new ConcreteSequence.Builder();
 
     // Maps branch indices to control code (the map should be sorted).
@@ -86,8 +80,8 @@ public final class BranchAdapter implements Adapter {
 
     // Construct the control code to enforce the given execution trace.
     for (int i = 0; i < abstractSequence.size(); i++) {
-      final AbstractCall abstractBranchCall = abstractSequence.getSequence().get(i);
-      final BranchEntry branchEntry = branchStructure.get(i);
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+      final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
       if (!branchEntry.isIfThen()) {
         continue;
@@ -96,7 +90,7 @@ public final class BranchAdapter implements Adapter {
       final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
-      final String testDataStream = getTestDataStream(abstractBranchCall);
+      final String testDataStream = getTestDataStream(abstractCall);
       final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
 
       boolean isEnforced = false;
@@ -152,7 +146,7 @@ public final class BranchAdapter implements Adapter {
         updatePrologue(
             engineContext,
             testSequenceBuilder,
-            abstractBranchCall,
+            abstractCall,
             branchEntry,
             isBasicBlock);
       } catch (final ConfigurationException e) {
@@ -195,14 +189,10 @@ public final class BranchAdapter implements Adapter {
   }
 
   @Override
-  public void onStartProgram() {
-    // Empty
-  }
+  public void onStartProgram() {}
 
   @Override
-  public void onEndProgram() {
-    // Empty
-  }
+  public void onEndProgram() {}
 
   private void updatePrologue(
       final EngineContext engineContext,

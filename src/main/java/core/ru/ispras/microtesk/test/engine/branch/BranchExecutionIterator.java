@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.List;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -23,17 +25,17 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchExecutionIterator implements Iterator<BranchStructure> {
+public final class BranchExecutionIterator implements Iterator<List<BranchEntry>> {
   private final int maxBranchExecutions;
   private final int maxExecutionTraces;
 
-  private final Iterator<BranchStructure> branchStructureIterator;
+  private final Iterator<List<BranchEntry>> branchStructureIterator;
 
   private BranchTraceIterator branchTraceIterator;
   private boolean hasValue;
 
   public BranchExecutionIterator(
-      final Iterator<BranchStructure> branchStructureIterator,
+      final Iterator<List<BranchEntry>> branchStructureIterator,
       final int maxBranchExecutions,
       final int maxExecutionTraces) {
     InvariantChecks.checkNotNull(branchStructureIterator);
@@ -90,7 +92,7 @@ public final class BranchExecutionIterator implements Iterator<BranchStructure> 
   }
 
   @Override
-  public BranchStructure value() {
+  public List<BranchEntry> value() {
     InvariantChecks.checkTrue(hasValue());
     return branchTraceIterator.value();
   }

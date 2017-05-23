@@ -161,10 +161,8 @@ public final class TestSequenceEngine {
         final AbstractSequence abstractSequence = solutionIterator.value();
 
         // Makes a copy as the adapter may modify the abstract sequence.
-        // FIXME:
         final AbstractSequence abstractSequenceCopy =
             new AbstractSequence(AbstractCall.copyAll(abstractSequence.getSequence()));
-        abstractSequenceCopy.setUserData(abstractSequence.getUserData());
 
         try {
           engineContext.getModel().setUseTempState(true);

@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -29,7 +31,7 @@ import ru.ispras.testbase.knowledge.iterator.ProductIterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchStructureIterator implements Iterator<BranchStructure> {
+public final class BranchStructureIterator implements Iterator<List<BranchEntry>> {
   public static enum Flags {
     /**
      * Do not iterate consecutive basic blocks.
@@ -182,13 +184,18 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
   }
 
   @Override
-  public BranchStructure value() {
+  public List<BranchEntry> value() {
     int i, j, branch, block;
 
     final int length = lengthIterator.value();
     final int branchNumber = branchNumberIterator.value();
 
-    final BranchStructure structure = new BranchStructure(length + (delaySlot ? branchNumber : 0));
+    final int size = length + (delaySlot ? branchNumber : 0);
+    final List<BranchEntry> structure = new ArrayList<>(size);
+
+    for (i = 0; i < size; i++) {
+      structure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1));
+    }
 
     // Positions of branch instructions in the test template.
     final int[] array = branchPositionIterator.indexArrayValue();
@@ -251,7 +258,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
     int branchNumber = branchNumberIterator.value();
     int branchNumberLowerBound = 0;
 
-    final BranchStructure structure = value();
+    final List<BranchEntry> structure = value();
 
     branchNumberLowerBound = 0;
     for (int i = 1; i < structure.size(); i++) {
@@ -281,7 +288,7 @@ public final class BranchStructureIterator implements Iterator<BranchStructure> 
   }
 
   private boolean filterBranchLabelIterator_ConsecutiveBasicBlocks() {
-    final BranchStructure structure = value();
+    final List<BranchEntry> structure = value();
 
     final Set<Integer> jumps = new HashSet<Integer>();
     final Set<Integer> blocks = new HashSet<Integer>();

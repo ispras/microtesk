@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -25,18 +28,18 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 public final class BranchExecutionIteratorTestCase {
   public BranchExecutionIteratorTestCase() {}
 
-  private void runTest(final BranchStructure branchStructure, final int maxBranchExecution) {
+  private void runTest(final List<BranchEntry> branchStructure, final int maxBranchExecution) {
     System.out.format("Branch structure: %s%n", branchStructure);
     System.out.format("Max trace length: %d%n", maxBranchExecution);
 
-    final Iterator<BranchStructure> i =
+    final Iterator<List<BranchEntry>> i =
         new SingleValueIterator<>(branchStructure);
 
     final BranchExecutionIterator j =
         new BranchExecutionIterator(i, maxBranchExecution, -1);
 
     for (j.init(); j.hasValue(); j.next()) {
-      final BranchStructure v = j.value();
+      final List<BranchEntry> v = j.value();
       System.out.println(v);
     }
   }
@@ -54,38 +57,35 @@ public final class BranchExecutionIteratorTestCase {
    */
   @Test
   public void runTest1() {
-    final BranchStructure branchStructure = new BranchStructure(9);
+    final int size = 9;
+    final List<BranchEntry> branchStructure = new ArrayList<>(size);
 
-    final BranchEntry branchEntry0 = branchStructure.get(0);
-    branchEntry0.setType(BranchEntry.Type.BASIC_BLOCK);
+    final BranchEntry branchEntry0 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    branchStructure.add(branchEntry0);
 
-    final BranchEntry branchEntry1 = branchStructure.get(1);
-    branchEntry1.setType(BranchEntry.Type.IF_THEN);
-    branchEntry1.setBranchLabel(0);
+    final BranchEntry branchEntry1 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 0);
+    branchStructure.add(branchEntry1);
 
-    final BranchEntry branchEntry2 = branchStructure.get(2);
-    branchEntry2.setType(BranchEntry.Type.BASIC_BLOCK);
+    final BranchEntry branchEntry2 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    branchStructure.add(branchEntry2);
 
-    final BranchEntry branchEntry3 = branchStructure.get(3);
-    branchEntry3.setType(BranchEntry.Type.IF_THEN);
-    branchEntry3.setBranchLabel(2);
+    final BranchEntry branchEntry3 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 2);
+    branchStructure.add(branchEntry3);
 
-    final BranchEntry branchEntry4 = branchStructure.get(4);
-    branchEntry4.setType(BranchEntry.Type.BASIC_BLOCK);
+    final BranchEntry branchEntry4 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    branchStructure.add(branchEntry4);
 
-    final BranchEntry branchEntry5 = branchStructure.get(5);
-    branchEntry5.setType(BranchEntry.Type.IF_THEN);
-    branchEntry5.setBranchLabel(8);
+    final BranchEntry branchEntry5 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 8);
+    branchStructure.add(branchEntry5);
 
-    final BranchEntry branchEntry6 = branchStructure.get(6);
-    branchEntry6.setType(BranchEntry.Type.BASIC_BLOCK);
+    final BranchEntry branchEntry6 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    branchStructure.add(branchEntry6);
 
-    final BranchEntry branchEntry7 = branchStructure.get(7);
-    branchEntry7.setType(BranchEntry.Type.GOTO);
-    branchEntry7.setBranchLabel(0);
+    final BranchEntry branchEntry7 = new BranchEntry(BranchEntry.Type.GOTO, 0, 0);
+    branchStructure.add(branchEntry7);
 
-    final BranchEntry branchEntry8 = branchStructure.get(8);
-    branchEntry8.setType(BranchEntry.Type.BASIC_BLOCK);
+    final BranchEntry branchEntry8 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    branchStructure.add(branchEntry8);
 
     runTest(branchStructure, 2);
   }

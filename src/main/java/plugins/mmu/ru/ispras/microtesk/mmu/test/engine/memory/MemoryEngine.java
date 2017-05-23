@@ -165,16 +165,12 @@ public final class MemoryEngine implements Engine {
   }
 
   static AddressObject getAddressObject(final AbstractCall abstractCall) {
-    final Situation situation = getSituation(abstractCall);
-    final Map<String, Object> attributes = situation.getAttributes();
-
+    final Map<String, Object> attributes = abstractCall.getAttributes();
     return (AddressObject) attributes.get("addressObject");
   }
 
   static void setAddressObject(final AbstractCall abstractCall, final AddressObject addressObject) {
-    final Situation situation = getSituation(abstractCall);
-    final Map<String, Object> attributes = situation.getAttributes();
-
+    final Map<String, Object> attributes = abstractCall.getAttributes();
     attributes.put("addressObject", addressObject);
   }
 

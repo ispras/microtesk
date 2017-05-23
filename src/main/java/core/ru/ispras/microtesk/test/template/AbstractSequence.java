@@ -22,9 +22,6 @@ public final class AbstractSequence {
 
   private final List<AbstractCall> sequence;
 
-  // FIXME: remove.
-  private Object userData;
-
   public AbstractSequence() {
     this.sequence = new ArrayList<>();
   }
@@ -43,14 +40,6 @@ public final class AbstractSequence {
 
   public List<AbstractCall> getSequence() {
     return sequence;
-  }
-
-  public Object getUserData() {
-    return userData;
-  }
-
-  public void setUserData(final Object userData) {
-    this.userData = userData;
   }
 
   @Override

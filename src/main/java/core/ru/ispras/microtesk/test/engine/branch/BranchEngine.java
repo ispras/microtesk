@@ -16,7 +16,9 @@ package ru.ispras.microtesk.test.engine.branch;
 
 import static ru.ispras.microtesk.test.engine.utils.EngineUtils.getSituationName;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -49,9 +51,7 @@ public final class BranchEngine implements Engine {
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
-  public static boolean isIfThen(final AbstractCall abstractCall) {
-    InvariantChecks.checkNotNull(abstractCall);
-
+  static boolean isIfThen(final AbstractCall abstractCall) {
     // Self check.
     final String situationName = getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
@@ -66,9 +66,7 @@ public final class BranchEngine implements Engine {
     return flag;
   }
 
-  public static boolean isGoto(final AbstractCall abstractCall) {
-    InvariantChecks.checkNotNull(abstractCall);
-
+  static boolean isGoto(final AbstractCall abstractCall) {
     // Self check.
     final String situationName = getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
@@ -82,6 +80,16 @@ public final class BranchEngine implements Engine {
     */
 
     return flag;
+  }
+
+  static BranchEntry getBranchEntry(final AbstractCall abstractCall) {
+    final Map<String, Object> attributes = abstractCall.getAttributes();
+    return (BranchEntry) attributes.get("branchEntry");
+  }
+
+  static void setBranchEntry(final AbstractCall abstractCall, final BranchEntry branchEntry) {
+    final Map<String, Object> attributes = abstractCall.getAttributes();
+    attributes.put("branchEntry", branchEntry);
   }
 
   /** Branch execution limit: default value is 1. */
@@ -118,7 +126,10 @@ public final class BranchEngine implements Engine {
     }
 
     // Transform the abstract sequence into the branch structure.
-    final BranchStructure branchStructure = new BranchStructure(abstractSequence.size());
+    final List<BranchEntry> branchStructure = new ArrayList<>(abstractSequence.size());
+    for (int i = 0; i < abstractSequence.size(); i++) {
+      branchStructure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1));
+    }
 
     int delaySlot = 0;
     for (int i = 0; i < abstractSequence.size(); i++) {
@@ -160,8 +171,8 @@ public final class BranchEngine implements Engine {
 
     final Iterator<AbstractSequence> iterator = new Iterator<AbstractSequence>() {
       /** Iterator of branch structures. */
-      private final Iterator<BranchStructure> branchStructureIterator =
-          new SingleValueIterator<BranchStructure>(branchStructure);
+      private final Iterator<List<BranchEntry>> branchStructureIterator =
+          new SingleValueIterator<>(branchStructure);
 
       /** Iterator of branch structures and execution trances. */
       private final BranchExecutionIterator branchStructureExecutionIterator =
@@ -180,10 +191,15 @@ public final class BranchEngine implements Engine {
 
       @Override
       public AbstractSequence value() {
-        final BranchSolution branchSolution = new BranchSolution();
-        branchSolution.setBranchStructure(branchStructureExecutionIterator.value());
+        final List<BranchEntry> branchStructure = branchStructureExecutionIterator.value();
 
-        abstractSequence.setUserData(branchSolution);
+        for (int i = 0; i < abstractSequence.size(); i++) {
+          final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+          final BranchEntry branchEntry = branchStructure.get(i);
+
+          setBranchEntry(abstractCall, branchEntry);
+        }
+
         return abstractSequence;
       }
 
@@ -207,12 +223,8 @@ public final class BranchEngine implements Engine {
   }
 
   @Override
-  public void onStartProgram() {
-    // Empty
-  }
+  public void onStartProgram() {}
 
   @Override
-  public void onEndProgram() {
-    // Empty
-  }
+  public void onEndProgram() {}
 }

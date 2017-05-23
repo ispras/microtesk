@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -25,9 +27,9 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchTraceIterator implements Iterator<BranchStructure> {
+public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
   /** Current branch structure. */
-  private final BranchStructure branchStructure;
+  private final List<BranchEntry> branchStructure;
 
   /** Upper bound of branch occurrences in a trace. */
   private final int maxBranchExecutions;
@@ -46,7 +48,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   private boolean hasValue;
 
   public BranchTraceIterator(
-      final BranchStructure branchStructure,
+      final List<BranchEntry> branchStructure,
       final int maxBranchExecutions,
       final int maxExecutionTraces) {
     InvariantChecks.checkNotNull(branchStructure);
@@ -61,11 +63,11 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     this.hasValue = false;
   }
 
-  public BranchTraceIterator(final BranchStructure branchStructure, final int maxExecutionTraces) {
+  public BranchTraceIterator(final List<BranchEntry> branchStructure, final int maxExecutionTraces) {
     this(branchStructure, 1, maxExecutionTraces);
   }
 
-  public BranchTraceIterator(final BranchStructure branchStructure) {
+  public BranchTraceIterator(final List<BranchEntry> branchStructure) {
     this(branchStructure, 1, -1);
   }
 
@@ -101,7 +103,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   }
 
   @Override
-  public BranchStructure value() {
+  public List<BranchEntry> value() {
     InvariantChecks.checkTrue(hasValue());
     return branchStructure;
   }
@@ -133,7 +135,11 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
   private BranchTraceIterator(final BranchTraceIterator r) {
     InvariantChecks.checkNotNull(r);
 
-    this.branchStructure = r.branchStructure.clone();
+    this.branchStructure = new ArrayList<>(r.branchStructure.size());
+    for (final BranchEntry entry : r.branchStructure) {
+      this.branchStructure.add(entry.clone());
+    }
+
     this.maxBranchExecutions = r.maxBranchExecutions;
     this.maxExecutionTraces = r.maxExecutionTraces;
     this.currentBranch = r.currentBranch;
@@ -172,7 +178,7 @@ public final class BranchTraceIterator implements Iterator<BranchStructure> {
     return currentBranch == -1;
   }
 
-  private BranchStructure nextBranchStructure() {
+  private List<BranchEntry> nextBranchStructure() {
     while (hasValue()) {
       final boolean isTraceCompleted = isTraceCompleted();
 

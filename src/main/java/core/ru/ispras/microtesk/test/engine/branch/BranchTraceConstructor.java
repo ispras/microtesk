@@ -118,7 +118,7 @@ final class BranchTraceConstructor {
   }
 
   /** Branch structure. */
-  private final BranchStructure branchStructure;
+  private final List<BranchEntry> branchStructure;
 
   /** Control flags. */
   private final EnumSet<Flags> flags;
@@ -130,7 +130,7 @@ final class BranchTraceConstructor {
    * @param flags the heuristics flags.
    */
   public BranchTraceConstructor(
-      final BranchStructure branchStructure, final EnumSet<Flags> flags) {
+      final List<BranchEntry> branchStructure, final EnumSet<Flags> flags) {
     InvariantChecks.checkNotNull(branchStructure);
     InvariantChecks.checkNotNull(flags);
 
@@ -143,7 +143,7 @@ final class BranchTraceConstructor {
    * 
    * @param branchStructure the branch structure.
    */
-  public BranchTraceConstructor(final BranchStructure branchStructure) {
+  public BranchTraceConstructor(final List<BranchEntry> branchStructure) {
     this(branchStructure, EnumSet.noneOf(Flags.class));
   }
 

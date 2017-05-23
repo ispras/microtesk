@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.List;
+
 /**
  * {@link BranchStructureWalker} implements a branch structure walker.
  * 
@@ -24,7 +26,7 @@ final class BranchStructureWalker {
   private boolean active = true;
 
   /** Branch structure to be traversed. */
-  private BranchStructure branchStructure;
+  private List<BranchEntry> branchStructure;
 
   /** Branch entry visitor to be used. */
   private BranchEntryVisitor visitor;
@@ -39,7 +41,7 @@ final class BranchStructureWalker {
    * @param visitor the branch entry visitor to be used.
    */
   public BranchStructureWalker(
-      final BranchStructure branchStructure, final BranchEntryVisitor visitor) {
+      final List<BranchEntry> branchStructure, final BranchEntryVisitor visitor) {
     count = new int[branchStructure.size()];
 
     this.branchStructure = branchStructure;
