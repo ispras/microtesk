@@ -17,7 +17,9 @@ package ru.ispras.microtesk.test.template;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
@@ -26,6 +28,7 @@ public final class AbstractCall {
   private final Where where;
   private final String text;
   private final Primitive rootOperation;
+  private final Map<String, Object> attributes;
 
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
@@ -224,6 +227,7 @@ public final class AbstractCall {
     this.where = where;
     this.text = text;
     this.rootOperation = rootOperation;
+    this.attributes = new LinkedHashMap<>();
     this.labels = Collections.unmodifiableList(labels);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
@@ -245,8 +249,8 @@ public final class AbstractCall {
 
     this.where = other.where;
     this.text = other.text;
-    this.rootOperation = null != other.rootOperation ? 
-        other.rootOperation.newCopy() : null;
+    this.rootOperation = null != other.rootOperation ? other.rootOperation.newCopy() : null;
+    this.attributes = new LinkedHashMap<>(other.attributes);
 
     this.labels = Label.copyAll(other.labels);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
@@ -319,6 +323,10 @@ public final class AbstractCall {
 
   public Primitive getRootOperation() {
     return rootOperation;
+  }
+
+  public Map<String, Object> getAttributes() {
+    return attributes;
   }
 
   public List<Primitive> getCommands() {
