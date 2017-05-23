@@ -96,14 +96,13 @@ public final class TestSequenceEngine {
     sequence = expandPreparators(context, sequence);
 
     final AbstractSequence newAbstractSequence = new AbstractSequence(sequence);
-
     final EngineResult result = engine.solve(context, newAbstractSequence);
+
     if (result.getStatus() != EngineResult.Status.OK) {
       return new TestSequenceEngineResult(result.getStatus(), null, result.getErrors());
     }
 
-    final TestSequenceEngineResult engineResult =
-        adapt(adapter, context, newAbstractSequence, result.getResult());
+    final TestSequenceEngineResult engineResult = adapt(adapter, context, result.getResult());
 
     // TODO: temporary implementation of self-checks.
     if (context.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
@@ -145,7 +144,6 @@ public final class TestSequenceEngine {
   private static TestSequenceEngineResult adapt(
       final Adapter adapter,
       final EngineContext engineContext,
-      final AbstractSequence abstractSequence,
       final Iterator<AbstractSequence> solutionIterator) {
     return new TestSequenceEngineResult(new Iterator<AdapterResult>() {
       @Override
