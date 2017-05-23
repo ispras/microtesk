@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -52,9 +51,7 @@ public final class Situation {
     InvariantChecks.checkNotNull(name);
 
     this.name = name;
-    this.attributes = (null != attributes) ?
-      Collections.unmodifiableMap(attributes) :
-      Collections.<String, Object>emptyMap();
+    this.attributes = null != attributes ? attributes : new LinkedHashMap<String, Object>();
   }
 
   public String getName() {
