@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.engine.memory.coverage.MemoryGraphAbstraction;
-import ru.ispras.microtesk.mmu.test.engine.memory.iterator.MemoryAccessStructureIterator;
+import ru.ispras.microtesk.mmu.test.engine.memory.iterator.MemoryAccessIterator;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -61,11 +61,11 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamIterator extends EngineParameter<MemoryAccessStructureIterator.Mode> {
+  final static class ParamIterator extends EngineParameter<MemoryAccessIterator.Mode> {
     ParamIterator() {
       super("iterator",
-          new EngineParameter.Option<>("static", MemoryAccessStructureIterator.Mode.RANDOM),
-          new EngineParameter.Option<>("dynamic", MemoryAccessStructureIterator.Mode.EXHAUSTIVE));
+          new EngineParameter.Option<>("static", MemoryAccessIterator.Mode.RANDOM),
+          new EngineParameter.Option<>("dynamic", MemoryAccessIterator.Mode.EXHAUSTIVE));
     }
   }
 
@@ -113,62 +113,74 @@ public final class MemoryEngine implements Engine {
   static final ParamRecursionLimit PARAM_RECURSION_LIMIT = new ParamRecursionLimit();
   static final ParamCount PARAM_COUNT = new ParamCount();
 
-  // FIXME:
-  private static boolean isLoad(final AbstractCall abstractCall) {
-    final List<Primitive> commands = abstractCall.getCommands();
-    return !commands.isEmpty() && commands.get(0).isLoad();
-  }
-
-  // FIXME:
-  private static boolean isStore(final AbstractCall abstractCall) {
-    final List<Primitive> commands = abstractCall.getCommands();
-    return !commands.isEmpty() && commands.get(0).isStore();
-  }
-
-  // FIXME:
-  private static int getBlockSize(final AbstractCall abstractCall) {
-    final List<Primitive> commands = abstractCall.getCommands();
-    return !commands.isEmpty() ? commands.get(0).getBlockSize() : 0;
-  }
-
-  public static boolean isMemoryAccessWithSituation(final AbstractCall abstractCall) {
-    InvariantChecks.checkNotNull(abstractCall);
-
-    if (!isLoad(abstractCall) && !isStore(abstractCall)) {
-      return false;
+  static boolean isLoad(final AbstractCall abstractCall) {
+    for (final Primitive primitive : abstractCall.getCommands()) {
+      if (primitive.isLoad()) {
+        return true;
+      }
     }
+    return false;
+  }
 
+  static boolean isStore(final AbstractCall abstractCall) {
+    for (final Primitive primitive : abstractCall.getCommands()) {
+      if (primitive.isStore()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static int getBlockSize(final AbstractCall abstractCall) {
+    for (final Primitive primitive : abstractCall.getCommands()) {
+      if (primitive.isLoad() || primitive.isStore()) {
+        return primitive.getBlockSize();
+      }
+    }
+    return -1;
+  }
+
+  static Situation getSituation(final AbstractCall abstractCall) {
     final Primitive primitive = abstractCall.getRootOperation();
-    InvariantChecks.checkNotNull(primitive, "Primitive is null");
-
-    final Situation situation = primitive.getSituation();
-    return situation != null;
+    return primitive.getSituation();
   }
 
-  public static MemoryAccessConstraints getMemoryAccessConstraints(final AbstractCall abstractCall) {
-    if (!isMemoryAccessWithSituation(abstractCall)) {
-      return MemoryAccessConstraints.EMPTY;
+  static boolean isSuitable(final AbstractCall abstractCall) {
+    return (isLoad(abstractCall) || isStore(abstractCall)) && getSituation(abstractCall) != null;
+  }
+
+  static MemoryAccessConstraints getConstraints(final AbstractCall abstractCall) {
+    final Situation situation = getSituation(abstractCall);
+
+    if (situation != null) {
+      final Object attribute = situation.getAttribute("path");
+
+      if (attribute != null && attribute instanceof MemoryAccessConstraints) {
+        return (MemoryAccessConstraints) attribute;
+      }
     }
 
-    final Primitive primitive = abstractCall.getRootOperation();
-    final Situation situation = primitive.getSituation();
-
-    final Object attribute = situation.getAttribute("path");
-    if (null == attribute) {
-      return MemoryAccessConstraints.EMPTY;
-    }
-
-    if (attribute instanceof MemoryAccessConstraints) {
-      return (MemoryAccessConstraints) attribute;
-    }
-
-    Logger.warning("Unexpected format of the path attribute of a test situation: %s", attribute);
+    Logger.warning("Path attribute is missing or of incorrect format");
     return MemoryAccessConstraints.EMPTY;
+  }
+
+  static AddressObject getAddressObject(final AbstractCall abstractCall) {
+    final Situation situation = getSituation(abstractCall);
+    final Map<String, Object> attributes = situation.getAttributes();
+
+    return (AddressObject) attributes.get("addressObject");
+  }
+
+  static void setAddressObject(final AbstractCall abstractCall, final AddressObject addressObject) {
+    final Situation situation = getSituation(abstractCall);
+    final Map<String, Object> attributes = situation.getAttributes();
+
+    attributes.put("addressObject", addressObject);
   }
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
   private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
-  private MemoryAccessStructureIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
+  private MemoryAccessIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
 
@@ -205,13 +217,13 @@ public final class MemoryEngine implements Engine {
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
     for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
-      if(!isMemoryAccessWithSituation(abstractCall)) {
-        // Skip non-memory-access instructions and memory-accesses instructions without situations.
+      if(!isSuitable(abstractCall)) {
         continue;
       }
 
-      final MemoryOperation operation =
-          isLoad(abstractCall) ? MemoryOperation.LOAD : MemoryOperation.STORE;
+      final MemoryOperation operation = isLoad(abstractCall)
+          ? MemoryOperation.LOAD
+          : MemoryOperation.STORE;
 
       final int blockSizeInBits = getBlockSize(abstractCall);
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
@@ -219,47 +231,48 @@ public final class MemoryEngine implements Engine {
       final int blockSizeInBytes = blockSizeInBits >>> 3;
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
 
-      final MemoryAccessConstraints constraints = getMemoryAccessConstraints(abstractCall);
+      final MemoryAccessConstraints constraints = getConstraints(abstractCall);
       accessConstraints.add(constraints);
     }
 
-    Logger.debug("Creating memory access iterator: %s", accessTypes);
+    Logger.debug("Memory access types: %s", accessTypes);
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
-    final Iterator<List<MemoryAccess>> structureIterator =
-        new MemoryAccessStructureIterator(
+    final Iterator<List<MemoryAccess>> accessIterator =
+        new MemoryAccessIterator(
             abstraction,
             accessTypes,
             accessConstraints,
             globalConstraints,
             recursionLimit,
-            iterator);
+            iterator
+        );
 
-    final Iterator<AbstractSequence> solutionIterator = new Iterator<AbstractSequence>() {
+    final Iterator<AbstractSequence> solutionIterator =
+        new Iterator<AbstractSequence>() {
           private int i = 0;
-          private MemorySolution solution = null;
+          private List<AddressObject> solution = null;
 
-          private MemorySolution getSolution() {
-            while (structureIterator.hasValue()) {
-              final List<MemoryAccess> structure = structureIterator.value();
-              final MemorySolver solver = new MemorySolver(structure);
-              final SolverResult<MemorySolution> result = solver.solve(Solver.Mode.MAP);
-              InvariantChecks.checkNotNull(result);
+          private List<AddressObject> getSolution() {
+            while (accessIterator.hasValue()) {
+              final List<MemoryAccess> accesses = accessIterator.value();
+              final MemorySolver solver = new MemorySolver(accesses);
+              final SolverResult<List<AddressObject>> result = solver.solve(Solver.Mode.MAP);
 
               if (result.getStatus() == SolverResult.Status.SAT) {
                 solution = result.getResult();
                 break;
               }
 
-              structureIterator.next();
+              accessIterator.next();
             }
 
-            return structureIterator.hasValue() ? solution : null;
+            return accessIterator.hasValue() ? solution : null;
           }
 
           @Override
           public void init() {
-            structureIterator.init();
+            accessIterator.init();
             solution = getSolution();
           }
 
@@ -270,25 +283,23 @@ public final class MemoryEngine implements Engine {
 
           @Override
           public AbstractSequence value() {
-            abstractSequence.setUserData(solution);
+            for (int i = 0; i < abstractSequence.size(); i++) {
+              final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+              final AddressObject addressObject = solution.get(i);
+
+              setAddressObject(abstractCall, addressObject);
+            }
+
             return abstractSequence;
           }
 
           @Override
           public void next() {
-            // Randomize.
-            /*
-            globalConstraints.randomize();
-            for (final MemoryAccessConstraints constraints : accessConstraints) {
-              constraints.randomize();
-            }
-            */
-
-            structureIterator.next();
+            accessIterator.next();
             solution = getSolution();
 
             if (solution == null && count != -1 && i < count) {
-              structureIterator.init();
+              accessIterator.init();
               solution = getSolution();
             }
 
@@ -312,12 +323,8 @@ public final class MemoryEngine implements Engine {
   }
 
   @Override
-  public void onStartProgram() {
-    // TODO
-  }
+  public void onStartProgram() {}
 
   @Override
-  public void onEndProgram() {
-    // TODO
-  }
+  public void onEndProgram() {}
 }

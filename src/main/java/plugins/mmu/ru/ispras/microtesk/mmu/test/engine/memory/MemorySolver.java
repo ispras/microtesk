@@ -64,7 +64,7 @@ import ru.ispras.microtesk.utils.function.Function;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySolver implements Solver<MemorySolution> {
+public final class MemorySolver implements Solver<List<AddressObject>> {
   /** Symbolic model of the memory subsystem. */
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
   /** Executable model of the memory subsystem. */
@@ -76,7 +76,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
   /** Current solution. */
-  private MemorySolution solution;
+  private List<AddressObject> solution;
 
   public MemorySolver(final List<MemoryAccess> structure) {
     InvariantChecks.checkNotNull(structure);
@@ -84,9 +84,13 @@ public final class MemorySolver implements Solver<MemorySolution> {
   }
 
   @Override
-  public SolverResult<MemorySolution> solve(final Mode mode) {
-    solution = new MemorySolution(structure);
-    SolverResult<MemorySolution> result = null;
+  public SolverResult<List<AddressObject>> solve(final Mode mode) {
+    solution = new ArrayList<>(structure.size());
+    for (final MemoryAccess access : structure) {
+      solution.add(new AddressObject(access));
+    }
+
+    SolverResult<List<AddressObject>> result = null;
 
     for (int j = 0; j < structure.size(); j++) {
       result = solve(j);
@@ -104,7 +108,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
   private EntryObject allocateEntry(
       final int j,
       final MmuBufferAccess bufferAccess) {
-    final AddressObject addrObject = solution.getAddressObject(j);
+    final AddressObject addrObject = solution.get(j);
     final MemoryAccess access = structure.get(j);
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
@@ -119,7 +123,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next().first;
-      final AddressObject prevAddrObject = solution.getAddressObject(i);
+      final AddressObject prevAddrObject = solution.get(i);
       final EntryObject prevEntryObject = prevAddrObject.getEntry(bufferAccess);
 
       addrObject.setEntry(bufferAccess, prevEntryObject);
@@ -133,7 +137,6 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final EntryObject newEntryObject = new EntryObject(newEntryId, newEntry);
 
     addrObject.setEntry(bufferAccess, newEntryObject);
-    solution.addEntry(bufferAccess, newEntryObject);
 
     return newEntryObject;
   }
@@ -144,7 +147,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       final EntryObject entryObject,
       final Map<IntegerVariable, BigInteger> values) {
 
-    final AddressObject addrObject = solution.getAddressObject(j);
+    final AddressObject addrObject = solution.get(j);
     final MmuEntry entry = entryObject.getEntry();
 
     final String bufferAccessId = bufferAccess.getId();
@@ -186,7 +189,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
     final MmuConditionAtom atom = atoms.iterator().next();
     final MmuExpression expression = atom.getLhsExpr();
 
-    final AddressObject addrObject1 = solution.getAddressObject(i);
+    final AddressObject addrObject1 = solution.get(i);
     final BigInteger addrValue1 = addrObject1.getAddress(bufferAccess1);
 
     final String instanceId2 = bufferAccess2.getId();
@@ -352,14 +355,14 @@ public final class MemorySolver implements Solver<MemorySolution> {
    * @param j the memory access index.
    * @return the partial solution.
    */
-  private SolverResult<MemorySolution> solve(final int j) {
+  private SolverResult<List<AddressObject>> solve(final int j) {
     final MemoryAccess access = structure.get(j);
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     Logger.debug("Solve[%d]: %s, %s", j, access, dependency);
 
     AddressObject addrObject = new AddressObject(access);
-    solution.setAddressObject(j, addrObject);
+    solution.set(j, addrObject);
 
     // Generate a virtual address value.
     final MemoryAccessType accessType = access.getType();
@@ -404,7 +407,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
-        solution.setAddressObject(j, refinedAddrObject);
+        solution.set(j, refinedAddrObject);
 
         addrObject = refinedAddrObject;
         values = refinedValues;
@@ -465,7 +468,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
           refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
-        solution.setAddressObject(j, refinedAddrObject);
+        solution.set(j, refinedAddrObject);
 
         addrObject = refinedAddrObject;
         values = refinedValues;
@@ -482,7 +485,7 @@ public final class MemorySolver implements Solver<MemorySolution> {
       }
     }
 
-    return new SolverResult<MemorySolution>(solution);
+    return new SolverResult<List<AddressObject>>(solution);
   }
 
   private BigInteger allocateEntryId(final MmuBuffer buffer, final boolean peek) {

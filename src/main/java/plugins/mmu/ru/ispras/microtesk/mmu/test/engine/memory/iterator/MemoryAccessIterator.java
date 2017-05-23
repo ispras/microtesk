@@ -32,13 +32,13 @@ import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessStructureIterator} implements an iterator of memory access structures, i.e.
+ * {@link MemoryAccessIterator} implements an iterator of memory access structures, i.e.
  * sequences of memory access paths connected with dependencies.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class MemoryAccessStructureIterator implements Iterator<List<MemoryAccess>> {
+public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> {
   private static final boolean CHECK_STRUCTURE = false;
 
   public enum Mode {
@@ -94,7 +94,7 @@ public final class MemoryAccessStructureIterator implements Iterator<List<Memory
   private List<MemoryAccess> accesses;
   private BufferDependency[][] dependencies;
 
-  public MemoryAccessStructureIterator(
+  public MemoryAccessIterator(
       final MemoryGraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
@@ -190,7 +190,7 @@ public final class MemoryAccessStructureIterator implements Iterator<List<Memory
   }
 
   @Override
-  public MemoryAccessStructureIterator clone() {
+  public MemoryAccessIterator clone() {
     throw new UnsupportedOperationException();
   }
 
