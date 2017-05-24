@@ -37,7 +37,8 @@ public final class MetaDataUtils {
   /**
    * Takes {@link MetaData} objects from the specified collection and puts them to a map,
    * where names of the objects are used as keys. The order of objects is preserved.
-   * 
+   *
+   * @param <T> Exact type of {@code MetaData} objects.
    * @param c Collection of {@code MetaData} objects.
    * @return Map of {@code MetaData} objects.
    */
@@ -133,6 +134,7 @@ public final class MetaDataUtils {
    * The order of objects is preserved.
    * 
    * @param c Collection of {@code MetaData} objects.
+   * @param sep Separator string.
    * @return String containing a list of {@code MetaData} object names or
    *         empty string of the collection is empty.
    */
@@ -162,6 +164,7 @@ public final class MetaDataUtils {
    * groups, they are processed recursively to create a list of their items.
    * 
    * @param c Collection of {@code MetaData} objects.
+   * @param sep Separator string.
    * @return String containing a list of {@code MetaData} object names or
    *         empty string of the collection is empty.
    */
