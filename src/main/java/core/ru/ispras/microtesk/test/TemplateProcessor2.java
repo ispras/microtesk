@@ -362,7 +362,8 @@ final class TemplateProcessor2 implements Template.Processor {
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
-    if (TestEngineUtils.isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
+    if (!executorStatuses.isEmpty() &&
+        TestEngineUtils.isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
       Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
