@@ -289,7 +289,6 @@ final class TemplateProcessor2 implements Template.Processor {
         final Block block = blockEntry.block;
         final int times = blockEntry.times;
 
-        blockEntry.beingProcessed = true;
         if (block.isExternal()) {
           isProcessed = processPostponedExternalBlock(block, entry);
         } else {
@@ -301,6 +300,8 @@ final class TemplateProcessor2 implements Template.Processor {
           postponedBlocks.remove(blockEntry);
           break;
         }
+
+        blockEntry.beingProcessed = true;
       }
     } while (isProcessed);
   }
@@ -352,12 +353,17 @@ final class TemplateProcessor2 implements Template.Processor {
     final ConcreteSequence prevEntry = testProgram.hasEntry(entry) ?
                                        testProgram.getPrevEntry(entry) :
                                        testProgram.getLastEntry();
+
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
+    if (-1 == instanceIndex) {
+      Logger.debug("Processing of block defined at %s is postponed again.", block.getWhere());
+      return false;
+    }
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
-    if (-1 == instanceIndex) {
-      Logger.debug("Processing of block defined at %s is postponed again.", block.getWhere());
+    if (TestEngineUtils.isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
+      Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
 
