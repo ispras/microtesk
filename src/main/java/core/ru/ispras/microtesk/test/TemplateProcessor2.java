@@ -284,6 +284,7 @@ final class TemplateProcessor2 implements Template.Processor {
         if (blockEntry.beingProcessed) {
           continue;
         }
+        blockEntry.beingProcessed = true;
 
         final ConcreteSequence entry = blockEntry.entry;
         final Block block = blockEntry.block;
@@ -294,14 +295,13 @@ final class TemplateProcessor2 implements Template.Processor {
         } else {
           isProcessed = processPostponedBlock(block, times, entry);
         }
-        blockEntry.beingProcessed = false;
 
         if (isProcessed) {
           postponedBlocks.remove(blockEntry);
           break;
         }
 
-        blockEntry.beingProcessed = true;
+        blockEntry.beingProcessed = false;
       }
     } while (isProcessed);
   }
