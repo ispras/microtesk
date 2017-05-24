@@ -102,6 +102,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   /**
    * Returns a list that stores shared copies of objects in the specified list.
    * 
+   * @param <T> Type of objects to be copied.
    * @param objects List of objects to be copied.
    * @return List that stores shared copies of the specified objects.
    * 
