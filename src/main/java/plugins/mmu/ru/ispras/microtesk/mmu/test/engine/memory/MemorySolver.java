@@ -55,64 +55,162 @@ import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.)
- * specified in a memory access structure.
- * 
- * <p>
- * The input is a memory access structure; the output is a solution.
- * </p>
+ * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySolver implements Solver<List<AddressObject>> {
+public final class MemorySolver implements Solver<AddressObject> {
   /** Symbolic model of the memory subsystem. */
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
   /** Executable model of the memory subsystem. */
   private final MmuModel model = MmuPlugin.getMmuModel();
 
-  /** Memory access structure being processed. */
-  private final List<MemoryAccess> structure;
+  private final List<AddressObject> solutions;
+  private final MemoryAccess access;
+
+  private AddressObject solution;
 
   private final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
-  /** Current solution. */
-  private List<AddressObject> solution;
+  public MemorySolver(final List<AddressObject> solutions, final MemoryAccess access) {
+    InvariantChecks.checkNotNull(solutions);
+    InvariantChecks.checkNotNull(access);
 
-  public MemorySolver(final List<MemoryAccess> structure) {
-    InvariantChecks.checkNotNull(structure);
-    this.structure = structure;
+    this.solutions = solutions;
+    this.access = access;
   }
 
   @Override
-  public SolverResult<List<AddressObject>> solve(final Mode mode) {
-    solution = new ArrayList<>(structure.size());
-    for (final MemoryAccess access : structure) {
-      solution.add(new AddressObject(access));
+  public SolverResult<AddressObject> solve(final Mode mode) {
+    this.solution = new AddressObject(access);
+
+    final BufferUnitedDependency dependency = access.getUnitedDependency();
+    Logger.debug("Solve: %s, %s", access, dependency);
+
+    // Generate a virtual address value.
+    final MemoryAccessType accessType = access.getType();
+    final DataType dataType = accessType.getDataType();
+
+    final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
+    final BigInteger virtAddrValue = getRandomAddress(dataType);
+    solution.setAddress(virtAddrType, virtAddrValue);
+
+    final IntegerVariable dataVariable = memory.getDataVariable();
+    final BigInteger dataValue = getRandomValue(dataVariable);
+    solution.setData(dataVariable, dataValue);
+
+    final Collection<MmuCondition> conditions = new ArrayList<>();
+    final MemoryAccessConstraints accessConstraints = access.getConstraints();
+
+    accessConstraints.randomize();
+
+    final Collection<IntegerConstraint<IntegerField>> constraints =
+        accessConstraints.getVariateConstraints();
+
+    // Refine the addresses (in particular, assign the intermediate addresses).
+    Map<IntegerVariable, BigInteger> values = refineAddr(solution, conditions, constraints);
+
+    if (values == null) {
+      final String warning = String.format("Infeasible path: %s", access);
+
+      Logger.debug(warning);
+      return new SolverResult<>(warning);
     }
 
-    SolverResult<List<AddressObject>> result = null;
+    // Assign the tag, index and offset according to the dependencies.
+    conditions.addAll(getHazardConditions());
 
-    for (int j = 0; j < structure.size(); j++) {
-      result = solve(j);
+    // Try to refine the address object.
+    if (!conditions.isEmpty()) {
+      final AddressObject refinedAddrObject = new AddressObject(access);
+      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
+      refinedAddrObject.setData(dataVariable, dataValue);
 
-      if (result.getStatus() != SolverResult.Status.SAT) {
-        Logger.debug("Solve[%d]: UNSAT", j);
-        return result;
+      final Map<IntegerVariable, BigInteger> refinedValues =
+          refineAddr(refinedAddrObject, conditions, constraints);
+
+      if (refinedValues != null) {
+        solution = refinedAddrObject;
+        values = refinedValues;
       }
     }
 
-    Logger.debug("Solve: SAT");
-    return result;
+    final MemoryAccessPath path = access.getPath();
+
+    // Synthesize HIT, MISS, and REPLACE conditions.
+    final int numberOfConditions = conditions.size();
+
+    for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
+      final MmuBuffer buffer = bufferAccess.getBuffer();
+      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
+
+      if (tagEqualRelation.isEmpty()) {
+        final MmuAddressInstance addrType = bufferAccess.getAddress();
+        final BigInteger addrValue = solution.getAddress(addrType);
+
+        if (addrValue == null) {
+          // The address has been already processed.
+          continue;
+        }
+
+        switch (bufferAccess.getEvent()) {
+          case HIT:
+            // Add more constraints.
+            conditions.add(getIndexCondition(bufferAccess, addrValue));
+            conditions.add(getHitCondition(bufferAccess, addrValue));
+            break;
+
+          case MISS:
+            // Add more constraints.
+            conditions.add(getIndexCondition(bufferAccess, addrValue));
+
+            if (!buffer.isReplaceable() || Randomizer.get().nextBoolean()) {
+              conditions.add(getMissCondition(bufferAccess, addrValue));
+            } else {
+              conditions.add(getReplaceCondition(bufferAccess, addrValue));
+            }
+
+            break;
+
+          default:
+            InvariantChecks.checkTrue(false);
+            break;
+        }
+      } // If there are no tag equalities.
+    } // For each buffer access.
+
+    // Try to refine the address object.
+    if (conditions.size() > numberOfConditions) {
+      final AddressObject refinedAddrObject = new AddressObject(access);
+      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
+      refinedAddrObject.setData(dataVariable, dataValue);
+
+      final Map<IntegerVariable, BigInteger> refinedValues =
+          refineAddr(refinedAddrObject, conditions, constraints);
+
+      if (refinedValues != null) {
+        solution = refinedAddrObject;
+        values = refinedValues;
+      }
+    }
+
+    // Allocate entries in non-replaceable buffers.
+    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
+      if (!bufferAccess.getBuffer().isReplaceable()) {
+        final EntryObject entryObject = allocateEntry(bufferAccess);
+        InvariantChecks.checkNotNull(entryObject);
+
+        fillEntry(bufferAccess, entryObject, values);
+      }
+    }
+
+    return new SolverResult<AddressObject>(solution);
   }
 
-  private EntryObject allocateEntry(
-      final int j,
-      final MmuBufferAccess bufferAccess) {
-    final AddressObject addrObject = solution.get(j);
-    final MemoryAccess access = structure.get(j);
+  private EntryObject allocateEntry(final MmuBufferAccess bufferAccess) {
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
-    final EntryObject entryObject = addrObject.getEntry(bufferAccess);
+    final EntryObject entryObject = solution.getEntry(bufferAccess);
 
     if (entryObject != null) {
       return entryObject;
@@ -123,10 +221,10 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next().first;
-      final AddressObject prevAddrObject = solution.get(i);
+      final AddressObject prevAddrObject = solutions.get(i);
       final EntryObject prevEntryObject = prevAddrObject.getEntry(bufferAccess);
 
-      addrObject.setEntry(bufferAccess, prevEntryObject);
+      solution.setEntry(bufferAccess, prevEntryObject);
       return prevEntryObject;
     }
 
@@ -136,18 +234,16 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     final MmuEntry newEntry = new MmuEntry(buffer.getFields());
     final EntryObject newEntryObject = new EntryObject(newEntryId, newEntry);
 
-    addrObject.setEntry(bufferAccess, newEntryObject);
+    solution.setEntry(bufferAccess, newEntryObject);
 
     return newEntryObject;
   }
 
   private void fillEntry(
-      final int j,
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
       final Map<IntegerVariable, BigInteger> values) {
 
-    final AddressObject addrObject = solution.get(j);
     final MmuEntry entry = entryObject.getEntry();
 
     final String bufferAccessId = bufferAccess.getId();
@@ -155,7 +251,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
 
     // Set the entry fields.
     entry.setValid(true);
-    entry.setAddress(addrObject.getAddress(bufferAccess));
+    entry.setAddress(solution.getAddress(bufferAccess));
 
     Logger.debug("Fill entry: values=%s", values);
 
@@ -171,11 +267,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     }
   }
 
-  private MmuCondition getHazardCondition(
-      final int i,
-      final int j,
-      final BufferHazard.Instance hazard) {
-
+  private MmuCondition getHazardCondition(final int i, final BufferHazard.Instance hazard) {
     final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
     final MmuBufferAccess bufferAccess2 = hazard.getSecondaryAccess();
 
@@ -189,8 +281,8 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     final MmuConditionAtom atom = atoms.iterator().next();
     final MmuExpression expression = atom.getLhsExpr();
 
-    final AddressObject addrObject1 = solution.get(i);
-    final BigInteger addrValue1 = addrObject1.getAddress(bufferAccess1);
+    final AddressObject addressObject1 = solutions.get(i);
+    final BigInteger addrValue1 = addressObject1.getAddress(bufferAccess1);
 
     final String instanceId2 = bufferAccess2.getId();
     final MemoryAccessContext context2 = bufferAccess2.getContext();
@@ -214,8 +306,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     return condition;
   }
 
-  private Collection<MmuCondition> getHazardConditions(final int j) {
-    final MemoryAccess access = structure.get(j);
+  private Collection<MmuCondition> getHazardConditions() {
     final MemoryAccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
@@ -234,18 +325,18 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
         if (!tagEqualRelation.isEmpty() || !tagNotEqualRelation.isEmpty()) {
           // INDEX[j] == INDEX[i] && TAG[j] == TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, j, pair.second));
+            conditions.add(getHazardCondition(pair.first, pair.second));
             break; // Enough.
           }
 
           // INDEX[j] == INDEX[i] && TAG[j] != TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagNotEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, j, pair.second));
+            conditions.add(getHazardCondition(pair.first, pair.second));
           }
         } else {
           // INDEX[j] == INDEX[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : indexEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, j, pair.second));
+            conditions.add(getHazardCondition(pair.first, pair.second));
             break; // Enough.
           }
         }
@@ -256,7 +347,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
 
       // INDEX-NOT-EQUAL constraints.
       for (final Pair<Integer, BufferHazard.Instance> pair : indexNotEqualRelation) {
-        conditions.add(getHazardCondition(pair.first, j, pair.second));
+        conditions.add(getHazardCondition(pair.first, pair.second));
       }
     }
 
@@ -349,145 +440,6 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     return Randomizer.get().nextBigIntegerField(variable.getWidth(), false);
   }
 
-  /**
-   * Handles the given instruction call (access) of the memory access structure.
-   * 
-   * @param j the memory access index.
-   * @return the partial solution.
-   */
-  private SolverResult<List<AddressObject>> solve(final int j) {
-    final MemoryAccess access = structure.get(j);
-    final BufferUnitedDependency dependency = access.getUnitedDependency();
-
-    Logger.debug("Solve[%d]: %s, %s", j, access, dependency);
-
-    AddressObject addrObject = new AddressObject(access);
-    solution.set(j, addrObject);
-
-    // Generate a virtual address value.
-    final MemoryAccessType accessType = access.getType();
-    final DataType dataType = accessType.getDataType();
-
-    final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BigInteger virtAddrValue = getRandomAddress(dataType);
-    addrObject.setAddress(virtAddrType, virtAddrValue);
-
-    final IntegerVariable dataVariable = memory.getDataVariable();
-    final BigInteger dataValue = getRandomValue(dataVariable);
-    addrObject.setData(dataVariable, dataValue);
-
-    final Collection<MmuCondition> conditions = new ArrayList<>();
-    final MemoryAccessConstraints accessConstraints = access.getConstraints();
-
-    accessConstraints.randomize();
-
-    final Collection<IntegerConstraint<IntegerField>> constraints =
-        accessConstraints.getVariateConstraints();
-
-    // Refine the addresses (in particular, assign the intermediate addresses).
-    Map<IntegerVariable, BigInteger> values = refineAddr(addrObject, conditions, constraints);
-
-    if (values == null) {
-      final String warning = String.format("Infeasible path: %s", access);
-
-      Logger.debug(warning);
-      return new SolverResult<>(warning);
-    }
-
-    // Assign the tag, index and offset according to the dependencies.
-    conditions.addAll(getHazardConditions(j));
-
-    // Try to refine the address object.
-    if (!conditions.isEmpty()) {
-      final AddressObject refinedAddrObject = new AddressObject(access);
-      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
-      refinedAddrObject.setData(dataVariable, dataValue);
-
-      final Map<IntegerVariable, BigInteger> refinedValues =
-          refineAddr(refinedAddrObject, conditions, constraints);
-
-      if (refinedValues != null) {
-        solution.set(j, refinedAddrObject);
-
-        addrObject = refinedAddrObject;
-        values = refinedValues;
-      }
-    }
-
-    final MemoryAccessPath path = access.getPath();
-
-    // Synthesize HIT, MISS, and REPLACE conditions.
-    final int numberOfConditions = conditions.size();
-
-    for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
-      final MmuBuffer buffer = bufferAccess.getBuffer();
-      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
-
-      if (tagEqualRelation.isEmpty()) {
-        final MmuAddressInstance addrType = bufferAccess.getAddress();
-        final BigInteger addrValue = addrObject.getAddress(addrType);
-
-        if (addrValue == null) {
-          // The address has been already processed.
-          continue;
-        }
-
-        switch (bufferAccess.getEvent()) {
-          case HIT:
-            // Add more constraints.
-            conditions.add(getIndexCondition(bufferAccess, addrValue));
-            conditions.add(getHitCondition(bufferAccess, addrValue));
-            break;
-
-          case MISS:
-            // Add more constraints.
-            conditions.add(getIndexCondition(bufferAccess, addrValue));
-
-            if (!buffer.isReplaceable() || Randomizer.get().nextBoolean()) {
-              conditions.add(getMissCondition(bufferAccess, addrValue));
-            } else {
-              conditions.add(getReplaceCondition(bufferAccess, addrValue));
-            }
-
-            break;
-
-          default:
-            InvariantChecks.checkTrue(false);
-            break;
-        }
-      } // If there are no tag equalities.
-    } // For each buffer access.
-
-    // Try to refine the address object.
-    if (conditions.size() > numberOfConditions) {
-      final AddressObject refinedAddrObject = new AddressObject(access);
-      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
-      refinedAddrObject.setData(dataVariable, dataValue);
-
-      final Map<IntegerVariable, BigInteger> refinedValues =
-          refineAddr(refinedAddrObject, conditions, constraints);
-
-      if (refinedValues != null) {
-        solution.set(j, refinedAddrObject);
-
-        addrObject = refinedAddrObject;
-        values = refinedValues;
-      }
-    }
-
-    // Allocate entries in non-replaceable buffers.
-    for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
-      if (!bufferAccess.getBuffer().isReplaceable()) {
-        final EntryObject entryObject = allocateEntry(j, bufferAccess);
-        InvariantChecks.checkNotNull(entryObject);
-
-        fillEntry(j, bufferAccess, entryObject, values);
-      }
-    }
-
-    return new SolverResult<List<AddressObject>>(solution);
-  }
-
   private BigInteger allocateEntryId(final MmuBuffer buffer, final boolean peek) {
     final BigInteger entryId = entryIdAllocator.allocate(buffer, peek, null);
     Logger.debug("Allocate entry: buffer=%s, entryId=%s", buffer, entryId.toString(16));
@@ -496,7 +448,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
   }
 
   private Map<IntegerVariable, BigInteger> refineAddr(
-      final AddressObject addrObject,
+      final AddressObject addressObject,
       final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints) {
 
@@ -505,7 +457,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     final Collection<IntegerConstraint<IntegerField>> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
-    final Map<IntegerVariable, BigInteger> data = addrObject.getData();
+    final Map<IntegerVariable, BigInteger> data = addressObject.getData();
     for (final Map.Entry<IntegerVariable, BigInteger> entry : data.entrySet()) {
       final IntegerVariable variable = entry.getKey();
       final BigInteger value = entry.getValue();
@@ -514,7 +466,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     }
 
     // Fix known values of the addresses.
-    final Map<MmuAddressInstance, BigInteger> addresses = addrObject.getAddresses();
+    final Map<MmuAddressInstance, BigInteger> addresses = addressObject.getAddresses();
     for (final Map.Entry<MmuAddressInstance, BigInteger> entry : addresses.entrySet()) {
       final IntegerVariable variable = entry.getKey().getVariable();
       final BigInteger value = entry.getValue();
@@ -526,7 +478,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
 
     final Map<IntegerVariable, BigInteger> values =
         MemoryEngineUtils.generateData(
-            addrObject.getAccess(),
+            addressObject.getAccess(),
             conditions,
             allConstraints,
             IntegerVariableInitializer.RANDOM
@@ -538,7 +490,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
       return null;
     }
 
-    final MemoryAccessPath path = addrObject.getAccess().getPath();
+    final MemoryAccessPath path = addressObject.getAccess().getPath();
     final Collection<MmuBufferAccess> bufferAccesses = path.getBufferAccesses();
 
     Logger.debug("Buffer checks and reads: %s", bufferAccesses);
@@ -551,7 +503,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
 
       if (addrValue != null) {
         Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toString(16));
-        addrObject.setAddress(addrType, addrValue);
+        addressObject.setAddress(addrType, addrValue);
       }
     }
 
@@ -562,7 +514,7 @@ public final class MemorySolver implements Solver<List<AddressObject>> {
     InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
 
     Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toString(16));
-    addrObject.setAddress(addrType, addrValue);
+    addressObject.setAddress(addrType, addrValue);
 
     return values;
   }
