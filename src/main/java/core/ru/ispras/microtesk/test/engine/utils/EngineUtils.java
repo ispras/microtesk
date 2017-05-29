@@ -163,7 +163,13 @@ public final class EngineUtils {
     InvariantChecks.checkNotNull(initializerMaker);
 
     return initializerMaker.makeInitializer(
-        engineContext, situation, testData,  queryCreator.getModes(), initializedModes);
+        engineContext,
+        primitive,
+        situation,
+        testData,
+        queryCreator.getModes(),
+        initializedModes
+        );
   }
 
   private static TestData getDefaultTestData(

@@ -22,6 +22,7 @@ import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
 
@@ -37,6 +38,7 @@ public interface InitializerMaker {
 
   List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final Primitive primitive,
       final Situation situation,
       final TestData testData,
       final Map<String, Argument> modes,

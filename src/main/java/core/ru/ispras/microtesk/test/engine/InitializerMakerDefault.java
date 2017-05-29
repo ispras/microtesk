@@ -38,15 +38,16 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class InitializerMakerDefault implements InitializerMaker {
-
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final Primitive primitive,
       final Situation situation,
       final TestData testData,
       final Map<String, Argument> arguments,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(situation);
     InvariantChecks.checkNotNull(testData);
     InvariantChecks.checkNotNull(initializedModes);
