@@ -39,6 +39,8 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
+ * {@link MemoryEngine} implements a test engine for memory management units (MMU).
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryEngine implements Engine {
@@ -119,6 +121,7 @@ public final class MemoryEngine implements Engine {
         return true;
       }
     }
+
     return false;
   }
 
@@ -128,6 +131,7 @@ public final class MemoryEngine implements Engine {
         return true;
       }
     }
+
     return false;
   }
 
@@ -137,20 +141,17 @@ public final class MemoryEngine implements Engine {
         return primitive.getBlockSize();
       }
     }
+
     return -1;
   }
 
-  static Situation getSituation(final AbstractCall abstractCall) {
-    final Primitive primitive = abstractCall.getRootOperation();
-    return primitive.getSituation();
-  }
-
   static boolean isSuitable(final AbstractCall abstractCall) {
-    return (isLoad(abstractCall) || isStore(abstractCall)) && getSituation(abstractCall) != null;
+    return isLoad(abstractCall) || isStore(abstractCall);
   }
 
   static MemoryAccessConstraints getConstraints(final AbstractCall abstractCall) {
-    final Situation situation = getSituation(abstractCall);
+    final Primitive primitive = abstractCall.getRootOperation();
+    final Situation situation = primitive.getSituation();
 
     if (situation != null) {
       final Object attribute = situation.getAttribute("path");
@@ -160,7 +161,6 @@ public final class MemoryEngine implements Engine {
       }
     }
 
-    Logger.warning("Path attribute is missing or of incorrect format");
     return MemoryAccessConstraints.EMPTY;
   }
 
@@ -247,41 +247,54 @@ public final class MemoryEngine implements Engine {
     final Iterator<AbstractSequence> solutionIterator =
         new Iterator<AbstractSequence>() {
           private int i = 0;
-          private List<AddressObject> solution = null;
+          private List<AddressObject> solutions = null;
 
           private List<AddressObject> getSolution() {
+            final List<AddressObject> solutions = new ArrayList<>();
+
             while (accessIterator.hasValue()) {
               final List<MemoryAccess> accesses = accessIterator.value();
-              final MemorySolver solver = new MemorySolver(accesses);
-              final SolverResult<List<AddressObject>> result = solver.solve(Solver.Mode.MAP);
 
-              if (result.getStatus() == SolverResult.Status.SAT) {
-                solution = result.getResult();
+              solutions.clear();
+              for (final MemoryAccess access : accesses) {
+                final MemorySolver solver = new MemorySolver(solutions, access);
+                final SolverResult<AddressObject> result = solver.solve(Solver.Mode.MAP);
+
+                if (result.getStatus() == SolverResult.Status.SAT) {
+                  solutions.add(result.getResult());
+                } else {
+                  solutions.clear();
+                  break;
+                }
+              }
+
+              if (!solutions.isEmpty()) {
+                // Constructed.
                 break;
               }
 
               accessIterator.next();
             }
 
-            return accessIterator.hasValue() ? solution : null;
+            return accessIterator.hasValue() ? solutions : null;
           }
 
           @Override
           public void init() {
             accessIterator.init();
-            solution = getSolution();
+            solutions = getSolution();
           }
 
           @Override
           public boolean hasValue() {
-            return solution != null && (count == -1 || i < count);
+            return solutions != null && (count == -1 || i < count);
           }
 
           @Override
           public AbstractSequence value() {
             for (int i = 0; i < abstractSequence.size(); i++) {
               final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
-              final AddressObject addressObject = solution.get(i);
+              final AddressObject addressObject = solutions.get(i);
 
               setAddressObject(abstractCall, addressObject);
             }
@@ -292,21 +305,21 @@ public final class MemoryEngine implements Engine {
           @Override
           public void next() {
             accessIterator.next();
-            solution = getSolution();
+            solutions = getSolution();
 
-            if (solution == null && count != -1 && i < count) {
+            if (solutions == null && count != -1 && i < count) {
               accessIterator.init();
-              solution = getSolution();
+              solutions = getSolution();
             }
 
-            if (solution != null) {
+            if (solutions != null) {
               i++;
             }
           }
 
           @Override
           public void stop() {
-            solution = null;
+            solutions = null;
           }
 
           @Override
