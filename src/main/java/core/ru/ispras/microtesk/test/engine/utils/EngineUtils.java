@@ -51,7 +51,9 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -143,8 +145,6 @@ public final class EngineUtils {
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
-    final List<AbstractCall> prologue = new ArrayList<>();
-
     final TestBaseQueryCreator queryCreator =
         new TestBaseQueryCreator(engineContext, situation, primitive);
 
@@ -159,43 +159,11 @@ public final class EngineUtils {
           );
     }
 
-    // Set model state using preparators that create initializing
-    // sequences based on addressing modes.
-    for (final Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
-      final String name = e.getKey();
+    final InitializerMaker initializerMaker = EngineConfig.get().getInitializerMaker("default");
+    InvariantChecks.checkNotNull(initializerMaker);
 
-      final Argument arg = queryCreator.getModes().get(name);
-
-      if (null == arg) {
-        continue;
-      }
-
-      // No point to assign output variables even if values for them are provided.
-      // We do not want extra code and conflicts when same registers are used
-      // as input and output (see Bug #6057)
-      if (arg.getMode() == ArgumentMode.OUT) {
-        continue;
-      }
-
-      final Primitive mode = (Primitive) arg.getValue();
-
-      final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
-      if (initializedModes.contains(targetMode)) {
-        Logger.debug("%s has already been used to set up the processor state. " +
-              "No initialization code will be created.", targetMode);
-        continue;
-      }
-
-      final BitVector value = FortressUtils.extractBitVector(e.getValue());
-
-      Logger.debug("Creating code to assign %s to %s...", value, targetMode);
-      final List<AbstractCall> initializingCalls = makeInitializer(engineContext, mode, value);
-
-      prologue.addAll(initializingCalls);
-      initializedModes.add(targetMode);
-    }
-
-    return prologue;
+    return initializerMaker.makeInitializer(
+        engineContext, testData,  queryCreator.getModes(), initializedModes);
   }
 
   private static TestData getDefaultTestData(
