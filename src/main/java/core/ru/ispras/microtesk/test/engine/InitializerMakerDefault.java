@@ -30,6 +30,7 @@ import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestData;
 
@@ -41,10 +42,12 @@ public class InitializerMakerDefault implements InitializerMaker {
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final Situation situation,
       final TestData testData,
       final Map<String, Argument> arguments,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(situation);
     InvariantChecks.checkNotNull(testData);
     InvariantChecks.checkNotNull(initializedModes);
 
