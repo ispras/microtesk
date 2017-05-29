@@ -32,6 +32,7 @@ import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.engine.TestSequenceEngineResult;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
@@ -350,6 +351,10 @@ final class TestEngineUtils {
     for (final Adapter adapter : EngineConfig.get().getAdapters()) {
       adapter.onStartProgram();
     }
+
+    for (final InitializerMaker initializerMaker : EngineConfig.get().getInitializerMakers()) {
+      initializerMaker.onStartProgram();
+    }
   }
 
   /**
@@ -363,6 +368,10 @@ final class TestEngineUtils {
 
     for (final Adapter adapter : EngineConfig.get().getAdapters()) {
       adapter.onEndProgram();
+    }
+
+    for (final InitializerMaker initializerMaker : EngineConfig.get().getInitializerMakers()) {
+      initializerMaker.onEndProgram();
     }
   }
 }

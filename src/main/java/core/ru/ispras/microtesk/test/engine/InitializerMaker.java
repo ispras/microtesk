@@ -28,6 +28,12 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface InitializerMaker {
+  void configure(Map<String, Object> attributes);
+
+  void onStartProgram();
+
+  void onEndProgram();
+
   List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final TestData testData,

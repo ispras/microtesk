@@ -78,4 +78,19 @@ public class InitializerMakerDefault implements InitializerMaker {
 
     return result;
   }
+
+  @Override
+  public void configure(Map<String, Object> attributes) {
+    // Empty
+  }
+
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
+  }
 }
