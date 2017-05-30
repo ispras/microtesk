@@ -341,10 +341,6 @@ final class TestEngineUtils {
       engine.onStartProgram();
     }
 
-    for (final Adapter adapter : EngineConfig.get().getAdapters()) {
-      adapter.onStartProgram();
-    }
-
     for (final InitializerMaker initializerMaker : EngineConfig.get().getInitializerMakers()) {
       initializerMaker.onStartProgram();
     }
@@ -357,10 +353,6 @@ final class TestEngineUtils {
   public static void notifyProgramEnd() {
     for (final Engine engine : EngineConfig.get().getEngines()) {
       engine.onEndProgram();
-    }
-
-    for (final Adapter adapter : EngineConfig.get().getAdapters()) {
-      adapter.onEndProgram();
     }
 
     for (final InitializerMaker initializerMaker : EngineConfig.get().getInitializerMakers()) {

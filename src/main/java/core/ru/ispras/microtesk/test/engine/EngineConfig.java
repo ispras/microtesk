@@ -29,7 +29,6 @@ import ru.ispras.microtesk.test.engine.Engine;
  */
 public final class EngineConfig {
   private final Map<String, Engine> engines = new HashMap<>();
-  private final Map<String, Adapter> adapters = new HashMap<>();
   private final Map<String, InitializerMaker> initializerMakers = new HashMap<>();
 
   private static final EngineConfig instance = new EngineConfig();
@@ -54,22 +53,6 @@ public final class EngineConfig {
 
   public Collection<Engine> getEngines() {
     return engines.values();
-  }
-
-  public Adapter registerAdapter(final String name, final Adapter adapter) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(adapter);
-
-    return adapters.put(name.toLowerCase(), adapter);
-  }
-
-  public Adapter getAdapter(final String name) {
-    InvariantChecks.checkNotNull(name);
-    return adapters.get(name.toLowerCase());
-  }
-
-  public Collection<Adapter> getAdapters() {
-    return adapters.values();
   }
 
   public InitializerMaker registerInitializerMaker(

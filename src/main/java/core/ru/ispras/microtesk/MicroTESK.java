@@ -99,12 +99,6 @@ public final class MicroTESK {
       }
 
       // Register the adapters.
-      final Map<String, Adapter> adapters = plugin.getAdapters();
-      for (final Map.Entry<String, Adapter> entry : adapters.entrySet()) {
-        generatorConfig.registerAdapter(entry.getKey(), entry.getValue());
-      }
-
-      // Register the adapters.
       final Map<String, InitializerMaker> initializerMakers  = plugin.getInitializerMakers();
       for (final Map.Entry<String, InitializerMaker> entry : initializerMakers.entrySet()) {
         generatorConfig.registerInitializerMaker(entry.getKey(), entry.getValue());

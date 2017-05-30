@@ -16,7 +16,6 @@ package ru.ispras.microtesk;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
@@ -41,13 +40,6 @@ public interface Plugin {
    * @return the engines.
    */
   Map<String, Engine> getEngines();
-
-  /**
-   * Returns the plugin's adapters with their names.
-   * 
-   * @return the adapters.
-   */
-  Map<String, Adapter> getAdapters();
 
   /**
    * Returns the plugin's initializer makers with their names.

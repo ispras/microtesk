@@ -56,17 +56,6 @@ final class Core implements Plugin {
   }
 
   @Override
-  public Map<String, Adapter> getAdapters() {
-    final Map<String, Adapter> adapters = new LinkedHashMap<>();
-
-    adapters.put("default", new DefaultAdapter());
-    adapters.put("trivial", new TrivialAdapter());
-    adapters.put("branch", new BranchAdapter());
-
-    return adapters;
-  }
-
-  @Override
   public Map<String, InitializerMaker> getInitializerMakers() {
     final Map<String, InitializerMaker> result = new LinkedHashMap<>();
 
