@@ -48,7 +48,6 @@ public class InitializerMakerDefault implements InitializerMaker {
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkNotNull(situation);
     InvariantChecks.checkNotNull(testData);
     InvariantChecks.checkNotNull(initializedModes);
 
