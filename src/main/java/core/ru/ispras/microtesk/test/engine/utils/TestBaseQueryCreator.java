@@ -79,7 +79,6 @@ public final class TestBaseQueryCreator {
       final Situation situation,
       final Primitive primitive) {
     checkNotNull(engineContext);
-    checkNotNull(abstractSequence);
     checkNotNull(primitive);
 
     this.engineContext = engineContext;
