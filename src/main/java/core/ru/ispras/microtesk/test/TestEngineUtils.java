@@ -57,23 +57,16 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(block);
 
     final String engineName;
-    final String adapterName;
-
     if (block.isExternal()) {
       engineName = "trivial";
-      adapterName = engineName;
     } else {
       engineName = block.getAttribute("engine", "default");
-      adapterName = block.getAttribute("adapter", engineName);
     }
 
     final Engine engine = EngineConfig.get().getEngine(engineName);
     InvariantChecks.checkNotNull(engine);
 
-    final Adapter adapter = EngineConfig.get().getAdapter(adapterName);
-    InvariantChecks.checkNotNull(adapter);
-
-    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine, adapter);
+    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine);
     testSequenceEngine.configure(block.getAttributes());
 
     return testSequenceEngine;
