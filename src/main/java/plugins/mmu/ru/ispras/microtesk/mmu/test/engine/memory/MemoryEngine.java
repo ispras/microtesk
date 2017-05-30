@@ -15,13 +15,12 @@
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.solver.Solver;
-import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -164,14 +163,14 @@ public final class MemoryEngine implements Engine {
     return MemoryAccessConstraints.EMPTY;
   }
 
-  static AddressObject getAddressObject(final AbstractCall abstractCall) {
-    final Map<String, Object> attributes = abstractCall.getAttributes();
-    return (AddressObject) attributes.get("addressObject");
-  }
+  static void setAccess(final AbstractCall abstractCall, final MemoryAccess access) {
+    final Primitive primitive = abstractCall.getRootOperation();
+    final Situation situation = new Situation(
+        MemoryEngine.ID,
+        Collections.<String, Object>singletonMap(MemoryDataGenerator.CONSTRAINT, access)
+    );
 
-  static void setAddressObject(final AbstractCall abstractCall, final AddressObject addressObject) {
-    final Map<String, Object> attributes = abstractCall.getAttributes();
-    attributes.put("addressObject", addressObject);
+    primitive.setSituation(situation);
   }
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
@@ -247,56 +246,27 @@ public final class MemoryEngine implements Engine {
     final Iterator<AbstractSequence> solutionIterator =
         new Iterator<AbstractSequence>() {
           private int i = 0;
-          private List<AddressObject> solutions = null;
-
-          private List<AddressObject> getSolution() {
-            final List<AddressObject> solutions = new ArrayList<>();
-
-            while (accessIterator.hasValue()) {
-              final List<MemoryAccess> accesses = accessIterator.value();
-
-              solutions.clear();
-              for (final MemoryAccess access : accesses) {
-                final MemorySolver solver = new MemorySolver(solutions, access);
-                final SolverResult<AddressObject> result = solver.solve(Solver.Mode.MAP);
-
-                if (result.getStatus() == SolverResult.Status.SAT) {
-                  solutions.add(result.getResult());
-                } else {
-                  solutions.clear();
-                  break;
-                }
-              }
-
-              if (!solutions.isEmpty()) {
-                // Constructed.
-                break;
-              }
-
-              accessIterator.next();
-            }
-
-            return accessIterator.hasValue() ? solutions : null;
-          }
 
           @Override
           public void init() {
             accessIterator.init();
-            solutions = getSolution();
           }
 
           @Override
           public boolean hasValue() {
-            return solutions != null && (count == -1 || i < count);
+            return accessIterator.hasValue() && (count == -1 || i < count);
           }
 
           @Override
           public AbstractSequence value() {
-            for (int i = 0; i < abstractSequence.size(); i++) {
-              final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
-              final AddressObject addressObject = solutions.get(i);
+            final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
+            final List<MemoryAccess> accesses = accessIterator.value();
 
-              setAddressObject(abstractCall, addressObject);
+            for (int i = 0; i < abstractSequence.size(); i++) {
+              final AbstractCall abstractCall = abstractCalls.get(i);
+              final MemoryAccess access = accesses.get(i);
+
+              setAccess(abstractCall, access);
             }
 
             return abstractSequence;
@@ -305,21 +275,12 @@ public final class MemoryEngine implements Engine {
           @Override
           public void next() {
             accessIterator.next();
-            solutions = getSolution();
-
-            if (solutions == null && count != -1 && i < count) {
-              accessIterator.init();
-              solutions = getSolution();
-            }
-
-            if (solutions != null) {
-              i++;
-            }
+            i++;
           }
 
           @Override
           public void stop() {
-            solutions = null;
+            accessIterator.stop();
           }
 
           @Override

@@ -253,7 +253,12 @@ public final class BranchAdapter implements Adapter {
     final Situation newSituation = new Situation(situation.getName(), newAttributes);
 
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(engineContext, newSituation, primitive);
+        new TestBaseQueryCreator(
+            engineContext,
+            null /* Abstract sequence */,
+            newSituation,
+            primitive
+         );
 
     final TestData testData = getTestData(engineContext, primitive, newSituation, queryCreator);
     Logger.debug(testData.toString());

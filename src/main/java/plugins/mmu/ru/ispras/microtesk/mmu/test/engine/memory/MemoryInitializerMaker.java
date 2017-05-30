@@ -40,18 +40,15 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.ConcreteSequence;
-import ru.ispras.microtesk.test.engine.Adapter;
-import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
-import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
 import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
@@ -60,13 +57,14 @@ import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
+import ru.ispras.testbase.TestData;
 
 /**
- * {@link MemoryAdapter} implements the memory engine adapter.
+ * {@link MemoryInitializerMaker} implements the memory engine initializer maker.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAdapter implements Adapter {
+public final class MemoryInitializerMaker implements InitializerMaker {
 
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
@@ -80,24 +78,25 @@ public final class MemoryAdapter implements Adapter {
   }
 
   @Override
-  public AdapterResult adapt(
+  public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
-      final AbstractSequence abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
+      final Primitive primitive,
+      final Situation situation,
+      final TestData testData,
+      final Map<String, Argument> modes,
+      final Set<AddressingModeWrapper> initializedModes /* OUT */) {
+    InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
-    final ConcreteSequence.Builder builder = new ConcreteSequence.Builder();
+    final AddressObject addressObject = (AddressObject) testData.getBindings().get("addressObject");
+    InvariantChecks.checkNotNull(addressObject);
 
+    final List<AbstractCall> initializer = new ArrayList<>();
     // Write entries into the non-replaceable buffers.
-    builder.addToPrologue(prepareEntries(engineContext, abstractSequence));
+    initializer.addAll(prepareEntries(engineContext, primitive, situation, addressObject));
     // Load addresses and data into the registers.
-    builder.addToPrologue(prepareAddresses(engineContext, abstractSequence));
+    initializer.addAll(prepareAddresses(engineContext, primitive, situation, addressObject));
 
-    // Convert the abstract sequence into the concrete one.
-    builder.add(prepareSequence(engineContext, abstractSequence));
-
-    final ConcreteSequence sequence = builder.build();
-    return new AdapterResult(sequence);
+    return initializer;
   }
 
   @Override
@@ -110,36 +109,35 @@ public final class MemoryAdapter implements Adapter {
     Logger.debug("Allocated entries: %s", entriesInDataSection);
   }
 
-  private List<ConcreteCall> prepareEntries(
+  private List<AbstractCall> prepareEntries(
       final EngineContext engineContext,
-      final AbstractSequence abstractSequence) {
+      final Primitive primitive,
+      final Situation situation,
+      final AddressObject addressObject) {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
+    InvariantChecks.checkNotNull(addressObject);
 
-    final List<ConcreteCall> sequence = new ArrayList<>(); 
-    for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
-      final AddressObject addressObject = MemoryEngine.getAddressObject(abstractCall);
-      final Map<MmuBufferAccess, EntryObject> entries = addressObject.getEntries();
+    final List<AbstractCall> sequence = new ArrayList<>(); 
+    final Map<MmuBufferAccess, EntryObject> entries = addressObject.getEntries();
 
-      for (final Map.Entry<MmuBufferAccess, EntryObject> entry : entries.entrySet()) {
-        final MmuBufferAccess bufferAccess = entry.getKey();
-        final EntryObject entryObject = entry.getValue();
+    for (final Map.Entry<MmuBufferAccess, EntryObject> entry : entries.entrySet()) {
+      final MmuBufferAccess bufferAccess = entry.getKey();
+      final EntryObject entryObject = entry.getValue();
 
-        sequence.addAll(
-            prepareEntries(
-                bufferAccess,
-                entryObject,
-                engineContext,
-                entriesInDataSection
-            )
-        );
-      }
+      sequence.addAll(
+          prepareEntries(
+              bufferAccess,
+              entryObject,
+              engineContext,
+              entriesInDataSection
+          )
+      );
     }
 
     return sequence;
   }
 
-  private List<ConcreteCall> prepareEntries(
+  private List<AbstractCall> prepareEntries(
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
       final EngineContext engineContext,
@@ -155,7 +153,7 @@ public final class MemoryAdapter implements Adapter {
     final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
     InvariantChecks.checkNotNull(dataDirectiveFactory);
 
-    final List<ConcreteCall> preparation = new ArrayList<>();
+    final List<AbstractCall> preparation = new ArrayList<>();
 
     final BigInteger index = entryObject.getId();
     final MmuEntry data = entryObject.getEntry();
@@ -218,11 +216,9 @@ public final class MemoryAdapter implements Adapter {
       dataValueBuilder.build();
 
       final AbstractCall abstractCall = AbstractCall.newData(dataSectionBuilder.build());
-      final ConcreteCall concreteCall = new ConcreteCall(abstractCall);
-
-      preparation.add(concreteCall);
+      preparation.add(abstractCall);
     } else {
-      final List<ConcreteCall> initializer;
+      final List<AbstractCall> initializer;
 
       if (isMemoryMapped) {
         // Memory-mapped buffer.
@@ -257,7 +253,7 @@ public final class MemoryAdapter implements Adapter {
           initializer = prepareMemory(engineContext, addressValue, dataValue, dataSizeInBits);
         } else {
           // Shadow of the memory-mapped buffer access.
-          initializer = Collections.<ConcreteCall>emptyList();
+          initializer = Collections.<AbstractCall>emptyList();
         }
       } else {
         // Buffer.
@@ -268,8 +264,8 @@ public final class MemoryAdapter implements Adapter {
       InvariantChecks.checkNotNull(initializer);
 
       if (!initializer.isEmpty()) {
-        preparation.add(ConcreteCall.newLine());
-        preparation.add(ConcreteCall.newComment(comment));
+        preparation.add(AbstractCall.newLine());
+        preparation.add(AbstractCall.newComment(comment));
 
         preparation.addAll(initializer);
       }
@@ -279,7 +275,7 @@ public final class MemoryAdapter implements Adapter {
     return preparation;
   }
 
-  private List<ConcreteCall> prepareBuffer(
+  private List<AbstractCall> prepareBuffer(
       final MmuBuffer buffer,
       final EngineContext engineContext,
       final BitVector address,
@@ -290,28 +286,22 @@ public final class MemoryAdapter implements Adapter {
     InvariantChecks.checkNotNull(entry);
 
     final BufferPreparatorStore preparators = engineContext.getBufferPreparators();
-    InvariantChecks.checkNotNull(preparators, "Preparator store is null");
+    InvariantChecks.checkNotNull(preparators, "Buffer preparator store is null");
 
-    final BufferPreparator preparator = preparators.getPreparatorFor(buffer.getName());
-    InvariantChecks.checkNotNull(preparator, "Missing preparator for " + buffer.getName());
+    final BufferPreparator preparator =
+        preparators.getPreparatorFor(buffer.getName());
+    InvariantChecks.checkNotNull(preparator,
+        String.format("Missing preparator for buffer '%s'", buffer.getName()));
 
-    final List<AbstractCall> abstractInitializer =
+    final List<AbstractCall> initializer =
         preparator.makeInitializer(engineContext.getPreparators(), address, entry);
-    InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
+    InvariantChecks.checkNotNull(initializer,
+        String.format("Null initializer for buffer '%s'", buffer.getName()));
 
-    final List<ConcreteCall> concreteCalls =
-        prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
-
-    Logger.debug("Code:");
-    for (final ConcreteCall concreteCall : concreteCalls) {
-      Logger.debug(concreteCall.getText());
-    }
-    Logger.debug("");
-
-    return concreteCalls;
+    return initializer;
   }
 
-  private List<ConcreteCall> prepareMemory(
+  private List<AbstractCall> prepareMemory(
       final EngineContext engineContext,
       final BitVector address,
       final BitVector data,
@@ -320,96 +310,64 @@ public final class MemoryAdapter implements Adapter {
     InvariantChecks.checkNotNull(address);
 
     final MemoryPreparatorStore preparators = engineContext.getMemoryPreparators();
-    InvariantChecks.checkNotNull(preparators, "Preparator store is null");
+    InvariantChecks.checkNotNull(preparators, "Memory preparator store is null");
 
-    final MemoryPreparator preparator = preparators.getPreparatorFor(sizeInBits);
-    InvariantChecks.checkNotNull(preparator, "Missing preparator for " + sizeInBits);
+    final MemoryPreparator preparator =
+        preparators.getPreparatorFor(sizeInBits);
+    InvariantChecks.checkNotNull(preparator,
+        String.format("Missing preparator for size %d", sizeInBits));
 
-    final List<AbstractCall> abstractInitializer =
+    final List<AbstractCall> initializer =
         preparator.makeInitializer(engineContext.getPreparators(), address, data);
-    InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
+    InvariantChecks.checkNotNull(initializer,
+        String.format("Null preparator for size %d", sizeInBits));
 
-    final List<ConcreteCall> concreteCalls =
-        prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
-
-    Logger.debug("Code:");
-    for (final ConcreteCall concreteCall : concreteCalls) {
-      Logger.debug(concreteCall.getText());
-    }
-    Logger.debug("");
-
-    return concreteCalls;
+    return initializer;
   }
 
-  private List<ConcreteCall> prepareSequence(
+  private List<AbstractCall> prepareAddresses(
       final EngineContext engineContext,
-      final AbstractSequence abstractSequence) {
+      final Primitive primitive,
+      final Situation situation,
+      final AddressObject addressObject) {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
+    InvariantChecks.checkNotNull(addressObject);
 
-    try {
-      return EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
-    } catch (final ConfigurationException e) {
-      InvariantChecks.checkTrue(false, e.getMessage());
-      return null;
-    }
-  }
-
-  private List<ConcreteCall> prepareAddresses(
-      final EngineContext engineContext,
-      final AbstractSequence abstractSequence) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    final List<ConcreteCall> preparation = new ArrayList<>();
+    final List<AbstractCall> preparation = new ArrayList<>();
     final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
 
-    for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
-      if (!MemoryEngine.isSuitable(abstractCall)) {
-        continue;
+    final List<AbstractCall> initializer = prepareAddress(
+        engineContext, primitive, situation, addressObject, initializedModes);
+    InvariantChecks.checkNotNull(initializer);
+
+    Logger.debug("Call preparation: %s", initializer);
+
+    if (!initializer.isEmpty()) {
+      preparation.add(AbstractCall.newLine());
+      preparation.add(AbstractCall.newComment(
+          String.format("Initializing Instruction %s:", addressObject.getAccess().getType())));
+
+      for (final String comment : getComments(addressObject)) {
+        preparation.add(AbstractCall.newComment(comment));
       }
 
-      final AddressObject addressObject = MemoryEngine.getAddressObject(abstractCall);
-
-      final List<ConcreteCall> initializer = prepareAddress(
-          engineContext, abstractCall, addressObject, initializedModes);
-      InvariantChecks.checkNotNull(initializer);
-
-      Logger.debug("Call preparation: %s", initializer);
-
-      if (!initializer.isEmpty()) {
-        preparation.add(ConcreteCall.newLine());
-        preparation.add(ConcreteCall.newComment(
-            String.format("Initializing Instruction %s:", abstractCall.getText())));
-
-        for (final String comment : getComments(addressObject)) {
-          preparation.add(ConcreteCall.newComment(comment));
-        }
-
-        preparation.addAll(initializer);
-      }
+      preparation.addAll(initializer);
     }
 
     return preparation;
   }
 
-  private List<ConcreteCall> prepareAddress(
+  private List<AbstractCall> prepareAddress(
       final EngineContext engineContext,
-      final AbstractCall abstractCall,
+      final Primitive primitive,
+      final Situation situation,
       final AddressObject addressObject,
       final Set<AddressingModeWrapper> initializedModes) {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(situation);
     InvariantChecks.checkNotNull(initializedModes);
-    InvariantChecks.checkTrue(MemoryEngine.isSuitable(abstractCall));
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
-
-    final Primitive primitive = abstractCall.getRootOperation();
-    InvariantChecks.checkNotNull(primitive, "Primitive is null");
-
-    final Situation situation = primitive.getSituation();
-    InvariantChecks.checkNotNull(situation, "Situation is null");
 
     final Map<String, Object> attributes = situation.getAttributes();
     InvariantChecks.checkNotNull(attributes, "Attributes map is null");
@@ -423,10 +381,10 @@ public final class MemoryAdapter implements Adapter {
 
     try {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
-          engineContext, primitive, newSituation, initializedModes);
+          engineContext, null /* Abstract sequence */, primitive, newSituation, initializedModes);
       InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
 
-      return prepareSequence(engineContext, new AbstractSequence(abstractInitializer));
+      return abstractInitializer;
     } catch (final ConfigurationException e) {
       InvariantChecks.checkTrue(false, e.getMessage());
       return null;

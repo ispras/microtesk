@@ -22,8 +22,9 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAdapter;
+import ru.ispras.microtesk.mmu.test.engine.memory.MemoryDataGenerator;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngine;
+import ru.ispras.microtesk.mmu.test.engine.memory.MemoryInitializerMaker;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.Model;
@@ -32,6 +33,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.testbase.generator.DataGenerator;
@@ -52,21 +54,16 @@ public final class MmuPlugin implements Plugin {
     }
 
     final TestEngine testEngine = TestEngine.getInstance();
-    if (null == testEngine) {
-      throw new IllegalStateException("TestEngine is not initialized.");
-    }
+    InvariantChecks.checkNotNull(testEngine, "Test engine is uninitialized");
 
     final String modelName = testEngine.getModel().getName();
 
-    final String specClassName = String.format(
-        "%s.%s.mmu.spec.Specification", PackageInfo.MODEL_PACKAGE, modelName);
+    final String specClassName =
+        String.format("%s.%s.mmu.spec.Specification", PackageInfo.MODEL_PACKAGE, modelName);
 
     final MmuSubsystem.Holder specHolder =
         (MmuSubsystem.Holder) SysUtils.loadFromModel(specClassName);
-
-    if (null == specHolder) {
-      throw new IllegalStateException("Failed to load " + specClassName);
-    }
+    InvariantChecks.checkNotNull(specHolder, "Failed to load " + specClassName);
 
     spec = specHolder.getSpecification();
 
@@ -89,9 +86,7 @@ public final class MmuPlugin implements Plugin {
     }
 
     final TestEngine testEngine = TestEngine.getInstance();
-    if (null == testEngine) {
-      throw new IllegalStateException("TestEngine is not initialized.");
-    }
+    InvariantChecks.checkNotNull(testEngine, "Test engine is uninitialized");
 
     final String modelName = testEngine.getModel().getName();
 
@@ -106,9 +101,7 @@ public final class MmuPlugin implements Plugin {
 
   private static Model getModel() {
     final TestEngine testEngine = TestEngine.getInstance();
-    if (null == testEngine) {
-      throw new IllegalStateException("TestEngine is not initialized.");
-    }
+    InvariantChecks.checkNotNull(testEngine, "Test engine is uninitialized");
 
     return testEngine.getModel();
   }
@@ -121,8 +114,7 @@ public final class MmuPlugin implements Plugin {
   @Override
   public Map<String, Engine> getEngines() {
     final Map<String, Engine> engines = new LinkedHashMap<>();
-
-    engines.put("memory", new MemoryEngine());
+    engines.put(MemoryEngine.ID, new MemoryEngine());
 
     return engines;
   }
@@ -130,15 +122,22 @@ public final class MmuPlugin implements Plugin {
   @Override
   public Map<String, Adapter> getAdapters() {
     final Map<String, Adapter> adapters = new LinkedHashMap<>();
-
-    adapters.put("memory", new MemoryAdapter());
-
     return adapters;
+  }
+
+  @Override
+  public Map<String, InitializerMaker> getInitializerMakers() {
+    final Map<String, InitializerMaker> initializerMakers = new LinkedHashMap<>();
+    initializerMakers.put(MemoryEngine.ID, new MemoryInitializerMaker());
+
+    return initializerMakers;
   }
 
   @Override
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
+    dataGenerators.put(MemoryEngine.ID, new MemoryDataGenerator());
+
     return dataGenerators;
   }
 

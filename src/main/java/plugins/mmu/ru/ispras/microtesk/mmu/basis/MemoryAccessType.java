@@ -31,10 +31,6 @@ public final class MemoryAccessType {
     return new MemoryAccessType(MemoryOperation.STORE, dataType);
   }
 
-  public static MemoryAccessType ANY(final DataType dataType) {
-    return new MemoryAccessType(dataType);
-  }
-
   private final MemoryOperation operation;
   private final DataType dataType;
 

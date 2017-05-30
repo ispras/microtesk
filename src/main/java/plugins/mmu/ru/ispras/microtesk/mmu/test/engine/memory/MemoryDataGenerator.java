@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +27,6 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.solver.Solver;
-import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
@@ -53,36 +52,42 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.function.Function;
+import ru.ispras.testbase.TestBaseContext;
+import ru.ispras.testbase.TestBaseQuery;
+import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
- * {@link MemorySolver} implements a solver of memory-related constraints (hit, miss, etc.).
+ * {@link MemoryDataGenerator} implements a solver of memory-related constraints (hit, miss, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySolver implements Solver<AddressObject> {
-  /** Symbolic model of the memory subsystem. */
-  private final MmuSubsystem memory = MmuPlugin.getSpecification();
-  /** Executable model of the memory subsystem. */
-  private final MmuModel model = MmuPlugin.getMmuModel();
+public final class MemoryDataGenerator implements DataGenerator {
+  public static final String CONSTRAINT = String.format("%s.%s", MemoryEngine.ID, "constraint");
+  public static final String SOLUTION = String.format("%s.%s", MemoryEngine.ID, "solution");
 
-  private final List<AddressObject> solutions;
-  private final MemoryAccess access;
+  @Override
+  public boolean isSuitable(final TestBaseQuery query) {
+    InvariantChecks.checkNotNull(query);
 
-  private AddressObject solution;
+    final Map<String, Object> context = query.getContext();
+    final Object situationId = context.get(TestBaseContext.TESTCASE);
 
-  private final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
-
-  public MemorySolver(final List<AddressObject> solutions, final MemoryAccess access) {
-    InvariantChecks.checkNotNull(solutions);
-    InvariantChecks.checkNotNull(access);
-
-    this.solutions = solutions;
-    this.access = access;
+    return MemoryEngine.ID.equals(situationId);
   }
 
   @Override
-  public SolverResult<AddressObject> solve(final Mode mode) {
-    this.solution = new AddressObject(access);
+  public TestDataProvider generate(final TestBaseQuery query) {
+    InvariantChecks.checkNotNull(query);
+
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
+
+    final Map<String, Object> parameters = query.getParameters();
+    final MemoryAccess access = (MemoryAccess) parameters.get(CONSTRAINT);
+
+    AddressObject solution = new AddressObject(access);
+    final List<AddressObject> solutions = null; // FIXME:
 
     final BufferUnitedDependency dependency = access.getUnitedDependency();
     Logger.debug("Solve: %s, %s", access, dependency);
@@ -111,14 +116,12 @@ public final class MemorySolver implements Solver<AddressObject> {
     Map<IntegerVariable, BigInteger> values = refineAddr(solution, conditions, constraints);
 
     if (values == null) {
-      final String warning = String.format("Infeasible path: %s", access);
-
-      Logger.debug(warning);
-      return new SolverResult<>(warning);
+      Logger.debug("Infeasible path: %s", access);
+      return null;
     }
 
     // Assign the tag, index and offset according to the dependencies.
-    conditions.addAll(getHazardConditions());
+    conditions.addAll(getHazardConditions(access, solutions));
 
     // Try to refine the address object.
     if (!conditions.isEmpty()) {
@@ -197,19 +200,27 @@ public final class MemorySolver implements Solver<AddressObject> {
     // Allocate entries in non-replaceable buffers.
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        final EntryObject entryObject = allocateEntry(bufferAccess);
+        final EntryObject entryObject = allocateEntry(access, solution, solutions, bufferAccess);
         InvariantChecks.checkNotNull(entryObject);
 
-        fillEntry(bufferAccess, entryObject, values);
+        fillEntry(solution, bufferAccess, entryObject, values);
       }
     }
 
-    return new SolverResult<AddressObject>(solution);
+    final TestData testData = new TestData(
+        MemoryEngine.ID,
+        Collections.<String, Object>singletonMap(SOLUTION, solution)
+    );
+
+    return TestDataProvider.singleton(testData);
   }
 
-  private EntryObject allocateEntry(final MmuBufferAccess bufferAccess) {
+  private EntryObject allocateEntry(
+      final MemoryAccess access,
+      final AddressObject solution,
+      final List<AddressObject> solutions,
+      final MmuBufferAccess bufferAccess) {
     final BufferUnitedDependency dependency = access.getUnitedDependency();
-
     final EntryObject entryObject = solution.getEntry(bufferAccess);
 
     if (entryObject != null) {
@@ -240,6 +251,7 @@ public final class MemorySolver implements Solver<AddressObject> {
   }
 
   private void fillEntry(
+      final AddressObject solution,
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
       final Map<IntegerVariable, BigInteger> values) {
@@ -267,7 +279,10 @@ public final class MemorySolver implements Solver<AddressObject> {
     }
   }
 
-  private MmuCondition getHazardCondition(final int i, final BufferHazard.Instance hazard) {
+  private MmuCondition getHazardCondition(
+      final List<AddressObject> solutions,
+      final int i,
+      final BufferHazard.Instance hazard) {
     final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
     final MmuBufferAccess bufferAccess2 = hazard.getSecondaryAccess();
 
@@ -306,7 +321,9 @@ public final class MemorySolver implements Solver<AddressObject> {
     return condition;
   }
 
-  private Collection<MmuCondition> getHazardConditions() {
+  private Collection<MmuCondition> getHazardConditions(
+      final MemoryAccess access,
+      final List<AddressObject> solutions) {
     final MemoryAccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
@@ -325,18 +342,18 @@ public final class MemorySolver implements Solver<AddressObject> {
         if (!tagEqualRelation.isEmpty() || !tagNotEqualRelation.isEmpty()) {
           // INDEX[j] == INDEX[i] && TAG[j] == TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, pair.second));
+            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
             break; // Enough.
           }
 
           // INDEX[j] == INDEX[i] && TAG[j] != TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagNotEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, pair.second));
+            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
           }
         } else {
           // INDEX[j] == INDEX[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : indexEqualRelation) {
-            conditions.add(getHazardCondition(pair.first, pair.second));
+            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
             break; // Enough.
           }
         }
@@ -347,7 +364,7 @@ public final class MemorySolver implements Solver<AddressObject> {
 
       // INDEX-NOT-EQUAL constraints.
       for (final Pair<Integer, BufferHazard.Instance> pair : indexNotEqualRelation) {
-        conditions.add(getHazardCondition(pair.first, pair.second));
+        conditions.add(getHazardCondition(solutions, pair.first, pair.second));
       }
     }
 
@@ -366,6 +383,8 @@ public final class MemorySolver implements Solver<AddressObject> {
   private MmuCondition getHitCondition(
       final MmuBufferAccess bufferAccess,
       final BigInteger addressWithoutTag) {
+    final MmuModel model = MmuPlugin.getMmuModel();
+
     final MmuBuffer buffer = bufferAccess.getBuffer();
     final BufferObserver bufferObserver = model.getBufferObserver(buffer.getName());
 
@@ -394,6 +413,8 @@ public final class MemorySolver implements Solver<AddressObject> {
   private MmuCondition getMissCondition(
       final MmuBufferAccess bufferAccess,
       final BigInteger addressWithoutTag) {
+    final MmuModel model = MmuPlugin.getMmuModel();
+
     final MmuBuffer buffer = bufferAccess.getBuffer();
     final BufferObserver bufferObserver = model.getBufferObserver(buffer.getName());
 
@@ -427,6 +448,8 @@ public final class MemorySolver implements Solver<AddressObject> {
   }
 
   private BigInteger getRandomAddress(final DataType dataType) {
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
+
     final GeneratorSettings settings = GeneratorSettings.get();
     final RegionSettings region = settings.getMemory().getRegion(memory.getName());
 
@@ -441,6 +464,8 @@ public final class MemorySolver implements Solver<AddressObject> {
   }
 
   private BigInteger allocateEntryId(final MmuBuffer buffer, final boolean peek) {
+    final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
+
     final BigInteger entryId = entryIdAllocator.allocate(buffer, peek, null);
     Logger.debug("Allocate entry: buffer=%s, entryId=%s", buffer, entryId.toString(16));
 
@@ -508,6 +533,7 @@ public final class MemorySolver implements Solver<AddressObject> {
     }
 
     // Get the virtual address value.
+    final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuAddressInstance addrType = memory.getVirtualAddress();
     final IntegerVariable addrVar = addrType.getVariable(); 
     final BigInteger addrValue = values.get(addrVar);
