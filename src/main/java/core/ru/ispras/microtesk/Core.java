@@ -21,6 +21,8 @@ import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.engine.DefaultEngine;
 import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
+import ru.ispras.microtesk.test.engine.InitializerMakerDefault;
 import ru.ispras.microtesk.test.engine.TrivialAdapter;
 import ru.ispras.microtesk.test.engine.branch.BranchAdapter;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
@@ -62,6 +64,15 @@ final class Core implements Plugin {
     adapters.put("branch", new BranchAdapter());
 
     return adapters;
+  }
+
+  @Override
+  public Map<String, InitializerMaker> getInitializerMakers() {
+    final Map<String, InitializerMaker> result = new LinkedHashMap<>();
+
+    result.put("default", new InitializerMakerDefault());
+
+    return result;
   }
 
   @Override

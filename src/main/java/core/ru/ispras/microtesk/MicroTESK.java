@@ -27,6 +27,7 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.symexec.SymbolicExecutor;
 import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
@@ -85,24 +86,28 @@ public final class MicroTESK {
     for (final Plugin plugin : plugins) {
       // Register the translator.
       final Translator<?> translator = plugin.getTranslator();
-
       if (translator != null) {
         translators.add(translator);
       }
 
-      // Register the engines.
       final EngineConfig generatorConfig = EngineConfig.get();
-      final Map<String, Engine> engines = plugin.getEngines();
 
+      // Register the engines.
+      final Map<String, Engine> engines = plugin.getEngines();
       for (final Map.Entry<String, Engine> entry : engines.entrySet()) {
         generatorConfig.registerEngine(entry.getKey(), entry.getValue());
       }
 
       // Register the adapters.
       final Map<String, Adapter> adapters = plugin.getAdapters();
-
       for (final Map.Entry<String, Adapter> entry : adapters.entrySet()) {
         generatorConfig.registerAdapter(entry.getKey(), entry.getValue());
+      }
+
+      // Register the adapters.
+      final Map<String, InitializerMaker> initializerMakers  = plugin.getInitializerMakers();
+      for (final Map.Entry<String, InitializerMaker> entry : initializerMakers.entrySet()) {
+        generatorConfig.registerInitializerMaker(entry.getKey(), entry.getValue());
       }
 
       // Register the data generators.

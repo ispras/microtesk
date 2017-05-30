@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import java.util.Map;
 
 import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.testbase.generator.DataGenerator;
 
@@ -47,6 +48,13 @@ public interface Plugin {
    * @return the adapters.
    */
   Map<String, Adapter> getAdapters();
+
+  /**
+   * Returns the plugin's initializer makers with their names.
+   * 
+   * @return the initializer makers.
+   */
+  Map<String, InitializerMaker> getInitializerMakers();
 
   /**
    * Returns the plugin's data generators with their names.

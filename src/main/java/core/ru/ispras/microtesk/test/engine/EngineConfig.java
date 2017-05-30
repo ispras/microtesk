@@ -38,9 +38,7 @@ public final class EngineConfig {
     return (EngineConfig) instance;
   }
 
-  private EngineConfig() {
-    initializerMakers.put("default", new InitializerMakerDefault());
-  }
+  private EngineConfig() {}
 
   public Engine registerEngine(final String name, final Engine engine) {
     InvariantChecks.checkNotNull(name);
@@ -74,7 +72,9 @@ public final class EngineConfig {
     return adapters.values();
   }
 
-  public InitializerMaker registerEngine(final String name, final InitializerMaker initMaker) {
+  public InitializerMaker registerInitializerMaker(
+      final String name,
+      final InitializerMaker initMaker) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(initMaker);
     return initializerMakers.put(name.toLowerCase(), initMaker);
