@@ -139,7 +139,10 @@ public final class TestBaseQueryCreator {
     queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, engineContext.getModel().getName());
     queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
     queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
-    queryBuilder.setContextAttribute("AbstractSequence", abstractSequence);
+
+    if (null != abstractSequence) {
+      queryBuilder.setContextAttribute("AbstractSequence", abstractSequence);
+    }
 
     queryBuilder.setContextAttribute(primitive.getName(), primitive.getName());
     acquireContext(queryBuilder, primitive.getName(), primitive);
