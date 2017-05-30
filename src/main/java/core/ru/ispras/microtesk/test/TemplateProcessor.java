@@ -169,12 +169,12 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void processPrologue(final Block block) {
+  private void processPrologue(final Block block) throws ConfigurationException {
     testProgram.setPrologue(
         TestEngineUtils.makeExternalTestSequence(engineContext, block, "Prologue"));
   }
 
-  private void processEpilogue(final Block block) {
+  private void processEpilogue(final Block block) throws ConfigurationException {
     testProgram.setEpilogue(
         TestEngineUtils.makeExternalTestSequence(engineContext, block, "Epilogue"));
   }

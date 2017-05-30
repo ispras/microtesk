@@ -120,26 +120,23 @@ final class TestEngineUtils {
 
   public static ConcreteSequence makeExternalTestSequence(
       final EngineContext engineContext,
-      final Block block) {
+      final Block block) throws ConfigurationException {
     return makeExternalTestSequence(engineContext, block, "External Code");
   }
 
   public static ConcreteSequence makeExternalTestSequence(
       final EngineContext engineContext,
       final Block block,
-      final String title) {
+      final String title) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(block);
     InvariantChecks.checkTrue(block.isExternal());
 
-    final TestSequenceEngine engine = getEngine(block);
     final List<AbstractCall> abstractSequence = getSingleSequence(block);
+    final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
+    sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, abstractSequence));
 
-    final TestSequenceEngineResult engineResult =
-        engine.process(engineContext, new AbstractSequence(abstractSequence));
-    final Iterator<AdapterResult> iterator = engineResult.getResult();
-
-    final ConcreteSequence sequence = getSingleTestSequence(iterator);
+    final ConcreteSequence sequence = sequenceBuilder.build();
     sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
 
     return sequence;
