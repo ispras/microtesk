@@ -56,6 +56,7 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.LabelValue;
@@ -127,14 +128,23 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
-    return makeInitializer(engineContext, primitive, situation, initializedModes, null);
+    return makeInitializer(
+        engineContext,
+        abstractSequence,
+        primitive,
+        situation,
+        initializedModes,
+        null
+        );
   }
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
       final Set<AddressingModeWrapper> initializedModes,
@@ -146,7 +156,7 @@ public final class EngineUtils {
     // Parameter {@code concretePrimitive} can be null.
 
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(engineContext, situation, primitive);
+        new TestBaseQueryCreator(engineContext, abstractSequence, situation, primitive);
 
     final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());

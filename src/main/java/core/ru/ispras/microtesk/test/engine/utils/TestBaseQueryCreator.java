@@ -23,6 +23,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -61,9 +62,9 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class TestBaseQueryCreator {
-  private EngineContext engineContext;
+  private final EngineContext engineContext;
+  private final AbstractSequence abstractSequence;
   private final Situation situation;
   private final Primitive primitive;
 
@@ -74,12 +75,15 @@ public final class TestBaseQueryCreator {
 
   public TestBaseQueryCreator(
       final EngineContext engineContext,
+      final AbstractSequence abstractSequence,
       final Situation situation,
       final Primitive primitive) {
     checkNotNull(engineContext);
+    checkNotNull(abstractSequence);
     checkNotNull(primitive);
 
     this.engineContext = engineContext;
+    this.abstractSequence = abstractSequence;
 
     this.situation = situation;
     this.primitive = primitive;
@@ -136,6 +140,7 @@ public final class TestBaseQueryCreator {
     queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, engineContext.getModel().getName());
     queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
     queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
+    queryBuilder.setContextAttribute("AbstractSequence", abstractSequence);
 
     queryBuilder.setContextAttribute(primitive.getName(), primitive.getName());
     acquireContext(queryBuilder, primitive.getName(), primitive);

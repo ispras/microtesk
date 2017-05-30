@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -85,11 +86,8 @@ public final class DefaultAdapter implements Adapter {
     final List<ConcreteCall> concreteSequence =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
 
-    final ConcreteSequenceCreator creator = 
-        new ConcreteSequenceCreator(
-            sequenceIndex,
-            abstractSequence.getSequence(),
-            concreteSequence);
+    final ConcreteSequenceCreator creator =
+        new ConcreteSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
     execute(
         engineContext,
@@ -224,6 +222,7 @@ public final class DefaultAdapter implements Adapter {
 
   private static final class ConcreteSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
+    private final AbstractSequence abstractSequence;
     private final Map<ConcreteCall, AbstractCall> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
@@ -231,19 +230,20 @@ public final class DefaultAdapter implements Adapter {
 
     private ConcreteSequenceCreator(
         final int sequenceIndex,
-        final List<AbstractCall> abstractSequence,
+        final AbstractSequence abstractSequence,
         final List<ConcreteCall> concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
       InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.size());
 
       this.sequenceIndex = sequenceIndex;
+      this.abstractSequence = abstractSequence;
       this.callMap = new IdentityHashMap<>();
       this.initializedModes = new HashSet<>();
       this.listenerForInitializers = new ExecutorListener();
 
-      for (int index = 0; index < abstractSequence.size(); ++index) {
-        final AbstractCall abstractCall = abstractSequence.get(index);
+      for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
+        final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
         final ConcreteCall concreteCall = concreteSequence.get(index);
 
         InvariantChecks.checkNotNull(abstractCall);
@@ -340,6 +340,7 @@ public final class DefaultAdapter implements Adapter {
 
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
+          abstractSequence,
           abstractPrimitive,
           abstractPrimitive.getSituation(),
           initializedModes,
