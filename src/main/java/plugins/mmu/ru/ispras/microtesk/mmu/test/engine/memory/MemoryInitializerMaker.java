@@ -87,7 +87,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Set<AddressingModeWrapper> initializedModes /* OUT */) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
-    final AddressObject addressObject = (AddressObject) testData.getBindings().get("addressObject");
+    final AddressObject addressObject =
+        (AddressObject) testData.getBindings().get(MemoryDataGenerator.SOLUTION);
     InvariantChecks.checkNotNull(addressObject);
 
     final List<AbstractCall> initializer = new ArrayList<>();
