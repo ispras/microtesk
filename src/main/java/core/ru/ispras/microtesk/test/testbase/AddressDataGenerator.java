@@ -40,6 +40,8 @@ import ru.ispras.testbase.generator.Utils;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressDataGenerator implements DataGenerator {
+  public static final String ID = "address";
+
   /** Instruction operand for the address base. */
   public static final String PARAM_ADDRESS_BASE = "base";
   /** Instruction operand for the address offset (optional). */

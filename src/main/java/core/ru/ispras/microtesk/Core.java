@@ -64,7 +64,7 @@ final class Core implements Plugin {
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
 
-    dataGenerators.put("address", new AddressDataGenerator());
+    dataGenerators.put(AddressDataGenerator.ID, new AddressDataGenerator());
 
     return dataGenerators;
   }

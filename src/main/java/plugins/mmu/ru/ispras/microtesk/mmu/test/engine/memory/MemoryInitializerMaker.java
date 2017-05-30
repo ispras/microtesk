@@ -378,7 +378,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     newAttributes.put(AddressDataGenerator.PARAM_ADDRESS_VALUE,
         addressObject.getAddress(memory.getVirtualAddress()));
 
-    final Situation newSituation = new Situation(situation.getName(), newAttributes);
+    final Situation newSituation = new Situation(AddressDataGenerator.ID, newAttributes);
 
     try {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(

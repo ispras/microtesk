@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +44,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class MemoryEngine implements Engine {
   public static final String ID = "memory";
+  public static final String PATH = "path";
 
   final static class ParamAbstraction extends EngineParameter<MemoryGraphAbstraction> {
     ParamAbstraction() {
@@ -153,7 +154,7 @@ public final class MemoryEngine implements Engine {
     final Situation situation = primitive.getSituation();
 
     if (situation != null) {
-      final Object attribute = situation.getAttribute("path");
+      final Object attribute = situation.getAttribute(PATH);
 
       if (attribute != null && attribute instanceof MemoryAccessConstraints) {
         return (MemoryAccessConstraints) attribute;
@@ -165,12 +166,15 @@ public final class MemoryEngine implements Engine {
 
   static void setAccess(final AbstractCall abstractCall, final MemoryAccess access) {
     final Primitive primitive = abstractCall.getRootOperation();
-    final Situation situation = new Situation(
-        MemoryEngine.ID,
-        Collections.<String, Object>singletonMap(MemoryDataGenerator.CONSTRAINT, access)
-    );
 
-    primitive.setSituation(situation);
+    final Situation oldSituation = primitive.getSituation();
+    final Map<String, Object> oldAttributes = oldSituation.getAttributes();
+
+    final Map<String, Object> newAttributes = new LinkedHashMap<>(oldAttributes);
+    newAttributes.put(MemoryDataGenerator.CONSTRAINT, access);
+    final Situation newSituation = new Situation(MemoryEngine.ID, newAttributes);
+
+    primitive.setSituation(newSituation);
   }
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();

@@ -74,6 +74,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Map<String, Object> context = query.getContext();
     final Object situationId = context.get(TestBaseContext.TESTCASE);
 
+    Logger.debug("MemoryDataGenerator.isSuitable: %s == %s", MemoryEngine.ID, situationId);
     return MemoryEngine.ID.equals(situationId);
   }
 
