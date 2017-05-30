@@ -39,6 +39,7 @@ import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -131,6 +132,8 @@ final class TestEngineUtils {
     InvariantChecks.checkTrue(block.isExternal());
 
     final List<AbstractCall> abstractSequence = getSingleSequence(block);
+
+    LabelUniqualizer.get().resetNumbers();
     final List<AbstractCall> expandedAbstractSequence =
         Preparator.expandPreparators(null, engineContext.getPreparators(), abstractSequence);
 
