@@ -31,7 +31,6 @@ import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.TestEngine;
-import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
@@ -117,12 +116,6 @@ public final class MmuPlugin implements Plugin {
     engines.put(MemoryEngine.ID, new MemoryEngine());
 
     return engines;
-  }
-
-  @Override
-  public Map<String, Adapter> getAdapters() {
-    final Map<String, Adapter> adapters = new LinkedHashMap<>();
-    return adapters;
   }
 
   @Override
