@@ -17,14 +17,10 @@ package ru.ispras.microtesk;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.test.engine.Adapter;
-import ru.ispras.microtesk.test.engine.DefaultAdapter;
 import ru.ispras.microtesk.test.engine.DefaultEngine;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.InitializerMakerDefault;
-import ru.ispras.microtesk.test.engine.TrivialAdapter;
-import ru.ispras.microtesk.test.engine.branch.BranchAdapter;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.microtesk.translator.Translator;
