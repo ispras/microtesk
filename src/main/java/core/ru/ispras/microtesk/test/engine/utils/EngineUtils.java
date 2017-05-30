@@ -69,6 +69,7 @@ import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -149,6 +150,7 @@ public final class EngineUtils {
 
     final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
+    situation.getAttributes().put("TestData", testData);
 
     if (testData != NO_TEST_DATA) {
       setUnknownImmValues(
