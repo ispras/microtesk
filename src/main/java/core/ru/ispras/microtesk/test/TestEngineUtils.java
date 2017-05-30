@@ -27,21 +27,19 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
-import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
-import ru.ispras.microtesk.test.engine.TestSequenceEngineResult;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -133,8 +131,11 @@ final class TestEngineUtils {
     InvariantChecks.checkTrue(block.isExternal());
 
     final List<AbstractCall> abstractSequence = getSingleSequence(block);
+    final List<AbstractCall> expandedAbstractSequence =
+        Preparator.expandPreparators(null, engineContext.getPreparators(), abstractSequence);
+
     final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
-    sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, abstractSequence));
+    sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, expandedAbstractSequence));
 
     final ConcreteSequence sequence = sequenceBuilder.build();
     sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
