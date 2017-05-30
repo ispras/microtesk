@@ -52,7 +52,7 @@ public class InitializerMakerDefault implements InitializerMaker {
     InvariantChecks.checkNotNull(initializedModes);
 
     final List<AbstractCall> result = new ArrayList<>();
-    for (final Map.Entry<String, Node> e : testData.getBindings().entrySet()) {
+    for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
       final Argument argument = arguments.get(name);
 
@@ -69,7 +69,7 @@ public class InitializerMakerDefault implements InitializerMaker {
         continue;
       }
 
-      final BitVector value = FortressUtils.extractBitVector(e.getValue());
+      final BitVector value = FortressUtils.extractBitVector((Node) e.getValue());
       Logger.debug("Creating code to assign %s to %s...", value, targetMode);
 
       final List<AbstractCall> initializingCalls =

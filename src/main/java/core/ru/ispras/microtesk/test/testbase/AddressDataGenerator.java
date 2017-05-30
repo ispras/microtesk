@@ -117,7 +117,7 @@ public final class AddressDataGenerator implements DataGenerator {
     }
 
     final Map<String, Node> unknowns = Utils.extractUnknown(query);
-    final Map<String, Node> bindings = new LinkedHashMap<>();
+    final Map<String, Object> bindings = new LinkedHashMap<>();
 
     for (final Map.Entry<String, Node> entry : unknowns.entrySet()) {
       final String name = entry.getKey();

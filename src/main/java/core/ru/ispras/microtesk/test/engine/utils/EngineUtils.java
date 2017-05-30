@@ -69,7 +69,6 @@ import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
-import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -84,7 +83,7 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class EngineUtils {
-  public static final TestData NO_TEST_DATA = new TestData(Collections.<String, Node>emptyMap());
+  public static final TestData NO_TEST_DATA = new TestData(Collections.emptyMap());
 
   private EngineUtils() {}
 
@@ -159,8 +158,11 @@ public final class EngineUtils {
           );
     }
 
-    final InitializerMaker initializerMaker = EngineConfig.get().getInitializerMaker("default");
-    InvariantChecks.checkNotNull(initializerMaker);
+    final InitializerMaker initializerMaker = 
+        EngineConfig.get().getInitializerMaker(testData.getId());
+
+    InvariantChecks.checkNotNull(
+        initializerMaker, "Initializer maker is undefined for " + testData.getId());
 
     return initializerMaker.makeInitializer(
         engineContext,
@@ -184,7 +186,7 @@ public final class EngineUtils {
     args.putAll(queryCreator.getUnknownImmValues());
     args.putAll(queryCreator.getModes());
 
-    final Map<String, Node> bindings = new HashMap<>();
+    final Map<String, Object> bindings = new HashMap<>();
     for (final Map.Entry<String, Argument> entry : args.entrySet()) {
       final String name = entry.getKey();
       final Argument arg = entry.getValue();
@@ -295,7 +297,7 @@ public final class EngineUtils {
 
     for (final Map.Entry<String, Argument> e : unknownImmValues.entrySet()) {
       final Argument argument = e.getValue();
-      final Node value = testData.getBindings().get(e.getKey());
+      final Node value = (Node) testData.getBindings().get(e.getKey());
 
       final Immediate argumentToPatch;
       if (null != argumentsToPatch) {

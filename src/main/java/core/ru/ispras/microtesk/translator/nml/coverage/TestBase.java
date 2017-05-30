@@ -218,7 +218,7 @@ public final class TestBase {
       values.put(var.getName(), var.getData());
     }
 
-    final Map<String, Node> valueNodes = new HashMap<>();
+    final Map<String, Object> valueNodes = new HashMap<>();
     for (Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
       if (entry.getValue().getKind() == Node.Kind.VARIABLE) {
         final String name = entry.getKey() + "!1";

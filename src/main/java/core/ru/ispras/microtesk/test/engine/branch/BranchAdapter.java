@@ -265,7 +265,7 @@ public final class BranchAdapter implements Adapter {
       // Initialize test data to ensure branch execution.
       boolean isInitialized = false;
 
-      for (final Map.Entry<String, Node> testDatum : testData.getBindings().entrySet()) {
+      for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
         final String name = testDatum.getKey();
         final Argument arg = queryCreator.getModes().get(name);
 
@@ -276,7 +276,7 @@ public final class BranchAdapter implements Adapter {
         }
 
         final Primitive mode = (Primitive) arg.getValue();
-        final BitVector value = FortressUtils.extractBitVector(testDatum.getValue());
+        final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
 
         final List<AbstractCall> initializingCalls = new ArrayList<>();
 
