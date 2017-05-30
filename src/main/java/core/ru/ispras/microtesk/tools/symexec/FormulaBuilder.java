@@ -46,15 +46,15 @@ public final class FormulaBuilder {
     return ((Formulas) c.getInnerRep()).exprs();
   }
 
-  private static Map<String, String> buildContext(final IsaPrimitive p) {
-    final Map<String, String> ctx = new HashMap<>();
+  private static Map<String, Object> buildContext(final IsaPrimitive p) {
+    final Map<String, Object> ctx = new HashMap<>();
     buildContext(ctx, p.getName() + ".", p);
     ctx.put(TestBaseContext.INSTRUCTION, p.getName());
     return ctx;
   }
 
   private static void buildContext(
-    final Map<String, String> ctx,
+    final Map<String, Object> ctx,
     final String prefix,
     final IsaPrimitive src) {
     for (final Map.Entry<String, IsaPrimitive> entry : src.getArguments().entrySet()) {

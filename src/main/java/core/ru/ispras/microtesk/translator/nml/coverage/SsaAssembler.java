@@ -129,7 +129,7 @@ final class Closure {
 
 public final class SsaAssembler {
   final Map<String, SsaForm> buildingBlocks;
-  Map<String, String> buildingContext;
+  Map<String, Object> buildingContext;
 
   SsaScope scope;
   int numTemps;
@@ -148,11 +148,11 @@ public final class SsaAssembler {
     this.numTemps = 0;
   }
 
-  public Node assemble(final Map<String, String> context, final String entry) {
+  public Node assemble(final Map<String, Object> context, final String entry) {
     return assemble(context, entry, entry);
   }
 
-  public Node assemble(final Map<String, String> context, final String entry, final String tag) {
+  public Node assemble(final Map<String, Object> context, final String entry, final String tag) {
     this.buildingContext = new HashMap<>(context);
     this.contextEnum = new HashMap<>();
     this.statements = new ArrayList<>();
@@ -170,7 +170,7 @@ public final class SsaAssembler {
   }
 
   private void step(final Prefix prefix, final String method) {
-    final String name = buildingContext.get(prefix.context);
+    final String name = (String) buildingContext.get(prefix.context);
     final SsaForm ssa = buildingBlocks.get(dotConc(name, method));
     embedBlock(prefix, ssa.getEntryPoint());
   }
@@ -342,13 +342,13 @@ public final class SsaAssembler {
         final String argName = literalOperand(0, operand);
         final Prefix srcPrefix = origin.pushAll(argName);
 
-        final Map<String, String> extension = new HashMap<>();
-        for (final Map.Entry<String, String> entry : buildingContext.entrySet()) {
+        final Map<String, Object> extension = new HashMap<>();
+        for (final Map.Entry<String, Object> entry : buildingContext.entrySet()) {
           final Pair<String, String> pair =
               StringUtils.splitOnLast(entry.getKey(), '.');
           if (pair.first.equals(srcPrefix.context)) {
             final Prefix argPrefix = inner.pushAll(pair.second);
-            extension.put(argPrefix.context, entry.getValue());
+            extension.put(argPrefix.context, (String) entry.getValue());
             if (entry.getValue().equals("#IMM")) {
               linkArgument(argPrefix.expression,
                            srcPrefix,
@@ -374,7 +374,7 @@ public final class SsaAssembler {
   private void linkArgument(final String targetName,
                             final Prefix prefix,
                             final String localName) {
-    final String context = buildingContext.get(prefix.context);
+    final String context = (String) buildingContext.get(prefix.context);
     final NodeVariable image = getParameters(context).find(localName);
     final Data data = image.getDataType().valueUninitialized();
 

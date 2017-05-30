@@ -99,7 +99,7 @@ public final class TestBase {
       final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
       bindings.add(findPathSpec(query, builder.getVariables()));
 
-      final String testCase = query.getContext().get(TestBaseContext.TESTCASE);
+      final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
       if (testCase.equals("normal")) {
         final List<NodeVariable> marks = builder.getSpecialMarks();
         if (!marks.isEmpty()) {
@@ -179,12 +179,12 @@ public final class TestBase {
   }
 
   private Node findPathSpec(TestBaseQuery query, Map<String, NodeVariable> variables) {
-    final Map<String, String> context = query.getContext();
-    final String name = context.get(TestBaseContext.INSTRUCTION);
-    final String situation = context.get(TestBaseContext.TESTCASE);
+    final Map<String, Object> context = query.getContext();
+    final String name = (String) context.get(TestBaseContext.INSTRUCTION);
+    final String situation = (String) context.get(TestBaseContext.TESTCASE);
     final Pair<String, String> pair = StringUtils.splitOnFirst(situation, '.');
 
-    for (Map.Entry<String, String> entry : context.entrySet()) {
+    for (Map.Entry<String, Object> entry : context.entrySet()) {
       if (entry.getValue().equals(name)) {
         final String varName = entry.getKey() + pair.second + "!1";
         if (variables.containsKey(varName)) {
@@ -270,9 +270,9 @@ public final class TestBase {
   }
 
   private PathConstraintBuilder constraintBuilder(final TestBaseQuery query) {
-    final Map<String, String> context = query.getContext();
-    final String model = context.get(TestBaseContext.PROCESSOR);
-    final String instr = context.get(TestBaseContext.INSTRUCTION);
+    final Map<String, Object> context = query.getContext();
+    final String model = (String) context.get(TestBaseContext.PROCESSOR);
+    final String instr = (String) context.get(TestBaseContext.INSTRUCTION);
     final SsaAssembler assembler = new SsaAssembler(getStorage(model));
     final Node formula = assembler.assemble(context, instr);
 
