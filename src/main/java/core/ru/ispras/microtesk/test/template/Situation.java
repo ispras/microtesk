@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.testbase.TestData;
 
 public final class Situation {
 
@@ -46,12 +47,14 @@ public final class Situation {
 
   private final String name;
   private final Map<String, Object> attributes;
+  private TestData testData;
 
   public Situation(final String name, final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(name);
 
     this.name = name;
     this.attributes = null != attributes ? attributes : new LinkedHashMap<String, Object>();
+    this.testData = null;
   }
 
   public String getName() {
@@ -64,6 +67,14 @@ public final class Situation {
 
   public Map<String, Object> getAttributes() {
     return attributes;
+  }
+
+  public TestData getTestData() {
+    return testData;
+  }
+
+  public void setTestData(final TestData testData) {
+    this.testData = testData;
   }
 
   @Override
