@@ -160,7 +160,10 @@ public final class EngineUtils {
 
     final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
-    situation.getAttributes().put("TestData", testData);
+
+    if (null != situation && null != situation.getAttributes()) {
+      situation.getAttributes().put("TestData", testData);
+    }
 
     if (testData != NO_TEST_DATA) {
       setUnknownImmValues(
