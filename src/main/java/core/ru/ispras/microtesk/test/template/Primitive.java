@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
+import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public interface Primitive {
@@ -49,6 +50,7 @@ public interface Primitive {
   String getContextName();
   boolean hasSituation();
   Situation getSituation();
+  void setSituation(Situation situation);
   String getSignature();
 
   boolean canThrowException();
@@ -68,7 +70,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
   private final boolean isRoot;
   private final Map<String, Argument> args;
   private final String contextName;
-  private final Variate<Situation> situation;
+  private Variate<Situation> situation;
 
   private final boolean branch;
   private final boolean conditionalBranch;
@@ -184,6 +186,11 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
 
   public Situation getSituation() {
     return null != situation ? situation.value() : null;
+  }
+
+  @Override
+  public void setSituation(final Situation situation) {
+    this.situation = new VariateSingleValue<Situation>(situation);
   }
 
   public String getSignature() {
@@ -348,6 +355,12 @@ final class LazyPrimitive extends SharedObject<LazyPrimitive>
   public Situation getSituation() {
     checkSourceAssigned();
     return source.getSituation();
+  }
+
+  @Override
+  public void setSituation(final Situation situation) {
+    checkSourceAssigned();
+    source.setSituation(situation);
   }
 
   @Override
