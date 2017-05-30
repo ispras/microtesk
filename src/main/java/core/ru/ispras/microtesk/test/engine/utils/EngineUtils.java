@@ -83,7 +83,7 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class EngineUtils {
-  public static final TestData NO_TEST_DATA = new TestData(Collections.emptyMap());
+  public static final TestData NO_TEST_DATA = new TestData(Collections.<String, Object>emptyMap());
 
   private EngineUtils() {}
 
