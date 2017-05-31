@@ -289,6 +289,11 @@ final class Printer {
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
+      if (call.getSection() != null) {
+        printText(String.format(".section \"%s\", %s",
+            call.getSection().getName(), call.getSection().getArgs()));
+      }
+
       printOutputs(observer, call.getOutputs());
       printLabels(call.getLabels());
 

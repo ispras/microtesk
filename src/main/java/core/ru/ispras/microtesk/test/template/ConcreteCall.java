@@ -41,6 +41,7 @@ public final class ConcreteCall {
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
   private final DataSection data;
+  private final Section section;
 
   private long address = 0;
   private String text = null;
@@ -77,6 +78,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
+    this.section = null;
   }
 
   public ConcreteCall(
@@ -97,6 +99,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
+    this.section = null;
   }
 
   public ConcreteCall(final AbstractCall abstractCall) {
@@ -111,8 +114,8 @@ public final class ConcreteCall {
     this.origin = abstractCall.getOrigin();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
-    this.data = abstractCall.hasData() ?
-        new DataSection(abstractCall.getData()) : null;
+    this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
+    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -128,6 +131,7 @@ public final class ConcreteCall {
     this.alignment = null;
     this.alignmentInBytes = null;
     this.data = null;
+    this.section = null;
   }
 
   public boolean isExecutable() {
@@ -258,5 +262,9 @@ public final class ConcreteCall {
 
   public DataSection getData() {
     return data;
+  }
+
+  public Section getSection() {
+    return section;
   }
 }
