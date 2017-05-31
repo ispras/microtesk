@@ -41,6 +41,7 @@ public final class AbstractCall {
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
+  private final Section section;
   private final List<AbstractCall> atomicSequence;
   private final Primitive modeToFree;
   private final boolean freeAllModes;
@@ -63,6 +64,31 @@ public final class AbstractCall {
         data,
         null,
         null,
+        null,
+        false
+        );
+  }
+
+  public static AbstractCall newSection(final Where where, final Section section) {
+    InvariantChecks.checkNotNull(where);
+    InvariantChecks.checkNotNull(section);
+
+    return new AbstractCall(
+        where,
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        section,
+        null,
+        null,
         false
         );
   }
@@ -79,6 +105,7 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -112,6 +139,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         false
         );
   }
@@ -134,6 +162,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         false
         );
   }
@@ -149,6 +178,7 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -193,6 +223,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         mode,
         freeAll
         );
@@ -211,6 +242,7 @@ public final class AbstractCall {
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
       final DataSection data,
+      final Section section,
       final List<AbstractCall> atomicSequence,
       final Primitive modeToFree,
       final boolean freeAllModes) {
@@ -239,6 +271,7 @@ public final class AbstractCall {
 
     this.preparatorReference = preparatorReference;
     this.data = data;
+    this.section = section;
     this.atomicSequence = atomicSequence;
     this.modeToFree = modeToFree;
     this.freeAllModes = freeAllModes;
@@ -264,8 +297,8 @@ public final class AbstractCall {
     this.preparatorReference = null != other.preparatorReference ?
         new PreparatorReference(other.preparatorReference) : null;
 
-    this.data = null != other.data ?
-        new DataSection(other.data) : null;
+    this.data = null != other.data ? new DataSection(other.data) : null;
+    this.section = other.section;
 
     this.atomicSequence = null != other.atomicSequence ?
         copyAll(other.atomicSequence) : null;
@@ -399,6 +432,10 @@ public final class AbstractCall {
 
   public DataSection getData() {
     return data;
+  }
+
+  public Section getSection() {
+    return section;
   }
 
   public boolean isAtomicSequence() {

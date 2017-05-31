@@ -1068,6 +1068,18 @@ public final class Template {
     callBuilder.setWhere(where);
   }
 
+  public void newSection(
+    final String name, final BigInteger pa, final String args, final Where where) {
+    // .section directives in external code split it into parts (only for main section)
+    if (isMainSection && blockBuilders.peek().isExternal()) {
+      processExternalCode();
+    }
+
+    endBuildingCall();
+    addCall(AbstractCall.newSection(where,
+        new ru.ispras.microtesk.test.template.Section(name, pa, args)));
+  }
+
   public void beginPrologue() {
     endBuildingCall();
     debug("Begin Test Case Level Prologue");
