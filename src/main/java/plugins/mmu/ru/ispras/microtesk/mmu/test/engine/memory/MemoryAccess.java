@@ -28,6 +28,13 @@ import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccess {
+  public static final MemoryAccess NONE =
+      new MemoryAccess(
+          MemoryAccessType.NONE,
+          MemoryAccessPath.EMPTY,
+          MemoryAccessConstraints.EMPTY
+      );
+
   private final MemoryAccessType type;
   private final MemoryAccessPath path;
 

@@ -41,6 +41,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessPath {
+  public static final MemoryAccessPath EMPTY = new MemoryAccessPath();
 
   public final static class Entry {
     public static enum Kind {
@@ -249,7 +250,6 @@ public final class MemoryAccessPath {
       final Collection<MmuBufferAccess> bufferWrites,
       final Collection<MmuBufferAccess> bufferAccesses) {
     InvariantChecks.checkNotNull(entries);
-    InvariantChecks.checkNotEmpty(entries);
     InvariantChecks.checkNotNull(actions);
     InvariantChecks.checkNotNull(addressInstances);
     InvariantChecks.checkNotNull(bufferChecks);
@@ -273,16 +273,33 @@ public final class MemoryAccessPath {
 
     this.buffers = Collections.unmodifiableCollection(buffers);
 
-    final Iterator<Entry> iterator = entries.iterator();
+    if (!entries.isEmpty()) {
+      final Iterator<Entry> iterator = entries.iterator();
 
-    Entry entry = iterator.next();
-    this.firstEntry = entry;
+      Entry entry = iterator.next();
+      this.firstEntry = entry;
 
-    while(iterator.hasNext()) {
-      entry = iterator.next();
+      while(iterator.hasNext()) {
+        entry = iterator.next();
+      }
+
+      this.lastEntry = entry;
+    } else {
+      this.firstEntry = null;
+      this.lastEntry = null;
     }
+  }
 
-    this.lastEntry = entry;
+  public MemoryAccessPath() {
+    this(
+      Collections.<Entry>emptyList(),
+      Collections.<MmuAction>emptyList(),
+      Collections.<MmuAddressInstance>emptyList(),
+      Collections.<MmuBufferAccess>emptyList(),
+      Collections.<MmuBufferAccess>emptyList(),
+      Collections.<MmuBufferAccess>emptyList(),
+      Collections.<MmuBufferAccess>emptyList()
+    );
   }
 
   public int size() {

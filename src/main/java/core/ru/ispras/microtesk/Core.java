@@ -41,7 +41,6 @@ final class Core implements Plugin {
   @Override
   public Map<String, Engine> getEngines() {
     final Map<String, Engine> engines = new LinkedHashMap<>();
-
     final Engine defaultEngine = new DefaultEngine();
 
     engines.put("default", defaultEngine);
@@ -54,7 +53,6 @@ final class Core implements Plugin {
   @Override
   public Map<String, InitializerMaker> getInitializerMakers() {
     final Map<String, InitializerMaker> result = new LinkedHashMap<>();
-
     result.put("default", new InitializerMakerDefault());
 
     return result;
@@ -63,7 +61,6 @@ final class Core implements Plugin {
   @Override
   public Map<String, DataGenerator> getDataGenerators() {
     final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
-
     dataGenerators.put(AddressDataGenerator.ID, new AddressDataGenerator());
 
     return dataGenerators;

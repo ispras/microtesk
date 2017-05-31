@@ -117,6 +117,10 @@ public final class MemoryGraph {
 
   private final Map<MmuAction, ArrayList<Edge>> edges = new LinkedHashMap<>();
 
+  public MemoryGraph() {
+    // Empty graph.
+  }
+
   public MemoryGraph(final MmuSubsystem memory, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(memory);
     // Parameter accessType can be null.

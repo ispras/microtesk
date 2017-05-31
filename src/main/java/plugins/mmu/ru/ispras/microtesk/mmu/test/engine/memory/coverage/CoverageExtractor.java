@@ -15,12 +15,14 @@
 package ru.ispras.microtesk.mmu.test.engine.memory.coverage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
@@ -50,8 +52,17 @@ public final class CoverageExtractor {
       return cachedResult;
     }
 
+    final MemoryTrajectoryExtractor.Result result;
     final MemoryTrajectoryExtractor extractor = new MemoryTrajectoryExtractor(memory);
-    final MemoryTrajectoryExtractor.Result result = extractor.apply(type, abstraction);
+
+    if (type.getOperation() != MemoryOperation.NONE) {
+      result = extractor.apply(type, abstraction);
+    } else {
+      result = new MemoryTrajectoryExtractor.Result(
+          Collections.<List<Object>>singleton(Collections.<Object>emptyList()),
+          new MemoryGraph()
+      );
+    }
 
     trajectories.put(type, result);
 

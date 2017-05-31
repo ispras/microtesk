@@ -31,6 +31,9 @@ public final class MemoryAccessType {
     return new MemoryAccessType(MemoryOperation.STORE, dataType);
   }
 
+  public static final MemoryAccessType NONE =
+      new MemoryAccessType(MemoryOperation.STORE, DataType.BYTE /* Does not matter */);
+
   private final MemoryOperation operation;
   private final DataType dataType;
 

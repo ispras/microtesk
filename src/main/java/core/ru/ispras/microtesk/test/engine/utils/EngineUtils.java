@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.test.engine.utils;
 
+import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -41,12 +41,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ArgumentMode;
-import ru.ispras.microtesk.model.Immediate;
-import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.IsaPrimitiveBuilder;
+import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -54,9 +54,9 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.LabelValue;

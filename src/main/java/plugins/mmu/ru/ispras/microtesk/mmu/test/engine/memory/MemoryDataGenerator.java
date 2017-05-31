@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +50,10 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractSequence;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.function.Function;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
@@ -64,6 +67,7 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryDataGenerator implements DataGenerator {
+  public static final String SEQUENCE = "AbstractSequence";
   public static final String CONSTRAINT = String.format("%s.%s", MemoryEngine.ID, "constraint");
   public static final String SOLUTION = String.format("%s.%s", MemoryEngine.ID, "solution");
 
@@ -84,11 +88,16 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
+    final Map<String, Object> context = query.getContext();
+    final AbstractSequence abstractSequence = (AbstractSequence) context.get(SEQUENCE);
+    InvariantChecks.checkNotNull(abstractSequence);
+
     final Map<String, Object> parameters = query.getParameters();
     final MemoryAccess access = (MemoryAccess) parameters.get(CONSTRAINT);
+    InvariantChecks.checkNotNull(access);
 
     AddressObject solution = new AddressObject(access);
-    final List<AddressObject> solutions = null; // FIXME:
+    //final List<AddressObject> solutions = null; // FIXME:
 
     final BufferUnitedDependency dependency = access.getUnitedDependency();
     Logger.debug("Solve: %s, %s", access, dependency);
@@ -122,7 +131,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     }
 
     // Assign the tag, index and offset according to the dependencies.
-    conditions.addAll(getHazardConditions(access, solutions));
+    conditions.addAll(getHazardConditions(access, abstractSequence));
 
     // Try to refine the address object.
     if (!conditions.isEmpty()) {
@@ -201,7 +210,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Allocate entries in non-replaceable buffers.
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        final EntryObject entryObject = allocateEntry(access, solution, solutions, bufferAccess);
+        final EntryObject entryObject = allocateEntry(access, solution, abstractSequence, bufferAccess);
         InvariantChecks.checkNotNull(entryObject);
 
         fillEntry(solution, bufferAccess, entryObject, values);
@@ -219,7 +228,7 @@ public final class MemoryDataGenerator implements DataGenerator {
   private EntryObject allocateEntry(
       final MemoryAccess access,
       final AddressObject solution,
-      final List<AddressObject> solutions,
+      final AbstractSequence abstractSequence,
       final MmuBufferAccess bufferAccess) {
     final BufferUnitedDependency dependency = access.getUnitedDependency();
     final EntryObject entryObject = solution.getEntry(bufferAccess);
@@ -233,7 +242,8 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     if (!tagEqualRelation.isEmpty()) {
       final int i = tagEqualRelation.iterator().next().first;
-      final AddressObject prevAddrObject = solutions.get(i);
+      final AbstractCall prevAbstractCall = abstractSequence.getSequence().get(i);
+      final AddressObject prevAddrObject = getAddressObject(prevAbstractCall);
       final EntryObject prevEntryObject = prevAddrObject.getEntry(bufferAccess);
 
       solution.setEntry(bufferAccess, prevEntryObject);
@@ -281,7 +291,7 @@ public final class MemoryDataGenerator implements DataGenerator {
   }
 
   private MmuCondition getHazardCondition(
-      final List<AddressObject> solutions,
+      final AbstractSequence abstractSequence,
       final int i,
       final BufferHazard.Instance hazard) {
     final MmuBufferAccess bufferAccess1 = hazard.getPrimaryAccess();
@@ -297,7 +307,8 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuConditionAtom atom = atoms.iterator().next();
     final MmuExpression expression = atom.getLhsExpr();
 
-    final AddressObject addressObject1 = solutions.get(i);
+    final AbstractCall abstractCall1 = abstractSequence.getSequence().get(i);
+    final AddressObject addressObject1 = getAddressObject(abstractCall1);
     final BigInteger addrValue1 = addressObject1.getAddress(bufferAccess1);
 
     final String instanceId2 = bufferAccess2.getId();
@@ -324,7 +335,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
   private Collection<MmuCondition> getHazardConditions(
       final MemoryAccess access,
-      final List<AddressObject> solutions) {
+      final AbstractSequence abstractSequence) {
     final MemoryAccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
@@ -343,18 +354,18 @@ public final class MemoryDataGenerator implements DataGenerator {
         if (!tagEqualRelation.isEmpty() || !tagNotEqualRelation.isEmpty()) {
           // INDEX[j] == INDEX[i] && TAG[j] == TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagEqualRelation) {
-            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
+            conditions.add(getHazardCondition(abstractSequence, pair.first, pair.second));
             break; // Enough.
           }
 
           // INDEX[j] == INDEX[i] && TAG[j] != TAG[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : tagNotEqualRelation) {
-            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
+            conditions.add(getHazardCondition(abstractSequence, pair.first, pair.second));
           }
         } else {
           // INDEX[j] == INDEX[i].
           for (final Pair<Integer, BufferHazard.Instance> pair : indexEqualRelation) {
-            conditions.add(getHazardCondition(solutions, pair.first, pair.second));
+            conditions.add(getHazardCondition(abstractSequence, pair.first, pair.second));
             break; // Enough.
           }
         }
@@ -365,7 +376,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
       // INDEX-NOT-EQUAL constraints.
       for (final Pair<Integer, BufferHazard.Instance> pair : indexNotEqualRelation) {
-        conditions.add(getHazardCondition(solutions, pair.first, pair.second));
+        conditions.add(getHazardCondition(abstractSequence, pair.first, pair.second));
       }
     }
 
@@ -544,5 +555,14 @@ public final class MemoryDataGenerator implements DataGenerator {
     addressObject.setAddress(addrType, addrValue);
 
     return values;
+  }
+
+  private AddressObject getAddressObject(final AbstractCall abstractCall) {
+    final Primitive primitive = abstractCall.getRootOperation();
+    final Situation situation = primitive.getSituation();
+    final TestData testData = situation.getTestData();
+    InvariantChecks.checkNotNull(testData);
+
+    return (AddressObject) testData.getBindings().get(MemoryDataGenerator.SOLUTION);
   }
 }

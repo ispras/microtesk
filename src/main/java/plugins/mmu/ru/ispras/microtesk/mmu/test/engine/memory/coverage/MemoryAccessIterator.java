@@ -30,6 +30,7 @@ import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessPath;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
@@ -304,17 +305,21 @@ public final class MemoryAccessIterator implements Iterator<MemoryAccessIterator
     this.graph = graph;
     this.type = type;
     this.constraints = constraints;
-
-    final MmuAction startAction = memory.getStartAction();
-    final SearchStackEntry searchEntry = new SearchStackEntry(0, startAction, trajectory, result);
-
-    this.searchStack.push(searchEntry);
-
     this.recursionLimit = recursionLimit;
 
-    // Do not perform result = getNext() here (this will decrease the initialization time).
-    this.result = null;
-    this.hasResult = false;
+    if (type.getOperation() != MemoryOperation.NONE) {
+      final MmuAction startAction = memory.getStartAction();
+      final SearchStackEntry searchEntry = new SearchStackEntry(0, startAction, trajectory, result);
+
+      this.searchStack.push(searchEntry);
+
+      // Do not perform result = getNext() here (this will decrease the initialization time).
+      this.result = null;
+      this.hasResult = false;
+    } else {
+      this.result = new Result(MemoryAccess.NONE, result);
+      this.hasResult = true;
+    }
   }
 
   @Override

@@ -72,8 +72,9 @@ public final class MemoryAccessChooser {
       }
 
       Logger.debug("Add iterator for the trajectory: %s", trajectory);
+
       iterators.add(
-        new MemoryAccessIterator(memory, trajectory, graph, type, constraints, recursionLimit)
+          new MemoryAccessIterator(memory, trajectory, graph, type, constraints, recursionLimit)
       );
     }
   }

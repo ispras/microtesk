@@ -115,27 +115,20 @@ public final class MemoryEngine implements Engine {
   static final ParamRecursionLimit PARAM_RECURSION_LIMIT = new ParamRecursionLimit();
   static final ParamCount PARAM_COUNT = new ParamCount();
 
-  static boolean isLoad(final AbstractCall abstractCall) {
+  private static MemoryOperation getOperation(final AbstractCall abstractCall) {
     for (final Primitive primitive : abstractCall.getCommands()) {
       if (primitive.isLoad()) {
-        return true;
+        return MemoryOperation.LOAD;
       }
-    }
-
-    return false;
-  }
-
-  static boolean isStore(final AbstractCall abstractCall) {
-    for (final Primitive primitive : abstractCall.getCommands()) {
       if (primitive.isStore()) {
-        return true;
+        return MemoryOperation.STORE;
       }
     }
 
-    return false;
+    return MemoryOperation.NONE;
   }
 
-  static int getBlockSize(final AbstractCall abstractCall) {
+  private static int getBlockSize(final AbstractCall abstractCall) {
     for (final Primitive primitive : abstractCall.getCommands()) {
       if (primitive.isLoad() || primitive.isStore()) {
         return primitive.getBlockSize();
@@ -145,11 +138,7 @@ public final class MemoryEngine implements Engine {
     return -1;
   }
 
-  static boolean isSuitable(final AbstractCall abstractCall) {
-    return isLoad(abstractCall) || isStore(abstractCall);
-  }
-
-  static MemoryAccessConstraints getConstraints(final AbstractCall abstractCall) {
+  private static MemoryAccessConstraints getConstraints(final AbstractCall abstractCall) {
     final Primitive primitive = abstractCall.getRootOperation();
     final Situation situation = primitive.getSituation();
 
@@ -164,7 +153,7 @@ public final class MemoryEngine implements Engine {
     return MemoryAccessConstraints.EMPTY;
   }
 
-  static void setAccess(final AbstractCall abstractCall, final MemoryAccess access) {
+  private static void setAccess(final AbstractCall abstractCall, final MemoryAccess access) {
     final Primitive primitive = abstractCall.getRootOperation();
 
     final Situation oldSituation = primitive.getSituation();
@@ -216,21 +205,20 @@ public final class MemoryEngine implements Engine {
     final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
 
     for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
-      if(!isSuitable(abstractCall)) {
-        continue;
-      }
+      final MemoryOperation operation = getOperation(abstractCall);
 
-      final MemoryOperation operation = isLoad(abstractCall)
-          ? MemoryOperation.LOAD
-          : MemoryOperation.STORE;
-
-      final int blockSizeInBits = getBlockSize(abstractCall);
+      final int blockSizeInBits = operation != MemoryOperation.NONE
+          ? getBlockSize(abstractCall)
+          : (1 << 3) /* Does not matter */;
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
       final int blockSizeInBytes = blockSizeInBits >>> 3;
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
 
-      final MemoryAccessConstraints constraints = getConstraints(abstractCall);
+      final MemoryAccessConstraints constraints = operation != MemoryOperation.NONE
+          ? getConstraints(abstractCall)
+          : MemoryAccessConstraints.EMPTY;
+
       accessConstraints.add(constraints);
     }
 

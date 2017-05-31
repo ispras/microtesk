@@ -32,11 +32,9 @@ import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessIterator} implements an iterator of memory access structures, i.e.
- * sequences of memory access paths connected with dependencies.
+ * {@link MemoryAccessIterator} implements an iterator of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
- * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> {
   private static final boolean CHECK_STRUCTURE = false;
@@ -80,7 +78,6 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
         final MemoryAccess access2);
   }
 
-  /** Memory access types (descriptors). */
   private final List<MemoryAccessType> accessTypes;
 
   private final Iterator<List<MemoryAccess>> accessIterator;
@@ -98,16 +95,16 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
       final MemoryGraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
-      final MemoryAccessConstraints constraints,
+      final MemoryAccessConstraints globalConstraints,
       final int recursionLimit,
       final Mode mode) {
     InvariantChecks.checkNotNull(abstraction);
     InvariantChecks.checkNotNull(accessTypes);
-    InvariantChecks.checkTrue(
-        accessConstraints == null || accessTypes.size() == accessConstraints.size());
-    InvariantChecks.checkNotNull(constraints);
-    InvariantChecks.checkNotEmpty(accessTypes);
+    InvariantChecks.checkNotNull(accessConstraints);
+    InvariantChecks.checkNotNull(globalConstraints);
     InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotEmpty(accessTypes);
+    InvariantChecks.checkTrue(accessTypes.size() == accessConstraints.size());
 
     final int size = accessTypes.size();
 
@@ -118,12 +115,10 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
-      final MemoryAccessConstraints currentConstraints =
+      final MemoryAccessConstraints constraints =
           MemoryAccessConstraints.merge(
-              constraints,
-              accessConstraints != null
-                  ? accessConstraints.get(index)
-                  : MemoryAccessConstraints.EMPTY
+              globalConstraints,
+              accessConstraints.get(index)
           );
 
       final List<MemoryAccessChooser> choosers =
@@ -131,7 +126,7 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
               MmuPlugin.getSpecification(),
               abstraction,
               accessType,
-              currentConstraints,
+              constraints,
               recursionLimit,
               false
           );
@@ -145,7 +140,6 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
 
     this.accessIterator = mode.getAccessIterator(accessChoosers);
     this.dependencyIterators = new MemoryDependencyIterator[size][size];
-
     this.dependencies = new BufferDependency[size][size];
   }
 
