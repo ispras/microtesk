@@ -343,7 +343,8 @@ public final class AbstractCall {
            labels.isEmpty()    &&
            outputs.isEmpty()   &&
            null == origin      &&
-           null == alignment;
+           null == alignment   &&
+           null == section;
   }
 
   public Where getWhere() {

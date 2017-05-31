@@ -78,7 +78,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
-    this.section = null;
+    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(
@@ -99,7 +99,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
-    this.section = null;
+    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(final AbstractCall abstractCall) {
