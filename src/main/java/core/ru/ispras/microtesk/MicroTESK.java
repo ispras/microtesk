@@ -24,7 +24,6 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.TestEngine;
-import ru.ispras.microtesk.test.engine.Adapter;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
