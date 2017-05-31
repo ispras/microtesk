@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.engine.Adapter;
-import ru.ispras.microtesk.test.engine.Engine;
 
 /**
  * {@link EngineConfig} implements a test engine configuration.

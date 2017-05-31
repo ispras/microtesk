@@ -62,10 +62,12 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class TestSequenceEngine {
   private final Engine engine;
+  private boolean isTrivial;
 
   public TestSequenceEngine(final Engine engine) {
     InvariantChecks.checkNotNull(engine);
     this.engine = engine;
+    this.isTrivial = false;
   }
 
   public TestSequenceEngineResult process(
@@ -92,6 +94,7 @@ public final class TestSequenceEngine {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
     engine.configure(attributes);
+    isTrivial = "trivial".equals(attributes.get("engine"));
   }
 
   public TestSequenceEngineResult solve(
@@ -152,7 +155,7 @@ public final class TestSequenceEngine {
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
-  private static TestSequenceEngineResult adapt(
+  private TestSequenceEngineResult adapt(
       final EngineContext engineContext,
       final Iterator<AbstractSequence> solutionIterator) {
     return new TestSequenceEngineResult(new Iterator<AdapterResult>() {
@@ -215,7 +218,7 @@ public final class TestSequenceEngine {
     return message + " Errors:" + separator + StringUtils.toString(errors, separator);
   }
 
-  private static AdapterResult adapt(
+  private AdapterResult adapt(
       final EngineContext engineContext,
       final AbstractSequence abstractSequence) {
 
@@ -235,7 +238,7 @@ public final class TestSequenceEngine {
     }
   }
 
-  private static ConcreteSequence processSequence(
+  private ConcreteSequence processSequence(
       final EngineContext engineContext,
       final AbstractSequence abstractSequence) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -262,7 +265,7 @@ public final class TestSequenceEngine {
     return creator.createTestSequence();
   }
 
-  private static void execute(
+  private void execute(
       final EngineContext engineContext,
       final ExecutorListener listener,
       final long allocationAddress,
@@ -289,10 +292,6 @@ public final class TestSequenceEngine {
     codeAllocator.init();
     codeAllocator.allocateCalls(sequence, sequenceIndex);
 
-    final Executor executor = new Executor(engineContext, labelManager, true);
-    executor.setPauseOnUndefinedLabel(false);
-    executor.setListener(listener);
-
     final ConcreteCall first = sequence.get(0);
     final ConcreteCall last = sequence.get(sequence.size() - 1);
 
@@ -300,7 +299,16 @@ public final class TestSequenceEngine {
     final long endAddress = last.getAddress() + last.getByteSize();
 
     listener.setAllocationAddress(endAddress);
+
+    if (isTrivial) {
+      return;
+    }
+
     final Code code = codeAllocator.getCode();
+    final Executor executor = new Executor(engineContext, labelManager, true);
+
+    executor.setPauseOnUndefinedLabel(false);
+    executor.setListener(listener);
 
     long address = startAddress;
     do {
@@ -381,7 +389,7 @@ public final class TestSequenceEngine {
     }
   }
 
-  private static final class ConcreteSequenceCreator extends ExecutorListener {
+  private final class ConcreteSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
     private final AbstractSequence abstractSequence;
     private final Map<ConcreteCall, AbstractCall> callMap;
@@ -511,7 +519,7 @@ public final class TestSequenceEngine {
       processInitializer(engineContext, initializer);
     }
 
-    private static IsaPrimitive findConcretePrimitive(
+    private IsaPrimitive findConcretePrimitive(
         final Primitive abstractPrimitive,
         final IsaPrimitive concretePrimitive) {
       InvariantChecks.checkNotNull(abstractPrimitive);
