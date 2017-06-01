@@ -19,7 +19,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 
 /**
