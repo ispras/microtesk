@@ -809,8 +809,10 @@ class Template
     2 ** n
   end
 
-  def section(name, pa, args)
-    @template.newSection name, pa, args, get_caller_location
+  def section(name, pa, args, &contents)
+    @template.beginSection name, pa, args
+    self.instance_eval &contents
+    @template.endSection
   end
 
   # -------------------------------------------------------------------------- #
