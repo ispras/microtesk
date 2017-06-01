@@ -37,7 +37,6 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
-import ru.ispras.microtesk.mmu.test.engine.memory.allocator.EntryIdAllocator;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
