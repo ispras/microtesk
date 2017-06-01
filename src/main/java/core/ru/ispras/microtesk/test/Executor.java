@@ -231,6 +231,8 @@ public final class Executor {
    * Constructs an Executor object.
    * 
    * @param context Generation engine context.
+   * @param labelManager Label manager that stores all refined labels.
+   * @param isPresimulation Flag that specifies whether the presimulation mode is on.
    * 
    * @throws IllegalArgumentException if the argument is {@code null}.
    */

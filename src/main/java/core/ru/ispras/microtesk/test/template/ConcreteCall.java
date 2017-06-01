@@ -226,17 +226,21 @@ public final class ConcreteCall {
   public long setAddress(final long value) {
     long thisAddress = value;
 
-    if (origin != null) {
-      thisAddress = relativeOrigin ?
-          value + origin.longValue() :
-          AddressTranslator.get().virtualFromOrigin(origin).longValue();
-    }
+    if (null != section) {
+      thisAddress = AddressTranslator.get().physicalToVirtual(section.getPa()).longValue();
+    } else {
+      if (origin != null) {
+        thisAddress = relativeOrigin ?
+            value + origin.longValue() :
+              AddressTranslator.get().virtualFromOrigin(origin).longValue();
+      }
 
-    if (alignmentInBytes != null) {
-      final long alignmentLength = alignmentInBytes.longValue();
-      final long unalignedLength = thisAddress % alignmentLength;
-      if (0 != unalignedLength) {
-        thisAddress = thisAddress + (alignmentLength - unalignedLength);
+      if (alignmentInBytes != null) {
+        final long alignmentLength = alignmentInBytes.longValue();
+        final long unalignedLength = thisAddress % alignmentLength;
+        if (0 != unalignedLength) {
+          thisAddress = thisAddress + (alignmentLength - unalignedLength);
+        }
       }
     }
 
