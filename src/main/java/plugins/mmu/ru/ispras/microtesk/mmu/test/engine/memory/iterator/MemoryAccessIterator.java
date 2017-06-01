@@ -23,11 +23,11 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
+import ru.ispras.microtesk.mmu.test.engine.memory.CoverageExtractor;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
+import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessChooser;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
-import ru.ispras.microtesk.mmu.test.engine.memory.coverage.CoverageExtractor;
-import ru.ispras.microtesk.mmu.test.engine.memory.coverage.MemoryAccessChooser;
-import ru.ispras.microtesk.mmu.test.engine.memory.coverage.MemoryGraphAbstraction;
+import ru.ispras.microtesk.mmu.test.engine.memory.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 

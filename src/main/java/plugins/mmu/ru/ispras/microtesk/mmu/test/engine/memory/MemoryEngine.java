@@ -24,7 +24,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.engine.memory.coverage.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.test.engine.memory.iterator.MemoryAccessIterator;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.test.engine.Engine;

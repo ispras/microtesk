@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.coverage;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,9 +31,6 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessPath;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.test.engine.memory.symbolic.MemorySymbolicExecutor;
 import ru.ispras.microtesk.mmu.test.engine.memory.symbolic.MemorySymbolicResult;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
