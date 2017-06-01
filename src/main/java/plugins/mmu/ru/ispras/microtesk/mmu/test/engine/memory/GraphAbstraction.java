@@ -25,7 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.BiFunction;
 
 /**
- * {@link MemoryGraphAbstraction} contains different abstractions for  memory access path transitions.
+ * {@link GraphAbstraction} contains different abstractions for  memory access path transitions.
  * 
  * <p>An abstraction function maps a transition into some abstract object or {@code null} if the
  * transition is insignificant. Given an abstraction function, it is possible to divide the set
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.utils.function.BiFunction;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum MemoryGraphAbstraction implements BiFunction<MmuSubsystem, MmuTransition, Object> {
+public enum GraphAbstraction implements BiFunction<MmuSubsystem, MmuTransition, Object> {
   TRIVIAL {
     @Override
     public Object apply(final MmuSubsystem memory, final MmuTransition transition) {

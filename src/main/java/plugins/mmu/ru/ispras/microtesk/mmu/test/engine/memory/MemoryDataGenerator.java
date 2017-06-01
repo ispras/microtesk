@@ -92,7 +92,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     InvariantChecks.checkNotNull(abstractSequence);
 
     final Map<String, Object> parameters = query.getParameters();
-    final MemoryAccess access = (MemoryAccess) parameters.get(CONSTRAINT);
+    final Access access = (Access) parameters.get(CONSTRAINT);
     InvariantChecks.checkNotNull(access);
 
     AddressObject solution = new AddressObject(access);
@@ -147,7 +147,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       }
     }
 
-    final MemoryAccessPath path = access.getPath();
+    final AccessPath path = access.getPath();
 
     // Synthesize HIT, MISS, and REPLACE conditions.
     final int numberOfConditions = conditions.size();
@@ -225,7 +225,7 @@ public final class MemoryDataGenerator implements DataGenerator {
   }
 
   private EntryObject allocateEntry(
-      final MemoryAccess access,
+      final Access access,
       final AddressObject solution,
       final AbstractSequence abstractSequence,
       final MmuBufferAccess bufferAccess) {
@@ -333,9 +333,9 @@ public final class MemoryDataGenerator implements DataGenerator {
   }
 
   private Collection<MmuCondition> getHazardConditions(
-      final MemoryAccess access,
+      final Access access,
       final AbstractSequence abstractSequence) {
-    final MemoryAccessPath path = access.getPath();
+    final AccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
@@ -526,7 +526,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       return null;
     }
 
-    final MemoryAccessPath path = addressObject.getAccess().getPath();
+    final AccessPath path = addressObject.getAccess().getPath();
     final Collection<MmuBufferAccess> bufferAccesses = path.getBufferAccesses();
 
     Logger.debug("Buffer checks and reads: %s", bufferAccesses);

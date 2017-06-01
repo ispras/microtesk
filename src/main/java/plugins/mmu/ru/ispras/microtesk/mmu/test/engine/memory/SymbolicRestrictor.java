@@ -36,16 +36,16 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
- * {@link MemorySymbolicRestrictor} produces a constraint for a given memory access.
+ * {@link SymbolicRestrictor} produces a constraint for a given memory access.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySymbolicRestrictor {
+public final class SymbolicRestrictor {
   private final MmuSubsystem memory = MmuPlugin.getSpecification();
 
   private final RegionSettings region;
 
-  public MemorySymbolicRestrictor(final RegionSettings region) {
+  public SymbolicRestrictor(final RegionSettings region) {
     // Region can be null.
     this.region = region;
   }

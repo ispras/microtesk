@@ -26,67 +26,67 @@ import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessesIterator} implements an iterator of memory accesses.
+ * {@link AccessesIterator} implements an iterator of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>> {
+public final class AccessesIterator implements Iterator<List<Access>> {
   private static final boolean CHECK_STRUCTURE = false;
 
   public enum Mode {
     RANDOM() {
       @Override
-      public Iterator<List<MemoryAccess>> getAccessIterator(
-          final List<Collection<MemoryAccessChooser>> accessChoosers) {
-        return new MemoryAccessesIteratorRandom(accessChoosers);
+      public Iterator<List<Access>> getAccessIterator(
+          final List<Collection<AccessChooser>> accessChoosers) {
+        return new AccessesIteratorRandom(accessChoosers);
       }
 
       @Override
-      public MemoryDependencyIterator getDependencyIterator(
-          final MemoryAccess access1,
-          final MemoryAccess access2) {
-        return new MemoryDependencyIteratorRandom(access1, access2);
+      public DependencyIterator getDependencyIterator(
+          final Access access1,
+          final Access access2) {
+        return new DependencyIteratorRandom(access1, access2);
       }
     },
 
     EXHAUSTIVE() {
       @Override
-      public Iterator<List<MemoryAccess>> getAccessIterator(
-          final List<Collection<MemoryAccessChooser>> accessChoosers) {
-        return new MemoryAccessesIteratorExhaustive(accessChoosers);
+      public Iterator<List<Access>> getAccessIterator(
+          final List<Collection<AccessChooser>> accessChoosers) {
+        return new AccessesIteratorExhaustive(accessChoosers);
       }
 
       @Override
-      public MemoryDependencyIterator getDependencyIterator(
-          final MemoryAccess access1,
-          final MemoryAccess access2) {
-        return new MemoryDependencyIteratorExhaustive(access1, access2);
+      public DependencyIterator getDependencyIterator(
+          final Access access1,
+          final Access access2) {
+        return new DependencyIteratorExhaustive(access1, access2);
       }
     };
 
-    public abstract Iterator<List<MemoryAccess>> getAccessIterator(
-        final List<Collection<MemoryAccessChooser>> accessChoosers);
+    public abstract Iterator<List<Access>> getAccessIterator(
+        final List<Collection<AccessChooser>> accessChoosers);
 
-    public abstract MemoryDependencyIterator getDependencyIterator(
-        final MemoryAccess access1,
-        final MemoryAccess access2);
+    public abstract DependencyIterator getDependencyIterator(
+        final Access access1,
+        final Access access2);
   }
 
   private final List<MemoryAccessType> accessTypes;
 
-  private final Iterator<List<MemoryAccess>> accessIterator;
-  private final MemoryDependencyIterator[][] dependencyIterators;
+  private final Iterator<List<Access>> accessIterator;
+  private final DependencyIterator[][] dependencyIterators;
 
   private final Mode mode;
 
   private boolean hasValue;
   private boolean enoughDependencies;
 
-  private List<MemoryAccess> accesses;
+  private List<Access> accesses;
   private BufferDependency[][] dependencies;
 
-  public MemoryAccessesIterator(
-      final MemoryGraphAbstraction abstraction,
+  public AccessesIterator(
+      final GraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
       final MemoryAccessConstraints globalConstraints,
@@ -105,7 +105,7 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
     this.accessTypes = accessTypes;
     this.mode = mode;
 
-    final List<Collection<MemoryAccessChooser>> accessChoosers = new ArrayList<>(size);
+    final List<Collection<AccessChooser>> accessChoosers = new ArrayList<>(size);
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
@@ -115,7 +115,7 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
               accessConstraints.get(index)
           );
 
-      final List<MemoryAccessChooser> choosers =
+      final List<AccessChooser> choosers =
           CoverageExtractor.get().getPathChoosers(
               MmuPlugin.getSpecification(),
               abstraction,
@@ -133,7 +133,7 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
     }
 
     this.accessIterator = mode.getAccessIterator(accessChoosers);
-    this.dependencyIterators = new MemoryDependencyIterator[size][size];
+    this.dependencyIterators = new DependencyIterator[size][size];
     this.dependencies = new BufferDependency[size][size];
   }
 
@@ -153,9 +153,9 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
   }
 
   @Override
-  public List<MemoryAccess> value() {
+  public List<Access> value() {
     for (int j = 0; j < accesses.size(); j++) {
-      final MemoryAccess access = accesses.get(j);
+      final Access access = accesses.get(j);
       access.setDependencies(dependencies[j]);
     }
 
@@ -178,13 +178,13 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
   }
 
   @Override
-  public MemoryAccessesIterator clone() {
+  public AccessesIterator clone() {
     throw new UnsupportedOperationException();
   }
 
   private boolean checkStructure() {
     if (CHECK_STRUCTURE) {
-      final List<MemoryAccess> structure = value();
+      final List<Access> structure = value();
       return MemoryEngineUtils.isFeasibleStructure(structure);
     }
 
@@ -208,10 +208,10 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
     final int size = accessTypes.size();
 
     for (int i = 0; i < size - 1; i++) {
-      final MemoryAccess access1 = accesses.get(i);
+      final Access access1 = accesses.get(i);
 
       for (int j = i + 1; j < size; j++) {
-        final MemoryAccess access2 = accesses.get(j);
+        final Access access2 = accesses.get(j);
 
         dependencyIterators[i][j] = mode.getDependencyIterator(access1, access2);
         dependencyIterators[i][j].init();
@@ -237,7 +237,7 @@ public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>
 
     for (int i = 0; i < size - 1; i++) {
       for (int j = i + 1; j < size; j++) {
-        final MemoryDependencyIterator iterator = dependencyIterators[i][j];
+        final DependencyIterator iterator = dependencyIterators[i][j];
 
         if (iterator.hasValue()) {
           iterator.next();

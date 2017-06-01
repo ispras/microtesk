@@ -28,13 +28,13 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemoryGraph} represents a memory subsystem's control flow graph (CFG).
+ * {@link Graph} represents a memory subsystem's control flow graph (CFG).
  * 
  * <p>Graph is constructed from the memory specification and reduced based on settings.</p>
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryGraph {
+public final class Graph {
 
   public static final class Edge {
     private final MmuTransition transition;
@@ -116,11 +116,11 @@ public final class MemoryGraph {
 
   private final Map<MmuAction, ArrayList<Edge>> edges = new LinkedHashMap<>();
 
-  public MemoryGraph() {
+  public Graph() {
     // Empty graph.
   }
 
-  public MemoryGraph(final MmuSubsystem memory, final MemoryAccessType accessType) {
+  public Graph(final MmuSubsystem memory, final MemoryAccessType accessType) {
     InvariantChecks.checkNotNull(memory);
     // Parameter accessType can be null.
 
@@ -193,11 +193,11 @@ public final class MemoryGraph {
       return true;
     }
 
-    if (o == null || !(o instanceof MemoryGraph)) {
+    if (o == null || !(o instanceof Graph)) {
       return false;
     }
 
-    final MemoryGraph r = (MemoryGraph) o;
+    final Graph r = (Graph) o;
     return edges.equals(r.edges);
   }
 

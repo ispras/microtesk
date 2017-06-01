@@ -21,8 +21,8 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessPath;
+import ru.ispras.microtesk.mmu.test.engine.memory.Access;
+import ru.ispras.microtesk.mmu.test.engine.memory.AccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -226,12 +226,12 @@ public final class MmuUnderTest {
   }
 
   // -----------------------------------------------------------------------------------------------
-  public final Predicate<MemoryAccess> dtlbGuard = new Predicate<MemoryAccess>() {
-    @Override public boolean test(final MemoryAccess access) {
-      final MemoryAccessPath path = access.getPath();
+  public final Predicate<Access> dtlbGuard = new Predicate<Access>() {
+    @Override public boolean test(final Access access) {
+      final AccessPath path = access.getPath();
 
       boolean v = false;
-      for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+      for (final AccessPath.Entry entry : path.getEntries()) {
         final MmuProgram program = entry.getProgram();
         final MmuTransition transition = program.getTransition();
 

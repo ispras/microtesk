@@ -56,17 +56,17 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
- * {@link MemorySymbolicExecutor} implements a simple symbolic executor of memory access structures.
+ * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySymbolicExecutor {
-  private final MemorySymbolicRestrictor restrictor;
-  private final MemorySymbolicResult result;
+public final class SymbolicExecutor {
+  private final SymbolicRestrictor restrictor;
+  private final SymbolicResult result;
 
-  public MemorySymbolicExecutor(
-      final MemorySymbolicRestrictor restrictor,
-      final MemorySymbolicResult result) {
+  public SymbolicExecutor(
+      final SymbolicRestrictor restrictor,
+      final SymbolicResult result) {
     InvariantChecks.checkNotNull(restrictor);
     InvariantChecks.checkNotNull(result);
 
@@ -74,14 +74,14 @@ public final class MemorySymbolicExecutor {
     this.result = result;
   }
 
-  public MemorySymbolicExecutor(final MemorySymbolicResult result) {
+  public SymbolicExecutor(final SymbolicResult result) {
     InvariantChecks.checkNotNull(result);
 
     this.restrictor = null;
     this.result = result;
   }
 
-  public MemorySymbolicResult getResult() {
+  public SymbolicResult getResult() {
     return result;
   }
 
@@ -100,12 +100,12 @@ public final class MemorySymbolicExecutor {
     return executeCondition(result, null, condition, -1);
   }
 
-  public Boolean execute(final MemoryAccessPath.Entry entry) {
+  public Boolean execute(final AccessPath.Entry entry) {
     InvariantChecks.checkNotNull(entry);
     return executeEntry(result, null, entry, -1);
   }
 
-  public Boolean execute(final MemoryAccess access, final boolean finalize) {
+  public Boolean execute(final Access access, final boolean finalize) {
     InvariantChecks.checkNotNull(access);
 
     final Boolean status = executeAccess(result, null, access, -1);
@@ -117,7 +117,7 @@ public final class MemorySymbolicExecutor {
     return status;
   }
 
-  public Boolean execute(final List<MemoryAccess> structure, final boolean finalize) {
+  public Boolean execute(final List<Access> structure, final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkGreaterThanZero(structure.size());
 
@@ -131,15 +131,15 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeStructure(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
-      final List<MemoryAccess> structure) {
+      final List<Access> structure) {
 
     for (int j = 0; j < structure.size(); j++) {
-      final MemoryAccess access2 = structure.get(j);
+      final Access access2 = structure.get(j);
 
       for (int i = 0; i < j; i++) {
-        final MemoryAccess access1 = structure.get(i);
+        final Access access1 = structure.get(i);
         final BufferDependency dependency = access2.getDependency(i);
 
         if (dependency != null) {
@@ -155,9 +155,9 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeAccess(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccess access,
+      final Access access,
       final int pathIndex) {
 
     executeAlignment(result, defines, access.getType().getDataType(), pathIndex);
@@ -165,12 +165,12 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executePath(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccessPath path,
+      final AccessPath path,
       final int pathIndex) {
 
-    for (final MemoryAccessPath.Entry entry : path.getEntries()) {
+    for (final AccessPath.Entry entry : path.getEntries()) {
       if (result.hasConflict()) {
         return Boolean.FALSE;
       }
@@ -182,7 +182,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeAlignment(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final DataType dataType,
       final int pathIndex) {
@@ -204,11 +204,11 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeDependency(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccess access1,
+      final Access access1,
       final int pathIndex1,
-      final MemoryAccess access2,
+      final Access access2,
       final int pathIndex2,
       final BufferDependency dependency) {
 
@@ -224,7 +224,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeHazard(
-      final MemorySymbolicResult result, 
+      final SymbolicResult result, 
       final Set<IntegerVariable> defines,
       final BufferHazard.Instance hazard,
       final int pathIndex1,
@@ -279,7 +279,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeFormula(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final IntegerFormula<IntegerField> formula,
       final int pathIndex) {
@@ -309,7 +309,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private void restrictTransition(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final boolean isStart,
       final MmuTransition transition,
@@ -327,7 +327,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private void restrictProgram(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final boolean isStart,
       final MmuProgram program,
@@ -345,9 +345,9 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeEntry(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
-      final MemoryAccessPath.Entry entry,
+      final AccessPath.Entry entry,
       final int pathIndex) {
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
@@ -445,7 +445,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeProgram(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuProgram program,
       final int pathIndex) {
@@ -470,7 +470,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeStatement(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final Collection<MmuProgram> statement,
       final int pathIndex) {
@@ -488,12 +488,12 @@ public final class MemorySymbolicExecutor {
       return executeProgram(result, defines, statement.iterator().next(), pathIndex);
     }
 
-    final List<MemorySymbolicResult> switchResults = new ArrayList<>(statement.size());
+    final List<SymbolicResult> switchResults = new ArrayList<>(statement.size());
     final List<Set<IntegerVariable>> switchDefines = new ArrayList<>(statement.size());
 
     for (final MmuProgram program : statement) {
       final IntegerFormulaBuilder<IntegerField> caseBuilder = new IntegerFormula.Builder<>();
-      final MemorySymbolicResult caseResult = new MemorySymbolicResult(caseBuilder, result);
+      final SymbolicResult caseResult = new SymbolicResult(caseBuilder, result);
       final Set<IntegerVariable> caseDefines = new LinkedHashSet<>();
 
       executeProgram(caseResult, caseDefines, program, pathIndex);
@@ -529,7 +529,7 @@ public final class MemorySymbolicExecutor {
         final Set<IntegerVariable> caseDefines = switchDefines.get(i);
 
         if (caseDefines.contains(originalVariable)) {
-          final MemorySymbolicResult caseResult = switchResults.get(i);
+          final SymbolicResult caseResult = switchResults.get(i);
           final int versionNumber = caseResult.getVersionNumber(originalVariable);
 
           if (versionNumber > maxVersionNumber) {
@@ -541,7 +541,7 @@ public final class MemorySymbolicExecutor {
       }
 
       for (final int i : indices) {
-        final MemorySymbolicResult caseResult = switchResults.get(i);
+        final SymbolicResult caseResult = switchResults.get(i);
         final int versionNumber = caseResult.getVersionNumber(originalVariable);
 
         if (versionNumber < maxVersionNumber) {
@@ -558,7 +558,7 @@ public final class MemorySymbolicExecutor {
 
     if (switchResults.size() == 1) {
       // There is only one control flow.
-      final MemorySymbolicResult caseResult = switchResults.get(0);
+      final SymbolicResult caseResult = switchResults.get(0);
       final IntegerFormula.Builder<IntegerField> caseBuilder =
           (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
       final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
@@ -582,7 +582,7 @@ public final class MemorySymbolicExecutor {
       result.addClause(switchBuilder.build());
 
       for (int i = 0; i < switchResults.size(); i++) {
-        final MemorySymbolicResult caseResult = switchResults.get(i);
+        final SymbolicResult caseResult = switchResults.get(i);
         final IntegerFormula.Builder<IntegerField> caseBuilder =
             (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
         final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
@@ -597,7 +597,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeTransition(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuTransition transition,
       final int pathIndex,
@@ -634,7 +634,7 @@ public final class MemorySymbolicExecutor {
   
   
   private Boolean executeGuard(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuGuard guard,
       final int pathIndex) {
@@ -697,7 +697,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeAction(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuAction action,
       final int pathIndex,
@@ -755,7 +755,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeCondition(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final MmuCondition condition,
       final int pathIndex) {
@@ -803,7 +803,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeConditionAtom(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final IntegerClause.Builder<IntegerField> clauseBuilder,
       final MmuConditionAtom atom,
@@ -892,7 +892,7 @@ public final class MemorySymbolicExecutor {
   }
 
   private Boolean executeBindings(
-      final MemorySymbolicResult result,
+      final SymbolicResult result,
       final Set<IntegerVariable> defines,
       final Collection<MmuBinding> bindings,
       final int pathIndex) {

@@ -35,11 +35,11 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemorySymbolicExecutor} represents a result of symbolic execution.
+ * {@link SymbolicExecutor} represents a result of symbolic execution.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemorySymbolicResult {
+public final class SymbolicResult {
   /**
    * Indicates whether a contradiction is detected during symbolic execution.
    * 
@@ -69,7 +69,7 @@ public final class MemorySymbolicResult {
   /** Maps a variable to the derived values (constant propagation). */
   private final Map<IntegerVariable, BigInteger> constants;
 
-  private MemorySymbolicResult(
+  private SymbolicResult(
       final IntegerFormulaBuilder<IntegerField> builder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<IntegerVariable> originals,
@@ -91,7 +91,7 @@ public final class MemorySymbolicResult {
     this.constants = constants;
   }
 
-  public MemorySymbolicResult(final IntegerFormulaBuilder<IntegerField> builder) {
+  public SymbolicResult(final IntegerFormulaBuilder<IntegerField> builder) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(),
@@ -101,7 +101,7 @@ public final class MemorySymbolicResult {
         new HashMap<IntegerVariable, BigInteger>());
   }
 
-  public MemorySymbolicResult(final MemorySymbolicResult r) {
+  public SymbolicResult(final SymbolicResult r) {
     this(
         r.builder.clone(),
         new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
@@ -116,9 +116,9 @@ public final class MemorySymbolicResult {
     }
   }
 
-  public MemorySymbolicResult(
+  public SymbolicResult(
       final IntegerFormulaBuilder<IntegerField> builder,
-      final MemorySymbolicResult r) {
+      final SymbolicResult r) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
@@ -208,7 +208,7 @@ public final class MemorySymbolicResult {
     return context;
   }
 
-  public void accessBuffer(final MemoryAccessPath.Entry entry, final int pathIndex) {
+  public void accessBuffer(final AccessPath.Entry entry, final int pathIndex) {
     InvariantChecks.checkNotNull(entry);
 
     final MemoryAccessContext context = getContext(pathIndex);
@@ -221,12 +221,12 @@ public final class MemorySymbolicResult {
     }
   }
 
-  public MemoryAccessStack.Frame updateStack(final MemoryAccessPath.Entry entry, final int pathIndex) {
+  public MemoryAccessStack.Frame updateStack(final AccessPath.Entry entry, final int pathIndex) {
     InvariantChecks.checkNotNull(entry);
 
     final MemoryAccessContext context = getContext(pathIndex);
 
-    if (entry.getKind() == MemoryAccessPath.Entry.Kind.CALL) {
+    if (entry.getKind() == AccessPath.Entry.Kind.CALL) {
       final MmuProgram program = entry.getProgram();
       final MmuTransition transition = program.getTransition();
       final MmuAction sourceAction = transition.getSource();
@@ -242,7 +242,7 @@ public final class MemorySymbolicResult {
       return context.doCall(frameId, transition);
     }
 
-    if (entry.getKind() == MemoryAccessPath.Entry.Kind.RETURN) {
+    if (entry.getKind() == AccessPath.Entry.Kind.RETURN) {
       return context.doReturn();
     }
 

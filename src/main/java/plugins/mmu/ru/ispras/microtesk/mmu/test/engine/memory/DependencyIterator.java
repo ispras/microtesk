@@ -27,17 +27,17 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryDependencyIterator} is a base iterator of dependencies between memory accesses.
+ * {@link DependencyIterator} is a base iterator of dependencies between memory accesses.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public abstract class MemoryDependencyIterator implements Iterator<BufferDependency> {
+public abstract class DependencyIterator implements Iterator<BufferDependency> {
 
   protected final BufferDependency[] allPossibleDependencies;
 
-  protected MemoryDependencyIterator(
-      final MemoryAccess access1,
-      final MemoryAccess access2) {
+  protected DependencyIterator(
+      final Access access1,
+      final Access access2) {
     InvariantChecks.checkNotNull(access1);
     InvariantChecks.checkNotNull(access2);
 
@@ -45,13 +45,13 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
   }
 
   @Override
-  public MemoryDependencyIterator clone() {
+  public DependencyIterator clone() {
     throw new UnsupportedOperationException();
   }
 
   private static BufferDependency[] getAllPossibleDependencies(
-      final MemoryAccess access1,
-      final MemoryAccess access2) {
+      final Access access1,
+      final Access access2) {
     final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferReads();
     final Collection<MmuBufferAccess> bufferAccesses2 = access2.getPath().getBufferReads();
 
@@ -115,8 +115,8 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
 
   private static Collection<BufferDependency> refineDependencies(
       final Collection<BufferDependency> oldDependencies,
-      final MemoryAccess access1,
-      final MemoryAccess access2,
+      final Access access1,
+      final Access access2,
       final Collection<BufferHazard.Instance> hazards) {
 
     if (hazards.isEmpty()) {
@@ -131,7 +131,7 @@ public abstract class MemoryDependencyIterator implements Iterator<BufferDepende
         final BufferDependency newDependency = new BufferDependency(oldDependency);
         newDependency.addHazard(hazard);
 
-        final List<MemoryAccess> structure = new ArrayList<>();
+        final List<Access> structure = new ArrayList<>();
 
         structure.add(access1);
         structure.add(access2);

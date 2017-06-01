@@ -36,12 +36,12 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
- * {@link MemoryAccessPath} represents the execution path of a memory access instruction.
+ * {@link AccessPath} represents the execution path of a memory access instruction.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public final class MemoryAccessPath {
-  public static final MemoryAccessPath EMPTY = new MemoryAccessPath();
+public final class AccessPath {
+  public static final AccessPath EMPTY = new AccessPath();
 
   public final static class Entry {
     public static enum Kind {
@@ -217,8 +217,8 @@ public final class MemoryAccessPath {
       this.entries.addAll(entries);
     }
 
-    public MemoryAccessPath build() {
-      return new MemoryAccessPath(
+    public AccessPath build() {
+      return new AccessPath(
           entries,
           getActions(entries),
           getAddressInstances(entries),
@@ -241,7 +241,7 @@ public final class MemoryAccessPath {
   private final Entry firstEntry;
   private final Entry lastEntry;
 
-  public MemoryAccessPath(
+  public AccessPath(
       final Collection<Entry> entries,
       final Collection<MmuAction> actions,
       final Collection<MmuAddressInstance> addressInstances,
@@ -290,7 +290,7 @@ public final class MemoryAccessPath {
     }
   }
 
-  public MemoryAccessPath() {
+  public AccessPath() {
     this(
       Collections.<Entry>emptyList(),
       Collections.<MmuAction>emptyList(),

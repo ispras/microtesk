@@ -23,17 +23,17 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessesIteratorRandom} implements a random iterator of memory access skeletons,
+ * {@link AccessesIteratorRandom} implements a random iterator of memory access skeletons,
  * i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessesIteratorRandom implements Iterator<List<MemoryAccess>> {
-  final private List<Collection<MemoryAccessChooser>> accessChoosers;
+public final class AccessesIteratorRandom implements Iterator<List<Access>> {
+  final private List<Collection<AccessChooser>> accessChoosers;
 
-  private List<MemoryAccess> accesses = null;
+  private List<Access> accesses = null;
 
-  public MemoryAccessesIteratorRandom(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+  public AccessesIteratorRandom(final List<Collection<AccessChooser>> accessChoosers) {
     InvariantChecks.checkNotNull(accessChoosers);
     this.accessChoosers = accessChoosers;
   }
@@ -49,18 +49,18 @@ public final class MemoryAccessesIteratorRandom implements Iterator<List<MemoryA
   }
 
   @Override
-  public List<MemoryAccess> value() {
+  public List<Access> value() {
     return accesses;
   }
 
   @Override
   public void next() {
-    final List<MemoryAccess> result = new ArrayList<>(accessChoosers.size());
+    final List<Access> result = new ArrayList<>(accessChoosers.size());
 
-    for (final Collection<MemoryAccessChooser> choosers : accessChoosers) {
+    for (final Collection<AccessChooser> choosers : accessChoosers) {
       while (!choosers.isEmpty()) {
-        final MemoryAccessChooser chooser = Randomizer.get().choose(choosers);
-        final MemoryAccess access = chooser.get();
+        final AccessChooser chooser = Randomizer.get().choose(choosers);
+        final Access access = chooser.get();
 
         if (access == null) {
           choosers.remove(chooser);
@@ -85,7 +85,7 @@ public final class MemoryAccessesIteratorRandom implements Iterator<List<MemoryA
   }
 
   @Override
-  public MemoryAccessesIteratorExhaustive clone() {
+  public AccessesIteratorExhaustive clone() {
     throw new UnsupportedOperationException();
   }
 }

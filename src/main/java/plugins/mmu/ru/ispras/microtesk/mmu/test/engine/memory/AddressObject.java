@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
- * {@link AddressObject} represents test data for an individual {@link MemoryAccess}.
+ * {@link AddressObject} represents test data for an individual {@link Access}.
  * 
  * <p>
  * Test data include addresses (virtual, physical and intermediate ones), auxiliary attributes
@@ -38,7 +38,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressObject {
-  private final MemoryAccess access;
+  private final Access access;
 
   /*** Contains the data values. */
   private final Map<IntegerVariable, BigInteger> data = new LinkedHashMap<>();
@@ -49,12 +49,12 @@ public final class AddressObject {
   /** Contains entries to be written into non-transparent buffers. */
   private final Map<MmuBufferAccess, EntryObject> entries = new LinkedHashMap<>();
 
-  public AddressObject(final MemoryAccess access) {
+  public AddressObject(final Access access) {
     InvariantChecks.checkNotNull(access);
     this.access = access;
   }
 
-  public MemoryAccess getAccess() {
+  public Access getAccess() {
     return access;
   }
 

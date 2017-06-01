@@ -233,7 +233,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           final Collection<AddressObject> addressObjects = entryObject.getAddrObjects();
           final AddressObject addressObject = addressObjects.iterator().next();
 
-          final MemoryAccess access = addressObject.getAccess();
+          final Access access = addressObject.getAccess();
 
           final DataType dataType = access.getType().getDataType();
           final DataType entryType = DataType.type(entryValue.getByteSize());

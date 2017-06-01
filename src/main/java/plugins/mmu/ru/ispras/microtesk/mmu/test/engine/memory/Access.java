@@ -22,31 +22,31 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 
 /**
- * {@link MemoryAccess} describes an execution path of a memory access instruction.
+ * {@link Access} describes an execution path of a memory access instruction.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccess {
-  public static final MemoryAccess NONE =
-      new MemoryAccess(
+public final class Access {
+  public static final Access NONE =
+      new Access(
           MemoryAccessType.NONE,
-          MemoryAccessPath.EMPTY,
+          AccessPath.EMPTY,
           MemoryAccessConstraints.EMPTY
       );
 
   private final MemoryAccessType type;
-  private final MemoryAccessPath path;
+  private final AccessPath path;
 
   private final MemoryAccessConstraints constraints;
 
   private BufferDependency[] dependencies;
 
   /** Symbolic representation of the memory access. */
-  private MemorySymbolicResult symbolicResult; 
+  private SymbolicResult symbolicResult; 
 
-  public MemoryAccess(
+  public Access(
       final MemoryAccessType type,
-      final MemoryAccessPath path,
+      final AccessPath path,
       final MemoryAccessConstraints constraints) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
@@ -61,7 +61,7 @@ public final class MemoryAccess {
     return type;
   }
 
-  public MemoryAccessPath getPath() {
+  public AccessPath getPath() {
     return path;
   }
 
@@ -111,11 +111,11 @@ public final class MemoryAccess {
     return symbolicResult != null;
   }
 
-  public MemorySymbolicResult getSymbolicResult() {
+  public SymbolicResult getSymbolicResult() {
     return symbolicResult;
   }
 
-  public void setSymbolicResult(final MemorySymbolicResult symbolicResult) {
+  public void setSymbolicResult(final SymbolicResult symbolicResult) {
     this.symbolicResult = symbolicResult;
   }
 

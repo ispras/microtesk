@@ -44,12 +44,12 @@ public final class MemoryEngine implements Engine {
   public static final String ID = "memory";
   public static final String PATH = "path";
 
-  final static class ParamAbstraction extends EngineParameter<MemoryGraphAbstraction> {
+  final static class ParamAbstraction extends EngineParameter<GraphAbstraction> {
     ParamAbstraction() {
       super("classifier",
-          new EngineParameter.Option<>("buffer-access", MemoryGraphAbstraction.BUFFER_ACCESS),
-          new EngineParameter.Option<>("trivial", MemoryGraphAbstraction.TRIVIAL),
-          new EngineParameter.Option<>("universal", MemoryGraphAbstraction.UNIVERSAL));
+          new EngineParameter.Option<>("buffer-access", GraphAbstraction.BUFFER_ACCESS),
+          new EngineParameter.Option<>("trivial", GraphAbstraction.TRIVIAL),
+          new EngineParameter.Option<>("universal", GraphAbstraction.UNIVERSAL));
     }
   }
 
@@ -61,11 +61,11 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamIterator extends EngineParameter<MemoryAccessesIterator.Mode> {
+  final static class ParamIterator extends EngineParameter<AccessesIterator.Mode> {
     ParamIterator() {
       super("iterator",
-          new EngineParameter.Option<>("static", MemoryAccessesIterator.Mode.RANDOM),
-          new EngineParameter.Option<>("dynamic", MemoryAccessesIterator.Mode.EXHAUSTIVE));
+          new EngineParameter.Option<>("static", AccessesIterator.Mode.RANDOM),
+          new EngineParameter.Option<>("dynamic", AccessesIterator.Mode.EXHAUSTIVE));
     }
   }
 
@@ -151,7 +151,7 @@ public final class MemoryEngine implements Engine {
     return MemoryAccessConstraints.EMPTY;
   }
 
-  private static void setAccess(final AbstractCall abstractCall, final MemoryAccess access) {
+  private static void setAccess(final AbstractCall abstractCall, final Access access) {
     final Primitive primitive = abstractCall.getRootOperation();
 
     final Situation oldSituation = primitive.getSituation();
@@ -164,9 +164,9 @@ public final class MemoryEngine implements Engine {
     primitive.setSituation(newSituation);
   }
 
-  private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
+  private GraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
   private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
-  private MemoryAccessesIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
+  private AccessesIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
 
@@ -223,8 +223,8 @@ public final class MemoryEngine implements Engine {
     Logger.debug("Memory access types: %s", accessTypes);
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
-    final Iterator<List<MemoryAccess>> accessIterator =
-        new MemoryAccessesIterator(
+    final Iterator<List<Access>> accessIterator =
+        new AccessesIterator(
             abstraction,
             accessTypes,
             accessConstraints,
@@ -250,11 +250,11 @@ public final class MemoryEngine implements Engine {
           @Override
           public AbstractSequence value() {
             final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
-            final List<MemoryAccess> accesses = accessIterator.value();
+            final List<Access> accesses = accessIterator.value();
 
             for (int i = 0; i < abstractSequence.size(); i++) {
               final AbstractCall abstractCall = abstractCalls.get(i);
-              final MemoryAccess access = accesses.get(i);
+              final Access access = accesses.get(i);
 
               setAccess(abstractCall, access);
             }

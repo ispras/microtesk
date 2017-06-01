@@ -104,7 +104,7 @@ public final class MemoryEngineUtils {
   }
 
   private static boolean checkBufferConstraints(
-      final MemoryAccessPath.Entry entry,
+      final AccessPath.Entry entry,
       final Collection<BufferEventConstraint> bufferConstraints) {
 
     final MmuProgram program = entry.getProgram();
@@ -140,10 +140,10 @@ public final class MemoryEngineUtils {
   }
 
   public static boolean isFeasibleEntry(
-      final MemoryAccessPath.Entry entry,
+      final AccessPath.Entry entry,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
-      final MemorySymbolicResult partialResult /* INOUT */) {
+      final SymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(partialResult);
@@ -159,7 +159,7 @@ public final class MemoryEngineUtils {
     }
 
     final RegionSettings region = constraints.getRegion();
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, partialResult);
+    final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, partialResult);
     final Boolean status = symbolicExecutor.execute(entry);
 
     if (status != null) {
@@ -176,12 +176,12 @@ public final class MemoryEngineUtils {
   }
 
   private static boolean checkBufferConstraints(
-      final MemoryAccess access,
+      final Access access,
       final Collection<BufferEventConstraint> bufferConstraints) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(bufferConstraints);
 
-    final MemoryAccessPath path = access.getPath();
+    final AccessPath path = access.getPath();
 
     for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
       final MmuBuffer buffer = bufferConstraint.getBuffer();
@@ -204,7 +204,7 @@ public final class MemoryEngineUtils {
     return true;
   }
 
-  public static boolean isFeasibleAccess(final MemoryAccess access) {
+  public static boolean isFeasibleAccess(final Access access) {
     InvariantChecks.checkNotNull(access);
 
     final MemoryAccessConstraints constraints = access.getConstraints();
@@ -226,7 +226,7 @@ public final class MemoryEngineUtils {
   }
 
   public static Map<IntegerVariable, BigInteger> generateData(
-      final MemoryAccess access,
+      final Access access,
       final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer) {
@@ -245,7 +245,7 @@ public final class MemoryEngineUtils {
     return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
   }
 
-  public static boolean isFeasibleStructure(final List<MemoryAccess> structure) {
+  public static boolean isFeasibleStructure(final List<Access> structure) {
     InvariantChecks.checkNotNull(structure);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result =
@@ -255,7 +255,7 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MemorySymbolicResult symbolicResult /* INOUT */,
+      final SymbolicResult symbolicResult /* INOUT */,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(initializer);
@@ -280,7 +280,7 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final MemoryAccess access,
+      final Access access,
       final Collection<MmuCondition> conditions,
       final Collection<IntegerConstraint<IntegerField>> constraints,
       final IntegerVariableInitializer initializer,
@@ -296,14 +296,14 @@ public final class MemoryEngineUtils {
     final RegionSettings region = access.getConstraints().getRegion();
 
     if (!access.hasSymbolicResult()) {
-      final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region);
+      final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(region);
 
       symbolicExecutor.execute(access, true);
       access.setSymbolicResult(symbolicExecutor.getResult());
     }
 
-    final MemorySymbolicResult symbolicResult = access.getSymbolicResult();
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, symbolicResult);
+    final SymbolicResult symbolicResult = access.getSymbolicResult();
+    final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, symbolicResult);
 
     for (final MmuCondition condition : conditions) {
       symbolicExecutor.execute(condition);
@@ -336,17 +336,17 @@ public final class MemoryEngineUtils {
   }
 
   private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
-      final List<MemoryAccess> structure,
+      final List<Access> structure,
       final IntegerVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
-    final MemorySymbolicExecutor symbolicExecutor = newSymbolicExecutor(null);
+    final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(null);
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
-    final MemorySymbolicResult symbolicResult = symbolicExecutor.getResult();
+    final SymbolicResult symbolicResult = symbolicExecutor.getResult();
     final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
     final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
 
@@ -357,25 +357,25 @@ public final class MemoryEngineUtils {
     return new IntegerFieldFormulaProblemSat4j();
   }
 
-  public static MemorySymbolicResult newSymbolicResult() {
-    return new MemorySymbolicResult(newFormulaBuilder());
+  public static SymbolicResult newSymbolicResult() {
+    return new SymbolicResult(newFormulaBuilder());
   }
 
-  public static MemorySymbolicRestrictor newSymbolicRestrictor(final RegionSettings region) {
+  public static SymbolicRestrictor newSymbolicRestrictor(final RegionSettings region) {
     // The region parameter can be null.
-    return new MemorySymbolicRestrictor(region);
+    return new SymbolicRestrictor(region);
   }
 
-  public static MemorySymbolicExecutor newSymbolicExecutor(final RegionSettings region) {
+  public static SymbolicExecutor newSymbolicExecutor(final RegionSettings region) {
     // The region parameter can be null.
-    return new MemorySymbolicExecutor(newSymbolicRestrictor(region), newSymbolicResult());
+    return new SymbolicExecutor(newSymbolicRestrictor(region), newSymbolicResult());
   }
 
-  public static MemorySymbolicExecutor newSymbolicExecutor(
+  public static SymbolicExecutor newSymbolicExecutor(
       final RegionSettings region,
-      final MemorySymbolicResult result) {
+      final SymbolicResult result) {
     // The region parameter can be null.
-    return new MemorySymbolicExecutor(newSymbolicRestrictor(region), result);
+    return new SymbolicExecutor(newSymbolicRestrictor(region), result);
   }
 
   public static Solver<Map<IntegerVariable, BigInteger>> newSolver(

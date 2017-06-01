@@ -17,18 +17,18 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
- * {@link MemoryDependencyIteratorRandom} implements a random iterator of dependencies between
+ * {@link DependencyIteratorRandom} implements a random iterator of dependencies between
  * memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryDependencyIteratorRandom extends MemoryDependencyIterator {
+public final class DependencyIteratorRandom extends DependencyIterator {
 
   private boolean hasValue;
 
-  public MemoryDependencyIteratorRandom(
-      final MemoryAccess access1,
-      final MemoryAccess access2) {
+  public DependencyIteratorRandom(
+      final Access access1,
+      final Access access2) {
     super(access1, access2);
   }
 

@@ -15,18 +15,18 @@
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
 /**
- * {@link MemoryDependencyIteratorExhaustive} implements an exhaustive iterator of dependencies
+ * {@link DependencyIteratorExhaustive} implements an exhaustive iterator of dependencies
  * between memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryDependencyIteratorExhaustive extends MemoryDependencyIterator {
+public final class DependencyIteratorExhaustive extends DependencyIterator {
 
   private int index;
 
-  public MemoryDependencyIteratorExhaustive(
-      final MemoryAccess access1,
-      final MemoryAccess access2) {
+  public DependencyIteratorExhaustive(
+      final Access access1,
+      final Access access2) {
     super(access1, access2);
   }
 

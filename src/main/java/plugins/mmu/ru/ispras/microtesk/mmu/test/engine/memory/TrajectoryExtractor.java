@@ -34,20 +34,20 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * Given a memory subsystem specification and an abstraction (labeling) function,
- * {@link MemoryTrajectoryExtractor} extracts all possible trajectories (abstract paths). 
+ * {@link TrajectoryExtractor} extracts all possible trajectories (abstract paths). 
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryTrajectoryExtractor {
+public final class TrajectoryExtractor {
 
   /**
-   * {@link Result} represents a result of {@link MemoryTrajectoryExtractor}.
+   * {@link Result} represents a result of {@link TrajectoryExtractor}.
    */
   public static final class Result {
     private final Collection<List<Object>> trajectories;
-    private final MemoryGraph graph;
+    private final Graph graph;
 
-    public Result(final Collection<List<Object>> trajectories, final MemoryGraph graph) {
+    public Result(final Collection<List<Object>> trajectories, final Graph graph) {
       InvariantChecks.checkNotNull(trajectories);
       InvariantChecks.checkNotNull(graph);
 
@@ -59,17 +59,17 @@ public final class MemoryTrajectoryExtractor {
       return trajectories;
     }
 
-    public MemoryGraph getGraph() {
+    public Graph getGraph() {
       return graph;
     }
   }
 
   private static final class SearchEntry {
     final MmuAction action;
-    final Collection<MemoryGraph.Edge> edges;
-    final Iterator<MemoryGraph.Edge> iterator;
+    final Collection<Graph.Edge> edges;
+    final Iterator<Graph.Edge> iterator;
 
-    SearchEntry(final MmuAction action, final Collection<MemoryGraph.Edge> edges) {
+    SearchEntry(final MmuAction action, final Collection<Graph.Edge> edges) {
       InvariantChecks.checkNotNull(action);
       InvariantChecks.checkNotNull(edges);
 
@@ -82,17 +82,17 @@ public final class MemoryTrajectoryExtractor {
   /** Reference to the memory specification. */
   private final MmuSubsystem memory;
 
-  public MemoryTrajectoryExtractor(final MmuSubsystem memory) {
+  public TrajectoryExtractor(final MmuSubsystem memory) {
     InvariantChecks.checkNotNull(memory);
     this.memory = memory;
   }
 
-  public Result apply(final MemoryAccessType accessType, final MemoryGraphAbstraction abstraction) {
+  public Result apply(final MemoryAccessType accessType, final GraphAbstraction abstraction) {
     // Parameters accessType can be null.
     InvariantChecks.checkNotNull(abstraction);
 
     // Memory graph to be labeled.
-    final MemoryGraph graph = new MemoryGraph(memory, accessType);
+    final Graph graph = new Graph(memory, accessType);
 
     // Each action is mapped to the pair of the set of trajectories.
     final Map<MmuAction, Collection<List<Object>>> actionTrajectories = new HashMap<>();
@@ -101,7 +101,7 @@ public final class MemoryTrajectoryExtractor {
     final Stack<SearchEntry> searchStack = new Stack<>();
 
     final MmuAction startAction = memory.getStartAction();
-    final Collection<MemoryGraph.Edge> startEdges = graph.getEdges(startAction);
+    final Collection<Graph.Edge> startEdges = graph.getEdges(startAction);
 
     searchStack.push(new SearchEntry(startAction, startEdges));
 
@@ -110,7 +110,7 @@ public final class MemoryTrajectoryExtractor {
       boolean hasTraversed = true;
 
       while (searchEntry.iterator.hasNext()) {
-        final MemoryGraph.Edge edge = searchEntry.iterator.next();
+        final Graph.Edge edge = searchEntry.iterator.next();
         final MmuTransition transition = edge.getTransition();
         final MmuAction targetAction = transition.getTarget();
 
@@ -121,12 +121,12 @@ public final class MemoryTrajectoryExtractor {
             InvariantChecks.checkFalse(entry.action == targetAction);
           }
 
-          final Collection<MemoryGraph.Edge> targetEdges = graph.getEdges(targetAction);
+          final Collection<Graph.Edge> targetEdges = graph.getEdges(targetAction);
 
           searchStack.push(new SearchEntry(targetAction,
               targetEdges != null
                 ? targetEdges
-                : Collections.<MemoryGraph.Edge>emptyList()));
+                : Collections.<Graph.Edge>emptyList()));
 
           hasTraversed = false;
           break;
@@ -140,7 +140,7 @@ public final class MemoryTrajectoryExtractor {
         } else {
           final Collection<List<Object>> trajectories = new LinkedHashSet<>();
 
-          for (final MemoryGraph.Edge edge : searchEntry.edges) {
+          for (final Graph.Edge edge : searchEntry.edges) {
             final MmuTransition transition = edge.getTransition();
 
             final MmuAction targetAction = transition.getTarget();

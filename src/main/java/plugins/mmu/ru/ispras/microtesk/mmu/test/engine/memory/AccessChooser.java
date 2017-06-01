@@ -28,22 +28,22 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
-public final class MemoryAccessChooser {
+public final class AccessChooser {
   private final MmuSubsystem memory;
   private final Collection<List<Object>> trajectories;
-  private final MemoryGraph graph;
+  private final Graph graph;
   private final MemoryAccessType type;
   private final MemoryAccessConstraints constraints;
   private final int recursionLimit;
   private final boolean discardEmptyTrajectories;
 
-  private final Collection<Iterator<MemoryAccessIterator.Result>> iterators = new ArrayList<>();
-  private final Collection<MemoryAccess> accesses = new ArrayList<>(); 
+  private final Collection<Iterator<AccessIterator.Result>> iterators = new ArrayList<>();
+  private final Collection<Access> accesses = new ArrayList<>(); 
 
-  public MemoryAccessChooser(
+  public AccessChooser(
       final MmuSubsystem memory,
       final Collection<List<Object>> trajectories,
-      final MemoryGraph graph,
+      final Graph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final int recursionLimit,
@@ -73,15 +73,15 @@ public final class MemoryAccessChooser {
       Logger.debug("Add iterator for the trajectory: %s", trajectory);
 
       iterators.add(
-          new MemoryAccessIterator(memory, trajectory, graph, type, constraints, recursionLimit)
+          new AccessIterator(memory, trajectory, graph, type, constraints, recursionLimit)
       );
     }
   }
 
-  public MemoryAccessChooser(
+  public AccessChooser(
       final MmuSubsystem memory,
       final List<Object> trajectory,
-      final MemoryGraph graph,
+      final Graph graph,
       final MemoryAccessType type,
       final MemoryAccessConstraints constraints,
       final int recursionLimit) {
@@ -95,13 +95,13 @@ public final class MemoryAccessChooser {
         false);
   }
 
-  public MemoryAccess get() {
+  public Access get() {
     while (!iterators.isEmpty()) {
-      final Iterator<MemoryAccessIterator.Result> iterator = Randomizer.get().choose(iterators);
+      final Iterator<AccessIterator.Result> iterator = Randomizer.get().choose(iterators);
 
       if (iterator.hasNext()) {
-        final MemoryAccessIterator.Result result = iterator.next();
-        final MemoryAccess access = result.getAccess();
+        final AccessIterator.Result result = iterator.next();
+        final Access access = result.getAccess();
 
         accesses.add(access);
         return access;
@@ -117,7 +117,7 @@ public final class MemoryAccessChooser {
     return null;
   }
 
-  public MemoryAccess get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
+  public Access get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
     InvariantChecks.checkNotNull(constraints);
 
     if (constraints.isEmpty()) {
@@ -129,8 +129,8 @@ public final class MemoryAccessChooser {
     // Existing constraints & new hard constraints & new soft constraints.
     strongestConstraints.add(this.constraints);
 
-    final MemoryAccessChooser strongestChooser =
-        new MemoryAccessChooser(
+    final AccessChooser strongestChooser =
+        new AccessChooser(
             this.memory,
             this.trajectories,
             this.graph,
@@ -139,7 +139,7 @@ public final class MemoryAccessChooser {
             this.recursionLimit,
             this.discardEmptyTrajectories);
 
-    final MemoryAccess strongestAccess = strongestChooser.get();
+    final Access strongestAccess = strongestChooser.get();
 
     if (strongestAccess != null) {
       return strongestAccess;
@@ -155,8 +155,8 @@ public final class MemoryAccessChooser {
     // Existing constraints & new hard constraints.
     weakestConstraints.add(this.constraints);
 
-    final MemoryAccessChooser weakestChooser =
-        new MemoryAccessChooser(
+    final AccessChooser weakestChooser =
+        new AccessChooser(
             this.memory,
             this.trajectories,
             this.graph,

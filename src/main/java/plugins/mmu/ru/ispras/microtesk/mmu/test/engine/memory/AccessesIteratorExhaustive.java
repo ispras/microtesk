@@ -24,20 +24,20 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link MemoryAccessesIteratorExhaustive} implements an exhaustive iterator of memory access
+ * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of memory access
  * skeletons, i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessesIteratorExhaustive implements Iterator<List<MemoryAccess>> {
-  private final ProductIterator<MemoryAccessChooser> iterator = new ProductIterator<>();
+public final class AccessesIteratorExhaustive implements Iterator<List<Access>> {
+  private final ProductIterator<AccessChooser> iterator = new ProductIterator<>();
 
-  private List<MemoryAccess> accesses = null;
+  private List<Access> accesses = null;
 
-  public MemoryAccessesIteratorExhaustive(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+  public AccessesIteratorExhaustive(final List<Collection<AccessChooser>> accessChoosers) {
     InvariantChecks.checkNotNull(accessChoosers);
 
-    for (final Collection<MemoryAccessChooser> choosers : accessChoosers) {
+    for (final Collection<AccessChooser> choosers : accessChoosers) {
       iterator.registerIterator(new CollectionIterator<>(choosers));
     }
   }
@@ -54,18 +54,18 @@ public final class MemoryAccessesIteratorExhaustive implements Iterator<List<Mem
   }
 
   @Override
-  public List<MemoryAccess> value() {
+  public List<Access> value() {
     return accesses;
   }
 
   @Override
   public void next() {
     while (iterator.hasValue()) {
-      final List<MemoryAccess> result = new ArrayList<>(iterator.size());
-      final List<MemoryAccessChooser> choosers = iterator.value();
+      final List<Access> result = new ArrayList<>(iterator.size());
+      final List<AccessChooser> choosers = iterator.value();
 
-      for (final MemoryAccessChooser chooser : choosers) {
-        final MemoryAccess access = chooser.get();
+      for (final AccessChooser chooser : choosers) {
+        final Access access = chooser.get();
 
         if (access == null) {
           iterator.next();
@@ -90,7 +90,7 @@ public final class MemoryAccessesIteratorExhaustive implements Iterator<List<Mem
   }
 
   @Override
-  public MemoryAccessesIteratorExhaustive clone() {
+  public AccessesIteratorExhaustive clone() {
     throw new UnsupportedOperationException();
   }
 }
