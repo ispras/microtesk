@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.iterator;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,10 +22,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
-import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
-import ru.ispras.microtesk.mmu.test.engine.memory.BufferHazard;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.testbase.knowledge.iterator.Iterator;

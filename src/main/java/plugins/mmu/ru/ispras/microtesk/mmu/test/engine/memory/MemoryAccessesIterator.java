@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.iterator;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,21 +22,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
-import ru.ispras.microtesk.mmu.test.engine.memory.CoverageExtractor;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessChooser;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngineUtils;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryGraphAbstraction;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessIterator} implements an iterator of memory accesses.
+ * {@link MemoryAccessesIterator} implements an iterator of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> {
+public final class MemoryAccessesIterator implements Iterator<List<MemoryAccess>> {
   private static final boolean CHECK_STRUCTURE = false;
 
   public enum Mode {
@@ -44,7 +38,7 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
       @Override
       public Iterator<List<MemoryAccess>> getAccessIterator(
           final List<Collection<MemoryAccessChooser>> accessChoosers) {
-        return new MemoryAccessIteratorRandom(accessChoosers);
+        return new MemoryAccessesIteratorRandom(accessChoosers);
       }
 
       @Override
@@ -59,7 +53,7 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
       @Override
       public Iterator<List<MemoryAccess>> getAccessIterator(
           final List<Collection<MemoryAccessChooser>> accessChoosers) {
-        return new MemoryAccessIteratorExhaustive(accessChoosers);
+        return new MemoryAccessesIteratorExhaustive(accessChoosers);
       }
 
       @Override
@@ -91,7 +85,7 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
   private List<MemoryAccess> accesses;
   private BufferDependency[][] dependencies;
 
-  public MemoryAccessIterator(
+  public MemoryAccessesIterator(
       final MemoryGraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
       final List<MemoryAccessConstraints> accessConstraints,
@@ -184,7 +178,7 @@ public final class MemoryAccessIterator implements Iterator<List<MemoryAccess>> 
   }
 
   @Override
-  public MemoryAccessIterator clone() {
+  public MemoryAccessesIterator clone() {
     throw new UnsupportedOperationException();
   }
 

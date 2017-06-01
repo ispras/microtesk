@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.iterator;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,22 +20,20 @@ import java.util.List;
 
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessChooser;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link MemoryAccessIteratorRandom} implements a random iterator of memory access skeletons,
+ * {@link MemoryAccessesIteratorRandom} implements a random iterator of memory access skeletons,
  * i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAccess>> {
+public final class MemoryAccessesIteratorRandom implements Iterator<List<MemoryAccess>> {
   final private List<Collection<MemoryAccessChooser>> accessChoosers;
 
   private List<MemoryAccess> accesses = null;
 
-  public MemoryAccessIteratorRandom(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+  public MemoryAccessesIteratorRandom(final List<Collection<MemoryAccessChooser>> accessChoosers) {
     InvariantChecks.checkNotNull(accessChoosers);
     this.accessChoosers = accessChoosers;
   }
@@ -87,7 +85,7 @@ public final class MemoryAccessIteratorRandom implements Iterator<List<MemoryAcc
   }
 
   @Override
-  public MemoryAccessIteratorExhaustive clone() {
+  public MemoryAccessesIteratorExhaustive clone() {
     throw new UnsupportedOperationException();
   }
 }

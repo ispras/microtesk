@@ -12,22 +12,21 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.iterator;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import ru.ispras.microtesk.mmu.test.engine.memory.BufferDependency;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
+import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
- * {@link MemoryDependencyIteratorExhaustive} implements an exhaustive iterator of dependencies
- * between memory accesses.
+ * {@link MemoryDependencyIteratorRandom} implements a random iterator of dependencies between
+ * memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryDependencyIteratorExhaustive extends MemoryDependencyIterator {
+public final class MemoryDependencyIteratorRandom extends MemoryDependencyIterator {
 
-  private int index;
+  private boolean hasValue;
 
-  public MemoryDependencyIteratorExhaustive(
+  public MemoryDependencyIteratorRandom(
       final MemoryAccess access1,
       final MemoryAccess access2) {
     super(access1, access2);
@@ -35,26 +34,26 @@ public final class MemoryDependencyIteratorExhaustive extends MemoryDependencyIt
 
   @Override
   public void init() {
-    index = 0;
+    hasValue = allPossibleDependencies.length != 0;
   }
 
   @Override
   public boolean hasValue() {
-    return index < allPossibleDependencies.length;
+    return hasValue;
   }
 
   @Override
   public BufferDependency value() {
-    return allPossibleDependencies[index];
+    return Randomizer.get().choose(allPossibleDependencies);
   }
 
   @Override
   public void next() {
-    index++;
+    // Do nothing.
   }
 
   @Override
   public void stop() {
-    index = allPossibleDependencies.length;
+    hasValue = false;
   }
 }

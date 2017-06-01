@@ -12,31 +12,29 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.test.engine.memory.iterator;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccess;
-import ru.ispras.microtesk.mmu.test.engine.memory.MemoryAccessChooser;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link MemoryAccessIteratorExhaustive} implements an exhaustive iterator of memory access
+ * {@link MemoryAccessesIteratorExhaustive} implements an exhaustive iterator of memory access
  * skeletons, i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class MemoryAccessIteratorExhaustive implements Iterator<List<MemoryAccess>> {
+public final class MemoryAccessesIteratorExhaustive implements Iterator<List<MemoryAccess>> {
   private final ProductIterator<MemoryAccessChooser> iterator = new ProductIterator<>();
 
   private List<MemoryAccess> accesses = null;
 
-  public MemoryAccessIteratorExhaustive(final List<Collection<MemoryAccessChooser>> accessChoosers) {
+  public MemoryAccessesIteratorExhaustive(final List<Collection<MemoryAccessChooser>> accessChoosers) {
     InvariantChecks.checkNotNull(accessChoosers);
 
     for (final Collection<MemoryAccessChooser> choosers : accessChoosers) {
@@ -92,7 +90,7 @@ public final class MemoryAccessIteratorExhaustive implements Iterator<List<Memor
   }
 
   @Override
-  public MemoryAccessIteratorExhaustive clone() {
+  public MemoryAccessesIteratorExhaustive clone() {
     throw new UnsupportedOperationException();
   }
 }

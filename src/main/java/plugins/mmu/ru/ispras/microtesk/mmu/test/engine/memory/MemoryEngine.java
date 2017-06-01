@@ -24,7 +24,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.engine.memory.iterator.MemoryAccessIterator;
 import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -62,11 +61,11 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamIterator extends EngineParameter<MemoryAccessIterator.Mode> {
+  final static class ParamIterator extends EngineParameter<MemoryAccessesIterator.Mode> {
     ParamIterator() {
       super("iterator",
-          new EngineParameter.Option<>("static", MemoryAccessIterator.Mode.RANDOM),
-          new EngineParameter.Option<>("dynamic", MemoryAccessIterator.Mode.EXHAUSTIVE));
+          new EngineParameter.Option<>("static", MemoryAccessesIterator.Mode.RANDOM),
+          new EngineParameter.Option<>("dynamic", MemoryAccessesIterator.Mode.EXHAUSTIVE));
     }
   }
 
@@ -167,7 +166,7 @@ public final class MemoryEngine implements Engine {
 
   private MemoryGraphAbstraction abstraction = PARAM_ABSTRACTION.getDefaultValue();
   private boolean preparator = PARAM_PREPARATOR.getDefaultValue();
-  private MemoryAccessIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
+  private MemoryAccessesIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
 
@@ -225,7 +224,7 @@ public final class MemoryEngine implements Engine {
     Logger.debug("Memory access constraints: %s", accessConstraints);
 
     final Iterator<List<MemoryAccess>> accessIterator =
-        new MemoryAccessIterator(
+        new MemoryAccessesIterator(
             abstraction,
             accessTypes,
             accessConstraints,
