@@ -37,7 +37,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.model.api.BufferObserver;
 import ru.ispras.microtesk.mmu.model.api.MmuModel;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -114,7 +114,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     solution.setData(dataVariable, dataValue);
 
     final Collection<MmuCondition> conditions = new ArrayList<>();
-    final MemoryAccessConstraints accessConstraints = access.getConstraints();
+    final AccessConstraints accessConstraints = access.getConstraints();
 
     accessConstraints.randomize();
 

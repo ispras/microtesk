@@ -25,7 +25,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 public final class AccessChooser {
@@ -33,7 +33,7 @@ public final class AccessChooser {
   private final Collection<List<Object>> trajectories;
   private final Graph graph;
   private final MemoryAccessType type;
-  private final MemoryAccessConstraints constraints;
+  private final AccessConstraints constraints;
   private final int recursionLimit;
   private final boolean discardEmptyTrajectories;
 
@@ -45,7 +45,7 @@ public final class AccessChooser {
       final Collection<List<Object>> trajectories,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
@@ -83,7 +83,7 @@ public final class AccessChooser {
       final List<Object> trajectory,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit) {
     this(
         memory,
@@ -117,7 +117,7 @@ public final class AccessChooser {
     return null;
   }
 
-  public Access get(final BiasedConstraints<MemoryAccessConstraints> constraints) {
+  public Access get(final BiasedConstraints<AccessConstraints> constraints) {
     InvariantChecks.checkNotNull(constraints);
 
     if (constraints.isEmpty()) {
@@ -125,7 +125,7 @@ public final class AccessChooser {
     }
 
     // New hard constraints & new soft constraints.
-    final Collection<MemoryAccessConstraints> strongestConstraints = constraints.getAll();
+    final Collection<AccessConstraints> strongestConstraints = constraints.getAll();
     // Existing constraints & new hard constraints & new soft constraints.
     strongestConstraints.add(this.constraints);
 
@@ -135,7 +135,7 @@ public final class AccessChooser {
             this.trajectories,
             this.graph,
             this.type,
-            MemoryAccessConstraints.compose(strongestConstraints),
+            AccessConstraints.compose(strongestConstraints),
             this.recursionLimit,
             this.discardEmptyTrajectories);
 
@@ -146,7 +146,7 @@ public final class AccessChooser {
     }
 
     // New hard constraints.
-    final Collection<MemoryAccessConstraints> weakestConstraints = constraints.getHard();
+    final Collection<AccessConstraints> weakestConstraints = constraints.getHard();
 
     if (weakestConstraints.isEmpty()) {
       return get();
@@ -161,7 +161,7 @@ public final class AccessChooser {
             this.trajectories,
             this.graph,
             this.type,
-            MemoryAccessConstraints.compose(weakestConstraints),
+            AccessConstraints.compose(weakestConstraints),
             this.recursionLimit,
             this.discardEmptyTrajectories);
 

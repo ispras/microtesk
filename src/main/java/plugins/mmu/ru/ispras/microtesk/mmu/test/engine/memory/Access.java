@@ -19,7 +19,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 
 /**
  * {@link Access} describes an execution path of a memory access instruction.
@@ -31,13 +31,13 @@ public final class Access {
       new Access(
           MemoryAccessType.NONE,
           AccessPath.EMPTY,
-          MemoryAccessConstraints.EMPTY
+          AccessConstraints.EMPTY
       );
 
   private final MemoryAccessType type;
   private final AccessPath path;
 
-  private final MemoryAccessConstraints constraints;
+  private final AccessConstraints constraints;
 
   private BufferDependency[] dependencies;
 
@@ -47,7 +47,7 @@ public final class Access {
   public Access(
       final MemoryAccessType type,
       final AccessPath path,
-      final MemoryAccessConstraints constraints) {
+      final AccessConstraints constraints) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(path);
     InvariantChecks.checkNotNull(constraints);
@@ -65,7 +65,7 @@ public final class Access {
     return path;
   }
 
-  public MemoryAccessConstraints getConstraints() {
+  public AccessConstraints getConstraints() {
     return constraints;
   }
 

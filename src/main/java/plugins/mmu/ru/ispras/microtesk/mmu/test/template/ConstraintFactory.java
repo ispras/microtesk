@@ -161,11 +161,11 @@ public final class ConstraintFactory {
     return constraint;
   }
 
-  public MemoryAccessConstraints newConstraints(final Object[] constraints) {
+  public AccessConstraints newConstraints(final Object[] constraints) {
     InvariantChecks.checkNotNull(constraints);
 
-    final MemoryAccessConstraints.Builder builder =
-        new MemoryAccessConstraints.Builder();
+    final AccessConstraints.Builder builder =
+        new AccessConstraints.Builder();
 
     for (final Object constraint : constraints) {
       InvariantChecks.checkNotNull(constraint); 

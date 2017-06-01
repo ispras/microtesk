@@ -23,7 +23,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
@@ -73,7 +73,7 @@ public final class CoverageExtractor {
       final MmuSubsystem memory,
       final GraphAbstraction abstraction,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);
@@ -98,7 +98,7 @@ public final class CoverageExtractor {
       final MmuSubsystem memory,
       final GraphAbstraction abstraction,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit,
       final boolean discardEmptyTrajectories) {
     InvariantChecks.checkNotNull(memory);

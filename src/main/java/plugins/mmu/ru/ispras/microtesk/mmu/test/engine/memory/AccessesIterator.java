@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -88,8 +88,8 @@ public final class AccessesIterator implements Iterator<List<Access>> {
   public AccessesIterator(
       final GraphAbstraction abstraction,
       final List<MemoryAccessType> accessTypes,
-      final List<MemoryAccessConstraints> accessConstraints,
-      final MemoryAccessConstraints globalConstraints,
+      final List<AccessConstraints> accessConstraints,
+      final AccessConstraints globalConstraints,
       final int recursionLimit,
       final Mode mode) {
     InvariantChecks.checkNotNull(abstraction);
@@ -109,8 +109,8 @@ public final class AccessesIterator implements Iterator<List<Access>> {
 
     int index = 0;
     for (final MemoryAccessType accessType : accessTypes) {
-      final MemoryAccessConstraints constraints =
-          MemoryAccessConstraints.merge(
+      final AccessConstraints constraints =
+          AccessConstraints.merge(
               globalConstraints,
               accessConstraints.get(index)
           );

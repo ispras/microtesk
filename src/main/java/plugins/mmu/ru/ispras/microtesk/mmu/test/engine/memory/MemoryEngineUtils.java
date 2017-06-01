@@ -37,7 +37,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
@@ -142,7 +142,7 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleEntry(
       final AccessPath.Entry entry,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final SymbolicResult partialResult /* INOUT */) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(constraints);
@@ -207,7 +207,7 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleAccess(final Access access) {
     InvariantChecks.checkNotNull(access);
 
-    final MemoryAccessConstraints constraints = access.getConstraints();
+    final AccessConstraints constraints = access.getConstraints();
 
     if (!checkBufferConstraints(access, constraints.getBufferEventConstraints())) {
       return false;

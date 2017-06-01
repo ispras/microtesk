@@ -24,7 +24,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameter;
@@ -136,19 +136,19 @@ public final class MemoryEngine implements Engine {
     return -1;
   }
 
-  private static MemoryAccessConstraints getConstraints(final AbstractCall abstractCall) {
+  private static AccessConstraints getConstraints(final AbstractCall abstractCall) {
     final Primitive primitive = abstractCall.getRootOperation();
     final Situation situation = primitive.getSituation();
 
     if (situation != null) {
       final Object attribute = situation.getAttribute(PATH);
 
-      if (attribute != null && attribute instanceof MemoryAccessConstraints) {
-        return (MemoryAccessConstraints) attribute;
+      if (attribute != null && attribute instanceof AccessConstraints) {
+        return (AccessConstraints) attribute;
       }
     }
 
-    return MemoryAccessConstraints.EMPTY;
+    return AccessConstraints.EMPTY;
   }
 
   private static void setAccess(final AbstractCall abstractCall, final Access access) {
@@ -196,11 +196,11 @@ public final class MemoryEngine implements Engine {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final MemoryAccessConstraints globalConstraints = MemoryAccessConstraints.EMPTY;
+    final AccessConstraints globalConstraints = AccessConstraints.EMPTY;
     Logger.debug("Global memory constraints: %s", globalConstraints);
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
-    final List<MemoryAccessConstraints> accessConstraints = new ArrayList<>();
+    final List<AccessConstraints> accessConstraints = new ArrayList<>();
 
     for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
       final MemoryOperation operation = getOperation(abstractCall);
@@ -213,9 +213,9 @@ public final class MemoryEngine implements Engine {
       final int blockSizeInBytes = blockSizeInBits >>> 3;
       accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
 
-      final MemoryAccessConstraints constraints = operation != MemoryOperation.NONE
+      final AccessConstraints constraints = operation != MemoryOperation.NONE
           ? getConstraints(abstractCall)
-          : MemoryAccessConstraints.EMPTY;
+          : AccessConstraints.EMPTY;
 
       accessConstraints.add(constraints);
     }

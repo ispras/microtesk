@@ -31,7 +31,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
- * The {@link MemoryAccessConstraints} class holds constraints related to memory accesses.
+ * The {@link AccessConstraints} class holds constraints related to memory accesses.
  * 
  * <p>
  * There are two categories of constraints: (1) constraints on variable values and
@@ -41,16 +41,16 @@ import ru.ispras.microtesk.settings.RegionSettings;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
-public final class MemoryAccessConstraints {
-  public static final MemoryAccessConstraints EMPTY = new MemoryAccessConstraints();
+public final class AccessConstraints {
+  public static final AccessConstraints EMPTY = new AccessConstraints();
 
-  public static final MemoryAccessConstraints compose(
-      final Collection<MemoryAccessConstraints> collection) {
+  public static final AccessConstraints compose(
+      final Collection<AccessConstraints> collection) {
     InvariantChecks.checkNotNull(collection);
 
     final Builder builder = new Builder();
 
-    for (final MemoryAccessConstraints constraints : collection) {
+    for (final AccessConstraints constraints : collection) {
       builder.addConstraints(constraints);
     }
 
@@ -82,15 +82,15 @@ public final class MemoryAccessConstraints {
       bufferEventConstraints.add(constraint);
     }
 
-    public void addConstraints(final MemoryAccessConstraints constraints) {
+    public void addConstraints(final AccessConstraints constraints) {
       InvariantChecks.checkNotNull(constraints);
 
       this.variableConstraints.addAll(constraints.getVariableConstraints());
       this.bufferEventConstraints.addAll(constraints.getBufferEventConstraints());
     }
 
-    public MemoryAccessConstraints build() {
-      return new MemoryAccessConstraints(region, variableConstraints, bufferEventConstraints);
+    public AccessConstraints build() {
+      return new AccessConstraints(region, variableConstraints, bufferEventConstraints);
     }
   }
 
@@ -98,13 +98,13 @@ public final class MemoryAccessConstraints {
   private final Collection<VariableConstraint> variableConstraints;
   private final Collection<BufferEventConstraint> bufferEventConstraints;
 
-  public MemoryAccessConstraints() {
+  public AccessConstraints() {
     this.region = null;
     this.variableConstraints = Collections.<VariableConstraint>emptyList();
     this.bufferEventConstraints = Collections.<BufferEventConstraint>emptyList();
   }
 
-  public MemoryAccessConstraints(
+  public AccessConstraints(
       final RegionSettings region,
       final Collection<VariableConstraint> variableConstraints,
       final Collection<BufferEventConstraint> bufferEventConstraints) {
@@ -117,9 +117,9 @@ public final class MemoryAccessConstraints {
     this.bufferEventConstraints = Collections.unmodifiableCollection(bufferEventConstraints);
   }
 
-  public static MemoryAccessConstraints merge(
-      final MemoryAccessConstraints lhs,
-      final MemoryAccessConstraints rhs) {
+  public static AccessConstraints merge(
+      final AccessConstraints lhs,
+      final AccessConstraints rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -142,7 +142,7 @@ public final class MemoryAccessConstraints {
     bufferEventConstraints.addAll(lhs.bufferEventConstraints);
     bufferEventConstraints.addAll(rhs.bufferEventConstraints);
 
-    return new MemoryAccessConstraints(region, variableConstraints, bufferEventConstraints);
+    return new AccessConstraints(region, variableConstraints, bufferEventConstraints);
   }
 
   public boolean isEmpty() {

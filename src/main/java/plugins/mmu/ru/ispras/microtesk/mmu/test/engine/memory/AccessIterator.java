@@ -31,7 +31,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.template.MemoryAccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -228,7 +228,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
   /** Memory access type. */
   private final MemoryAccessType type;
   /** User-defined constraints for selecting memory access paths. */
-  private final MemoryAccessConstraints constraints;
+  private final AccessConstraints constraints;
 
   private final Stack<SearchStackEntry> searchStack = new Stack<>();
   private final List<AccessPath.Entry> currentPath = new ArrayList<>();
@@ -243,7 +243,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
       final MmuSubsystem memory,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit) {
     this(
         memory,
@@ -259,7 +259,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
       final List<Object> trajectory,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final int recursionLimit) {
     this(
         memory,
@@ -275,7 +275,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
       final MmuSubsystem memory,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final SymbolicResult result,
       final int recursionLimit) {
     this(memory, null, graph, type, constraints, result, recursionLimit);
@@ -286,7 +286,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
       final List<Object> trajectory,
       final Graph graph,
       final MemoryAccessType type,
-      final MemoryAccessConstraints constraints,
+      final AccessConstraints constraints,
       final SymbolicResult result,
       final int recursionLimit) {
     InvariantChecks.checkNotNull(memory);
