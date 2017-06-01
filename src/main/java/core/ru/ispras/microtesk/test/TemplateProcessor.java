@@ -42,7 +42,7 @@ import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
-import ru.ispras.microtesk.test.template.Template.Section;
+import ru.ispras.microtesk.test.template.Template.SectionKind;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -104,15 +104,15 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
-  public void process(final Section section, final Block block) {
+  public void process(final SectionKind section, final Block block) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(block);
 
     engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
     try {
-      if (section == Section.PRE) {
+      if (section == SectionKind.PRE) {
         processPrologue(block);
-      } else if (section == Section.POST) {
+      } else if (section == SectionKind.POST) {
         processEpilogue(block);
       } else if (block.isExternal()) {
         processExternalBlock(block);
@@ -127,7 +127,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
-  public void process(final Section section, final Block block, final int times) {
+  public void process(final SectionKind section, final Block block, final int times) {
     InvariantChecks.checkGreaterThanZero(times);
     for (int index = 0; index < times; index++) {
       process(section, block);

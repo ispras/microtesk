@@ -54,7 +54,7 @@ import ru.ispras.microtesk.utils.StringUtils;
  */
 public final class Template {
 
-  public static enum Section {
+  public static enum SectionKind {
     PRE,
     POST,
     MAIN
@@ -62,8 +62,8 @@ public final class Template {
 
   public interface Processor {
     void process(ExceptionHandler handler);
-    void process(Section section, Block block);
-    void process(Section section, Block block, int times);
+    void process(SectionKind section, Block block);
+    void process(SectionKind section, Block block, int times);
     void process(DataSection data);
     void finish();
   }
@@ -85,6 +85,7 @@ public final class Template {
   // Default situations for instructions and groups
   private final Map<String, Variate<Situation>> defaultSituations;
 
+  private Section section;
   private PreparatorBuilder preparatorBuilder;
   private BufferPreparatorBuilder bufferPreparatorBuilder;
   private MemoryPreparatorBuilder memoryPreparatorBuilder;
@@ -118,6 +119,7 @@ public final class Template {
     this.streams = context.getStreams();
     this.processor = processor;
 
+    this.section = null;
     this.preparatorBuilder = null;
     this.bufferPreparatorBuilder = null;
     this.memoryPreparatorBuilder = null;
@@ -166,7 +168,7 @@ public final class Template {
 
   public void endPreSection() {
     final Block rootBlock = endCurrentSection().build();
-    processor.process(Section.PRE, rootBlock);
+    processor.process(SectionKind.PRE, rootBlock);
     Logger.debugHeader("Ended Processing Initialization Section");
   }
 
@@ -178,7 +180,7 @@ public final class Template {
 
   public void endPostSection() {
     final Block rootBlock = endCurrentSection().build();
-    processor.process(Section.POST, rootBlock);
+    processor.process(SectionKind.POST, rootBlock);
     Logger.debugHeader("Ended Processing Finalization Section");
   }
 
@@ -192,7 +194,7 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = endCurrentSection();
     if (!rootBlockBuilder.isEmpty()) {
       final Block rootBlock = rootBlockBuilder.build();
-      processor.process(Section.MAIN, rootBlock);
+      processor.process(SectionKind.MAIN, rootBlock);
     }
 
     Logger.debugHeader("Ended Processing Main Section");
@@ -280,7 +282,7 @@ public final class Template {
 
     if (!rootBuilder.isEmpty()) {
       final Block rootBlock = rootBuilder.build();
-      processor.process(Section.MAIN, rootBlock);
+      processor.process(SectionKind.MAIN, rootBlock);
     }
 
     final BlockBuilder newRootBuilder = new BlockBuilder(true);
@@ -347,7 +349,7 @@ public final class Template {
       checkAllowedToRun();
 
       processExternalCode();
-      processor.process(Section.MAIN, block);
+      processor.process(SectionKind.MAIN, block);
 
       markBlockAsUsed();
       return this;
@@ -357,7 +359,7 @@ public final class Template {
       checkAllowedToRun();
 
       processExternalCode();
-      processor.process(Section.MAIN, block, times);
+      processor.process(SectionKind.MAIN, block, times);
 
       markBlockAsUsed();
       return this;
@@ -1068,16 +1070,17 @@ public final class Template {
     callBuilder.setWhere(where);
   }
 
-  public void newSection(
-    final String name, final BigInteger pa, final String args, final Where where) {
+  public void beginSection(final String name, final BigInteger pa, final String args) {
     // .section directives in external code split it into parts (only for main section)
-    if (isMainSection && blockBuilders.peek().isExternal()) {
-      processExternalCode();
-    }
+    InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
+        "section is allowed only in the root space of template's run method.");
 
-    endBuildingCall();
-    addCall(AbstractCall.newSection(where,
-        new ru.ispras.microtesk.test.template.Section(name, pa, args)));
+    processExternalCode();
+    section = new Section(name, pa, args);
+  }
+
+  public void endSection() {
+    // TODO
   }
 
   public void beginPrologue() {
