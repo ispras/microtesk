@@ -91,7 +91,10 @@ public final class DataSectionBuilder {
    * Sets allocation origin. Inserts the ".org" directive in the test program.
    */
   public void setOrigin(final BigInteger origin) {
-    addDirective(directiveFactory.newOrigin(origin));
+    addDirective(null != section ?
+        directiveFactory.newOriginOffset(section.getPa(), origin) :
+        directiveFactory.newOrigin(origin)
+        );
   }
 
   /**

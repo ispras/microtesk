@@ -398,6 +398,44 @@ public final class DataDirectiveFactory {
     }
   }
 
+  private final class OriginOffset implements DataDirective {
+    private final BigInteger basePa;
+    private final BigInteger origin;
+
+    private OriginOffset(final BigInteger basePa, final BigInteger origin) {
+      InvariantChecks.checkNotNull(basePa);
+      InvariantChecks.checkNotNull(origin);
+      InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
+      this.basePa = basePa;
+      this.origin = origin;
+    }
+
+    @Override
+    public String getText() {
+      return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
+    }
+
+    @Override
+    public boolean needsIndent() {
+      return true;
+    }
+
+    @Override
+    public void apply(final MemoryAllocator allocator) {
+      allocator.setCurrentAddress(basePa.add(origin));
+    }
+
+    @Override
+    public DataDirective copy() {
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return getText();
+    }
+  }
+
   private final class Align implements DataDirective {
     private final BigInteger alignment;
     private final BigInteger alignmentInBytes;
@@ -725,6 +763,10 @@ public final class DataDirectiveFactory {
 
   public DataDirective newOriginRelative(final BigInteger delta) {
     return new OriginRelative(delta);
+  }
+
+  public DataDirective newOriginOffset(final BigInteger basePa, final BigInteger origin) {
+    return new OriginOffset(basePa, origin);
   }
 
   public DataDirective newOriginForVirtualAddress(final BigInteger address) {
