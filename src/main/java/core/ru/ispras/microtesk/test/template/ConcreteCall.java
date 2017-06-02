@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
@@ -41,7 +42,7 @@ public final class ConcreteCall {
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
   private final DataSection data;
-  private final Section section;
+  private final Pair<Section, Boolean> section;
 
   private long address = 0;
   private String text = null;
@@ -227,7 +228,15 @@ public final class ConcreteCall {
     long thisAddress = value;
 
     if (null != section) {
-      thisAddress = AddressTranslator.get().physicalToVirtual(section.getPa()).longValue();
+      final Section sectionVar = section.first;
+      final boolean isStart = section.second;
+
+      if (isStart) {
+        sectionVar.setSavedPa(BigInteger.valueOf(thisAddress));
+        thisAddress = AddressTranslator.get().physicalToVirtual(sectionVar.getPa()).longValue();
+      } else {
+        thisAddress = sectionVar.getSavedPa().longValue();
+      }
     } else {
       if (origin != null) {
         thisAddress = relativeOrigin ?
@@ -268,7 +277,7 @@ public final class ConcreteCall {
     return data;
   }
 
-  public Section getSection() {
+  public Pair<Section, Boolean> getSection() {
     return section;
   }
 }

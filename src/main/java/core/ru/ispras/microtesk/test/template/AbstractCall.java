@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class AbstractCall {
@@ -41,7 +42,7 @@ public final class AbstractCall {
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
-  private final Section section;
+  private final Pair<Section, Boolean> section;
   private final List<AbstractCall> atomicSequence;
   private final Primitive modeToFree;
   private final boolean freeAllModes;
@@ -69,12 +70,10 @@ public final class AbstractCall {
         );
   }
 
-  public static AbstractCall newSection(final Where where, final Section section) {
-    InvariantChecks.checkNotNull(where);
+  public static AbstractCall newSection(final Section section, final boolean start) {
     InvariantChecks.checkNotNull(section);
-
     return new AbstractCall(
-        where,
+        null,
         null,
         null,
         Collections.<Label>emptyList(),
@@ -86,7 +85,7 @@ public final class AbstractCall {
         null,
         null,
         null,
-        section,
+        new Pair<>(section, start),
         null,
         null,
         false
@@ -242,7 +241,7 @@ public final class AbstractCall {
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
       final DataSection data,
-      final Section section,
+      final Pair<Section, Boolean> section,
       final List<AbstractCall> atomicSequence,
       final Primitive modeToFree,
       final boolean freeAllModes) {
@@ -435,7 +434,7 @@ public final class AbstractCall {
     return data;
   }
 
-  public Section getSection() {
+  public Pair<Section, Boolean> getSection() {
     return section;
   }
 

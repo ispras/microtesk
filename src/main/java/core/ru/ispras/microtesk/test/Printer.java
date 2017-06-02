@@ -33,6 +33,7 @@ import ru.ispras.microtesk.test.template.DataDirective;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.test.template.Section;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.BinaryWriter;
 
@@ -289,9 +290,9 @@ final class Printer {
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
-      if (call.getSection() != null) {
-        printText(String.format(".section \"%s\", %s",
-            call.getSection().getName(), call.getSection().getArgs()));
+      if (call.getSection() != null && call.getSection().second) {
+        final Section section = call.getSection().first;
+        printText(String.format(".section \"%s\", %s", section.getName(), section.getArgs()));
       }
 
       printOutputs(observer, call.getOutputs());

@@ -86,6 +86,8 @@ public final class Template {
   private final Map<String, Variate<Situation>> defaultSituations;
 
   private Section section;
+  private boolean sectionStart;
+
   private PreparatorBuilder preparatorBuilder;
   private BufferPreparatorBuilder bufferPreparatorBuilder;
   private MemoryPreparatorBuilder memoryPreparatorBuilder;
@@ -120,6 +122,8 @@ public final class Template {
     this.processor = processor;
 
     this.section = null;
+    this.sectionStart = false;
+
     this.preparatorBuilder = null;
     this.bufferPreparatorBuilder = null;
     this.memoryPreparatorBuilder = null;
@@ -391,8 +395,15 @@ public final class Template {
     debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
 
-    addCall(call);
     this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
+
+    if (null != section && sectionStart) {
+      sectionStart = false;
+      processExternalCode();
+      addCall(AbstractCall.newSection(section, true));
+    }
+
+    addCall(call);
   }
 
   private void addCall(final AbstractCall call) {
@@ -1008,6 +1019,9 @@ public final class Template {
   }
 
   public DataSectionBuilder beginData(final boolean isGlobalArgument, final boolean isSeparateFile) {
+    final Section sectionVar = section;
+    section = null;
+
     endBuildingCall();
 
     final boolean isGlobalContext =
@@ -1022,9 +1036,8 @@ public final class Template {
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
 
     final DataSectionBuilder dataSectionBuilder =
-        dataManager.beginData(getCurrentBlockId(), section, isGlobal, isSeparateFile);
+        dataManager.beginData(getCurrentBlockId(), sectionVar, isGlobal, isSeparateFile);
 
-    section = null;
     return dataSectionBuilder;
   }
 
@@ -1076,16 +1089,21 @@ public final class Template {
   }
 
   public void beginSection(final String name, final BigInteger pa, final String args) {
-    // .section directives in external code split it into parts (only for main section)
+    InvariantChecks.checkTrue(null == section);
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    processExternalCode();
     section = new Section(name, pa, args);
+    sectionStart = true;
   }
 
   public void endSection() {
-    // TODO
+    if (null != section) {
+      final Section sectionVar = section;
+      section = null;
+      processExternalCode();
+      addCall(AbstractCall.newSection(sectionVar, false));
+    }
   }
 
   public void beginPrologue() {
