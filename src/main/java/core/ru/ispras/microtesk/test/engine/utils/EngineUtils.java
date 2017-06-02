@@ -127,12 +127,14 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
     return makeInitializer(
         engineContext,
+        abstractCall,
         abstractSequence,
         primitive,
         situation,
@@ -143,6 +145,7 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
@@ -180,6 +183,7 @@ public final class EngineUtils {
 
     return initializerMaker.makeInitializer(
         engineContext,
+        abstractCall,
         primitive,
         situation,
         testData,
