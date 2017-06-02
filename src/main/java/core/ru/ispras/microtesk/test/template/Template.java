@@ -1072,13 +1072,13 @@ public final class Template {
     }
 
     debug("Set Origin to 0x%x", origin);
-    callBuilder.setOrigin(origin, false);
+    callBuilder.setOrigin(origin, false, null != section ? section.getPa() : null);
     callBuilder.setWhere(where);
   }
 
   public void setRelativeOrigin(final BigInteger delta, final Where where) {
     debug("Set Relative Origin to 0x%x", delta);
-    callBuilder.setOrigin(delta, true);
+    callBuilder.setOrigin(delta, true, null != section ? section.getPa() : null);
     callBuilder.setWhere(where);
   }
 

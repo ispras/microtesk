@@ -37,6 +37,7 @@ public final class AbstractCall {
 
   private final boolean relativeOrigin;
   private final BigInteger origin;
+  private final BigInteger basePa;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
 
@@ -58,6 +59,7 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -85,6 +87,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         new Pair<>(section, start),
         null,
         null,
@@ -104,6 +107,7 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -139,6 +143,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         false
         );
   }
@@ -162,6 +167,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         false
         );
   }
@@ -177,6 +183,7 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
+        null,
         null,
         null,
         null,
@@ -223,6 +230,7 @@ public final class AbstractCall {
         null,
         null,
         null,
+        null,
         mode,
         freeAll
         );
@@ -237,6 +245,7 @@ public final class AbstractCall {
       final List<Output> outputs,
       final boolean relativeOrigin,
       final BigInteger origin,
+      final BigInteger basePa,
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
@@ -265,6 +274,7 @@ public final class AbstractCall {
 
     this.relativeOrigin = relativeOrigin;
     this.origin = origin;
+    this.basePa = basePa;
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
 
@@ -290,6 +300,7 @@ public final class AbstractCall {
 
     this.relativeOrigin = other.relativeOrigin;
     this.origin = other.origin;
+    this.basePa = other.basePa;
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
 
