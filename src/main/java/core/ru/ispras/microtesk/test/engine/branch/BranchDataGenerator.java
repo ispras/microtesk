@@ -14,10 +14,7 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
-import java.util.Collections;
-
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
@@ -66,8 +63,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
 
     if (condition == null) {
-      return TestDataProvider.singleton(
-          new TestData(BranchEngine.ID, Collections.<String, Object>emptyMap()));
+      return generateThen(query);
     }
     if (condition.equals(PARAM_CONDITION_THEN)) {
       return generateThen(query);
