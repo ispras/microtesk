@@ -126,7 +126,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     if (values == null) {
       Logger.debug("Infeasible path: %s", access);
-      return null;
+      return TestDataProvider.empty();
     }
 
     // Assign the tag, index and offset according to the dependencies.

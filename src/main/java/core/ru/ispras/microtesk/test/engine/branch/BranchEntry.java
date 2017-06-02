@@ -61,6 +61,9 @@ public final class BranchEntry {
    */
   private Set<Integer> slotCoverage;
 
+  private boolean controlCodeInBasicBlock = false;
+  private boolean controlCodeInDelaySlot = false;
+
   public BranchEntry(final Type type, final int groupId, final int branchLabel) {
     this.type = type;
     this.groupId = groupId;
@@ -219,22 +222,20 @@ public final class BranchEntry {
     this.slotCoverage = slotCoverage;
   }
 
-  /**
-   * Checks whether the block coverage is not {@code null}.
-   * 
-   * @return {@code true} if the block coverage is not {@code null}; {@code false} otherwise.
-   */
-  public boolean canInsertStepIntoBlock() {
-    return blockCoverage != null;
+  public boolean isControlCodeInBasicBlock() {
+    return controlCodeInBasicBlock;
   }
 
-  /**
-   * Checks whether the slot coverage is not {@code null}.
-   * 
-   * @return {@code true} if slot coverage is not {@code null}; {@code false} otherwise.
-   */
-  public boolean canInsertStepIntoSlot() {
-    return slotCoverage != null;
+  public void setControlCodeInBasicBlock(final boolean controlCodeInBasicBlock) {
+    this.controlCodeInBasicBlock = controlCodeInBasicBlock;
+  }
+
+  public boolean isControlCodeInDelaySlot() {
+    return controlCodeInDelaySlot;
+  }
+
+  public void setControlCodeInDelaySlot(final boolean controlCodeInDelaySlot) {
+    this.controlCodeInDelaySlot = controlCodeInDelaySlot;
   }
 
   @Override

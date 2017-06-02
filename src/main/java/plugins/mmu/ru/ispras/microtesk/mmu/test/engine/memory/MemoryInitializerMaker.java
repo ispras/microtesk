@@ -56,7 +56,6 @@ import ru.ispras.microtesk.test.template.MemoryPreparator;
 import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
 import ru.ispras.testbase.TestData;
 
 /**

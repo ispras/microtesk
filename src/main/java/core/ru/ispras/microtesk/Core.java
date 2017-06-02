@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,12 +17,13 @@ package ru.ispras.microtesk;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.mmu.test.engine.memory.AddressDataGenerator;
 import ru.ispras.microtesk.test.engine.DefaultEngine;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.InitializerMakerDefault;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
-import ru.ispras.microtesk.test.testbase.AddressDataGenerator;
+import ru.ispras.microtesk.test.engine.branch.BranchInitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.NmlTranslator;
 import ru.ispras.testbase.generator.DataGenerator;
@@ -45,7 +46,7 @@ final class Core implements Plugin {
 
     engines.put("default", defaultEngine);
     engines.put("trivial", defaultEngine);
-    engines.put("branch", new BranchEngine());
+    engines.put(BranchEngine.ID, new BranchEngine());
 
     return engines;
   }
@@ -53,7 +54,9 @@ final class Core implements Plugin {
   @Override
   public Map<String, InitializerMaker> getInitializerMakers() {
     final Map<String, InitializerMaker> result = new LinkedHashMap<>();
+
     result.put("default", new InitializerMakerDefault());
+    result.put(BranchEngine.ID, new BranchInitializerMaker());
 
     return result;
   }
