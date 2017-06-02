@@ -15,11 +15,16 @@
 package ru.ispras.microtesk.test.engine.branch;
 
 import static ru.ispras.microtesk.test.engine.utils.EngineUtils.getSituationName;
+import static ru.ispras.microtesk.test.engine.utils.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -30,6 +35,8 @@ import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -40,6 +47,9 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchEngine implements Engine {
+  public static final String ID = "branch";
+  public static final boolean USE_DELAY_SLOTS = true;
+
   /** Maximum number of executions of a single branch instruction. */
   public static final String PARAM_BRANCH_LIMIT = "branch_exec_limit";
   public static final int PARAM_BRANCH_LIMIT_DEFAULT = 1;
@@ -90,6 +100,21 @@ public final class BranchEngine implements Engine {
   static void setBranchEntry(final AbstractCall abstractCall, final BranchEntry branchEntry) {
     final Map<String, Object> attributes = abstractCall.getAttributes();
     attributes.put("branchEntry", branchEntry);
+  }
+
+  static String getTestDataStream(final AbstractCall abstractBranchCall) {
+    InvariantChecks.checkNotNull(abstractBranchCall);
+
+    final Primitive primitive = abstractBranchCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive);
+
+    final Situation situation = primitive.getSituation();
+    InvariantChecks.checkNotNull(situation);
+
+    final Object testDataStream = situation.getAttribute(BranchDataGenerator.PARAM_STREAM);
+    InvariantChecks.checkNotNull(testDataStream);
+
+    return testDataStream.toString();
   }
 
   /** Branch execution limit: default value is 1. */
@@ -177,7 +202,10 @@ public final class BranchEngine implements Engine {
       /** Iterator of branch structures and execution trances. */
       private final BranchExecutionIterator branchStructureExecutionIterator =
           new BranchExecutionIterator(
-              branchStructureIterator, maxBranchExecutions, maxExecutionTraces);
+              branchStructureIterator,
+              maxBranchExecutions,
+              maxExecutionTraces
+          );
 
       @Override
       public void init() {
@@ -200,7 +228,7 @@ public final class BranchEngine implements Engine {
           setBranchEntry(abstractCall, branchEntry);
         }
 
-        return abstractSequence;
+        return insertControlCode(engineContext, abstractSequence);
       }
 
       @Override
@@ -227,4 +255,106 @@ public final class BranchEngine implements Engine {
 
   @Override
   public void onEndProgram() {}
+
+  private AbstractSequence insertControlCode(
+      final EngineContext engineContext,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    // Maps branch indices to control code (the map should be sorted).
+    final SortedMap<Integer, List<AbstractCall>> steps = new TreeMap<>();
+
+    // Contains positions of the delay slots.
+    final Set<Integer> delaySlots = new HashSet<>();
+
+    // Construct the control code to enforce the given execution trace.
+    for (int i = 0; i < abstractSequence.size(); i++) {
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+      final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+
+      if (!branchEntry.isIfThen()) {
+        continue;
+      }
+
+      final Set<Integer> blockCoverage = branchEntry.getBlockCoverage();
+      final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
+
+      final String testDataStream = getTestDataStream(abstractCall);
+      final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
+
+      branchEntry.setControlCodeInBasicBlock(false);
+      branchEntry.setControlCodeInDelaySlot(false);
+
+      // Insert the control code into the basic block if it is possible.
+      if (blockCoverage != null) {
+        for (final int block : blockCoverage) {
+          // Add the control code just after the basic block (the code should follow the label).
+          final int codePosition = block + 1;
+
+          List<AbstractCall> step = steps.get(codePosition);
+          if (step == null) {
+            steps.put(codePosition, step = new ArrayList<AbstractCall>());
+          }
+
+          Logger.debug("Control code of length %d for instruction %d put to block %d",
+              controlCode.size(), i, block);
+
+          step.addAll(controlCode);
+        }
+
+        // Block coverage is allowed to be empty; this means that no additional code is required. 
+        branchEntry.setControlCodeInBasicBlock(true);
+      }
+
+      // Insert the control code into the delay slot if it is possible.
+      if (USE_DELAY_SLOTS && !branchEntry.isControlCodeInBasicBlock() && slotCoverage != null) {
+        if (controlCode.size() <= engineContext.getDelaySlotSize()) {
+          // Delay slot follows the branch.
+          final int slotPosition = i + 1;
+
+          List<AbstractCall> step = steps.get(slotPosition);
+          if (step == null) {
+            steps.put(slotPosition, step = new ArrayList<AbstractCall>());
+          }
+
+          delaySlots.add(slotPosition);
+
+          step.addAll(controlCode);
+          branchEntry.setControlCodeInDelaySlot(true);
+        }
+      }
+
+      if (!branchEntry.isControlCodeInBasicBlock() && !branchEntry.isControlCodeInDelaySlot()) {
+        Logger.debug("Cannot construct the control code %d: blockCoverage=%s, slotCoverage=%s",
+            i, blockCoverage, slotCoverage);
+        return null;
+      }
+    }
+
+    // Insert the control code into the sequence.
+    int correction = 0;
+
+    final List<AbstractCall> modifiedSequence =
+        new ArrayList<AbstractCall>(abstractSequence.getSequence());
+
+    for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
+      final int position = entry.getKey();
+      final List<AbstractCall> controlCode = entry.getValue();
+
+      modifiedSequence.addAll(position + correction, controlCode);
+
+      if (delaySlots.contains(position)) {
+        // Remove the old delay slot.
+        for (int i = 0; i < controlCode.size(); i++) {
+          modifiedSequence.remove(position + correction + controlCode.size());
+        }
+      } else {
+        // Update the correction offset.
+        correction += controlCode.size();
+      }
+    }
+
+    return new AbstractSequence(modifiedSequence);
+  }
 }

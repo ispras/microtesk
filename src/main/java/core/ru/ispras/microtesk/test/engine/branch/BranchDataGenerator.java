@@ -12,9 +12,12 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.testbase;
+package ru.ispras.microtesk.test.engine.branch;
+
+import java.util.Collections;
 
 import ru.ispras.testbase.TestBaseQuery;
+import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
@@ -36,9 +39,10 @@ public abstract class BranchDataGenerator implements DataGenerator {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
     final Object stream = Utils.getParameter(query, PARAM_STREAM);
 
-    return condition != null
-        && (condition.equals(PARAM_CONDITION_THEN) || condition.equals(PARAM_CONDITION_ELSE))
-        && stream != null;
+    return stream != null
+        && (condition == null /* No test data are required */
+        || condition.equals(PARAM_CONDITION_THEN)
+        || condition.equals(PARAM_CONDITION_ELSE));
   }
 
   /**
@@ -61,6 +65,10 @@ public abstract class BranchDataGenerator implements DataGenerator {
   public final TestDataProvider generate(final TestBaseQuery query) {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
 
+    if (condition == null) {
+      return TestDataProvider.singleton(
+          new TestData(BranchEngine.ID, Collections.<String, Object>emptyMap()));
+    }
     if (condition.equals(PARAM_CONDITION_THEN)) {
       return generateThen(query);
     }

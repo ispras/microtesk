@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.testbase;
+package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
