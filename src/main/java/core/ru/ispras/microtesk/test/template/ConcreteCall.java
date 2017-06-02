@@ -39,6 +39,7 @@ public final class ConcreteCall {
   private final InstructionCall executable;
   private final boolean relativeOrigin; 
   private final BigInteger origin;
+  private final BigInteger basePa;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
   private final DataSection data;
@@ -76,6 +77,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
@@ -97,6 +99,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
@@ -113,6 +116,7 @@ public final class ConcreteCall {
     this.executable = null;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
@@ -129,6 +133,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = false;
     this.origin = null;
+    this.basePa = null;
     this.alignment = null;
     this.alignmentInBytes = null;
     this.data = null;
@@ -239,9 +244,13 @@ public final class ConcreteCall {
       }
     } else {
       if (origin != null) {
-        thisAddress = relativeOrigin ?
-            value + origin.longValue() :
-              AddressTranslator.get().virtualFromOrigin(origin).longValue();
+        if (null != basePa) {
+          thisAddress = AddressTranslator.get().physicalToVirtual(basePa).add(origin).longValue();
+        } else if (relativeOrigin) {
+          thisAddress = value + origin.longValue();
+        } else {
+          thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
+        }
       }
 
       if (alignmentInBytes != null) {

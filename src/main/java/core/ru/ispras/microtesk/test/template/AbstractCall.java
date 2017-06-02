@@ -425,6 +425,10 @@ public final class AbstractCall {
     return origin;
   }
 
+  public BigInteger getBasePa() {
+    return basePa;
+  }
+
   public BigInteger getAlignment() {
     return alignment;
   }
