@@ -22,6 +22,7 @@ public final class Section {
   private final String name;
   private final BigInteger pa;
   private final String args;
+  private BigInteger savedPa;
 
   public Section(final String name, final BigInteger pa, final String args) {
     InvariantChecks.checkNotNull(name);
@@ -31,6 +32,7 @@ public final class Section {
     this.name = name;
     this.pa = pa;
     this.args = args;
+    this.savedPa = null;
   }
 
   public String getName() {
@@ -43,6 +45,17 @@ public final class Section {
 
   public String getArgs() {
     return args;
+  }
+
+  public BigInteger getSavedPa() {
+    InvariantChecks.checkNotNull(savedPa, "Not assigned");
+    return savedPa;
+  }
+
+  public void setSavedPa(final BigInteger value) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(null == savedPa, "Already assigned.");
+    this.savedPa = value;
   }
 
   @Override
