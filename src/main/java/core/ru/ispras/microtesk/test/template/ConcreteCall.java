@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
@@ -38,10 +39,11 @@ public final class ConcreteCall {
   private final InstructionCall executable;
   private final boolean relativeOrigin; 
   private final BigInteger origin;
+  private final BigInteger basePa;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
   private final DataSection data;
-  private final Section section;
+  private final Pair<Section, Boolean> section;
 
   private long address = 0;
   private String text = null;
@@ -75,6 +77,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
@@ -96,6 +99,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
@@ -112,6 +116,7 @@ public final class ConcreteCall {
     this.executable = null;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
+    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
@@ -128,6 +133,7 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = false;
     this.origin = null;
+    this.basePa = null;
     this.alignment = null;
     this.alignmentInBytes = null;
     this.data = null;
@@ -227,12 +233,24 @@ public final class ConcreteCall {
     long thisAddress = value;
 
     if (null != section) {
-      thisAddress = AddressTranslator.get().physicalToVirtual(section.getPa()).longValue();
+      final Section sectionVar = section.first;
+      final boolean isStart = section.second;
+
+      if (isStart) {
+        sectionVar.setSavedPa(BigInteger.valueOf(thisAddress));
+        thisAddress = AddressTranslator.get().physicalToVirtual(sectionVar.getPa()).longValue();
+      } else {
+        thisAddress = sectionVar.getSavedPa().longValue();
+      }
     } else {
       if (origin != null) {
-        thisAddress = relativeOrigin ?
-            value + origin.longValue() :
-              AddressTranslator.get().virtualFromOrigin(origin).longValue();
+        if (null != basePa) {
+          thisAddress = AddressTranslator.get().physicalToVirtual(basePa).add(origin).longValue();
+        } else if (relativeOrigin) {
+          thisAddress = value + origin.longValue();
+        } else {
+          thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
+        }
       }
 
       if (alignmentInBytes != null) {
@@ -268,7 +286,7 @@ public final class ConcreteCall {
     return data;
   }
 
-  public Section getSection() {
+  public Pair<Section, Boolean> getSection() {
     return section;
   }
 }
