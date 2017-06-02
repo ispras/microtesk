@@ -30,6 +30,9 @@ public final class DataSectionBuilder {
   private final BlockId blockId;
   private final DataDirectiveFactory directiveFactory;
 
+  private final Section section;
+  private final SharedValue sectionEndAddress;
+
   private BigInteger physicalAddress;
   private final boolean global;
   private final boolean separateFile;
@@ -40,6 +43,7 @@ public final class DataSectionBuilder {
   public DataSectionBuilder(
       final BlockId blockId,
       final DataDirectiveFactory directiveFactory,
+      final Section section,
       final boolean isGlobal,
       final boolean isSeparateFile) {
     InvariantChecks.checkNotNull(blockId);
@@ -54,6 +58,15 @@ public final class DataSectionBuilder {
 
     this.labelValues = new ArrayList<>();
     this.directives = new ArrayList<>();
+
+    this.section = section;
+    if (null != section) {
+      this.physicalAddress = section.getPa();
+      this.sectionEndAddress = new SharedValue();
+      addDirective(directiveFactory.newSectionStart(section, sectionEndAddress));
+    } else {
+      this.sectionEndAddress = null;
+    }
   }
 
   public void setPhysicalAddress(final BigInteger value) {
@@ -150,8 +163,12 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
+    if (null != sectionEndAddress) {
+      addDirective(directiveFactory.newSectionEnd(sectionEndAddress));
+    }
+
     return new DataSection(
-        labelValues, directives, physicalAddress, global, separateFile);
+        labelValues, directives, physicalAddress, section, global, separateFile);
   }
 
   public final class DataValueBuilder {

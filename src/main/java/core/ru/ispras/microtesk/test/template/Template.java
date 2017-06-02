@@ -1020,7 +1020,12 @@ public final class Template {
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
-    return dataManager.beginData(getCurrentBlockId(), isGlobal, isSeparateFile);
+
+    final DataSectionBuilder dataSectionBuilder =
+        dataManager.beginData(getCurrentBlockId(), section, isGlobal, isSeparateFile);
+
+    section = null;
+    return dataSectionBuilder;
   }
 
   public void endData() {

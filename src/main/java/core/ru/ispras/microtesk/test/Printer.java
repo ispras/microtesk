@@ -505,17 +505,18 @@ final class Printer {
       return;
     }
 
-    if (needPrintDataKeyword) {
-      printHeaderToFile("Data");
-      printText(dataKeyword);
-      needPrintCodeKeyword = true;
-      needPrintDataKeyword = false;
-    }
+    printHeaderToFile("Data");
+    needPrintCodeKeyword = true;
 
     int currentTestCaseIndex = Integer.MIN_VALUE;
     for (final DataSection dataSection : dataSections) {
       if (dataSection.isSeparateFile()) {
         continue;
+      }
+
+      if (needPrintDataKeyword && !dataSection.isSection()) {
+        printText(dataKeyword);
+        needPrintDataKeyword = false;
       }
 
       printToFile("");
@@ -527,6 +528,10 @@ final class Printer {
       }
 
       printData(dataSection);
+
+      if (dataSection.isSection()) {
+        needPrintDataKeyword = true;
+      }
     }
   }
 }

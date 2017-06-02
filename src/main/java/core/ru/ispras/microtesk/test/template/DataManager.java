@@ -77,13 +77,14 @@ public final class DataManager {
 
   public DataSectionBuilder beginData(
       final BlockId blockId,
+      final Section section,
       final boolean isGlobal,
       final boolean isSeparateFile) {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
     final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
-    dataBuilder = new DataSectionBuilder(blockId, factory, isGlobal, isSeparateFile);
+    dataBuilder = new DataSectionBuilder(blockId, factory, section, isGlobal, isSeparateFile);
     return dataBuilder; 
   }
 
@@ -117,7 +118,7 @@ public final class DataManager {
     final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
 
     final DataSectionBuilder dataBuilder =
-        new DataSectionBuilder(new BlockId(), factory, true, isSeparateFile);
+        new DataSectionBuilder(new BlockId(), factory, null, true, isSeparateFile);
 
     dataBuilder.setPhysicalAddress(address);
 

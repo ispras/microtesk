@@ -35,6 +35,7 @@ public final class DataSection {
   private final List<DataDirective> directives;
 
   private final BigInteger physicalAddress;
+  private final Section section;
   private final boolean global;
   private final boolean separateFile;
 
@@ -45,6 +46,7 @@ public final class DataSection {
       final List<LabelValue> labelValues,
       final List<DataDirective> directives,
       final BigInteger physicalAddress,
+      final Section section,
       final boolean global,
       final boolean separateFile) {
     InvariantChecks.checkNotNull(directives);
@@ -53,6 +55,7 @@ public final class DataSection {
     this.directives = Collections.unmodifiableList(directives);
 
     this.physicalAddress = physicalAddress;
+    this.section = section;
     this.global = global;
     this.separateFile = separateFile;
 
@@ -72,6 +75,7 @@ public final class DataSection {
     }
 
     this.physicalAddress = other.physicalAddress;
+    this.section = other.section;
     this.global = other.global;
     this.separateFile = other.separateFile;
 
@@ -118,6 +122,10 @@ public final class DataSection {
 
   public List<DataDirective> getDirectives() {
     return directives;
+  }
+
+  public boolean isSection() {
+    return null != section;
   }
 
   public boolean isGlobal() {
@@ -177,7 +185,8 @@ public final class DataSection {
   @Override
   public String toString() {
     return String.format(
-        "DataSection [global=%s, separateFile=%s, labelValues=%s, directives=%s]",
+        "DataSection [section=%s, global=%s, separateFile=%s, labelValues=%s, directives=%s]",
+        null != section ? section.getName() : null,
         global,
         separateFile,
         labelValues,

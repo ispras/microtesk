@@ -653,7 +653,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public String getText() {
-      return String.format(".section \"%s\", %s", section.getName(), section.getArgs());
+      return String.format(".section \"%s\", %s%n", section.getName(), section.getArgs());
     }
 
     @Override

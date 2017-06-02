@@ -191,7 +191,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       Logger.debug("Entries in data section: %s", entriesInDataSection);
 
       final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
-          blockId, dataDirectiveFactory, true /* Global section */, false /* Same file */);
+          blockId, dataDirectiveFactory, null, true /* Global section */, false /* Same file */);
 
       dataSectionBuilder.setVirtualAddress(bufferAccessAddress);
       dataSectionBuilder.addComment(comment);
