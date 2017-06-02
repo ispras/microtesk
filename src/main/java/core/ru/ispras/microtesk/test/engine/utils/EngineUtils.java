@@ -317,7 +317,7 @@ public final class EngineUtils {
       final Argument argument = e.getValue();
       final Node value = (Node) testData.getBindings().get(e.getKey());
 
-      if (null != value) {
+      if (null == value) {
         continue;
       }
 
