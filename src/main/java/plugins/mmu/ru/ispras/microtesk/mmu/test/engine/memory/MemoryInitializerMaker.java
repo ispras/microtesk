@@ -80,6 +80,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
@@ -382,9 +383,15 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
     try {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
-          engineContext, null /* Abstract sequence */, primitive, newSituation, initializedModes);
-      InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
+          engineContext,
+          null /* Abstract call */,
+          null /* Abstract sequence */,
+          primitive,
+          newSituation,
+          initializedModes
+          );
 
+      InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");
       return abstractInitializer;
     } catch (final ConfigurationException e) {
       InvariantChecks.checkTrue(false, e.getMessage());

@@ -477,11 +477,12 @@ public final class TestSequenceEngine {
       final IsaPrimitive concretePrimitive = instructionCall.getRootPrimitive();
       InvariantChecks.checkNotNull(concretePrimitive);
 
-      processPrimitive(engineContext, abstractPrimitive, concretePrimitive);
+      processPrimitive(engineContext, abstractCall, abstractPrimitive, concretePrimitive);
     }
 
     private void processPrimitive(
         final EngineContext engineContext,
+        final AbstractCall abstractCall,
         final Primitive abstractPrimitive,
         final IsaPrimitive concretePrimitive) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
@@ -503,12 +504,13 @@ public final class TestSequenceEngine {
           final IsaPrimitive concreteArgument =
               fixedConcretePrimitive.getArguments().get(argumentName);
 
-          processPrimitive(engineContext, abstractArgument, concreteArgument);
+          processPrimitive(engineContext, abstractCall, abstractArgument, concreteArgument);
         }
       }
 
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
+          abstractCall,
           abstractSequence,
           abstractPrimitive,
           abstractPrimitive.getSituation(),

@@ -38,6 +38,7 @@ public interface InitializerMaker {
 
   List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
