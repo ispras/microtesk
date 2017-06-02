@@ -317,6 +317,10 @@ public final class EngineUtils {
       final Argument argument = e.getValue();
       final Node value = (Node) testData.getBindings().get(e.getKey());
 
+      if (null != value) {
+        continue;
+      }
+
       final Immediate argumentToPatch;
       if (null != argumentsToPatch) {
         argumentToPatch = (Immediate) argumentsToPatch.get(argument.getName());
