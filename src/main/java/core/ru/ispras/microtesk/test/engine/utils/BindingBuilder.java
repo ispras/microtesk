@@ -113,20 +113,20 @@ public final class BindingBuilder {
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
 
-          if (!unknownValue.isValueSet()) {
-            queryBuilder.setBinding(
-                argName,
-                new NodeVariable(argName, DataType.BIT_VECTOR(arg.getType().getBitSize()))
-                );
-
-            unknownValues.put(argName, arg);
-          } else {
+          //if (!unknownValue.isValueSet()) {
+          //  queryBuilder.setBinding(
+          //      argName,
+          //      new NodeVariable(argName, DataType.BIT_VECTOR(arg.getType().getBitSize()))
+          //      );
+          //
+          //  unknownValues.put(argName, arg);
+          //} else {
             queryBuilder.setBinding(
                 argName,
                 new NodeValue(Data.newBitVector(BitVector.valueOf(
                     unknownValue.getValue(), arg.getType().getBitSize())))
                 );
-          }
+          //}
           break;
 
         case MODE: {
