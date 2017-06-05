@@ -228,7 +228,7 @@ public final class BranchEngine implements Engine {
           setBranchEntry(abstractCall, branchEntry);
         }
 
-        return insertControlCode(engineContext, abstractSequence);
+        return insertComments(insertControlCode(engineContext, abstractSequence));
       }
 
       @Override
@@ -256,7 +256,7 @@ public final class BranchEngine implements Engine {
   @Override
   public void onEndProgram() {}
 
-  private AbstractSequence insertControlCode(
+  private static AbstractSequence insertControlCode(
       final EngineContext engineContext,
       final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
@@ -356,5 +356,21 @@ public final class BranchEngine implements Engine {
     }
 
     return new AbstractSequence(modifiedSequence);
+  }
+
+  private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
+    final List<AbstractCall> abstractCalls = new ArrayList<>(abstractSequence.size());
+    for (int i = 0; i < abstractSequence.size(); i++) {
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+      final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+
+      if (null != branchEntry && branchEntry.isIfThen()) {
+        abstractCalls.add(AbstractCall.newComment(branchEntry.toString()));
+      }
+
+      abstractCalls.add(abstractCall);
+    }
+
+    return new AbstractSequence(abstractCalls);
   }
 }
