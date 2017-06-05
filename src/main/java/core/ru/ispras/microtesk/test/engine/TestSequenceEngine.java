@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.InstructionCall;
@@ -36,6 +37,7 @@ import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Executor;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
+import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
@@ -250,6 +252,15 @@ public final class TestSequenceEngine {
     final List<ConcreteCall> concreteSequence =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
 
+    if (Logger.isDebug()) {
+      final ConcreteSequence.Builder builder = new ConcreteSequence.Builder();
+      builder.add(concreteSequence);
+
+      Logger.debugHeader("Concrete Sequence");
+      Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics()).
+          printSequence(engineContext.getModel().getPE(), builder.build());
+    }
+
     final ConcreteSequenceCreator creator =
         new ConcreteSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
@@ -392,7 +403,7 @@ public final class TestSequenceEngine {
   private final class ConcreteSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
     private final AbstractSequence abstractSequence;
-    private final Map<ConcreteCall, AbstractCall> callMap;
+    private final Map<ConcreteCall, Pair<AbstractCall, ConcreteCall>> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
     private final ConcreteSequence.Builder testSequenceBuilder;
@@ -418,7 +429,13 @@ public final class TestSequenceEngine {
         InvariantChecks.checkNotNull(abstractCall);
         InvariantChecks.checkNotNull(concreteCall);
 
-        callMap.put(concreteCall, abstractCall);
+        if (abstractCall.getAttributes().containsKey("dependsOn")) {
+          final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOn");
+          callMap.put(concreteCall, new Pair<>(abstractSequence.getSequence().get(dependencyIndex),
+                                               concreteSequence.get(dependencyIndex)));
+        } else {
+          callMap.put(concreteCall, new Pair<>(abstractCall, concreteCall));
+        }
       }
 
       this.testSequenceBuilder = new ConcreteSequence.Builder();
@@ -436,18 +453,21 @@ public final class TestSequenceEngine {
       InvariantChecks.checkNotNull(concreteCall);
       InvariantChecks.checkNotNull(engineContext);
 
-      final AbstractCall abstractCall = callMap.get(concreteCall);
-      if (null == abstractCall) {
+      final Pair<AbstractCall, ConcreteCall> callEntry = callMap.get(concreteCall);
+      if (null == callEntry) {
         return; // Already processed
       }
 
       try {
-        processCall(engineContext, abstractCall, concreteCall);
+        processCall(engineContext, callEntry.first, callEntry.second);
       } catch (final ConfigurationException e) {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
         callMap.put(concreteCall, null);
+        if (concreteCall != callEntry.second) {
+          callMap.put(callEntry.second, null);
+        }
       }
     }
 
