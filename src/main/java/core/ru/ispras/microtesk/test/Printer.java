@@ -43,7 +43,7 @@ import ru.ispras.microtesk.utils.BinaryWriter;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class Printer {
+public final class Printer {
   private final static int LINE_WIDTH = 100;
   private static Printer console = null;
 
