@@ -197,14 +197,16 @@ public final class BranchInitializerMaker implements InitializerMaker {
             streamUsed = true;
           }
 
-          makeInitializer(
-              engineContext,
-              abstractCall,
-              primitive,
-              situation,
-              true /* Branch is taken */,
-              branchCondition,
-              true /* Write into the stream */);
+          initializer.addAll(
+              makeInitializer(
+                  engineContext,
+                  abstractCall,
+                  primitive,
+                  situation,
+                  true /* Branch is taken */,
+                  branchCondition,
+                  true /* Write into the stream */)
+              );
         }
       }
 
