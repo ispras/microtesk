@@ -31,8 +31,6 @@ public final class DataSectionBuilder {
   private final DataDirectiveFactory directiveFactory;
 
   private final Section section;
-  private final SharedValue sectionEndAddress;
-
   private BigInteger physicalAddress;
   private final boolean global;
   private final boolean separateFile;
@@ -62,10 +60,7 @@ public final class DataSectionBuilder {
     this.section = section;
     if (null != section) {
       this.physicalAddress = section.getPa();
-      this.sectionEndAddress = new SharedValue();
-      addDirective(directiveFactory.newSectionStart(section, sectionEndAddress));
-    } else {
-      this.sectionEndAddress = null;
+      addDirective(directiveFactory.newSectionStart(section));
     }
   }
 
@@ -166,10 +161,6 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
-    if (null != sectionEndAddress) {
-      addDirective(directiveFactory.newSectionEnd(sectionEndAddress));
-    }
-
     return new DataSection(
         labelValues, directives, physicalAddress, section, global, separateFile);
   }

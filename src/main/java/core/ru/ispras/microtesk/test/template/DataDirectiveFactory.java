@@ -679,14 +679,10 @@ public final class DataDirectiveFactory {
 
   private static final class SectionStart implements DataDirective {
     private final Section section;
-    private final SharedValue savedAddress;
 
-    public SectionStart(final Section section, final SharedValue savedAddress) {
+    public SectionStart(final Section section) {
       InvariantChecks.checkNotNull(section);
-      InvariantChecks.checkNotNull(savedAddress);
-
       this.section = section;
-      this.savedAddress = savedAddress;
     }
 
     @Override
@@ -701,42 +697,12 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      savedAddress.setValue(allocator.getBaseAddress());
-      allocator.setCurrentAddress(section.getPa());
+      // Empty
     }
 
     @Override
     public DataDirective copy() {
-      return new SectionStart(section, savedAddress.newCopy());
-    }
-  }
-
-  private static final class SectionEnd implements DataDirective {
-    private final SharedValue savedAddress;
-
-    private SectionEnd(final SharedValue savedAddress) {
-      InvariantChecks.checkNotNull(savedAddress);
-      this.savedAddress = savedAddress;
-    }
-
-    @Override
-    public String getText() {
-      return "";
-    }
-
-    @Override
-    public boolean needsIndent() {
-      return false;
-    }
-
-    @Override
-    public void apply(final MemoryAllocator allocator) {
-      allocator.setCurrentAddress(savedAddress.getValue());
-    }
-
-    @Override
-    public DataDirective copy() {
-      return new SectionEnd(savedAddress.sharedCopy());
+      return this;
     }
   }
 
@@ -837,12 +803,8 @@ public final class DataDirectiveFactory {
     return new DataValue(typeInfo, values);
   }
 
-  public DataDirective newSectionStart(final Section section, final SharedValue savedAddress) {
-    return new SectionStart(section, savedAddress);
-  }
-
-  public DataDirective newSectionEnd(final SharedValue savedAddress) {
-    return new SectionEnd(savedAddress);
+  public DataDirective newSectionStart(final Section section) {
+    return new SectionStart(section);
   }
 
   public int getMaxTypeBitSize() {
