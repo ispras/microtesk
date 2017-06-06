@@ -1038,11 +1038,15 @@ public final class Template {
     final DataSectionBuilder dataSectionBuilder =
         dataManager.beginData(getCurrentBlockId(), sectionVar, isGlobal, isSeparateFile);
 
+    section = sectionVar;
     return dataSectionBuilder;
   }
 
   public void endData() {
     debug("End Data");
+
+    final Section sectionVar = section;
+    section = null;
 
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
@@ -1051,6 +1055,8 @@ public final class Template {
       endBuildingCall();
       addCall(AbstractCall.newData(data));
     }
+
+    section = sectionVar;
   }
 
   public void generateData(
@@ -1101,8 +1107,10 @@ public final class Template {
     if (null != section) {
       final Section sectionVar = section;
       section = null;
-      processExternalCode();
-      addCall(AbstractCall.newSection(sectionVar, false));
+      if (!sectionStart) {
+        processExternalCode();
+        addCall(AbstractCall.newSection(sectionVar, false));
+      }
     }
   }
 
