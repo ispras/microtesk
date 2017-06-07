@@ -1078,13 +1078,13 @@ public final class Template {
     }
 
     debug("Set Origin to 0x%x", origin);
-    callBuilder.setOrigin(origin, false, null != section ? section.getPa() : null);
+    callBuilder.setOrigin(origin, false, null != section ? section.getBasePa() : null);
     callBuilder.setWhere(where);
   }
 
   public void setRelativeOrigin(final BigInteger delta, final Where where) {
     debug("Set Relative Origin to 0x%x", delta);
-    callBuilder.setOrigin(delta, true, null != section ? section.getPa() : null);
+    callBuilder.setOrigin(delta, true, null != section ? section.getBasePa() : null);
     callBuilder.setWhere(where);
   }
 
@@ -1094,12 +1094,16 @@ public final class Template {
     callBuilder.setWhere(where);
   }
 
-  public void beginSection(final String name, final BigInteger pa, final String args) {
+  public void beginSection(
+      final String name,
+      final BigInteger pa,
+      final String args) {
     InvariantChecks.checkTrue(null == section);
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    section = new Section(name, pa, args);
+    // FIXME: va is needed here.
+    section = new Section(name, pa, pa, args);
     sectionStart = true;
   }
 

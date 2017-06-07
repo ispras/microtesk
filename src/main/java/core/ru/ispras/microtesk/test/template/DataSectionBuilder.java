@@ -59,7 +59,7 @@ public final class DataSectionBuilder {
 
     this.section = section;
     if (null != section) {
-      this.physicalAddress = section.getPa();
+      this.physicalAddress = section.getBasePa();
       addDirective(directiveFactory.newSectionStart(section));
     }
   }
@@ -87,7 +87,7 @@ public final class DataSectionBuilder {
    */
   public void setOrigin(final BigInteger origin) {
     addDirective(null != section ?
-        directiveFactory.newOriginOffset(section.getPa(), origin) :
+        directiveFactory.newOriginOffset(section.getBasePa(), origin) :
         directiveFactory.newOrigin(origin)
         );
   }

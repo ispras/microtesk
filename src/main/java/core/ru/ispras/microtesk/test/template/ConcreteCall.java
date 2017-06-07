@@ -238,7 +238,7 @@ public final class ConcreteCall {
 
       if (isStart) {
         sectionVar.setSavedPa(BigInteger.valueOf(thisAddress));
-        thisAddress = AddressTranslator.get().physicalToVirtual(sectionVar.getPa()).longValue();
+        thisAddress = AddressTranslator.get().physicalToVirtual(sectionVar.getBasePa()).longValue();
       } else {
         thisAddress = sectionVar.getSavedPa().longValue();
       }

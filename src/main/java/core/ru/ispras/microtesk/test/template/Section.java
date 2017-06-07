@@ -15,22 +15,34 @@
 package ru.ispras.microtesk.test.template;
 
 import java.math.BigInteger;
-
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Section {
   private final String name;
-  private final BigInteger pa;
+
+  private final BigInteger basePa;
+  private final BigInteger baseVa;
+  private final boolean translate;
+
   private final String args;
   private BigInteger savedPa;
 
-  public Section(final String name, final BigInteger pa, final String args) {
+  public Section(
+      final String name,
+      final BigInteger basePa,
+      final BigInteger baseVa,
+      final String args) {
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(pa);
+    InvariantChecks.checkNotNull(basePa);
+    InvariantChecks.checkNotNull(baseVa);
     InvariantChecks.checkNotNull(args);
 
     this.name = name;
-    this.pa = pa;
+
+    this.basePa = basePa;
+    this.baseVa = baseVa;
+    this.translate = !basePa.equals(baseVa);
+
     this.args = args;
     this.savedPa = null;
   }
@@ -39,8 +51,12 @@ public final class Section {
     return name;
   }
 
-  public BigInteger getPa() {
-    return pa;
+  public BigInteger getBasePa() {
+    return basePa;
+  }
+
+  public BigInteger getBaseVa() {
+    return baseVa;
   }
 
   public String getArgs() {
@@ -60,6 +76,37 @@ public final class Section {
 
   @Override
   public String toString() {
-    return String.format(".section \"%s\", %s (0x%016x)", name, args, pa);
+    return String.format(
+        ".section \"%s\", %s [pa=0x%016x, va=0x%016x]", name, args, basePa, baseVa);
+  }
+
+  public BigInteger virtualToPhysical(final BigInteger va) {
+    InvariantChecks.checkNotNull(va);
+    return translate ? physicalFromOrigin(virtualToOrigin(va)) : va;
+  }
+
+  public BigInteger virtualFromOrigin(final BigInteger origin) {
+    InvariantChecks.checkNotNull(origin);
+    return baseVa.add(origin);
+  }
+
+  public BigInteger virtualToOrigin(final BigInteger va) {
+    InvariantChecks.checkNotNull(va);
+    return va.subtract(baseVa);
+  }
+
+  public BigInteger physicalToVirtual(final BigInteger pa) {
+    InvariantChecks.checkNotNull(pa);
+    return translate ? virtualFromOrigin(physicalToOrigin(pa)) : pa;
+  }
+
+  public BigInteger physicalToOrigin(final BigInteger pa) {
+    InvariantChecks.checkNotNull(pa);
+    return pa.subtract(basePa);
+  }
+
+  public BigInteger physicalFromOrigin(final BigInteger origin) {
+    InvariantChecks.checkNotNull(origin);
+    return basePa.add(origin);
   }
 }
