@@ -1097,13 +1097,13 @@ public final class Template {
   public void beginSection(
       final String name,
       final BigInteger pa,
+      final BigInteger va,
       final String args) {
     InvariantChecks.checkTrue(null == section);
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    // FIXME: va is needed here.
-    section = new Section(name, pa, pa, args);
+    section = new Section(name, pa, va, args);
     sectionStart = true;
   }
 
