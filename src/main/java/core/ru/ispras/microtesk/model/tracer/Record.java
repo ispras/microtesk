@@ -81,7 +81,7 @@ public abstract class Record {
 
       this.cpu = cpu;
       this.addr = call.getAddress();
-      this.disasm = call.getText();
+      this.disasm = call.getExecutable().getText().replace("<label>", "");
 
       try {
         final String image = call.getImage();
