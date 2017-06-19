@@ -27,6 +27,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 

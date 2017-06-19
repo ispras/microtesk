@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class AbstractCall {

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.template;
+package ru.ispras.microtesk.model.memory;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;

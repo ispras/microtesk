@@ -24,6 +24,7 @@ import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
+import ru.ispras.microtesk.model.memory.Section;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments

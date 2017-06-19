@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
 /**

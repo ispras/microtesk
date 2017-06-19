@@ -26,6 +26,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -33,7 +34,6 @@ import ru.ispras.microtesk.test.template.DataDirective;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
-import ru.ispras.microtesk.test.template.Section;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.BinaryWriter;
 

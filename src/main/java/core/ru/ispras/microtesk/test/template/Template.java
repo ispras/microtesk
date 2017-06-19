@@ -31,6 +31,7 @@ import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaData;
 import ru.ispras.microtesk.model.metadata.MetaGroup;
