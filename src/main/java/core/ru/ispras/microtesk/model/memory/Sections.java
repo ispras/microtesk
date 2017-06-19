@@ -24,29 +24,33 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class Sections {
   private static Sections instance = null;
 
+  private final Section codeSection;
   private final Section dataSection;
-  private final Section textSection;
 
   private final HashMap<String, Section> sections;
   private final TreeMap<BigInteger, Section> sectionAddresses;
 
-  private Sections(final Section dataSection, final Section textSection) {
+  private Sections(final Section codeSection, final Section dataSection) {
+    InvariantChecks.checkNotNull(codeSection);
     InvariantChecks.checkNotNull(dataSection);
-    InvariantChecks.checkNotNull(textSection);
 
+    this.codeSection = codeSection;
     this.dataSection = dataSection;
-    this.textSection = textSection;
 
     this.sections = new HashMap<>();
     this.sectionAddresses = new TreeMap<>();
 
+    addSection(codeSection);
     addSection(dataSection);
-    addSection(textSection);
   }
 
-  public static void initialize(final Section dataSection, final Section textSection) {
+  public static void initialize(final Section codeSection, final Section dataSection) {
     InvariantChecks.checkTrue(null == instance, "Already initialized!");
-    instance = new Sections(dataSection, textSection);
+    instance = new Sections(codeSection, dataSection);
+  }
+
+  public static boolean isInitialized() {
+    return null != instance;
   }
 
   public Sections get() {
@@ -54,12 +58,12 @@ public final class Sections {
     return instance;
   }
 
-  public Section getDataSection() {
-    return dataSection;
+  public Section getCodeSection() {
+    return codeSection;
   }
 
-  public Section getTextSection() {
-    return textSection;
+  public Section getDataSection() {
+    return dataSection;
   }
 
   public void addSection(final Section section) {
