@@ -76,8 +76,7 @@ public final class Section {
 
   @Override
   public String toString() {
-    return String.format(
-        ".section \"%s\", %s [pa=0x%016x, va=0x%016x]", name, args, basePa, baseVa);
+    return String.format("%s [pa=0x%016x, va=0x%016x]", getText(), basePa, baseVa);
   }
 
   public BigInteger virtualToPhysical(final BigInteger va) {
