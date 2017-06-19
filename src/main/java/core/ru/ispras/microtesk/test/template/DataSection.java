@@ -187,7 +187,7 @@ public final class DataSection {
   public String toString() {
     return String.format(
         "DataSection [section=%s, global=%s, separateFile=%s, labelValues=%s, directives=%s]",
-        null != section ? section.getName() : null,
+        section,
         global,
         separateFile,
         labelValues,

@@ -18,37 +18,32 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Section {
-  private final String name;
+  private final String text;
 
   private final BigInteger basePa;
   private final BigInteger baseVa;
   private final boolean translate;
 
-  private final String args;
   private BigInteger savedPa;
 
   public Section(
-      final String name,
+      final String text,
       final BigInteger basePa,
-      final BigInteger baseVa,
-      final String args) {
-    InvariantChecks.checkNotNull(name);
+      final BigInteger baseVa) {
+    InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(basePa);
     InvariantChecks.checkNotNull(baseVa);
-    InvariantChecks.checkNotNull(args);
 
-    this.name = name;
-
+    this.text = text;
     this.basePa = basePa;
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
 
-    this.args = args;
     this.savedPa = null;
   }
 
-  public String getName() {
-    return name;
+  public String getText() {
+    return text;
   }
 
   public BigInteger getBasePa() {
@@ -62,10 +57,6 @@ public final class Section {
   public BigInteger getSavedPa() {
     InvariantChecks.checkNotNull(savedPa, "Not assigned");
     return savedPa;
-  }
-
-  public String getText() {
-    return String.format(".section \"%s\", %s", name, args);
   }
 
   public void setSavedPa(final BigInteger value) {

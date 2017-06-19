@@ -1104,7 +1104,8 @@ public final class Template {
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    section = new Section(name, pa, va, args);
+    final String text = String.format(".section \"%s\", %s", name, args);
+    section = new Section(text, pa, va);
     sectionStart = true;
   }
 
