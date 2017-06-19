@@ -292,7 +292,7 @@ public final class Printer {
 
       if (call.getSection() != null && call.getSection().second) {
         final Section section = call.getSection().first;
-        printText(String.format(".section \"%s\", %s", section.getName(), section.getArgs()));
+        printText(section.getText());
       }
 
       printOutputs(observer, call.getOutputs());

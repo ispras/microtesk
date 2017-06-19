@@ -59,13 +59,13 @@ public final class Section {
     return baseVa;
   }
 
-  public String getArgs() {
-    return args;
-  }
-
   public BigInteger getSavedPa() {
     InvariantChecks.checkNotNull(savedPa, "Not assigned");
     return savedPa;
+  }
+
+  public String getText() {
+    return String.format(".section \"%s\", %s", name, args);
   }
 
   public void setSavedPa(final BigInteger value) {
