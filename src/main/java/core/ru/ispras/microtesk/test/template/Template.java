@@ -1024,10 +1024,10 @@ public final class Template {
     definedExceptionHandlers.add(handler.getId());
   }
 
-  public DataSectionBuilder beginData(final boolean isGlobalArgument, final boolean isSeparateFile) {
-    final Section sectionVar = section;
-    section = null;
-
+  public DataSectionBuilder beginData(
+      final Section section,
+      final boolean isGlobalArgument,
+      final boolean isSeparateFile) {
     endBuildingCall();
 
     final boolean isGlobalContext =
@@ -1042,17 +1042,13 @@ public final class Template {
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
 
     final DataSectionBuilder dataSectionBuilder =
-        dataManager.beginData(getCurrentBlockId(), sectionVar, isGlobal, isSeparateFile);
+        dataManager.beginData(getCurrentBlockId(), section, isGlobal, isSeparateFile);
 
-    section = sectionVar;
     return dataSectionBuilder;
   }
 
   public void endData() {
     debug("End Data");
-
-    final Section sectionVar = section;
-    section = null;
 
     final DataSection data = dataManager.endData();
     if (data.isGlobal()) {
@@ -1061,8 +1057,6 @@ public final class Template {
       endBuildingCall();
       addCall(AbstractCall.newData(data));
     }
-
-    section = sectionVar;
   }
 
   public void generateData(

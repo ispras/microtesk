@@ -773,7 +773,17 @@ class Template
       separate_file = false
     end
 
-    @data_manager.beginData global, separate_file
+    section = nil
+    if attrs.has_key?(:section)
+      sectionAttrs = get_attribute attrs,   :section
+      name    = get_attribute sectionAttrs, :name
+      pa      = get_attribute sectionAttrs, :pa
+      va      = get_attribute sectionAttrs, :va
+      args    = get_attribute sectionAttrs, :args
+      section = @template.newSection name, pa, va, args
+    end
+
+    @data_manager.beginData section, global, separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
   end
@@ -1042,9 +1052,9 @@ class DataManager
     @configurer = nil
   end
 
-  def beginData(global, separate_file)
+  def beginData(section, global, separate_file)
     if @ref_count == 0
-      @builder = @template.template.beginData global, separate_file
+      @builder = @template.template.beginData section, global, separate_file
     end
     @ref_count = @ref_count + 1
     @builder
