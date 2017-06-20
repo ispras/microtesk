@@ -30,10 +30,8 @@ import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
@@ -119,11 +117,19 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
+  public void beginSection(final Section section) {
+    // TODO
+  }
+
+  @Override
+  public void endSection() {
+    // TODO
+  }
+
+  @Override
   public void process(final ExceptionHandler handler) {
     Logger.debugHeader("Processing Exception Handler");
     InvariantChecks.checkNotNull(handler);
-
-    initializeMemorySections();
 
     final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> concreteHandler;
     try {
@@ -145,8 +151,6 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(block);
     InvariantChecks.checkTrue(block.isExternal() ? times == 1 : true);
-
-    initializeMemorySections();
 
     engineContext.getStatistics().pushActivity(Statistics.Activity.SEQUENCING);
     try {
@@ -170,8 +174,6 @@ final class TemplateProcessor implements Template.Processor {
   public void process(final DataSection data) {
     InvariantChecks.checkNotNull(data);
 
-    initializeMemorySections();
-
     data.allocate(engineContext.getModel().getMemoryAllocator());
     data.registerLabels(engineContext.getLabelManager());
 
@@ -193,8 +195,6 @@ final class TemplateProcessor implements Template.Processor {
   @Override
   public void finish() {
     try {
-      initializeMemorySections();
-
       startProgram();
       runExecutionFromStart();
 
@@ -700,27 +700,5 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     return false;
-  }
-
-  private void initializeMemorySections() {
-    if (Sections.isInitialized()) {
-      return;
-    }
-
-    final Options options = engineContext.getOptions();
-
-    final Section codeSection = new Section(
-        options.getValueAsString(Option.CODE_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.CODE_BASE_PA),
-        options.getValueAsBigInteger(Option.CODE_BASE_VA)
-        );
-
-    final Section dataSection = new Section(
-        options.getValueAsString(Option.DATA_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.DATA_BASE_PA),
-        options.getValueAsBigInteger(Option.DATA_BASE_VA)
-        );
-
-    Sections.initialize(codeSection, dataSection);
   }
 }

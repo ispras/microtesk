@@ -32,6 +32,7 @@ import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaData;
 import ru.ispras.microtesk.model.metadata.MetaGroup;
@@ -62,10 +63,14 @@ public final class Template {
   }
 
   public interface Processor {
+    void beginSection(Section section);
+    void endSection();
+
     void process(ExceptionHandler handler);
     void process(SectionKind section, Block block);
     void process(SectionKind section, Block block, int times);
     void process(DataSection data);
+
     void finish();
   }
 
@@ -1104,8 +1109,7 @@ public final class Template {
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    final String text = String.format(".section \"%s\", %s", name, args);
-    section = new Section(text, pa, va);
+    section = newSection(name, pa, va, args);
     sectionStart = true;
   }
 
@@ -1118,6 +1122,28 @@ public final class Template {
         addCall(AbstractCall.newSection(sectionVar, false));
       }
     }
+  }
+
+  public Section newSection(
+       final String name,
+       final BigInteger pa,
+       final BigInteger va,
+       final String args) {
+     InvariantChecks.checkNotNull(name);
+     InvariantChecks.checkNotNull(pa);
+     InvariantChecks.checkNotNull(va);
+     InvariantChecks.checkNotNull(args);
+
+     final String text = String.format(".section \"%s\", %s", name, args);
+     Section section = Sections.get().getSection(text);
+     if (null != section && (!pa.equals(section.getBasePa()) || !va.equals(section.getBaseVa()))) {
+       throw new GenerationAbortedException(text + " is already defined as " + section);
+     } else {
+       section = new Section(text, pa, va);
+       Sections.get().addSection(section);
+     }
+
+    return section;
   }
 
   public void beginPrologue() {
