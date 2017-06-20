@@ -83,6 +83,7 @@ final class TemplateProcessor implements Template.Processor {
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
   private final Deque<ConcreteSequence> interruptedSequences;
+  private Section currentSection;
   private boolean isProgramStarted;
   private boolean hasDispatchingCode;
 
@@ -107,6 +108,7 @@ final class TemplateProcessor implements Template.Processor {
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
+    this.currentSection = null;
     this.isProgramStarted = false;
     this.hasDispatchingCode = false;
 
@@ -118,12 +120,19 @@ final class TemplateProcessor implements Template.Processor {
 
   @Override
   public void beginSection(final Section section) {
-    // TODO
+    InvariantChecks.checkNotNull(section);
+
+    if (null != currentSection) {
+      throw new GenerationAbortedException(String.format(
+          "Nested sections are not allowed: %s is nested into %s.", section, currentSection));
+    }
+
+    currentSection = section;
   }
 
   @Override
   public void endSection() {
-    // TODO
+    currentSection = null;
   }
 
   @Override

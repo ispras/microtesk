@@ -1105,6 +1105,8 @@ public final class Template {
 
     section = newSection(name, pa, va, args);
     sectionStart = true;
+
+    processor.beginSection(section);
   }
 
   public void endSection() {
@@ -1116,6 +1118,8 @@ public final class Template {
         addCall(AbstractCall.newSection(sectionVar, false));
       }
     }
+
+    processor.endSection();
   }
 
   public Section newSection(
