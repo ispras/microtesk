@@ -22,7 +22,13 @@ import java.util.TreeMap;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Sections {
+  public interface Initializer {
+    Section makeCodeSection();
+    Section makeDataSection();
+  }
+
   private static Sections instance = null;
+  private static Initializer initializer = null;
 
   private final Section codeSection;
   private final Section dataSection;
@@ -44,17 +50,20 @@ public final class Sections {
     addSection(dataSection);
   }
 
-  public static void initialize(final Section codeSection, final Section dataSection) {
+  public static void setInitializer(final Initializer value) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(null == initializer, "Initializer is already set!");
     InvariantChecks.checkTrue(null == instance, "Already initialized!");
-    instance = new Sections(codeSection, dataSection);
-  }
-
-  public static boolean isInitialized() {
-    return null != instance;
+    initializer = value;
   }
 
   public static Sections get() {
-    InvariantChecks.checkNotNull(instance, "Not initialized!");
+    if (null == instance) {
+      InvariantChecks.checkNotNull(initializer, "Initializer is not set!");
+      instance = new Sections(initializer.makeCodeSection(), initializer.makeDataSection());
+      initializer = null;
+    }
+
     return instance;
   }
 

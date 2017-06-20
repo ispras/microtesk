@@ -30,6 +30,7 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Execution;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.Reader;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -73,6 +74,7 @@ public final class TestEngine {
     this.plugins = plugins;
     this.statistics = statistics;
 
+    Sections.setInitializer(new SectionInitializer(options));
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
 
