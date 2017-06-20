@@ -523,7 +523,7 @@ class Template
     target = get_attribute attrs, :target
 
     builder = @template.beginPreparator target.to_s, is_comparator
-    builder.setWhere get_caller_location 2
+    builder.setWhere get_caller_location(2)
 
     name = attrs[:name]
     if !name.nil?
@@ -809,7 +809,12 @@ class Template
     2 ** n
   end
 
-  def section(name, pa, va, args, &contents)
+  def section(attrs, &contents)
+    name = get_attribute attrs, :name
+    pa = get_attribute attrs, :pa
+    va = get_attribute attrs, :va
+    args = get_attribute attrs, :args
+
     @template.beginSection name, pa, va, args
     self.instance_eval &contents
     @template.endSection
