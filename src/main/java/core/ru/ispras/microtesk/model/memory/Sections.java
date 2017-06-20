@@ -53,7 +53,7 @@ public final class Sections {
     return null != instance;
   }
 
-  public Sections get() {
+  public static Sections get() {
     InvariantChecks.checkNotNull(instance, "Not initialized!");
     return instance;
   }
