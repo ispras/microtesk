@@ -50,7 +50,9 @@ public final class DataSection {
       final Section section,
       final boolean global,
       final boolean separateFile) {
+    InvariantChecks.checkNotNull(labelValues);
     InvariantChecks.checkNotNull(directives);
+    InvariantChecks.checkNotNull(section);
 
     this.labelValues = Collections.unmodifiableList(labelValues);
     this.directives = Collections.unmodifiableList(directives);
@@ -144,7 +146,9 @@ public final class DataSection {
   public void allocate(final MemoryAllocator allocator) {
     InvariantChecks.checkNotNull(allocator);
 
-    final BigInteger oldAddress = allocator.getCurrentAddress();
+    allocator.setBaseAddress(section.getBasePa());
+    allocator.setCurrentAddress(section.getPa());
+
     if (null != physicalAddress) {
       allocator.setCurrentAddress(physicalAddress);
     }
@@ -161,8 +165,8 @@ public final class DataSection {
       }
     } finally {
       allocationEndAddress = allocator.getCurrentAddress();
-      if (null != physicalAddress) {
-        allocator.setCurrentAddress(oldAddress);
+      if (null == physicalAddress) {
+        section.setPa(allocationEndAddress);
       }
     }
   }

@@ -88,12 +88,6 @@ public final class Sections {
     return sections.get(text);
   }
 
-  public Section getSection(final BigInteger va) {
-    InvariantChecks.checkNotNull(va);
-    final Map.Entry<BigInteger, Section> entry = sectionAddresses.floorEntry(va);
-    return null != entry ? entry.getValue() : null;
-  }
-
   public void resetState() {
     for (final Section section : sections.values()) {
       section.resetState();
@@ -104,5 +98,21 @@ public final class Sections {
     for (final Section section : sections.values()) {
       section.setUseTempState(value);
     }
+  }
+
+  public BigInteger virtualToPhysical(final BigInteger va) {
+    final Section section = findSection(va);
+    if (null == section) {
+      throw new IllegalArgumentException(String.format(
+          "Unable to find section for virtual address 0x%016x.", va));
+    }
+
+    return section.virtualToPhysical(va);
+  }
+
+  private Section findSection(final BigInteger va) {
+    InvariantChecks.checkNotNull(va);
+    final Map.Entry<BigInteger, Section> entry = sectionAddresses.floorEntry(va);
+    return null != entry ? entry.getValue() : null;
   }
 }

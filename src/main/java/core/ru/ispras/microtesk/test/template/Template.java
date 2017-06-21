@@ -1040,9 +1040,12 @@ public final class Template {
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
-
-    final DataSectionBuilder dataSectionBuilder =
-        dataManager.beginData(getCurrentBlockId(), section, isGlobal, isSeparateFile);
+    final DataSectionBuilder dataSectionBuilder = dataManager.beginData(
+        getCurrentBlockId(),
+        null != section ? section : Sections.get().getDataSection(),
+        isGlobal,
+        isSeparateFile
+        );
 
     return dataSectionBuilder;
   }
@@ -1134,8 +1137,10 @@ public final class Template {
 
      final String text = String.format(".section \"%s\", %s", name, args);
      Section section = Sections.get().getSection(text);
-     if (null != section && (!pa.equals(section.getBasePa()) || !va.equals(section.getBaseVa()))) {
-       throw new GenerationAbortedException(text + " is already defined as " + section);
+     if (null != section) {
+       if (!pa.equals(section.getBasePa()) || !va.equals(section.getBaseVa())) {
+         throw new GenerationAbortedException(text + " is already defined as " + section);
+       }
      } else {
        section = new Section(text, pa, va);
        Sections.get().addSection(section);

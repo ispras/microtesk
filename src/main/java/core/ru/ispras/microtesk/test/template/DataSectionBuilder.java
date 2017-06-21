@@ -47,22 +47,19 @@ public final class DataSectionBuilder {
       final boolean isSeparateFile) {
     InvariantChecks.checkNotNull(blockId);
     InvariantChecks.checkNotNull(directiveFactory);
+    InvariantChecks.checkNotNull(section);
 
     this.blockId = blockId;
     this.directiveFactory = directiveFactory;
 
+    this.section = section;
     this.physicalAddress = null;
+
     this.global = isGlobal;
     this.separateFile = isSeparateFile;
 
     this.labelValues = new ArrayList<>();
     this.directives = new ArrayList<>();
-
-    this.section = section;
-    if (null != section) {
-      this.physicalAddress = section.getBasePa();
-      addDirective(directiveFactory.newSectionStart(section));
-    }
   }
 
   public void setPhysicalAddress(final BigInteger value) {
@@ -87,10 +84,7 @@ public final class DataSectionBuilder {
    * Sets allocation origin. Inserts the ".org" directive in the test program.
    */
   public void setOrigin(final BigInteger origin) {
-    addDirective(null != section ?
-        directiveFactory.newOriginOffset(section.getBasePa(), origin) :
-        directiveFactory.newOrigin(origin)
-        );
+    addDirective(directiveFactory.newOrigin(origin));
   }
 
   /**
@@ -108,7 +102,8 @@ public final class DataSectionBuilder {
    * directive in the test program.
    */
   public void setVirtualAddress(final BigInteger address) {
-    addDirective(directiveFactory.newOriginForVirtualAddress(address));
+    final BigInteger origin = section.virtualToOrigin(address);
+    addDirective(directiveFactory.newOrigin(origin));
   }
 
   /**
@@ -126,7 +121,7 @@ public final class DataSectionBuilder {
       addDirective(directiveFactory.newGlobalLabel(labelValue));
     }
 
-    addDirective(directiveFactory.newLabel(labelValue));
+    addDirective(directiveFactory.newLabel(section, labelValue));
     labelValues.add(labelValue);
   }
 

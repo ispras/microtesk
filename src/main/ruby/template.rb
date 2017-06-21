@@ -747,10 +747,9 @@ class Template
 
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
-    baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(self, @template.getDataManager)
-    @data_manager.beginConfig target, addressableSize, baseVirtAddr
+    @data_manager.beginConfig target, addressableSize
 
     @data_manager.instance_eval &contents
     @data_manager.endConfig
@@ -913,7 +912,17 @@ class Template
       separate_file = false
     end
 
-    @data_manager.beginData global, separate_file
+    section = nil
+    if attrs.has_key?(:section)
+      sectionAttrs = get_attribute attrs,   :section
+      name    = get_attribute sectionAttrs, :name
+      pa      = get_attribute sectionAttrs, :pa
+      va      = get_attribute sectionAttrs, :va
+      args    = get_attribute sectionAttrs, :args
+      section = @template.newSection name, pa, va, args
+    end
+
+    @data_manager.beginData section, global, separate_file
 
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
@@ -1043,8 +1052,8 @@ class DataManager
     @ref_count = 0
   end
 
-  def beginConfig(target, addressableSize, baseVirtAddr)
-    @configurer = @manager.beginConfig target, addressableSize, baseVirtAddr
+  def beginConfig(target, addressableSize)
+    @configurer = @manager.beginConfig target, addressableSize
   end
 
   def endConfig

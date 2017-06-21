@@ -40,6 +40,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
@@ -191,7 +192,12 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       Logger.debug("Entries in data section: %s", entriesInDataSection);
 
       final DataSectionBuilder dataSectionBuilder = new DataSectionBuilder(
-          blockId, dataDirectiveFactory, null, true /* Global section */, false /* Same file */);
+          blockId,
+          dataDirectiveFactory,
+          Sections.get().getDataSection(),
+          true /* Global section */,
+          false /* Same file */
+          );
 
       dataSectionBuilder.setVirtualAddress(bufferAccessAddress);
       dataSectionBuilder.addComment(comment);
