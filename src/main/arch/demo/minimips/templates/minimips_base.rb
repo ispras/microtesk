@@ -34,7 +34,7 @@ class MiniMipsBaseTemplate < Template
     # Sets physical address used as a base address for data section allocation
     set_option_value 'base-data-physical-address', 0x00080000
 
-    # Sets virtual address that corresponds to the beginning of the data section
+    # Sets virtual address that corresponds to the base physical address used for the data section
     set_option_value 'base-data-virtual-address', 0x00080000
   end
 
