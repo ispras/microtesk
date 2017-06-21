@@ -29,7 +29,6 @@ import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
 
 public final class MemoryLocationTestCase {
-
   public static final Type  LONG = Type.INT(32);
   public static final Type  WORD = Type.CARD(32);
   public static final Type SHORT = Type.INT(16);
@@ -42,7 +41,17 @@ public final class MemoryLocationTestCase {
 
   @BeforeClass
   public static void init() {
-    AddressTranslator.initialize(BigInteger.ZERO, BigInteger.ZERO);
+    Sections.setInitializer(new Sections.Initializer() {
+      @Override
+      public Section makeDataSection() {
+        return new Section(".data", BigInteger.ZERO, BigInteger.ZERO) ;
+      }
+
+      @Override
+      public Section makeCodeSection() {
+        return new Section(".text", BigInteger.ZERO, BigInteger.ZERO) ;
+      }
+    });
   }
 
   @Test

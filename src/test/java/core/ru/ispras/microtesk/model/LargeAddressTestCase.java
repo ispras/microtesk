@@ -18,13 +18,15 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.Memory;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 
 public class LargeAddressTestCase {
   public static final Type WORD48 = Type.def("WORD48", Type.CARD(0x30));
@@ -38,10 +40,23 @@ public class LargeAddressTestCase {
   public static final Memory[] __REGISTERS = {GPR48, GPR64};
   public static final Memory[] __MEMORY = {M48, M64};
 
+  @BeforeClass
+  public static void init() {
+    Sections.setInitializer(new Sections.Initializer() {
+      @Override
+      public Section makeDataSection() {
+        return new Section(".data", BigInteger.ZERO, BigInteger.ZERO) ;
+      }
+
+      @Override
+      public Section makeCodeSection() {
+        return new Section(".text", BigInteger.ZERO, BigInteger.ZERO) ;
+      }
+    });
+  }
+
   @Test
   public void test() {
-    AddressTranslator.initialize(BigInteger.ZERO, BigInteger.ZERO);
-
     M48.access(0x800000000000L).store(Data.valueOf(WORD48, 0xffffffffffffL));
     assertEquals(new Data(BitVector.valueOf(-1L, WORD48.getBitSize()), WORD48), M48.access(0x800000000000L).load());
 
