@@ -772,8 +772,7 @@ class Template
       separate_file = false
     end
 
-    section = get_section_attribute attrs
-    @data_manager.beginData section, global, separate_file
+    @data_manager.beginData get_section_attribute(attrs), global, separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
   end
@@ -903,12 +902,9 @@ class Template
       separate_file = false
     end
 
-    section = get_section_attribute attrs
-    @data_manager.beginData section, global, separate_file
-
+    @data_manager.beginData get_section_attribute(attrs), global, separate_file
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
-
     @data_manager.endData
   end
 
