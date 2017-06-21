@@ -127,8 +127,8 @@ public final class DataSection {
     return directives;
   }
 
-  public boolean isSection() {
-    return null != section;
+  public Section getSection() {
+    return section;
   }
 
   public boolean isGlobal() {
@@ -160,7 +160,11 @@ public final class DataSection {
         directive.apply(allocator);
 
         if (Logger.isDebug()) {
-          Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          if (!address.equals(allocator.getCurrentAddress())) {
+            Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          } else {
+            Logger.debug(directive.getText());
+          }
         }
       }
     } finally {

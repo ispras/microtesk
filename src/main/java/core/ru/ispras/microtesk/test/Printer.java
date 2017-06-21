@@ -57,14 +57,12 @@ public final class Printer {
   private final BinaryWriter binaryWriter;
 
   private final String codeKeyword;
-  private final String dataKeyword;
   private final String commentToken;
   private final String indentToken;
   private final String separatorToken;
   private final String separator;
 
   private boolean needPrintCodeKeyword = true;
-  private boolean needPrintDataKeyword = true;
 
   public static Printer newCodeFile(
       final Options options,
@@ -164,7 +162,6 @@ public final class Printer {
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
     this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
-    this.dataKeyword  = options.getValueAsString(Option.DATA_SECTION_KEYWORD);
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
@@ -245,7 +242,6 @@ public final class Printer {
     if (needPrintCodeKeyword) {
       printText(codeKeyword);
       needPrintCodeKeyword = false;
-      needPrintDataKeyword = true;
 
       if (sequence.isEmpty()) {
         return;
@@ -507,6 +503,8 @@ public final class Printer {
     }
 
     printHeaderToFile("Data");
+    Section section = null;
+
     needPrintCodeKeyword = true;
 
     int currentTestCaseIndex = Integer.MIN_VALUE;
@@ -515,9 +513,9 @@ public final class Printer {
         continue;
       }
 
-      if (needPrintDataKeyword && !dataSection.isSection()) {
-        printText(dataKeyword);
-        needPrintDataKeyword = false;
+      if (dataSection.getSection() != section) {
+        section = dataSection.getSection();
+        printText(section.getText());
       }
 
       printToFile("");
@@ -529,10 +527,6 @@ public final class Printer {
       }
 
       printData(dataSection);
-
-      if (dataSection.isSection()) {
-        needPrintDataKeyword = true;
-      }
     }
   }
 }
