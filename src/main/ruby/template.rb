@@ -101,7 +101,7 @@ class Template
   # ------------------------------------------------------------------------- #
 
   def block(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
+    blockBuilder = @template.beginBlock get_section_attribute(attrs)
     blockBuilder.setWhere get_caller_location
 
     blockBuilder.setAtomic false
@@ -138,7 +138,7 @@ class Template
   end
 
   def sequence(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
+    blockBuilder = @template.beginBlock get_section_attribute(attrs)
     blockBuilder.setWhere get_caller_location
 
     blockBuilder.setAtomic false
@@ -158,7 +158,7 @@ class Template
   end
 
   def atomic(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
+    blockBuilder = @template.beginBlock get_section_attribute(attrs)
     blockBuilder.setWhere get_caller_location
 
     blockBuilder.setAtomic true
@@ -178,7 +178,7 @@ class Template
   end
 
   def iterate(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
+    blockBuilder = @template.beginBlock get_section_attribute(attrs)
     blockBuilder.setWhere get_caller_location
 
     blockBuilder.setAtomic false

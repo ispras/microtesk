@@ -246,7 +246,7 @@ public final class Template {
     return blockBuilders.peek().getBlockId();
   }
 
-  public BlockBuilder beginBlock() {
+  public BlockBuilder beginBlock(final Section section) {
     InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
