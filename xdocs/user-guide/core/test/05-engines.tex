@@ -1,0 +1,29 @@
+\chapter{Test Engines}
+
+\section{Branch Engine}
+
+\subsection{Parameters}
+
+\begin{itemize}
+\item \emph{branch{\_}exec{\_}limit} is an upper bound for the number of executions of a single branch instruction;
+\item \emph{trace{\_}count{\_}limit} is an upper bound for the number of execution traces to be returned.
+\end{itemize}
+
+More information on the parameters is given in the “Execution Traces Enumeration” section.
+
+\subsection{Description}
+
+Functioning of the \emph{branch} test engine includes the following steps:
+
+\begin{enumerate}
+  \item construction of a \emph{branch structure} of an abstract test sequence;
+  \item enumeration of \emph{execution traces} of the branch structure;
+  \item concretization of the test sequence for each execution trace:
+  \begin{enumerate}
+    \item construction of a \emph{control} code;
+    \item construction of an \emph{initialization} code.
+  \end{enumerate}
+\end{enumerate}
+
+Let \emph{D} be the size of the delay slot for an architecture under scrutiny (e.g., \emph{D}=1
+for MIPS, and \emph{D}=0 for ARM).

@@ -1,0 +1,88 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[oneside,final,12pt]{extreport}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english]{babel}
+\usepackage{vmargin}
+\setpapersize{A4}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page Headers
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{MicroTESK Installation and Usage}
+\rfoot{\thepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Listing Style
+
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+
+\definecolor{javared}{rgb}{0.6,0,0}
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35}
+\definecolor{javapurple}{rgb}{0.5,0,0.35}
+\definecolor{javablue}{rgb}{0.25,0.35,0.75}
+
+\lstset{
+ language=C,
+ frame=single,
+ basicstyle=\ttfamily\scriptsize,
+ commentstyle=\itshape,
+ emph={op, mode, reg, alias, mem, type, let, card, int, syntax, image, format, action,
+       if, then, else, elif, endif, coerce, exception, address, segment, buffer, register,
+       memory, mmu, range, ways, sets, match, tag, index, entry, policy, read, write,
+       var, hit, path, transition, guard},
+ emphstyle={\bfseries}}
+
+\usepackage{listings}
+\lstloadlanguages{Ruby}
+\lstset{
+basicstyle=\ttfamily\footnotesize\color{black},
+commentstyle=\ttfamily\color{javagreen},
+keywordstyle=\bfseries\color{javapurple},
+stringstyle=\color{javablue},
+showstringspaces=false,
+basewidth={.48em}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Links and References
+
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+\Large{Institute for System Programming of the Russian Academy of Sciences}
+\vfill
+\bf\Large{MicroTESK Installation and Usage}\\
+(UNDER DEVELOPMENT)
+\vfill
+\bf
+Moscow 2017
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\stepcounter{page} % Increase page counter by one
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{01-install/install}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
