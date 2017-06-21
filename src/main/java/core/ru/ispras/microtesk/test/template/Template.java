@@ -1040,14 +1040,13 @@ public final class Template {
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
-    final DataSectionBuilder dataSectionBuilder = dataManager.beginData(
+
+    return dataManager.beginData(
         getCurrentBlockId(),
         null != section ? section : Sections.get().getDataSection(),
         isGlobal,
         isSeparateFile
         );
-
-    return dataSectionBuilder;
   }
 
   public void endData() {
