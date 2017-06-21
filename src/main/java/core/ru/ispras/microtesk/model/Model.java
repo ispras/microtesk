@@ -27,6 +27,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.decoder.Decoder;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
@@ -149,6 +150,8 @@ public final class Model implements ModelStateManager {
 
   @Override
   public void setUseTempState(final boolean value) {
+    Sections.get().setUseTempState(value);
+
     for(final ModelStateManager stateManager : stateManagers) {
       stateManager.setUseTempState(value);
     }
@@ -167,6 +170,8 @@ public final class Model implements ModelStateManager {
 
   @Override
   public void resetState() {
+    Sections.get().resetState();
+
     for(final ModelStateManager stateManager : stateManagers) {
       stateManager.resetState();
     }

@@ -93,4 +93,16 @@ public final class Sections {
     final Map.Entry<BigInteger, Section> entry = sectionAddresses.floorEntry(va);
     return null != entry ? entry.getValue() : null;
   }
+
+  public void resetState() {
+    for (final Section section : sections.values()) {
+      section.resetState();
+    }
+  }
+
+  public void setUseTempState(final boolean value) {
+    for (final Section section : sections.values()) {
+      section.setUseTempState(value);
+    }
+  }
 }

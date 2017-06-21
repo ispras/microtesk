@@ -24,6 +24,7 @@ public final class Section {
   private final BigInteger baseVa;
   private final boolean translate;
 
+  private BigInteger pa;
   private BigInteger savedPa;
 
   public Section(
@@ -39,6 +40,7 @@ public final class Section {
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
 
+    this.pa = basePa;
     this.savedPa = null;
   }
 
@@ -54,6 +56,15 @@ public final class Section {
     return baseVa;
   }
 
+  public BigInteger getPa() {
+    return pa;
+  }
+
+  public void setPa(final BigInteger pa) {
+    InvariantChecks.checkNotNull(pa);
+    this.pa = pa;
+  }
+
   public BigInteger getSavedPa() {
     InvariantChecks.checkNotNull(savedPa, "Not assigned");
     return savedPa;
@@ -63,6 +74,22 @@ public final class Section {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(null == savedPa, "Already assigned.");
     this.savedPa = value;
+  }
+
+  void resetState() {
+    pa = basePa;
+  }
+
+  void setUseTempState(final boolean value) {
+    final boolean isTempStateUsed = savedPa != null;
+    if (value) {
+      InvariantChecks.checkFalse(isTempStateUsed, "Already in a temp state!");
+      savedPa = pa;
+    } else {
+      InvariantChecks.checkTrue(isTempStateUsed, "Not in a temp state!");
+      pa = savedPa;
+      savedPa = null;
+    }
   }
 
   @Override
