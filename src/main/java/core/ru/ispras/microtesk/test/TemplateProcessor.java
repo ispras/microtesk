@@ -29,7 +29,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
-import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AdapterResult;
@@ -83,7 +82,6 @@ final class TemplateProcessor implements Template.Processor {
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
   private final Deque<ConcreteSequence> interruptedSequences;
-  private Section currentSection;
   private boolean isProgramStarted;
   private boolean hasDispatchingCode;
 
@@ -108,7 +106,6 @@ final class TemplateProcessor implements Template.Processor {
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
-    this.currentSection = null;
     this.isProgramStarted = false;
     this.hasDispatchingCode = false;
 
@@ -116,23 +113,6 @@ final class TemplateProcessor implements Template.Processor {
       final String outDir = Printer.getOutDir(engineContext.getOptions());
       Tracer.initialize(outDir, engineContext.getOptions().getValueAsString(Option.CODE_PRE));
     }
-  }
-
-  @Override
-  public void beginSection(final Section section) {
-    InvariantChecks.checkNotNull(section);
-
-    if (null != currentSection) {
-      throw new GenerationAbortedException(String.format(
-          "Nested sections are not allowed: %s is nested into %s.", section, currentSection));
-    }
-
-    currentSection = section;
-  }
-
-  @Override
-  public void endSection() {
-    currentSection = null;
   }
 
   @Override

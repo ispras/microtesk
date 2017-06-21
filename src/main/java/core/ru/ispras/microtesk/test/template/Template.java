@@ -63,14 +63,10 @@ public final class Template {
   }
 
   public interface Processor {
-    void beginSection(Section section);
-    void endSection();
-
     void process(ExceptionHandler handler);
     void process(SectionKind section, Block block);
     void process(SectionKind section, Block block, int times);
     void process(DataSection data);
-
     void finish();
   }
 
@@ -91,8 +87,8 @@ public final class Template {
   // Default situations for instructions and groups
   private final Map<String, Variate<Situation>> defaultSituations;
 
-  private Section section;
-  private boolean sectionStart;
+  private Section wrappingSection;
+  private boolean wrappingSectionStart;
 
   private PreparatorBuilder preparatorBuilder;
   private BufferPreparatorBuilder bufferPreparatorBuilder;
@@ -127,8 +123,8 @@ public final class Template {
     this.streams = context.getStreams();
     this.processor = processor;
 
-    this.section = null;
-    this.sectionStart = false;
+    this.wrappingSection = null;
+    this.wrappingSectionStart = false;
 
     this.preparatorBuilder = null;
     this.bufferPreparatorBuilder = null;
@@ -223,7 +219,7 @@ public final class Template {
   }
 
   private void beginNewSection() {
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(true);
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, Sections.get().getCodeSection());
     rootBlockBuilder.setSequence(true);
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
@@ -250,9 +246,13 @@ public final class Template {
     InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
+    final Section selectedSection = null != section ?
+        section :
+        null != wrappingSection ? wrappingSection : Sections.get().getCodeSection();
+
     final BlockBuilder parent = blockBuilders.peek();
     final BlockBuilder current = parent.isExternal() ?
-        new BlockBuilder(false) : new BlockBuilder(parent);
+        new BlockBuilder(false, selectedSection) : new BlockBuilder(parent);
 
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
@@ -295,7 +295,10 @@ public final class Template {
       processor.process(SectionKind.MAIN, rootBlock);
     }
 
-    final BlockBuilder newRootBuilder = new BlockBuilder(true);
+    final Section selectedSection =
+        null != wrappingSection ? wrappingSection : Sections.get().getCodeSection();
+
+    final BlockBuilder newRootBuilder = new BlockBuilder(true, selectedSection);
     newRootBuilder.setSequence(true);
 
     blockBuilders.push(newRootBuilder);
@@ -403,10 +406,10 @@ public final class Template {
 
     this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
 
-    if (null != section && sectionStart) {
-      sectionStart = false;
+    if (null != wrappingSection && wrappingSectionStart) {
+      wrappingSectionStart = false;
       processExternalCode();
-      addCall(AbstractCall.newSection(section, true));
+      addCall(AbstractCall.newSection(wrappingSection, true));
     }
 
     addCall(call);
@@ -1041,9 +1044,12 @@ public final class Template {
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
 
+    final Section selectedSection =
+        null != section ? section : Sections.get().getDataSection();
+
     return dataManager.beginData(
         getCurrentBlockId(),
-        null != section ? section : Sections.get().getDataSection(),
+        selectedSection,
         isGlobal,
         isSeparateFile
         );
@@ -1080,13 +1086,13 @@ public final class Template {
     }
 
     debug("Set Origin to 0x%x", origin);
-    callBuilder.setOrigin(origin, false, null != section ? section.getBasePa() : null);
+    callBuilder.setOrigin(origin, false, null != wrappingSection ? wrappingSection.getBasePa() : null);
     callBuilder.setWhere(where);
   }
 
   public void setRelativeOrigin(final BigInteger delta, final Where where) {
     debug("Set Relative Origin to 0x%x", delta);
-    callBuilder.setOrigin(delta, true, null != section ? section.getBasePa() : null);
+    callBuilder.setOrigin(delta, true, null != wrappingSection ? wrappingSection.getBasePa() : null);
     callBuilder.setWhere(where);
   }
 
@@ -1101,27 +1107,23 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
-    InvariantChecks.checkTrue(null == section);
+    InvariantChecks.checkTrue(null == wrappingSection, "Nested sections are not allowed.");
     InvariantChecks.checkTrue(isMainSection && blockBuilders.peek().isExternal(),
         "section is allowed only in the root space of template's run method.");
 
-    section = newSection(name, pa, va, args);
-    sectionStart = true;
-
-    processor.beginSection(section);
+    wrappingSection = newSection(name, pa, va, args);
+    wrappingSectionStart = true;
   }
 
   public void endSection() {
-    if (null != section) {
-      final Section sectionVar = section;
-      section = null;
-      if (!sectionStart) {
+    if (null != wrappingSection) {
+      final Section sectionVar = wrappingSection;
+      wrappingSection = null;
+      if (!wrappingSectionStart) {
         processExternalCode();
         addCall(AbstractCall.newSection(sectionVar, false));
       }
     }
-
-    processor.endSection();
   }
 
   public Section newSection(

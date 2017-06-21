@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
@@ -32,6 +33,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 public final class BlockBuilder {
   private final BlockId blockId;
   private final boolean isExternal;
+  private final Section section;
   private Where where;
 
   private final Map<String, Object> attributes;
@@ -52,17 +54,18 @@ public final class BlockBuilder {
   private boolean isSequence;
   private boolean isIterate;
 
-  protected BlockBuilder(final boolean isExternal) {
-    this(new BlockId(), isExternal);
+  protected BlockBuilder(final boolean isExternal, final Section section) {
+    this(new BlockId(), isExternal, section);
   }
 
   protected BlockBuilder(final BlockBuilder parent) {
-    this(parent.getBlockId().nextChildId(), false);
+    this(parent.getBlockId().nextChildId(), false, parent.section);
   }
 
-  private BlockBuilder(final BlockId blockId, final boolean isExternal) {
+  private BlockBuilder(final BlockId blockId, final boolean isExternal, final Section section) {
     this.blockId = blockId;
     this.isExternal = isExternal;
+    this.section = section;
     this.where = null;
 
     this.attributes = new HashMap<>();
@@ -208,7 +211,9 @@ public final class BlockBuilder {
 
       nestedBlocks.add(new Block(
           blockId,
-          where, true,
+          where,
+          section,
+          true,
           false,
           Collections.<String, Object>emptyMap(),
           iterator,
@@ -290,6 +295,7 @@ public final class BlockBuilder {
     return new Block(
         blockId,
         where,
+        section,
         isAtomic,
         isExternal,
         attributes,
