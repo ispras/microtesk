@@ -30,13 +30,19 @@ class MiniMipsBaseTemplate < Template
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', "="
+
+    # Sets physical address used to allocate the data section
+    set_option_value 'base-data-physical-address', 0x00080000
+
+    # Sets virtual address that correponds to the beginning of the data section
+    set_option_value 'base-data-virtual-address', 0x00080000
   end
 
   def pre
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:target => 'M', :base_virtual_address => 0x00080000) {
+    data_config(:target => 'M') {
       define_type :id => :byte, :text => '.byte', :type => type('card', 8)
       define_type :id => :half, :text => '.half', :type => type('card', 16)
       define_type :id => :word, :text => '.word', :type => type('card', 32)
