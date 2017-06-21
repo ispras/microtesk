@@ -31,10 +31,10 @@ class MiniMipsBaseTemplate < Template
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', "="
 
-    # Sets physical address used to allocate the data section
+    # Sets physical address used as a base address for data section allocation
     set_option_value 'base-data-physical-address', 0x00080000
 
-    # Sets virtual address that correponds to the beginning of the data section
+    # Sets virtual address that corresponds to the beginning of the data section
     set_option_value 'base-data-virtual-address', 0x00080000
   end
 
