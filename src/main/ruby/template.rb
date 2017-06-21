@@ -772,16 +772,7 @@ class Template
       separate_file = false
     end
 
-    section = nil
-    if attrs.has_key?(:section)
-      sectionAttrs = get_attribute attrs,   :section
-      name    = get_attribute sectionAttrs, :name
-      pa      = get_attribute sectionAttrs, :pa
-      va      = get_attribute sectionAttrs, :va
-      args    = get_attribute sectionAttrs, :args
-      section = @template.newSection name, pa, va, args
-    end
-
+    section = get_section_attribute attrs
     @data_manager.beginData section, global, separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
@@ -912,16 +903,7 @@ class Template
       separate_file = false
     end
 
-    section = nil
-    if attrs.has_key?(:section)
-      sectionAttrs = get_attribute attrs,   :section
-      name    = get_attribute sectionAttrs, :name
-      pa      = get_attribute sectionAttrs, :pa
-      va      = get_attribute sectionAttrs, :va
-      args    = get_attribute sectionAttrs, :args
-      section = @template.newSection name, pa, va, args
-    end
-
+    section = get_section_attribute attrs
     @data_manager.beginData section, global, separate_file
 
     page_table = PageTable.new self, @data_manager
@@ -964,6 +946,19 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance
     engine.getOptionValue name
+  end
+
+  def get_section_attribute(attrs)
+    section = nil
+    if attrs.has_key?(:section)
+      sectionAttrs = get_attribute attrs,   :section
+      name    = get_attribute sectionAttrs, :name
+      pa      = get_attribute sectionAttrs, :pa
+      va      = get_attribute sectionAttrs, :va
+      args    = get_attribute sectionAttrs, :args
+      section = @template.newSection name, pa, va, args
+    end
+    section
   end
 
 end # Template
@@ -1186,7 +1181,6 @@ class DataManager
       raise MTRubyError, "Method '#{meth}' is not available in data sections."
     end
   end
-
 end # DataManager
 
 # Methods init, read, write are defined in a separate class to
