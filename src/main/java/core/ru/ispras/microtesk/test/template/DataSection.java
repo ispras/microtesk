@@ -127,8 +127,8 @@ public final class DataSection {
     return directives;
   }
 
-  public boolean isSection() {
-    return null != section;
+  public Section getSection() {
+    return section;
   }
 
   public boolean isGlobal() {
