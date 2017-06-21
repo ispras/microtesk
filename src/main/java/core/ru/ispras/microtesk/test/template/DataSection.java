@@ -160,7 +160,11 @@ public final class DataSection {
         directive.apply(allocator);
 
         if (Logger.isDebug()) {
-          Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          if (!address.equals(allocator.getCurrentAddress())) {
+            Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          } else {
+            Logger.debug(directive.getText());
+          }
         }
       }
     } finally {
