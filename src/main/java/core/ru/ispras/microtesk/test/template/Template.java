@@ -164,7 +164,7 @@ public final class Template {
 
   public void beginPreSection() {
     Logger.debugHeader("Started Processing Initialization Section");
-    beginNewRootBlock();
+    this.callBuilder = new AbstractCallBuilder(new BlockId());
     isMainSection = false;
   }
 
@@ -176,7 +176,7 @@ public final class Template {
 
   public void beginPostSection() {
     Logger.debugHeader("Started Processing Finalization Section");
-    beginNewRootBlock();
+    this.callBuilder = new AbstractCallBuilder(new BlockId());
     isMainSection = false;
   }
 
@@ -188,7 +188,7 @@ public final class Template {
 
   public void beginMainSection() {
     Logger.debugHeader("Started Processing Main Section");
-    beginNewRootBlock();
+    this.callBuilder = new AbstractCallBuilder(new BlockId());
     isMainSection = true;
   }
 
@@ -215,6 +215,10 @@ public final class Template {
   }
 
   private BlockBuilder currentBlockBuilder() {
+    if (blockBuilders.isEmpty()) {
+      beginNewRootBlock();
+    }
+
     return blockBuilders.peek();
   }
 
@@ -230,8 +234,6 @@ public final class Template {
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
-
-    this.callBuilder = new AbstractCallBuilder(rootBlockBuilder.getBlockId());
   }
 
   private BlockBuilder endCurrentSection() {
@@ -249,7 +251,6 @@ public final class Template {
   }
 
   public BlockBuilder beginBlock() {
-    InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
     final BlockBuilder parent = currentBlockBuilder();
@@ -293,7 +294,6 @@ public final class Template {
   }
 
   private void processExternalCode() {
-    InvariantChecks.checkTrue(blockBuilders.size() == 1);
     endBuildingCall();
 
     final BlockBuilder rootBuilder = blockBuilders.pop();

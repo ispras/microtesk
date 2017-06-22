@@ -28,10 +28,10 @@ class X86BaseTemplate < Template
     @kseg0_cache_policy = 0
 
     if i386_assembler == true then
-      set_option_value 'code-section-keyword', 'section .text'
+      set_option_value 'text-section-keyword', 'section .text'
       set_option_value 'data-section-keyword', 'section .data'
     else
-      set_option_value 'code-section-keyword', ''
+      set_option_value 'text-section-keyword', ''
       set_option_value 'data-section-keyword', ''
     end
 
@@ -43,9 +43,6 @@ class X86BaseTemplate < Template
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', '='
-
-    # set_option_value 'base-virtual-address', 0xa0002000
-    # set_option_value 'base-physical-address', 0x00002000
   end
 
   ##################################################################################################
@@ -58,7 +55,7 @@ class X86BaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:text => 'section .data', :target => 'MEM', :base_virtual_address => 0x700) {
+    data_config(:text => 'section .data', :target => 'MEM') {
       define_type :id => :byte,  :text => 'db',  :type => type('card', 8)
       define_type :id => :word,  :text => 'dw',  :type => type('card', 16)
 
@@ -66,6 +63,22 @@ class X86BaseTemplate < Template
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
+
+    #
+    # Defines .text section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_text(:pa => 0x0, :va => 0x0) {}
+
+    #
+    # Defines .data section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_data(:pa => 0x700, :va => 0x700) {}
 
     #
     # Simple exception handler. Continues execution from the next instruction.
