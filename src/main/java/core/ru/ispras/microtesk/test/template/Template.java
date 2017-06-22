@@ -214,6 +214,10 @@ public final class Template {
     }
   }
 
+  private BlockBuilder currentBlockBuilder() {
+    return blockBuilders.peek();
+  }
+
   private void beginNewRootBlock() {
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
@@ -241,14 +245,14 @@ public final class Template {
   }
 
   private BlockId getCurrentBlockId() {
-    return blockBuilders.peek().getBlockId();
+    return currentBlockBuilder().getBlockId();
   }
 
   public BlockBuilder beginBlock() {
     InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
-    final BlockBuilder parent = blockBuilders.peek();
+    final BlockBuilder parent = currentBlockBuilder();
 
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
@@ -274,7 +278,7 @@ public final class Template {
     final BlockBuilder builder = blockBuilders.pop();
     final Block block;
 
-    final boolean isRoot = blockBuilders.peek().isExternal();
+    final boolean isRoot = currentBlockBuilder().isExternal();
     if (isRoot) {
       // A root block is just returned to the caller.
       // Then a new root block builder is created and pushed to the stack.
@@ -282,7 +286,7 @@ public final class Template {
     } else {
       // A non-root block is added to its parent.
       block = builder.build();
-      blockBuilders.peek().addBlock(block);
+      currentBlockBuilder().addBlock(block);
     }
 
     return new BlockHolder(block);
@@ -333,7 +337,7 @@ public final class Template {
       }
 
       if (!block.getBlockId().isRoot()) {
-        final BlockBuilder wrapping = blockBuilders.peek();
+        final BlockBuilder wrapping = currentBlockBuilder();
         throw new GenerationAbortedException(String.format(
             "Running nested blocks is not allowed. Nested is at: %s, wrapping is at: %s",
             block.getWhere(),
@@ -343,14 +347,14 @@ public final class Template {
     }
 
     public BlockHolder add() {
-      blockBuilders.peek().addBlock(block);
+      currentBlockBuilder().addBlock(block);
       markBlockAsUsed();
       return this;
     }
 
     public BlockHolder add(final int times) {
       for (int index = 0; index < times; index++) {
-        blockBuilders.peek().addBlock(block);
+        currentBlockBuilder().addBlock(block);
       }
       markBlockAsUsed();
       return this;
@@ -421,7 +425,7 @@ public final class Template {
       } else if (null != exceptionHandlerBuilder) {
         exceptionHandlerBuilder.addCall(call);
       } else {
-        blockBuilders.peek().addCall(call);
+        currentBlockBuilder().addCall(call);
       }
     }
   }
@@ -792,19 +796,19 @@ public final class Template {
     // TO THE CURRENT TEST SEQUENCE.
     final Stream stream = streams.addStream(startLabelName, dataSource, indexSource, length);
     for (final Call call : stream.getInit()) {
-      blockBuilders.peek().addCall(call);
+      currentBlockBuilder().addCall(call);
     }
 
     int index = 0;
     while (index < length) {
       for (final Call call : stream.getRead()) {
-        blockBuilders.peek().addCall(call);
+        currentBlockBuilder().addCall(call);
       }
       index++;
 
       if (index < length) {
         for (final Call call : stream.getWrite()) {
-          blockBuilders.peek().addCall(call);
+          currentBlockBuilder().addCall(call);
         }
         index++;
       }
@@ -1024,7 +1028,7 @@ public final class Template {
     endBuildingCall();
 
     final boolean isGlobalContext =
-        blockBuilders.peek().isExternal() &&
+        currentBlockBuilder().isExternal() &&
         preparatorBuilder == null &&
         bufferPreparatorBuilder == null &&
         memoryPreparatorBuilder == null &&
@@ -1074,7 +1078,7 @@ public final class Template {
 
   public void setOrigin(final BigInteger origin, final Where where) {
     // .org directives in external code split it into parts (only for main section)
-    if (isMainSection && blockBuilders.peek().isExternal()) {
+    if (isMainSection && currentBlockBuilder().isExternal()) {
       processExternalCode();
     }
 
@@ -1184,14 +1188,14 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    blockBuilders.peek().setPrologue(true);
+    currentBlockBuilder().setPrologue(true);
   }
 
   public void endPrologue() {
     endBuildingCall();
     debug("End Test Case Level Prologue");
 
-    final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+    final BlockBuilder currentBlockBuilder = currentBlockBuilder();
     currentBlockBuilder.setPrologue(false);
 
     if (currentBlockBuilder.isExternal()) {
@@ -1210,14 +1214,14 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    blockBuilders.peek().setEpilogue(true);
+    currentBlockBuilder().setEpilogue(true);
   }
 
   public void endEpilogue() {
     endBuildingCall();
     debug("End Test Case Level Epilogue");
 
-    final BlockBuilder currentBlockBuilder = blockBuilders.peek();
+    final BlockBuilder currentBlockBuilder = currentBlockBuilder();
     currentBlockBuilder.setEpilogue(false);
 
     if (currentBlockBuilder.isExternal()) {
