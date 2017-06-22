@@ -35,6 +35,9 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
       # Nothing
     }
 
+    section_text(:pa => 0x0, :va => 0x0) {}
+    section_data(:pa => 0x00080000, :va => 0x00080000) {}
+
     preparator(:target => 'RCOP0') {
       # Nothing
     }
