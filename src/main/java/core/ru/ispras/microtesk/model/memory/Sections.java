@@ -52,7 +52,6 @@ public final class Sections {
   }
 
   public Section getTextSection() {
-    InvariantChecks.checkNotNull(textSection);
     return textSection;
   }
 
@@ -62,7 +61,6 @@ public final class Sections {
   }
 
   public Section getDataSection() {
-    InvariantChecks.checkNotNull(dataSection);
     return dataSection;
   }
 
