@@ -808,6 +808,10 @@ class Template
     2 ** n
   end
 
+  # -------------------------------------------------------------------------- #
+  # Sections                                                                   #
+  # -------------------------------------------------------------------------- #
+
   def section(attrs, &contents)
     name = get_attribute attrs, :name
 
@@ -816,6 +820,26 @@ class Template
     args = attrs[:args]
 
     @template.beginSection name, pa, va, args
+    self.instance_eval &contents
+    @template.endSection
+  end
+
+  def section_text(attrs, &contents)
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
+
+    @template.beginSectionText pa, va, args
+    self.instance_eval &contents
+    @template.endSection
+  end
+
+  def section_data(attrs, &contents)
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
+
+    @template.beginSectionData pa, va, args
     self.instance_eval &contents
     @template.endSection
   end

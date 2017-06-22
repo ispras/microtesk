@@ -18,30 +18,46 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Section {
-  private final String text;
-
+  private final String name;
   private final BigInteger basePa;
   private final BigInteger baseVa;
   private final boolean translate;
+  private final String args;
+  private final String text;
 
   private BigInteger pa;
   private BigInteger savedPa;
 
   public Section(
-      final String text,
+      final String name,
       final BigInteger basePa,
       final BigInteger baseVa) {
-    InvariantChecks.checkNotNull(text);
+    this(name, basePa, baseVa, "");
+  }
+
+  public Section(
+      final String name,
+      final BigInteger basePa,
+      final BigInteger baseVa,
+      final String args) {
+    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(basePa);
     InvariantChecks.checkNotNull(baseVa);
+    InvariantChecks.checkNotNull(args);
 
-    this.text = text;
+    this.name = name;
     this.basePa = basePa;
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
+    this.args = args;
+    this.text = args.isEmpty() ? name : name + ", " + args;
 
     this.pa = basePa;
     this.savedPa = null;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public String getText() {
@@ -54,6 +70,10 @@ public final class Section {
 
   public BigInteger getBaseVa() {
     return baseVa;
+  }
+
+  public String getArgs() {
+    return args;
   }
 
   public BigInteger getPa() {
@@ -94,7 +114,7 @@ public final class Section {
 
   @Override
   public String toString() {
-    return String.format("%s [pa=0x%016x, va=0x%016x]", text, basePa, baseVa);
+    return String.format("%s [pa=0x%016x, va=0x%016x]", getText(), basePa, baseVa);
   }
 
   public BigInteger virtualToPhysical(final BigInteger va) {

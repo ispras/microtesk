@@ -1095,8 +1095,54 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
-    final Section section = newSection(name, pa, va, args);
+    InvariantChecks.checkNotNull(name);
+
+    final String keyword = String.format(".section \"%s\"", name);
+    Section section = Sections.get().getSection(keyword);
+
+    if (null == section) {
+      section = new Section(keyword, pa, va, args);
+      Sections.get().addSection(section);
+    } else {
+      checkSectionRedefinition(section, pa, va, args);
+    }
+
     sections.push(section);
+  }
+
+  public void beginSectionText(
+      final BigInteger pa,
+      final BigInteger va,
+      final String args) {
+    Section section = Sections.get().getTextSection();
+
+    if (null == section) {
+      final String keyword = context.getOptions().getValueAsString(Option.CODE_SECTION_KEYWORD);
+      section = new Section(keyword, pa, va);
+      Sections.get().setTextSection(section);
+    } else {
+      checkSectionRedefinition(section, pa, va, args);
+    }
+
+    sections.push(section);
+  }
+
+  public void beginSectionData(
+      final BigInteger pa,
+      final BigInteger va,
+      final String args) {
+    Section section = Sections.get().getDataSection();
+
+    if (null == section) {
+      final String keyword = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
+      section = new Section(keyword, pa, va);
+      Sections.get().setDataSection(section);
+    } else {
+      checkSectionRedefinition(section, pa, va, args);
+    }
+
+    sections.push(section);
+
   }
 
   public void endSection() {
@@ -1104,28 +1150,16 @@ public final class Template {
      sections.pop();
   }
 
-  public Section newSection(
-       final String name,
-       final BigInteger pa,
-       final BigInteger va,
-       final String args) {
-     InvariantChecks.checkNotNull(name);
-     InvariantChecks.checkNotNull(pa);
-     InvariantChecks.checkNotNull(va);
-     InvariantChecks.checkNotNull(args);
-
-     final String text = String.format(".section \"%s\", %s", name, args);
-     Section section = Sections.get().getSection(text);
-     if (null != section) {
-       if (!pa.equals(section.getBasePa()) || !va.equals(section.getBaseVa())) {
-         throw new GenerationAbortedException(text + " is already defined as " + section);
-       }
-     } else {
-       section = new Section(text, pa, va);
-       Sections.get().addSection(section);
-     }
-
-    return section;
+  private static void checkSectionRedefinition(
+      final Section section,
+      final BigInteger pa,
+      final BigInteger va,
+      final String args) {
+    if (null != pa && !section.getBasePa().equals(pa) ||
+        null != va && !section.getBaseVa().equals(va) ||
+        null != args && !section.getArgs().equals(args)) {
+      Logger.warning("Changing section attributes is not allowed: %s", section);
+    }
   }
 
   public void beginPrologue() {
