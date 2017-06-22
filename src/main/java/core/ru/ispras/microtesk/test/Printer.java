@@ -221,8 +221,10 @@ public final class Printer {
 
   /**
    * Prints the specified instruction call sequence.
-   * 
+   *
+   * @param observer Information on the processing element state.
    * @param sequence Instruction call sequence.
+   *
    * @throws NullPointerException if the parameter is null.
    * @throws ConfigurationException if failed to evaluate one of the output objects associated with
    *         an instruction call in the sequence.

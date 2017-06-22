@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.ConcreteSequence;
 
 /**
- * {@link AdapterResult} defines result of an {@link Adapter}.
+ * {@link AdapterResult} defines result of an adapter.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

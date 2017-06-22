@@ -35,7 +35,7 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 /**
- * {@link EngineContext} contains information required by an {@link Engine} and an {@link Adapter}.
+ * {@link EngineContext} contains information required by an {@link Engine}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
