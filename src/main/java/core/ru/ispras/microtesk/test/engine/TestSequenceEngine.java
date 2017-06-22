@@ -298,9 +298,10 @@ public final class TestSequenceEngine {
         engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
     final CodeAllocator codeAllocator = new CodeAllocator(
-        engineContext.getModel(), labelManager, allocationAddress, isFetchDecodeEnabled);
+        engineContext.getModel(), labelManager, isFetchDecodeEnabled);
 
     codeAllocator.init();
+    codeAllocator.setAddress(allocationAddress);
     codeAllocator.allocateCalls(sequence, sequenceIndex);
 
     final ConcreteCall first = sequence.get(0);

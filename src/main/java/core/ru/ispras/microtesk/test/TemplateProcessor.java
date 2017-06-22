@@ -92,9 +92,6 @@ final class TemplateProcessor implements Template.Processor {
     final Model model = engineContext.getModel();
     final LabelManager labelManager = engineContext.getLabelManager();
 
-    final long baseAddress =
-        engineContext.getOptions().getValueAsBigInteger(Option.BASE_VA).longValue();
-
     final boolean isFetchDecodeEnabled =
         engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
@@ -102,7 +99,7 @@ final class TemplateProcessor implements Template.Processor {
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
     this.postponedBlocks = new LinkedHashSet<>();
-    this.allocator = new CodeAllocator(model, labelManager, baseAddress, isFetchDecodeEnabled);
+    this.allocator = new CodeAllocator(model, labelManager, isFetchDecodeEnabled);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();

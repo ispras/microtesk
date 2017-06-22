@@ -35,7 +35,6 @@ import ru.ispras.microtesk.test.template.LabelReference;
 public final class CodeAllocator {
   private final Model model;
   private final LabelManager labelManager;
-  private final long baseAddress;
   private final boolean placeToMemory;
 
   private Code code;
@@ -44,29 +43,33 @@ public final class CodeAllocator {
   public CodeAllocator(
       final Model model,
       final LabelManager labelManager,
-      final long baseAddress,
       final boolean placeToMemory) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
 
     this.model = model;
     this.labelManager = labelManager;
-    this.baseAddress = baseAddress;
     this.code = null;
-    this.address = baseAddress;
+    this.address = 0;
     this.placeToMemory = placeToMemory;
   }
 
   public void init() {
     InvariantChecks.checkTrue(null == code);
     code = new Code();
-    address = baseAddress;
+
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+    address = section.getBaseVa().longValue();
   }
 
   public void reset() {
     InvariantChecks.checkNotNull(code);
     code = null;
-    address = baseAddress;
+
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+    address = section.getBaseVa().longValue();
   }
 
   public Code getCode() {
