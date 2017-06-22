@@ -164,7 +164,7 @@ public final class Template {
 
   public void beginPreSection() {
     Logger.debugHeader("Started Processing Initialization Section");
-    beginNewSection();
+    beginNewRootBlock();
     isMainSection = false;
   }
 
@@ -176,7 +176,7 @@ public final class Template {
 
   public void beginPostSection() {
     Logger.debugHeader("Started Processing Finalization Section");
-    beginNewSection();
+    beginNewRootBlock();
     isMainSection = false;
   }
 
@@ -188,7 +188,7 @@ public final class Template {
 
   public void beginMainSection() {
     Logger.debugHeader("Started Processing Main Section");
-    beginNewSection();
+    beginNewRootBlock();
     isMainSection = true;
   }
 
@@ -214,8 +214,10 @@ public final class Template {
     }
   }
 
-  private void beginNewSection() {
-    final Section section = Sections.get().getTextSection();
+  private void beginNewRootBlock() {
+    final Section section =
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
     checkSectionDefined(section,
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
@@ -225,7 +227,7 @@ public final class Template {
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
 
-    this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
+    this.callBuilder = new AbstractCallBuilder(rootBlockBuilder.getBlockId());
   }
 
   private BlockBuilder endCurrentSection() {
@@ -298,17 +300,7 @@ public final class Template {
       processor.process(SectionKind.MAIN, rootBlock);
     }
 
-    final Section section =
-        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
-
-    checkSectionDefined(section,
-        context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
-
-    final BlockBuilder newRootBuilder = new BlockBuilder(true, section);
-    newRootBuilder.setSequence(true);
-
-    blockBuilders.push(newRootBuilder);
-    callBuilder = new AbstractCallBuilder(getCurrentBlockId());
+    beginNewRootBlock();
   }
 
   public final class BlockHolder {
