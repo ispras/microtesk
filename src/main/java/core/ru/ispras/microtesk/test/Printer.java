@@ -286,11 +286,6 @@ public final class Printer {
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
-      if (call.getSection() != null && call.getSection().second) {
-        final Section section = call.getSection().first;
-        printText(section.getText());
-      }
-
       printOutputs(observer, call.getOutputs());
       printLabels(call.getLabels());
 
