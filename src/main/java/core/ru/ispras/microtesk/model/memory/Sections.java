@@ -22,56 +22,47 @@ import java.util.TreeMap;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Sections {
-  public interface Initializer {
-    Section makeCodeSection();
-    Section makeDataSection();
-  }
-
   private static Sections instance = null;
-  private static Initializer initializer = null;
-
-  private final Section codeSection;
-  private final Section dataSection;
 
   private final HashMap<String, Section> sections;
   private final TreeMap<BigInteger, Section> sectionAddresses;
 
-  private Sections(final Section codeSection, final Section dataSection) {
-    InvariantChecks.checkNotNull(codeSection);
-    InvariantChecks.checkNotNull(dataSection);
+  private Section textSection;
+  private Section dataSection;
 
-    this.codeSection = codeSection;
-    this.dataSection = dataSection;
-
+  private Sections() {
     this.sections = new HashMap<>();
     this.sectionAddresses = new TreeMap<>();
 
-    addSection(codeSection);
-    addSection(dataSection);
-  }
-
-  public static void setInitializer(final Initializer value) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(null == initializer, "Initializer is already set!");
-    InvariantChecks.checkTrue(null == instance, "Already initialized!");
-    initializer = value;
+    this.textSection = null;
+    this.dataSection = null;
   }
 
   public static Sections get() {
     if (null == instance) {
-      InvariantChecks.checkNotNull(initializer, "Initializer is not set!");
-      instance = new Sections(initializer.makeCodeSection(), initializer.makeDataSection());
-      initializer = null;
+      instance = new Sections();
     }
 
     return instance;
   }
 
-  public Section getCodeSection() {
-    return codeSection;
+  public void setTextSection(final Section section) {
+    addSection(section);
+    this.textSection = section;
+  }
+
+  public Section getTextSection() {
+    InvariantChecks.checkNotNull(textSection);
+    return textSection;
+  }
+
+  public void setDataSection(final Section section) {
+    addSection(section);
+    this.dataSection = section;
   }
 
   public Section getDataSection() {
+    InvariantChecks.checkNotNull(dataSection);
     return dataSection;
   }
 
@@ -102,12 +93,7 @@ public final class Sections {
 
   public BigInteger virtualToPhysical(final BigInteger va) {
     final Section section = findSection(va);
-    if (null == section) {
-      throw new IllegalArgumentException(String.format(
-          "Unable to find section for virtual address 0x%016x.", va));
-    }
-
-    return section.virtualToPhysical(va);
+    return null != section ? section.virtualToPhysical(va) : va;
   }
 
   private Section findSection(final BigInteger va) {

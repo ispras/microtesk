@@ -215,7 +215,7 @@ public final class Template {
   }
 
   private void beginNewSection() {
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, Sections.get().getCodeSection());
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, Sections.get().getTextSection());
     rootBlockBuilder.setSequence(true);
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
@@ -245,7 +245,7 @@ public final class Template {
     final BlockBuilder parent = blockBuilders.peek();
 
     final Section section =
-        !sections.isEmpty() ? sections.peek() : Sections.get().getCodeSection();
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
 
     final BlockBuilder current = parent.isExternal() ?
         new BlockBuilder(false, section) : new BlockBuilder(parent);
@@ -292,7 +292,7 @@ public final class Template {
     }
 
     final Section section =
-        !sections.isEmpty() ? sections.peek() : Sections.get().getCodeSection();
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
 
     final BlockBuilder newRootBuilder = new BlockBuilder(true, section);
     newRootBuilder.setSequence(true);
